@@ -11,11 +11,10 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, load, replace_in_file, rmdir, mkdir, apply_conandata_patches, rm, unzip, \
     copy, save
 from conan.tools.gnu import AutotoolsToolchain, PkgConfigDeps, AutotoolsDeps, Autotools
-from conan.tools.layout import basic_layout, vs_layout
-from conan.tools.microsoft import MSBuild, is_msvc, msvc_runtime_flag, MSBuildDeps, MSBuildToolchain, VCVars
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import MSBuild, is_msvc, msvc_runtime_flag, MSBuildDeps, MSBuildToolchain, VCVars, vs_layout
 from conan.tools.microsoft.visual import msvc_version_to_toolset_version
 from conan.tools.scm import Version
-from conans.tools import get_gnu_triplet
 from jinja2 import Template
 
 required_conan_version = ">=1.51.3"
@@ -200,30 +199,15 @@ class CPythonConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC  # once removed by config_options, need try..except for a second del
-            except ValueError:
-                pass
+            self.options.rm_safe("fPIC")
         if not self._supports_modules:
             del self.options.with_bz2
             del self.options.with_sqlite3
             del self.options.with_tkinter
-            try:
-                del self.options.with_bsddb
-            except ValueError:
-                pass
-            try:
-                del self.options.with_lzma
-            except ValueError:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except ValueError:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except ValueError:
-            pass
+            self.options.rm_safe("with_bsddb")
+            self.options.rm_safe("with_lzma")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         if is_msvc(self):
@@ -375,11 +359,12 @@ class CPythonConan(ConanFile):
                 # Building _testembed fails due to missing pthread/rt symbols
                 tc.extra_ldflags.append("-lpthread")
 
-            if cross_building(self) and not cross_building(self, skip_x64_x86=True):
-                # Building from x86_64 to x86 is not a "real" cross build, so set build == host
-                tc.configure_args.extend([
-                    f"--build={get_gnu_triplet(str(self.settings.os), str(self.settings.arch), str(self.settings.compiler))}",
-                    ])
+            # FIXME: @jellespijker
+            # if cross_building(self) and not cross_building(self, skip_x64_x86=True):
+            #     # Building from x86_64 to x86 is not a "real" cross build, so set build == host
+            #     tc.configure_args.extend([
+            #         f"--build={get_gnu_triplet(str(self.settings.os), str(self.settings.arch), str(self.settings.compiler))}",
+            #         ])
 
             tc.generate()
             # generate dependencies for pkg-config
