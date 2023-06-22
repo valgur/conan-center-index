@@ -1,21 +1,32 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment
 import contextlib
 import os
 import shutil
 
+from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout
+
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
     exports_sources = "configure.ac", "Makefile.am", "test_package.c"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
-        self.build_requires("automake/1.16.4")
+            self.tool_requires("msys2/cci.latest")
+        self.tool_requires("automake/1.16.4")
+
+    def layout(self):
+        cmake_layout(self)
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -65,6 +76,6 @@ class TestPackageConan(ConanFile):
                 autotools.make()
 
     def test(self):
-        if not tools.cross_building(self):
-            bin_path = os.path.join(".", "test_package")
-            self.run(bin_path, run_environment=True)
+        if can_run(self):
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+            self.run(bin_path, env="conanrun")

@@ -1,15 +1,26 @@
-from conans import ConanFile, tools
-from contextlib import contextmanager
 import os
 import shutil
+from contextlib import contextmanager
+
+from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
     exports_sources = "a.cpp", "b.cpp", "main.c", "main.cpp", "wscript"
 
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
+    def layout(self):
+        cmake_layout(self)
+
     def build(self):
-        if tools.cross_building(self.settings):
+        if not can_run(self):
             return
 
         for src in self.exports_sources:
@@ -36,7 +47,9 @@ class TestPackageConan(ConanFile):
             yield
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if can_run(self):
             with self._add_ld_search_path():
-                self.run(os.path.join("build", "app"), run_environment=True)
-                self.run(os.path.join("build", "app2"), run_environment=True)
+                bin_path = os.path.join(self.cpp.build.bindir, "app")
+                self.run(bin_path, env="conanrun")
+                bin_path = os.path.join(self.cpp.build.bindir, "app2")
+                self.run(bin_path, env="conanrun")

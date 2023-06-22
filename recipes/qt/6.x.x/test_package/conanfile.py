@@ -2,23 +2,30 @@ import os
 import shutil
 
 from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.build import can_run
 from conan.tools.build import cross_building
+from conan.tools.cmake import cmake_layout, CMake
 from conan.tools.files import chdir, mkdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-from conans import tools, Meson, RunEnvironment, CMake
-from conan.errors import ConanException
-
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package_multi", "cmake_find_package", "pkg_config", "qmake"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "PkgConfigDeps", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
         self.tool_requires("cmake/3.25.3")
         if self._meson_supported():
             self.tool_requires("meson/1.0.1")
+
+    def layout(self):
+        cmake_layout(self)
 
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
@@ -139,7 +146,7 @@ Examples = {folder}/datadir/examples""",
         if not self._qmake_supported():
             return
         self.output.info("Testing qmake")
-        bin_path = os.path.join("qmake_folder", "bin")
+        bin_path = os.path.join("qmake_folder", self.cpp.build.bindir)
         if self.settings.os == "Macos":
             bin_path = os.path.join(bin_path, "test_package.app", "Contents", "MacOS")
         shutil.copy(os.path.join(self.generators_folder, "qt.conf"), bin_path)
@@ -153,11 +160,11 @@ Examples = {folder}/datadir/examples""",
 
     def _test_with_cmake_find_package_multi(self):
         self.output.info("Testing CMake_find_package_multi")
-        shutil.copy(os.path.join(self.generators_folder, "qt.conf"), "bin")
-        self.run(os.path.join("bin", "test_package"), run_environment=True)
+        shutil.copy(os.path.join(self.generators_folder, "qt.conf"), self.cpp.build.bindir)
+        self.run(os.path.join(self.cpp.build.bindir, "test_package"), run_environment=True)
 
     def test(self):
-        if not cross_building(self, skip_x64_x86=True):
+        if can_run(self):
             self._test_with_qmake()
             self._test_with_meson()
             self._test_with_cmake_find_package_multi()

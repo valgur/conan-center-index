@@ -1,16 +1,23 @@
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.tools.cmake import cmake_layout, CMake
+import os
 
-import os.path
 
+class TestPackageConan(ConanFile):
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
 
-class LLVMCoreTestPackageConan(ConanFile):
-    settings = ("os", "arch", "compiler", "build_type")
-    generators = ("cmake", "cmake_find_package")
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
+    def layout(self):
+        cmake_layout(self)
 
     def build(self):
-        build_system = CMake(self)
-        build_system.configure()
-        build_system.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def test(self):
         test_package = not tools.cross_building(self.settings)

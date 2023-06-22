@@ -1,14 +1,24 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, tools
 import os
-import shutil
+
+from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout
 
 
-class TestPackage(ConanFile):
+class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
         if hasattr(self, "settings_build"):
-            self.build_requires(str(self.requires["ftjam"]))
+            self.tool_requires(str(self.requires["ftjam"]))
+
+    def layout(self):
+        cmake_layout(self)
 
     def build(self):
         for f in ("header.h", "main.c", "source.c", "Jamfile"):
@@ -25,6 +35,6 @@ class TestPackage(ConanFile):
                 self.run("{} -d7".format(tools.get_env("JAM")), run_environment=True)
 
     def test(self):
-        if not tools.cross_building(self):
-            bin_path = os.path.join(".", "test_package")
-            self.run(bin_path, run_environment=True)
+        if can_run(self):
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+            self.run(bin_path, env="conanrun")
