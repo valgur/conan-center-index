@@ -32,10 +32,6 @@ class TCSBankUriTemplateConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -64,8 +60,10 @@ class TCSBankUriTemplateConan(ConanFile):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, min_req_cppstd)
         else:
-            self.output.warn("%s recipe lacks information about the %s compiler"
-                             " standard version support." % (self.name, compiler_name))
+            self.output.warn(
+                "%s recipe lacks information about the %s compiler"
+                " standard version support." % (self.name, compiler_name)
+            )
 
         # Exclude not supported compilers
         compilers_required = {
@@ -74,20 +72,35 @@ class TCSBankUriTemplateConan(ConanFile):
             "clang": "6.0",
             "apple-clang": "10.0",
         }
-        if compiler_name not in compilers_required or compiler_version < compilers_required[compiler_name]:
+        if (
+            compiler_name not in compilers_required
+            or compiler_version < compilers_required[compiler_name]
+        ):
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s. %s %s is not supported." %
-                (self.name, min_req_cppstd, compiler_name, compiler_version))
+                "%s requires a compiler that supports at least C++%s. %s %s is not supported."
+                % (self.name, min_req_cppstd, compiler_name, compiler_version)
+            )
 
         # Check stdlib ABI compatibility
         if compiler_name == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration('Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name)
-        elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
-            raise ConanInvalidConfiguration('Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
-                                            ' or "compiler.libcxx=libc++"' % self.name)
+            raise ConanInvalidConfiguration(
+                'Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name
+            )
+        elif compiler_name == "clang" and self.settings.compiler.libcxx not in [
+            "libstdc++11",
+            "libc++",
+        ]:
+            raise ConanInvalidConfiguration(
+                'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
+                ' or "compiler.libcxx=libc++"' % self.name
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         cmake = self._configure_cmake()

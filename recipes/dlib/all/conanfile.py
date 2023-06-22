@@ -47,10 +47,6 @@ class DlibConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -88,13 +84,18 @@ class DlibConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("dlib can not be built as a shared library with Visual Studio")
+            raise ConanInvalidConfiguration(
+                "dlib can not be built as a shared library with Visual Studio"
+            )
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("dlib doesn't support macOS M1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         dlib_cmakelists = os.path.join(self._source_subfolder, "dlib", "CMakeLists.txt")
@@ -104,24 +105,34 @@ class DlibConan(ConanFile):
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libjpeg.cmake"),
-            os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libjpeg", "CMakeLists.txt"),
+            os.path.join(
+                self._source_subfolder, "dlib", "cmake_utils", "test_for_libjpeg", "CMakeLists.txt"
+            ),
         ]:
             tools.replace_in_file(cmake_file, "${JPEG_LIBRARY}", "JPEG::JPEG")
         # robust libpng injection
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libpng.cmake"),
-            os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libpng", "CMakeLists.txt"),
+            os.path.join(
+                self._source_subfolder, "dlib", "cmake_utils", "test_for_libpng", "CMakeLists.txt"
+            ),
         ]:
             tools.replace_in_file(cmake_file, "${PNG_LIBRARIES}", "PNG::PNG")
         # robust sqlite3 injection
-        tools.replace_in_file(dlib_cmakelists, "find_library(sqlite sqlite3)", "find_package(SQLite3 REQUIRED)")
+        tools.replace_in_file(
+            dlib_cmakelists, "find_library(sqlite sqlite3)", "find_package(SQLite3 REQUIRED)"
+        )
         tools.replace_in_file(dlib_cmakelists, "find_path(sqlite_path sqlite3.h)", "")
         tools.replace_in_file(dlib_cmakelists, "if (sqlite AND sqlite_path)", "if(1)")
         tools.replace_in_file(dlib_cmakelists, "${sqlite}", "SQLite::SQLite3")
         # robust libwebp injection
         if self._has_with_webp_option:
-            tools.replace_in_file(dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)")
+            tools.replace_in_file(
+                dlib_cmakelists,
+                "include(cmake_utils/find_libwebp.cmake)",
+                "find_package(WebP REQUIRED)",
+            )
             tools.replace_in_file(dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
             tools.replace_in_file(dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
 
@@ -141,9 +152,13 @@ class DlibConan(ConanFile):
         if self._has_with_webp_option:
             cmake.definitions["DLIB_WEBP_SUPPORT"] = self.options.with_webp
         cmake.definitions["DLIB_LINK_WITH_SQLITE3"] = self.options.with_sqlite3
-        cmake.definitions["DLIB_USE_BLAS"] = True    # FIXME: all the logic behind is not sufficiently under control
-        cmake.definitions["DLIB_USE_LAPACK"] = True  # FIXME: all the logic behind is not sufficiently under control
-        cmake.definitions["DLIB_USE_CUDA"] = False   # TODO: add with_cuda option?
+        cmake.definitions[
+            "DLIB_USE_BLAS"
+        ] = True  # FIXME: all the logic behind is not sufficiently under control
+        cmake.definitions[
+            "DLIB_USE_LAPACK"
+        ] = True  # FIXME: all the logic behind is not sufficiently under control
+        cmake.definitions["DLIB_USE_CUDA"] = False  # TODO: add with_cuda option?
         cmake.definitions["DLIB_PNG_SUPPORT"] = self.options.with_png
         cmake.definitions["DLIB_GIF_SUPPORT"] = self.options.with_gif
         cmake.definitions["DLIB_USE_MKL_FFT"] = False
@@ -169,14 +184,16 @@ class DlibConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        self.copy("LICENSE.txt", "licenses", os.path.join(self._source_subfolder, "dlib"), keep_path=False)
+        self.copy(
+            "LICENSE.txt", "licenses", os.path.join(self._source_subfolder, "dlib"), keep_path=False
+        )
 
         # Remove configuration files
         for dir_to_remove in [
             os.path.join("lib", "cmake"),
             os.path.join("lib", "pkgconfig"),
             os.path.join("include", "dlib", "cmake_utils"),
-            os.path.join("include", "dlib", "external", "pybind11", "tools")
+            os.path.join("include", "dlib", "external", "pybind11", "tools"),
         ]:
             tools.rmdir(os.path.join(self.package_folder, dir_to_remove))
 

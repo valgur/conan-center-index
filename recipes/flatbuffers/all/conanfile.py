@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, collect_libs, copy, get, replace_in_file, rmdir
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -35,7 +43,12 @@ class FlatbuffersConan(ConanFile):
         return host_os not in ["Android", "iOS", "watchOS", "tvOS", "Neutrino"]
 
     def export_sources(self):
-        copy(self, os.path.join("cmake", "FlatcTargets.cmake"), self.recipe_folder, self.export_sources_folder)
+        copy(
+            self,
+            os.path.join("cmake", "FlatcTargets.cmake"),
+            self.recipe_folder,
+            self.export_sources_folder,
+        )
         export_conandata_patches(self)
 
     def config_options(self):
@@ -72,11 +85,15 @@ class FlatbuffersConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["FLATBUFFERS_BUILD_TESTS"] = False
         tc.variables["FLATBUFFERS_INSTALL"] = True
-        tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = not self.options.header_only and not self.options.shared
+        tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = (
+            not self.options.header_only and not self.options.shared
+        )
         tc.variables["FLATBUFFERS_BUILD_FLATC"] = self._has_flatc()
         tc.variables["FLATBUFFERS_STATIC_FLATC"] = False
         tc.variables["FLATBUFFERS_BUILD_FLATHASH"] = False
-        tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = not self.options.header_only and self.options.shared
+        tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = (
+            not self.options.header_only and self.options.shared
+        )
         # Honor conan profile
         tc.variables["FLATBUFFERS_LIBCXX_WITH_CLANG"] = False
         # Mimic upstream CMake/Version.cmake removed in _patch_sources()
@@ -107,9 +124,12 @@ class FlatbuffersConan(ConanFile):
         replace_in_file(self, cmakelists, "/WX", "")
         replace_in_file(self, cmakelists, "-Werror ", "")
         # Install dll to bin folder
-        replace_in_file(self, cmakelists,
-                              "RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                              "RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
+        replace_in_file(
+            self,
+            cmakelists,
+            "RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}",
+            "RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}",
+        )
 
     def build(self):
         self._patch_sources()
@@ -118,17 +138,28 @@ class FlatbuffersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        copy(self, "FlatcTargets.cmake",
-                   src=os.path.join(self.source_folder, os.pardir, "cmake"),
-                   dst=os.path.join(self.package_folder, self._module_path))
-        copy(self, "BuildFlatBuffers.cmake",
-                   src=os.path.join(self.source_folder, "CMake"),
-                   dst=os.path.join(self.package_folder, self._module_path))
+        copy(
+            self,
+            "FlatcTargets.cmake",
+            src=os.path.join(self.source_folder, os.pardir, "cmake"),
+            dst=os.path.join(self.package_folder, self._module_path),
+        )
+        copy(
+            self,
+            "BuildFlatBuffers.cmake",
+            src=os.path.join(self.source_folder, "CMake"),
+            dst=os.path.join(self.package_folder, self._module_path),
+        )
 
     @property
     def _module_path(self):
@@ -164,9 +195,15 @@ class FlatbuffersConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "flatbuffers"
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package"] = build_modules
-        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package_multi"] = build_modules
-        self.cpp_info.components["libflatbuffers"].set_property("cmake_file_name", f"flatbuffers::{cmake_target}")
+        self.cpp_info.components["libflatbuffers"].build_modules[
+            "cmake_find_package"
+        ] = build_modules
+        self.cpp_info.components["libflatbuffers"].build_modules[
+            "cmake_find_package_multi"
+        ] = build_modules
+        self.cpp_info.components["libflatbuffers"].set_property(
+            "cmake_file_name", f"flatbuffers::{cmake_target}"
+        )
         self.cpp_info.components["libflatbuffers"].set_property("pkg_config_name", "flatbuffers")
         if self._has_flatc():
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

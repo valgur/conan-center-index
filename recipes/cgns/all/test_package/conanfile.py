@@ -5,6 +5,7 @@ from conan.tools.build import can_run
 
 required_conan_version = ">=1.52.0"
 
+
 class CgnsTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"

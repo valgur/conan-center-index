@@ -50,14 +50,23 @@ class OatppSwaggerConan(ConanFile):
             check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared library with msvc"
+            )
 
-        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
+        if (
+            self.info.settings.compiler == "gcc"
+            and Version(self.info.settings.compiler.version) < "5"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,7 +86,12 @@ class OatppSwaggerConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -89,16 +103,22 @@ class OatppSwaggerConan(ConanFile):
         self.cpp_info.components["_oatpp-swagger"].includedirs = [
             os.path.join("include", f"oatpp-{self.version}", "oatpp-swagger")
         ]
-        self.cpp_info.components["_oatpp-swagger"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.components["_oatpp-swagger"].libdirs = [
+            os.path.join("lib", f"oatpp-{self.version}")
+        ]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-swagger"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.components["_oatpp-swagger"].bindirs = [
+                os.path.join("bin", f"oatpp-{self.version}")
+            ]
         else:
             self.cpp_info.components["_oatpp-swagger"].bindirs = []
         self.cpp_info.components["_oatpp-swagger"].libs = ["oatpp-swagger"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_oatpp-swagger"].system_libs = ["pthread"]
         # export env var
-        res_path = os.path.join(self.package_folder, "include", f"oatpp-{self.version}", "bin", "oatpp-swagger", "res")
+        res_path = os.path.join(
+            self.package_folder, "include", f"oatpp-{self.version}", "bin", "oatpp-swagger", "res"
+        )
         self.runenv_info.prepend_path("OATPP_SWAGGER_RES_PATH", res_path)
 
         # TODO: to remove in conan v2 once legacy generators removed
@@ -107,7 +127,11 @@ class OatppSwaggerConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "oatpp"
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
         self.cpp_info.components["_oatpp-swagger"].names["cmake_find_package"] = "oatpp-swagger"
-        self.cpp_info.components["_oatpp-swagger"].names["cmake_find_package_multi"] = "oatpp-swagger"
-        self.cpp_info.components["_oatpp-swagger"].set_property("cmake_target_name", "oatpp::oatpp-swagger")
+        self.cpp_info.components["_oatpp-swagger"].names[
+            "cmake_find_package_multi"
+        ] = "oatpp-swagger"
+        self.cpp_info.components["_oatpp-swagger"].set_property(
+            "cmake_target_name", "oatpp::oatpp-swagger"
+        )
         self.cpp_info.components["_oatpp-swagger"].requires = ["oatpp::oatpp"]
         self.env_info.OATPP_SWAGGER_RES_PATH = res_path

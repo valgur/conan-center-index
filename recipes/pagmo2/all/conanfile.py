@@ -33,10 +33,6 @@ class Pagmo2Conan(ConanFile):
     exports_sources = "CMakeLists.txt"
     generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -55,12 +51,7 @@ class Pagmo2Conan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "Visual Studio": "15.7",
-            "gcc": "7",
-            "clang": "5.0",
-            "apple-clang": "9.1"
-        }
+        return {"Visual Studio": "15.7", "gcc": "7", "clang": "5.0", "apple-clang": "9.1"}
 
     @property
     def _required_boost_components(self):
@@ -78,30 +69,52 @@ class Pagmo2Conan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("{} {} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name, self.version))
+            self.output.warn(
+                "{} {} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
+                    self.name, self.version
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("{} {} requires C++17, which your compiler does not support.".format(self.name, self.version))
+            raise ConanInvalidConfiguration(
+                "{} {} requires C++17, which your compiler does not support.".format(
+                    self.name, self.version
+                )
+            )
 
         # TODO: add ipopt support
         if self.options.with_ipopt:
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
 
-        miss_boost_required_comp = any(getattr(self.options["boost"], "without_{}".format(boost_comp), True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            for boost_comp in self._required_boost_components
+        )
         if self.options["boost"].header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration("{0} requires non header-only boost with these components: {1}".format(self.name, ", ".join(self._required_boost_components)))
+            raise ConanInvalidConfiguration(
+                "{0} requires non header-only boost with these components: {1}".format(
+                    self.name, ", ".join(self._required_boost_components)
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         # do not force MT runtime for static lib
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "if(YACMA_COMPILER_IS_MSVC AND PAGMO_BUILD_STATIC_LIBRARY)",
-                              "if(0)")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            "if(YACMA_COMPILER_IS_MSVC AND PAGMO_BUILD_STATIC_LIBRARY)",
+            "if(0)",
+        )
         # No warnings as errors
-        yacma_cmake = os.path.join(self._source_subfolder, "cmake_modules", "yacma", "YACMACompilerLinkerSettings.cmake")
-        tools.replace_in_file(yacma_cmake, "list(APPEND _YACMA_CXX_FLAGS_DEBUG \"-Werror\")", "")
+        yacma_cmake = os.path.join(
+            self._source_subfolder, "cmake_modules", "yacma", "YACMACompilerLinkerSettings.cmake"
+        )
+        tools.replace_in_file(yacma_cmake, 'list(APPEND _YACMA_CXX_FLAGS_DEBUG "-Werror")', "")
         tools.replace_in_file(yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/W4)", "")
         tools.replace_in_file(yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/WX)", "")
 
@@ -135,7 +148,11 @@ class Pagmo2Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Pagmo::pagmo")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["_pagmo"].libs = ["pagmo"]
-        self.cpp_info.components["_pagmo"].requires = ["boost::headers", "boost::serialization", "onetbb::onetbb"]
+        self.cpp_info.components["_pagmo"].requires = [
+            "boost::headers",
+            "boost::serialization",
+            "onetbb::onetbb",
+        ]
         if self.options.with_eigen:
             self.cpp_info.components["_pagmo"].requires.append("eigen::eigen")
         if self.options.with_nlopt:

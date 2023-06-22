@@ -8,8 +8,9 @@ required_conan_version = ">=1.50.0"
 
 class FxdivConan(ConanFile):
     name = "fxdiv"
-    description = "C99/C++ header-only library for division via fixed-point " \
-                  "multiplication by inverse."
+    description = (
+        "C99/C++ header-only library for division via fixed-point " "multiplication by inverse."
+    )
     license = "MIT"
     topics = ("integer-division",)
     homepage = "https://github.com/Maratyszcza/FXdiv"
@@ -31,8 +32,18 @@ class FxdivConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

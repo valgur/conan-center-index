@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 from conans.errors import ConanInvalidConfiguration
+
 required_conan_version = ">=1.43.0"
 
 
@@ -16,28 +17,26 @@ class OpenldapConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_cyrus_sasl": [True, False]
+        "with_cyrus_sasl": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_cyrus_sasl": True
-
+        "with_cyrus_sasl": True,
     }
     _autotools = None
     _configure_vars = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def requirements(self):
         self.requires("openssl/1.1.1q")
@@ -46,14 +45,15 @@ class OpenldapConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(
-                f"{self.name} is only supported on Linux")
+            raise ConanInvalidConfiguration(f"{self.name} is only supported on Linux")
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
 
-        def yes_no(v): return "yes" if v else "no"
+        def yes_no(v):
+            return "yes" if v else "no"
+
         self._autotools = AutoToolsBuildEnvironment(self)
         configure_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
@@ -62,21 +62,19 @@ class OpenldapConan(ConanFile):
             "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True))),
             "--without-fetch",
             "--with-tls=openssl",
-            "--enable-auditlog"]
+            "--enable-auditlog",
+        ]
         self._configure_vars = self._autotools.vars
-        self._configure_vars["systemdsystemunitdir"] = os.path.join(
-            self.package_folder, "res")
+        self._configure_vars["systemdsystemunitdir"] = os.path.join(self.package_folder, "res")
 
         # Need to link to -pthread instead of -lpthread for gcc 8 shared=True
         # on CI job. Otherwise, linking fails.
         self._autotools.libs.remove("pthread")
-        self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace(
-            "-lpthread", "-pthread")
+        self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace("-lpthread", "-pthread")
 
         self._autotools.configure(
-            args=configure_args,
-            configure_dir=self._source_subfolder,
-            vars=self._configure_vars)
+            args=configure_args, configure_dir=self._source_subfolder, vars=self._configure_vars
+        )
         return self._autotools
 
     def build(self):
@@ -93,17 +91,12 @@ class OpenldapConan(ConanFile):
         self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
             tools.rmdir(os.path.join(self.package_folder, folder))
-        tools.remove_files_by_mask(
-            os.path.join(
-                self.package_folder,
-                "lib"),
-            "*.la")
+        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
         self.env_info.PATH.append(bin_path)
-        self.output.info(
-            "Appending PATH environment variable: {}".format(bin_path))
+        self.output.info("Appending PATH environment variable: {}".format(bin_path))
 
         self.cpp_info.libs = ["ldap", "lber"]
         if self.settings.os in ["Linux", "FreeBSD"]:

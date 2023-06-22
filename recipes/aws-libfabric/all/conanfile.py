@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.35.0"
 
+
 class LibfabricConan(ConanFile):
     name = "aws-libfabric"
     description = "AWS Libfabric"
@@ -12,32 +13,46 @@ class LibfabricConan(ConanFile):
     homepage = "https://github.com/aws/libfabric"
     license = "BSD-2-Clause", "GPL-2.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    _providers = ["gni", "psm", "psm2", "sockets", "rxm", "tcp", "udp", "usnic", "verbs", "bgq", "shm", "efa", "rxd", "mrail", "rstream", "perf", "hook_debug"]
+    _providers = [
+        "gni",
+        "psm",
+        "psm2",
+        "sockets",
+        "rxm",
+        "tcp",
+        "udp",
+        "usnic",
+        "verbs",
+        "bgq",
+        "shm",
+        "efa",
+        "rxd",
+        "mrail",
+        "rstream",
+        "perf",
+        "hook_debug",
+    ]
     options = {
-        **{ p: [True, False, "shared"] for p in _providers },
+        **{p: [True, False, "shared"] for p in _providers},
         **{
             "shared": [True, False],
             "fPIC": [True, False],
             "with_libnl": [True, False],
             "bgq_progress": ["auto", "manual"],
-            "bgq_mr": ["basic", "scalable"]
-        }
+            "bgq_mr": ["basic", "scalable"],
+        },
     }
     default_options = {
-        **{ p: False for p in _providers },
+        **{p: False for p in _providers},
         **{
             "shared": False,
             "fPIC": True,
             "tcp": True,
             "with_libnl": False,
             "bgq_progress": "manual",
-            "bgq_mr": "basic"
-        }
+            "bgq_mr": "basic",
+        },
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     _autotools = None
 
@@ -65,15 +80,20 @@ class LibfabricConan(ConanFile):
             raise ConanInvalidConfiguration("The libfabric package cannot be built on Windows.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+            )
 
         yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
         yes_no = lambda v: "yes" if v else "no"
@@ -86,7 +106,9 @@ class LibfabricConan(ConanFile):
         for p in self._providers:
             args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            args.append("--with-libnl={}".format(tools.unix_path(self.deps_cpp_info["libnl"].rootpath))),
+            args.append(
+                "--with-libnl={}".format(tools.unix_path(self.deps_cpp_info["libnl"].rootpath))
+            ),
         else:
             args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":

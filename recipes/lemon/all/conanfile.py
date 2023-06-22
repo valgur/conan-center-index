@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    save,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -43,10 +50,16 @@ class LemonConan(ConanFile):
 
     def _extract_license_text(self):
         header = load(self, os.path.join(self.source_folder, "tool", "lempar.c"))
-        return "\n".join(line.strip(" \n*") for line in header[3:header.find("*******", 1)].splitlines())
+        return "\n".join(
+            line.strip(" \n*") for line in header[3 : header.find("*******", 1)].splitlines()
+        )
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license_text())
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENSE"),
+            self._extract_license_text(),
+        )
         cmake = CMake(self)
         cmake.install()
 

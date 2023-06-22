@@ -2,6 +2,7 @@ from conans import ConanFile, tools, CMake
 from conans.errors import ConanInvalidConfiguration
 import os
 
+
 class CrowConan(ConanFile):
     name = "crow"
     homepage = "https://github.com/ipkn/crow"
@@ -11,10 +12,6 @@ class CrowConan(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
     exports_sources = ["patches/*"]
     license = "BSD-3-Clause"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def requirements(self):
         self.requires("boost/1.69.0")

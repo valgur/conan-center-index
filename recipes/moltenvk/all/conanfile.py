@@ -13,11 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class MoltenVKConan(ConanFile):
     name = "moltenvk"
-    description = "MoltenVK is a Vulkan Portability implementation. It " \
-                  "layers a subset of the high-performance, industry-standard " \
-                  "Vulkan graphics and compute API over Apple's Metal " \
-                  "graphics framework, enabling Vulkan applications to run " \
-                  "on iOS and macOS."
+    description = (
+        "MoltenVK is a Vulkan Portability implementation. It "
+        "layers a subset of the high-performance, industry-standard "
+        "Vulkan graphics and compute API over Apple's Metal "
+        "graphics framework, enabling Vulkan applications to run "
+        "on iOS and macOS."
+    )
     license = "Apache-2.0"
     topics = ("moltenvk", "khronos", "vulkan", "metal")
     homepage = "https://github.com/KhronosGroup/MoltenVK"
@@ -47,7 +49,9 @@ class MoltenVKConan(ConanFile):
     @property
     @functools.lru_cache(1)
     def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
+        dependencies_filepath = os.path.join(
+            self.recipe_folder, "dependencies", self._dependencies_filename
+        )
         if not os.path.isfile(dependencies_filepath):
             raise ConanException(f"Cannot find {dependencies_filepath}")
         cached_dependencies = yaml.safe_load(open(dependencies_filepath))
@@ -62,7 +66,12 @@ class MoltenVKConan(ConanFile):
         return Version(self.version) >= "1.1.7"
 
     def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
+        copy(
+            self,
+            f"dependencies/{self._dependencies_filename}",
+            self.recipe_folder,
+            self.export_folder,
+        )
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -104,8 +113,12 @@ class MoltenVKConan(ConanFile):
         if Version(self.settings.compiler.version) < "12.0":
             raise ConanInvalidConfiguration(f"{self.ref} requires XCode 12.0 or higher")
         spirv_cross = self.dependencies["spirv-cross"]
-        if spirv_cross.options.shared or not (spirv_cross.options.msl and spirv_cross.options.reflect):
-            raise ConanInvalidConfiguration(f"{self.ref} requires spirv-cross static with msl & reflect enabled")
+        if spirv_cross.options.shared or not (
+            spirv_cross.options.msl and spirv_cross.options.reflect
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires spirv-cross static with msl & reflect enabled"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -129,21 +142,38 @@ class MoltenVKConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["MoltenVK"]
-        self.cpp_info.frameworks = ["Metal", "Foundation", "CoreFoundation", "QuartzCore", "IOSurface", "CoreGraphics"]
+        self.cpp_info.frameworks = [
+            "Metal",
+            "Foundation",
+            "CoreFoundation",
+            "QuartzCore",
+            "IOSurface",
+            "CoreGraphics",
+        ]
         if self.settings.os == "Macos":
             self.cpp_info.frameworks.extend(["AppKit", "IOKit"])
         elif self.settings.os in ["iOS", "tvOS"]:
             self.cpp_info.frameworks.append("UIKit")
 
         self.cpp_info.requires = [
-            "cereal::cereal", "glslang::glslang-core", "glslang::spirv", "spirv-cross::spirv-cross-core",
-            "spirv-cross::spirv-cross-msl", "spirv-cross::spirv-cross-reflect", "vulkan-headers::vulkan-headers",
+            "cereal::cereal",
+            "glslang::glslang-core",
+            "glslang::spirv",
+            "spirv-cross::spirv-cross-core",
+            "spirv-cross::spirv-cross-msl",
+            "spirv-cross::spirv-cross-reflect",
+            "vulkan-headers::vulkan-headers",
         ]
         if self.options.with_spirv_tools:
             self.cpp_info.requires.append("spirv-tools::spirv-tools-core")

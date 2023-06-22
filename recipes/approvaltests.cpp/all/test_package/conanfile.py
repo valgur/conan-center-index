@@ -16,11 +16,15 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["WITH_BOOSTTEST"] = self.dependencies["approvaltests.cpp"].options.get_safe("with_boosttest", False)
+        tc.variables["WITH_BOOSTTEST"] = self.dependencies["approvaltests.cpp"].options.get_safe(
+            "with_boosttest", False
+        )
         tc.variables["WITH_CATCH"] = self.dependencies["approvaltests.cpp"].options.with_catch2
         tc.variables["WITH_GTEST"] = self.dependencies["approvaltests.cpp"].options.with_gtest
         tc.variables["WITH_DOCTEST"] = self.dependencies["approvaltests.cpp"].options.with_doctest
-        tc.variables["WITH_CPPUTEST"] = self.dependencies["approvaltests.cpp"].options.get_safe("with_cpputest", False)
+        tc.variables["WITH_CPPUTEST"] = self.dependencies["approvaltests.cpp"].options.get_safe(
+            "with_cpputest", False
+        )
         tc.generate()
 
     def build(self):

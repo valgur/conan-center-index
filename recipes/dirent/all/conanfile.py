@@ -6,10 +6,13 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class DirEntConan(ConanFile):
     name = "dirent"
-    description = "Dirent is a C/C++ programming interface that allows programmers to retrieve information about " \
-                  "files and directories under Linux/UNIX"
+    description = (
+        "Dirent is a C/C++ programming interface that allows programmers to retrieve information about "
+        "files and directories under Linux/UNIX"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tronkko/dirent"
@@ -34,7 +37,12 @@ class DirEntConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.h",

@@ -86,21 +86,25 @@ class LibFDKAACConan(ConanFile):
             cmake.build()
         elif is_msvc(self):
             makefile_vc = os.path.join(self.source_folder, "Makefile.vc")
-            replace_in_file(self, makefile_vc, "CFLAGS   = /nologo /W3 /Ox /MT", "CFLAGS   = /nologo")
+            replace_in_file(
+                self, makefile_vc, "CFLAGS   = /nologo /W3 /Ox /MT", "CFLAGS   = /nologo"
+            )
             replace_in_file(self, makefile_vc, "MKDIR_FLAGS = -p", "MKDIR_FLAGS =")
             # Build either shared or static, and don't build utility (it always depends on static lib)
             replace_in_file(self, makefile_vc, "copy $(PROGS) $(bindir)", "")
             replace_in_file(self, makefile_vc, "copy $(LIB_DEF) $(libdir)", "")
             if self.options.shared:
                 replace_in_file(
-                    self, makefile_vc,
+                    self,
+                    makefile_vc,
                     "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                     "all: $(LIB_DEF) $(SHARED_LIB) $(IMP_LIB)",
                 )
                 replace_in_file(self, makefile_vc, "copy $(STATIC_LIB) $(libdir)", "")
             else:
                 replace_in_file(
-                    self, makefile_vc,
+                    self,
+                    makefile_vc,
                     "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                     "all: $(STATIC_LIB)",
                 )
@@ -114,23 +118,33 @@ class LibFDKAACConan(ConanFile):
             if self.settings.os == "Android" and self._settings_build.os == "Windows":
                 # remove escape for quotation marks, to make ndk on windows happy
                 replace_in_file(
-                    self, os.path.join(self.source_folder, "configure"),
-                    "s/[	 `~#$^&*(){}\\\\|;'\\\''\"<>?]/\\\\&/g", "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g",
+                    self,
+                    os.path.join(self.source_folder, "configure"),
+                    "s/[	 `~#$^&*(){}\\\\|;'\\''\"<>?]/\\\\&/g",
+                    "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g",
                 )
             autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "NOTICE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()
         elif is_msvc(self):
             with chdir(self, self.source_folder):
-                self.run(f"nmake -f Makefile.vc prefix=\"{self.package_folder}\" install")
+                self.run(f'nmake -f Makefile.vc prefix="{self.package_folder}" install')
             if self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
-                             os.path.join(self.package_folder, "lib", "fdk-aac.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
+                    os.path.join(self.package_folder, "lib", "fdk-aac.lib"),
+                )
         else:
             autotools = Autotools(self)
             autotools.install()

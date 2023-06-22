@@ -42,7 +42,9 @@ class LodepngConan(ConanFile):
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("lodepng shared doesn't support Visual Studio with static runtime")
+            raise ConanInvalidConfiguration(
+                "lodepng shared doesn't support Visual Studio with static runtime"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -58,7 +60,12 @@ class LodepngConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

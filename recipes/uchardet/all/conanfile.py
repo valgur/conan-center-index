@@ -29,10 +29,6 @@ class UchardetConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -51,30 +47,41 @@ class UchardetConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         # the following fixes that apply to uchardet version 0.0.7
         # fix broken cmake
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "${CMAKE_BINARY_DIR}",
-            "${CMAKE_CURRENT_BINARY_DIR}")
+            "${CMAKE_CURRENT_BINARY_DIR}",
+        )
         # fix problem with mac os
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-            'string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)',
-            'string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)')
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            "string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)",
+            'string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)',
+        )
         # disable building tests
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "add_subdirectory(test)",
-            "#add_subdirectory(test)")
+            "#add_subdirectory(test)",
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
         cmake.definitions["BUILD_BINARY"] = False
-        cmake.definitions["BUILD_STATIC"] = False  # disable building static libraries when self.options.shared is True
+        cmake.definitions[
+            "BUILD_STATIC"
+        ] = False  # disable building static libraries when self.options.shared is True
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
 

@@ -10,15 +10,13 @@ class PlatformExceptionsConan(ConanFile):
     license = "MIT"
     homepage = "https://github.com/linksplatform/Exceptions"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "platform.exceptions is one of the libraries of the LinksPlatform modular framework, " \
-                  "to ensure exceptions"
+    description = (
+        "platform.exceptions is one of the libraries of the LinksPlatform modular framework, "
+        "to ensure exceptions"
+    )
     topics = ("linksplatform", "cpp20", "exceptions", "any", "ranges", "native")
     settings = "compiler", "arch"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _internal_cpp_subfolder(self):
@@ -26,12 +24,7 @@ class PlatformExceptionsConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "gcc": "10",
-            "Visual Studio": "16",
-            "clang": "11",
-            "apple-clang": "11"
-        }
+        return {"gcc": "10", "Visual Studio": "16", "clang": "11", "apple-clang": "11"}
 
     @property
     def _minimum_cpp_standard(self):
@@ -47,14 +40,23 @@ class PlatformExceptionsConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
 
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("{}/{} requires c++{}, "
-                                            "which is not supported by {} {}.".format(
-                self.name, self.version, self._minimum_cpp_standard, self.settings.compiler,
-                self.settings.compiler.version))
+            raise ConanInvalidConfiguration(
+                "{}/{} requires c++{}, "
+                "which is not supported by {} {}.".format(
+                    self.name,
+                    self.version,
+                    self._minimum_cpp_standard,
+                    self.settings.compiler,
+                    self.settings.compiler.version,
+                )
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
@@ -63,8 +65,11 @@ class PlatformExceptionsConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         self.copy("*.h", dst="include", src=self._internal_cpp_subfolder)

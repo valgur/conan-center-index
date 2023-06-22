@@ -17,7 +17,10 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
-        if "with_python" not in self.options["openassetio"] or self.options["openassetio"].with_python:
+        if (
+            "with_python" not in self.options["openassetio"]
+            or self.options["openassetio"].with_python
+        ):
             self.requires("cpython/3.9.7")
 
     def layout(self):
@@ -26,8 +29,12 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
-        tc.variables["OPENASSETIOTEST_GLIBCXX_USE_CXX11_ABI"] = self.settings.get_safe("compiler.libcxx") == "libstdc++11"
-        tc.variables["OPENASSETIOTEST_ENABLE_PYTHON"] = self.dependencies["openassetio"].options.with_python
+        tc.variables["OPENASSETIOTEST_GLIBCXX_USE_CXX11_ABI"] = (
+            self.settings.get_safe("compiler.libcxx") == "libstdc++11"
+        )
+        tc.variables["OPENASSETIOTEST_ENABLE_PYTHON"] = self.dependencies[
+            "openassetio"
+        ].options.with_python
 
         if self.dependencies["openassetio"].options.with_python:
             tc.variables["Python_EXECUTABLE"] = self._python_exe
@@ -61,6 +68,7 @@ class TestPackageConan(ConanFile):
         pth = pathlib.Path(
             self.dependencies["cpython"].package_folder,
             self.dependencies["cpython"].cpp_info.components["embed"].libdirs[0],
-            self.dependencies["cpython"].cpp_info.components["embed"].libs[0])
+            self.dependencies["cpython"].cpp_info.components["embed"].libs[0],
+        )
         pth = pth.with_suffix(".lib")
         return pth.as_posix()

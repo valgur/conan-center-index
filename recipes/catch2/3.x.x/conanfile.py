@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -85,11 +92,13 @@ class Catch2Conan(ConanFile):
         try:
             if int(self.options.console_width) < self._min_console_width:
                 raise ConanInvalidConfiguration(
-                        f"option 'console_width' must be >= {self._min_console_width}, "
-                        f"got {self.options.console_width}. Contributions welcome if this should work!")
+                    f"option 'console_width' must be >= {self._min_console_width}, "
+                    f"got {self.options.console_width}. Contributions welcome if this should work!"
+                )
         except ValueError as e:
-            raise ConanInvalidConfiguration(f"option 'console_width' must be an integer, "
-                                            f"got '{self.options.console_width}'") from e
+            raise ConanInvalidConfiguration(
+                f"option 'console_width' must be an integer, " f"got '{self.options.console_width}'"
+            ) from e
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -114,7 +123,12 @@ class Catch2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -133,18 +147,20 @@ class Catch2Conan(ConanFile):
             {
                 "Catch2::Catch2": "catch2::_catch2",
                 "Catch2::Catch2WithMain": "catch2::catch2_with_main",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -161,12 +177,20 @@ class Catch2Conan(ConanFile):
         self.cpp_info.components["_catch2"].set_property("pkg_config_name", "catch2")
         self.cpp_info.components["_catch2"].libs = ["Catch2" + lib_suffix]
 
-        self.cpp_info.components["catch2_with_main"].builddirs.append(os.path.join("lib", "cmake", "Catch2"))
+        self.cpp_info.components["catch2_with_main"].builddirs.append(
+            os.path.join("lib", "cmake", "Catch2")
+        )
         self.cpp_info.components["catch2_with_main"].libs = ["Catch2Main" + lib_suffix]
         self.cpp_info.components["catch2_with_main"].requires = ["_catch2"]
-        self.cpp_info.components["catch2_with_main"].system_libs = ["log"] if self.settings.os == "Android" else []
-        self.cpp_info.components["catch2_with_main"].set_property("cmake_target_name", "Catch2::Catch2WithMain")
-        self.cpp_info.components["catch2_with_main"].set_property("pkg_config_name", "catch2-with-main")
+        self.cpp_info.components["catch2_with_main"].system_libs = (
+            ["log"] if self.settings.os == "Android" else []
+        )
+        self.cpp_info.components["catch2_with_main"].set_property(
+            "cmake_target_name", "Catch2::Catch2WithMain"
+        )
+        self.cpp_info.components["catch2_with_main"].set_property(
+            "pkg_config_name", "catch2-with-main"
+        )
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["catch2_with_main"].system_libs.append("m")
         defines = []
@@ -181,7 +205,15 @@ class Catch2Conan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "Catch2"
         self.cpp_info.names["cmake_find_package"] = "catch2"
         self.cpp_info.names["cmake_find_package_multi"] = "catch2"
-        self.cpp_info.components["_catch2"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_catch2"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["_catch2"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["_catch2"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]

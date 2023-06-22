@@ -25,7 +25,12 @@ class TestVerilatorConan(ConanFile):
     def test(self):
         if not tools.cross_building(self.settings, skip_x64_x86=True):
             with tools.run_environment(self):
-                self.run("perl {} --version".format(os.path.join(self.deps_cpp_info["verilator"].rootpath, "bin", "verilator")), run_environment=True)
+                self.run(
+                    "perl {} --version".format(
+                        os.path.join(self.deps_cpp_info["verilator"].rootpath, "bin", "verilator")
+                    ),
+                    run_environment=True,
+                )
             self.run(os.path.join("bin", "blinky"), run_environment=True)
             if self._with_systemc_example:
                 self.run(os.path.join("bin", "blinky_sc"), run_environment=True)

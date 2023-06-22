@@ -11,6 +11,7 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class PatchElfConan(ConanFile):
     name = "patchelf"
     package_type = "application"
@@ -29,7 +30,9 @@ class PatchElfConan(ConanFile):
 
     def validate(self):
         if not is_apple_os(self) and self.settings.os not in ("FreeBSD", "Linux"):
-            raise ConanInvalidConfiguration("PatchELF is only available for GNU-like operating systems (e.g. Linux)")
+            raise ConanInvalidConfiguration(
+                "PatchELF is only available for GNU-like operating systems (e.g. Linux)"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,7 +58,12 @@ class PatchElfConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         autotools = Autotools(self)
         autotools.install()

@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
@@ -55,7 +62,9 @@ class LibeventConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         if self.options.with_openssl:
-            tc.variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
+            tc.variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace(
+                "\\", "/"
+            )
         tc.cache_variables["EVENT__LIBRARY_TYPE"] = "SHARED" if self.options.shared else "STATIC"
         tc.variables["EVENT__DISABLE_DEBUG_MODE"] = self.settings.build_type == "Release"
         tc.variables["EVENT__DISABLE_OPENSSL"] = not self.options.with_openssl
@@ -74,9 +83,12 @@ class LibeventConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # relocatable shared libs on macOS
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "AddEventLibrary.cmake"),
-                              "INSTALL_NAME_DIR \"${CMAKE_INSTALL_PREFIX}/lib\"",
-                              "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "cmake", "AddEventLibrary.cmake"),
+            'INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"',
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -85,7 +97,12 @@ class LibeventConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -94,7 +111,9 @@ class LibeventConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Libevent")
-        self.cpp_info.set_property("pkg_config_name", "libevent") # exist in libevent for historical reason
+        self.cpp_info.set_property(
+            "pkg_config_name", "libevent"
+        )  # exist in libevent for historical reason
 
         # core
         self.cpp_info.components["core"].set_property("cmake_target_name", "libevent::core")
@@ -115,15 +134,21 @@ class LibeventConan(ConanFile):
 
         # openssl
         if self.options.with_openssl:
-            self.cpp_info.components["openssl"].set_property("cmake_target_name", "libevent::openssl")
+            self.cpp_info.components["openssl"].set_property(
+                "cmake_target_name", "libevent::openssl"
+            )
             self.cpp_info.components["openssl"].set_property("pkg_config_name", "libevent_openssl")
             self.cpp_info.components["openssl"].libs = ["event_openssl"]
             self.cpp_info.components["openssl"].requires = ["core", "openssl::openssl"]
 
         # pthreads
         if self.settings.os != "Windows" and not self.options.disable_threads:
-            self.cpp_info.components["pthreads"].set_property("cmake_target_name", "libevent::pthreads")
-            self.cpp_info.components["pthreads"].set_property("pkg_config_name", "libevent_pthreads")
+            self.cpp_info.components["pthreads"].set_property(
+                "cmake_target_name", "libevent::pthreads"
+            )
+            self.cpp_info.components["pthreads"].set_property(
+                "pkg_config_name", "libevent_pthreads"
+            )
             self.cpp_info.components["pthreads"].libs = ["event_pthreads"]
             self.cpp_info.components["pthreads"].requires = ["core"]
 

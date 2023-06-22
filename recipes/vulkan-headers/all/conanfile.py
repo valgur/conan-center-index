@@ -30,17 +30,38 @@ class VulkanHeadersConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*", src=os.path.join(self.source_folder, "registry"), dst=os.path.join(self.package_folder, "res", "vulkan", "registry"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "registry"),
+            dst=os.path.join(self.package_folder, "res", "vulkan", "registry"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "VulkanHeaders")
-        self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Vulkan::Headers")
+        self.cpp_info.components["vulkanheaders"].set_property(
+            "cmake_target_name", "Vulkan::Headers"
+        )
         self.cpp_info.components["vulkanheaders"].bindirs = []
         self.cpp_info.components["vulkanheaders"].libdirs = []
-        self.cpp_info.components["vulkanregistry"].set_property("cmake_target_name", "Vulkan::Registry")
-        self.cpp_info.components["vulkanregistry"].includedirs = [os.path.join("res", "vulkan", "registry")]
+        self.cpp_info.components["vulkanregistry"].set_property(
+            "cmake_target_name", "Vulkan::Registry"
+        )
+        self.cpp_info.components["vulkanregistry"].includedirs = [
+            os.path.join("res", "vulkan", "registry")
+        ]
         self.cpp_info.components["vulkanregistry"].bindirs = []
         self.cpp_info.components["vulkanregistry"].libdirs = []
         self.cpp_info.components["vulkanregistry"].resdirs = ["res"]

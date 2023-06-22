@@ -16,10 +16,6 @@ class CppCmdConan(ConanFile):
     no_copy_source = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -39,15 +35,20 @@ class CppCmdConan(ConanFile):
     def configure(self):
         if self.settings.get_safe("compiler.cppstd"):
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compilers_version.get(
-            str(self.settings.compiler))
+        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
         else:
             if tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++17 support. The current compiler {} {} does not support it.".format(
-                    self.name, self.settings.compiler, self.settings.compiler.version))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++17 support. The current compiler {} {} does not support it.".format(
+                        self.name, self.settings.compiler, self.settings.compiler.version
+                    )
+                )
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -55,12 +56,10 @@ class CppCmdConan(ConanFile):
         os.rename(extracted_dir, self._source_subfolder)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         cmake = CMake(self)
         cmake.definitions["BUILD_TESTS"] = "OFF"
-        cmake.configure(source_folder=self._source_subfolder,
-                        build_folder=self._build_subfolder)
+        cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
         cmake.install()
 
     def package_id(self):

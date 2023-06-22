@@ -32,7 +32,9 @@ class BazelConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "Macos", "Windows"]:
-            raise ConanInvalidConfiguration("Only Linux, Windows and OSX are supported for this package.")
+            raise ConanInvalidConfiguration(
+                "Only Linux, Windows and OSX are supported for this package."
+            )
         if self._binary_info is None:
             raise ConanInvalidConfiguration(
                 f"{self.settings.arch} architecture on {self.settings.os} is not supported for this package."
@@ -71,7 +73,9 @@ class BazelConan(ConanFile):
             src=self.source_folder,
         )
         old_target_filename = os.path.join(self.package_folder, "bin", self._bazel_filename)
-        new_target_filename = os.path.join(self.package_folder, "bin", "bazel" + self._program_suffix)
+        new_target_filename = os.path.join(
+            self.package_folder, "bin", "bazel" + self._program_suffix
+        )
         rename(self, old_target_filename, new_target_filename)
         self._chmod_plus_x(new_target_filename)
 

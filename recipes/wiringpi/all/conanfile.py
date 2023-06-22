@@ -6,6 +6,7 @@ from conan.tools.files import get, copy
 
 required_conan_version = ">=1.53.0"
 
+
 class WiringpiConan(ConanFile):
     name = "wiringpi"
     license = "LGPL-3.0"
@@ -14,15 +15,19 @@ class WiringpiConan(ConanFile):
     topics = ("wiringpi", "gpio", "raspberrypi")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False],
-               "fPIC": [True, False],
-               "wpi_extensions": [True, False],
-               "with_devlib": [True, False]}
-    default_options = {"shared": False,
-                       "fPIC": True,
-                       "wpi_extensions": False,
-                       "with_devlib": True}
-            
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "wpi_extensions": [True, False],
+        "with_devlib": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "wpi_extensions": False,
+        "with_devlib": True,
+    }
+
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
@@ -41,7 +46,7 @@ class WiringpiConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["WIRINGPI_SRC_DIR"] = self.source_folder.replace("\\", "/")
@@ -55,7 +60,12 @@ class WiringpiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

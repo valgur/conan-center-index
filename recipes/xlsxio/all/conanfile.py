@@ -12,14 +12,16 @@ class XlsxioConan(ConanFile):
     name = "xlsxio"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/brechtsanders/xlsxio"
-    description = "Cross-platform C library for reading values from and writing values to .xlsx files."
+    description = (
+        "Cross-platform C library for reading values from and writing values to .xlsx files."
+    )
     topics = ("xlsx",)
     license = "MIT"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC":[True, False],
+        "fPIC": [True, False],
         "shared": [True, False],
         "with_libzip": [True, False],
         "with_minizip_ng": [True, False],
@@ -32,6 +34,7 @@ class XlsxioConan(ConanFile):
         "with_minizip_ng": False,
         "with_wide": False,
     }
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -53,13 +56,13 @@ class XlsxioConan(ConanFile):
     def requirements(self):
         if self.options.with_libzip:
             self.requires("libzip/1.7.3")
-        elif Version(self.version) >= "0.2.34" and self.options.with_minizip_ng :
+        elif Version(self.version) >= "0.2.34" and self.options.with_minizip_ng:
             self.requires("minizip-ng/3.0.8")
         else:
             self.requires("minizip/1.2.12")
         self.requires("expat/2.4.9")
         if self.options.with_wide:
-            self.options["expat"].char_type="ushort"
+            self.options["expat"].char_type = "ushort"
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -90,7 +93,12 @@ class XlsxioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -104,17 +112,30 @@ class XlsxioConan(ConanFile):
         self.cpp_info.set_property("cmake_module_file_name", "xlsxio")
         self.cpp_info.set_property("pkg_config_name", "xlsxio")
 
-        self.cpp_info.components["xlsxio_read"].set_property("cmake_target_name", "xlsxio::xlsxio_read")
-        self.cpp_info.components["xlsxio_read"].set_property("cmake_module_target_name", "xlsxio::xlsxio_read")
+        self.cpp_info.components["xlsxio_read"].set_property(
+            "cmake_target_name", "xlsxio::xlsxio_read"
+        )
+        self.cpp_info.components["xlsxio_read"].set_property(
+            "cmake_module_target_name", "xlsxio::xlsxio_read"
+        )
         self.cpp_info.components["xlsxio_read"].set_property("pkg_config_name", "libxlsxio_read")
-        self.cpp_info.components["xlsxio_write"].set_property("cmake_target_name", "xlsxio::xlsxio_write")
-        self.cpp_info.components["xlsxio_write"].set_property("cmake_module_target_name", "xlsxio::xlsxio_write")
+        self.cpp_info.components["xlsxio_write"].set_property(
+            "cmake_target_name", "xlsxio::xlsxio_write"
+        )
+        self.cpp_info.components["xlsxio_write"].set_property(
+            "cmake_module_target_name", "xlsxio::xlsxio_write"
+        )
         self.cpp_info.components["xlsxio_write"].set_property("pkg_config_name", "libxlsxio_write")
         if self.options.with_wide:
-            self.cpp_info.components["xlsxio_readw"].set_property("cmake_target_name", "xlsxio::xlsxio_readw")
-            self.cpp_info.components["xlsxio_readw"].set_property("cmake_module_target_name", "xlsxio::xlsxio_readw")
-            self.cpp_info.components["xlsxio_readw"].set_property("pkg_config_name", "libxlsxio_readw")
-
+            self.cpp_info.components["xlsxio_readw"].set_property(
+                "cmake_target_name", "xlsxio::xlsxio_readw"
+            )
+            self.cpp_info.components["xlsxio_readw"].set_property(
+                "cmake_module_target_name", "xlsxio::xlsxio_readw"
+            )
+            self.cpp_info.components["xlsxio_readw"].set_property(
+                "pkg_config_name", "libxlsxio_readw"
+            )
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
@@ -128,5 +149,6 @@ class XlsxioConan(ConanFile):
         self.cpp_info.components["xlsxio_write"].names["cmake_find_package_multi"] = "xlsxio_write"
         if self.options.with_wide:
             self.cpp_info.components["xlsxio_readw"].names["cmake_find_package"] = "xlsxio_readw"
-            self.cpp_info.components["xlsxio_readw"].names["cmake_find_package_multi"] = "xlsxio_readw"
-
+            self.cpp_info.components["xlsxio_readw"].names[
+                "cmake_find_package_multi"
+            ] = "xlsxio_readw"

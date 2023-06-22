@@ -89,7 +89,12 @@ class AvcppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -103,8 +108,12 @@ class AvcppConan(ConanFile):
         self.cpp_info.components["AvCpp"].names["cmake_find_package"] = target_name
         self.cpp_info.components["AvCpp"].names["cmake_find_package_multi"] = target_name
         self.cpp_info.components["AvCpp"].set_property("cmake_target_name", f"avcpp::{target_name}")
-        self.cpp_info.components["AvCpp"].libs = ["avcpp", ]
-        self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg", ]
+        self.cpp_info.components["AvCpp"].libs = [
+            "avcpp",
+        ]
+        self.cpp_info.components["AvCpp"].requires = [
+            "ffmpeg::ffmpeg",
+        ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["AvCpp"].system_libs = ["mvec"]
         if self.settings.os == "Windows":

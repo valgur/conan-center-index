@@ -53,7 +53,11 @@ class XsimdConan(ConanFile):
 
     def validate(self):
         # TODO: check supported version (probably >= 8.0.0)
-        if Version(self.version) < "8.0.0" and is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
+        if (
+            Version(self.version) < "8.0.0"
+            and is_apple_os(self)
+            and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support macOS M1")
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -71,25 +75,31 @@ class XsimdConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         includedir = os.path.join(self.source_folder, "include")
         copy(self, "*.hpp", src=includedir, dst=os.path.join(self.package_folder, "include"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"xsimd": "xsimd::xsimd"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"xsimd": "xsimd::xsimd"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -106,9 +116,17 @@ class XsimdConan(ConanFile):
         self.cpp_info.libdirs = []
 
         ## TODO: workaround for arm compilation issue : https://github.com/xtensor-stack/xsimd/issues/735
-        if Version(self.version) >= "9.0.0" and \
-            is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
-            self.cpp_info.cxxflags.extend(["-flax-vector-conversions", "-fsigned-char",])
+        if (
+            Version(self.version) >= "9.0.0"
+            and is_apple_os(self)
+            and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]
+        ):
+            self.cpp_info.cxxflags.extend(
+                [
+                    "-flax-vector-conversions",
+                    "-fsigned-char",
+                ]
+            )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

@@ -4,23 +4,26 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
+
 class awskvspicConan(ConanFile):
     name = "aws-kvs-pic"
     license = "Apache-2.0"
     homepage = "https://github.com/awslabs/amazon-kinesis-video-streams-pic"
     url = "https://github.com/conan-io/conan-center-index"
-    description = ("Platform Independent Code for Amazon Kinesis Video Streams")
+    description = "Platform Independent Code for Amazon Kinesis Video Streams"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {'shared': False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "cmake"
     topics = ("aws", "kvs", "kinesis", "video", "stream")
     exports_sources = ["CMakeLists.txt", "patches/*"]
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -30,7 +33,7 @@ class awskvspicConan(ConanFile):
         return self._cmake
 
     def validate(self):
-        if (self.settings.os != "Linux" and self.options.shared):
+        if self.settings.os != "Linux" and self.options.shared:
             raise ConanInvalidConfiguration("This library can only be built shared on Linux")
 
     def config_options(self):
@@ -44,7 +47,11 @@ class awskvspicConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):

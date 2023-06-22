@@ -30,10 +30,6 @@ class QDBMConan(ConanFile):
     generators = "cmake", "cmake_find_package"
     exports_sources = "CMakeLists.txt"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -52,8 +48,11 @@ class QDBMConan(ConanFile):
             self.requires("zlib/1.2.12")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -61,8 +60,7 @@ class QDBMConan(ConanFile):
         cmake.definitions["CONAN_qdbm_VERSION"] = self.version
         cmake.definitions["MYICONV"] = self.options.with_iconv
         cmake.definitions["MYZLIB"] = self.options.with_zlib
-        cmake.definitions["MYPTHREAD"] = self.options\
-            .get_safe("with_pthread", False)
+        cmake.definitions["MYPTHREAD"] = self.options.get_safe("with_pthread", False)
         cmake.configure()
         return cmake
 

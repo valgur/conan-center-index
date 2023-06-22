@@ -9,10 +9,12 @@ required_conan_version = ">=1.53.0"
 
 class QhullConan(ConanFile):
     name = "qhull"
-    description = "Qhull computes the convex hull, Delaunay triangulation, " \
-                  "Voronoi diagram, halfspace intersection about a point, " \
-                  "furthest-site Delaunay triangulation, and furthest-site " \
-                  "Voronoi diagram."
+    description = (
+        "Qhull computes the convex hull, Delaunay triangulation, "
+        "Voronoi diagram, halfspace intersection about a point, "
+        "furthest-site Delaunay triangulation, and furthest-site "
+        "Voronoi diagram."
+    )
     license = "Qhull"
     topics = ("geometry", "convex", "triangulation", "intersection")
     homepage = "http://www.qhull.org"
@@ -64,7 +66,12 @@ class QhullConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "doc"))
@@ -90,10 +97,16 @@ class QhullConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Qhull"
         self.cpp_info.names["pkg_config"] = self._qhull_pkgconfig_name
         self.cpp_info.components["libqhull"].names["cmake_find_package"] = self._qhull_cmake_name
-        self.cpp_info.components["libqhull"].names["cmake_find_package_multi"] = self._qhull_cmake_name
+        self.cpp_info.components["libqhull"].names[
+            "cmake_find_package_multi"
+        ] = self._qhull_cmake_name
         self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name
-        self.cpp_info.components["libqhull"].set_property("cmake_target_name", f"Qhull::{self._qhull_cmake_name}")
-        self.cpp_info.components["libqhull"].set_property("pkg_config_name", self._qhull_pkgconfig_name)
+        self.cpp_info.components["libqhull"].set_property(
+            "cmake_target_name", f"Qhull::{self._qhull_cmake_name}"
+        )
+        self.cpp_info.components["libqhull"].set_property(
+            "pkg_config_name", self._qhull_pkgconfig_name
+        )
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
     @property

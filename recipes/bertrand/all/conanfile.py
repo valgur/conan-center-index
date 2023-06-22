@@ -13,7 +13,9 @@ class BertrandConan(ConanFile):
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bernedom/bertrand"
-    description = "A C++ header only library providing a trivial implementation for design by contract."
+    description = (
+        "A C++ header only library providing a trivial implementation for design by contract."
+    )
     topics = ("design by contract", "dbc", "cplusplus-library", "cplusplus-17")
     settings = "os", "arch", "compiler", "build_type"
 
@@ -45,7 +47,9 @@ class BertrandConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
@@ -54,8 +58,12 @@ class BertrandConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -69,7 +77,12 @@ class BertrandConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

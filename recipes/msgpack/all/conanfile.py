@@ -19,7 +19,7 @@ class MsgpackConan(ConanFile):
         "c_api": [True, False],
         "cpp_api": [True, False],
         "with_boost": [True, False],
-        "header_only": [True, False]
+        "header_only": [True, False],
     }
     default_options = {
         "fPIC": True,
@@ -27,15 +27,11 @@ class MsgpackConan(ConanFile):
         "c_api": True,
         "cpp_api": True,
         "with_boost": False,
-        "header_only": False
+        "header_only": False,
     }
     deprecated = "msgpack-c or msgpack-cxx"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -50,7 +46,9 @@ class MsgpackConan(ConanFile):
         if self.options.header_only:
             self.options.c_api = False
             self.options.cpp_api = True
-            self.output.warn("header_only option is deprecated, prefer c_api=False and cpp_api=True")
+            self.output.warn(
+                "header_only option is deprecated, prefer c_api=False and cpp_api=True"
+            )
         del self.options.header_only
 
         if not self.options.c_api and not self.options.cpp_api:
@@ -101,11 +99,16 @@ class MsgpackConan(ConanFile):
         return self._cmake
 
     def build(self):
-        if self.options.get_safe("with_boost") and \
-           (self.options["boost"].header_only or self.options["boost"].without_chrono or \
-            self.options["boost"].without_context or self.options["boost"].without_system or \
-            self.options["boost"].without_timer):
-            raise ConanInvalidConfiguration("msgpack with boost requires the following boost components: chrono, context, system and timer.")
+        if self.options.get_safe("with_boost") and (
+            self.options["boost"].header_only
+            or self.options["boost"].without_chrono
+            or self.options["boost"].without_context
+            or self.options["boost"].without_system
+            or self.options["boost"].without_timer
+        ):
+            raise ConanInvalidConfiguration(
+                "msgpack with boost requires the following boost components: chrono, context, system and timer."
+            )
         if self.options.c_api:
             cmake = self._configure_cmake()
             cmake.build()
@@ -129,7 +132,9 @@ class MsgpackConan(ConanFile):
             self.cpp_info.components["msgpackc"].libs = tools.collect_libs(self)
         if self.options.cpp_api:
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package"] = "msgpackc-cxx"
-            self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package_multi"] = "msgpackc-cxx"
+            self.cpp_info.components["msgpackc-cxx"].names[
+                "cmake_find_package_multi"
+            ] = "msgpackc-cxx"
             if self.options.with_boost:
                 self.cpp_info.components["msgpackc-cxx"].defines = ["MSGPACK_USE_BOOST"]
                 self.cpp_info.components["msgpackc-cxx"].requires = ["boost::boost"]

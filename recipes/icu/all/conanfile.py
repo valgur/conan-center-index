@@ -8,7 +8,18 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -21,8 +32,10 @@ class ICUConan(ConanFile):
     name = "icu"
     homepage = "http://site.icu-project.org"
     license = "ICU"
-    description = "ICU is a mature, widely used set of C/C++ and Java libraries " \
-                  "providing Unicode and Globalization support for software applications."
+    description = (
+        "ICU is a mature, widely used set of C/C++ and Java libraries "
+        "providing Unicode and Globalization support for software applications."
+    )
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("icu4c", "i see you", "unicode")
     package_type = "library"
@@ -88,7 +101,9 @@ class ICUConan(ConanFile):
 
     def package_id(self):
         if self.info.options.dat_package_file:
-            self.info.options.dat_package_file = self._sha256sum(str(self.info.options.dat_package_file))
+            self.info.options.dat_package_file = self._sha256sum(
+                str(self.info.options.dat_package_file)
+            )
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -115,19 +130,21 @@ class ICUConan(ConanFile):
         if is_apple_os(self):
             tc.extra_defines.append("_DARWIN_C_SOURCE")
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            "--datarootdir=${prefix}/lib", # do not use share
-            f"--enable-release={yes_no(self.settings.build_type != 'Debug')}",
-            f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
-            f"--enable-dyload={yes_no(self.options.with_dyload)}",
-            f"--enable-extras={yes_no(self.options.with_extras)}",
-            f"--enable-icuio={yes_no(self.options.with_icuio)}",
-            "--disable-layoutex",
-            "--disable-layout",
-            f"--enable-tools={yes_no(self._enable_icu_tools)}",
-            f"--enable-tests={yes_no(self._with_unit_tests)}",
-            "--disable-samples",
-        ])
+        tc.configure_args.extend(
+            [
+                "--datarootdir=${prefix}/lib",  # do not use share
+                f"--enable-release={yes_no(self.settings.build_type != 'Debug')}",
+                f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
+                f"--enable-dyload={yes_no(self.options.with_dyload)}",
+                f"--enable-extras={yes_no(self.options.with_extras)}",
+                f"--enable-icuio={yes_no(self.options.with_icuio)}",
+                "--disable-layoutex",
+                "--disable-layout",
+                f"--enable-tools={yes_no(self._enable_icu_tools)}",
+                f"--enable-tests={yes_no(self._with_unit_tests)}",
+                "--disable-samples",
+            ]
+        )
         if cross_building(self):
             base_path = unix_path(self, self.dependencies.build["icu"].package_folder)
             tc.configure_args.append(f"--with-cross-build={base_path}")
@@ -138,8 +155,7 @@ class ICUConan(ConanFile):
                 # know we are cross-building.
                 host_triplet = f"{str(self.settings.arch)}-apple-darwin"
                 build_triplet = f"{str(self._settings_build.arch)}-apple"
-                tc.update_configure_args({"--host": host_triplet,
-                                          "--build": build_triplet})
+                tc.update_configure_args({"--host": host_triplet, "--build": build_triplet})
         else:
             arch64 = ["x86_64", "sparcv9", "ppc64", "ppc64le", "armv8", "armv8.3", "mips64"]
             bits = "64" if self.settings.arch in arch64 else "32"
@@ -166,21 +182,29 @@ class ICUConan(ConanFile):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "source", "configure"),
-                "if test -z \"$PYTHON\"",
+                'if test -z "$PYTHON"',
                 "if true",
             )
 
         if self._settings_build.os == "Windows":
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
-            makeconv_cpp = os.path.join(self.source_folder, "source", "tools", "makeconv", "makeconv.cpp")
-            replace_in_file(self, makeconv_cpp,
-                            "pathBuf.appendPathPart(arg, localError);",
-                            "pathBuf.append(\"/\", localError); pathBuf.append(arg, localError);")
+            makeconv_cpp = os.path.join(
+                self.source_folder, "source", "tools", "makeconv", "makeconv.cpp"
+            )
+            replace_in_file(
+                self,
+                makeconv_cpp,
+                "pathBuf.appendPathPart(arg, localError);",
+                'pathBuf.append("/", localError); pathBuf.append(arg, localError);',
+            )
 
         # relocatable shared libs on macOS
         mh_darwin = os.path.join(self.source_folder, "source", "config", "mh-darwin")
-        replace_in_file(self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
-        replace_in_file(self,
+        replace_in_file(
+            self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir"
+        )
+        replace_in_file(
+            self,
             mh_darwin,
             "-install_name $(notdir $(MIDDLE_SO_TARGET)) $(PKGDATA_TRAILING_SPACE)",
             "-install_name @rpath/$(notdir $(MIDDLE_SO_TARGET))",
@@ -196,7 +220,9 @@ class ICUConan(ConanFile):
         self._patch_sources()
 
         if self.options.dat_package_file:
-            dat_package_file = glob.glob(os.path.join(self.source_folder, "source", "data", "in", "*.dat"))
+            dat_package_file = glob.glob(
+                os.path.join(self.source_folder, "source", "data", "in", "*.dat")
+            )
             if dat_package_file:
                 shutil.copy(str(self.options.dat_package_file), dat_package_file[0])
 
@@ -220,7 +246,12 @@ class ICUConan(ConanFile):
         return os.path.join(data_dir, self._data_filename)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
 
@@ -235,7 +266,11 @@ class ICUConan(ConanFile):
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
             mkdir(self, os.path.join(self.package_folder, "res"))
-            rename(self, src=self._data_path, dst=os.path.join(self.package_folder, "res", self._data_filename))
+            rename(
+                self,
+                src=self._data_path,
+                dst=os.path.join(self.package_folder, "res", self._data_filename),
+            )
 
         # Copy some files required for cross-compiling
         config_dir = os.path.join(self.package_folder, "config")
@@ -252,7 +287,9 @@ class ICUConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ICU")
 
         prefix = "s" if self.settings.os == "Windows" and not self.options.shared else ""
-        suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        suffix = (
+            "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        )
 
         # icudata
         self.cpp_info.components["icu-data"].set_property("cmake_target_name", "ICU::data")
@@ -303,7 +340,9 @@ class ICUConan(ConanFile):
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
             self.cpp_info.components["icu-data"].resdirs = ["res"]
-            data_path = os.path.join(self.package_folder, "res", self._data_filename).replace("\\", "/")
+            data_path = os.path.join(self.package_folder, "res", self._data_filename).replace(
+                "\\", "/"
+            )
             self.runenv_info.prepend_path("ICU_DATA", data_path)
             if self._enable_icu_tools or self.options.with_extras:
                 self.buildenv_info.prepend_path("ICU_DATA", data_path)

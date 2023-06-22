@@ -10,7 +10,19 @@ class HashLibraryConan(ConanFile):
     name = "hash-library"
     description = "Portable C++ hashing library"
     homepage = "https://create.stephan-brumme.com/hash-library/"
-    topics = ("hash", "digest", "hmac", "checksum", "crc32", "md5", "sha1", "sha2", "sha256", "sha3", "keccak")
+    topics = (
+        "hash",
+        "digest",
+        "hmac",
+        "checksum",
+        "crc32",
+        "md5",
+        "sha1",
+        "sha2",
+        "sha256",
+        "sha3",
+        "keccak",
+    )
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -40,8 +52,12 @@ class HashLibraryConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)

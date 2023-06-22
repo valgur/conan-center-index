@@ -57,7 +57,9 @@ class TinyplyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

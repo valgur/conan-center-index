@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file, collect_libs
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+    replace_in_file,
+    collect_libs,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -9,6 +18,7 @@ from conan.tools.env import VirtualBuildEnv
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class SkyrUrlConan(ConanFile):
     name = "skyr-url"
@@ -73,15 +83,20 @@ class SkyrUrlConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support.")
+            self.output.warn(
+                f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
+            )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++17 support. "
-                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
+                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                )
 
         if self.options.with_fs and self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration("apple-clang currently does not support with filesystem")
+            raise ConanInvalidConfiguration(
+                "apple-clang currently does not support with filesystem"
+            )
         if self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} supports only libstdc++'s new ABI")
 
@@ -110,7 +125,12 @@ class SkyrUrlConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE_1_0.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -120,8 +140,13 @@ class SkyrUrlConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "skyr::skyr-url")
 
         self.cpp_info.components["url"].name = "skyr-url"
-        self.cpp_info.components["url"].libs = ["skyr-urld" if self.settings.build_type == "Debug" else "skyr-url"]
-        self.cpp_info.components["url"].requires = ["tl-expected::tl-expected", "range-v3::range-v3"]
+        self.cpp_info.components["url"].libs = [
+            "skyr-urld" if self.settings.build_type == "Debug" else "skyr-url"
+        ]
+        self.cpp_info.components["url"].requires = [
+            "tl-expected::tl-expected",
+            "range-v3::range-v3",
+        ]
         if self.options.with_json:
             self.cpp_info.components["url"].requires.append("nlohmann_json::nlohmann_json")
         if self.settings.os in ["Linux", "FreeBSD"]:

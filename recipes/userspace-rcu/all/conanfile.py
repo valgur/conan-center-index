@@ -9,17 +9,13 @@ required_conan_version = ">=1.47.0"
 
 class UserspaceRCUConan(ConanFile):
     name = "userspace-rcu"
-    homepage ="https://liburcu.org/"
+    homepage = "https://liburcu.org/"
     description = "Userspace RCU (read-copy-update) library"
-    topics = ("urcu")
+    topics = "urcu"
     url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-2.1"
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     settings = "os", "compiler", "build_type", "arch"
 
@@ -31,9 +27,7 @@ class UserspaceRCUConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    build_requires = (
-        "libtool/2.4.6",
-    )
+    build_requires = ("libtool/2.4.6",)
 
     generators = "PkgConfigDeps"
 
@@ -48,8 +42,12 @@ class UserspaceRCUConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -63,7 +61,6 @@ class UserspaceRCUConan(ConanFile):
         ]
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         return self._autotools
-
 
     def build(self):
         with tools.chdir(self._source_subfolder):

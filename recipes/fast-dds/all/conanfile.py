@@ -80,7 +80,9 @@ class FastDDSConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, "192")
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -88,7 +90,9 @@ class FastDDSConan(ConanFile):
         if self.options.shared and is_msvc(self) and "MT" in msvc_runtime_flag(self):
             # This combination leads to an fast-dds error when linking
             # linking dynamic '*.dll' and static MT runtime
-            raise ConanInvalidConfiguration("Mixing a dll {} library with a static runtime is a bad idea".format(self.name))
+            raise ConanInvalidConfiguration(
+                "Mixing a dll {} library with a static runtime is a bad idea".format(self.name)
+            )
 
     def build_requirements(self):
         if Version(self.version) >= "2.7.0":
@@ -136,18 +140,22 @@ class FastDDSConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"fastrtps": "fastdds::fastrtps"}
+            {"fastrtps": "fastdds::fastrtps"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property
@@ -159,7 +167,9 @@ class FastDDSConan(ConanFile):
 
         # component fastrtps
         self.cpp_info.components["fastrtps"].set_property("cmake_target_name", "fastrtps")
-        self.cpp_info.components["fastrtps"].set_property("cmake_target_aliases", ["fastdds::fastrtps"])
+        self.cpp_info.components["fastrtps"].set_property(
+            "cmake_target_aliases", ["fastdds::fastrtps"]
+        )
         self.cpp_info.components["fastrtps"].libs = collect_libs(self)
         self.cpp_info.components["fastrtps"].requires = [
             "fast-cdr::fast-cdr",
@@ -172,7 +182,9 @@ class FastDDSConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["fastrtps"].system_libs.extend(["rt", "dl", "atomic", "m"])
         elif self.settings.os == "Windows":
-            self.cpp_info.components["fastrtps"].system_libs.extend(["iphlpapi", "shlwapi", "mswsock", "ws2_32"])
+            self.cpp_info.components["fastrtps"].system_libs.extend(
+                ["iphlpapi", "shlwapi", "mswsock", "ws2_32"]
+            )
             if self.options.shared:
                 self.cpp_info.components["fastrtps"].defines.append("FASTRTPS_DYN_LINK")
         if self.options.with_ssl:
@@ -180,13 +192,23 @@ class FastDDSConan(ConanFile):
 
         # component fast-discovery
         # FIXME: actually conan generators don't know how to create an executable imported target
-        self.cpp_info.components["fast-discovery-server"].set_property("cmake_target_name", "fastdds::fast-discovery-server")
+        self.cpp_info.components["fast-discovery-server"].set_property(
+            "cmake_target_name", "fastdds::fast-discovery-server"
+        )
         self.cpp_info.components["fast-discovery-server"].bindirs = ["bin"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "fastdds"
         self.cpp_info.names["cmake_find_package_multi"] = "fastdds"
-        self.cpp_info.components["fastrtps"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["fastrtps"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["fast-discovery-server"].names["cmake_find_package"] = "fast-discovery-server"
-        self.cpp_info.components["fast-discovery-server"].names["cmake_find_package_multi"] = "fast-discovery-server"
+        self.cpp_info.components["fastrtps"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["fastrtps"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["fast-discovery-server"].names[
+            "cmake_find_package"
+        ] = "fast-discovery-server"
+        self.cpp_info.components["fast-discovery-server"].names[
+            "cmake_find_package_multi"
+        ] = "fast-discovery-server"

@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -13,7 +22,9 @@ required_conan_version = ">=1.57.0"
 
 class LibmodbusConan(ConanFile):
     name = "libmodbus"
-    description = "libmodbus is a free software library to send/receive data according to the Modbus protocol"
+    description = (
+        "libmodbus is a free software library to send/receive data according to the Modbus protocol"
+    )
     homepage = "https://libmodbus.org/"
     topics = ("modbus", "protocol", "industry", "automation")
     license = "LGPL-2.1"
@@ -73,12 +84,14 @@ class LibmodbusConan(ConanFile):
             tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, os.path.join(self.source_folder, "build-aux", "compile"))
+            compile_wrapper = unix_path(
+                self, os.path.join(self.source_folder, "build-aux", "compile")
+            )
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -98,7 +111,12 @@ class LibmodbusConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
@@ -106,9 +124,11 @@ class LibmodbusConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
         if is_msvc(self) and self.options.shared:
-            rename(self,
-                    os.path.join(self.package_folder, "lib", "modbus.dll.lib"),
-                    os.path.join(self.package_folder, "lib", "modbus.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "modbus.dll.lib"),
+                os.path.join(self.package_folder, "lib", "modbus.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libmodbus")

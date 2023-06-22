@@ -33,10 +33,6 @@ class Hdf4Conan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -64,8 +60,11 @@ class Hdf4Conan(ConanFile):
             self.requires("szip/2.1.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -83,14 +82,22 @@ class Hdf4Conan(ConanFile):
         self._cmake.definitions["ONLY_SHARED_LIBS"] = self.options.shared
         self._cmake.definitions["HDF4_ENABLE_COVERAGE"] = False
         self._cmake.definitions["HDF4_ENABLE_DEPRECATED_SYMBOLS"] = True
-        self._cmake.definitions["HDF4_ENABLE_JPEG_LIB_SUPPORT"] = True # HDF can't compile without libjpeg or libjpeg-turbo
-        self._cmake.definitions["HDF4_ENABLE_Z_LIB_SUPPORT"] = True # HDF can't compile without zlib
+        self._cmake.definitions[
+            "HDF4_ENABLE_JPEG_LIB_SUPPORT"
+        ] = True  # HDF can't compile without libjpeg or libjpeg-turbo
+        self._cmake.definitions[
+            "HDF4_ENABLE_Z_LIB_SUPPORT"
+        ] = True  # HDF can't compile without zlib
         self._cmake.definitions["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
-        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
+        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = (
+            self.options.get_safe("szip_encoding") or False
+        )
         self._cmake.definitions["HDF4_PACKAGE_EXTLIBS"] = False
         self._cmake.definitions["HDF4_BUILD_XDR_LIB"] = True
         self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.definitions["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(self.package_folder, "include", "hdf4")
+        self._cmake.definitions["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(
+            self.package_folder, "include", "hdf4"
+        )
         self._cmake.definitions["HDF4_BUILD_FORTRAN"] = False
         self._cmake.definitions["HDF4_BUILD_UTILS"] = False
         self._cmake.definitions["HDF4_BUILD_TOOLS"] = False
@@ -128,7 +135,7 @@ class Hdf4Conan(ConanFile):
         self.cpp_info.components["hdf"].libs = [self._get_decorated_lib("hdf")]
         self.cpp_info.components["hdf"].requires = [
             "zlib::zlib",
-            "libjpeg-turbo::libjpeg-turbo" if self.options.jpegturbo else "libjpeg::libjpeg"
+            "libjpeg-turbo::libjpeg-turbo" if self.options.jpegturbo else "libjpeg::libjpeg",
         ]
         if self.options.szip_support == "with_libaec":
             self.cpp_info.components["hdf"].requires.append("libaec::libaec")
@@ -149,7 +156,11 @@ class Hdf4Conan(ConanFile):
 
     def _get_decorated_lib(self, name):
         libname = name
-        if self.settings.os == "Windows" and self.settings.compiler != "gcc" and not self.options.shared:
+        if (
+            self.settings.os == "Windows"
+            and self.settings.compiler != "gcc"
+            and not self.options.shared
+        ):
             libname = "lib" + libname
         if self.settings.build_type == "Debug":
             libname += "_D" if self.settings.os == "Windows" else "_debug"

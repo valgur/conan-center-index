@@ -8,8 +8,10 @@ import shutil
 
 class GStPluginsBadConan(ConanFile):
     name = "gst-plugins-bad"
-    description = "GStreamer is a development framework for creating applications like media players, video editors, " \
-                  "streaming media broadcasters and so on"
+    description = (
+        "GStreamer is a development framework for creating applications like media players, video editors, "
+        "streaming media broadcasters and so on"
+    )
     topics = ("gstreamer", "multimedia", "video", "audio", "broadcasting", "framework", "media")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gstreamer.freedesktop.org/"
@@ -19,12 +21,12 @@ class GStPluginsBadConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_introspection": [True, False],
-        }
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_introspection": False,
-        }
+    }
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
     exports_sources = ["patches/*.patch"]
@@ -36,30 +38,38 @@ class GStPluginsBadConan(ConanFile):
         return self.settings.compiler == "Visual Studio"
 
     def validate(self):
-        if self.options.shared != self.options["gstreamer"].shared or \
-            self.options.shared != self.options["glib"].shared or \
-            self.options.shared != self.options["gst-plugins-base"].shared:
-                # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
-                raise ConanInvalidConfiguration("GLib, GStreamer and GstPlugins must be either all shared, or all static")
-        if tools.Version(self.version) >= "1.18.2" and\
-           self.settings.compiler == "gcc" and\
-           tools.Version(self.settings.compiler.version) < "5":
+        if (
+            self.options.shared != self.options["gstreamer"].shared
+            or self.options.shared != self.options["glib"].shared
+            or self.options.shared != self.options["gst-plugins-base"].shared
+        ):
+            # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
+            raise ConanInvalidConfiguration(
+                "GLib, GStreamer and GstPlugins must be either all shared, or all static"
+            )
+        if (
+            tools.Version(self.version) >= "1.18.2"
+            and self.settings.compiler == "gcc"
+            and tools.Version(self.settings.compiler.version) < "5"
+        ):
             raise ConanInvalidConfiguration(
                 "gst-plugins-bad %s does not support gcc older than 5" % self.version
             )
         if self.options.shared and str(msvc_runtime_flag(self)).startswith("MT"):
-            raise ConanInvalidConfiguration('shared build with static runtime is not supported due to the FlsAlloc limit')
+            raise ConanInvalidConfiguration(
+                "shared build with static runtime is not supported due to the FlsAlloc limit"
+            )
 
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
-        self.options['gstreamer'].shared = self.options.shared
-        self.options['gst-plugins-base'].shared = self.options.shared
+        self.options["gstreamer"].shared = self.options.shared
+        self.options["gst-plugins-base"].shared = self.options.shared
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def requirements(self):
@@ -71,7 +81,7 @@ class GStPluginsBadConan(ConanFile):
         self.build_requires("meson/0.54.2")
         if not tools.which("pkg-config"):
             self.build_requires("pkgconf/1.7.4")
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             self.build_requires("winflexbison/2.5.24")
         else:
             self.build_requires("bison/3.7.6")
@@ -80,8 +90,11 @@ class GStPluginsBadConan(ConanFile):
             self.build_requires("gobject-introspection/1.68.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_meson(self):
         defs = dict()
@@ -114,16 +127,18 @@ class GStPluginsBadConan(ConanFile):
         defs["tests"] = "disabled"
         defs["wrap_mode"] = "nofallback"
         defs["introspection"] = "enabled" if self.options.with_introspection else "disabled"
-        meson.configure(build_folder=self._build_subfolder,
-                        source_folder=self._source_subfolder,
-                        defs=defs)
+        meson.configure(
+            build_folder=self._build_subfolder, source_folder=self._source_subfolder, defs=defs
+        )
         return meson
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
-        with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if self._is_msvc else tools.no_op():
+        with tools.environment_append(
+            VisualStudioBuildEnvironment(self).vars
+        ) if self._is_msvc else tools.no_op():
             meson = self._configure_meson()
             meson.build()
 
@@ -138,7 +153,9 @@ class GStPluginsBadConan(ConanFile):
 
     def package(self):
         self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if self._is_msvc else tools.no_op():
+        with tools.environment_append(
+            VisualStudioBuildEnvironment(self).vars
+        ) if self._is_msvc else tools.no_op():
             meson = self._configure_meson()
             meson.install()
 
@@ -150,73 +167,74 @@ class GStPluginsBadConan(ConanFile):
         tools.remove_files_by_mask(self.package_folder, "*.pdb")
 
     def package_info(self):
-
-        plugins = ["accurip",
-                   "adpcmdec",
-                   "adpcmenc",
-                   "aiff",
-                   "asfmux",
-                   "audiobuffersplit",
-                   "audiofxbad",
-                   "audiolatency",
-                   "audiomixmatrix",
-                   "audiovisualizers",
-                   "autoconvert",
-                   "bayer",
-                   "camerabin",
-                   "codecalpha",
-                   "coloreffects",
-                   "debugutilsbad",
-                   "dvbsubenc",
-                   "dvbsuboverlay",
-                   "dvdspu",
-                   "faceoverlay",
-                   "festival",
-                   "fieldanalysis",
-                   "freeverb",
-                   "frei0r",
-                   "gaudieffects",
-                   "gdp",
-                   "geometrictransform",
-                   "id3tag",
-                   "inter",
-                   "interlace",
-                   "ivfparse",
-                   "ivtc",
-                   "jp2kdecimator",
-                   "jpegformat",
-                   "rfbsrc",
-                   "midi",
-                   "mpegpsdemux",
-                   "mpegpsmux",
-                   "mpegtsdemux",
-                   "mpegtsmux",
-                   "mxf",
-                   "netsim",
-                   "rtponvif",
-                   "pcapparse",
-                   "pnm",
-                   "proxy",
-                   "legacyrawparse",
-                   "removesilence",
-                   "rist",
-                   "rtmp2",
-                   "rtpmanagerbad",
-                   "sdpelem",
-                   "segmentclip",
-                   "siren",
-                   "smooth",
-                   "speed",
-                   "subenc",
-                   "switchbin",
-                   "timecode",
-                   "transcode",
-                   "videofiltersbad",
-                   "videoframe_audiolevel",
-                   "videoparsersbad",
-                   "videosignal",
-                   "vmnc",
-                   "y4mdec"]
+        plugins = [
+            "accurip",
+            "adpcmdec",
+            "adpcmenc",
+            "aiff",
+            "asfmux",
+            "audiobuffersplit",
+            "audiofxbad",
+            "audiolatency",
+            "audiomixmatrix",
+            "audiovisualizers",
+            "autoconvert",
+            "bayer",
+            "camerabin",
+            "codecalpha",
+            "coloreffects",
+            "debugutilsbad",
+            "dvbsubenc",
+            "dvbsuboverlay",
+            "dvdspu",
+            "faceoverlay",
+            "festival",
+            "fieldanalysis",
+            "freeverb",
+            "frei0r",
+            "gaudieffects",
+            "gdp",
+            "geometrictransform",
+            "id3tag",
+            "inter",
+            "interlace",
+            "ivfparse",
+            "ivtc",
+            "jp2kdecimator",
+            "jpegformat",
+            "rfbsrc",
+            "midi",
+            "mpegpsdemux",
+            "mpegpsmux",
+            "mpegtsdemux",
+            "mpegtsmux",
+            "mxf",
+            "netsim",
+            "rtponvif",
+            "pcapparse",
+            "pnm",
+            "proxy",
+            "legacyrawparse",
+            "removesilence",
+            "rist",
+            "rtmp2",
+            "rtpmanagerbad",
+            "sdpelem",
+            "segmentclip",
+            "siren",
+            "smooth",
+            "speed",
+            "subenc",
+            "switchbin",
+            "timecode",
+            "transcode",
+            "videofiltersbad",
+            "videoframe_audiolevel",
+            "videoparsersbad",
+            "videosignal",
+            "vmnc",
+            "y4mdec",
+        ]
 
         gst_plugin_path = os.path.join(self.package_folder, "lib", "gstreamer-1.0")
         if self.options.shared:

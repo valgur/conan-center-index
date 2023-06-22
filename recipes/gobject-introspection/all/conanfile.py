@@ -6,6 +6,7 @@ import glob
 
 required_conan_version = ">=1.36.0"
 
+
 class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
     description = "GObject introspection is a middleware layer between C libraries (using GObject) and language bindings"
@@ -14,8 +15,14 @@ class GobjectIntrospectionConan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
     license = "LGPL-2.1"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
     generators = "pkg_config"
@@ -34,7 +41,9 @@ class GobjectIntrospectionConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("%s recipe does not support windows. Contributions are welcome!" % self.name)
+            raise ConanInvalidConfiguration(
+                "%s recipe does not support windows. Contributions are welcome!" % self.name
+            )
 
     def build_requirements(self):
         if tools.Version(self.version) >= "1.71.0":
@@ -53,7 +62,11 @@ class GobjectIntrospectionConan(ConanFile):
         self.requires("glib/2.73.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_meson(self):
         meson = Meson(self)
@@ -104,9 +117,7 @@ class GobjectIntrospectionConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "gobject-introspection-1.0"
         self.cpp_info.libs = ["girepository-1.0"]
-        self.cpp_info.includedirs.append(
-            os.path.join("include", "gobject-introspection-1.0")
-        )
+        self.cpp_info.includedirs.append(os.path.join("include", "gobject-introspection-1.0"))
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH env var with: {}".format(bin_path))
@@ -115,15 +126,16 @@ class GobjectIntrospectionConan(ConanFile):
         exe_ext = ".exe" if self.settings.os == "Windows" else ""
 
         pkgconfig_variables = {
-            'datadir': '${prefix}/res',
-            'bindir': '${prefix}/bin',
-            'g_ir_scanner': '${bindir}/g-ir-scanner',
-            'g_ir_compiler': '${bindir}/g-ir-compiler%s' % exe_ext,
-            'g_ir_generate': '${bindir}/g-ir-generate%s' % exe_ext,
-            'gidatadir': '${datadir}/gobject-introspection-1.0',
-            'girdir': '${datadir}/gir-1.0',
-            'typelibdir': '${libdir}/girepository-1.0',
+            "datadir": "${prefix}/res",
+            "bindir": "${prefix}/bin",
+            "g_ir_scanner": "${bindir}/g-ir-scanner",
+            "g_ir_compiler": "${bindir}/g-ir-compiler%s" % exe_ext,
+            "g_ir_generate": "${bindir}/g-ir-generate%s" % exe_ext,
+            "gidatadir": "${datadir}/gobject-introspection-1.0",
+            "girdir": "${datadir}/gir-1.0",
+            "typelibdir": "${libdir}/girepository-1.0",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join("%s=%s" % (key, value) for key,value in pkgconfig_variables.items()))
+            "\n".join("%s=%s" % (key, value) for key, value in pkgconfig_variables.items()),
+        )

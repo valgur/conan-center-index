@@ -51,7 +51,12 @@ class YAJLConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -59,7 +64,11 @@ class YAJLConan(ConanFile):
 
         # We need to move the dll from lib to bin in order for it to be found later
         if self.settings.os == "Windows":
-            rename(self, os.path.join(self.package_folder, "lib", "yajl.dll"), os.path.join(self.package_folder, "bin", "yajl.dll"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "yajl.dll"),
+                os.path.join(self.package_folder, "bin", "yajl.dll"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

@@ -5,6 +5,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.29.1"
 
+
 class ResiprocateConan(ConanFile):
     name = "resiprocate"
     description = "The project is dedicated to maintaining a complete, correct, and commercially usable implementation of SIP and a few related protocols. "
@@ -13,30 +14,32 @@ class ResiprocateConan(ConanFile):
     homepage = "http://www.resiprocate.org"
     license = "VSL-1.0"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False],
-               "shared": [True, False],
-               "with_ssl": [True, False],
-               "with_postgresql": [True, False],
-               "with_mysql": [True, False]}
-    default_options = {"fPIC": True,
-                       "shared": False,
-                       "with_ssl": True,
-                       "with_postgresql": True,
-                       "with_mysql": True}
+    options = {
+        "fPIC": [True, False],
+        "shared": [True, False],
+        "with_ssl": [True, False],
+        "with_postgresql": [True, False],
+        "with_mysql": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+        "shared": False,
+        "with_ssl": True,
+        "with_postgresql": True,
+        "with_mysql": True,
+    }
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.settings.os in ("Windows", "Macos"):
             # FIXME: Visual Studio project & Mac support seems available in resiprocate
-            raise ConanInvalidConfiguration("reSIProcate recipe does not currently support {}.".format(self.settings.os))
+            raise ConanInvalidConfiguration(
+                "reSIProcate recipe does not currently support {}.".format(self.settings.os)
+            )
         if self.options.shared:
             del self.options.fPIC
 
@@ -60,7 +63,7 @@ class ResiprocateConan(ConanFile):
         configure_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True)))
+            "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True))),
         ]
 
         # These options do not support yes/no
@@ -70,7 +73,7 @@ class ResiprocateConan(ConanFile):
             configure_args.append("--with-mysql")
         if self.options.with_postgresql:
             configure_args.append("--with-postgresql")
-        
+
         self._autotools.configure(configure_dir=self._source_subfolder, args=configure_args)
         return self._autotools
 

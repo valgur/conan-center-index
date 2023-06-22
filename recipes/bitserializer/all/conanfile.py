@@ -12,7 +12,9 @@ required_conan_version = ">=1.51.1"
 
 class BitserializerConan(ConanFile):
     name = "bitserializer"
-    description = "C++ 17 library for serialization to multiple output formats (JSON, XML, YAML, CSV)"
+    description = (
+        "C++ 17 library for serialization to multiple output formats (JSON, XML, YAML, CSV)"
+    )
     topics = ("serialization", "json", "xml", "yaml", "csv")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/Pavel_Kisliak/bitserializer"
@@ -105,10 +107,17 @@ class BitserializerConan(ConanFile):
         # Check stdlib ABI compatibility
         compiler_name = str(self.settings.compiler)
         if compiler_name == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration(f'Using {self.ref} with GCC requires "compiler.libcxx=libstdc++11"')
-        elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
-            raise ConanInvalidConfiguration(f'Using {self.ref} with Clang requires either "compiler.libcxx=libstdc++11"'
-                                            ' or "compiler.libcxx=libc++"')
+            raise ConanInvalidConfiguration(
+                f'Using {self.ref} with GCC requires "compiler.libcxx=libstdc++11"'
+            )
+        elif compiler_name == "clang" and self.settings.compiler.libcxx not in [
+            "libstdc++11",
+            "libc++",
+        ]:
+            raise ConanInvalidConfiguration(
+                f'Using {self.ref} with Clang requires either "compiler.libcxx=libstdc++11"'
+                ' or "compiler.libcxx=libc++"'
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -129,8 +138,10 @@ class BitserializerConan(ConanFile):
         if Version(self.version) >= "0.50":
             # Remove 'ryml' subdirectory from #include
             replace_in_file(
-                self, os.path.join(self.source_folder, "include", "bitserializer", "rapidyaml_archive.h"),
-                "#include <ryml/", "#include <",
+                self,
+                os.path.join(self.source_folder, "include", "bitserializer", "rapidyaml_archive.h"),
+                "#include <ryml/",
+                "#include <",
             )
 
     def build(self):
@@ -146,53 +157,89 @@ class BitserializerConan(ConanFile):
             cmake.install()
             rmdir(self, os.path.join(self.package_folder, "share"))
         else:
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
         # Copy license
-        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "license.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         lib_suffix = "d" if self.settings.build_type == "Debug" else ""
         self.cpp_info.set_property("cmake_file_name", "bitserializer")
 
         # cpprestjson-core
-        self.cpp_info.components["bitserializer-core"].set_property("cmake_target_name", "BitSerializer::core")
+        self.cpp_info.components["bitserializer-core"].set_property(
+            "cmake_target_name", "BitSerializer::core"
+        )
         self.cpp_info.components["bitserializer-core"].bindirs = []
         self.cpp_info.components["bitserializer-core"].libdirs = []
-        if self.settings.compiler == "gcc" or (self.settings.os == "Linux" and self.settings.compiler == "clang"):
+        if self.settings.compiler == "gcc" or (
+            self.settings.os == "Linux" and self.settings.compiler == "clang"
+        ):
             if Version(self.settings.compiler.version) < 9:
                 self.cpp_info.components["bitserializer-core"].system_libs = ["stdc++fs"]
 
         # cpprestjson-archive
         if self.options.with_cpprestsdk:
-            self.cpp_info.components["bitserializer-cpprestjson"].set_property("cmake_target_name", "BitSerializer::cpprestjson-archive")
+            self.cpp_info.components["bitserializer-cpprestjson"].set_property(
+                "cmake_target_name", "BitSerializer::cpprestjson-archive"
+            )
             self.cpp_info.components["bitserializer-cpprestjson"].bindirs = []
             self.cpp_info.components["bitserializer-cpprestjson"].libdirs = []
-            self.cpp_info.components["bitserializer-cpprestjson"].requires = ["bitserializer-core", "cpprestsdk::cpprestsdk"]
+            self.cpp_info.components["bitserializer-cpprestjson"].requires = [
+                "bitserializer-core",
+                "cpprestsdk::cpprestsdk",
+            ]
 
         # rapidjson-archive
         if self.options.with_rapidjson:
-            self.cpp_info.components["bitserializer-rapidjson"].set_property("cmake_target_name", "BitSerializer::rapidjson-archive")
+            self.cpp_info.components["bitserializer-rapidjson"].set_property(
+                "cmake_target_name", "BitSerializer::rapidjson-archive"
+            )
             self.cpp_info.components["bitserializer-rapidjson"].bindirs = []
             self.cpp_info.components["bitserializer-rapidjson"].libdirs = []
-            self.cpp_info.components["bitserializer-rapidjson"].requires = ["bitserializer-core", "rapidjson::rapidjson"]
+            self.cpp_info.components["bitserializer-rapidjson"].requires = [
+                "bitserializer-core",
+                "rapidjson::rapidjson",
+            ]
 
         # pugixml-archive
         if self.options.with_pugixml:
-            self.cpp_info.components["bitserializer-pugixml"].set_property("cmake_target_name", "BitSerializer::pugixml-archive")
+            self.cpp_info.components["bitserializer-pugixml"].set_property(
+                "cmake_target_name", "BitSerializer::pugixml-archive"
+            )
             self.cpp_info.components["bitserializer-pugixml"].bindirs = []
             self.cpp_info.components["bitserializer-pugixml"].libdirs = []
-            self.cpp_info.components["bitserializer-pugixml"].requires = ["bitserializer-core", "pugixml::pugixml"]
+            self.cpp_info.components["bitserializer-pugixml"].requires = [
+                "bitserializer-core",
+                "pugixml::pugixml",
+            ]
 
         # rapidyaml-archive
         if self.options.get_safe("with_rapidyaml"):
-            self.cpp_info.components["bitserializer-rapidyaml"].set_property("cmake_target_name", "BitSerializer::rapidyaml-archive")
+            self.cpp_info.components["bitserializer-rapidyaml"].set_property(
+                "cmake_target_name", "BitSerializer::rapidyaml-archive"
+            )
             self.cpp_info.components["bitserializer-rapidyaml"].bindirs = []
             self.cpp_info.components["bitserializer-rapidyaml"].libdirs = []
-            self.cpp_info.components["bitserializer-rapidyaml"].requires = ["bitserializer-core", "rapidyaml::rapidyaml"]
+            self.cpp_info.components["bitserializer-rapidyaml"].requires = [
+                "bitserializer-core",
+                "rapidyaml::rapidyaml",
+            ]
 
         # csv-archive
         if self.options.get_safe("with_csv"):
-            self.cpp_info.components["bitserializer-csv"].set_property("cmake_target_name", "BitSerializer::csv-archive")
+            self.cpp_info.components["bitserializer-csv"].set_property(
+                "cmake_target_name", "BitSerializer::csv-archive"
+            )
             self.cpp_info.components["bitserializer-csv"].requires = ["bitserializer-core"]
             self.cpp_info.components["bitserializer-csv"].bindirs = []
             self.cpp_info.components["bitserializer-csv"].libs = [f"csv-archive{lib_suffix}"]
@@ -205,17 +252,37 @@ class BitserializerConan(ConanFile):
         self.cpp_info.components["bitserializer-core"].names["cmake_find_package"] = "core"
         self.cpp_info.components["bitserializer-core"].names["cmake_find_package_multi"] = "core"
         if self.options.with_cpprestsdk:
-            self.cpp_info.components["bitserializer-cpprestjson"].names["cmake_find_package"] = "cpprestjson-archive"
-            self.cpp_info.components["bitserializer-cpprestjson"].names["cmake_find_package_multi"] = "cpprestjson-archive"
+            self.cpp_info.components["bitserializer-cpprestjson"].names[
+                "cmake_find_package"
+            ] = "cpprestjson-archive"
+            self.cpp_info.components["bitserializer-cpprestjson"].names[
+                "cmake_find_package_multi"
+            ] = "cpprestjson-archive"
         if self.options.with_rapidjson:
-            self.cpp_info.components["bitserializer-rapidjson"].names["cmake_find_package"] = "rapidjson-archive"
-            self.cpp_info.components["bitserializer-rapidjson"].names["cmake_find_package_multi"] = "rapidjson-archive"
+            self.cpp_info.components["bitserializer-rapidjson"].names[
+                "cmake_find_package"
+            ] = "rapidjson-archive"
+            self.cpp_info.components["bitserializer-rapidjson"].names[
+                "cmake_find_package_multi"
+            ] = "rapidjson-archive"
         if self.options.with_pugixml:
-            self.cpp_info.components["bitserializer-pugixml"].names["cmake_find_package"] = "pugixml-archive"
-            self.cpp_info.components["bitserializer-pugixml"].names["cmake_find_package_multi"] = "pugixml-archive"
+            self.cpp_info.components["bitserializer-pugixml"].names[
+                "cmake_find_package"
+            ] = "pugixml-archive"
+            self.cpp_info.components["bitserializer-pugixml"].names[
+                "cmake_find_package_multi"
+            ] = "pugixml-archive"
         if self.options.get_safe("with_rapidyaml"):
-            self.cpp_info.components["bitserializer-rapidyaml"].names["cmake_find_package"] = "rapidyaml-archive"
-            self.cpp_info.components["bitserializer-rapidyaml"].names["cmake_find_package_multi"] = "rapidyaml-archive"
+            self.cpp_info.components["bitserializer-rapidyaml"].names[
+                "cmake_find_package"
+            ] = "rapidyaml-archive"
+            self.cpp_info.components["bitserializer-rapidyaml"].names[
+                "cmake_find_package_multi"
+            ] = "rapidyaml-archive"
         if self.options.get_safe("with_csv"):
-            self.cpp_info.components["bitserializer-csv"].names["cmake_find_package"] = "csv-archive"
-            self.cpp_info.components["bitserializer-csv"].names["cmake_find_package_multi"] = "csv-archive"
+            self.cpp_info.components["bitserializer-csv"].names[
+                "cmake_find_package"
+            ] = "csv-archive"
+            self.cpp_info.components["bitserializer-csv"].names[
+                "cmake_find_package_multi"
+            ] = "csv-archive"

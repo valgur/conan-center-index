@@ -21,10 +21,6 @@ class GnConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _minimum_compiler_version_supporting_cxx17(self):
         return {
             "Visual Studio": 15,
@@ -38,16 +34,23 @@ class GnConan(ConanFile):
             tools.check_min_cppstd(self, 17)
         else:
             if self._minimum_compiler_version_supporting_cxx17:
-                if tools_scm.Version(self.settings.compiler.version) < self._minimum_compiler_version_supporting_cxx17:
+                if (
+                    tools_scm.Version(self.settings.compiler.version)
+                    < self._minimum_compiler_version_supporting_cxx17
+                ):
                     raise ConanInvalidConfiguration("gn requires a compiler supporting c++17")
             else:
-                self.output.warn("gn recipe does not recognize the compiler. gn requires a compiler supporting c++17. Assuming it does.")
+                self.output.warn(
+                    "gn recipe does not recognize the compiler. gn requires a compiler supporting c++17. Assuming it does."
+                )
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools_files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        tools_files.get(
+            self, **self.conan_data["sources"][self.version], destination=self._source_subfolder
+        )
 
     def build_requirements(self):
         # FIXME: add cpython build requirements for `build/gen.py`.
@@ -95,23 +98,33 @@ class GnConan(ConanFile):
         with tools.chdir(self._source_subfolder):
             with self._build_context():
                 # Generate dummy header to be able to run `build/ben.py` with `--no-last-commit-position`. This allows running the script without the tree having to be a git checkout.
-                tools.save(os.path.join("src", "gn", "last_commit_position.h"),
-                           textwrap.dedent("""\
+                tools.save(
+                    os.path.join("src", "gn", "last_commit_position.h"),
+                    textwrap.dedent(
+                        """\
                                 #pragma once
                                 #define LAST_COMMIT_POSITION "1"
                                 #define LAST_COMMIT_POSITION_NUM 1
-                                """))
+                                """
+                    ),
+                )
                 conf_args = [
                     "--no-last-commit-position",
-                    "--host={}".format(self._to_gn_platform(self.settings.os, self.settings.compiler)),
+                    "--host={}".format(
+                        self._to_gn_platform(self.settings.os, self.settings.compiler)
+                    ),
                 ]
                 if self.settings.build_type == "Debug":
                     conf_args.append("-d")
-                self.run("{} build/gen.py {}".format(sys.executable, " ".join(conf_args)), run_environment=True)
+                self.run(
+                    "{} build/gen.py {}".format(sys.executable, " ".join(conf_args)),
+                    run_environment=True,
+                )
                 # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
                 time.sleep(1)
                 build_args = [
-                    "-C", "out",
+                    "-C",
+                    "out",
                     "-j{}".format(tools.cpu_count()),
                 ]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)

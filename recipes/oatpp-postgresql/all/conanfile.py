@@ -54,14 +54,23 @@ class OatppPostgresqlConan(ConanFile):
             check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared library with msvc"
+            )
 
-        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
+        if (
+            self.info.settings.compiler == "gcc"
+            and Version(self.info.settings.compiler.version) < "5"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -80,7 +89,12 @@ class OatppPostgresqlConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -92,9 +106,13 @@ class OatppPostgresqlConan(ConanFile):
         self.cpp_info.components["_oatpp-postgresql"].includedirs = [
             os.path.join("include", f"oatpp-{self.version}", "oatpp-postgresql")
         ]
-        self.cpp_info.components["_oatpp-postgresql"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.components["_oatpp-postgresql"].libdirs = [
+            os.path.join("lib", f"oatpp-{self.version}")
+        ]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-postgresql"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.components["_oatpp-postgresql"].bindirs = [
+                os.path.join("bin", f"oatpp-{self.version}")
+            ]
         else:
             self.cpp_info.components["_oatpp-postgresql"].bindirs = []
         self.cpp_info.components["_oatpp-postgresql"].libs = ["oatpp-postgresql"]
@@ -106,7 +124,13 @@ class OatppPostgresqlConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-postgresql"
         self.cpp_info.names["cmake_find_package"] = "oatpp"
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
-        self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package"] = "oatpp-postgresql"
-        self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package_multi"] = "oatpp-postgresql"
-        self.cpp_info.components["_oatpp-postgresql"].set_property("cmake_target_name", "oatpp::oatpp-postgresql")
+        self.cpp_info.components["_oatpp-postgresql"].names[
+            "cmake_find_package"
+        ] = "oatpp-postgresql"
+        self.cpp_info.components["_oatpp-postgresql"].names[
+            "cmake_find_package_multi"
+        ] = "oatpp-postgresql"
+        self.cpp_info.components["_oatpp-postgresql"].set_property(
+            "cmake_target_name", "oatpp::oatpp-postgresql"
+        )
         self.cpp_info.components["_oatpp-postgresql"].requires = ["oatpp::oatpp", "libpq::libpq"]

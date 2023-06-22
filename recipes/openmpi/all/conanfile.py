@@ -16,19 +16,11 @@ class OpenMPIConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"]
+        "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"],
     }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "fortran": "no"
-    }
+    default_options = {"shared": False, "fPIC": True, "fortran": "no"}
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         if self.options.shared:
@@ -82,15 +74,17 @@ class OpenMPIConan(ConanFile):
         tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
 
     def package_info(self):
-        self.cpp_info.libs = ['mpi', 'open-rte', 'open-pal']
+        self.cpp_info.libs = ["mpi", "open-rte", "open-pal"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["dl", "pthread", "rt", "util"]
 
         self.output.info("Creating MPI_HOME environment variable: {}".format(self.package_folder))
         self.env_info.MPI_HOME = self.package_folder
-        self.output.info("Creating OPAL_PREFIX environment variable: {}".format(self.package_folder))
+        self.output.info(
+            "Creating OPAL_PREFIX environment variable: {}".format(self.package_folder)
+        )
         self.env_info.OPAL_PREFIX = self.package_folder
-        mpi_bin = os.path.join(self.package_folder, 'bin')
+        mpi_bin = os.path.join(self.package_folder, "bin")
         self.output.info("Creating MPI_BIN environment variable: {}".format(mpi_bin))
         self.env_info.MPI_BIN = mpi_bin
         self.output.info("Appending PATH environment variable: {}".format(mpi_bin))

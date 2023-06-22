@@ -24,10 +24,6 @@ class LibTomMathConan(ConanFile):
     exports_sources = "patches/*"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -44,12 +40,19 @@ class LibTomMathConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and self.settings.compiler != "Visual Studio":
             self.build_requires("make/4.3")
-        if self.settings.compiler != "Visual Studio" and self.settings.os != "Windows" and self.options.shared:
+        if (
+            self.settings.compiler != "Visual Studio"
+            and self.settings.os != "Windows"
+            and self.options.shared
+        ):
             self.build_requires("libtool/2.4.6")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _run_makefile(self, target=None):
         target = target or ""
@@ -61,9 +64,11 @@ class LibTomMathConan(ConanFile):
             # FIXME: should be handled by helper
             autotools.link_flags.append("-arch arm64")
         args = autotools.vars
-        args.update({
-            "PREFIX": self.package_folder,
-        })
+        args.update(
+            {
+                "PREFIX": self.package_folder,
+            }
+        )
         if self.settings.compiler != "Visual Studio":
             if tools.get_env("CC"):
                 args["CC"] = tools.get_env("CC")
@@ -73,7 +78,7 @@ class LibTomMathConan(ConanFile):
                 args["AR"] = tools.get_env("AR")
 
             args["LIBTOOL"] = "libtool"
-        arg_str = " ".join("{}=\"{}\"".format(k, v) for k, v in args.items())
+        arg_str = " ".join('{}="{}"'.format(k, v) for k, v in args.items())
 
         with tools.environment_append(args):
             with tools.chdir(self._source_subfolder):
@@ -83,10 +88,13 @@ class LibTomMathConan(ConanFile):
                     else:
                         target = "tommath.lib"
                     with tools.vcvars(self):
-                        self.run("nmake -f makefile.msvc {} {}".format(
-                            target,
-                            arg_str,
-                        ), run_environment=True)
+                        self.run(
+                            "nmake -f makefile.msvc {} {}".format(
+                                target,
+                                arg_str,
+                            ),
+                            run_environment=True,
+                        )
                 else:
                     if self.settings.os == "Windows":
                         makefile = "makefile.mingw"
@@ -99,13 +107,16 @@ class LibTomMathConan(ConanFile):
                             makefile = "makefile.shared"
                         else:
                             makefile = "makefile.unix"
-                    self.run("{} -f {} {} {} -j{}".format(
-                        tools.get_env("CONAN_MAKE_PROGRAM", "make"),
-                        makefile,
-                        target,
-                        arg_str,
-                        tools.cpu_count(),
-                    ), run_environment=True)
+                    self.run(
+                        "{} -f {} {} {} -j{}".format(
+                            tools.get_env("CONAN_MAKE_PROGRAM", "make"),
+                            makefile,
+                            target,
+                            arg_str,
+                            tools.cpu_count(),
+                        ),
+                        run_environment=True,
+                    )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -127,8 +138,10 @@ class LibTomMathConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            os.rename(os.path.join(self.package_folder, "lib", "tommath.dll.lib"),
-                      os.path.join(self.package_folder, "lib", "tommath.lib"))
+            os.rename(
+                os.path.join(self.package_folder, "lib", "tommath.dll.lib"),
+                os.path.join(self.package_folder, "lib", "tommath.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["tommath"]

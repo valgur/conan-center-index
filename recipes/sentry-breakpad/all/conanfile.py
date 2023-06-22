@@ -33,13 +33,17 @@ class SentryBreakpadConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {} if Version(self.version) < "0.5.4" else {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "Visual Studio": "15",
-            "msvc": "191",
-        }
+        return (
+            {}
+            if Version(self.version) < "0.5.4"
+            else {
+                "gcc": "7",
+                "clang": "7",
+                "apple-clang": "10",
+                "Visual Studio": "15",
+                "msvc": "191",
+            }
+        )
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -54,7 +58,7 @@ class SentryBreakpadConan(ConanFile):
     def requirements(self):
         if self.settings.os in ("FreeBSD", "Linux"):
             # linux-syscal-support is a public dependency
-            # see https://github.com/conan-io/conan-center-index/pull/16752#issuecomment-1487241864 
+            # see https://github.com/conan-io/conan-center-index/pull/16752#issuecomment-1487241864
             self.requires("linux-syscall-support/cci.20200813", transitive_headers=True)
 
     def validate(self):
@@ -98,18 +102,22 @@ class SentryBreakpadConan(ConanFile):
             "src/client/linux/minidump_writer/linux_ptrace_dumper.cc",
             "src/client/linux/minidump_writer/cpu_set.h",
             "src/client/linux/minidump_writer/directory_reader.h",
-            "src/client/linux/minidump_writer/line_reader.h"
+            "src/client/linux/minidump_writer/line_reader.h",
         ]
 
         for file in files_to_patch:
-            replace_in_file(self,
+            replace_in_file(
+                self,
                 os.path.join(self.source_folder, "external", "breakpad", file),
-                "#include \"third_party/lss/linux_syscall_support.h\"",
-                "#include <linux_syscall_support.h>"
+                '#include "third_party/lss/linux_syscall_support.h"',
+                "#include <linux_syscall_support.h>",
             )
 
-        save(self, os.path.join(self.source_folder, "external", "CMakeLists.txt"),
-                   textwrap.dedent("""\
+        save(
+            self,
+            os.path.join(self.source_folder, "external", "CMakeLists.txt"),
+            textwrap.dedent(
+                """\
                     target_compile_features(breakpad_client PUBLIC cxx_std_11)
                     if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
                         find_path(LINUX_SYSCALL_INCLUDE_DIR NAMES linux_syscall_support.h)
@@ -149,7 +157,10 @@ class SentryBreakpadConan(ConanFile):
                         DESTINATION include/breakpad/google_breakpad
                         FILES_MATCHING PATTERN *.h
                     )
-                   """), append=True)
+                   """
+            ),
+            append=True,
+        )
 
     def build(self):
         self._patch_sources()
@@ -158,8 +169,12 @@ class SentryBreakpadConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=os.path.join(self.source_folder, "external", "breakpad"),
-                              dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=os.path.join(self.source_folder, "external", "breakpad"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

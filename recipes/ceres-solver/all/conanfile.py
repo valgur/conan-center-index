@@ -27,7 +27,10 @@ class CeressolverConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "use_glog":  [True, False], #TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
+        "use_glog": [
+            True,
+            False,
+        ],  # TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
         "use_gflags": [True, False, "deprecated"],
         "use_custom_blas": [True, False],
         "use_eigen_sparse": [True, False],
@@ -111,7 +114,9 @@ class CeressolverConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["MINIGLOG"] = not self.options.use_glog
-        tc.variables["GFLAGS"] = False # useless for the lib itself, gflags is not a direct dependency
+        tc.variables[
+            "GFLAGS"
+        ] = False  # useless for the lib itself, gflags is not a direct dependency
         tc.variables["SUITESPARSE"] = False
         tc.variables["CXSPARSE"] = False
         tc.variables["LAPACK"] = False
@@ -148,7 +153,12 @@ class CeressolverConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -165,7 +175,9 @@ class CeressolverConan(ConanFile):
         self.cpp_info.components["ceres"].libs = [f"ceres{libsuffix}"]
         self.cpp_info.components["ceres"].includedirs.append(os.path.join("include", "ceres"))
         if not self.options.use_glog:
-            self.cpp_info.components["ceres"].includedirs.append(os.path.join("include", "ceres", "internal", "miniglog"))
+            self.cpp_info.components["ceres"].includedirs.append(
+                os.path.join("include", "ceres", "internal", "miniglog")
+            )
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ceres"].system_libs.append("m")
             if self.options.get_safe("use_CXX11_threads", True):

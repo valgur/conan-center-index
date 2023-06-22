@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -114,7 +121,9 @@ class LibarchiveConan(ConanFile):
             # TODO: add cng when available in CCI
             raise ConanInvalidConfiguration("cng recipe not yet available in CCI.")
         if self.options.with_expat and self.options.with_libxml2:
-            raise ConanInvalidConfiguration("libxml2 and expat options are exclusive. They cannot be used together as XML engine")
+            raise ConanInvalidConfiguration(
+                "libxml2 and expat options are exclusive. They cannot be used together as XML engine"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

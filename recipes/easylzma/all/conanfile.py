@@ -7,24 +7,26 @@ class EazylzmaConan(ConanFile):
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lloyd/easylzma"
-    description = ("An easy to use, tiny, public domain, C wrapper library around \
-                    Igor Pavlov's work that can be used to compress and extract lzma files")
+    description = "An easy to use, tiny, public domain, C wrapper library around \
+                    Igor Pavlov's work that can be used to compress and extract lzma files"
     settings = "os", "arch", "compiler", "build_type"
     generators = "cmake"
     topics = ("conan", "eazylzma", "lzma")
     exports_sources = ["CMakeLists.txt", "patches/*"]
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     @property
     def _license_text(self):
         # Extract the License/s from the README to a file
         tmp = tools.load(os.path.join("source_subfolder", "README"))
-        return tmp[tmp.find("License",1):tmp.find("work.", 1)+5]
+        return tmp[tmp.find("License", 1) : tmp.find("work.", 1) + 5]
 
     @property
     def _libname(self):
@@ -32,7 +34,7 @@ class EazylzmaConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-           del self.options.fPIC
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:

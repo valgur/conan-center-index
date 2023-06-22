@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "build_type", "compiler"
     generators = "VirtualRunEnv"

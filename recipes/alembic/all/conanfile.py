@@ -64,7 +64,9 @@ class AlembicConan(ConanFile):
         tc.variables["USE_HDF5"] = self.options.with_hdf5
         tc.variables["USE_TESTS"] = False
         tc.variables["ALEMBIC_BUILD_LIBS"] = True
-        tc.variables["ALEMBIC_ILMBASE_LINK_STATIC"] = True # for -DOPENEXR_DLL, handled by OpenEXR package
+        tc.variables[
+            "ALEMBIC_ILMBASE_LINK_STATIC"
+        ] = True  # for -DOPENEXR_DLL, handled by OpenEXR package
         tc.variables["ALEMBIC_SHARED_LIBS"] = self.options.shared
         tc.variables["ALEMBIC_USING_IMATH_3"] = False
         tc.variables["ALEMBIC_ILMBASE_FOUND"] = 1
@@ -80,7 +82,12 @@ class AlembicConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

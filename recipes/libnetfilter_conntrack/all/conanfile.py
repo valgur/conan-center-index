@@ -2,26 +2,31 @@ import os
 from conans import ConanFile, tools, AutoToolsBuildEnvironment
 from conans.errors import ConanInvalidConfiguration
 
+
 class Libnetfilter_conntrackConan(ConanFile):
     name = "libnetfilter_conntrack"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnetfilter_conntrack/index.html"
-    description = "userspace library that provides an API to the in-kernel connection tracking state table"
+    description = (
+        "userspace library that provides an API to the in-kernel connection tracking state table"
+    )
     topics = ("libnetfilter_conntrack", "netfilter")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "pkg_config"
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
-         self.requires("libmnl/1.0.4")
-         self.requires("libnfnetlink/1.0.1")
+        self.requires("libmnl/1.0.4")
+        self.requires("libnfnetlink/1.0.1")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

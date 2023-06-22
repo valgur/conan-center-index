@@ -38,30 +38,42 @@ class CcclConan(ConanFile):
             raise ConanInvalidConfiguration("This recipe only supports msvc/Visual Studio.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder,
+        )
 
     def build(self):
         cccl_path = os.path.join(self.source_folder, self.source_folder, "cccl")
-        replace_in_file(self, cccl_path,
-                              "    --help)",
-                              "    *.lib)\n"
-                              "        linkopt+=(\"$lib\")"
-                              "        ;;\n\n"
-                              "    --help)")
-        replace_in_file(self, cccl_path,
-                              "clopt+=(\"$lib\")",
-                              "linkopt+=(\"$lib\")")
-        replace_in_file(self, cccl_path,
-                              "    -L*)",
-                              "    -LIBPATH:*)\n"
-                              "        linkopt+=(\"$1\")\n"
-                              "        ;;\n\n"
-                              "    -L*)")
+        replace_in_file(
+            self,
+            cccl_path,
+            "    --help)",
+            "    *.lib)\n" '        linkopt+=("$lib")' "        ;;\n\n" "    --help)",
+        )
+        replace_in_file(self, cccl_path, 'clopt+=("$lib")', 'linkopt+=("$lib")')
+        replace_in_file(
+            self,
+            cccl_path,
+            "    -L*)",
+            "    -LIBPATH:*)\n" '        linkopt+=("$1")\n' "        ;;\n\n" "    -L*)",
+        )
 
     def package(self):
-        copy(self, pattern="cccl", src=os.path.join(self.source_folder, self.source_folder), dst=self._cccl_dir)
-        copy(self, pattern="COPYING", src=os.path.join(self.source_folder, self.source_folder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="cccl",
+            src=os.path.join(self.source_folder, self.source_folder),
+            dst=self._cccl_dir,
+        )
+        copy(
+            self,
+            pattern="COPYING",
+            src=os.path.join(self.source_folder, self.source_folder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.libdirs = []

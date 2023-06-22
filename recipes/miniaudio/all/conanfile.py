@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class MiniaudioConan(ConanFile):
     name = "miniaudio"
     description = "A single file audio playback and capture library."
@@ -72,7 +73,12 @@ class MiniaudioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="**",
@@ -85,7 +91,8 @@ class MiniaudioConan(ConanFile):
                 self,
                 pattern="miniaudio.h",
                 dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder)
+                src=self.source_folder,
+            )
             copy(
                 self,
                 pattern="miniaudio.*",
@@ -102,9 +109,7 @@ class MiniaudioConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("dl")
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend(
-                ["CoreFoundation", "CoreAudio", "AudioUnit"]
-            )
+            self.cpp_info.frameworks.extend(["CoreFoundation", "CoreAudio", "AudioUnit"])
             self.cpp_info.defines.append("MA_NO_RUNTIME_LINKING=1")
 
         if self.options.header_only:

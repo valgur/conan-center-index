@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, collect_libs
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    collect_libs,
+)
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -50,11 +57,15 @@ class Libssh2Conan(ConanFile):
         tc.cache_variables["ENABLE_DEBUG_LOGGING"] = self.options.enable_debug_logging
         if self.options.crypto_backend == "openssl":
             tc.cache_variables["CRYPTO_BACKEND"] = "OpenSSL"
-            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
+            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies[
+                "openssl"
+            ].package_folder.replace("\\", "/")
         elif self.options.crypto_backend == "mbedtls":
             tc.cache_variables["CRYPTO_BACKEND"] = "mbedTLS"
         tc.cache_variables["BUILD_EXAMPLES"] = False
-        tc.cache_variables['BUILD_TESTING'] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
+        tc.cache_variables["BUILD_TESTING"] = not self.conf.get(
+            "tools.build:skip_test", default=True, check_type=bool
+        )
         tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
         # To install relocatable shared lib on Macos by default
@@ -101,8 +112,13 @@ class Libssh2Conan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        rmdir(self, os.path.join(self.package_folder, "share")) # only docs and manpages
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        rmdir(self, os.path.join(self.package_folder, "share"))  # only docs and manpages
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)

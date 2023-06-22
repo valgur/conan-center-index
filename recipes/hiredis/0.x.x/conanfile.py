@@ -23,10 +23,6 @@ class HiredisConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             self.copy(patch["patch_file"])
@@ -39,11 +35,16 @@ class HiredisConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("hiredis {} is not supported on Windows.".format(self.version))
+            raise ConanInvalidConfiguration(
+                "hiredis {} is not supported on Windows.".format(self.version)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -63,10 +64,12 @@ class HiredisConan(ConanFile):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         with tools.chdir(self._source_subfolder):
             autoTools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            autoTools.install(vars={
-                "DESTDIR": tools.unix_path(self.package_folder),
-                "PREFIX": "",
-            })
+            autoTools.install(
+                vars={
+                    "DESTDIR": tools.unix_path(self.package_folder),
+                    "PREFIX": "",
+                }
+            )
         tools.remove_files_by_mask(
             os.path.join(self.package_folder, "lib"),
             "*.a" if self.options.shared else "*.[so|dylib]*",

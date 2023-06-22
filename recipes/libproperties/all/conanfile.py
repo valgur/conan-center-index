@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools
 import os
 
+
 class LibpropertiesConan(ConanFile):
     name = "libproperties"
     license = "Apache-2.0"
@@ -9,8 +10,14 @@ class LibpropertiesConan(ConanFile):
     description = "libproperties is a library to parse the Java .properties files. It was writen in pure C. And fully compatible with the Java .properties file format."
     topics = ("properties", "java", "pure-c")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], }
-    default_options = {"shared": False, "fPIC": True, }
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
 
@@ -19,10 +26,6 @@ class LibpropertiesConan(ConanFile):
     @property
     def _source_package_tag(self):
         return "{}-{}".format(self.name, self.version)
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":

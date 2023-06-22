@@ -51,7 +51,7 @@ class CyrusSaslConan(ConanFile):
         "with_scram": True,
         "with_otp": True,
         "with_krb4": True,
-        "with_gssapi": False, # FIXME: should be True
+        "with_gssapi": False,  # FIXME: should be True
         "with_plain": True,
         "with_anon": True,
         "with_postgresql": False,
@@ -115,27 +115,35 @@ class CyrusSaslConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        rootpath_no = lambda v, req: unix_path(self, self.dependencies[req].package_folder) if v else "no"
-        tc.configure_args.extend([
-            "--disable-sample",
-            "--disable-macos-framework",
-            "--with-dblib=none",
-            "--with-openssl={}".format(yes_no(self.options.with_openssl)),
-            "--enable-digest={}".format(yes_no(self.options.with_digest)),
-            "--enable-scram={}".format(yes_no(self.options.with_scram)),
-            "--enable-otp={}".format(yes_no(self.options.with_otp)),
-            "--enable-krb4={}".format(yes_no(self.options.with_krb4)),
-            "--enable-gssapi={}".format(yes_no(self.options.with_gssapi)),
-            "--enable-plain={}".format(yes_no(self.options.with_plain)),
-            "--enable-anon={}".format(yes_no(self.options.with_anon)),
-            "--enable-sql={}".format(
-                yes_no(self.options.with_postgresql or self.options.with_mysql or self.options.with_sqlite3),
-            ),
-            "--with-pgsql={}".format(rootpath_no(self.options.with_postgresql, "libpq")),
-            "--with-mysql={}".format(rootpath_no(self.options.with_mysql, "libmysqlclient")),
-            "--without-sqlite",
-            "--with-sqlite3={}".format(rootpath_no(self.options.with_sqlite3, "sqlite3")),
-        ])
+        rootpath_no = (
+            lambda v, req: unix_path(self, self.dependencies[req].package_folder) if v else "no"
+        )
+        tc.configure_args.extend(
+            [
+                "--disable-sample",
+                "--disable-macos-framework",
+                "--with-dblib=none",
+                "--with-openssl={}".format(yes_no(self.options.with_openssl)),
+                "--enable-digest={}".format(yes_no(self.options.with_digest)),
+                "--enable-scram={}".format(yes_no(self.options.with_scram)),
+                "--enable-otp={}".format(yes_no(self.options.with_otp)),
+                "--enable-krb4={}".format(yes_no(self.options.with_krb4)),
+                "--enable-gssapi={}".format(yes_no(self.options.with_gssapi)),
+                "--enable-plain={}".format(yes_no(self.options.with_plain)),
+                "--enable-anon={}".format(yes_no(self.options.with_anon)),
+                "--enable-sql={}".format(
+                    yes_no(
+                        self.options.with_postgresql
+                        or self.options.with_mysql
+                        or self.options.with_sqlite3
+                    ),
+                ),
+                "--with-pgsql={}".format(rootpath_no(self.options.with_postgresql, "libpq")),
+                "--with-mysql={}".format(rootpath_no(self.options.with_mysql, "libmysqlclient")),
+                "--without-sqlite",
+                "--with-sqlite3={}".format(rootpath_no(self.options.with_sqlite3, "sqlite3")),
+            ]
+        )
         if self.options.with_gssapi:
             tc.configure_args.append("--with-gss_impl=mit")
         tc.generate()
@@ -149,9 +157,12 @@ class CyrusSaslConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                           src=os.path.dirname(gnu_config),
-                           dst=os.path.join(self.source_folder, "config"))
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=os.path.join(self.source_folder, "config"),
+                )
 
     def build(self):
         self._patch_sources()
@@ -160,7 +171,12 @@ class CyrusSaslConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

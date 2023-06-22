@@ -12,10 +12,12 @@ required_conan_version = ">=1.51.3"
 
 class TensorpipeConan(ConanFile):
     name = "tensorpipe"
-    description = "The TensorPipe project provides a tensor-aware channel to " \
-                  "transfer rich objects from one process to another while " \
-                  "using the fastest transport for the tensors contained " \
-                  "therein (e.g., CUDA device-to-device copy)."
+    description = (
+        "The TensorPipe project provides a tensor-aware channel to "
+        "transfer rich objects from one process to another while "
+        "using the fastest transport for the tensors contained "
+        "therein (e.g., CUDA device-to-device copy)."
+    )
     license = "BSD-3-Clause"
     topics = ("tensor", "cuda")
     homepage = "https://github.com/pytorch/tensorpipe"
@@ -89,7 +91,9 @@ class TensorpipeConan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "tensorpipe", "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(uv REQUIRED)", "find_package(libuv REQUIRED CONFIG)")
+        replace_in_file(
+            self, cmakelists, "find_package(uv REQUIRED)", "find_package(libuv REQUIRED CONFIG)"
+        )
         replace_in_file(
             self,
             cmakelists,
@@ -110,7 +114,12 @@ class TensorpipeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -124,12 +133,14 @@ class TensorpipeConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

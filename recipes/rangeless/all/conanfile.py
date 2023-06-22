@@ -2,6 +2,7 @@ from conans import ConanFile, tools
 import os
 import glob
 
+
 class RangelessConan(ConanFile):
     name = "rangeless"
     description = "c++ LINQ -like library of higher-order functions for data manipulation"
@@ -11,10 +12,6 @@ class RangelessConan(ConanFile):
     topics = ("range", "linq", "lazy-evaluation", "header-only")
     settings = "compiler"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         minimal_cpp_standard = "14"

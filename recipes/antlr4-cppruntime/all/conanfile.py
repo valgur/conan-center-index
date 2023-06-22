@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir, save
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -114,7 +122,12 @@ class Antlr4CppRuntimeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=os.path.join(self.source_folder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=os.path.join(self.source_folder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         if self.options.shared:
@@ -137,18 +150,24 @@ class Antlr4CppRuntimeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generatores removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"antlr4_shared" if self.options.shared else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"}
+            {
+                "antlr4_shared"
+                if self.options.shared
+                else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -157,7 +176,9 @@ class Antlr4CppRuntimeConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "antlr4-runtime")
-        self.cpp_info.set_property("cmake_target_name", "antlr4_shared" if self.options.shared else "antlr4_static")
+        self.cpp_info.set_property(
+            "cmake_target_name", "antlr4_shared" if self.options.shared else "antlr4_static"
+        )
         libname = "antlr4-runtime"
         if is_msvc(self) and not self.options.shared:
             libname += "-static"

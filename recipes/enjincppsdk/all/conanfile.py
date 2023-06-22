@@ -33,10 +33,6 @@ class EnjinCppSdk(ConanFile):
     short_paths = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -80,7 +76,9 @@ class EnjinCppSdk(ConanFile):
     def validate(self):
         # Validations for OS
         if self.settings.os == "Macos":
-            raise ConanInvalidConfiguration("macOS is not supported at this time. Contributions are welcomed.")
+            raise ConanInvalidConfiguration(
+                "macOS is not supported at this time. Contributions are welcomed."
+            )
 
         # Validations for minimum required C++ standard
         compiler = self.settings.compiler
@@ -90,23 +88,35 @@ class EnjinCppSdk(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(compiler), False)
         if not minimum_version:
-            self.output.warn("C++17 support is required. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "C++17 support is required. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif tools.Version(compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("C++17 support is required, which your compiler does not support.")
+            raise ConanInvalidConfiguration(
+                "C++17 support is required, which your compiler does not support."
+            )
 
         if compiler == "clang" and compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration("libstdc++11 is required for clang.")
 
         # Validations for dependencies
         if not self.options["spdlog"].header_only:
-            raise ConanInvalidConfiguration(f"{self.name} requires spdlog:header_only=True to be enabled.")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires spdlog:header_only=True to be enabled."
+            )
 
         if self.options.with_default_http_client and not self.options["cpp-httplib"].with_openssl:
-            raise ConanInvalidConfiguration(f"{self.name} requires cpp-httplib:with_openssl=True when using "
-                                            f"with_default_http_client=True.")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires cpp-httplib:with_openssl=True when using "
+                f"with_default_http_client=True."
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _configure_cmake(self):
         if self._cmake:

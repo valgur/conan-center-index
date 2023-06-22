@@ -35,7 +35,9 @@ class BreakpadConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("Breakpad can only be built on Linux. For other OSs check sentry-breakpad")
+            raise ConanInvalidConfiguration(
+                "Breakpad can only be built on Linux. For other OSs check sentry-breakpad"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,7 +57,12 @@ class BreakpadConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -64,15 +71,21 @@ class BreakpadConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["libbreakpad"].set_property("pkg_config_name", "breakpad")
         self.cpp_info.components["libbreakpad"].libs = ["breakpad"]
-        self.cpp_info.components["libbreakpad"].includedirs.append(os.path.join("include", "breakpad"))
+        self.cpp_info.components["libbreakpad"].includedirs.append(
+            os.path.join("include", "breakpad")
+        )
         self.cpp_info.components["libbreakpad"].system_libs.append("pthread")
-        self.cpp_info.components["libbreakpad"].requires.append("linux-syscall-support::linux-syscall-support")
+        self.cpp_info.components["libbreakpad"].requires.append(
+            "linux-syscall-support::linux-syscall-support"
+        )
 
         self.cpp_info.components["client"].set_property("pkg_config_name", "breakpad-client")
         self.cpp_info.components["client"].libs = ["breakpad_client"]
         self.cpp_info.components["client"].includedirs.append(os.path.join("include", "breakpad"))
         self.cpp_info.components["client"].system_libs.append("pthread")
-        self.cpp_info.components["client"].requires.append("linux-syscall-support::linux-syscall-support")
+        self.cpp_info.components["client"].requires.append(
+            "linux-syscall-support::linux-syscall-support"
+        )
 
         # workaround to always produce a global pkgconfig file for PkgConfigDeps
         self.cpp_info.set_property("pkg_config_name", "breakpad-do-not-use")

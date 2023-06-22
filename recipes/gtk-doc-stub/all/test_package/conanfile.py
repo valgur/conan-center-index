@@ -10,7 +10,7 @@ class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "configure.ac"
     test_type = "explicit"
-    win_bash = True # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
+    win_bash = True  # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 
     @property
     def _settings_build(self):

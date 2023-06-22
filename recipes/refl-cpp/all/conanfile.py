@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class ReflCppConan(ConanFile):
     name = "refl-cpp"
     description = "A modern compile-time reflection library for C++ with support for overloads, templates, attributes and proxies"
@@ -45,12 +46,14 @@ class ReflCppConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support.")
+            self.output.warn(
+                f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
+            )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                        f"{self.ref} requires C++{self._min_cppstd} support. "
-                        f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.ref} requires C++{self._min_cppstd} support. "
+                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def source(self):
@@ -60,11 +63,26 @@ class ReflCppConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if Version(self.version) < "0.12.2":
-            copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(
+                self,
+                pattern="*.hpp",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.source_folder,
+            )
         else:
-            copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+            copy(
+                self,
+                pattern="*.hpp",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
 
     def package_info(self):
         self.cpp_info.bindirs = []

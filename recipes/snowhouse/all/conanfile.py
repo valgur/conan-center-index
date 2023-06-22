@@ -13,12 +13,12 @@ class SnowHouseConan(ConanFile):
     license = "BSL-1.0"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
-       tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
         self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)

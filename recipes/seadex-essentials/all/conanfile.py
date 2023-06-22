@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class SeadexEssentialsConan(ConanFile):
     name = "seadex-essentials"
     description = "essentials is a small c++ library that offers very basic capabilities for applications and libraries."
@@ -20,11 +21,11 @@ class SeadexEssentialsConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     @property
@@ -38,8 +39,8 @@ class SeadexEssentialsConan(ConanFile):
             "clang": "12",
             "Visual Studio": "16",
             "msvc": "192",
-            "apple-clang": "10"
-        }        
+            "apple-clang": "10",
+        }
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -68,13 +69,17 @@ class SeadexEssentialsConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires at least {self.settings.compiler} {minimum_version}."
                 )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
         if not self.dependencies["spdlog"].options.header_only:
             raise ConanInvalidConfiguration("Spdlog must be header only!")
 
@@ -90,7 +95,7 @@ class SeadexEssentialsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses") )
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

@@ -15,8 +15,10 @@ required_conan_version = ">=1.54.0"
 
 class HidapiConan(ConanFile):
     name = "hidapi"
-    description = "HIDAPI is a multi-platform library which allows an application to interface " \
-                  "with USB and Bluetooth HID-Class devices on Windows, Linux, FreeBSD, and macOS."
+    description = (
+        "HIDAPI is a multi-platform library which allows an application to interface "
+        "with USB and Bluetooth HID-Class devices on Windows, Linux, FreeBSD, and macOS."
+    )
     topics = ("libusb", "hid-class", "bluetooth")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libusb/hidapi"
@@ -63,12 +65,16 @@ class HidapiConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:
-            raise ConanInvalidConfiguration("Static libraries for Visual Studio are currently not available")
+            raise ConanInvalidConfiguration(
+                "Static libraries for Visual Studio are currently not available"
+            )
 
     def build_requirements(self):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
-            if self.settings.os in ["Linux", "FreeBSD"] and not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            if self.settings.os in ["Linux", "FreeBSD"] and not self.conf.get(
+                "tools.gnu:pkg_config", check_type=str
+            ):
                 self.tool_requires("pkgconf/1.9.3")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
@@ -93,29 +99,37 @@ class HidapiConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "configure.ac"),
-                        "AC_CONFIG_MACRO_DIR", "dnl AC_CONFIG_MACRO_DIR")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "configure.ac"),
+            "AC_CONFIG_MACRO_DIR",
+            "dnl AC_CONFIG_MACRO_DIR",
+        )
 
     def build(self):
         self._patch_sources()
         if is_msvc(self):
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             replace_in_file(
-                self, os.path.join(self.source_folder, "windows", "hidapi.vcxproj"),
+                self,
+                os.path.join(self.source_folder, "windows", "hidapi.vcxproj"),
                 "<WholeProgramOptimization>true</WholeProgramOptimization>",
                 "",
             )
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             replace_in_file(
-                self, os.path.join(self.source_folder, "windows", "hidapi.vcxproj"),
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                os.path.join(self.source_folder, "windows", "hidapi.vcxproj"),
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-            msbuild.build(os.path.join(self.source_folder, "windows", "hidapi.sln"), targets=["hidapi"])
+            msbuild.build(
+                os.path.join(self.source_folder, "windows", "hidapi.sln"), targets=["hidapi"]
+            )
         else:
             autotools = Autotools(self)
             autotools.autoreconf()
@@ -123,12 +137,34 @@ class HidapiConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
-            copy(self, os.path.join("hidapi", "*.h"), src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                os.path.join("hidapi", "*.h"),
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "include"),
+            )
             output_folder = os.path.join(self.source_folder, "windows")
-            copy(self, "*hidapi.lib", src=output_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "*hidapi.lib",
+                src=output_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

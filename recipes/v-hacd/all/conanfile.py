@@ -11,7 +11,7 @@ required_conan_version = ">=1.50.0"
 
 class VhacdConan(ConanFile):
     name = "v-hacd"
-    description = "The V-HACD library decomposes a 3D surface into a set of \"near\" convex parts."
+    description = 'The V-HACD library decomposes a 3D surface into a set of "near" convex parts.'
     license = "BSD-3-Clause"
     topics = ("3d", "mesh", "shape", "decomposition", "convex")
     homepage = "https://github.com/kmammou/v-hacd"
@@ -45,15 +45,29 @@ class VhacdConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

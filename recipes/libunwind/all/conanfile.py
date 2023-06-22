@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
@@ -11,9 +18,12 @@ import shutil
 
 required_conan_version = ">=1.53.0"
 
+
 class LiunwindConan(ConanFile):
     name = "libunwind"
-    description = "Manipulate the preserved state of each call-frame and resume the execution at any point."
+    description = (
+        "Manipulate the preserved state of each call-frame and resume the execution at any point."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libunwind/libunwind"
@@ -71,15 +81,17 @@ class LiunwindConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--enable-coredump={yes_no(self.options.coredump)}",
-            f"--enable-ptrace={yes_no(self.options.ptrace)}",
-            f"--enable-setjmp={yes_no(self.options.setjmp)}",
-            f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
-            f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
-            "--disable-tests",
-            "--disable-documentation",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-coredump={yes_no(self.options.coredump)}",
+                f"--enable-ptrace={yes_no(self.options.ptrace)}",
+                f"--enable-setjmp={yes_no(self.options.setjmp)}",
+                f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
+                f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
+                "--disable-tests",
+                "--disable-documentation",
+            ]
+        )
         tc.generate()
 
         tc = AutotoolsDeps(self)
@@ -92,7 +104,12 @@ class LiunwindConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -103,7 +120,7 @@ class LiunwindConan(ConanFile):
         # rename the real file to libunwind_generic,
         lib_ext = "so" if self.options.shared else "a"
         symlink_path = os.path.join(self.package_folder, "lib", f"libunwind-generic.{lib_ext}")
-        source_path =  os.path.realpath(symlink_path)
+        source_path = os.path.realpath(symlink_path)
         rm(self, os.path.basename(symlink_path), os.path.dirname(symlink_path))
         shutil.copy(source_path, symlink_path)
 
@@ -128,6 +145,8 @@ class LiunwindConan(ConanFile):
             self.cpp_info.components["setjmp"].libs = ["unwind-setjmp"]
             self.cpp_info.components["setjmp"].requires = ["unwind"]
         if self.options.coredump:
-            self.cpp_info.components["coredump"].set_property("pkg_config_name", "libunwind-coredump")
+            self.cpp_info.components["coredump"].set_property(
+                "pkg_config_name", "libunwind-coredump"
+            )
             self.cpp_info.components["coredump"].libs = ["unwind-coredump"]
             self.cpp_info.components["coredump"].requires = ["generic", "unwind"]

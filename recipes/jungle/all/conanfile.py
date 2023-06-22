@@ -6,10 +6,13 @@ from conans import CMake
 
 required_conan_version = ">=1.50.0"
 
+
 class JungleConan(ConanFile):
     name = "jungle"
     homepage = "https://github.com/eBay/Jungle"
-    description = "Key-value storage library, based on a combined index of LSM-tree and copy-on-write B+tree"
+    description = (
+        "Key-value storage library, based on a combined index of LSM-tree and copy-on-write B+tree"
+    )
     topics = ("kv-store", "cow")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
@@ -26,10 +29,6 @@ class JungleConan(ConanFile):
     }
 
     generators = "cmake", "cmake_find_package"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -48,7 +47,12 @@ class JungleConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         apply_conandata_patches(self)

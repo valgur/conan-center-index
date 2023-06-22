@@ -8,9 +8,11 @@ required_conan_version = ">=1.33.0"
 
 class AGSConan(ConanFile):
     name = "ags"
-    description = "The AMD GPU Services (AGS) library provides software developers with the ability to query AMD GPU " \
-                  "software and hardware state information that is not normally available through standard operating " \
-                  "systems or graphics APIs."
+    description = (
+        "The AMD GPU Services (AGS) library provides software developers with the ability to query AMD GPU "
+        "software and hardware state information that is not normally available through standard operating "
+        "systems or graphics APIs."
+    )
     homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK"
     topics = ("conan", "amd", "gpu")
     url = "https://github.com/conan-io/conan-center-index"
@@ -25,10 +27,6 @@ class AGSConan(ConanFile):
     }
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _supported_msvc_versions(self):
         return ["14", "15", "16"]
 
@@ -40,18 +38,28 @@ class AGSConan(ConanFile):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("ags doesn't support OS: {}.".format(self.settings.os))
         if self.settings.compiler != "Visual Studio":
-            raise ConanInvalidConfiguration("ags doesn't support compiler: {} on OS: {}.".
-                                            format(self.settings.compiler, self.settings.os))
+            raise ConanInvalidConfiguration(
+                "ags doesn't support compiler: {} on OS: {}.".format(
+                    self.settings.compiler, self.settings.os
+                )
+            )
 
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version not in self._supported_msvc_versions:
-                raise ConanInvalidConfiguration("ags doesn't support MSVC version: {}".format(self.settings.compiler.version))
+                raise ConanInvalidConfiguration(
+                    "ags doesn't support MSVC version: {}".format(self.settings.compiler.version)
+                )
             if self.settings.arch not in self._supported_archs:
-                raise ConanInvalidConfiguration("ags doesn't support arch: {}".format(self.settings.arch))
+                raise ConanInvalidConfiguration(
+                    "ags doesn't support arch: {}".format(self.settings.arch)
+                )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _convert_msvc_version_to_vs_version(self, msvc_version):
         vs_versions = {
@@ -81,8 +89,12 @@ class AGSConan(ConanFile):
                 self.copy(shared_lib, dst="bin", src=os.path.join(ags_lib_path, "lib"))
                 self.copy(symbol_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
             else:
-                vs_version = self._convert_msvc_version_to_vs_version(self.settings.compiler.version)
-                static_lib = "amd_ags_{arch}_{vs_version}_{runtime}.lib".format(arch=win_arch, vs_version=vs_version, runtime=self.settings.compiler.runtime)
+                vs_version = self._convert_msvc_version_to_vs_version(
+                    self.settings.compiler.version
+                )
+                static_lib = "amd_ags_{arch}_{vs_version}_{runtime}.lib".format(
+                    arch=win_arch, vs_version=vs_version, runtime=self.settings.compiler.runtime
+                )
                 self.copy(static_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
 
     def package_info(self):

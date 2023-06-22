@@ -15,8 +15,7 @@ class HiponyEnumerateConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hipony/enumerate"
     description = "C++11 compatible version of enumerate"
-    topics = ("enumerate", "header-only", "cpp",
-              "constexpr", "cpp17", "cpp11", "tuples")
+    topics = ("enumerate", "header-only", "cpp", "constexpr", "cpp17", "cpp11", "tuples")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -34,7 +33,7 @@ class HiponyEnumerateConan(ConanFile):
         return {
             "gcc": "8" if self.options.aggregates else "6",
             "Visual Studio": "16" if self.options.aggregates else "14",
-            "msvc": "192"  if self.options.aggregates else "190",
+            "msvc": "192" if self.options.aggregates else "190",
             "clang": "5.0" if self.options.aggregates else "3.9",
             "apple-clang": "10",
         }
@@ -63,16 +62,19 @@ class HiponyEnumerateConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warning(
-                "{0} {1} requires C++{2}. Your compiler is unknown. Assuming it supports C++{2}."
-                .format(self.name, self.version, self._minimum_standard))
+                "{0} {1} requires C++{2}. Your compiler is unknown. Assuming it supports C++{2}.".format(
+                    self.name, self.version, self._minimum_standard
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                "{} {} requires C++{}, which your compiler does not support."
-                .format(self.name, self.version, self._minimum_standard))
+                "{} {} requires C++{}, which your compiler does not support.".format(
+                    self.name, self.version, self._minimum_standard
+                )
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,7 +94,12 @@ class HiponyEnumerateConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
@@ -104,7 +111,8 @@ class HiponyEnumerateConan(ConanFile):
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.options.aggregates:
             self.cpp_info.components["enumerate"].defines.append(
-                "HIPONY_ENUMERATE_AGGREGATES_ENABLED")
+                "HIPONY_ENUMERATE_AGGREGATES_ENABLED"
+            )
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "hipony-enumerate"
         self.cpp_info.filenames["cmake_find_package_multi"] = "hipony-enumerate"

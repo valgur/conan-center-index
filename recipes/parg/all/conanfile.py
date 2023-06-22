@@ -8,26 +8,30 @@ class PargConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jibsen/parg"
     description = "Parser for argv that works similarly to getopt"
-    topics = ("conan", 'getopt', 'c')
+    topics = ("conan", "getopt", "c")
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False],
-               "fPIC": [True, False]}
-    default_options = {"shared": False,
-                       "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake",
+    generators = ("cmake",)
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
         return "build_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def configure(self):
         if self.options.shared:

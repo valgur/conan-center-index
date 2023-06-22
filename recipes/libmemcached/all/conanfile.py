@@ -3,13 +3,21 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.build import cross_building
-from conan.tools.files import apply_conandata_patches, get, copy, export_conandata_patches, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    get,
+    copy,
+    export_conandata_patches,
+    rm,
+    rmdir,
+)
 from conan.tools.layout import basic_layout
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 
 import os
 
 required_conan_version = ">=1.54.0"
+
 
 class LibmemcachedConan(ConanFile):
     name = "libmemcached"
@@ -28,15 +36,17 @@ class LibmemcachedConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "sasl": [True, False]
+        "sasl": [True, False],
     }
-    default_options = {"shared": False,
-                       "fPIC": True,
-                       "sasl": False}
+    default_options = {"shared": False, "fPIC": True, "sasl": False}
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                strip_root=True, destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder,
+        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -65,7 +75,7 @@ class LibmemcachedConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append('--disable-dependency-tracking')
+        tc.configure_args.append("--disable-dependency-tracking")
         if not self.options.sasl:
             tc.configure_args.append("--disable-sasl")
         tc.generate()
@@ -80,7 +90,12 @@ class LibmemcachedConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         autotools = Autotools(self)
         autotools.install()
@@ -96,4 +111,3 @@ class LibmemcachedConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["memcached"]
         self.cpp_info.system_libs = ["m"]
-

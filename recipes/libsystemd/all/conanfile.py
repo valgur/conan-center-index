@@ -4,7 +4,13 @@ import re
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -92,13 +98,10 @@ class LibsystemdConan(ConanFile):
         env.generate()
 
         tc = MesonToolchain(self)
-        tc.project_options["selinux"] = ("true" if self.options.with_selinux
-                                         else "false")
-        tc.project_options["lz4"] = ("true" if self.options.with_lz4
-                                     else "false")
+        tc.project_options["selinux"] = "true" if self.options.with_selinux else "false"
+        tc.project_options["lz4"] = "true" if self.options.with_lz4 else "false"
         tc.project_options["xz"] = "true" if self.options.with_xz else "false"
-        tc.project_options["zstd"] = ("true" if self.options.with_zstd
-                                      else "false")
+        tc.project_options["zstd"] = "true" if self.options.with_zstd else "false"
 
         if self.options.shared:
             tc.project_options["static-libsystemd"] = "false"
@@ -109,22 +112,92 @@ class LibsystemdConan(ConanFile):
 
         # options unrelated to libsystemd
         unrelated = [
-            "fdisk", "seccomp", "pwquality", "apparmor", "polkit", "audit",
-            "kmod", "microhttpd", "libcryptsetup", "libcurl", "libidn",
-            "libidn2", "qrencode", "openssl", "libfido2", "zlib", "xkbcommon",
-            "pcre2", "glib", "dbus", "blkid", "gcrypt", "p11kit", "ima",
-            "smack", "bzip2", "gnutls", "idn", "initrd", "binfmt", "vconsole",
-            "quotacheck", "tmpfiles", "environment-d", "sysusers", "firstboot",
-            "randomseed", "backlight", "rfkill", "xdg-autostart", "logind",
-            "hibernate", "machined", "portabled", "userdb", "hostnamed",
-            "timedated", "timesyncd", "localed", "networkd", "resolve",
-            "coredump", "pstore", "efi", "nss-myhostname", "nss-mymachines",
-            "nss-resolve", "nss-systemd", "hwdb", "tpm", "man", "html", "utmp",
-            "ldconfig", "adm-group", "wheel-group", "gshadow", "install-tests",
-            "link-udev-shared", "link-systemctl-shared", "analyze", "pam",
-            "link-networkd-shared", "link-timesyncd-shared", "kernel-install",
-            "libiptc", "elfutils", "repart", "homed", "importd", "acl",
-            "dns-over-tls", "gnu-efi", "valgrind", "log-trace"]
+            "fdisk",
+            "seccomp",
+            "pwquality",
+            "apparmor",
+            "polkit",
+            "audit",
+            "kmod",
+            "microhttpd",
+            "libcryptsetup",
+            "libcurl",
+            "libidn",
+            "libidn2",
+            "qrencode",
+            "openssl",
+            "libfido2",
+            "zlib",
+            "xkbcommon",
+            "pcre2",
+            "glib",
+            "dbus",
+            "blkid",
+            "gcrypt",
+            "p11kit",
+            "ima",
+            "smack",
+            "bzip2",
+            "gnutls",
+            "idn",
+            "initrd",
+            "binfmt",
+            "vconsole",
+            "quotacheck",
+            "tmpfiles",
+            "environment-d",
+            "sysusers",
+            "firstboot",
+            "randomseed",
+            "backlight",
+            "rfkill",
+            "xdg-autostart",
+            "logind",
+            "hibernate",
+            "machined",
+            "portabled",
+            "userdb",
+            "hostnamed",
+            "timedated",
+            "timesyncd",
+            "localed",
+            "networkd",
+            "resolve",
+            "coredump",
+            "pstore",
+            "efi",
+            "nss-myhostname",
+            "nss-mymachines",
+            "nss-resolve",
+            "nss-systemd",
+            "hwdb",
+            "tpm",
+            "man",
+            "html",
+            "utmp",
+            "ldconfig",
+            "adm-group",
+            "wheel-group",
+            "gshadow",
+            "install-tests",
+            "link-udev-shared",
+            "link-systemctl-shared",
+            "analyze",
+            "pam",
+            "link-networkd-shared",
+            "link-timesyncd-shared",
+            "kernel-install",
+            "libiptc",
+            "elfutils",
+            "repart",
+            "homed",
+            "importd",
+            "acl",
+            "dns-over-tls",
+            "gnu-efi",
+            "valgrind",
+            "log-trace",
+        ]
 
         if Version(self.version) >= "247.1":
             unrelated.append("oomd")
@@ -160,34 +233,51 @@ class LibsystemdConan(ConanFile):
         apply_conandata_patches(self)
 
         meson_build = os.path.join(self.source_folder, "meson.build")
-        replace_in_file(self, meson_build, "@CONAN_SRC_REL_PATH@",
-                        "'../{}'".format(os.path.basename(self.source_folder)))
+        replace_in_file(
+            self,
+            meson_build,
+            "@CONAN_SRC_REL_PATH@",
+            "'../{}'".format(os.path.basename(self.source_folder)),
+        )
 
     def build(self):
         self._patch_sources()
 
         meson = Meson(self)
         meson.configure()
-        target = ("systemd:shared_library" if self.options.shared
-                  else "systemd:static_library")
+        target = "systemd:shared_library" if self.options.shared else "systemd:static_library"
         meson.build(target=f"version.h {target}")
 
     def package(self):
-        copy(self, "LICENSE.LGPL2.1", self.source_folder,
-             os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", os.path.join(self.source_folder, "src", "systemd"),
-             os.path.join(self.package_folder, "include", "systemd"))
+        copy(
+            self,
+            "LICENSE.LGPL2.1",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            os.path.join(self.source_folder, "src", "systemd"),
+            os.path.join(self.package_folder, "include", "systemd"),
+        )
 
         if self.options.shared:
-            copy(self, "libsystemd.so", self.build_folder,
-                 os.path.join(self.package_folder, "lib"))
-            copy(self, "libsystemd.so.{}".format(self._so_version.split('.')),
-                 self.build_folder, os.path.join(self.package_folder, "lib"))
-            copy(self, "libsystemd.so.{}".format(self._so_version),
-                 self.build_folder, os.path.join(self.package_folder, "lib"))
+            copy(self, "libsystemd.so", self.build_folder, os.path.join(self.package_folder, "lib"))
+            copy(
+                self,
+                "libsystemd.so.{}".format(self._so_version.split(".")),
+                self.build_folder,
+                os.path.join(self.package_folder, "lib"),
+            )
+            copy(
+                self,
+                "libsystemd.so.{}".format(self._so_version),
+                self.build_folder,
+                os.path.join(self.package_folder, "lib"),
+            )
         else:
-            copy(self, "libsystemd.a", self.build_folder,
-                 os.path.join(self.package_folder, "lib"))
+            copy(self, "libsystemd.a", self.build_folder, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsystemd")

@@ -7,6 +7,7 @@ import functools
 
 required_conan_version = ">=1.33.0"
 
+
 class OsgearthConan(ConanFile):
     name = "osgearth"
     license = "LGPL-3.0"
@@ -68,10 +69,6 @@ class OsgearthConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -79,7 +76,9 @@ class OsgearthConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, 11)
         elif self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration("With apple-clang cppstd needs to be set, since default is not at least c++11.")
+            raise ConanInvalidConfiguration(
+                "With apple-clang cppstd needs to be set, since default is not at least c++11."
+            )
 
     def configure(self):
         if self.options.shared:
@@ -101,7 +100,6 @@ class OsgearthConan(ConanFile):
             self.options.with_draco = False
 
     def requirements(self):
-
         self.requires("opengl/system")
         self.requires("gdal/3.4.3")
         self.requires("openscenegraph/3.6.5")
@@ -144,11 +142,16 @@ class OsgearthConan(ConanFile):
 
         for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
             # Prefer conan's find package scripts over osgEarth's
-            os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
+            os.unlink(
+                os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package))
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
         self._patch_sources()
 
@@ -160,7 +163,9 @@ class OsgearthConan(ConanFile):
         cmake.definitions["OSGEARTH_BUILD_EXAMPLES"] = False
         cmake.definitions["OSGEARTH_BUILD_TESTS"] = False
 
-        cmake.definitions["OSGEARTH_BUILD_PROCEDURAL_NODEKIT"] = self.options.build_procedural_nodekit
+        cmake.definitions[
+            "OSGEARTH_BUILD_PROCEDURAL_NODEKIT"
+        ] = self.options.build_procedural_nodekit
         # cmake.definitions["OSGEARTH_BUILD_TRITON_NODEKIT"] = self.options.build_triton_nodekit
         # cmake.definitions["OSGEARTH_BUILD_SILVERLINING_NODEKIT"] = self.options.build_silverlining_nodekit
         cmake.definitions["OSGEARTH_BUILD_LEVELDB_CACHE"] = self.options.build_leveldb_cache
@@ -193,10 +198,18 @@ class OsgearthConan(ConanFile):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
 
         if self.options.install_shaders:
-            rename(self, os.path.join(self.package_folder, "resources"), os.path.join(self.package_folder, "res"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "resources"),
+                os.path.join(self.package_folder, "res"),
+            )
 
         if os_info.is_linux:
-            rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib64"),
+                os.path.join(self.package_folder, "lib"),
+            )
 
         tools.rmdir(os.path.join(self.package_folder, "cmake"))
 
@@ -220,12 +233,22 @@ class OsgearthConan(ConanFile):
             return lib
 
         # osgEarth the main lib
-        required_libs = {"openscenegraph": ["osg", "osgUtil", "osgSim", "osgViewer", "osgText", "osgGA", "osgShadow",
-                                            "OpenThreads", "osgManipulator"],
-                         "libcurl": ["libcurl"],
-                         "gdal": ["gdal"],
-                         "opengl": ["opengl"],
-                         }
+        required_libs = {
+            "openscenegraph": [
+                "osg",
+                "osgUtil",
+                "osgSim",
+                "osgViewer",
+                "osgText",
+                "osgGA",
+                "osgShadow",
+                "OpenThreads",
+                "osgManipulator",
+            ],
+            "libcurl": ["libcurl"],
+            "gdal": ["gdal"],
+            "opengl": ["opengl"],
+        }
 
         osgearth = setup_lib("osgEarth", required_libs)
 
@@ -253,8 +276,11 @@ class OsgearthConan(ConanFile):
             plugin_library.libs = [] if self.options.shared else [libname + postfix]
             plugin_library.requires = ["osgEarth"]
             if not self.options.shared:
-                plugin_library.libdirs = [os.path.join("lib", "osgPlugins-{}"
-                                                       .format(self.deps_cpp_info["openscenegraph"].version))]
+                plugin_library.libdirs = [
+                    os.path.join(
+                        "lib", "osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version)
+                    )
+                ]
             return plugin_library
 
         setup_plugin("osgearth_bumpmap")
@@ -296,7 +322,11 @@ class OsgearthConan(ConanFile):
 
         if self.settings.os == "Windows":
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin/osgPlugins-{}"
-                                                   .format(self.deps_cpp_info["openscenegraph"].version)))
+            self.env_info.PATH.append(
+                os.path.join(
+                    self.package_folder,
+                    "bin/osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version),
+                )
+            )
         elif self.settings.os == "Linux":
             self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

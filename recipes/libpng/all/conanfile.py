@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -39,8 +47,11 @@ class LibpngConan(ConanFile):
 
     @property
     def _is_clang_cl(self):
-        return self.settings.os == "Windows" and self.settings.compiler == "clang" and \
-               self.settings.compiler.get_safe("runtime")
+        return (
+            self.settings.os == "Windows"
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.get_safe("runtime")
+        )
 
     @property
     def _has_neon_support(self):
@@ -95,7 +106,9 @@ class LibpngConan(ConanFile):
 
     def validate(self):
         if Version(self.version) < "1.6" and self.settings.arch == "armv8" and is_apple_os(self):
-            raise ConanInvalidConfiguration(f"{self.ref} currently does not building for {self.settings.os} {self.settings.arch}. Contributions are welcomed")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} currently does not building for {self.settings.os} {self.settings.arch}. Contributions are welcomed"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -127,24 +140,33 @@ class LibpngConan(ConanFile):
         apply_conandata_patches(self)
         if self.settings.os == "Windows":
             if Version(self.version) <= "1.5.2":
-                replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                      'set(PNG_LIB_NAME_STATIC ${PNG_LIB_NAME}_static)',
-                                      'set(PNG_LIB_NAME_STATIC ${PNG_LIB_NAME})')
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "CMakeLists.txt"),
+                    "set(PNG_LIB_NAME_STATIC ${PNG_LIB_NAME}_static)",
+                    "set(PNG_LIB_NAME_STATIC ${PNG_LIB_NAME})",
+                )
             else:
-                replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                    'OUTPUT_NAME "${PNG_LIB_NAME}_static',
-                                    'OUTPUT_NAME "${PNG_LIB_NAME}')
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "CMakeLists.txt"),
+                    'OUTPUT_NAME "${PNG_LIB_NAME}_static',
+                    'OUTPUT_NAME "${PNG_LIB_NAME}',
+                )
             if not (is_msvc(self) or self._is_clang_cl):
                 if Version(self.version) < "1.6.38":
                     src_text = 'COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_LINKER_FILE_NAME:${S_TARGET}> $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}'
                 else:
-                    src_text = '''COMMAND "${CMAKE_COMMAND}"
+                    src_text = """COMMAND "${CMAKE_COMMAND}"
                                  -E copy_if_different
                                  $<TARGET_LINKER_FILE_NAME:${S_TARGET}>
-                                 $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}'''
-                replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                      src_text,
-                                      'COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/$<TARGET_LINKER_FILE_NAME:${S_TARGET}> $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}')
+                                 $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}"""
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "CMakeLists.txt"),
+                    src_text,
+                    'COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/$<TARGET_LINKER_FILE_NAME:${S_TARGET}> $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}',
+                )
 
     def build(self):
         self._patch_sources()
@@ -153,7 +175,12 @@ class LibpngConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         if self.options.shared:
@@ -175,7 +202,9 @@ class LibpngConan(ConanFile):
 
         prefix = "lib" if (is_msvc(self) or self._is_clang_cl) else ""
         suffix = major_min_version if self.settings.os == "Windows" else ""
-        suffix += "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        suffix += (
+            "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        )
         self.cpp_info.libs = [f"{prefix}png{suffix}"]
         if self.settings.os in ["Linux", "Android", "FreeBSD", "SunOS", "AIX"]:
             self.cpp_info.system_libs.append("m")

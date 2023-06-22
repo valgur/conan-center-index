@@ -110,7 +110,12 @@ class CbloscConan(ConanFile):
     def package(self):
         licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt"]
         for license_file in licenses:
-            copy(self, license_file, src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license_file,
+                src=os.path.join(self.source_folder, "LICENSES"),
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, export_conandata_patches, copy, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    export_conandata_patches,
+    copy,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -82,8 +90,11 @@ class OpenALSoftConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
                 )
 
-            if compiler == "clang" and Version(compiler.version) < "9" and \
-               compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11"):
+            if (
+                compiler == "clang"
+                and Version(compiler.version) < "9"
+                and compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11")
+            ):
                 raise ConanInvalidConfiguration(
                     f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) c++ runtime",
                 )
@@ -107,7 +118,12 @@ class OpenALSoftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -118,7 +134,8 @@ class OpenALSoftConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(f"""\
+        content = textwrap.dedent(
+            f"""\
             set(OPENAL_FOUND TRUE)
             if(DEFINED OpenAL_INCLUDE_DIR)
                 set(OPENAL_INCLUDE_DIR ${{OpenAL_INCLUDE_DIR}})
@@ -127,7 +144,8 @@ class OpenALSoftConan(ConanFile):
                 set(OPENAL_LIBRARY ${{OpenAL_LIBRARIES}})
             endif()
             set(OPENAL_VERSION_STRING {self.version})
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property
@@ -150,7 +168,9 @@ class OpenALSoftConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])
         elif is_apple_os(self):
-            self.cpp_info.frameworks.extend(["AudioToolbox", "AudioUnit", "CoreAudio", "CoreFoundation"])
+            self.cpp_info.frameworks.extend(
+                ["AudioToolbox", "AudioUnit", "CoreAudio", "CoreFoundation"]
+            )
             if self.settings.os == "Macos":
                 self.cpp_info.frameworks.append("ApplicationServices")
         elif self.settings.os == "Windows":

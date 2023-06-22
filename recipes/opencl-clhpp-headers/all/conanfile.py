@@ -37,27 +37,39 @@ class OpenclClhppHeadersConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     def generate(self):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._target_name: f"{self.name}::{self.name}"}
+            {self._target_name: f"{self.name}::{self.name}"},
         )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include", "CL"), dst=os.path.join(self.package_folder, "include", "CL"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include", "CL"),
+            dst=os.path.join(self.package_folder, "include", "CL"),
+        )
 
     @property
     def _module_file_rel_path(self):

@@ -2,7 +2,13 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+)
 from conan.tools.microsoft import is_msvc
 from os.path import join
 
@@ -28,7 +34,9 @@ class HiGHSConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -68,15 +76,51 @@ class HiGHSConan(ConanFile):
         cmake.build(target="libhighs")
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
-        copy(self, pattern="*.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
-        copy(self, pattern="HConfig.h", src=self.build_folder, dst=join(self.package_folder, "include"))
+        copy(
+            self,
+            pattern="LICENSE",
+            src=self.source_folder,
+            dst=join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            pattern="*.h",
+            src=join(self.source_folder, "src"),
+            dst=join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="HConfig.h",
+            src=self.build_folder,
+            dst=join(self.package_folder, "include"),
+        )
         if self.options.shared:
-            copy(self, pattern="*.so*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.dylib*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
+            copy(
+                self,
+                pattern="*.so*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
+            copy(
+                self,
+                pattern="*.dylib*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
         else:
-            copy(self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.lib", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"), keep_path=False)
+            copy(
+                self,
+                pattern="*.a",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
+            copy(
+                self,
+                pattern="*.lib",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

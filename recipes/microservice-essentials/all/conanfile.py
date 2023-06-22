@@ -7,27 +7,23 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class MicroserviceEssentials(ConanFile):
-    name = "microservice-essentials"    
+    name = "microservice-essentials"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/seboste/microservice-essentials"
-    license = "MIT"    
+    license = "MIT"
     description = """microservice-essentials is a portable, independent C++ library that takes care of typical recurring concerns that occur in microservice development."""
     topics = ("microservices", "cloud-native", "request-handling")
-    settings = "os", "compiler", "arch", "build_type"    
+    settings = "os", "compiler", "arch", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "with_tests": [True, False],
-        "with_examples": [True, False]
+        "with_examples": [True, False],
     }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "with_tests": False,
-        "with_examples": False
-    }
+    default_options = {"shared": False, "fPIC": True, "with_tests": False, "with_examples": False}
 
     @property
     def _compilers_minimum_version(self):
@@ -80,11 +76,13 @@ class MicroserviceEssentials(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 "{} requires C++17, which your compiler does not support.".format(self.name)
             )
-    
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -94,10 +92,15 @@ class MicroserviceEssentials(ConanFile):
             self.options.rm_safe("fPIC")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
- 
+
     def package_info(self):
         self.cpp_info.libs = ["microservice-essentials"]
         self.cpp_info.bindirs.extend(["lib"])

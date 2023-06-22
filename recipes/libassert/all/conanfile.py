@@ -37,10 +37,7 @@ class LibAssertConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "9"
-        }
+        return {"gcc": "8", "clang": "9"}
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,9 +59,13 @@ class LibAssertConan(ConanFile):
 
         check_min_vs(self, 192)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -87,9 +88,12 @@ class LibAssertConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

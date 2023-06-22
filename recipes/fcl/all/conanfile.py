@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -12,8 +19,10 @@ required_conan_version = ">=1.53.0"
 
 class FclConan(ConanFile):
     name = "fcl"
-    description = "C++11 library for performing three types of proximity " \
-                  "queries on a pair of geometric models composed of triangles."
+    description = (
+        "C++11 library for performing three types of proximity "
+        "queries on a pair of geometric models composed of triangles."
+    )
     license = "BSD-3-Clause"
     topics = ("geometry", "collision")
     homepage = "https://github.com/flexible-collision-library/fcl"
@@ -56,7 +65,9 @@ class FclConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't properly support shared lib on Windows")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't properly support shared lib on Windows"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,7 +78,9 @@ class FclConan(ConanFile):
         tc.variables["FCL_TREAT_WARNINGS_AS_ERRORS"] = False
         tc.variables["FCL_HIDE_ALL_SYMBOLS"] = False
         tc.variables["FCL_STATIC_LIBRARY"] = not self.options.shared
-        tc.variables["FCL_USE_X64_SSE"] = False # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
+        tc.variables[
+            "FCL_USE_X64_SSE"
+        ] = False  # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
         tc.variables["FCL_USE_HOST_NATIVE_ARCH"] = False
         tc.variables["FCL_USE_SSE"] = False
         tc.variables["FCL_COVERALLS"] = False
@@ -94,7 +107,12 @@ class FclConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "CMake"))
@@ -104,19 +122,20 @@ class FclConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"fcl": "fcl::fcl"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"fcl": "fcl::fcl"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

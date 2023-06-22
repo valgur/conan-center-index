@@ -70,8 +70,12 @@ class LibmetalinkConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -79,11 +83,13 @@ class LibmetalinkConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--with-libexpat={yes_no(self.options.xml_backend == 'expat')}",
-            f"--with-libxml2={yes_no(self.options.xml_backend == 'libxml2')}",
-            "ac_cv_func_malloc_0_nonnull=yes",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--with-libexpat={yes_no(self.options.xml_backend == 'expat')}",
+                f"--with-libxml2={yes_no(self.options.xml_backend == 'libxml2')}",
+                "ac_cv_func_malloc_0_nonnull=yes",
+            ]
+        )
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -96,7 +102,12 @@ class LibmetalinkConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
 
     def build(self):
         self._patch_sources()
@@ -105,7 +116,12 @@ class LibmetalinkConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

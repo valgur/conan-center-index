@@ -5,6 +5,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.37.0"
 
+
 class GlextConan(ConanFile):
     name = "glext"
     license = "MIT"

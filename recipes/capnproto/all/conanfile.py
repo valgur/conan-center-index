@@ -4,7 +4,16 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -90,9 +99,17 @@ class CapnprotoConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support shared libraries for Visual Studio")
-        if self.settings.os == "Windows" and Version(self.version) < "0.8.0" and self.options.with_openssl:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support OpenSSL on Windows pre 0.8.0")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support shared libraries for Visual Studio"
+            )
+        if (
+            self.settings.os == "Windows"
+            and Version(self.version) < "0.8.0"
+            and self.options.with_openssl
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support OpenSSL on Windows pre 0.8.0"
+            )
 
     def build_requirements(self):
         if self.settings.os != "Windows":
@@ -123,10 +140,12 @@ class CapnprotoConan(ConanFile):
                 env.generate(scope="build")
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--with-openssl={yes_no(self.options.with_openssl)}",
-                "--enable-reflection",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--with-openssl={yes_no(self.options.with_openssl)}",
+                    "--enable-reflection",
+                ]
+            )
             if Version(self.version) >= "0.8.0":
                 tc.configure_args.append(f"--with-zlib={yes_no(self.options.with_zlib)}")
             # Fix rpath on macOS
@@ -155,7 +174,12 @@ class CapnprotoConan(ConanFile):
         return os.path.join("lib", "cmake", "CapnProto")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()
@@ -171,7 +195,8 @@ class CapnprotoConan(ConanFile):
                 os.remove(cmake_file)
         # inject mandatory variables so that CAPNP_GENERATE_CPP function can
         # work in a robust way (build from source or from pre build package)
-        find_execs = textwrap.dedent("""\
+        find_execs = textwrap.dedent(
+            """\
             if(CMAKE_CROSSCOMPILING)
                 find_program(CAPNP_EXECUTABLE capnp PATHS ENV PATH NO_DEFAULT_PATH)
                 find_program(CAPNPC_CXX_EXECUTABLE capnpc-c++ PATHS ENV PATH NO_DEFAULT_PATH)
@@ -184,10 +209,14 @@ class CapnprotoConan(ConanFile):
             endif()
             set(CAPNP_INCLUDE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../../../include")
             function(CAPNP_GENERATE_CPP SOURCES HEADERS)
-        """)
-        replace_in_file(self, os.path.join(self.package_folder, self._cmake_folder, "CapnProtoMacros.cmake"),
-                              "function(CAPNP_GENERATE_CPP SOURCES HEADERS)",
-                              find_execs)
+        """
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.package_folder, self._cmake_folder, "CapnProtoMacros.cmake"),
+            "function(CAPNP_GENERATE_CPP SOURCES HEADERS)",
+            find_execs,
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CapnProto")
@@ -207,12 +236,16 @@ class CapnprotoConan(ConanFile):
         if self.options.get_safe("with_zlib"):
             components.append({"name": "kj-gzip", "requires": ["kj", "kj-async", "zlib::zlib"]})
         if self.options.with_openssl:
-            components.append({"name": "kj-tls", "requires": ["kj", "kj-async", "openssl::openssl"]})
+            components.append(
+                {"name": "kj-tls", "requires": ["kj", "kj-async", "openssl::openssl"]}
+            )
         if Version(self.version) >= "0.9.0":
-            components.append({
-                "name": "capnp-websocket",
-                "requires": ["capnp", "capnp-rpc", "kj-http", "kj-async", "kj"],
-            })
+            components.append(
+                {
+                    "name": "capnp-websocket",
+                    "requires": ["capnp", "capnp-rpc", "kj-http", "kj-async", "kj"],
+                }
+            )
 
         for component in components:
             self._register_component(component)

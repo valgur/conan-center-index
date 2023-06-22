@@ -40,10 +40,6 @@ class Librasterlite2Conan(ConanFile):
     generators = "pkg_config"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -100,20 +96,27 @@ class Librasterlite2Conan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         # Disable tests, tools and examples
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.am"),
-                              "SUBDIRS = headers src test tools examples",
-                              "SUBDIRS = headers src")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "Makefile.am"),
+            "SUBDIRS = headers src test tools examples",
+            "SUBDIRS = headers src",
+        )
         # fix MinGW
-        tools.replace_in_file(os.path.join(self._source_subfolder, "configure.ac"),
-                              "AC_CHECK_LIB(z,",
-                              "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]))
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "configure.ac"),
+            "AC_CHECK_LIB(z,",
+            "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]),
+        )
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -135,7 +138,9 @@ class Librasterlite2Conan(ConanFile):
     def build(self):
         self._patch_sources()
         with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+            )
             # relocatable shared libs on macOS
             tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared

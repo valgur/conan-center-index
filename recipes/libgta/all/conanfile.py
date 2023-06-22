@@ -2,6 +2,7 @@ import os
 
 from conans import ConanFile, CMake, tools
 
+
 class LibgtaConan(ConanFile):
     name = "libgta"
     description = "Library that reads and writes GTA (Generic Tagged Arrays) files."
@@ -12,14 +13,16 @@ class LibgtaConan(ConanFile):
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -38,8 +41,11 @@ class LibgtaConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "${CMAKE_SOURCE_DIR}", "${CMAKE_CURRENT_SOURCE_DIR}")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            "${CMAKE_SOURCE_DIR}",
+            "${CMAKE_CURRENT_SOURCE_DIR}",
+        )
         cmake = self._configure_cmake()
         cmake.build()
 

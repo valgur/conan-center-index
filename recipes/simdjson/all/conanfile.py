@@ -67,18 +67,26 @@ class SimdjsonConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not fully support."
             )
 
-        if Version(self.version) >= "2.0.0" and \
-            self.settings.compiler == "gcc" and \
-            Version(self.settings.compiler.version).major == "9":
+        if (
+            Version(self.version) >= "2.0.0"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version).major == "9"
+        ):
             if self.settings.compiler.get_safe("libcxx") == "libstdc++11":
-                raise ConanInvalidConfiguration(f"{self.ref} doesn't support GCC 9 with libstdc++11.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} doesn't support GCC 9 with libstdc++11."
+                )
             if self.settings.build_type == "Debug":
-                raise ConanInvalidConfiguration(f"{self.ref} doesn't support GCC 9 with Debug build type.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} doesn't support GCC 9 with Debug build type."
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,7 +106,12 @@ class SimdjsonConan(ConanFile):
         if Version(self.version) < "1.0.0":
             simd_flags_file = os.path.join(self.source_folder, "cmake", "simdjson-flags.cmake")
             # Those flags are not set in >=1.0.0 since we disable SIMDJSON_DEVELOPER_MODE
-            replace_in_file(self, simd_flags_file, "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)", "")
+            replace_in_file(
+                self,
+                simd_flags_file,
+                "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)",
+                "",
+            )
             replace_in_file(self, simd_flags_file, "-Werror", "")
             replace_in_file(self, simd_flags_file, "/WX", "")
             # Relocatable shared lib on macOS
@@ -115,7 +128,12 @@ class SimdjsonConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

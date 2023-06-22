@@ -75,10 +75,12 @@ class LibelfConan(ConanFile):
             env = VirtualBuildEnv(self)
             env.generate()
             tc = AutotoolsToolchain(self)
-            tc.configure_args.extend([
-                # it's required, libelf doesnt seem to understand DESTDIR
-                f"--prefix={unix_path(self, self.package_folder)}",
-            ])
+            tc.configure_args.extend(
+                [
+                    # it's required, libelf doesnt seem to understand DESTDIR
+                    f"--prefix={unix_path(self, self.package_folder)}",
+                ]
+            )
             tc.generate()
 
     def build(self):
@@ -87,9 +89,12 @@ class LibelfConan(ConanFile):
             cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
             cmake.build()
         else:
-            replace_in_file(self, os.path.join(self.source_folder, "lib", "Makefile.in"),
-                                  "$(LINK_SHLIB)",
-                                  "$(LINK_SHLIB) $(LDFLAGS)")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "lib", "Makefile.in"),
+                "$(LINK_SHLIB)",
+                "$(LINK_SHLIB) $(LDFLAGS)",
+            )
             # libelf sources contains really outdated 'config.sub' and
             # 'config.guess' files. It not allows to build libelf for armv8 arch.
             for gnu_config in [
@@ -97,14 +102,24 @@ class LibelfConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(
+                        self,
+                        os.path.basename(gnu_config),
+                        src=os.path.dirname(gnu_config),
+                        dst=self.source_folder,
+                    )
             autotools = Autotools(self)
             autotools.autoreconf()
             autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.LIB",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

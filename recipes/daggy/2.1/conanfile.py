@@ -11,7 +11,19 @@ class DaggyConan(ConanFile):
     homepage = "https://daggy.dev"
     url = "https://github.com/conan-io/conan-center-index"
     description = "Data Aggregation Utility and C/C++ developer library for data streams catching"
-    topics = ("streaming", "qt", "monitoring", "process", "stream-processing", "extensible", "serverless-framework", "aggregation", "ssh2", "crossplatform", "ssh-client")
+    topics = (
+        "streaming",
+        "qt",
+        "monitoring",
+        "process",
+        "stream-processing",
+        "extensible",
+        "serverless-framework",
+        "aggregation",
+        "ssh2",
+        "crossplatform",
+        "ssh-client",
+    )
 
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -19,21 +31,17 @@ class DaggyConan(ConanFile):
         "with_yaml": [True, False],
         "with_console": [True, False],
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "with_ssh2": True,
         "with_yaml": True,
         "with_console": False,
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
     generators = "cmake", "cmake_find_package"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _minimum_cpp_standard(self):
@@ -45,8 +53,11 @@ class DaggyConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build_requirements(self):
         self.build_requires("cmake/3.21.3")
@@ -56,9 +67,9 @@ class DaggyConan(ConanFile):
             del self.options.fPIC
 
         self.options["qt"].shared = True
-    
+
     def configure(self):
-          if self.options.shared:
+        if self.options.shared:
             del self.options.fPIC
 
     @property
@@ -75,18 +86,24 @@ class DaggyConan(ConanFile):
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
         else:
             if tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                    self.name, 
-                    self._minimum_cpp_standard, 
-                    self.settings.compiler, 
-                    self.settings.compiler.version))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
+                        self.name,
+                        self._minimum_cpp_standard,
+                        self.settings.compiler,
+                        self.settings.compiler.version,
+                    )
+                )
 
-        if not self.options["qt"].shared: 
-            raise ConanInvalidConfiguration("Shared Qt lib is required.") 
+        if not self.options["qt"].shared:
+            raise ConanInvalidConfiguration("Shared Qt lib is required.")
 
     def requirements(self):
         self.requires("qt/6.2.2")
@@ -121,7 +138,7 @@ class DaggyConan(ConanFile):
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        
+
         cmake = self._configure()
         cmake.build()
 
@@ -133,6 +150,3 @@ class DaggyConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["DaggyCore"]
-
-
-        

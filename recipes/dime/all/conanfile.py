@@ -5,6 +5,7 @@ import functools
 
 required_conan_version = ">=1.33.0"
 
+
 class DimeConan(ConanFile):
     name = "dime"
     description = "DXF (Data eXchange Format) file format support library."
@@ -13,8 +14,13 @@ class DimeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake",
-    settings = "os", "arch", "compiler", "build_type",
+    generators = ("cmake",)
+    settings = (
+        "os",
+        "arch",
+        "compiler",
+        "build_type",
+    )
     options = {
         "fPIC": [True, False],
         "shared": [True, False],
@@ -25,10 +31,6 @@ class DimeConan(ConanFile):
         "shared": False,
         "fixbig": False,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -47,8 +49,11 @@ class DimeConan(ConanFile):
             tools.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -60,9 +65,11 @@ class DimeConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)",
-            "configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)")
+            "configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)",
+        )
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -83,7 +90,7 @@ class DimeConan(ConanFile):
                 tools.Version(self.version).major,
                 "" if self.options.shared else "s",
                 "d" if self.settings.build_type == "Debug" else "",
-                )
+            )
         self.cpp_info.libs = [libname]
 
         if self.settings.os == "Windows":

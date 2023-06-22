@@ -38,7 +38,11 @@ class SevenZipConan(ConanFile):
         if Version(self.version) < "22":
             self.build_requires("lzma_sdk/9.20")
 
-        if not is_msvc(self) and self._settings_build.os == "Windows" and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", ""):
+        if (
+            not is_msvc(self)
+            and self._settings_build.os == "Windows"
+            and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", "")
+        ):
             self.build_requires("make/4.3")
 
     def package_id(self):
@@ -50,7 +54,9 @@ class SevenZipConan(ConanFile):
             item = self.conan_data["sources"][self.version]
             filename = "7z-source.7z"
             download(self, **item, filename=filename)
-            sevenzip = os.path.join(self.dependencies.build["lzma_sdk"].package_folder, "bin", "7zr.exe")
+            sevenzip = os.path.join(
+                self.dependencies.build["lzma_sdk"].package_folder, "bin", "7zr.exe"
+            )
             self.run(f"{sevenzip} x {filename}")
             os.unlink(filename)
         else:
@@ -76,7 +82,10 @@ class SevenZipConan(ConanFile):
         }[str(self.settings.arch)]
 
     def _build_msvc(self):
-        self.run(f"nmake /f makefile PLATFORM={self._msvc_platform}", cwd=os.path.join(self.source_folder, "CPP", "7zip"))
+        self.run(
+            f"nmake /f makefile PLATFORM={self._msvc_platform}",
+            cwd=os.path.join(self.source_folder, "CPP", "7zip"),
+        )
 
     def _build_autotools(self):
         # TODO: Enable non-Windows methods in configure
@@ -99,11 +108,33 @@ class SevenZipConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "DOC"))
-        copy(self, "unRarLicense.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "DOC"))
+        copy(
+            self,
+            "License.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "DOC"),
+        )
+        copy(
+            self,
+            "unRarLicense.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "DOC"),
+        )
         if self.settings.os == "Windows":
-            copy(self, "*.exe", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.source_folder, "CPP", "7zip"), keep_path=False)
-            copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.source_folder, "CPP", "7zip"), keep_path=False)
+            copy(
+                self,
+                "*.exe",
+                dst=os.path.join(self.package_folder, "bin"),
+                src=os.path.join(self.source_folder, "CPP", "7zip"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                dst=os.path.join(self.package_folder, "bin"),
+                src=os.path.join(self.source_folder, "CPP", "7zip"),
+                keep_path=False,
+            )
         # TODO: Package the libraries: binaries and headers (add the rest of settings)
 
     def package_info(self):

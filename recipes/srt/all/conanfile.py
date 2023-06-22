@@ -12,17 +12,19 @@ class SrtConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MPL-2.0"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     short_paths = True
 
     exports_sources = ["CMakeLists.txt", "patches/*"]
     generators = "cmake", "cmake_find_package"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -34,8 +36,16 @@ class SrtConan(ConanFile):
 
     @property
     def _has_posix_threads(self):
-        return not (self.settings.os == "Windows" and (self.settings.compiler == "Visual Studio" or \
-               (self.settings.compiler == "gcc" and self.settings.compiler.get_safe("threads") == "win32")))
+        return not (
+            self.settings.os == "Windows"
+            and (
+                self.settings.compiler == "Visual Studio"
+                or (
+                    self.settings.compiler == "gcc"
+                    and self.settings.compiler.get_safe("threads") == "win32"
+                )
+            )
+        )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -51,15 +61,20 @@ class SrtConan(ConanFile):
             self.requires("pthreads4w/3.0.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "set (CMAKE_MODULE_PATH \"${CMAKE_CURRENT_SOURCE_DIR}/scripts\")",
-                              "list(APPEND CMAKE_MODULE_PATH \"${CMAKE_CURRENT_SOURCE_DIR}/scripts\")")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            'set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")',
+            'list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")',
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -93,7 +108,11 @@ class SrtConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "srt"
-        suffix = "_static" if self.settings.compiler == "Visual Studio" and not self.options.shared else ""
+        suffix = (
+            "_static"
+            if self.settings.compiler == "Visual Studio" and not self.options.shared
+            else ""
+        )
         self.cpp_info.libs = ["srt" + suffix]
         if self.options.shared:
             self.cpp_info.defines = ["SRT_DYNAMIC"]

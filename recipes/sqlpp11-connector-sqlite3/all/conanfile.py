@@ -12,15 +12,15 @@ class sqlpp11Conan(ConanFile):
     license = "BSD-2-Clause"
     exports_sources = ["CMakeLists.txt", "patches/**"]
     generators = "cmake"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_sqlcipher": [True, False]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_sqlcipher": [True, False],
+    }
     default_options = {"shared": False, "fPIC": True, "with_sqlcipher": False}
     short_paths = True
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -54,7 +54,9 @@ class sqlpp11Conan(ConanFile):
         self._cmake = CMake(self)
         self._cmake.definitions["ENABLE_TESTS"] = False
         self._cmake.definitions["SQLCIPHER"] = self.options.with_sqlcipher
-        self._cmake.definitions["SQLPP11_INCLUDE_DIR"] = self.deps_cpp_info["sqlpp11"].include_paths[0]
+        self._cmake.definitions["SQLPP11_INCLUDE_DIR"] = self.deps_cpp_info[
+            "sqlpp11"
+        ].include_paths[0]
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

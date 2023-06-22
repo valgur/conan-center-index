@@ -12,7 +12,7 @@ class DaggyTestConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        
+
         cmake.configure()
         cmake.build()
 

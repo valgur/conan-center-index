@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.57.0"
 
+
 class Pthreads4WConan(ConanFile):
     name = "pthreads4w"
     package_type = "library"
@@ -45,13 +46,17 @@ class Pthreads4WConan(ConanFile):
     def validate(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("pthreads4w can only target os=Windows")
-        
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         if is_msvc(self):
@@ -65,16 +70,22 @@ class Pthreads4WConan(ConanFile):
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 makefile = os.path.join(self.source_folder, "Makefile")
-                replace_in_file(self, makefile,
+                replace_in_file(
+                    self,
+                    makefile,
                     "	copy pthreadV*.lib $(LIBDEST)",
-                    "	if exist pthreadV*.lib copy pthreadV*.lib $(LIBDEST)")
-                replace_in_file(self, makefile,
+                    "	if exist pthreadV*.lib copy pthreadV*.lib $(LIBDEST)",
+                )
+                replace_in_file(
+                    self,
+                    makefile,
                     "	copy libpthreadV*.lib $(LIBDEST)",
-                    "	if exist libpthreadV*.lib copy libpthreadV*.lib $(LIBDEST)")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MD\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MDd\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MT\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MTd\"", "")
+                    "	if exist libpthreadV*.lib copy libpthreadV*.lib $(LIBDEST)",
+                )
+                replace_in_file(self, makefile, 'XCFLAGS="/MD"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MDd"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MT"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MTd"', "")
                 target = {
                     "CPP": "VCE",
                     "SEH": "SSE",
@@ -99,7 +110,12 @@ class Pthreads4WConan(ConanFile):
                 autotools.make(target=make_target, args=["-j1"])
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 self.run("nmake install DESTROOT={}".format(self.package_folder), env="conanbuild")

@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanException
-from conan.tools.files import copy, get, load, save, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import (
+    copy,
+    get,
+    load,
+    save,
+    apply_conandata_patches,
+    export_conandata_patches,
+)
 from conan.tools.layout import basic_layout
 import os
 
@@ -27,8 +34,12 @@ class GnuConfigConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         apply_conandata_patches(self)
@@ -49,16 +60,27 @@ class GnuConfigConan(ConanFile):
         return "\n".join(txt_lines[start_index:end_index])
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "COPYING"), self._extract_license())
-        copy(self, "config.guess", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(self, "config.sub", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        save(
+            self, os.path.join(self.package_folder, "licenses", "COPYING"), self._extract_license()
+        )
+        copy(
+            self,
+            "config.guess",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+        )
+        copy(
+            self, "config.sub", src=self.source_folder, dst=os.path.join(self.package_folder, "bin")
+        )
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.conf_info.define("user.gnu-config:config_guess", os.path.join(bin_path, "config.guess"))
+        self.conf_info.define(
+            "user.gnu-config:config_guess", os.path.join(bin_path, "config.guess")
+        )
         self.conf_info.define("user.gnu-config:config_sub", os.path.join(bin_path, "config.sub"))
 
         # TODO: to remove in conan v2

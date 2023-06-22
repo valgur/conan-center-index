@@ -8,7 +8,9 @@ required_conan_version = ">=1.52.0"
 
 class EcosConan(ConanFile):
     name = "ecos"
-    description = "ECOS is a numerical software for solving convex second-order cone programs (SOCPs)."
+    description = (
+        "ECOS is a numerical software for solving convex second-order cone programs (SOCPs)."
+    )
     license = "GPL-3.0-or-later"
     topics = ("ecos", "conic-solver")
     homepage = "https://github.com/embotech/ecos"
@@ -56,8 +58,12 @@ class EcosConan(ConanFile):
         pass
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,7 +78,12 @@ class EcosConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

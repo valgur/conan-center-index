@@ -29,10 +29,6 @@ class GiflibConan(ConanFile):
     exports_sources = ["unistd.h", "gif_lib.h"]
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -61,14 +57,19 @@ class GiflibConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         # disable util build - tools and internal libs
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.in"),
-                              "SUBDIRS = lib util pic $(am__append_1)",
-                              "SUBDIRS = lib pic $(am__append_1)")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "Makefile.in"),
+            "SUBDIRS = lib util pic $(am__append_1)",
+            "SUBDIRS = lib pic $(am__append_1)",
+        )
 
         if self._is_msvc:
             self.build_visual()
@@ -103,31 +104,42 @@ class GiflibConan(ConanFile):
 
             prefix = tools.unix_path(os.path.abspath(self.package_folder))
             with tools.vcvars(self.settings):
-                command = "./configure " \
-                          "{options} " \
-                          "--host={host} " \
-                          "--prefix={prefix} " \
-                          'CC="$PWD/compile cl -nologo" ' \
-                          'CFLAGS="-{runtime} {cflags}" ' \
-                          'CXX="$PWD/compile cl -nologo" ' \
-                          'CXXFLAGS="-{runtime} {cflags}" ' \
-                          'CPPFLAGS="-I{prefix}/include" ' \
-                          'LDFLAGS="-L{prefix}/lib" ' \
-                          'LD="link" ' \
-                          'NM="dumpbin -symbols" ' \
-                          'STRIP=":" ' \
-                          'AR="$PWD/ar-lib lib" ' \
-                          'RANLIB=":" '.format(host=host, prefix=prefix, options=options,
-                                               runtime=self.settings.compiler.runtime, cflags=cflags)
+                command = (
+                    "./configure "
+                    "{options} "
+                    "--host={host} "
+                    "--prefix={prefix} "
+                    'CC="$PWD/compile cl -nologo" '
+                    'CFLAGS="-{runtime} {cflags}" '
+                    'CXX="$PWD/compile cl -nologo" '
+                    'CXXFLAGS="-{runtime} {cflags}" '
+                    'CPPFLAGS="-I{prefix}/include" '
+                    'LDFLAGS="-L{prefix}/lib" '
+                    'LD="link" '
+                    'NM="dumpbin -symbols" '
+                    'STRIP=":" '
+                    'AR="$PWD/ar-lib lib" '
+                    'RANLIB=":" '.format(
+                        host=host,
+                        prefix=prefix,
+                        options=options,
+                        runtime=self.settings.compiler.runtime,
+                        cflags=cflags,
+                    )
+                )
                 self.run(command, win_bash=True)
                 self.run("make", win_bash=True)
                 self.run("make install", win_bash=True)
 
     def build_configure(self):
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
-                    os.path.join(self._source_subfolder, "config.sub"))
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
-                    os.path.join(self._source_subfolder, "config.guess"))
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_SUB,
+            os.path.join(self._source_subfolder, "config.sub"),
+        )
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_GUESS,
+            os.path.join(self._source_subfolder, "config.guess"),
+        )
         env_build = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         yes_no = lambda v: "yes" if v else "no"
         args = [
@@ -140,7 +152,7 @@ class GiflibConan(ConanFile):
                 tools.replace_in_file(
                     "configure",
                     "-install_name \\$rpath/\\$soname",
-                    "-install_name \\@rpath/\\$soname"
+                    "-install_name \\@rpath/\\$soname",
                 )
 
             self.run("chmod +x configure")
@@ -149,12 +161,20 @@ class GiflibConan(ConanFile):
             env_build.make(args=["install"])
 
     def package(self):
-        self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder, ignore_case=True, keep_path=False)
+        self.copy(
+            pattern="COPYING*",
+            dst="licenses",
+            src=self._source_subfolder,
+            ignore_case=True,
+            keep_path=False,
+        )
         tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
         tools.rmdir(os.path.join(self.package_folder, "share"))
         if self._is_msvc and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "gif.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "gif.lib"))
+            tools.rename(
+                os.path.join(self.package_folder, "lib", "gif.dll.lib"),
+                os.path.join(self.package_folder, "lib", "gif.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

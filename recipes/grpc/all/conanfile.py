@@ -7,7 +7,15 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, cross_building, valid_min_cppstd, check_min_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 
@@ -37,7 +45,7 @@ class GrpcConan(ConanFile):
         "php_plugin": [True, False],
         "python_plugin": [True, False],
         "ruby_plugin": [True, False],
-        "secure": [True, False]
+        "secure": [True, False],
     }
     default_options = {
         "shared": False,
@@ -65,8 +73,18 @@ class GrpcConan(ConanFile):
         return 14 if Version(self.version) >= "1.47" else 11
 
     def export_sources(self):
-        copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-        copy(self, f"cmake/{self._grpc_plugin_template}", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+        copy(
+            self,
+            "conan_cmake_project_include.cmake",
+            self.recipe_folder,
+            os.path.join(self.export_sources_folder, "src"),
+        )
+        copy(
+            self,
+            f"cmake/{self._grpc_plugin_template}",
+            self.recipe_folder,
+            os.path.join(self.export_sources_folder, "src"),
+        )
         export_conandata_patches(self)
 
     def config_options(self):
@@ -94,7 +112,9 @@ class GrpcConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("re2/20230301")
         self.requires("zlib/1.2.13")
-        self.requires("protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires(
+            "protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self)
+        )
 
     def package_id(self):
         del self.info.options.secure
@@ -104,14 +124,17 @@ class GrpcConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
 
-        if Version(self.version) >= "1.47" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
+        if (
+            Version(self.version) >= "1.47"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "6"
+        ):
             raise ConanInvalidConfiguration("GCC older than 6 is not supported")
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._cxxstd_required)
 
-        if self.options.shared and \
-           (not self.dependencies["protobuf"].options.shared):
+        if self.options.shared and (not self.dependencies["protobuf"].options.shared):
             raise ConanInvalidConfiguration(
                 "If built as shared protobuf must be shared as well. "
                 "Please, use `protobuf:shared=True`.",
@@ -141,7 +164,9 @@ class GrpcConan(ConanFile):
         # cmake.definitions["CONAN_ENABLE_MOBILE"] = "ON" if self.options.csharp_ext else "OFF"
         tc = CMakeToolchain(self)
 
-        tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
+        tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(
+            self.source_folder, "conan_cmake_project_include.cmake"
+        )
 
         tc.cache_variables["gRPC_BUILD_CODEGEN"] = self.options.codegen
         tc.cache_variables["gRPC_BUILD_CSHARP_EXT"] = self.options.csharp_ext
@@ -194,9 +219,13 @@ class GrpcConan(ConanFile):
         # This workaround wraps the protoc command to be invoked by CMake with a modified environment
         settings_build = getattr(self, "settings_build", self.settings)
         if settings_build.os == "Macos":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
-                            'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}')
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
+                'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}',
+            )
+
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
@@ -204,7 +233,12 @@ class GrpcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -256,7 +290,12 @@ class GrpcConan(ConanFile):
         module_abs_path = os.path.join(self.package_folder, self._module_path)
 
         # Copy our CMake module template file to package folder
-        copy(self, self._grpc_plugin_template, src=os.path.join(self.source_folder, "cmake"), dst=module_abs_path)
+        copy(
+            self,
+            self._grpc_plugin_template,
+            src=os.path.join(self.source_folder, "cmake"),
+            dst=module_abs_path,
+        )
 
         # Rename it
         dst_file = os.path.join(module_abs_path, f"{executable}.cmake")
@@ -305,21 +344,34 @@ class GrpcConan(ConanFile):
             "gpr": {
                 "lib": "gpr",
                 "requires": [
-                    "upb", "abseil::absl_base", "abseil::absl_memory",
-                    "abseil::absl_status", "abseil::absl_str_format",
-                    "abseil::absl_strings", "abseil::absl_synchronization",
-                    "abseil::absl_time", "abseil::absl_optional",
+                    "upb",
+                    "abseil::absl_base",
+                    "abseil::absl_memory",
+                    "abseil::absl_status",
+                    "abseil::absl_str_format",
+                    "abseil::absl_strings",
+                    "abseil::absl_synchronization",
+                    "abseil::absl_time",
+                    "abseil::absl_optional",
                 ],
                 "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
             },
             "_grpc": {
                 "lib": "grpc",
                 "requires": [
-                    "address_sorting", "gpr", "upb", "abseil::absl_bind_front",
-                    "abseil::absl_flat_hash_map", "abseil::absl_inlined_vector",
-                    "abseil::absl_statusor", "abseil::absl_random_random",
-                    "c-ares::cares", "openssl::crypto",
-                    "openssl::ssl", "re2::re2", "zlib::zlib",
+                    "address_sorting",
+                    "gpr",
+                    "upb",
+                    "abseil::absl_bind_front",
+                    "abseil::absl_flat_hash_map",
+                    "abseil::absl_inlined_vector",
+                    "abseil::absl_statusor",
+                    "abseil::absl_random_random",
+                    "c-ares::cares",
+                    "openssl::crypto",
+                    "openssl::ssl",
+                    "re2::re2",
+                    "zlib::zlib",
                 ],
                 "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
                 "frameworks": corefoundation(),
@@ -351,38 +403,48 @@ class GrpcConan(ConanFile):
         }
 
         if not self.options.secure:
-            components.update({
-                "grpc_unsecure": {
-                    "lib": "grpc_unsecure",
-                    "requires": [
-                        "address_sorting", "gpr", "upb", "abseil::absl_flat_hash_map",
-                        "abseil::absl_inlined_vector", "abseil::absl_statusor",
-                        "c-ares::cares", "re2::re2", "zlib::zlib",
-                        "abseil::absl_random_random",
-                    ],
-                    "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
-                    "frameworks": corefoundation(),
-                },
-                "grpc++_unsecure": {
-                    "lib": "grpc++_unsecure",
-                    "requires": ["grpc_unsecure", "protobuf::libprotobuf"],
-                    "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
-                },
-            })
+            components.update(
+                {
+                    "grpc_unsecure": {
+                        "lib": "grpc_unsecure",
+                        "requires": [
+                            "address_sorting",
+                            "gpr",
+                            "upb",
+                            "abseil::absl_flat_hash_map",
+                            "abseil::absl_inlined_vector",
+                            "abseil::absl_statusor",
+                            "c-ares::cares",
+                            "re2::re2",
+                            "zlib::zlib",
+                            "abseil::absl_random_random",
+                        ],
+                        "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
+                        "frameworks": corefoundation(),
+                    },
+                    "grpc++_unsecure": {
+                        "lib": "grpc++_unsecure",
+                        "requires": ["grpc_unsecure", "protobuf::libprotobuf"],
+                        "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
+                    },
+                }
+            )
 
         if self.options.codegen:
-            components.update({
-                "grpc++_reflection": {
-                    "lib": "grpc++_reflection",
-                    "requires": ["grpc++", "protobuf::libprotobuf"],
-                    "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
-                },
-                "grpcpp_channelz": {
-                    "lib": "grpcpp_channelz",
-                    "requires": ["grpc++", "protobuf::libprotobuf"],
-                    "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
-                },
-            })
+            components.update(
+                {
+                    "grpc++_reflection": {
+                        "lib": "grpc++_reflection",
+                        "requires": ["grpc++", "protobuf::libprotobuf"],
+                        "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
+                    },
+                    "grpcpp_channelz": {
+                        "lib": "grpcpp_channelz",
+                        "requires": ["grpc++", "protobuf::libprotobuf"],
+                        "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
+                    },
+                }
+            )
 
         return components
 
@@ -391,12 +453,14 @@ class GrpcConan(ConanFile):
         self.cpp_info.resdirs = ["res"]
         ssl_roots_file_path = os.path.join(self.package_folder, "res", "grpc", "roots.pem")
         self.runenv_info.define_path("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", ssl_roots_file_path)
-        self.env_info.GRPC_DEFAULT_SSL_ROOTS_FILE_PATH = ssl_roots_file_path # remove in conan v2?
+        self.env_info.GRPC_DEFAULT_SSL_ROOTS_FILE_PATH = ssl_roots_file_path  # remove in conan v2?
 
         for component, values in self._grpc_components.items():
             target = values.get("lib")
             lib = values.get("lib")
-            self.cpp_info.components[component].set_property("cmake_target_name", "gRPC::{}".format(target))
+            self.cpp_info.components[component].set_property(
+                "cmake_target_name", "gRPC::{}".format(target)
+            )
             # actually only gpr, grpc, grpc_unsecure, grpc++ and grpc++_unsecure should have a .pc file
             self.cpp_info.components[component].set_property("pkg_config_name", target)
             self.cpp_info.components[component].libs = [lib]
@@ -426,5 +490,9 @@ class GrpcConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "gRPC"
         self.cpp_info.names["cmake_find_package_multi"] = "gRPC"
         if grpc_modules:
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package"] = grpc_modules
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package_multi"] = grpc_modules
+            self.cpp_info.components["grpc_execs"].build_modules[
+                "cmake_find_package"
+            ] = grpc_modules
+            self.cpp_info.components["grpc_execs"].build_modules[
+                "cmake_find_package_multi"
+            ] = grpc_modules

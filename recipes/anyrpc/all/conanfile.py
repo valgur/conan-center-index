@@ -66,7 +66,9 @@ class AnyRPCConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
         if self.options.with_log4cplus and self.options.with_wchar:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built with both log4cplus and wchar, see https://github.com/sgieseking/anyrpc/issues/25")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built with both log4cplus and wchar, see https://github.com/sgieseking/anyrpc/issues/25"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,13 +100,18 @@ class AnyRPCConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="license", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="license",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["anyrpc"]
         if not self.options.shared and self.settings.os == "Windows":
-                self.cpp_info.system_libs.append("ws2_32")
+            self.cpp_info.system_libs.append("ws2_32")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])

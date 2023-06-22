@@ -1,26 +1,36 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, chdir, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    chdir,
+    rm,
+    rmdir,
+)
 from conans import AutoToolsBuildEnvironment
 import functools
 
 required_conan_version = ">=1.52.0"
 
+
 class libxftConan(ConanFile):
     name = "libxft"
-    description = 'X FreeType library'
+    description = "X FreeType library"
     topics = ("libxft", "x11", "xorg")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.x.org/wiki/"
     license = "X11"
 
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "pkg_config"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -36,8 +46,12 @@ class libxftConan(ConanFile):
         self.build_requires("libtool/2.4.7")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -73,6 +87,6 @@ class libxftConan(ConanFile):
         rmdir(self, f"{self.package_folder}/share")
 
     def package_info(self):
-        self.cpp_info.names['pkg_config'] = "Xft"
+        self.cpp_info.names["pkg_config"] = "Xft"
         self.cpp_info.set_property("pkg_config_name", "xft")
         self.cpp_info.libs = ["Xft"]

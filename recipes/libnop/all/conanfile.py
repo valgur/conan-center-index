@@ -11,9 +11,11 @@ required_conan_version = ">=1.50.0"
 
 class LibnopConan(ConanFile):
     name = "libnop"
-    description = "libnop is a header-only library for serializing and " \
-                  "deserializing C++ data types without external code " \
-                  "generators or runtime support libraries."
+    description = (
+        "libnop is a header-only library for serializing and "
+        "deserializing C++ data types without external code "
+        "generators or runtime support libraries."
+    )
     license = "Apache-2.0"
     topics = ("header-only", "serializer")
     homepage = "https://github.com/google/libnop"
@@ -56,8 +58,18 @@ class LibnopConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

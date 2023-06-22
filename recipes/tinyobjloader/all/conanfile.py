@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, get, export_conandata_patches, load, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    get,
+    export_conandata_patches,
+    load,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -46,8 +54,12 @@ class TinyObjLoaderConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,13 +84,15 @@ class TinyObjLoaderConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "tinyobjloader"))
-        self._remove_implementation(os.path.join(self.package_folder, "include", "tiny_obj_loader.h"))
+        self._remove_implementation(
+            os.path.join(self.package_folder, "include", "tiny_obj_loader.h")
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         cmake_target = "tinyobjloader_double" if self.options.double else "tinyobjloader"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {cmake_target: "tinyobjloader::tinyobjloader"}
+            {cmake_target: "tinyobjloader::tinyobjloader"},
         )
 
     def _remove_implementation(self, header_fullpath):
@@ -90,12 +104,14 @@ class TinyObjLoaderConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -106,7 +122,9 @@ class TinyObjLoaderConan(ConanFile):
         suffix = "_double" if self.options.double else ""
         self.cpp_info.set_property("cmake_file_name", "tinyobjloader")
         self.cpp_info.set_property("cmake_target_name", f"tinyobjloader::tinyobjloader{suffix}")
-        self.cpp_info.set_property("cmake_target_aliases", [f"tinyobjloader{suffix}"]) # old target (before 1.0.7)
+        self.cpp_info.set_property(
+            "cmake_target_aliases", [f"tinyobjloader{suffix}"]
+        )  # old target (before 1.0.7)
         self.cpp_info.set_property("pkg_config_name", f"tinyobjloader{suffix}")
         self.cpp_info.libs = [f"tinyobjloader{suffix}"]
         if self.options.double:

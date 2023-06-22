@@ -7,6 +7,7 @@ import textwrap
 
 required_conan_version = ">=1.53.0"
 
+
 class MsgpackCXXConan(ConanFile):
     name = "msgpack-cxx"
     description = "The official C++ library for MessagePack"
@@ -43,7 +44,12 @@ class MsgpackCXXConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE_1_0.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.h",
@@ -58,18 +64,22 @@ class MsgpackCXXConan(ConanFile):
         )
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"msgpackc-cxx": "msgpackc-cxx::msgpackc-cxx"}
+            {"msgpackc-cxx": "msgpackc-cxx::msgpackc-cxx"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property

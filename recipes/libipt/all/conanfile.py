@@ -2,6 +2,7 @@ from conans import ConanFile, CMake, tools
 
 required_conan_version = ">=1.33.0"
 
+
 class LibIptConan(ConanFile):
     name = "libipt"
     license = "BSD-3-Clause"
@@ -11,20 +12,16 @@ class LibIptConan(ConanFile):
     topics = ("profiling", "tracing")
     settings = "os", "compiler", "build_type", "arch"
     options = {
-            "shared": [True, False],
-            "fPIC": [True, False],
+        "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-            "shared": False,
-            "fPIC": True,
+        "shared": False,
+        "fPIC": True,
     }
 
     generators = "cmake"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -38,8 +35,11 @@ class LibIptConan(ConanFile):
         pass
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-               strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -71,4 +71,3 @@ class LibIptConan(ConanFile):
         self.cpp_info.libs = ["libipt"] if self.settings.os == "Windows" else ["ipt"]
         self.cpp_info.set_property("cmake_file_name", "libipt")
         self.cpp_info.set_property("cmake_target_name", "libipt::libipt")
-

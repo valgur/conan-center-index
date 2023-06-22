@@ -26,10 +26,6 @@ class DatadogOpenTracingConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -69,12 +65,20 @@ class DatadogOpenTracingConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if tools.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("Datadog-opentracing requires C++14, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    "Datadog-opentracing requires C++14, which your compiler does not support."
+                )
         else:
-            self.output.warn("Datadog-opentracing requires C++14. Your compiler is unknown. Assuming it supports C++14.")
+            self.output.warn(
+                "Datadog-opentracing requires C++14. Your compiler is unknown. Assuming it supports C++14."
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -112,9 +116,16 @@ class DatadogOpenTracingConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "DataDogOpenTracing"
         self.cpp_info.names["cmake_find_package_multi"] = "DataDogOpenTracing"
         target_suffix = "" if self.options.shared else "-static"
-        self.cpp_info.components["dd_opentracing"].names["cmake_find_package"] = "dd_opentracing" + target_suffix
-        self.cpp_info.components["dd_opentracing"].names["cmake_find_package_multi"] = "dd_opentracing" + target_suffix
+        self.cpp_info.components["dd_opentracing"].names["cmake_find_package"] = (
+            "dd_opentracing" + target_suffix
+        )
+        self.cpp_info.components["dd_opentracing"].names["cmake_find_package_multi"] = (
+            "dd_opentracing" + target_suffix
+        )
         self.cpp_info.components["dd_opentracing"].requires = [
-            "opentracing-cpp::opentracing-cpp", "zlib::zlib", "libcurl::libcurl",
-            "msgpack::msgpack", "nlohmann_json::nlohmann_json",
+            "opentracing-cpp::opentracing-cpp",
+            "zlib::zlib",
+            "libcurl::libcurl",
+            "msgpack::msgpack",
+            "nlohmann_json::nlohmann_json",
         ]

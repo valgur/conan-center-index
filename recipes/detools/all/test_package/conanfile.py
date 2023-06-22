@@ -28,5 +28,4 @@ class DetoolsTestConan(ConanFile):
         patch_path = os.path.join(self.source_folder, "patch")
         patched_path = os.path.join(self.build_folder, "patched")
 
-        self.run(f"{bin_path} {old_path} {patch_path} {patched_path}",
-                 run_environment=True)
+        self.run(f"{bin_path} {old_path} {patch_path} {patched_path}", run_environment=True)

@@ -74,7 +74,9 @@ class OpenGrmConan(ConanFile):
 
         # Check stdlib ABI compatibility
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration(f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"')
+            raise ConanInvalidConfiguration(
+                f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"'
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -86,10 +88,12 @@ class OpenGrmConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--enable-bin={yes_no(self.options.enable_bin)}",
-            "LIBS=-lpthread",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-bin={yes_no(self.options.enable_bin)}",
+                "LIBS=-lpthread",
+            ]
+        )
         tc.make_args.append("-j1")
         tc.generate()
 
@@ -102,7 +106,12 @@ class OpenGrmConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

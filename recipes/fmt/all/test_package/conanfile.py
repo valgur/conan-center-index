@@ -17,7 +17,9 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["FMT_HEADER_ONLY"] = self.dependencies[self.tested_reference_str].options.header_only
+        tc.variables["FMT_HEADER_ONLY"] = self.dependencies[
+            self.tested_reference_str
+        ].options.header_only
         tc.generate()
 
     def build(self):

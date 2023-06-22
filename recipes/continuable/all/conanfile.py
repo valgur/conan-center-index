@@ -16,9 +16,7 @@ class ContinuableConan(ConanFile):
     license = "MIT"
     settings = "os", "compiler"
     no_copy_source = True
-    requires = (
-        "function2/4.1.0",
-    )
+    requires = ("function2/4.1.0",)
     options = {
         # Exceptions are disabled and `std::error_condition` is used as error_type. See tutorial-chaining-continuables-fail for details.
         "no_exceptions": [True, False],
@@ -37,33 +35,31 @@ class ContinuableConan(ConanFile):
         "custom_error_type": False,
         "unhandled_exceptions": False,
         "custom_final_callback": False,
-        "immediate_types": False
+        "immediate_types": False,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def validate(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
-            "gcc": "5",
-            "clang": "3.4",
-            "apple-clang": "10",
-            "Visual Studio": "14"
-        }
+        minimal_version = {"gcc": "5", "clang": "3.4", "apple-clang": "10", "Visual Studio": "14"}
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
+                "%s recipe lacks information about the %s compiler standard version support"
+                % (self.name, compiler)
+            )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+                "%s requires a compiler that supports at least C++%s"
+                % (self.name, minimal_cpp_standard)
+            )
             return
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+            raise ConanInvalidConfiguration(
+                "%s requires a compiler that supports at least C++%s"
+                % (self.name, minimal_cpp_standard)
+            )
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -72,7 +68,11 @@ class ContinuableConan(ConanFile):
 
     def package(self):
         self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst=os.path.join("include", "continuable"), src=os.path.join(self._source_subfolder, "include", "continuable"))
+        self.copy(
+            pattern="*",
+            dst=os.path.join("include", "continuable"),
+            src=os.path.join(self._source_subfolder, "include", "continuable"),
+        )
 
     def package_info(self):
         if self.settings.os == "Linux":

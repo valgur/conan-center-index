@@ -2,20 +2,32 @@ import os
 import textwrap
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, replace_in_file, rmdir, rm, copy, save, export_conandata_patches, patch
+from conan.tools.files import (
+    get,
+    replace_in_file,
+    rmdir,
+    rm,
+    copy,
+    save,
+    export_conandata_patches,
+    patch,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.50.0"
 
+
 class CgalConan(ConanFile):
     name = "cgal"
     license = "GPL-3.0-or-later", "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CGAL/cgal"
-    description = "C++ library that provides easy access to efficient and reliable algorithms"\
-                  " in computational geometry."
+    description = (
+        "C++ library that provides easy access to efficient and reliable algorithms"
+        " in computational geometry."
+    )
     topics = ("cgal", "geometry", "algorithms")
     package_type = "header-library"
     settings = "os", "compiler", "build_type", "arch"
@@ -60,8 +72,13 @@ class CgalConan(ConanFile):
             )
 
     def _patch_sources(self):
-        replace_in_file(self,  os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "if(NOT PROJECT_NAME)", "if(1)", strict=False)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "if(NOT PROJECT_NAME)",
+            "if(1)",
+            strict=False,
+        )
         for it in self.conan_data.get("patches", {}).get(self.version, []):
             patch(self, **it, strip=2)
 
@@ -81,7 +98,12 @@ class CgalConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rm(self, "*Config*.cmake", os.path.join(self.package_folder, "lib", "cmake", "CGAL"))
@@ -91,12 +113,13 @@ class CgalConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        '''
+        """
         CGAL requires C++14, and specific compilers flags to enable the possibility to set FPU rounding modes.
         This CMake module, from the upsream CGAL pull-request https://github.com/CGAL/cgal/pull/7512, takes
         care of all the known compilers CGAL has ever supported.
-        '''
-        content = textwrap.dedent('''\
+        """
+        content = textwrap.dedent(
+            """\
 function(CGAL_setup_CGAL_flags target)
   # CGAL now requires C++14. `decltype(auto)` is used as a marker of
   # C++14.
@@ -163,7 +186,8 @@ function(CGAL_setup_CGAL_flags target)
 endfunction()
 
 CGAL_setup_CGAL_flags(CGAL::CGAL)
-''')
+"""
+        )
         save(self, module_file, content)
 
     @property

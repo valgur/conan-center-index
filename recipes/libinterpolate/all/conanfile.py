@@ -34,7 +34,6 @@ class PackageConan(ConanFile):
             "apple-clang": "10",
         }
 
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -44,17 +43,14 @@ class PackageConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libInterpolate currently only supports Linux. Upstream PR's are welcome (https://github.com/CD3/libInterpolate/issues/14).")
+            raise ConanInvalidConfiguration(
+                "libInterpolate currently only supports Linux. Upstream PR's are welcome (https://github.com/CD3/libInterpolate/issues/14)."
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False
-        )
-        if (
-            minimum_version
-            and Version(self.settings.compiler.version) < minimum_version
-        ):
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -87,9 +83,7 @@ class PackageConan(ConanFile):
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "libInterpolate")
-        self.cpp_info.set_property(
-            "cmake_target_name", "libInterpolate::Interpolate"
-        )
+        self.cpp_info.set_property("cmake_target_name", "libInterpolate::Interpolate")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "libInterpolate"
@@ -98,4 +92,4 @@ class PackageConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "libInterpolate"
         self.cpp_info.components["Interpolate"].names["cmake_find_package"] = "Interpolate"
         self.cpp_info.components["Interpolate"].names["cmake_find_package_multi"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen","boost::boost"]
+        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen", "boost::boost"]

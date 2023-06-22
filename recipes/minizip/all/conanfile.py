@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    save,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -11,7 +18,9 @@ class MinizipConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://zlib.net"
     license = "Zlib"
-    description = "An experimental package to read and write files in .zip format, written on top of zlib"
+    description = (
+        "An experimental package to read and write files in .zip format, written on top of zlib"
+    )
     topics = ("zip", "compression", "inflate")
 
     settings = "os", "arch", "compiler", "build_type"
@@ -55,7 +64,9 @@ class MinizipConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["MINIZIP_SRC_DIR"] = os.path.join(self.source_folder, "contrib", "minizip").replace("\\", "/")
+        tc.variables["MINIZIP_SRC_DIR"] = os.path.join(
+            self.source_folder, "contrib", "minizip"
+        ).replace("\\", "/")
         tc.variables["MINIZIP_ENABLE_BZIP2"] = self.options.bzip2
         tc.variables["MINIZIP_BUILD_TOOLS"] = self.options.tools
         # fopen64 and similar are unavailable before API level 24: https://github.com/madler/zlib/pull/436
@@ -73,10 +84,12 @@ class MinizipConan(ConanFile):
 
     def _extract_license(self):
         zlib_h = load(self, os.path.join(self.source_folder, "zlib.h"))
-        return zlib_h[2:zlib_h.find("*/", 1)]
+        return zlib_h[2 : zlib_h.find("*/", 1)]
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 

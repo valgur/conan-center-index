@@ -26,4 +26,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run(f"ctest --output-on-failure -C {self.settings.build_type} -j {build_jobs(self)}", env="conanrun")
+            self.run(
+                f"ctest --output-on-failure -C {self.settings.build_type} -j {build_jobs(self)}",
+                env="conanrun",
+            )

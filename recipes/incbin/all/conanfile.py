@@ -24,14 +24,26 @@ class IncbinConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration("Currently incbin recipe is not supported for Visual Studio because it requires external command 'incbin'.")
+            raise ConanInvalidConfiguration(
+                "Currently incbin recipe is not supported for Visual Studio because it requires external command 'incbin'."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "UNLICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "incbin.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(
+            self,
+            "UNLICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            "incbin.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+        )
 
     def package_id(self):
         self.info.clear()

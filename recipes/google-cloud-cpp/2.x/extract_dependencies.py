@@ -279,9 +279,7 @@ def _components(source_folder):
     g = dict()
     with open(libraries) as f:
         exec(compile(f.read(), libraries, "exec"), g)
-    return (
-        g["GOOGLE_CLOUD_CPP_GA_LIBRARIES"] + g["GOOGLE_CLOUD_CPP_TRANSITION_LIBRARIES"]
-    )
+    return g["GOOGLE_CLOUD_CPP_GA_LIBRARIES"] + g["GOOGLE_CLOUD_CPP_TRANSITION_LIBRARIES"]
 
 
 def _experimental_components(source_folder):

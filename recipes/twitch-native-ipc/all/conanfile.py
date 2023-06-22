@@ -3,6 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 from conans.tools import Version
 import os
 
+
 class TwitchNativeIpcConan(ConanFile):
     name = "twitch-native-ipc"
     license = "MIT"
@@ -11,17 +12,19 @@ class TwitchNativeIpcConan(ConanFile):
     description = "Twitch natve ipc library"
     topics = ("twitch", "ipc")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "cmake"
     exports = ["CMakeLists.txt", "patches/**"]
     requires = "libuv/1.40.0"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -66,7 +69,10 @@ class TwitchNativeIpcConan(ConanFile):
         self._cmake.definitions["BUILD_TESTING"] = False
 
         if self.settings.os == "Windows":
-            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
+            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in (
+                "MD",
+                "MDd",
+            )
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

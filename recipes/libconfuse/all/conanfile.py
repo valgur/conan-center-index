@@ -69,12 +69,19 @@ class LibConfuseConan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
-                              "SUBDIRS = m4 po src $(EXAMPLES) tests doc",
-                              "SUBDIRS = m4 src")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.in"),
+            "SUBDIRS = m4 po src $(EXAMPLES) tests doc",
+            "SUBDIRS = m4 src",
+        )
         if not self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "src", "confuse.h"),
-                                  "__declspec (dllimport)", "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "confuse.h"),
+                "__declspec (dllimport)",
+                "",
+            )
 
     def build(self):
         self._patch_sources()
@@ -83,15 +90,23 @@ class LibConfuseConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "confuse.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
+                os.path.join(self.package_folder, "lib", "confuse.lib"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

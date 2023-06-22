@@ -19,12 +19,12 @@ class GiflibConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "utils" : [True, False],
+        "utils": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "utils" : True,
+        "utils": True,
     }
 
     def export_sources(self):
@@ -68,7 +68,12 @@ class GiflibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

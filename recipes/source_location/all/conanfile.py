@@ -15,19 +15,16 @@ class SourceLocationConan(ConanFile):
     settings = ["compiler"]
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses",
-                  src=self._source_subfolder)
-        self.copy(pattern="*", dst="include",
-                  src=os.path.join(self._source_subfolder, "include"))
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
 
     @property
     def _minimum_compilers_version(self):
@@ -41,14 +38,15 @@ class SourceLocationConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, "11")
-        minimum_version = self._minimum_compilers_version.get(
-            str(self.settings.compiler), False)
+        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn(
-                "source_location requires C++11. Your compiler is unknown. Assuming it supports C++11 and required functionality.")
+                "source_location requires C++11. Your compiler is unknown. Assuming it supports C++11 and required functionality."
+            )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "source_location requires C++11 and some embedded functionality, which your compiler does not support.")
+                "source_location requires C++11 and some embedded functionality, which your compiler does not support."
+            )
 
     def package_id(self):
         self.info.header_only()

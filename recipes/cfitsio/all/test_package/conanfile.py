@@ -24,4 +24,4 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             fits_name = os.path.join(self.source_folder, "file011.fits")
-            self.run(f"{bin_path} \"{fits_name}\"", env="conanrun")
+            self.run(f'{bin_path} "{fits_name}"', env="conanrun")

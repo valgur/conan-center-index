@@ -6,10 +6,11 @@ from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.33.0"
 
+
 class LibSixelConan(ConanFile):
     name = "libsixel"
     description = "A SIXEL encoder/decoder implementation derived from kmiya's sixel (https://github.com/saitoha/sixel)."
-    topics = ("sixel")
+    topics = "sixel"
     license = "MIT"
     homepage = "https://github.com/libsixel/libsixel"
     url = "https://github.com/conan-io/conan-center-index"
@@ -34,12 +35,8 @@ class LibSixelConan(ConanFile):
     }
     generators = "cmake", "pkg_config"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -52,7 +49,9 @@ class LibSixelConan(ConanFile):
         if hasattr(self, "settings_build") and tools.cross_building(self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
         if is_msvc(self):
-            raise ConanInvalidConfiguration("{}/{} does not support Visual Studio".format(self.name, self.version))
+            raise ConanInvalidConfiguration(
+                "{}/{} does not support Visual Studio".format(self.name, self.version)
+            )
 
     def build_requirements(self):
         self.build_requires("meson/0.62.2")
@@ -71,8 +70,11 @@ class LibSixelConan(ConanFile):
             self.requires("libpng/1.6.37")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_meson(self):

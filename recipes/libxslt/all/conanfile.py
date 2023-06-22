@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeDeps, NMakeToolchain
@@ -90,14 +99,16 @@ class LibxsltConan(ConanFile):
 
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                "--with-python=no",
-                f"--with-libxml-src={unix_path(self, self.dependencies['libxml2'].package_folder)}",
-                f"--with-debugger={yes_no(self.options.debugger)}",
-                f"--with-crypto={yes_no(self.options.crypto)}",
-                f"--with-profiler={yes_no(self.options.profiler)}",
-                f"--with-plugins={yes_no(self.options.plugins)}",
-            ])
+            tc.configure_args.extend(
+                [
+                    "--with-python=no",
+                    f"--with-libxml-src={unix_path(self, self.dependencies['libxml2'].package_folder)}",
+                    f"--with-debugger={yes_no(self.options.debugger)}",
+                    f"--with-crypto={yes_no(self.options.crypto)}",
+                    f"--with-profiler={yes_no(self.options.profiler)}",
+                    f"--with-plugins={yes_no(self.options.plugins)}",
+                ]
+            )
             tc.generate()
 
             deps = AutotoolsDeps(self)
@@ -119,8 +130,8 @@ class LibxsltConan(ConanFile):
             f"cruntime=/{msvc_runtime_flag(self)}",
             f"debug={yes_no(self.settings.build_type == 'Debug')}",
             f"static={yes_no(not self.options.shared)}",
-            "include=\"{}\"".format(";".join(deps_includedirs)),
-            "lib=\"{}\"".format(";".join(deps_libdirs)),
+            'include="{}"'.format(";".join(deps_includedirs)),
+            'lib="{}"'.format(";".join(deps_libdirs)),
             "iconv=no",
             "xslt_debug=no",
             f"debugger={yes_no(self.options.debugger)}",
@@ -147,12 +158,15 @@ class LibxsltConan(ConanFile):
         replace_in_file(self, makefile_msvc, "libxml2.lib", format_libs("libxml2"))
         replace_in_file(self, makefile_msvc, "libxml2_a.lib", format_libs("libxml2"))
         if self.dependencies["libxml2"].options.get_safe("icu"):
-            replace_in_file(self, makefile_msvc, "LIBS = wsock32.lib", f"LIBS = {format_libs('icu')}")
+            replace_in_file(
+                self, makefile_msvc, "LIBS = wsock32.lib", f"LIBS = {format_libs('icu')}"
+            )
 
         # Avoid to indirectly build both static & shared when we build utils
         lib_suffix = "" if self.options.shared else "a"
         replace_in_file(
-            self, makefile_msvc,
+            self,
+            makefile_msvc,
             "$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt libxslta libexslt libexslta",
             f"$(UTILS) : $(UTILS_INTDIR) $(BINDIR) libxslt{lib_suffix} libexslt{lib_suffix}",
         )
@@ -172,19 +186,56 @@ class LibxsltConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
-            copy(self, "*.h", src=os.path.join(self.source_folder, "libxslt"),
-                              dst=os.path.join(self.package_folder, "include", "libxslt"))
-            copy(self, "*.h", src=os.path.join(self.source_folder, "libexslt"),
-                              dst=os.path.join(self.package_folder, "include", "libexslt"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "libxslt"),
+                dst=os.path.join(self.package_folder, "include", "libxslt"),
+            )
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "libexslt"),
+                dst=os.path.join(self.package_folder, "include", "libexslt"),
+            )
             build_dir = os.path.join(self.source_folder, "win32", "bin.msvc")
-            copy(self, "*.exe", src=build_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "*.exe",
+                src=build_dir,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
             if self.options.shared:
-                copy(self, "*xslt.lib", src=build_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-                copy(self, "*xslt.dll", src=build_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+                copy(
+                    self,
+                    "*xslt.lib",
+                    src=build_dir,
+                    dst=os.path.join(self.package_folder, "lib"),
+                    keep_path=False,
+                )
+                copy(
+                    self,
+                    "*xslt.dll",
+                    src=build_dir,
+                    dst=os.path.join(self.package_folder, "bin"),
+                    keep_path=False,
+                )
             else:
-                copy(self, "*xslt_a.lib", src=build_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(
+                    self,
+                    "*xslt_a.lib",
+                    src=build_dir,
+                    dst=os.path.join(self.package_folder, "lib"),
+                    keep_path=False,
+                )
         else:
             autotools = Autotools(self)
             autotools.install()
@@ -198,7 +249,9 @@ class LibxsltConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "LibXslt")
-        self.cpp_info.set_property("pkg_config_name", "libxslt_full_package") # unofficial, avoid conflicts in conan generators
+        self.cpp_info.set_property(
+            "pkg_config_name", "libxslt_full_package"
+        )  # unofficial, avoid conflicts in conan generators
 
         prefix = "lib" if is_msvc(self) else ""
         suffix = "_a" if is_msvc(self) and not self.options.shared else ""

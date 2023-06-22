@@ -50,7 +50,9 @@ class LibreSSLConan(ConanFile):
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Static runtime linked into shared LibreSSL not supported")
+            raise ConanInvalidConfiguration(
+                "Static runtime linked into shared LibreSSL not supported"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -58,7 +60,9 @@ class LibreSSLConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBRESSL_SKIP_INSTALL"] = False
-        tc.variables["LIBRESSL_APPS"] = False # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
+        tc.variables[
+            "LIBRESSL_APPS"
+        ] = False  # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
         tc.variables["LIBRESSL_TESTS"] = False
         tc.variables["ENABLE_ASM"] = True
         tc.variables["ENABLE_EXTRATESTS"] = False
@@ -71,7 +75,8 @@ class LibreSSLConan(ConanFile):
     def _patch_sources(self):
         if Version(self.version) >= "3.1.1":
             replace_in_file(
-                self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
                 "cmake_minimum_required (VERSION 3.16.4)",
                 "cmake_minimum_required (VERSION 3.15.6)",
             )
@@ -83,7 +88,12 @@ class LibreSSLConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "*COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.cmake", os.path.join(self.package_folder, "include"))
@@ -137,8 +147,9 @@ class LibreSSLConan(ConanFile):
 
     def _lib_name(self, name):
         libressl_version = Version(self.version)
-        if self.settings.os == "Windows" and \
-           (libressl_version >= "3.1.0" or (libressl_version < "3.1.0" and self.options.shared)):
+        if self.settings.os == "Windows" and (
+            libressl_version >= "3.1.0" or (libressl_version < "3.1.0" and self.options.shared)
+        ):
             lib_fullpath = glob.glob(os.path.join(self.package_folder, "lib", f"*{name}*"))[0]
             lib_name = os.path.basename(lib_fullpath).split(".")[0].replace("lib", "")
             return lib_name

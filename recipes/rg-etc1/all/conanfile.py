@@ -5,7 +5,9 @@ from conans import ConanFile, CMake, tools
 
 class RgEtc1Conan(ConanFile):
     name = "rg-etc1"
-    description = "A performant, easy to use, and high quality 4x4 pixel block packer/unpacker for the ETC1."
+    description = (
+        "A performant, easy to use, and high quality 4x4 pixel block packer/unpacker for the ETC1."
+    )
     homepage = "https://github.com/richgel999/rg-etc1"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("conan", "etc1", "packer", "unpacker")
@@ -25,20 +27,16 @@ class RgEtc1Conan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = glob.glob('rg-etc1-*/')[0]
+        extracted_dir = glob.glob("rg-etc1-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):

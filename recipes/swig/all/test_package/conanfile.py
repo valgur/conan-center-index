@@ -8,7 +8,9 @@ class TestPackageConan(ConanFile):
     @property
     def _can_build(self):
         # FIXME: Python does not distribute debug libraries (use cci CPython recipe)
-        return not (self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug")
+        return not (
+            self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug"
+        )
 
     def build(self):
         if not tools.cross_building(self, skip_x64_x86=True):

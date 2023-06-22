@@ -1,9 +1,17 @@
 from conan import ConanFile
-from conan.tools.files import copy, get, apply_conandata_patches, export_conandata_patches, replace_in_file, rmdir
+from conan.tools.files import (
+    copy,
+    get,
+    apply_conandata_patches,
+    export_conandata_patches,
+    replace_in_file,
+    rmdir,
+)
 from conans import CMake
 import os
 
 required_conan_version = ">=1.52.0"
+
 
 class QtADS(ConanFile):
     name = "qt-advanced-docking-system"
@@ -31,10 +39,6 @@ class QtADS(ConanFile):
     _cmake = None
     _qt_version = "5.15.6"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
@@ -51,8 +55,12 @@ class QtADS(ConanFile):
         self.requires(f"qt/{self._qt_version}")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self._source_subfolder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -69,10 +77,11 @@ class QtADS(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
 
-        replace_in_file(self,
+        replace_in_file(
+            self,
             f"{self.source_folder}/{self._source_subfolder}/src/ads_globals.cpp",
             "#include <qpa/qplatformnativeinterface.h>",
-            f"#include <{self._qt_version}/QtGui/qpa/qplatformnativeinterface.h>"
+            f"#include <{self._qt_version}/QtGui/qpa/qplatformnativeinterface.h>",
         )
 
     def build(self):

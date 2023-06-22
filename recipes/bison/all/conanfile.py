@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -75,11 +82,13 @@ class BisonConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--enable-relocatable",
-            "--disable-nls",
-            "--datarootdir=${prefix}/res",
-        ])
+        tc.configure_args.extend(
+            [
+                "--enable-relocatable",
+                "--disable-nls",
+                "--datarootdir=${prefix}/res",
+            ]
+        )
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append("gl_cv_compiler_check_decl_option=")
         if is_msvc(self):
@@ -88,11 +97,13 @@ class BisonConan(ConanFile):
             # https://docs.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions
             # Because the %n format is inherently insecure, it is disabled by default. If %n is encountered in a format string,
             # the invalid parameter handler is invoked, as described in Parameter Validation. To enable %n support, see _set_printf_count_output.
-            tc.configure_args.extend([
-                "gl_cv_func_printf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-            ])
+            tc.configure_args.extend(
+                [
+                    "gl_cv_func_printf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                ]
+            )
             tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
@@ -116,22 +127,34 @@ class BisonConan(ConanFile):
 
         if self.settings.os == "Windows":
             # replace embedded unix paths by windows paths
-            replace_in_file(self, makefile,
-                                  "echo '#define BINDIR \"$(bindir)\"';",
-                                  "echo '#define BINDIR \"$(shell cygpath -m \"$(bindir)\")\"';")
-            replace_in_file(self, makefile,
-                                  "echo '#define PKGDATADIR \"$(pkgdatadir)\"';",
-                                  "echo '#define PKGDATADIR \"$(shell cygpath -m \"$(pkgdatadir)\")\"';")
-            replace_in_file(self, makefile,
-                                  "echo '#define DATADIR \"$(datadir)\"';",
-                                  "echo '#define DATADIR \"$(shell cygpath -m \"$(datadir)\")\"';")
-            replace_in_file(self, makefile,
-                                  "echo '#define DATAROOTDIR \"$(datarootdir)\"';",
-                                  "echo '#define DATAROOTDIR \"$(shell cygpath -m \"$(datarootdir)\")\"';")
+            replace_in_file(
+                self,
+                makefile,
+                "echo '#define BINDIR \"$(bindir)\"';",
+                'echo \'#define BINDIR "$(shell cygpath -m "$(bindir)")"\';',
+            )
+            replace_in_file(
+                self,
+                makefile,
+                "echo '#define PKGDATADIR \"$(pkgdatadir)\"';",
+                'echo \'#define PKGDATADIR "$(shell cygpath -m "$(pkgdatadir)")"\';',
+            )
+            replace_in_file(
+                self,
+                makefile,
+                "echo '#define DATADIR \"$(datadir)\"';",
+                'echo \'#define DATADIR "$(shell cygpath -m "$(datadir)")"\';',
+            )
+            replace_in_file(
+                self,
+                makefile,
+                "echo '#define DATAROOTDIR \"$(datarootdir)\"';",
+                'echo \'#define DATAROOTDIR "$(shell cygpath -m "$(datarootdir)")"\';',
+            )
 
-        replace_in_file(self, makefile,
-                              "dist_man_MANS = $(top_srcdir)/doc/bison.1",
-                              "dist_man_MANS =")
+        replace_in_file(
+            self, makefile, "dist_man_MANS = $(top_srcdir)/doc/bison.1", "dist_man_MANS ="
+        )
         replace_in_file(self, yacc, "@prefix@", "$CONAN_BISON_ROOT")
         replace_in_file(self, yacc, "@bindir@", "$CONAN_BISON_ROOT/bin")
 
@@ -142,12 +165,20 @@ class BisonConan(ConanFile):
         autotools.install()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         if is_msvc(self):
-            rename(self, os.path.join(self.package_folder, "lib", "liby.a"),
-                         os.path.join(self.package_folder, "lib", "y.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "liby.a"),
+                os.path.join(self.package_folder, "lib", "y.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.includedirs = []

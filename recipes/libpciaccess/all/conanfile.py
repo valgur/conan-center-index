@@ -47,6 +47,7 @@ class LibPciAccessConan(ConanFile):
             if settings.os in ("Linux", "FreeBSD", "SunOS"):
                 return True
             return settings.os == "Windows" and settings.get_safe("os.subsystem") == "cygwin"
+
         if not is_supported(self.settings):
             raise ConanInvalidConfiguration("Unsupported architecture.")
 
@@ -72,7 +73,12 @@ class LibPciAccessConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

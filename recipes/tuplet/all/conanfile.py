@@ -31,15 +31,9 @@ class TupletConan(ConanFile):
                 "Visual Studio": "17",
                 "msvc": "193",
                 "clang": "13",
-                "apple-clang": "13"
+                "apple-clang": "13",
             }
-        return {
-            "gcc": "8",
-            "Visual Studio": "16",
-            "msvc": "192",
-            "clang": "7",
-            "apple-clang": "12"
-        }
+        return {"gcc": "8", "Visual Studio": "16", "msvc": "192", "clang": "7", "apple-clang": "12"}
 
     def package_id(self):
         self.info.clear()
@@ -60,14 +54,19 @@ class TupletConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(compiler, False)
         if minimum_version and loose_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does not support")
+                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does not support"
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
@@ -75,7 +74,12 @@ class TupletConan(ConanFile):
     def package(self):
         include_folder = os.path.join(self.source_folder, "include")
         copy(self, "*.hpp", src=include_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tuplet")

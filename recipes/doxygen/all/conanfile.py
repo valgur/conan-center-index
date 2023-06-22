@@ -62,8 +62,13 @@ class DoxygenConan(ConanFile):
 
     def validate(self):
         minimum_compiler_version = self._minimum_compiler_version.get(str(self.settings.compiler))
-        if minimum_compiler_version and Version(self.settings.compiler.version) < minimum_compiler_version:
-            raise ConanInvalidConfiguration(f"Compiler version too old. At least {minimum_compiler_version} is required.")
+        if (
+            minimum_compiler_version
+            and Version(self.settings.compiler.version) < minimum_compiler_version
+        ):
+            raise ConanInvalidConfiguration(
+                f"Compiler version too old. At least {minimum_compiler_version} is required."
+            )
         if Version(self.version) == "1.8.18":
             check_min_vs(self, "191")
 
@@ -95,7 +100,12 @@ class DoxygenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, rmdir, save
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    copy,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -14,7 +21,7 @@ required_conan_version = ">=1.53.0"
 class G3logConan(ConanFile):
     name = "g3log"
     description = (
-        "G3log is an asynchronous, \"crash safe\", logger that is easy to use "
+        'G3log is an asynchronous, "crash safe", logger that is easy to use '
         "with default logging sinks or you can add your own."
     )
     license = "The Unlicense"
@@ -97,7 +104,9 @@ class G3logConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -115,7 +124,9 @@ class G3logConan(ConanFile):
         tc.variables["G3_LOG_FULL_FILENAME"] = self.options.log_full_filename
         tc.variables["ENABLE_FATAL_SIGNALHANDLING"] = self.options.enable_fatal_signal_handling
         if is_msvc(self):
-            tc.variables["ENABLE_VECTORED_EXCEPTIONHANDLING"] = self.options.enable_vectored_exception_handling
+            tc.variables[
+                "ENABLE_VECTORED_EXCEPTIONHANDLING"
+            ] = self.options.enable_vectored_exception_handling
             tc.variables["DEBUG_BREAK_AT_FATAL_SIGNAL"] = self.options.debug_break_at_fatal_signal
         tc.variables["ADD_FATAL_EXAMPLE"] = "OFF"
         tc.variables["ADD_G3LOG_PERFORMANCE"] = "OFF"
@@ -129,7 +140,12 @@ class G3logConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -143,12 +159,14 @@ class G3logConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

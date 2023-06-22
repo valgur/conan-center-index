@@ -1,7 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    replace_in_file,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -10,9 +16,12 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LuauConan(ConanFile):
     name = "luau"
-    description = "A fast, small, safe, gradually typed embeddable scripting language derived from Lua"
+    description = (
+        "A fast, small, safe, gradually typed embeddable scripting language derived from Lua"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://luau-lang.org/"
@@ -95,9 +104,12 @@ class LuauConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if Version(self.version) >= "0.548" and self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "VM", "include", "luaconf.h"),
-                "#define LUAI_FUNC __attribute__((visibility(\"hidden\"))) extern",
-                "#define LUAI_FUNC extern")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "VM", "include", "luaconf.h"),
+                '#define LUAI_FUNC __attribute__((visibility("hidden"))) extern',
+                "#define LUAI_FUNC extern",
+            )
 
     def build(self):
         self._patch_sources()
@@ -106,7 +118,12 @@ class LuauConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "lua_LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "lua_LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class DawJsonLinkConan(ConanFile):
     name = "daw_json_link"
     description = "Static JSON parsing in C++"
@@ -70,7 +71,12 @@ class DawJsonLinkConan(ConanFile):
         cmake.configure()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -83,7 +89,10 @@ class DawJsonLinkConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "daw-json-link")
         self.cpp_info.set_property("cmake_target_name", "daw::daw-json-link")
         self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-json-link")
-        self.cpp_info.components["daw"].requires = ["daw_header_libraries::daw", "daw_utf_range::daw"]
+        self.cpp_info.components["daw"].requires = [
+            "daw_header_libraries::daw",
+            "daw_utf_range::daw",
+        ]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "daw-json-link"

@@ -17,7 +17,7 @@ class LdnsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.nlnetlabs.nl/projects/ldns"
     description = "LDNS is a DNS library that facilitates DNS tool programming"
-    topics = ("dns")
+    topics = "dns"
 
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -54,7 +54,9 @@ class LdnsConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("Windows is not supported by the ldns recipe. Contributions are welcome.")
+            raise ConanInvalidConfiguration(
+                "Windows is not supported by the ldns recipe. Contributions are welcome."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,24 +79,26 @@ class LdnsConan(ConanFile):
         tc.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-rpath",
-            f"--with-ssl={self.dependencies['openssl'].package_folder}",
-            # DNSSEC algorithm support
-            "--enable-ecdsa",
-            "--enable-ed25519",
-            "--enable-ed448",
-            "--disable-dsa",
-            "--disable-gost",
-            "--enable-full-dane",
-            # tooling
-            "--disable-ldns-config",
-            "--without-drill",
-            "--without-examples",
-            # library bindings
-            "--without-pyldns",
-            "--without-p5-dns-ldns",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-rpath",
+                f"--with-ssl={self.dependencies['openssl'].package_folder}",
+                # DNSSEC algorithm support
+                "--enable-ecdsa",
+                "--enable-ed25519",
+                "--enable-ed448",
+                "--disable-dsa",
+                "--disable-gost",
+                "--enable-full-dane",
+                # tooling
+                "--disable-ldns-config",
+                "--without-drill",
+                "--without-examples",
+                # library bindings
+                "--without-pyldns",
+                "--without-p5-dns-ldns",
+            ]
+        )
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append(f"--with-xcode-sdk={XCRun(self).sdk_version}")
         tc.generate()
@@ -110,7 +114,12 @@ class LdnsConan(ConanFile):
         for target in ["install-h", "install-lib"]:
             autotools.install(target=target)
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["ldns"]

@@ -16,7 +16,15 @@ class JoltPhysicsConan(ConanFile):
         "library, written in C++, suitable for games and VR applications."
     )
     license = "MIT"
-    topics = ("physics", "simulation", "physics-engine", "physics-simulation", "rigid-body", "game", "collision")
+    topics = (
+        "physics",
+        "simulation",
+        "physics-engine",
+        "physics-simulation",
+        "rigid-body",
+        "game",
+        "collision",
+    )
     homepage = "https://github.com/jrouwe/JoltPhysics"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -46,7 +54,7 @@ class JoltPhysicsConan(ConanFile):
         return {
             "Visual Studio": "16",
             "msvc": "192",
-            "gcc": "9.2", # due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81429
+            "gcc": "9.2",  # due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81429
             "clang": "5",
             "apple-clang": "12",
         }
@@ -98,7 +106,9 @@ class JoltPhysicsConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
@@ -136,7 +146,12 @@ class JoltPhysicsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

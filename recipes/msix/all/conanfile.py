@@ -22,7 +22,7 @@ class MsixConan(ConanFile):
         "skip_bundles": [True, False],
         "use_external_zlib": [True, False],
         "use_validation_parser": [True, False],
-        "xml_parser": ["applexml", "javaxml", "msxml6", "xerces"]
+        "xml_parser": ["applexml", "javaxml", "msxml6", "xerces"],
     }
     default_options = {
         "shared": False,
@@ -32,7 +32,7 @@ class MsixConan(ConanFile):
         "skip_bundles": False,
         "use_external_zlib": True,
         "use_validation_parser": False,
-        "xml_parser": "msxml6"
+        "xml_parser": "msxml6",
     }
 
     generators = "cmake"
@@ -42,13 +42,7 @@ class MsixConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {
-            "Visual Studio": "15"
-        }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+        return {"Visual Studio": "15"}
 
     def _configure_cmake(self):
         if self._cmake:
@@ -81,11 +75,17 @@ class MsixConan(ConanFile):
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
         elif tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++17 support. The current compiler {} {} does not support it.".format(
-                    self.name, self.settings.compiler, self.settings.compiler.version))
+            raise ConanInvalidConfiguration(
+                "{} requires C++17 support. The current compiler {} {} does not support it.".format(
+                    self.name, self.settings.compiler, self.settings.compiler.version
+                )
+            )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,19 +120,26 @@ class MsixConan(ConanFile):
         if self.options.pack:
             if self.settings.os == "Macos":
                 if not self.options.use_external_zlib:
-                    raise ConanInvalidConfiguration("Using libCompression APIs and packaging features is not supported")
+                    raise ConanInvalidConfiguration(
+                        "Using libCompression APIs and packaging features is not supported"
+                    )
                 if self.options.xml_parser != "xerces":
-                    raise ConanInvalidConfiguration("Xerces is the only supported parser for MacOS pack")
+                    raise ConanInvalidConfiguration(
+                        "Xerces is the only supported parser for MacOS pack"
+                    )
             if not self.options.use_validation_parser:
                 raise ConanInvalidConfiguration("Packaging requires validation parser")
-        if (self.options.xml_parser == "xerces" and
-            self.options["xerces-c"].char_type != "char16_t"):
-                raise ConanInvalidConfiguration("Only char16_t is supported for xerces-c")
-        
+        if self.options.xml_parser == "xerces" and self.options["xerces-c"].char_type != "char16_t":
+            raise ConanInvalidConfiguration("Only char16_t is supported for xerces-c")
+
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):

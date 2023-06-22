@@ -3,10 +3,11 @@ import glob
 from conans import ConanFile, tools, CMake
 from conans.errors import ConanInvalidConfiguration
 
+
 class OisConan(ConanFile):
     name = "ois"
     description = "Object oriented Input System."
-    topics = ("conan", "ois", "input" )
+    topics = ("conan", "ois", "input")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wgois/OIS"
     license = "Zlib"
@@ -23,10 +24,6 @@ class OisConan(ConanFile):
     }
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -66,7 +63,11 @@ class OisConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.md", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
+        self.copy(
+            "LICENSE.md",
+            src=os.path.join(self.source_folder, self._source_subfolder),
+            dst="licenses",
+        )
         cmake = self._configure_cmake()
         cmake.install()
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))

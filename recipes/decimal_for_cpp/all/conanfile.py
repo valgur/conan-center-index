@@ -8,7 +8,9 @@ required_conan_version = ">=1.50.0"
 
 class DecimalforcppConan(ConanFile):
     name = "decimal_for_cpp"
-    description = "Decimal data type support, for COBOL-like fixed-point operations on currency values."
+    description = (
+        "Decimal data type support, for COBOL-like fixed-point operations on currency values."
+    )
     license = "BSD-3-Clause"
     topics = ("decimal_for_cpp", "currency", "money-library", "decimal-numbers")
     homepage = "https://github.com/vpiotr/decimal_for_cpp"
@@ -23,15 +25,29 @@ class DecimalforcppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "license.txt", src=os.path.join(self.source_folder, "doc"), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "license.txt",
+            src=os.path.join(self.source_folder, "doc"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

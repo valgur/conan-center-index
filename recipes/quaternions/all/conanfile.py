@@ -2,6 +2,7 @@ import os
 
 from conans import ConanFile, tools
 
+
 class QuaternionsConan(ConanFile):
     name = "quaternions"
     description = "A blazingly fast C++ library to work with quaternions."
@@ -11,10 +12,6 @@ class QuaternionsConan(ConanFile):
     license = "MIT"
     settings = "compiler"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -28,8 +25,11 @@ class QuaternionsConan(ConanFile):
         url = self.conan_data["sources"][self.version]["url"]
         extracted_dir = self.name + "-" + os.path.splitext(os.path.basename(url))[0]
         os.rename(extracted_dir, self._source_subfolder)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "include", "quaternion.h"),
-                              "#include <boost/mpl/bool.hpp>", "")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "include", "quaternion.h"),
+            "#include <boost/mpl/bool.hpp>",
+            "",
+        )
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)

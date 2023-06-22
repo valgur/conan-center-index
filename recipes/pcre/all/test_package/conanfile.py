@@ -23,5 +23,7 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
-            arguments = "{}w+ conan-center-index".format("\\" if self.settings.os == "Windows" else "\\\\")
+            arguments = "{}w+ conan-center-index".format(
+                "\\" if self.settings.os == "Windows" else "\\\\"
+            )
             self.run(f"{bin_path} {arguments}", env="conanrun")

@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -69,7 +76,9 @@ class LibdisasmConan(ConanFile):
         env = tc.environment()
         if is_msvc(self):
             automake_conf = self.dependencies.build["automake"].conf_info
-            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            ar_wrapper = unix_path(
+                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
+            )
             env.define("CC", "cl -nologo")
             env.define("CXX", "cl -nologo")
             env.define("CPP", "cl -E -nologo")
@@ -90,7 +99,12 @@ class LibdisasmConan(ConanFile):
             autotools.make(args=["-C", "x86dis"])
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         if self.settings.os != "Windows":

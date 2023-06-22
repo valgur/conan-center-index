@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.47.0"
 
+
 class QuickJSConan(ConanFile):
     name = "quickjs"
     description = "QuickJS is a small and embeddable Javascript engine."
@@ -25,7 +26,7 @@ class QuickJSConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "use_bignum" : True,
+        "use_bignum": True,
         "dump_leaks": False,
     }
 
@@ -54,13 +55,20 @@ class QuickJSConan(ConanFile):
     def validate(self):
         # TODO: there are forked repository to support MSVC. (https://github.com/c-smile/quickjspp)
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built on Visual Studio and msvc."
+            )
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -6,11 +6,15 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PlutoVGConan(ConanFile):
     name = "plutovg"
     description = "Tiny 2D vector graphics library in C"
-    license = "MIT",
-    topics = ("vector", "graphics", )
+    license = ("MIT",)
+    topics = (
+        "vector",
+        "graphics",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/sammycage/plutovg"
     package_type = "library"
@@ -46,22 +50,70 @@ class PlutoVGConan(ConanFile):
         tc.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "add_library(plutovg STATIC)", "add_library(plutovg)")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "add_subdirectory(example)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "add_library(plutovg STATIC)",
+            "add_library(plutovg)",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "add_subdirectory(example)",
+            "",
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
-        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.build_folder, keep_path=False)
-        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.so",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["plutovg"]

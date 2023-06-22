@@ -19,10 +19,6 @@ class LibProtobufMutatorConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -30,8 +26,11 @@ class LibProtobufMutatorConan(ConanFile):
         self.requires("protobuf/3.17.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def validate(self):
         if self.settings.compiler != "clang":
@@ -43,17 +42,20 @@ class LibProtobufMutatorConan(ConanFile):
 
     def _patch_sources(self):
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, 'CMakeLists.txt'),
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             """include_directories(${PROTOBUF_INCLUDE_DIRS})""",
-            """include_directories(${protobuf_INCLUDE_DIRS})""")
+            """include_directories(${protobuf_INCLUDE_DIRS})""",
+        )
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, 'CMakeLists.txt'),
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             """set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
-            """# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""")
+            """# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
+        )
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, 'CMakeLists.txt'),
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
             """add_subdirectory(examples EXCLUDE_FROM_ALL)""",
-            """# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)""")
+            """# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)""",
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -84,5 +86,5 @@ class LibProtobufMutatorConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"
         self.cpp_info.names["cmake_find_package_multi"] = "libprotobuf-mutator"
 
-        self.cpp_info.libs = ['protobuf-mutator-libfuzzer', 'protobuf-mutator']
+        self.cpp_info.libs = ["protobuf-mutator-libfuzzer", "protobuf-mutator"]
         self.cpp_info.includedirs.append(os.path.join("include", "libprotobuf-mutator"))

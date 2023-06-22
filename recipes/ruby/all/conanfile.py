@@ -31,18 +31,14 @@ class RubyConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_openssl": [True, False]
+        "with_openssl": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openssl": True
+        "with_openssl": True,
     }
     short_paths = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _settings_build(self):
@@ -50,11 +46,23 @@ class RubyConan(ConanFile):
 
     @property
     def _windows_system_libs(self):
-        return ["user32", "advapi32", "shell32", "ws2_32", "iphlpapi", "imagehlp", "shlwapi", "bcrypt"]
+        return [
+            "user32",
+            "advapi32",
+            "shell32",
+            "ws2_32",
+            "iphlpapi",
+            "imagehlp",
+            "shlwapi",
+            "bcrypt",
+        ]
 
     @property
     def _msvc_optflag(self):
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "14":
+        if (
+            self.settings.compiler == "Visual Studio"
+            and tools.Version(self.settings.compiler.version) < "14"
+        ):
             return "-O2b2xg-"
         else:
             return "-O2sy-"
@@ -70,7 +78,7 @@ class RubyConan(ConanFile):
             del self.options.fPIC
 
     def validate(self):
-        if is_msvc(self) and msvc_runtime_flag(self).startswith('MT'):
+        if is_msvc(self) and msvc_runtime_flag(self).startswith("MT"):
             # see https://github.com/conan-io/conan-center-index/pull/8644#issuecomment-1068974098
             raise ConanInvalidConfiguration("VS static runtime is not supported")
 
@@ -81,7 +89,11 @@ class RubyConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def generate(self):
         td = AutotoolsDeps(self)
@@ -118,7 +130,9 @@ class RubyConan(ConanFile):
             # remove after conan 1.45
             if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
                 tc.ldflags.append("-debug")
-            tc.build_type_flags = [f if f != "-O2" else self._msvc_optflag for f in tc.build_type_flags]
+            tc.build_type_flags = [
+                f if f != "-O2" else self._msvc_optflag for f in tc.build_type_flags
+            ]
 
         tc.generate()
 
@@ -132,7 +146,9 @@ class RubyConan(ConanFile):
             self.conf["tools.gnu:make_program"] = "nmake"
             build_script_folder = os.path.join(build_script_folder, "win32")
 
-            if "TMP" in os.environ:  # workaround for TMP in CCI containing both forward and back slashes
+            if (
+                "TMP" in os.environ
+            ):  # workaround for TMP in CCI containing both forward and back slashes
                 os.environ["TMP"] = os.environ["TMP"].replace("/", "\\")
 
         with tools.vcvars(self):
@@ -162,10 +178,12 @@ class RubyConan(ConanFile):
 
         version = tools.Version(self.version)
         rubylib = self.cpp_info.components["rubylib"]
-        config_file = glob.glob(os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True)[0]
+        config_file = glob.glob(
+            os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True
+        )[0]
         rubylib.includedirs = [
             os.path.join(self.package_folder, "include", f"ruby-{version}"),
-            os.path.dirname(os.path.dirname(config_file))
+            os.path.dirname(os.path.dirname(config_file)),
         ]
         rubylib.libs = tools.collect_libs(self)
         if is_msvc(self):

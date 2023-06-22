@@ -6,7 +6,9 @@ import re
 
 class PDCursesConan(ConanFile):
     name = "pdcurses"
-    description = "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
+    description = (
+        "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
+    )
     topics = ("conan", "pdcurses", "curses", "ncurses")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pdcurses.org/"
@@ -27,10 +29,6 @@ class PDCursesConan(ConanFile):
     }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -89,15 +87,21 @@ class PDCursesConan(ConanFile):
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "wincon", "Makefile.vc"),
-                                  "$(CFLAGS)",
-                                  "$(CFLAGS) -{}".format(self.settings.compiler.runtime))
-        tools.replace_in_file(os.path.join(self._source_subfolder, "x11", "Makefile.in"),
-                              "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
-                              "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "x11", "Makefile.in"),
-                              "\nall:\t",
-                              "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"))
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "wincon", "Makefile.vc"),
+                "$(CFLAGS)",
+                "$(CFLAGS) -{}".format(self.settings.compiler.runtime),
+            )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+            "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
+            "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
+        )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+            "\nall:\t",
+            "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"),
+        )
 
     def build(self):
         self._patch_sources()
@@ -116,9 +120,14 @@ class PDCursesConan(ConanFile):
 
     @property
     def _license_text(self):
-        readme = tools.load(os.path.join(self._source_subfolder, self._subsystem_folder, "README.md"))
-        match = re.search(r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)", readme,
-                          re.IGNORECASE | re.MULTILINE)
+        readme = tools.load(
+            os.path.join(self._source_subfolder, self._subsystem_folder, "README.md")
+        )
+        match = re.search(
+            r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)",
+            readme,
+            re.IGNORECASE | re.MULTILINE,
+        )
         if not match:
             raise ConanException("Cannot extract distribution status")
         return match.group(1).strip() + "\n"
@@ -133,8 +142,10 @@ class PDCursesConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", keep_path=False)
 
             if self.settings.compiler != "Visual Studio":
-                os.rename(os.path.join(self.package_folder, "lib", "pdcurses.a"),
-                          os.path.join(self.package_folder, "lib", "libpdcurses.a"))
+                os.rename(
+                    os.path.join(self.package_folder, "lib", "pdcurses.a"),
+                    os.path.join(self.package_folder, "lib", "libpdcurses.a"),
+                )
         else:
             with tools.chdir(os.path.join(self._source_subfolder, "x11")):
                 autotools = self._configure_autotools()

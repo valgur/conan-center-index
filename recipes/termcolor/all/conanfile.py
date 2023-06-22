@@ -9,7 +9,9 @@ required_conan_version = ">=1.50.0"
 
 class TermcolorConan(ConanFile):
     name = "termcolor"
-    description = "Termcolor is a header-only C++ library for printing colored messages to the terminal."
+    description = (
+        "Termcolor is a header-only C++ library for printing colored messages to the terminal."
+    )
     topics = ("terminal", "color")
     license = "BSD-3-Clause"
     homepage = "https://github.com/ikalnytskyi/termcolor"
@@ -37,7 +39,12 @@ class TermcolorConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

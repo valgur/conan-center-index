@@ -71,7 +71,12 @@ class SVTAV1Conan(ConanFile):
 
     def package(self):
         for license_file in ("LICENSE.md", "PATENTS.md"):
-            copy(self, license_file, self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license_file,
+                self.source_folder,
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

@@ -2,6 +2,7 @@ from conans import ConanFile, tools
 import os.path
 import glob
 
+
 class MattiasgustavssonLibsConan(ConanFile):
     name = "mattiasgustavsson-libs"
     description = "Single-file public domain libraries for C/C++"
@@ -17,14 +18,14 @@ class MattiasgustavssonLibsConan(ConanFile):
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = glob.glob('libs-*/')[0]
+        extracted_dir = glob.glob("libs-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def _extract_licenses(self):
         header = tools.load(os.path.join(self._source_subfolder, "thread.h"))
-        mit_content = header[header.find("ALTERNATIVE A - "):header.find("ALTERNATIVE B -")]
+        mit_content = header[header.find("ALTERNATIVE A - ") : header.find("ALTERNATIVE B -")]
         tools.save("LICENSE_MIT", mit_content)
-        unlicense_content = header[header.find("ALTERNATIVE B - "):header.rfind("*/", 1)]
+        unlicense_content = header[header.find("ALTERNATIVE B - ") : header.rfind("*/", 1)]
         tools.save("LICENSE_UNLICENSE", unlicense_content)
 
     def package(self):

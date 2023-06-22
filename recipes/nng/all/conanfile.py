@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class NngConan(ConanFile):
     name = "nng"
     description = "nanomsg-next-generation: light-weight brokerless messaging"
@@ -23,7 +24,7 @@ class NngConan(ConanFile):
         "nngcat": [True, False],
         "http": [True, False],
         "tls": [True, False],
-        "max_taskq_threads": ["ANY"]
+        "max_taskq_threads": ["ANY"],
     }
     default_options = {
         "shared": False,
@@ -31,7 +32,7 @@ class NngConan(ConanFile):
         "nngcat": False,
         "http": True,
         "tls": False,
-        "max_taskq_threads": "16"
+        "max_taskq_threads": "16",
     }
 
     def export_sources(self):
@@ -89,7 +90,12 @@ class NngConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

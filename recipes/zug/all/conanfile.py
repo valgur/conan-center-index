@@ -19,17 +19,12 @@ class ZugConan(ConanFile):
         tools.get(
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self.source_folder
+            destination=self.source_folder,
         )
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "Visual Studio": "15",
-            "gcc": "5",
-            "clang": "3.5",
-            "apple-clang": "10"
-        }
+        return {"Visual Studio": "15", "gcc": "5", "clang": "3.5", "apple-clang": "10"}
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -42,16 +37,21 @@ class ZugConan(ConanFile):
 
         version = tools.Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
-            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++14")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires a compiler that supports at least C++14"
+            )
 
     def package_id(self):
         self.info.header_only()
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self.source_folder)
-        self.copy(pattern="*.hpp", dst=os.path.join("include", "zug"), src=os.path.join(self.source_folder, "zug"))
+        self.copy(
+            pattern="*.hpp",
+            dst=os.path.join("include", "zug"),
+            src=os.path.join(self.source_folder, "zug"),
+        )
 
     def package_info(self):
         if is_msvc(self):
             self.cpp_info.cxxflags = ["/Zc:externConstexpr"]
-

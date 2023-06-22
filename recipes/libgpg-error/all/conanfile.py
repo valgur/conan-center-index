@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
@@ -13,8 +20,10 @@ class GPGErrorConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gnupg.org/software/libgpg-error/index.html"
     topics = ("gpg", "gnupg", "encrypt", "pgp", "openpgp")
-    description = "Libgpg-error is a small library that originally defined common error values for all GnuPG " \
-                  "components."
+    description = (
+        "Libgpg-error is a small library that originally defined common error values for all GnuPG "
+        "components."
+    )
     license = "GPL-2.0-or-later"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -41,20 +50,24 @@ class GPGErrorConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
+            raise ConanInvalidConfiguration(
+                "This recipe only support Linux. You can contribute Windows and/or Macos support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-dependency-tracking",
-            "--disable-nls",
-            "--disable-languages",
-            "--disable-doc",
-            "--disable-tests",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-dependency-tracking",
+                "--disable-nls",
+                "--disable-languages",
+                "--disable-doc",
+                "--disable-tests",
+            ]
+        )
         if self.options.get_safe("fPIC", True):
             tc.configure_args.append("--with-pic")
         host = None
@@ -70,7 +83,12 @@ class GPGErrorConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*la", os.path.join(self.package_folder, "lib"))

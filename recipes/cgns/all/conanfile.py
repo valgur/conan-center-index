@@ -1,16 +1,25 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+)
 import os
 
 
 required_conan_version = ">=1.52.0"
 
+
 class CgnsConan(ConanFile):
     name = "cgns"
-    description = "Standard for data associated with the numerical solution " \
-                  "of fluid dynamics equations."
+    description = (
+        "Standard for data associated with the numerical solution " "of fluid dynamics equations."
+    )
     topics = "data", "cfd", "fluids"
     homepage = "http://cgns.org/"
     license = "Zlib"
@@ -59,13 +68,28 @@ class CgnsConan(ConanFile):
             self.requires("hdf5/1.14.0")
 
     def validate(self):
-        if self.info.options.parallel and not (self.info.options.with_hdf5 and self.dependencies["hdf5"].options.parallel):
-            raise ConanInvalidConfiguration("The option 'parallel' requires HDF5 with parallel=True")
-        if self.info.options.parallel and self.info.options.with_hdf5 and self.dependencies["hdf5"].options.enable_cxx:
-            raise ConanInvalidConfiguration("The option 'parallel' requires HDF5 with enable_cxx=False")
+        if self.info.options.parallel and not (
+            self.info.options.with_hdf5 and self.dependencies["hdf5"].options.parallel
+        ):
+            raise ConanInvalidConfiguration(
+                "The option 'parallel' requires HDF5 with parallel=True"
+            )
+        if (
+            self.info.options.parallel
+            and self.info.options.with_hdf5
+            and self.dependencies["hdf5"].options.enable_cxx
+        ):
+            raise ConanInvalidConfiguration(
+                "The option 'parallel' requires HDF5 with enable_cxx=False"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         cmake = CMakeDeps(self)
@@ -95,7 +119,12 @@ class CgnsConan(ConanFile):
         cmake.build(target="cgns_shared" if self.options.shared else "cgns_static")
 
     def package(self):
-        copy(self, "license.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "license.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
         cmake = CMake(self)
         cmake.install()
@@ -108,8 +137,12 @@ class CgnsConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CGNS::CGNS")
 
         if self.options.shared:
-            self.cpp_info.components["cgns_shared"].set_property("cmake_target_name", "CGNS::cgns_shared")
-            self.cpp_info.components["cgns_shared"].libs = ["cgnsdll" if self.settings.os == "Windows" else "cgns"]
+            self.cpp_info.components["cgns_shared"].set_property(
+                "cmake_target_name", "CGNS::cgns_shared"
+            )
+            self.cpp_info.components["cgns_shared"].libs = [
+                "cgnsdll" if self.settings.os == "Windows" else "cgns"
+            ]
             self.cpp_info.components["cgns_shared"].libdirs = ["lib"]
             if self.options.with_hdf5:
                 self.cpp_info.components["cgns_shared"].requires = ["hdf5::hdf5"]
@@ -117,7 +150,9 @@ class CgnsConan(ConanFile):
                 # we could instead define USE_DLL but it's too generic
                 self.cpp_info.components["cgns_shared"].defines = ["CGNSDLL=__declspec(dllimport)"]
         else:
-            self.cpp_info.components["cgns_static"].set_property("cmake_target_name", "CGNS::cgns_static")
+            self.cpp_info.components["cgns_static"].set_property(
+                "cmake_target_name", "CGNS::cgns_static"
+            )
             self.cpp_info.components["cgns_static"].libs = ["cgns"]
             self.cpp_info.components["cgns_static"].libdirs = ["lib"]
             if self.options.with_hdf5:

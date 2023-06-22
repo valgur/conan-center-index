@@ -28,10 +28,6 @@ class LibRHashConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -58,17 +54,20 @@ class LibRHashConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler in ("apple-clang", ):
-            if self.settings.arch in ("armv7", ):
+        if self.settings.compiler in ("apple-clang",):
+            if self.settings.arch in ("armv7",):
                 self._autotools.link_flags.append("-arch armv7")
-            elif self.settings.arch in ("armv8", ):
+            elif self.settings.arch in ("armv8",):
                 self._autotools.link_flags.append("-arch arm64")
         vars = self._autotools.vars
         conf_args = [
@@ -88,10 +87,16 @@ class LibRHashConan(ConanFile):
         else:
             conf_args.extend(["--disable-lib-shared", "--enable-lib-static"])
 
-        with tools.environment_append({
-            "BUILD_TARGET": tools.get_gnu_triplet(str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)),
-        }):
-            self._autotools.configure(args=conf_args, use_default_install_dirs=False, build=False, host=False)
+        with tools.environment_append(
+            {
+                "BUILD_TARGET": tools.get_gnu_triplet(
+                    str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
+                ),
+            }
+        ):
+            self._autotools.configure(
+                args=conf_args, use_default_install_dirs=False, build=False, host=False
+            )
         return self._autotools
 
     def build(self):

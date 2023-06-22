@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class VisitStructConan(ConanFile):
     name = "visit_struct"
     description = "A miniature library for struct-field reflection in C++"
@@ -14,7 +15,12 @@ class VisitStructConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cbeck88/visit_struct"
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type",
+    settings = (
+        "os",
+        "arch",
+        "compiler",
+        "build_type",
+    )
     options = {
         "with_boost_fusion": [True, False],
         "with_boost_hana": [True, False],
@@ -47,13 +53,38 @@ class VisitStructConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*visit_struct.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*visit_struct_intrusive.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*visit_struct.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*visit_struct_intrusive.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
         if self.options.with_boost_fusion:
-            copy(self, pattern="*visit_struct_boost_fusion.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+            copy(
+                self,
+                pattern="*visit_struct_boost_fusion.hpp",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
         if self.options.with_boost_hana:
-            copy(self, pattern="*visit_struct_boost_hana.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+            copy(
+                self,
+                pattern="*visit_struct_boost_hana.hpp",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
 
     def package_info(self):
         self.cpp_info.bindirs = []

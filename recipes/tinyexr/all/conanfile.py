@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class TinyExrConan(ConanFile):
     name = "tinyexr"
     description = "Tiny OpenEXR image loader/saver library"
@@ -66,7 +67,9 @@ class TinyExrConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license
+        )
         copy(
             self,
             pattern="tinyexr.h",
@@ -77,11 +80,21 @@ class TinyExrConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.defines.append("TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0"))
-        self.cpp_info.defines.append("TINYEXR_USE_PIZ={}".format("1" if self.options.with_piz else "0"))
-        self.cpp_info.defines.append("TINYEXR_USE_ZFP={}".format("1" if self.options.with_zfp else "0"))
-        self.cpp_info.defines.append("TINYEXR_USE_THREAD={}".format("1" if self.options.with_thread else "0"))
-        self.cpp_info.defines.append("TINYEXR_USE_OPENMP={}".format("1" if self.options.with_openmp else "0"))
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0")
+        )
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_PIZ={}".format("1" if self.options.with_piz else "0")
+        )
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_ZFP={}".format("1" if self.options.with_zfp else "0")
+        )
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_THREAD={}".format("1" if self.options.with_thread else "0")
+        )
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_OPENMP={}".format("1" if self.options.with_openmp else "0")
+        )
 
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.with_thread:
             self.cpp_info.system_libs = ["pthread"]

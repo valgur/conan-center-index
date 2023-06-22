@@ -31,10 +31,6 @@ class NanodbcConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -54,9 +50,13 @@ class NanodbcConan(ConanFile):
         _minimum_compiler = self._compiler_cxx14.get(str(self.settings.compiler))
         if _minimum_compiler:
             if tools.Version(self.settings.compiler.version) < _minimum_compiler:
-                raise ConanInvalidConfiguration("nanodbc requires c++14, which your compiler does not support")
+                raise ConanInvalidConfiguration(
+                    "nanodbc requires c++14, which your compiler does not support"
+                )
         else:
-            self.output.warn("nanodbc requires c++14, but is unknown to this recipe. Assuming your compiler supports c++14.")
+            self.output.warn(
+                "nanodbc requires c++14, but is unknown to this recipe. Assuming your compiler supports c++14."
+            )
 
     def requirements(self):
         if self.options.with_boost:
@@ -75,7 +75,9 @@ class NanodbcConan(ConanFile):
         self._cmake.definitions["NANODBC_DISABLE_ASYNC"] = not self.options.get_safe("async")
         self._cmake.definitions["NANODBC_ENABLE_UNICODE"] = self.options.unicode
         self._cmake.definitions["NANODBC_ENABLE_BOOST"] = self.options.with_boost
-        self._cmake.definitions["NANODBC_DISABLE_LIBCXX"] = self.settings.get_safe("compiler.libcxx") != "libc++"
+        self._cmake.definitions["NANODBC_DISABLE_LIBCXX"] = (
+            self.settings.get_safe("compiler.libcxx") != "libc++"
+        )
 
         self._cmake.definitions["NANODBC_DISABLE_INSTALL"] = False
         self._cmake.definitions["NANODBC_DISABLE_EXAMPLES"] = True

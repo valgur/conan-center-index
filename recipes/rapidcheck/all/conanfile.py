@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from os.path import join
@@ -65,9 +72,13 @@ class RapidcheckConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
         if self.options.enable_gmock and not self.dependencies["gtest"].options.build_gmock:
-            raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`")
+            raise ConanInvalidConfiguration(
+                "The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,7 +103,12 @@ class RapidcheckConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -103,21 +119,25 @@ class RapidcheckConan(ConanFile):
             join(self.package_folder, self._module_file_rel_path),
             {
                 "rapidcheck": "rapidcheck::rapidcheck_rapidcheck",
-                "rapidcheck_catch":"rapidcheck::rapidcheck_catch",
+                "rapidcheck_catch": "rapidcheck::rapidcheck_catch",
                 "rapidcheck_gmock": "rapidcheck::rapidcheck_gmock",
                 "rapidcheck_gtest": "rapidcheck::rapidcheck_gtest",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property
@@ -127,7 +147,9 @@ class RapidcheckConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rapidcheck")
 
-        self.cpp_info.components["rapidcheck_rapidcheck"].set_property("cmake_target_name", "rapidcheck")
+        self.cpp_info.components["rapidcheck_rapidcheck"].set_property(
+            "cmake_target_name", "rapidcheck"
+        )
         self.cpp_info.components["rapidcheck_rapidcheck"].libs = ["rapidcheck"]
         version = str(self.version)[4:]
         if Version(version) < "20201218":
@@ -138,27 +160,58 @@ class RapidcheckConan(ConanFile):
                 self.cpp_info.components["rapidcheck_rapidcheck"].defines.append("RC_DONT_USE_RTTI")
 
         if self.options.enable_catch:
-            self.cpp_info.components["rapidcheck_catch"].set_property("cmake_target_name", "rapidcheck_catch")
-            self.cpp_info.components["rapidcheck_catch"].requires = ["rapidcheck_rapidcheck", "catch2::catch2"]
+            self.cpp_info.components["rapidcheck_catch"].set_property(
+                "cmake_target_name", "rapidcheck_catch"
+            )
+            self.cpp_info.components["rapidcheck_catch"].requires = [
+                "rapidcheck_rapidcheck",
+                "catch2::catch2",
+            ]
         if self.options.enable_gmock:
-            self.cpp_info.components["rapidcheck_gmock"].set_property("cmake_target_name", "rapidcheck_gmock")
-            self.cpp_info.components["rapidcheck_gmock"].requires = ["rapidcheck_rapidcheck", "gtest::gtest"]
+            self.cpp_info.components["rapidcheck_gmock"].set_property(
+                "cmake_target_name", "rapidcheck_gmock"
+            )
+            self.cpp_info.components["rapidcheck_gmock"].requires = [
+                "rapidcheck_rapidcheck",
+                "gtest::gtest",
+            ]
         if self.options.enable_gtest:
-            self.cpp_info.components["rapidcheck_gtest"].set_property("cmake_target_name", "rapidcheck_gtest")
-            self.cpp_info.components["rapidcheck_gtest"].requires = ["rapidcheck_rapidcheck", "gtest::gtest"]
+            self.cpp_info.components["rapidcheck_gtest"].set_property(
+                "cmake_target_name", "rapidcheck_gtest"
+            )
+            self.cpp_info.components["rapidcheck_gtest"].requires = [
+                "rapidcheck_rapidcheck",
+                "gtest::gtest",
+            ]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules[
+            "cmake_find_package_multi"
+        ] = [self._module_file_rel_path]
         if self.options.enable_catch:
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_catch"].build_modules[
+                "cmake_find_package_multi"
+            ] = [self._module_file_rel_path]
         if self.options.enable_gmock:
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_gmock"].build_modules[
+                "cmake_find_package_multi"
+            ] = [self._module_file_rel_path]
         if self.options.enable_gtest:
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_gtest"].build_modules[
+                "cmake_find_package_multi"
+            ] = [self._module_file_rel_path]

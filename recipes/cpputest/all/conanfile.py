@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 import os
 import textwrap
 
@@ -43,8 +50,12 @@ class CppUTestConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -65,7 +76,12 @@ class CppUTestConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -77,18 +93,20 @@ class CppUTestConan(ConanFile):
             {
                 "CppUTest": "CppUTest::CppUTest",
                 "CppUTestExt": "CppUTest::CppUTestExt",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -117,10 +135,20 @@ class CppUTestConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "cpputest"
         self.cpp_info.components["CppUTest"].names["cmake_find_package"] = "CppUTest"
         self.cpp_info.components["CppUTest"].names["cmake_find_package_multi"] = "CppUTest"
-        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         if self.options.with_extensions:
             self.cpp_info.components["CppUTestExt"].names["cmake_find_package"] = "CppUTestExt"
-            self.cpp_info.components["CppUTestExt"].names["cmake_find_package_multi"] = "CppUTestExt"
-            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["CppUTestExt"].names[
+                "cmake_find_package_multi"
+            ] = "CppUTestExt"
+            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

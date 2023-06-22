@@ -14,7 +14,7 @@ class ChefFunConan(ConanFile):
     name = "chef-fun"
     homepage = "https://gitlab.com/libchef/chef-fun"
     description = "C++ Functional programming support library"
-    topics = ("functional programming", "cpp", "library" )
+    topics = ("functional programming", "cpp", "library")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -58,10 +58,10 @@ class ChefFunConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-#    def requirements(self):
-#        # Prefer self.requires method instead of requires attribute
-#        # Direct dependencies of header only libs are always transitive since they are included in public headers
-#        self.requires("dependency/0.8.1", transitive_headers=True)
+    #    def requirements(self):
+    #        # Prefer self.requires method instead of requires attribute
+    #        # Direct dependencies of header only libs are always transitive since they are included in public headers
+    #        self.requires("dependency/0.8.1", transitive_headers=True)
 
     def source(self):
         # Download source package and extract to source folder
@@ -74,7 +74,12 @@ class ChefFunConan(ConanFile):
 
     # Copy all files to the package folder
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hh",
@@ -107,7 +112,7 @@ class ChefFunConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "chef-fun")
 
         ## Add m, pthread and dl if needed in Linux/FreeBSD
-        #if self.settings.os in ["Linux", "FreeBSD"]:
+        # if self.settings.os in ["Linux", "FreeBSD"]:
         #    self.cpp_info.system_libs.extend(["dl", "m", "pthread"])
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

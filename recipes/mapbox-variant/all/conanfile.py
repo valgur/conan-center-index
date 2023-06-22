@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class MapboxVariantConan(ConanFile):
     name = "mapbox-variant"
     description = "An header-only alternative to boost::variant for C++11 and C++14"
-    topics = ("variant")
+    topics = "variant"
     license = "BSD-3-Clause"
     homepage = "https://github.com/mapbox/variant"
     url = "https://github.com/conan-io/conan-center-index"
@@ -28,15 +28,29 @@ class MapboxVariantConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

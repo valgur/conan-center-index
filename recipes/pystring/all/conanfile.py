@@ -8,8 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class PystringConan(ConanFile):
     name = "pystring"
-    description = "Pystring is a collection of C++ functions which match the " \
-                  "interface and behavior of python's string class methods using std::string."
+    description = (
+        "Pystring is a collection of C++ functions which match the "
+        "interface and behavior of python's string class methods using std::string."
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/imageworks/pystring"
@@ -52,7 +54,12 @@ class PystringConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

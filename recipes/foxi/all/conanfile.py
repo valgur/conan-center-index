@@ -45,8 +45,12 @@ class FoxiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,9 +62,12 @@ class FoxiConan(ConanFile):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_loader)", "")
         replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_dummy)", "")
-        replace_in_file(self, cmakelists,
-                              "DESTINATION lib",
-                              "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib")
+        replace_in_file(
+            self,
+            cmakelists,
+            "DESTINATION lib",
+            "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib",
+        )
 
     def build(self):
         self._patch_sources()
@@ -69,12 +76,21 @@ class FoxiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         # Move plugin to bin folder on Windows
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-            rename(self, src=dll_file, dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
+            rename(
+                self,
+                src=dll_file,
+                dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file)),
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["foxi_dummy", "foxi_loader"]

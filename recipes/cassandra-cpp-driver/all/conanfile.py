@@ -37,16 +37,9 @@ class CassandraCppDriverConan(ConanFile):
 
     short_paths = True
     generators = "cmake"
-    exports_sources = [
-        "CMakeLists.txt",
-        "patches/*"
-    ]
+    exports_sources = ["CMakeLists.txt", "patches/*"]
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -77,22 +70,27 @@ class CassandraCppDriverConan(ConanFile):
             # Compilation error on Linux
             if self.settings.os == "Linux":
                 raise ConanInvalidConfiguration(
-                    "Boost.Atomic is not supported on Linux at the moment")
+                    "Boost.Atomic is not supported on Linux at the moment"
+                )
 
         if self.options.with_kerberos:
-            raise ConanInvalidConfiguration(
-                "Kerberos is not supported at the moment")
+            raise ConanInvalidConfiguration("Kerberos is not supported at the moment")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\"",
-                              "\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\" OR \"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"AppleClang\"")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            '"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"',
+            '"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"',
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -107,7 +105,9 @@ class CassandraCppDriverConan(ConanFile):
         self._cmake.definitions["CASS_BUILD_TESTS"] = False
         self._cmake.definitions["CASS_BUILD_UNIT_TESTS"] = False
         self._cmake.definitions["CASS_DEBUG_CUSTOM_ALLOC"] = False
-        self._cmake.definitions["CASS_INSTALL_HEADER_IN_SUBDIR"] = self.options.install_header_in_subdir
+        self._cmake.definitions[
+            "CASS_INSTALL_HEADER_IN_SUBDIR"
+        ] = self.options.install_header_in_subdir
         self._cmake.definitions["CASS_INSTALL_PKG_CONFIG"] = False
 
         if self.options.use_atomic == "boost":
@@ -149,7 +149,8 @@ class CassandraCppDriverConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["iphlpapi", "psapi", "wsock32",
-                "crypt32", "ws2_32", "userenv", "version"])
+            self.cpp_info.system_libs.extend(
+                ["iphlpapi", "psapi", "wsock32", "crypt32", "ws2_32", "userenv", "version"]
+            )
             if not self.options.shared:
                 self.cpp_info.defines = ["CASS_STATIC"]

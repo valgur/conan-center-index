@@ -24,10 +24,6 @@ class TreeSitterConan(ConanFile):
     generators = "cmake"
     exports_sources = "CMakeLists.txt"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -39,8 +35,11 @@ class TreeSitterConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

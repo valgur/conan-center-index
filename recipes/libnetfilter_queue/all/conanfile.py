@@ -4,6 +4,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.29.1"
 
+
 class Libnetfilter_queueConan(ConanFile):
     name = "libnetfilter_queue"
     license = "GPL-2.0-or-later"
@@ -12,18 +13,20 @@ class Libnetfilter_queueConan(ConanFile):
     description = "userspace library that provides an API to packets that have been queued by the kernel packet filter"
     topics = ("libnetfilter_queue", "netfilter")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "pkg_config"
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
-         self.requires("libmnl/1.0.4")
-         self.requires("libnfnetlink/1.0.1")
+        self.requires("libmnl/1.0.4")
+        self.requires("libnfnetlink/1.0.1")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

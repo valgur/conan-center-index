@@ -1,5 +1,14 @@
 from conan import ConanFile
-from conan.tools.files import rmdir, mkdir, save, load, get, apply_conandata_patches, export_conandata_patches, copy
+from conan.tools.files import (
+    rmdir,
+    mkdir,
+    save,
+    load,
+    get,
+    apply_conandata_patches,
+    export_conandata_patches,
+    copy,
+)
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -15,8 +24,10 @@ required_conan_version = ">=1.54.0"
 class XorgProtoConan(ConanFile):
     name = "xorg-proto"
     package_type = "header-library"
-    description = "This package provides the headers and specification documents defining " \
+    description = (
+        "This package provides the headers and specification documents defining "
         "the core protocol and (many) extensions for the X Window System."
+    )
     topics = ("specification", "x-window")
     license = "X11"
     homepage = "https://gitlab.freedesktop.org/xorg/proto/xorgproto"
@@ -54,7 +65,12 @@ class XorgProtoConan(ConanFile):
         export_conandata_patches(self)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -76,7 +92,12 @@ class XorgProtoConan(ConanFile):
         return os.path.join(self.package_folder, "res", "pc_data.yml")
 
     def package(self):
-        copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING-*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         autotools = Autotools(self)
         autotools.install()
@@ -86,7 +107,9 @@ class XorgProtoConan(ConanFile):
             pc_text = load(self, fn)
             filename = os.path.basename(fn)[:-3]
             name = next(re.finditer("^Name: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
-            version = next(re.finditer("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
+            version = next(
+                re.finditer("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)
+            ).group(1)
             pc_data[filename] = {
                 "version": version,
                 "name": name,

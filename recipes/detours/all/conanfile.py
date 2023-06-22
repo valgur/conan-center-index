@@ -10,16 +10,14 @@ required_conan_version = ">=1.45.0"
 class DetoursConan(ConanFile):
     name = "detours"
     homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
-    description = "Detours is a software package for monitoring and instrumenting API calls on Windows"
+    description = (
+        "Detours is a software package for monitoring and instrumenting API calls on Windows"
+    )
     topics = ("monitoror", "instrumenting", "hook", "injection")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -41,8 +39,11 @@ class DetoursConan(ConanFile):
             raise ConanInvalidConfiguration("Unsupported architecture")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -68,8 +69,11 @@ class DetoursConan(ConanFile):
 
     def _patch_sources(self):
         if is_msvc(self):
-            tools.replace_in_file(os.path.join(self._source_subfolder, "src", "Makefile"),
-                                  "/MT ", f"/{self.settings.compiler.runtime} ")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "src", "Makefile"),
+                "/MT ",
+                f"/{self.settings.compiler.runtime} ",
+            )
 
     def build(self):
         self._patch_sources()
@@ -84,7 +88,11 @@ class DetoursConan(ConanFile):
     def package(self):
         self.copy("LICENSE.md", src=self._source_subfolder, dst="licenses")
         if is_msvc(self):
-            self.copy("detours.lib", src=os.path.join(self._source_subfolder, f"lib.{self._target_processor}"), dst="lib")
+            self.copy(
+                "detours.lib",
+                src=os.path.join(self._source_subfolder, f"lib.{self._target_processor}"),
+                dst="lib",
+            )
             self.copy("*.h", src=os.path.join(self._source_subfolder, "include"), dst="include")
         else:
             cmake = CMake(self)

@@ -12,7 +12,7 @@ class CglmConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ("CMakeLists.txt", )
+    exports_sources = ("CMakeLists.txt",)
     generators = "cmake"
     options = {
         "shared": [True, False],
@@ -26,10 +26,6 @@ class CglmConan(ConanFile):
     }
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -51,8 +47,11 @@ class CglmConan(ConanFile):
             del self.settings.os
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:

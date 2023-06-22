@@ -10,18 +10,18 @@ class UsrsctpConan(ConanFile):
     topics = ("conan", "network", "sctp")
     description = " A portable SCTP userland stack"
     settings = "os", "compiler", "arch", "build_type"
-    options = {"shared": [True, False],
-               "fPIC": [True, False]}
-    default_options = {"shared": False,
-                       "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = ["CMakeLists.txt", "patches/*"]
     generators = "cmake"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -67,8 +67,8 @@ class UsrsctpConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "usrsctp"
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(['ws2_32', 'iphlpapi'])
+            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
         elif self.settings.os == "Linux":
-            self.cpp_info.system_libs.extend(['pthread'])
+            self.cpp_info.system_libs.extend(["pthread"])
         suffix = "_import" if self.settings.os == "Windows" and self.options.shared else ""
         self.cpp_info.libs = ["usrsctp" + suffix]

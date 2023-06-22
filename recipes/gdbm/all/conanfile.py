@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
@@ -13,11 +21,13 @@ required_conan_version = ">=1.54.0"
 
 class GdbmConan(ConanFile):
     name = "gdbm"
-    description = ("gdbm is a library of database functions that uses "
-                   "extensible hashing and work similar to "
-                   "the standard UNIX dbm. "
-                   "These routines are provided to a programmer needing "
-                   "to create and manipulate a hashed database.")
+    description = (
+        "gdbm is a library of database functions that uses "
+        "extensible hashing and work similar to "
+        "the standard UNIX dbm. "
+        "These routines are provided to a programmer needing "
+        "to create and manipulate a hashed database."
+    )
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org.ua/software/gdbm/gdbm.html"
@@ -84,27 +94,25 @@ class GdbmConan(ConanFile):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         enable_debug = self.settings.build_type in ["Debug", "RelWithDebInfo"]
-        tc.configure_args.extend([
-            f"--enable-debug={yes_no(enable_debug)}",
-            f"--enable-libgdbm-compat={yes_no(self.options.libgdbm_compat)}",
-            f"--enable-gdbmtool-debug={yes_no(self.options.gdbmtool_debug)}",
-            f"--enable-nls={yes_no(self.options.with_nls)}",
-            f"--with-readline={yes_no(self.options.with_readline)}",
-            f"--with-pic={yes_no(self.options.get_safe('fPIC', True))}",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-debug={yes_no(enable_debug)}",
+                f"--enable-libgdbm-compat={yes_no(self.options.libgdbm_compat)}",
+                f"--enable-gdbmtool-debug={yes_no(self.options.gdbmtool_debug)}",
+                f"--enable-nls={yes_no(self.options.with_nls)}",
+                f"--with-readline={yes_no(self.options.with_readline)}",
+                f"--with-pic={yes_no(self.options.get_safe('fPIC', True))}",
+            ]
+        )
         if self.options.gdbmtool_debug:
             tc.extra_defines.append("YYDEBUG=1")
         if self.options.get_safe("with_libiconv"):
             libiconv_package_folder = self.dependencies.direct_host["libiconv"].package_folder
-            tc.configure_args.extend([
-                f"--with-libiconv-prefix={libiconv_package_folder}"
-                "--with-libintl-prefix"
-            ])
+            tc.configure_args.extend(
+                [f"--with-libiconv-prefix={libiconv_package_folder}" "--with-libintl-prefix"]
+            )
         else:
-            tc.configure_args.extend([
-                "--without-libiconv-prefix",
-                "--without-libintl-prefix"
-            ])
+            tc.configure_args.extend(["--without-libiconv-prefix", "--without-libintl-prefix"])
         tc.generate()
         autotools_deps = AutotoolsDeps(self)
         autotools_deps.generate()
@@ -116,7 +124,12 @@ class GdbmConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), os.path.dirname(gnu_config), os.path.join(self.source_folder, "build-aux"))
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    os.path.dirname(gnu_config),
+                    os.path.join(self.source_folder, "build-aux"),
+                )
 
     def build(self):
         self._patch_sources()

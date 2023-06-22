@@ -4,7 +4,14 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -42,21 +49,28 @@ class GoogleCloudCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
-    exports = ["components_2_5_0.py",
-               "components_2_12_0.py",
-               ]
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    exports = [
+        "components_2_5_0.py",
+        "components_2_12_0.py",
+    ]
 
     short_paths = True
 
     _GA_COMPONENTS = {
-        '2.5.0': components_2_5_0.COMPONENTS,
-        '2.12.0': components_2_12_0.COMPONENTS,
+        "2.5.0": components_2_5_0.COMPONENTS,
+        "2.12.0": components_2_12_0.COMPONENTS,
     }
     _PROTO_COMPONENTS = {
-        '2.5.0': components_2_5_0.PROTO_COMPONENTS,
-        '2.12.0': components_2_12_0.PROTO_COMPONENTS,
+        "2.5.0": components_2_5_0.PROTO_COMPONENTS,
+        "2.12.0": components_2_12_0.PROTO_COMPONENTS,
     }
     _PROTO_COMPONENT_DEPENDENCIES = {
         "2.5.0": components_2_5_0.DEPENDENCIES,
@@ -64,7 +78,12 @@ class GoogleCloudCppConan(ConanFile):
     }
     # Some components require custom dependency definitions.
     _REQUIRES_CUSTOM_DEPENDENCIES = {
-        "bigquery", "bigtable", "iam", "pubsub", "spanner", "storage",
+        "bigquery",
+        "bigtable",
+        "iam",
+        "pubsub",
+        "spanner",
+        "storage",
     }
 
     def export_sources(self):
@@ -90,9 +109,7 @@ class GoogleCloudCppConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
 
         if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Recipe not prepared for cross-building (yet)"
-            )
+            raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
         if self.version not in self._GA_COMPONENTS:
             raise ConanInvalidConfiguration(
@@ -109,33 +126,34 @@ class GoogleCloudCppConan(ConanFile):
                 "The inter-component dependencies are unknown for version %s" % self.version
             )
 
-        if (
-            self.settings.compiler == "clang"
-            and Version(self.settings.compiler.version) < "6.0"
-        ):
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "6.0":
             raise ConanInvalidConfiguration("Clang version must be at least 6.0.")
 
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 14)
 
-        if (
-            self.settings.compiler == "gcc"
-            and Version(self.settings.compiler.version) < "5.4"
-        ):
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5.4":
             raise ConanInvalidConfiguration("Building requires GCC >= 5.4")
 
-        if self.info.options.shared and \
-           (not self.dependencies["protobuf"].options.shared or \
-            not self.dependencies["grpc"].options.shared):
+        if self.info.options.shared and (
+            not self.dependencies["protobuf"].options.shared
+            or not self.dependencies["grpc"].options.shared
+        ):
             raise ConanInvalidConfiguration(
                 "If built as shared, protobuf, and grpc must be shared as well."
-                " Please, use `protobuf/*:shared=True`, and `grpc/*:shared=True`.")
+                " Please, use `protobuf/*:shared=True`, and `grpc/*:shared=True`."
+            )
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def requirements(self):
         self.requires("protobuf/3.21.9", transitive_headers=True)
@@ -170,9 +188,12 @@ class GoogleCloudCppConan(ConanFile):
         #     https://developer.apple.com/library/archive/documentation/Security/Conceptual/System_Integrity_Protection_Guide/RuntimeProtections/RuntimeProtections.html
         settings_build = getattr(self, "settings_build", self.settings)
         if settings_build.os == "Macos":
-            replace_in_file(self, os.path.join(self.source_folder, "cmake/CompileProtos.cmake"),
-                            "$<TARGET_FILE:protobuf::protoc>",
-                            '${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" $<TARGET_FILE:protobuf::protoc>')
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "cmake/CompileProtos.cmake"),
+                "$<TARGET_FILE:protobuf::protoc>",
+                '${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" $<TARGET_FILE:protobuf::protoc>',
+            )
 
     def build(self):
         self._patch_sources()
@@ -190,12 +211,12 @@ class GoogleCloudCppConan(ConanFile):
         # the current version in Conan index (protobuf/3.21.4) do not contain
         # the fixes for these cases.
         # TODO - review after protobuf >= 4.23.x
-        'asset',
-        'channel',
-        'storagetransfer',
+        "asset",
+        "channel",
+        "storagetransfer",
         # TODO - certificatemanager crashes the gRPC code generator. Add it back
         # after gRPC >= 1.53.x
-        'certificatemanager',
+        "certificatemanager",
     }
 
     def _components(self):
@@ -205,23 +226,28 @@ class GoogleCloudCppConan(ConanFile):
         # TODO - these do not build on Android due to conflicts between OS
         # macros and Proto enums. Revisit after Protobuf >= 4.23.x
         if self.settings.os == "Android":
-            result.remove('accesscontextmanager')
-            result.remove('talent')
+            result.remove("accesscontextmanager")
+            result.remove("talent")
         return result
 
     def _proto_components(self):
         result = self._PROTO_COMPONENTS.get(self.version, []).copy()
         for c in self._SKIPPED_COMPONENTS:
-            result.remove(c + '_protos')
+            result.remove(c + "_protos")
         # TODO - these do not build on Android due to conflicts between OS
         # macros and Proto enums. Revisit after Protobuf >= 4.23.x
         if self.settings.os == "Android":
-            result.remove('accesscontextmanager_protos')
-            result.remove('talent_protos')
+            result.remove("accesscontextmanager_protos")
+            result.remove("talent_protos")
         return result
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, path=os.path.join(self.package_folder, "lib", "cmake"))
@@ -233,27 +259,58 @@ class GoogleCloudCppConan(ConanFile):
         self.cpp_info.components[component].names["pkg_config"] = f"google_cloud_cpp_{component}"
 
     def _add_grpc_component(self, component, protos, extra=None):
-        SHARED_REQUIRES=["grpc_utils", "common", "grpc::grpc++", "grpc::_grpc", "protobuf::libprotobuf", "abseil::absl_memory"]
+        SHARED_REQUIRES = [
+            "grpc_utils",
+            "common",
+            "grpc::grpc++",
+            "grpc::_grpc",
+            "protobuf::libprotobuf",
+            "abseil::absl_memory",
+        ]
         self.cpp_info.components[component].requires = (extra or []) + [protos] + SHARED_REQUIRES
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
         self.cpp_info.components[component].names["pkg_config"] = f"google_cloud_cpp_{component}"
 
     def package_info(self):
-        self.cpp_info.components["common"].requires = ["abseil::absl_any", "abseil::absl_flat_hash_map", "abseil::absl_memory", "abseil::absl_optional", "abseil::absl_time"]
+        self.cpp_info.components["common"].requires = [
+            "abseil::absl_any",
+            "abseil::absl_flat_hash_map",
+            "abseil::absl_memory",
+            "abseil::absl_optional",
+            "abseil::absl_time",
+        ]
         self.cpp_info.components["common"].libs = ["google_cloud_cpp_common"]
         self.cpp_info.components["common"].names["pkg_config"] = "google_cloud_cpp_common"
 
-        self.cpp_info.components["rest_internal"].requires = ["common", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
+        self.cpp_info.components["rest_internal"].requires = [
+            "common",
+            "libcurl::libcurl",
+            "openssl::ssl",
+            "openssl::crypto",
+            "zlib::zlib",
+        ]
         self.cpp_info.components["rest_internal"].libs = ["google_cloud_cpp_rest_internal"]
         self.cpp_info.components["rest_internal"].names["pkg_config"] = "google_cloud_cpp_common"
 
         # A small number of gRPC-generated stubs are used directly in the common components
         # shared by all gRPC-based libraries.  These must be defined without reference to `grpc_utils`.
-        GRPC_UTILS_REQUIRED_PROTOS={"iam_protos", "longrunning_operations_protos", "rpc_error_details_protos", "rpc_status_protos"}
+        GRPC_UTILS_REQUIRED_PROTOS = {
+            "iam_protos",
+            "longrunning_operations_protos",
+            "rpc_error_details_protos",
+            "rpc_status_protos",
+        }
         for component in GRPC_UTILS_REQUIRED_PROTOS:
             self._add_proto_component(component)
 
-        self.cpp_info.components["grpc_utils"].requires = list(GRPC_UTILS_REQUIRED_PROTOS) + ["common", "abseil::absl_function_ref", "abseil::absl_memory", "abseil::absl_time", "grpc::grpc++", "grpc::_grpc"]
+        self.cpp_info.components["grpc_utils"].requires = list(GRPC_UTILS_REQUIRED_PROTOS) + [
+            "common",
+            "abseil::absl_function_ref",
+            "abseil::absl_memory",
+            "abseil::absl_time",
+            "grpc::grpc++",
+            "grpc::_grpc",
+        ]
         self.cpp_info.components["grpc_utils"].libs = ["google_cloud_cpp_grpc_utils"]
         self.cpp_info.components["grpc_utils"].names["pkg_config"] = "google_cloud_cpp_grpc_utils"
 
@@ -273,16 +330,16 @@ class GoogleCloudCppConan(ConanFile):
 
         for component in self._components():
             # bigquery proto library predates the adoption of more consistent naming
-            if component == 'bigquery':
+            if component == "bigquery":
                 self._add_proto_component("cloud_bigquery_protos")
                 self._add_grpc_component(component, "cloud_bigquery_protos")
                 continue
-            if component == 'dialogflow_es':
+            if component == "dialogflow_es":
                 self._add_proto_component("cloud_dialogflow_v2_protos")
                 self._add_grpc_component(component, "cloud_dialogflow_v2_protos")
                 continue
             # `storage` is the only component that does not depend on a matching `*_protos` library
-            protos=f"{component}_protos"
+            protos = f"{component}_protos"
             if component in self._REQUIRES_CUSTOM_DEPENDENCIES:
                 continue
             self._add_grpc_component(component, protos)
@@ -291,8 +348,31 @@ class GoogleCloudCppConan(ConanFile):
         self._add_grpc_component("bigtable", "bigtable_protos")
         self._add_grpc_component("iam", "iam_protos")
         self._add_grpc_component("pubsub", "pubsub_protos", ["abseil::absl_flat_hash_map"])
-        self._add_grpc_component("spanner", "spanner_protos",  ["abseil::absl_fixed_array", "abseil::absl_numeric", "abseil::absl_strings", "abseil::absl_time"])
+        self._add_grpc_component(
+            "spanner",
+            "spanner_protos",
+            [
+                "abseil::absl_fixed_array",
+                "abseil::absl_numeric",
+                "abseil::absl_strings",
+                "abseil::absl_time",
+            ],
+        )
 
-        self.cpp_info.components["storage"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "abseil::absl_memory", "abseil::absl_strings", "abseil::absl_str_format", "abseil::absl_time", "abseil::absl_variant", "crc32c::crc32c", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
+        self.cpp_info.components["storage"].requires = [
+            "rest_internal",
+            "common",
+            "nlohmann_json::nlohmann_json",
+            "abseil::absl_memory",
+            "abseil::absl_strings",
+            "abseil::absl_str_format",
+            "abseil::absl_time",
+            "abseil::absl_variant",
+            "crc32c::crc32c",
+            "libcurl::libcurl",
+            "openssl::ssl",
+            "openssl::crypto",
+            "zlib::zlib",
+        ]
         self.cpp_info.components["storage"].libs = ["google_cloud_cpp_storage"]
         self.cpp_info.components["storage"].names["pkg_config"] = "google_cloud_cpp_storage"

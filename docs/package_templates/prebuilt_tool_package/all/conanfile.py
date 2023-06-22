@@ -41,16 +41,33 @@ class PackageConan(ConanFile):
     def build(self):
         get(
             self,
-            **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)],
+            **self.conan_data["sources"][self.version][str(self.settings.os)][
+                str(self.settings.arch)
+            ],
             strip_root=True,
         )
 
     # copy all needed files to the package folder
     def package(self):
         # a license file is always mandatory
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*.exe", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="foo", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*.exe",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="foo",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         # folders not used for pre-built binaries

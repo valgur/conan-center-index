@@ -1,6 +1,16 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, chdir, collect_libs, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conans import AutoToolsBuildEnvironment, MSBuild, tools
@@ -30,10 +40,6 @@ class LibStudXmlConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -55,8 +61,13 @@ class LibStudXmlConan(ConanFile):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.info.settings.compiler == "Visual Studio" and Version(self.info.settings.compiler.version) < "9":
-            raise ConanInvalidConfiguration(f"Visual Studio {self.info.settings.compiler.version} is not supported.")
+        if (
+            self.info.settings.compiler == "Visual Studio"
+            and Version(self.info.settings.compiler.version) < "9"
+        ):
+            raise ConanInvalidConfiguration(
+                f"Visual Studio {self.info.settings.compiler.version} is not supported."
+            )
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -66,8 +77,12 @@ class LibStudXmlConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -99,15 +114,20 @@ class LibStudXmlConan(ConanFile):
     def _build_vs(self):
         vc_ver = int(self._vc_ver)
         sln_path = None
+
         def get_sln_path():
-            return os.path.join(self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln")
+            return os.path.join(
+                self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln"
+            )
 
         sln_path = get_sln_path()
         while not os.path.exists(sln_path):
             vc_ver -= 1
             sln_path = get_sln_path()
 
-        proj_path = os.path.join(self.source_folder, self._source_subfolder, "xml", f"libstudxml-vc{vc_ver}.vcxproj")
+        proj_path = os.path.join(
+            self.source_folder, self._source_subfolder, "xml", f"libstudxml-vc{vc_ver}.vcxproj"
+        )
 
         if not self.options.shared:
             replace_in_file(self, proj_path, "DynamicLibrary", "StaticLibrary")
@@ -135,7 +155,9 @@ class LibStudXmlConan(ConanFile):
             rm(self, "version", os.path.join(self.source_folder, self._source_subfolder))
 
         with chdir(self, os.path.join(self.source_folder, self._source_subfolder)):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+            )
 
         autotools = self._configure_autotools()
         autotools.make()
@@ -148,7 +170,12 @@ class LibStudXmlConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=os.path.join(self.source_folder, self._source_subfolder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             self.copy("xml/value-traits", dst="include", src=self._source_subfolder)
             self.copy("xml/serializer", dst="include", src=self._source_subfolder)
@@ -166,10 +193,16 @@ class LibStudXmlConan(ConanFile):
             if self.settings.arch == "x86_64":
                 suffix = "64"
             if self.options.shared:
-                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "lib" + suffix))
-                self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "bin" + suffix))
+                self.copy(
+                    "*.lib", dst="lib", src=os.path.join(self._source_subfolder, "lib" + suffix)
+                )
+                self.copy(
+                    "*.dll", dst="bin", src=os.path.join(self._source_subfolder, "bin" + suffix)
+                )
             else:
-                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin" + suffix))
+                self.copy(
+                    "*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin" + suffix)
+                )
         else:
             autotools = self._configure_autotools()
             autotools.install()

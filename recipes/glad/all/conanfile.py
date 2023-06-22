@@ -2,8 +2,16 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.errors import ConanInvalidConfiguration
+
 
 class GladConan(ConanFile):
     name = "glad"
@@ -18,13 +26,34 @@ class GladConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "no_loader": [True, False],
-        "spec": ["gl", "egl", "glx", "wgl"], # Name of the spec
-        "extensions": ["ANY"], # Path to extensions file or comma separated list of extensions, if missing all extensions are included
+        "spec": ["gl", "egl", "glx", "wgl"],  # Name of the spec
+        "extensions": [
+            "ANY"
+        ],  # Path to extensions file or comma separated list of extensions, if missing all extensions are included
         # if specification is gl
         "gl_profile": ["compatibility", "core"],
-        "gl_version": ["None", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "2.0",
-                       "2.1", "3.0", "3.1", "3.2", "3.3", "4.0", "4.1", "4.2",
-                       "4.3", "4.4", "4.5", "4.6"],
+        "gl_version": [
+            "None",
+            "1.0",
+            "1.1",
+            "1.2",
+            "1.3",
+            "1.4",
+            "1.5",
+            "2.0",
+            "2.1",
+            "3.0",
+            "3.1",
+            "3.2",
+            "3.3",
+            "4.0",
+            "4.1",
+            "4.2",
+            "4.3",
+            "4.4",
+            "4.5",
+            "4.6",
+        ],
         "gles1_version": ["None", "1.0"],
         "gles2_version": ["None", "2.0", "3.0", "3.1", "3.2"],
         "glsc2_version": ["None", "2.0"],
@@ -33,7 +62,7 @@ class GladConan(ConanFile):
         # if specification is glx
         "glx_version": ["None", "1.0", "1.1", "1.2", "1.3", "1.4"],
         # if specification is wgl
-        "wgl_version": ["None", "1.0"]
+        "wgl_version": ["None", "1.0"],
     }
 
     default_options = {
@@ -49,7 +78,7 @@ class GladConan(ConanFile):
         "glsc2_version": "None",
         "egl_version": "None",
         "glx_version": "None",
-        "wgl_version": "None"
+        "wgl_version": "None",
     }
 
     def export_sources(self):
@@ -84,14 +113,16 @@ class GladConan(ConanFile):
 
     def validate(self):
         if self.options.spec == "wgl" and self.settings.os != "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref}:{self.options.spec} specification is not compatible with {self.settings.os}")
+            raise ConanInvalidConfiguration(
+                f"{self.ref}:{self.options.spec} specification is not compatible with {self.settings.os}"
+            )
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-    
+
     def generate(self):
         tc = CMakeToolchain(self)
         if "gl_profile" in self.options:
@@ -117,7 +148,7 @@ class GladConan(ConanFile):
                 "gl": self.options.gl_version,
                 "gles1": self.options.gles1_version,
                 "gles2": self.options.gles2_version,
-                "glsc2": self.options.glsc2_version
+                "glsc2": self.options.glsc2_version,
             }
         elif self.options.spec == "egl":
             spec_api = {"egl": self.options.egl_version}
@@ -126,8 +157,11 @@ class GladConan(ConanFile):
         elif self.options.spec == "wgl":
             spec_api = {"wgl": self.options.wgl_version}
 
-        api_concat = ",".join(f"{api_name}={api_version}".format()
-                              for api_name, api_version in spec_api.items() if api_version != "None")
+        api_concat = ",".join(
+            f"{api_name}={api_version}".format()
+            for api_name, api_version in spec_api.items()
+            if api_version != "None"
+        )
 
         return api_concat
 

@@ -5,6 +5,7 @@ from conans import ConanFile, CMake, tools
 
 required_conan_version = ">=1.33.0"
 
+
 class STTreeConan(ConanFile):
     name = "st_tree"
     license = "Apache-2.0"
@@ -14,12 +15,12 @@ class STTreeConan(ConanFile):
     homepage = "https://github.com/erikerlandson/st_tree"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         cmake = CMake(self)

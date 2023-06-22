@@ -16,10 +16,6 @@ class Sqlpp11Conan(ConanFile):
     no_copy_source = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _min_stdcpp_version(self):
         return 11 if tools.Version(self.version) < "0.61" else 14
 
@@ -40,12 +36,18 @@ class Sqlpp11Conan(ConanFile):
             tools.check_min_cppstd(self, self._min_stdcpp_version)
 
         if self._min_stdcpp_version > 11:
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version:
                 if tools.Version(self.settings.compiler.version) < minimum_version:
-                    raise ConanInvalidConfiguration(f"{self.name} requires C++14, which your compiler does not support.")
+                    raise ConanInvalidConfiguration(
+                        f"{self.name} requires C++14, which your compiler does not support."
+                    )
             else:
-                self.output.warn(f"{self.name} requires C++14. Your compiler is unknown. Assuming it supports C++14.")
+                self.output.warn(
+                    f"{self.name} requires C++14. Your compiler is unknown. Assuming it supports C++14."
+                )
 
     def package_id(self):
         self.info.header_only()
@@ -54,7 +56,7 @@ class Sqlpp11Conan(ConanFile):
         tools.get(
             **self.conan_data["sources"][self.version],
             destination=self._source_subfolder,
-            strip_root=True
+            strip_root=True,
         )
 
     def package(self):

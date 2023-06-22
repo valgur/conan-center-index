@@ -11,17 +11,17 @@ class WafConan(ConanFile):
     license = "BSD-3-Clause"
     settings = "os", "arch"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
         os.rename("waf-{}".format(self.version), self._source_subfolder)
 
     @property
     def _license_text(self):
-        [_, license, _] = open(os.path.join(self.source_folder, self._source_subfolder, "waf"), "rb").read().split(b"\"\"\"", 3)
+        [_, license, _] = (
+            open(os.path.join(self.source_folder, self._source_subfolder, "waf"), "rb")
+            .read()
+            .split(b'"""', 3)
+        )
         return license.decode().lstrip()
 
     def build(self):
@@ -56,5 +56,3 @@ class WafConan(ConanFile):
         wafdir = os.path.join(self.package_folder, "lib")
         self.output.info("Setting WAFDIR env var: {}".format(wafdir))
         self.env_info.WAFDIR = wafdir
-
-

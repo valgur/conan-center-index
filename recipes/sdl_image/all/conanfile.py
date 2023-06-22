@@ -126,7 +126,12 @@ class SDLImageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -147,7 +152,9 @@ class SDLImageConan(ConanFile):
         target_name = "SDL2_image" if self.options.shared else "SDL2_image-static"
         self.cpp_info.components["_sdl_image"].names["cmake_find_package"] = target_name
         self.cpp_info.components["_sdl_image"].names["cmake_find_package_multi"] = target_name
-        self.cpp_info.components["_sdl_image"].set_property("cmake_target_name", "SDL2_image::SDL2_image")
+        self.cpp_info.components["_sdl_image"].set_property(
+            "cmake_target_name", "SDL2_image::SDL2_image"
+        )
         self.cpp_info.components["_sdl_image"].set_property("pkg_config_name", "SDL2_image")
         self.cpp_info.components["_sdl_image"].requires = ["sdl::sdl"]
         if self.options.with_libtiff:
@@ -168,7 +175,9 @@ class SDLImageConan(ConanFile):
             if self.settings.os == "Macos":
                 self.cpp_info.components["_sdl_image"].frameworks.append("ApplicationServices")
             else:
-                self.cpp_info.components["_sdl_image"].frameworks.extend([
-                    "MobileCoreServices",
-                    "UIKit",
-                ])
+                self.cpp_info.components["_sdl_image"].frameworks.extend(
+                    [
+                        "MobileCoreServices",
+                        "UIKit",
+                    ]
+                )

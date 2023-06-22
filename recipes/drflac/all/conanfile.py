@@ -29,7 +29,7 @@ class DrflacConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "buffer_size": 0, # zero means the default buffer size is used
+        "buffer_size": 0,  # zero means the default buffer size is used
         "no_crc": False,
         "no_ogg": False,
         "no_simd": False,
@@ -73,7 +73,12 @@ class DrflacConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

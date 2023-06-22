@@ -17,7 +17,9 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["MONGO-CXX-DRIVER_POLYFILL"] = self.dependencies["mongo-cxx-driver"].options.polyfill
+        tc.variables["MONGO-CXX-DRIVER_POLYFILL"] = self.dependencies[
+            "mongo-cxx-driver"
+        ].options.polyfill
         tc.generate()
 
     def build(self):

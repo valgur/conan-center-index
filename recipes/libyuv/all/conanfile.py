@@ -12,7 +12,9 @@ class LibyuvConan(ConanFile):
     name = "libyuv"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/libyuv/libyuv/"
-    description = "libyuv is an open source project that includes YUV scaling and conversion functionality."
+    description = (
+        "libyuv is an open source project that includes YUV scaling and conversion functionality."
+    )
     topics = ["YUV", "libyuv", "google", "chromium"]
     license = "BSD-3-Clause"
 
@@ -73,7 +75,12 @@ class LibyuvConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

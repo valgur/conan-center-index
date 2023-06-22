@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class Homog2dConan(ConanFile):
     name = "homog2d"
     description = "C++ 2D geometry library, handles points, lines, polylines, planar transformations(and other primitives), using homogeneous coordinates."
@@ -56,7 +57,12 @@ class Homog2dConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENCE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="homog2d.hpp",

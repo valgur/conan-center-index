@@ -20,12 +20,12 @@ class OpenTDFConan(ConanFile):
     license = "BSD-3-Clause-Clear"
     generators = "cmake", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"fPIC": [True, False]}
-    default_options = {"fPIC": True}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    options = {
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+    }
 
     @property
     def _build_subfolder(self):
@@ -57,13 +57,19 @@ class OpenTDFConan(ConanFile):
         # check minimum version of compiler
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(f'{self.name} recipe lacks information about the {self.settings.compiler} compiler support.')
+            self.output.warn(
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
+            )
         else:
             if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration(f'{self.name} requires {self.settings.compiler} {self.settings.compiler.version} but found {min_version}')
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires {self.settings.compiler} {self.settings.compiler.version} but found {min_version}"
+                )
         # Disallow MT and MTd
         if is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(f'{self.name} can not be built with MT or MTd at this time')
+            raise ConanInvalidConfiguration(
+                f"{self.name} can not be built with MT or MTd at this time"
+            )
 
     def requirements(self):
         self.requires("openssl/1.1.1q")
@@ -83,7 +89,12 @@ class OpenTDFConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
         for data in self.conan_data.get("patches", {}).get(self.version, []):
@@ -103,9 +114,28 @@ class OpenTDFConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        copy(self, "*", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(os.path.join(self._source_subfolder,"tdf-lib-cpp"), "lib"), keep_path=False)
-        copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(os.path.join(self._source_subfolder,"tdf-lib-cpp"), "include"), keep_path=False)
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_subfolder, ignore_case=True, keep_path=False)
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(os.path.join(self._source_subfolder, "tdf-lib-cpp"), "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(os.path.join(self._source_subfolder, "tdf-lib-cpp"), "include"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self._source_subfolder,
+            ignore_case=True,
+            keep_path=False,
+        )
 
     # TODO - this only advertises the static lib, add dynamic lib also
     def package_info(self):
@@ -114,10 +144,19 @@ class OpenTDFConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "opentdf-client")
 
         self.cpp_info.components["libopentdf"].libs = ["opentdf_static"]
-        self.cpp_info.components["libopentdf"].set_property("cmake_target_name", "copentdf-client::opentdf-client")
+        self.cpp_info.components["libopentdf"].set_property(
+            "cmake_target_name", "copentdf-client::opentdf-client"
+        )
         self.cpp_info.components["libopentdf"].names["cmake_find_package"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].names["cmake_find_package_multi"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].names["pkg_config"] = "opentdf-client"
-        self.cpp_info.components["libopentdf"].requires = ["openssl::openssl", "boost::boost", "ms-gsl::ms-gsl", "libxml2::libxml2", "jwt-cpp::jwt-cpp", "nlohmann_json::nlohmann_json"]
+        self.cpp_info.components["libopentdf"].requires = [
+            "openssl::openssl",
+            "boost::boost",
+            "ms-gsl::ms-gsl",
+            "libxml2::libxml2",
+            "jwt-cpp::jwt-cpp",
+            "nlohmann_json::nlohmann_json",
+        ]
         if Version(self.version) < "1.1.0":
             self.cpp_info.components["libopentdf"].requires.append("libarchive::libarchive")

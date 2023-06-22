@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -148,7 +156,12 @@ class OpenSubdivConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -159,13 +172,17 @@ class OpenSubdivConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenSubdiv")
         target_suffix = "" if self.options.shared else "_static"
 
-        self.cpp_info.components["osdcpu"].set_property("cmake_target_name", f"OpenSubdiv::osdcpu{target_suffix}")
+        self.cpp_info.components["osdcpu"].set_property(
+            "cmake_target_name", f"OpenSubdiv::osdcpu{target_suffix}"
+        )
         self.cpp_info.components["osdcpu"].libs = ["osdCPU"]
         if self.options.with_tbb:
             self.cpp_info.components["osdcpu"].requires = ["onetbb::onetbb"]
 
         if self._osd_gpu_enabled:
-            self.cpp_info.components["osdgpu"].set_property("cmake_target_name", f"OpenSubdiv::osdgpu{target_suffix}")
+            self.cpp_info.components["osdgpu"].set_property(
+                "cmake_target_name", f"OpenSubdiv::osdgpu{target_suffix}"
+            )
             self.cpp_info.components["osdgpu"].libs = ["osdGPU"]
             dl_required = self.options.with_opengl or self.options.with_opencl
             if self.settings.os in ["Linux", "FreeBSD"] and dl_required:
@@ -175,6 +192,10 @@ class OpenSubdivConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "OpenSubdiv"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenSubdiv"
         self.cpp_info.components["osdcpu"].names["cmake_find_package"] = f"osdcpu{target_suffix}"
-        self.cpp_info.components["osdcpu"].names["cmake_find_package_multi"] = f"osdcpu{target_suffix}"
+        self.cpp_info.components["osdcpu"].names[
+            "cmake_find_package_multi"
+        ] = f"osdcpu{target_suffix}"
         self.cpp_info.components["osdgpu"].names["cmake_find_package"] = f"osdgpu{target_suffix}"
-        self.cpp_info.components["osdgpu"].names["cmake_find_package_multi"] = f"osdgpu{target_suffix}"
+        self.cpp_info.components["osdgpu"].names[
+            "cmake_find_package_multi"
+        ] = f"osdgpu{target_suffix}"

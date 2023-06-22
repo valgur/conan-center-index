@@ -1,5 +1,12 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, chdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    chdir,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
@@ -11,6 +18,7 @@ import os
 import contextlib
 
 required_conan_version = ">=1.52.0"
+
 
 class UsocketsConan(ConanFile):
     name = "usockets"
@@ -61,10 +69,6 @@ class UsocketsConan(ConanFile):
         return standards.get(cppstd) or {}
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -80,17 +84,29 @@ class UsocketsConan(ConanFile):
         if self.options.eventloop == "syscall" and self.info.settings.os == "Windows":
             raise ConanInvalidConfiguration("syscall is not supported on Windows")
 
-        if self.options.eventloop == "gcd" and (self.info.settings.os != "Linux" or self.info.settings.compiler != "clang"):
+        if self.options.eventloop == "gcd" and (
+            self.info.settings.os != "Linux" or self.info.settings.compiler != "clang"
+        ):
             raise ConanInvalidConfiguration("eventloop=gcd is only supported on Linux with clang")
 
-        if Version(self.version) < "0.8.0" and self.options.eventloop not in ("syscall", "libuv", "gcd"):
-            raise ConanInvalidConfiguration(f"eventloop={self.options.eventloop} is not supported with {self.name}/{self.version}")
+        if Version(self.version) < "0.8.0" and self.options.eventloop not in (
+            "syscall",
+            "libuv",
+            "gcd",
+        ):
+            raise ConanInvalidConfiguration(
+                f"eventloop={self.options.eventloop} is not supported with {self.name}/{self.version}"
+            )
 
         if Version(self.version) >= "0.5.0" and self.options.with_ssl == "wolfssl":
-            raise ConanInvalidConfiguration(f"with_ssl={self.options.with_ssl} is not supported with {self.name}/{self.version}. https://github.com/uNetworking/uSockets/issues/147")
+            raise ConanInvalidConfiguration(
+                f"with_ssl={self.options.with_ssl} is not supported with {self.name}/{self.version}. https://github.com/uNetworking/uSockets/issues/147"
+            )
 
         if self.options.with_ssl == "wolfssl" and not self.options["wolfssl"].opensslextra:
-            raise ConanInvalidConfiguration("wolfssl needs opensslextra option enabled for usockets")
+            raise ConanInvalidConfiguration(
+                "wolfssl needs opensslextra option enabled for usockets"
+            )
 
         cppstd = self._minimum_cpp_standard
         if not cppstd:
@@ -99,12 +115,22 @@ class UsocketsConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, cppstd)
 
-        minimum_version = self._minimum_compilers_version(cppstd).get(str(self.info.settings.compiler), False)
+        minimum_version = self._minimum_compilers_version(cppstd).get(
+            str(self.info.settings.compiler), False
+        )
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("{} requires C++{}, which your compiler does not support.".format(self.name, cppstd))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++{}, which your compiler does not support.".format(
+                        self.name, cppstd
+                    )
+                )
         else:
-            self.output.warn("{0} requires C++{1}. Your compiler is unknown. Assuming it supports C++{1}.".format(self.name, cppstd))
+            self.output.warn(
+                "{0} requires C++{1}. Your compiler is unknown. Assuming it supports C++{1}.".format(
+                    self.name, cppstd
+                )
+            )
 
     def configure(self):
         if bool(self._minimum_cpp_standard) == False:
@@ -137,7 +163,12 @@ class UsocketsConan(ConanFile):
             self.build_requires("automake/1.16.5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -152,8 +183,12 @@ class UsocketsConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self.deps_user_info["automake"].compile)
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        unix_path(self.deps_user_info["automake"].compile)
+                    ),
                     "CFLAGS": "-{}".format(self.settings.compiler.runtime),
                     "LD": "link",
                     "NM": "dumpbin -symbols",
@@ -163,7 +198,9 @@ class UsocketsConan(ConanFile):
                 }
 
                 if self.options.eventloop == "libuv":
-                    env["CPPFLAGS"] = "-I" + unix_path(self.deps_cpp_info["libuv"].include_paths[0]) + " "
+                    env["CPPFLAGS"] = (
+                        "-I" + unix_path(self.deps_cpp_info["libuv"].include_paths[0]) + " "
+                    )
 
                 with environment_append(env):
                     yield
@@ -199,10 +236,33 @@ class UsocketsConan(ConanFile):
                 self._build_configure()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_subfolder)
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self._source_subfolder, "src"), keep_path=True)
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self._source_subfolder,
+        )
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self._source_subfolder, "src"),
+            keep_path=True,
+        )
+        copy(
+            self,
+            pattern="*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.build_folder,
+            keep_path=False,
+        )
         # drop internal headers
         rmdir(self, os.path.join(self.package_folder, "include", "internal"))
 

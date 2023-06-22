@@ -11,7 +11,9 @@ required_conan_version = ">=1.33.0"
 
 class LibUSBCompatConan(ConanFile):
     name = "libusb-compat"
-    description = "A compatibility layer allowing applications written for libusb-0.1 to work with libusb-1.0"
+    description = (
+        "A compatibility layer allowing applications written for libusb-0.1 to work with libusb-1.0"
+    )
     license = ("LGPL-2.1", "BSD-3-Clause")
     homepage = "https://github.com/libusb/libusb-compat-0.1"
     url = "https://github.com/conan-io/conan-center-index"
@@ -32,10 +34,6 @@ class LibUSBCompatConan(ConanFile):
 
     _autotools = None
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -64,8 +62,11 @@ class LibUSBCompatConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _iterate_lib_paths_win(self, lib):
         """Return all possible library paths for lib"""
@@ -103,7 +104,10 @@ class LibUSBCompatConan(ConanFile):
             # Use absolute paths of the libraries instead of the library names only.
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
-            self._autotools.libs = list(tools.unix_path(l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
+            self._autotools.libs = (
+                list(tools.unix_path(l) for l in self._absolute_dep_libs_win)
+                + self.deps_cpp_info.system_libs
+            )
         conf_args = [
             "--disable-examples-build",
             "--enable-log" if self.options.enable_logging else "--disable-log",
@@ -113,7 +117,9 @@ class LibUSBCompatConan(ConanFile):
         else:
             conf_args.extend(["--disable-shared", "--enable-static"])
         pkg_config_paths = [tools.unix_path(os.path.abspath(self.install_folder))]
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder, pkg_config_paths=pkg_config_paths)
+        self._autotools.configure(
+            args=conf_args, configure_dir=self._source_subfolder, pkg_config_paths=pkg_config_paths
+        )
         return self._autotools
 
     @contextmanager
@@ -121,8 +127,12 @@ class LibUSBCompatConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CC": "{} cl -nologo".format(
+                        tools.unix_path(self.deps_user_info["automake"].compile)
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        tools.unix_path(self.deps_user_info["automake"].compile)
+                    ),
                     "LD": "link -nologo",
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
                     "DLLTOOL": ":",
@@ -137,9 +147,16 @@ class LibUSBCompatConan(ConanFile):
 
     def _extract_makefile_variable(self, makefile, variable):
         makefile_contents = tools.load(makefile)
-        match = re.search("{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\"))*)*)\n".format(variable), makefile_contents)
+        match = re.search(
+            '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\"))*)*)\n'.format(
+                variable
+            ),
+            makefile_contents,
+        )
         if not match:
-            raise ConanException("Cannot extract variable {} from {}".format(variable, makefile_contents))
+            raise ConanException(
+                "Cannot extract variable {} from {}".format(variable, makefile_contents)
+            )
         lines = [line.strip(" \t\\") for line in match.group(1).split()]
         return [item for line in lines for item in shlex.split(line) if item]
 
@@ -152,19 +169,28 @@ class LibUSBCompatConan(ConanFile):
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
-                    os.path.join(self._source_subfolder, "config.sub"))
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
-                    os.path.join(self._source_subfolder, "config.guess"))
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_SUB,
+            os.path.join(self._source_subfolder, "config.sub"),
+        )
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_GUESS,
+            os.path.join(self._source_subfolder, "config.guess"),
+        )
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure.ac"),
-                                  "\nAC_DEFINE([API_EXPORTED]",
-                                  "\nAC_DEFINE([API_EXPORTED], [{}], [API])\n#".format(api))
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "configure.ac"),
+                "\nAC_DEFINE([API_EXPORTED]",
+                "\nAC_DEFINE([API_EXPORTED], [{}], [API])\n#".format(api),
+            )
             # libtool disallows building shared libraries that link to static libraries
             # This will override this and add the dependency
-            tools.replace_in_file(os.path.join(self._source_subfolder, "ltmain.sh"),
-                                  "droppeddeps=yes", "droppeddeps=no && func_append newdeplibs \" $a_deplib\"")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "ltmain.sh"),
+                "droppeddeps=yes",
+                'droppeddeps=no && func_append newdeplibs " $a_deplib"',
+            )
 
     @property
     def _user_info_build(self):
@@ -177,10 +203,13 @@ class LibUSBCompatConan(ConanFile):
         if self.settings.os == "Windows":
             cmakelists_in = tools.load("CMakeLists.txt.in")
             sources, headers = self._extract_autotools_variables()
-            tools.save(os.path.join(self._source_subfolder, "libusb", "CMakeLists.txt"), cmakelists_in.format(
-                libusb_sources=" ".join(sources),
-                libusb_headers=" ".join(headers),
-            ))
+            tools.save(
+                os.path.join(self._source_subfolder, "libusb", "CMakeLists.txt"),
+                cmakelists_in.format(
+                    libusb_sources=" ".join(sources),
+                    libusb_headers=" ".join(headers),
+                ),
+            )
             tools.replace_in_file("config.h", "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
             cmake = self._configure_cmake()
             cmake.build()

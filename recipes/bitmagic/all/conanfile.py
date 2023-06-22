@@ -11,15 +11,28 @@ required_conan_version = ">=1.50.0"
 
 class BitmagicConan(ConanFile):
     name = "bitmagic"
-    description = "BitMagic Library helps to develop high-throughput intelligent search systems, " \
-                  "promote combination of hardware optimizations and on the fly compression to fit " \
-                  "inverted indexes and binary fingerprints into memory, minimize disk and network footprint."
+    description = (
+        "BitMagic Library helps to develop high-throughput intelligent search systems, "
+        "promote combination of hardware optimizations and on the fly compression to fit "
+        "inverted indexes and binary fingerprints into memory, minimize disk and network footprint."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://bitmagic.io"
-    topics = ("information-retrieval", "algorithm", "bit-manipulation",
-              "integer-compression", "sparse-vector", "sparse-matrix", "bit-array",
-              "bit-vector", "indexing-engine", "adjacency-matrix", "associative-array", "header-only")
+    topics = (
+        "information-retrieval",
+        "algorithm",
+        "bit-manipulation",
+        "integer-compression",
+        "sparse-vector",
+        "sparse-matrix",
+        "bit-array",
+        "bit-vector",
+        "indexing-engine",
+        "adjacency-matrix",
+        "associative-array",
+        "header-only",
+    )
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -27,7 +40,7 @@ class BitmagicConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
@@ -46,7 +59,9 @@ class BitmagicConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.name} requires C++17, which your compiler does not support.")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires C++17, which your compiler does not support."
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -58,8 +73,18 @@ class BitmagicConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "src"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

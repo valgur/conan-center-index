@@ -26,10 +26,6 @@ class RectangleBinPackConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -46,8 +42,11 @@ class RectangleBinPackConan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version][0],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
         tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
@@ -65,7 +64,12 @@ class RectangleBinPackConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE", dst="licenses")
-        self.copy("*.h", dst=os.path.join("include", self.name), src=self._source_subfolder, excludes="old/**")
+        self.copy(
+            "*.h",
+            dst=os.path.join("include", self.name),
+            src=self._source_subfolder,
+            excludes="old/**",
+        )
         self.copy("*.dll", dst="bin", keep_path=False)
         self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.so", dst="lib", keep_path=False)

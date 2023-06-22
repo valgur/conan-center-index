@@ -7,13 +7,21 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class TinyEXIFConan(ConanFile):
     name = "tinyexif"
     description = "Tiny ISO-compliant C++ EXIF and XMP parsing library for JPEG"
     license = "BSD 2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cdcseacave/TinyEXIF/"
-    topics = ("exif", "exif-metadata", "exif-ata-extraction", "exif-reader", "xmp", "xmp-parsing-library")
+    topics = (
+        "exif",
+        "exif-metadata",
+        "exif-ata-extraction",
+        "exif-reader",
+        "xmp",
+        "xmp-parsing-library",
+    )
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -71,7 +79,9 @@ class TinyEXIFConan(ConanFile):
         file_content = load(save, filename)
         license_start = "/*"
         license_end = "*/"
-        license_contents = file_content[file_content.find(license_start)+len(license_start):file_content.find(license_end)]
+        license_contents = file_content[
+            file_content.find(license_start) + len(license_start) : file_content.find(license_end)
+        ]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
         cmake = CMake(self)
         cmake.install()

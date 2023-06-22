@@ -12,17 +12,21 @@ class IgnitionUitlsConan(ConanFile):
     license = "Apache-2.0"
     homepage = "https://gazebosim.org/libs/utils"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Provides general purpose classes and functions designed for robotic applications.."
+    description = (
+        "Provides general purpose classes and functions designed for robotic applications.."
+    )
     topics = ("ignition", "robotics", "utils")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], 
-                "fPIC": [True, False],
-                "ign_utils_vendor_cli11": [True, False]
-              }
-    default_options = {"shared": False, 
-                       "fPIC": True,
-                       "ign_utils_vendor_cli11": True
-                       }
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "ign_utils_vendor_cli11": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "ign_utils_vendor_cli11": True,
+    }
     generators = "cmake", "cmake_find_package_multi"
     exports_sources = "CMakeLists.txt", "patches/**"
     _cmake = None
@@ -40,10 +44,6 @@ class IgnitionUitlsConan(ConanFile):
             "apple-clang": "10",
         }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-    
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -54,7 +54,9 @@ class IgnitionUitlsConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
+            raise ConanInvalidConfiguration(
+                "sorry, M1 builds are not currently supported, give up!"
+            )
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
@@ -73,7 +75,7 @@ class IgnitionUitlsConan(ConanFile):
                         self.settings.compiler.version,
                     )
                 )
-    
+
     def requirements(self):
         self.requires("doxygen/1.9.2")
         if self.options.ign_utils_vendor_cli11:
@@ -83,7 +85,11 @@ class IgnitionUitlsConan(ConanFile):
         self.build_requires("ignition-cmake/2.10.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def _configure_cmake(self):
         if self._cmake is not None:
@@ -107,9 +113,10 @@ class IgnitionUitlsConan(ConanFile):
         if int(tools.Version(self.version).minor) == 0:
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")
         else:
-            cli_header_src = os.path.join(cli_header_src, "external-cli", "ignition", "utils", "cli")
-        self.copy("*.hpp", src=cli_header_src,
-                     dst="include/ignition/utils1/ignition/utils/cli")
+            cli_header_src = os.path.join(
+                cli_header_src, "external-cli", "ignition", "utils", "cli"
+            )
+        self.copy("*.hpp", src=cli_header_src, dst="include/ignition/utils1/ignition/utils/cli")
         cmake = self._configure_cmake()
         cmake.install()
         tools.rmdir(os.path.join(self.package_folder, "share"))
@@ -118,28 +125,34 @@ class IgnitionUitlsConan(ConanFile):
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
-        
+            tools.remove_files_by_mask(
+                os.path.join(self.package_folder, "bin"), dll_pattern_to_remove
+            )
+
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.Version(self.version)
+            tools.Version(self.version),
         )
 
     @staticmethod
     def _create_cmake_module_variables(module_file, version):
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             set(ignition-utils{major}_VERSION_MAJOR {major})
             set(ignition-utils{major}_VERSION_MINOR {minor})
             set(ignition-utils{major}_VERSION_PATCH {patch})
             set(ignition-utils{major}_VERSION_STRING "{major}.{minor}.{patch}")
-        """.format(major=version.major, minor=version.minor, patch=version.patch))
+        """.format(
+                major=version.major, minor=version.minor, patch=version.patch
+            )
+        )
         tools.save(module_file, content)
 
     def package_info(self):
         version_major = tools.Version(self.version).major
         lib_name = f"ignition-utils{version_major}"
         build_dirs = os.path.join(self.package_folder, "lib", "cmake")
-        include_dir = os.path.join("include", "ignition", "utils"+version_major)
+        include_dir = os.path.join("include", "ignition", "utils" + version_major)
         self.cpp_info.names["cmake_find_package"] = lib_name
         self.cpp_info.names["cmake_find_package_multi"] = lib_name
         self.cpp_info.names["cmake_paths"] = lib_name
@@ -154,20 +167,32 @@ class IgnitionUitlsConan(ConanFile):
             self.cpp_info.components[lib_name].requires.append("cli11::cli11")
 
         self.cpp_info.components[lib_name].builddirs.append(build_dirs)
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [self._module_file_rel_path]
+        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [
+            self._module_file_rel_path
+        ]
 
         self.cpp_info.components["cli"].names["cmake_find_package"] = "cli"
         self.cpp_info.components["cli"].names["cmake_find_package_multi"] = "cli"
         self.cpp_info.components["cli"].names["cmake_paths"] = "cli"
-        self.cpp_info.components["cli"].includedirs.append(os.path.join(include_dir, "ignition", "utils"))
+        self.cpp_info.components["cli"].includedirs.append(
+            os.path.join(include_dir, "ignition", "utils")
+        )
         if self.options.ign_utils_vendor_cli11:
             self.cpp_info.components["cli"].requires = ["cli11::cli11"]
 
         self.cpp_info.components["cli"].builddirs.append(build_dirs)
-        self.cpp_info.components["cli"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["cli"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["cli"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["cli"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["cli"].build_modules["cmake_paths"] = [self._module_file_rel_path]
 
     @property

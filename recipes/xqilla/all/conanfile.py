@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building, valid_min_cppstd
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rename, rm, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    rename,
+    rm,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -73,8 +82,12 @@ class XqillaConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -84,7 +97,9 @@ class XqillaConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append(f"--with-xerces={unix_path(self, self.dependencies['xerces-c'].package_folder)}")
+        tc.configure_args.append(
+            f"--with-xerces={unix_path(self, self.dependencies['xerces-c'].package_folder)}"
+        )
         if not valid_min_cppstd(self, self._min_cppstd):
             tc.extra_cxxflags.append(f"-std=c++{self._min_cppstd}")
         tc.generate()
@@ -99,9 +114,12 @@ class XqillaConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                           src=os.path.dirname(gnu_config),
-                           dst=os.path.join(self.source_folder, "autotools"))
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=os.path.join(self.source_folder, "autotools"),
+                )
 
     def build(self):
         self._patch_sources()
@@ -112,15 +130,31 @@ class XqillaConan(ConanFile):
 
     def _extract_yajl_license(self):
         tmp = load(self, os.path.join(self.source_folder, "src", "yajl", "yajl_buf.h"))
-        return tmp[2:tmp.find("*/", 1)]
+        return tmp[2 : tmp.find("*/", 1)]
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "README", src=os.path.join(self.source_folder, "src", "mapm"),
-                             dst=os.path.join(self.package_folder, "licenses"))
-        rename(self, os.path.join(self.package_folder, "licenses", "README"),
-                     os.path.join(self.package_folder, "licenses", "LICENSE.mapm"))
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE.yajl"), self._extract_yajl_license())
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "README",
+            src=os.path.join(self.source_folder, "src", "mapm"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        rename(
+            self,
+            os.path.join(self.package_folder, "licenses", "README"),
+            os.path.join(self.package_folder, "licenses", "LICENSE.mapm"),
+        )
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENSE.yajl"),
+            self._extract_yajl_license(),
+        )
 
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed

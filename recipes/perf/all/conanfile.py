@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class Perf(ConanFile):
     name = "perf"
     description = "Linux profiling with performance counters"
@@ -14,11 +15,6 @@ class Perf(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "patches/*"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("perf is supported only on Linux")
@@ -28,14 +24,18 @@ class Perf(ConanFile):
         self.build_requires("bison/3.5.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         autotools = AutoToolsBuildEnvironment(self)
         with tools.chdir(os.path.join(self.build_folder, self._source_subfolder, "tools", "perf")):
-            vars=autotools.vars
+            vars = autotools.vars
             vars["NO_LIBPYTHON"] = "1"
             autotools.make(vars=vars)
 

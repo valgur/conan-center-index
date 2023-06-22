@@ -17,8 +17,12 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
-        handler_exe = "crashpad_handler.exe" if self.settings.os == "Windows" else "crashpad_handler"
-        handler_bin_path = os.path.join(self.dependencies[self.tested_reference_str].package_folder, "bin", handler_exe)
+        handler_exe = (
+            "crashpad_handler.exe" if self.settings.os == "Windows" else "crashpad_handler"
+        )
+        handler_bin_path = os.path.join(
+            self.dependencies[self.tested_reference_str].package_folder, "bin", handler_exe
+        )
         save(self, os.path.join(self.build_folder, "handler_bin_path"), handler_bin_path)
 
     def build(self):

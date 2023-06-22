@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PdfgenConan(ConanFile):
     name = "pdfgen"
     description = "Simple C PDF Writer/Generation library"
@@ -50,7 +51,12 @@ class PdfgenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

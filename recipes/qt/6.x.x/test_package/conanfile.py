@@ -24,7 +24,10 @@ class TestPackageConan(ConanFile):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
         folder = os.path.join(path, "bin")
         bin_folder = "bin" if self.settings.os == "Windows" else "libexec"
-        save(self, "qt.conf", f"""[Paths]
+        save(
+            self,
+            "qt.conf",
+            f"""[Paths]
 Prefix = {path}
 ArchData = {folder}/archdatadir
 HostData = {folder}/archdatadir
@@ -37,16 +40,20 @@ Imports = {folder}/archdatadir/imports
 Qml2Imports = {folder}/archdatadir/qml
 Translations = {folder}/datadir/translations
 Documentation = {folder}/datadir/doc
-Examples = {folder}/datadir/examples""")
+Examples = {folder}/datadir/examples""",
+        )
 
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     def _meson_supported(self):
-        return False and self.options["qt"].shared and\
-            not cross_building(self) and\
-            not self.settings.os == "Macos" and\
-            not self._is_mingw()
+        return (
+            False
+            and self.options["qt"].shared
+            and not cross_building(self)
+            and not self.settings.os == "Macos"
+            and not self._is_mingw()
+        )
 
     def _qmake_supported(self):
         return self.options["qt"].shared
@@ -68,20 +75,20 @@ Examples = {folder}/datadir/examples""")
                         os.environ[var] = val
                     return val
 
-                value = _getenvpath('CC')
+                value = _getenvpath("CC")
                 if value:
-                    args.append(f"QMAKE_CC=\"{value}\"")
+                    args.append(f'QMAKE_CC="{value}"')
 
-                value = _getenvpath('CXX')
+                value = _getenvpath("CXX")
                 if value:
-                    args.append(f"QMAKE_CXX=\"{value}\"")
+                    args.append(f'QMAKE_CXX="{value}"')
 
-                value = _getenvpath('LD')
+                value = _getenvpath("LD")
                 if value:
-                    args.append(f"QMAKE_LINK_C=\"{value}\"")
-                    args.append(f"QMAKE_LINK_C_SHLIB=\"{value}\"")
-                    args.append(f"QMAKE_LINK=\"{value}\"")
-                    args.append(f"QMAKE_LINK_SHLIB=\"{value}\"")
+                    args.append(f'QMAKE_LINK_C="{value}"')
+                    args.append(f'QMAKE_LINK_C_SHLIB="{value}"')
+                    args.append(f'QMAKE_LINK="{value}"')
+                    args.append(f'QMAKE_LINK_SHLIB="{value}"')
 
                 self.run(f"qmake {' '.join(args)}", run_environment=True)
                 if tools.os_info.is_windows:
@@ -101,7 +108,7 @@ Examples = {folder}/datadir/examples""")
                 try:
                     meson.configure(build_folder="meson_folder", defs={"cpp_std": "c++11"})
                 except ConanException:
-                    self.output.info(open("meson_folder/meson-logs/meson-log.txt", 'r').read())
+                    self.output.info(open("meson_folder/meson-logs/meson-log.txt", "r").read())
                     raise
                 meson.build()
 
@@ -111,7 +118,9 @@ Examples = {folder}/datadir/examples""")
         with tools.environment_append(env_build.vars):
             cmake = CMake(self, set_cmake_flags=True)
             if self.settings.os == "Macos":
-                cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.15' if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
+                cmake.definitions["CMAKE_OSX_DEPLOYMENT_TARGET"] = (
+                    "10.15" if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
+                )
 
             cmake.configure()
             cmake.build()

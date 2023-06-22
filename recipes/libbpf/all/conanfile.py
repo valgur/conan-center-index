@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class LibbpfConan(ConanFile):
     name = "libbpf"
     description = "eBPF helper library"
@@ -17,11 +18,11 @@ class LibbpfConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     def config_options(self):
@@ -54,11 +55,13 @@ class LibbpfConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.make_args.extend([
-            "PREFIX={}".format(""),
-            "DESTDIR={}".format(self.package_folder),
-            "LIBSUBDIR={}".format("lib"),
-        ])
+        tc.make_args.extend(
+            [
+                "PREFIX={}".format(""),
+                "DESTDIR={}".format(self.package_folder),
+                "LIBSUBDIR={}".format("lib"),
+            ]
+        )
         if not self.options.shared:
             tc.configure_args.append("BUILD_STATIC_ONLY={}".format(1))
         tc.generate()
@@ -75,7 +78,12 @@ class LibbpfConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         with chdir(self, os.path.join(self.source_folder, "src")):
             autotools = Autotools(self)
             autotools.install()

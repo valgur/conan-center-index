@@ -33,10 +33,6 @@ class SqlcipherConan(ConanFile):
     }
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -71,7 +67,9 @@ class SqlcipherConan(ConanFile):
             self.requires("libressl/3.4.3")
 
     def validate(self):
-        if self.options.crypto_library == "commoncrypto" and not tools.is_apple_os(self.settings.os):
+        if self.options.crypto_library == "commoncrypto" and not tools.is_apple_os(
+            self.settings.os
+        ):
             raise ConanInvalidConfiguration("commoncrypto is only supported on Macos")
 
     def build_requirements(self):
@@ -82,40 +80,47 @@ class SqlcipherConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @property
     def _temp_store_nmake_value(self):
-        return {"always_file": "0",
-                "default_file": "1",
-                "default_memory": "2",
-                "always_memory": "3"}.get(str(self.options.temporary_store))
+        return {
+            "always_file": "0",
+            "default_file": "1",
+            "default_memory": "2",
+            "always_memory": "3",
+        }.get(str(self.options.temporary_store))
 
     @property
     def _temp_store_autotools_value(self):
-        return {"always_file": "never",
-                "default_file": "no",
-                "default_memory": "yes",
-                "always_memory": "always"}.get(str(self.options.temporary_store))
+        return {
+            "always_file": "never",
+            "default_file": "no",
+            "default_memory": "yes",
+            "always_memory": "always",
+        }.get(str(self.options.temporary_store))
 
     def _build_visual(self):
         crypto_dep = self.deps_cpp_info[str(self.options.crypto_library)]
         crypto_incdir = crypto_dep.include_paths[0]
         crypto_libdir = crypto_dep.lib_paths[0]
-        libs = map(lambda lib : lib + ".lib", crypto_dep.libs)
-        system_libs = map(lambda lib : lib + ".lib", crypto_dep.system_libs)
+        libs = map(lambda lib: lib + ".lib", crypto_dep.libs)
+        system_libs = map(lambda lib: lib + ".lib", crypto_dep.system_libs)
 
         nmake_flags = [
-                "TLIBS=\"%s %s\"" % (" ".join(libs), " ".join(system_libs)),
-                "LTLIBPATHS=/LIBPATH:%s" % crypto_libdir,
-                "OPTS=\"-I%s -DSQLITE_HAS_CODEC\"" % (crypto_incdir),
-                "NO_TCL=1",
-                "USE_AMALGAMATION=1",
-                "OPT_FEATURE_FLAGS=-DSQLCIPHER_CRYPTO_OPENSSL",
-                "SQLITE_TEMP_STORE=%s" % self._temp_store_nmake_value,
-                "TCLSH_CMD=%s" % self.deps_env_info.TCLSH,
-                ]
+            'TLIBS="%s %s"' % (" ".join(libs), " ".join(system_libs)),
+            "LTLIBPATHS=/LIBPATH:%s" % crypto_libdir,
+            'OPTS="-I%s -DSQLITE_HAS_CODEC"' % (crypto_incdir),
+            "NO_TCL=1",
+            "USE_AMALGAMATION=1",
+            "OPT_FEATURE_FLAGS=-DSQLCIPHER_CRYPTO_OPENSSL",
+            "SQLITE_TEMP_STORE=%s" % self._temp_store_nmake_value,
+            "TCLSH_CMD=%s" % self.deps_env_info.TCLSH,
+        ]
 
         main_target = "dll" if self.options.shared else "sqlcipher.lib"
 
@@ -127,7 +132,10 @@ class SqlcipherConan(ConanFile):
         platforms = {"x86": "x86", "x86_64": "x64"}
         nmake_flags.append("PLATFORM=%s" % platforms[str(self.settings.arch)])
         vcvars = tools.vcvars_command(self.settings)
-        self.run("%s && nmake /f Makefile.msc %s %s" % (vcvars, main_target, " ".join(nmake_flags)), cwd=self._source_subfolder)
+        self.run(
+            "%s && nmake /f Makefile.msc %s %s" % (vcvars, main_target, " ".join(nmake_flags)),
+            cwd=self._source_subfolder,
+        )
 
     @staticmethod
     def _chmod_plus_x(filename):
@@ -135,10 +143,14 @@ class SqlcipherConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def _build_autotools(self):
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
-                    os.path.join(self._source_subfolder, "config.sub"))
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
-                    os.path.join(self._source_subfolder, "config.guess"))
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_SUB,
+            os.path.join(self._source_subfolder, "config.sub"),
+        )
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_GUESS,
+            os.path.join(self._source_subfolder, "config.guess"),
+        )
         configure = os.path.join(self._source_subfolder, "configure")
         self._chmod_plus_x(configure)
         # relocatable shared libs on macOS
@@ -224,7 +236,10 @@ class SqlcipherConan(ConanFile):
             self.cpp_info.system_libs.extend(["pthread", "dl"])
             if tools.Version(self.version) >= "4.5.0":
                 self.cpp_info.system_libs.append("m")
-        self.cpp_info.defines = ["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE={}".format(self._temp_store_nmake_value)]
+        self.cpp_info.defines = [
+            "SQLITE_HAS_CODEC",
+            "SQLITE_TEMP_STORE={}".format(self._temp_store_nmake_value),
+        ]
         if self._use_commoncrypto():
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]
         else:

@@ -3,7 +3,18 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -83,13 +94,15 @@ class DbusConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.ref} requires at least gcc 7.")
 
         if not self._meson_available and self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref} does not support Windows. Contributions welcome.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support Windows. Contributions welcome."
+            )
 
     def build_requirements(self):
         if self._meson_available:
             self.tool_requires("meson/1.1.0")
         if self._meson_available or self.options.get_safe("with_systemd"):
-            if not self.conf.get("tools.gnu:pkg_config",check_type=str):
+            if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
@@ -105,16 +118,32 @@ class DbusConan(ConanFile):
             tc.project_options["doxygen_docs"] = "disabled"
             tc.project_options["modular_tests"] = "disabled"
             tc.project_options["system_socket"] = str(self.options.get_safe("system_socket", ""))
-            tc.project_options["system_pid_file"] = str(self.options.get_safe("system_pid_file", ""))
-            tc.project_options["session_socket_dir"] = str(self.options.get_safe("session_socket_dir", ""))
-            tc.project_options["selinux"] = "enabled" if self.options.get_safe("with_selinux", False) else "disabled"
-            tc.project_options["systemd"] = "enabled" if self.options.get_safe("with_systemd", False) else "disabled"
+            tc.project_options["system_pid_file"] = str(
+                self.options.get_safe("system_pid_file", "")
+            )
+            tc.project_options["session_socket_dir"] = str(
+                self.options.get_safe("session_socket_dir", "")
+            )
+            tc.project_options["selinux"] = (
+                "enabled" if self.options.get_safe("with_selinux", False) else "disabled"
+            )
+            tc.project_options["systemd"] = (
+                "enabled" if self.options.get_safe("with_systemd", False) else "disabled"
+            )
             if self.options.get_safe("with_systemd", False):
-                tc.project_options["systemd_system_unitdir"] = os.path.join(self.package_folder, "lib", "systemd", "system")
-                tc.project_options["systemd_user_unitdir"] = os.path.join(self.package_folder, "lib", "systemd", "user")
+                tc.project_options["systemd_system_unitdir"] = os.path.join(
+                    self.package_folder, "lib", "systemd", "system"
+                )
+                tc.project_options["systemd_user_unitdir"] = os.path.join(
+                    self.package_folder, "lib", "systemd", "user"
+                )
             if is_apple_os(self):
-                tc.project_options["launchd_agent_dir"] = os.path.join(self.package_folder, "res", "LaunchAgents")
-            tc.project_options["x11_autolaunch"] = "enabled" if self.options.get_safe("with_x11", False) else "disabled"
+                tc.project_options["launchd_agent_dir"] = os.path.join(
+                    self.package_folder, "res", "LaunchAgents"
+                )
+            tc.project_options["x11_autolaunch"] = (
+                "enabled" if self.options.get_safe("with_x11", False) else "disabled"
+            )
             tc.project_options["xml_docs"] = "disabled"
             tc.generate()
             deps = PkgConfigDeps(self)
@@ -125,18 +154,24 @@ class DbusConan(ConanFile):
             tc.variables["DBUS_ENABLE_DOXYGEN_DOCS"] = False
             tc.variables["DBUS_ENABLE_XML_DOCS"] = False
             tc.variables["DBUS_BUILD_X11"] = bool(self.options.get_safe("with_x11", False))
-            tc.variables["ENABLE_SYSTEMD"] = "ON" if self.options.get_safe("with_systemd", False) else "OFF"
+            tc.variables["ENABLE_SYSTEMD"] = (
+                "ON" if self.options.get_safe("with_systemd", False) else "OFF"
+            )
             tc.variables["DBUS_WITH_GLIB"] = bool(self.options.get_safe("with_glib", False))
             tc.variables["DBUS_DISABLE_ASSERT"] = is_apple_os(self)
             tc.variables["DBUS_DISABLE_CHECKS"] = False
-            tc.variables["DBUS_SYSTEM_BUS_DEFAULT_ADDRESS"] = str(self.options.get_safe("system_socket", ""))
+            tc.variables["DBUS_SYSTEM_BUS_DEFAULT_ADDRESS"] = str(
+                self.options.get_safe("system_socket", "")
+            )
 
             # Conan does not provide an EXPAT_LIBRARIES CMake variable for the Expat library.
             # Define EXPAT_LIBRARIES to be the expat::expat target provided by Conan to fix linking.
             tc.variables["EXPAT_LIBRARIES"] = "expat::expat"
 
             # https://github.com/freedesktop/dbus/commit/e827309976cab94c806fda20013915f1db2d4f5a
-            tc.variables["DBUS_SESSION_SOCKET_DIR"] = str(self.options.get_safe("session_socket_dir", ""))
+            tc.variables["DBUS_SESSION_SOCKET_DIR"] = str(
+                self.options.get_safe("session_socket_dir", "")
+            )
 
             tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = False
             tc.generate()
@@ -149,7 +184,12 @@ class DbusConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if self._meson_available:
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('test')", "# subdir('test')")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "meson.build"),
+                "subdir('test')",
+                "# subdir('test')",
+            )
             meson = Meson(self)
             meson.configure()
             meson.build()
@@ -162,7 +202,12 @@ class DbusConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self._meson_available:
             meson = Meson(self)
             meson.install()
@@ -174,7 +219,11 @@ class DbusConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         mkdir(self, os.path.join(self.package_folder, "res"))
         for i in ["var", "share", "etc"]:
-            rename(self, os.path.join(self.package_folder, i), os.path.join(self.package_folder, "res", i))
+            rename(
+                self,
+                os.path.join(self.package_folder, i),
+                os.path.join(self.package_folder, "res", i),
+            )
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -184,18 +233,20 @@ class DbusConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"dbus-1": "dbus-1::dbus-1"}
+            {"dbus-1": "dbus-1::dbus-1"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -206,10 +257,12 @@ class DbusConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "DBus1")
         self.cpp_info.set_property("cmake_target_name", "dbus-1")
         self.cpp_info.set_property("pkg_config_name", "dbus-1")
-        self.cpp_info.includedirs.extend([
-            os.path.join("include", "dbus-1.0"),
-            os.path.join("lib", "dbus-1.0", "include"),
-        ])
+        self.cpp_info.includedirs.extend(
+            [
+                os.path.join("include", "dbus-1.0"),
+                os.path.join("lib", "dbus-1.0", "include"),
+            ]
+        )
         self.cpp_info.resdirs = ["res"]
         self.cpp_info.libs = ["dbus-1"]
         if self.settings.os == "Linux":

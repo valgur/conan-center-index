@@ -18,8 +18,15 @@ class MagicEnumConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Neargye/magic_enum"
-    topics = ("cplusplus", "enum-to-string", "string-to-enum", "serialization",
-              "reflection", "header-only", "compile-time")
+    topics = (
+        "cplusplus",
+        "enum-to-string",
+        "string-to-enum",
+        "serialization",
+        "reflection",
+        "header-only",
+        "compile-time",
+    )
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -60,8 +67,18 @@ class MagicEnumConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "magic_enum")

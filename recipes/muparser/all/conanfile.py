@@ -13,7 +13,10 @@ class MuParserConan(ConanFile):
     license = "BSD-2-Clause"
     homepage = "https://beltoforion.de/en/muparser/"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("math", "parser",)
+    topics = (
+        "math",
+        "parser",
+    )
     description = "Fast Math Parser Library"
 
     package_type = "library"
@@ -60,7 +63,12 @@ class MuParserConan(ConanFile):
 
     def package(self):
         license_file = "License.txt" if Version(self.version) < "2.3.3" else "LICENSE"
-        copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            license_file,
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

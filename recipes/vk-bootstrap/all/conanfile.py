@@ -74,7 +74,9 @@ class VkBootstrapConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
@@ -90,8 +92,10 @@ class VkBootstrapConan(ConanFile):
         tc.variables["VK_BOOTSTRAP_TEST"] = False
         vulkan_headers = self.dependencies["vulkan-headers"]
         includedirs = ";".join(
-            [os.path.join(vulkan_headers.package_folder, includedir).replace("\\", "/")
-             for includedir in vulkan_headers.cpp_info.includedirs],
+            [
+                os.path.join(vulkan_headers.package_folder, includedir).replace("\\", "/")
+                for includedir in vulkan_headers.cpp_info.includedirs
+            ],
         )
         if Version(self.version) < "0.3.0":
             tc.variables["Vulkan_INCLUDE_DIR"] = includedirs
@@ -108,7 +112,12 @@ class VkBootstrapConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -5,7 +5,11 @@ from conans import ConanFile, tools, CMake
 class Rvo2Conan(ConanFile):
     name = "rvo2"
     description = "Optimal Reciprocal Collision Avoidance"
-    topics = ("conan", "collision", "avoidance", )
+    topics = (
+        "conan",
+        "collision",
+        "avoidance",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/snape/RVO2"
     license = "Apache-2.0"
@@ -24,10 +28,6 @@ class Rvo2Conan(ConanFile):
     generators = "cmake"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,15 +50,19 @@ class Rvo2Conan(ConanFile):
         return self._cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                    "add_subdirectory(examples)",
-                    "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                    "DESTINATION include",
-                    "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                    "RVO DESTINATION lib",
-                    "RVO RUNTIME LIBRARY ARCHIVE")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"), "add_subdirectory(examples)", ""
+        )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            "DESTINATION include",
+            "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}",
+        )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            "RVO DESTINATION lib",
+            "RVO RUNTIME LIBRARY ARCHIVE",
+        )
 
     def build(self):
         self._patch_sources()
@@ -66,7 +70,9 @@ class Rvo2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
+        self.copy(
+            "LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses"
+        )
         cmake = self._configure_cmake()
         cmake.install()
 

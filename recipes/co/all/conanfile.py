@@ -34,10 +34,6 @@ class CoConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -61,8 +57,11 @@ class CoConan(ConanFile):
             self.build_requires("cmake/3.20.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -97,8 +96,14 @@ class CoConan(ConanFile):
     def validate(self):
         if self.options.with_libcurl:
             if not self.options.with_openssl:
-                raise ConanInvalidConfiguration(f"{self.name} requires with_openssl=True when using with_libcurl=True")
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires with_openssl=True when using with_libcurl=True"
+                )
             if self.options["libcurl"].with_ssl != "openssl":
-                raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_ssl='openssl' to be enabled")
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires libcurl:with_ssl='openssl' to be enabled"
+                )
             if not self.options["libcurl"].with_zlib:
-                raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires libcurl:with_zlib=True to be enabled"
+                )

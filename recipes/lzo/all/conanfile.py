@@ -12,7 +12,7 @@ class LZOConan(ConanFile):
     license = "GPL-v2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.oberhumer.com/opensource/lzo/"
-    topics = ("compression")
+    topics = "compression"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -53,7 +53,12 @@ class LZOConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "bin", "lzo"))

@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -16,8 +24,10 @@ class LibalsaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alsa-project/alsa-lib"
     topics = ("alsa", "sound", "audio", "midi")
-    description = "Library of ALSA: The Advanced Linux Sound Architecture, that provides audio " \
-                  "and MIDI functionality to the Linux operating system"
+    description = (
+        "Library of ALSA: The Advanced Linux Sound Architecture, that provides audio "
+        "and MIDI functionality to the Linux operating system"
+    )
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -59,11 +69,13 @@ class LibalsaConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--enable-python={yes_no(not self.options.disable_python)}",
-            "--datarootdir=${prefix}/res",
-            "--datadir=${prefix}/res",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-python={yes_no(not self.options.disable_python)}",
+                "--datarootdir=${prefix}/res",
+                "--datadir=${prefix}/res",
+            ]
+        )
         tc.generate()
 
     def build(self):
@@ -80,7 +92,12 @@ class LibalsaConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if Version(self.version) > "1.2.4":
             autotools = Autotools(self)
             autotools.install()

@@ -22,8 +22,8 @@ class InfluxDBCppConan(ConanFile):
         os.rename(extracted_dir, self._source_subfolder)
 
     def package(self):
-        self.copy('LICENSE', dst='licenses', src=self._source_subfolder)
-        self.copy('influxdb.hpp', dst='include', src=self._source_subfolder)
+        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        self.copy("influxdb.hpp", dst="include", src=self._source_subfolder)
 
     def package_info(self):
         if self.settings.os == "Windows":

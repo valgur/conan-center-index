@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file, chdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    replace_in_file,
+    chdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.layout import basic_layout
@@ -18,7 +26,12 @@ class OpenH264Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.openh264.org/"
     description = "Open Source H.264 Codec"
-    topics = ("h264", "codec", "video", "compression", )
+    topics = (
+        "h264",
+        "codec",
+        "video",
+        "compression",
+    )
     license = "BSD-2-Clause"
 
     settings = "os", "arch", "compiler", "build_type"
@@ -37,7 +50,7 @@ class OpenH264Conan(ConanFile):
 
     @property
     def _is_clang_cl(self):
-        return self.settings.os == 'Windows' and self.settings.compiler == 'clang'
+        return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -64,24 +77,44 @@ class OpenH264Conan(ConanFile):
             self.tool_requires("automake/1.16.5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
         if is_msvc(self):
-            replace_in_file(self, os.path.join(self.source_folder, "build", "platform-msvc.mk"),
-                            "CFLAGS_OPT += -MT",
-                            f"CFLAGS_OPT += -{msvc_runtime_flag(self)}")
-            replace_in_file(self, os.path.join(self.source_folder, "build", "platform-msvc.mk"),
-                            "CFLAGS_DEBUG += -MTd -Gm",
-                            f"CFLAGS_DEBUG += -{msvc_runtime_flag(self)} -Gm")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
+                "CFLAGS_OPT += -MT",
+                f"CFLAGS_OPT += -{msvc_runtime_flag(self)}",
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
+                "CFLAGS_DEBUG += -MTd -Gm",
+                f"CFLAGS_DEBUG += -{msvc_runtime_flag(self)} -Gm",
+            )
         if self.settings.os == "Android":
-            replace_in_file(self, os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
-                            "APP_STL := stlport_shared",
-                            f"APP_STL := {self.settings.compiler.libcxx}")
-            replace_in_file(self, os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
-                            "APP_PLATFORM := android-12",
-                            f"APP_PLATFORM := {self._android_target}")
+            replace_in_file(
+                self,
+                os.path.join(
+                    self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"
+                ),
+                "APP_STL := stlport_shared",
+                f"APP_STL := {self.settings.compiler.libcxx}",
+            )
+            replace_in_file(
+                self,
+                os.path.join(
+                    self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"
+                ),
+                "APP_PLATFORM := android-12",
+                f"APP_PLATFORM := {self._android_target}",
+            )
 
     @property
     def _library_filename(self):
@@ -115,10 +148,7 @@ class OpenH264Conan(ConanFile):
     @property
     def _make_args(self):
         prefix = unix_path(self, os.path.abspath(self.package_folder))
-        args = [
-            f"ARCH={self._make_arch}",
-            f"PREFIX={prefix}"
-        ]
+        args = [f"ARCH={self._make_arch}", f"PREFIX={prefix}"]
 
         if is_msvc(self) or self._is_clang_cl:
             args.append("OS=msvc")
@@ -127,17 +157,21 @@ class OpenH264Conan(ConanFile):
                 args.append("OS=mingw_nt")
             if self.settings.os == "Android":
                 libcxx = str(self.settings.compiler.libcxx)
-                stl_lib = f'$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/lib{"c++_static.a" if libcxx == "c++_static" else "c++_shared.so"}' \
-                          + "$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/libc++abi.a"
+                stl_lib = (
+                    f'$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/lib{"c++_static.a" if libcxx == "c++_static" else "c++_shared.so"}'
+                    + "$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/libc++abi.a"
+                )
                 ndk_home = os.environ["ANDROID_NDK_HOME"]
-                args.extend([
-                    f"NDKLEVEL={self.settings.os.api_level}",
-                    f"STL_LIB={stl_lib}",
-                    "OS=android",
-                    f"NDKROOT={ndk_home}",  # not NDK_ROOT here
-                    f"TARGET={self._android_target}",
-                    "CCASFLAGS=$(CFLAGS) -fno-integrated-as",
-                ])
+                args.extend(
+                    [
+                        f"NDKLEVEL={self.settings.os.api_level}",
+                        f"STL_LIB={stl_lib}",
+                        "OS=android",
+                        f"NDKROOT={ndk_home}",  # not NDK_ROOT here
+                        f"TARGET={self._android_target}",
+                        "CCASFLAGS=$(CFLAGS) -fno-integrated-as",
+                    ]
+                )
 
         return args
 
@@ -166,20 +200,22 @@ class OpenH264Conan(ConanFile):
             autotools.make(target=self._library_filename)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(
-            self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         autotools = Autotools(self)
         with chdir(self, self.source_folder):
-            autotools.make(
-                target=f'install-{"shared" if self.options.shared else "static-lib"}')
+            autotools.make(target=f'install-{"shared" if self.options.shared else "static-lib"}')
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "openh264")
-        suffix = "_dll" if (
-            is_msvc(self) or self._is_clang_cl) and self.options.shared else ""
+        suffix = "_dll" if (is_msvc(self) or self._is_clang_cl) and self.options.shared else ""
         self.cpp_info.libs = [f"openh264{suffix}"]
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs.extend(["m", "pthread"])

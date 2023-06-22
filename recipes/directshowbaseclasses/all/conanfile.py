@@ -4,8 +4,10 @@ import os
 
 class DirectShowBaseClassesConan(ConanFile):
     name = "directshowbaseclasses"
-    description = "Microsoft DirectShow Base Classes are a set of C++ classes and utility functions designed for " \
-                  "implementing DirectShow filters"
+    description = (
+        "Microsoft DirectShow Base Classes are a set of C++ classes and utility functions designed for "
+        "implementing DirectShow filters"
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://docs.microsoft.com/en-us/windows/desktop/directshow/directshow-base-classes"
     topics = ("conan", "directshow", "dshow")
@@ -19,7 +21,7 @@ class DirectShowBaseClassesConan(ConanFile):
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
-        os.rename('Windows-classic-samples-%s' % self.version, self._source_subfolder)
+        os.rename("Windows-classic-samples-%s" % self.version, self._source_subfolder)
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -36,5 +38,5 @@ class DirectShowBaseClassesConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ['strmbasd' if self.settings.build_type == 'Debug' else 'strmbase']
-        self.cpp_info.system_libs = ['strmiids', 'winmm']
+        self.cpp_info.libs = ["strmbasd" if self.settings.build_type == "Debug" else "strmbase"]
+        self.cpp_info.system_libs = ["strmiids", "winmm"]

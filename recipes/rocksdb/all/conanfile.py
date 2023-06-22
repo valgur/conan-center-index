@@ -13,7 +13,9 @@ class RocksDB(ConanFile):
     homepage = "https://github.com/facebook/rocksdb"
     license = ("GPL-2.0-only", "Apache-2.0")
     url = "https://github.com/conan-io/conan-center-index"
-    description = "A library that provides an embeddable, persistent key-value store for fast storage"
+    description = (
+        "A library that provides an embeddable, persistent key-value store for fast storage"
+    )
     topics = ("rocksdb", "database", "leveldb", "facebook", "key-value")
 
     settings = "os", "compiler", "build_type", "arch"
@@ -48,10 +50,6 @@ class RocksDB(ConanFile):
 
     generators = "cmake", "cmake_find_package"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -100,32 +98,49 @@ class RocksDB(ConanFile):
         if self.settings.arch not in ["x86_64", "ppc64le", "ppc64", "mips64", "armv8"]:
             raise ConanInvalidConfiguration("Rocksdb requires 64 bits")
 
-        if self.settings.os == "Windows" and \
-           self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) < "15":
+        if (
+            self.settings.os == "Windows"
+            and self.settings.compiler == "Visual Studio"
+            and tools.Version(self.settings.compiler.version) < "15"
+        ):
             raise ConanInvalidConfiguration("Rocksdb requires Visual Studio 15 or later.")
 
-        if self.version == "6.0.2" and \
-           self.settings.os == "Windows" and \
-           self.settings.compiler == "Visual Studio" and \
-           tools.Version(self.settings.compiler.version) > "15":
-            raise ConanInvalidConfiguration("Rocksdb 6.0.2 is not compilable with Visual Studio >15.") # See https://github.com/facebook/rocksdb/issues/6048
+        if (
+            self.version == "6.0.2"
+            and self.settings.os == "Windows"
+            and self.settings.compiler == "Visual Studio"
+            and tools.Version(self.settings.compiler.version) > "15"
+        ):
+            raise ConanInvalidConfiguration(
+                "Rocksdb 6.0.2 is not compilable with Visual Studio >15."
+            )  # See https://github.com/facebook/rocksdb/issues/6048
 
-        if self.version == "6.0.2" and \
-           self.settings.os == "Linux" and \
-           self.settings.compiler == "clang" and \
-           tools.Version(self.settings.compiler.version) > "9":
-            raise ConanInvalidConfiguration("Rocksdb 6.0.2 is not compilable with clang >9.") # See https://github.com/facebook/rocksdb/pull/7265
+        if (
+            self.version == "6.0.2"
+            and self.settings.os == "Linux"
+            and self.settings.compiler == "clang"
+            and tools.Version(self.settings.compiler.version) > "9"
+        ):
+            raise ConanInvalidConfiguration(
+                "Rocksdb 6.0.2 is not compilable with clang >9."
+            )  # See https://github.com/facebook/rocksdb/pull/7265
 
-        if self.version == "6.20.3" and \
-           self.settings.os == "Linux" and \
-           self.settings.compiler == "gcc" and \
-           tools.Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration("Rocksdb 6.20.3 is not compilable with gcc <5.") # See https://github.com/facebook/rocksdb/issues/3522
+        if (
+            self.version == "6.20.3"
+            and self.settings.os == "Linux"
+            and self.settings.compiler == "gcc"
+            and tools.Version(self.settings.compiler.version) < "5"
+        ):
+            raise ConanInvalidConfiguration(
+                "Rocksdb 6.20.3 is not compilable with gcc <5."
+            )  # See https://github.com/facebook/rocksdb/issues/3522
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -149,19 +164,23 @@ class RocksDB(ConanFile):
         self._cmake.definitions["WITH_TBB"] = self.options.get_safe("with_tbb", False)
         self._cmake.definitions["WITH_JEMALLOC"] = self.options.with_jemalloc
         self._cmake.definitions["ROCKSDB_BUILD_SHARED"] = self.options.shared
-        self._cmake.definitions["ROCKSDB_LIBRARY_EXPORTS"] = self.settings.os == "Windows" and self.options.shared
-        self._cmake.definitions["ROCKSDB_DLL" ] = self.settings.os == "Windows" and self.options.shared
+        self._cmake.definitions["ROCKSDB_LIBRARY_EXPORTS"] = (
+            self.settings.os == "Windows" and self.options.shared
+        )
+        self._cmake.definitions["ROCKSDB_DLL"] = (
+            self.settings.os == "Windows" and self.options.shared
+        )
 
         self._cmake.definitions["USE_RTTI"] = self.options.use_rtti
         if self.options.enable_sse == "False":
-          self._cmake.definitions["PORTABLE"] = True
-          self._cmake.definitions["FORCE_SSE42"] = False
+            self._cmake.definitions["PORTABLE"] = True
+            self._cmake.definitions["FORCE_SSE42"] = False
         elif self.options.enable_sse == "sse42":
-          self._cmake.definitions["PORTABLE"] = True
-          self._cmake.definitions["FORCE_SSE42"] = True
+            self._cmake.definitions["PORTABLE"] = True
+            self._cmake.definitions["FORCE_SSE42"] = True
         elif self.options.enable_sse == "avx2":
-          self._cmake.definitions["PORTABLE"] = False
-          self._cmake.definitions["FORCE_SSE42"] = False
+            self._cmake.definitions["PORTABLE"] = False
+            self._cmake.definitions["FORCE_SSE42"] = False
 
         # not available yet in CCI
 
@@ -201,7 +220,7 @@ class RocksDB(ConanFile):
         cmake.install()
         if self.options.shared:
             self._remove_static_libraries()
-            self._remove_cpp_headers() # Force stable ABI for shared libraries
+            self._remove_cpp_headers()  # Force stable ABI for shared libraries
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
@@ -224,7 +243,9 @@ class RocksDB(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "RocksDB"
         self.cpp_info.components["librocksdb"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["librocksdb"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["librocksdb"].set_property("cmake_target_name", "RocksDB::{}".format(cmake_target))
+        self.cpp_info.components["librocksdb"].set_property(
+            "cmake_target_name", "RocksDB::{}".format(cmake_target)
+        )
         if self.options.with_gflags:
             self.cpp_info.components["librocksdb"].requires.append("gflags::gflags")
         if self.options.with_snappy:

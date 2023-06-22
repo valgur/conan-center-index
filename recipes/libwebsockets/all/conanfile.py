@@ -29,79 +29,132 @@ class LibwebsocketsConan(ConanFile):
         "with_sqlite3": [True, False],
         "with_libmount": [True, False],
         "with_hubbub": [True, False],
-        "ssl_client_use_os_ca_certs": [True, False],                            # SSL support should make use of the OS-installed CA root certs
-        "ssl_server_with_ecdh_cert": [True, False],                             # Include SSL server use ECDH certificate
-
-        "enable_network": [True, False],                                        # Compile with network-related code
-        "role_h1": [True, False],                                               # Compile with support for http/1 (needed for ws)
-        "role_ws": [True, False],                                               # Compile with support for websockets
-        "role_mqtt": [True, False],                                             # Build with support for MQTT client
-        "role_dbus": [True, False],                                             # Compile with support for DBUS
-        "role_raw_proxy": [True, False],                                        # Raw packet proxy
-        "role_raw_file": [True, False],                                         # Compile with support for raw files
-        "enable_http2": [True, False],                                          # Compile with server support for HTTP/2
-        "enable_lwsws": [True, False],                                          # Libwebsockets Webserver
-        "enable_cgi": [True, False],                                            # Include CGI (spawn process with network-connected stdin/out/err) APIs
-        "enable_ipv6": [True, False],                                           # Compile with support for ipv6
-        "enable_unix_sock": [True, False],                                      # Compile with support for UNIX domain socket
-        "enable_plugins": [True, False],                                        # Support plugins for protocols and extensions
-        "enable_http_proxy": [True, False],                                     # Support for active HTTP proxying
-        "enable_zip_fops": [True, False],                                       # Support serving pre-zipped files
-        "enable_socks5": [True, False],                                         # Allow use of SOCKS5 proxy on client connections
-        "enable_generic_sessions": [True, False],                               # With the Generic Sessions plugin
-        "enable_peer_limits": [True, False],                                    # Track peers and restrict resources a single peer can allocate
-        "enable_access_log": [True, False],                                     # Support generating Apache-compatible access logs
-        "enable_ranges": [True, False],                                         # Support http ranges (RFC7233)
-        "enable_server_status": [True, False],                                  # Support json + jscript server monitoring
-        "enable_threadpool": [True, False],                                     # Managed worker thread pool support (relies on pthreads)
-        "enable_http_stream_compression": [True, False],                        # Support HTTP stream compression
-        "enable_http_brotli": [True, False],                                    # Also offer brotli http stream compression (requires LWS_WITH_HTTP_STREAM_COMPRESSION)
-        "enable_acme": [True, False],                                           # Enable support for ACME automatic cert acquisition + maintenance (letsencrypt etc)
-        "enable_fts": [True, False],                                            # Full Text Search support
-        "enable_sys_async_dns": [True, False],                                  # Nonblocking internal IPv4 + IPv6 DNS resolver
-        "enable_sys_ntpclient": [True, False],                                  # Build in tiny ntpclient good for tls date validation and run via lws_system
-        "enable_sys_dhcp_client": [True, False],                                # Build in tiny DHCP client
-        "enable_http_basic_auth": [True, False],                                # Support Basic Auth
-        "enable_http_uncommon_headers": [True, False],                          # Include less common http header support
-        "enable_secure_streams": [True, False],                                 # Secure Streams protocol-agnostic API
-        "enable_secure_streams_proxy_api": [True, False],                       # Secure Streams support to work across processes
-        "enable_secure_streams_sys_auth_api_amazon_com": [True, False],         # Auth support for api.amazon.com
+        "ssl_client_use_os_ca_certs": [
+            True,
+            False,
+        ],  # SSL support should make use of the OS-installed CA root certs
+        "ssl_server_with_ecdh_cert": [True, False],  # Include SSL server use ECDH certificate
+        "enable_network": [True, False],  # Compile with network-related code
+        "role_h1": [True, False],  # Compile with support for http/1 (needed for ws)
+        "role_ws": [True, False],  # Compile with support for websockets
+        "role_mqtt": [True, False],  # Build with support for MQTT client
+        "role_dbus": [True, False],  # Compile with support for DBUS
+        "role_raw_proxy": [True, False],  # Raw packet proxy
+        "role_raw_file": [True, False],  # Compile with support for raw files
+        "enable_http2": [True, False],  # Compile with server support for HTTP/2
+        "enable_lwsws": [True, False],  # Libwebsockets Webserver
+        "enable_cgi": [
+            True,
+            False,
+        ],  # Include CGI (spawn process with network-connected stdin/out/err) APIs
+        "enable_ipv6": [True, False],  # Compile with support for ipv6
+        "enable_unix_sock": [True, False],  # Compile with support for UNIX domain socket
+        "enable_plugins": [True, False],  # Support plugins for protocols and extensions
+        "enable_http_proxy": [True, False],  # Support for active HTTP proxying
+        "enable_zip_fops": [True, False],  # Support serving pre-zipped files
+        "enable_socks5": [True, False],  # Allow use of SOCKS5 proxy on client connections
+        "enable_generic_sessions": [True, False],  # With the Generic Sessions plugin
+        "enable_peer_limits": [
+            True,
+            False,
+        ],  # Track peers and restrict resources a single peer can allocate
+        "enable_access_log": [True, False],  # Support generating Apache-compatible access logs
+        "enable_ranges": [True, False],  # Support http ranges (RFC7233)
+        "enable_server_status": [True, False],  # Support json + jscript server monitoring
+        "enable_threadpool": [
+            True,
+            False,
+        ],  # Managed worker thread pool support (relies on pthreads)
+        "enable_http_stream_compression": [True, False],  # Support HTTP stream compression
+        "enable_http_brotli": [
+            True,
+            False,
+        ],  # Also offer brotli http stream compression (requires LWS_WITH_HTTP_STREAM_COMPRESSION)
+        "enable_acme": [
+            True,
+            False,
+        ],  # Enable support for ACME automatic cert acquisition + maintenance (letsencrypt etc)
+        "enable_fts": [True, False],  # Full Text Search support
+        "enable_sys_async_dns": [True, False],  # Nonblocking internal IPv4 + IPv6 DNS resolver
+        "enable_sys_ntpclient": [
+            True,
+            False,
+        ],  # Build in tiny ntpclient good for tls date validation and run via lws_system
+        "enable_sys_dhcp_client": [True, False],  # Build in tiny DHCP client
+        "enable_http_basic_auth": [True, False],  # Support Basic Auth
+        "enable_http_uncommon_headers": [True, False],  # Include less common http header support
+        "enable_secure_streams": [True, False],  # Secure Streams protocol-agnostic API
+        "enable_secure_streams_proxy_api": [
+            True,
+            False,
+        ],  # Secure Streams support to work across processes
+        "enable_secure_streams_sys_auth_api_amazon_com": [
+            True,
+            False,
+        ],  # Auth support for api.amazon.com
         "enable_secure_streams_static_policy_only": [True, False],
-
-        "without_client": [True, False],                                        # Don't build the client part of the library
-        "without_server": [True, False],                                        # Don't build the server part of the library
-
-        "enable_extensions": [True, False],                                     # Compile with extensions
-        "enable_builtin_getifaddrs": [True, False],                             # Use the BSD getifaddrs implementation from libwebsockets if it is missing (this will result in a compilation error) ... The default is to assume that your libc provides it. On some systems such as uclibc it doesn't exist.
-        "enable_fallback_gethostbyname": [True, False],                         # Also try to do dns resolution using gethostbyname if getaddrinfo fails
-        "enable_builtin_sha1": [True, False],                                   # Build the lws sha-1 (eg, because openssl will provide it
-        "enable_daemonize": [True, False],                                      # Build the daemonization api
-        "enable_lejp": [True, False],                                           # With the Lightweight JSON Parser
-        "enable_struct_json": [True, False],                                    # Generic struct serialization to and from JSON
-        "enable_struct_sqlite3": [True, False],                                 # Generic struct serialization to and from SQLITE3
-
-        "disable_logs": [True, False],                                          # Disable all logging other than _err and _user from being compiled in
-        "logs_timestamp": [True, False],                                        # Timestamp at start of logs
-        "avoid_sigpipe_ign": [True, False],                                     # Android 7+ reportedly needs this
-        "enable_stats": [True, False],                                          # Keep statistics of lws internal operations
-        "enable_jose": [True, False],                                           # JSON Web Signature / Encryption / Keys (RFC7515/6/) API
-        "enable_gencrypto": [True, False],                                      # Enable support for Generic Crypto apis independent of TLS backend
-        "enable_selftests": [True, False],                                      # Selftests run at context creation
-        "enable_gcov": [True, False],                                           # Build with gcc gcov coverage instrumentation
-        "enable_lwsac": [True, False],                                          # lwsac Chunk Allocation api
-        "enable_custom_headers": [True, False],                                 # Store and allow querying custom HTTP headers (H1 only)
-        "enable_diskcache": [True, False],                                      # Hashed cache directory with lazy LRU deletion to size limit
-        "enable_dir": [True, False],                                            # Directory scanning api support
-        "enable_lejp_conf": [True, False],                                      # With LEJP configuration parser as used by lwsws
-        "enable_deprecated_lws_dll": [True, False],                             # Migrate to lws_dll2 instead ASAP
-        "enable_sequencer": [True, False],                                      # lws_seq_t support
-        "enable_external_poll": [True, False],                                  # Support external POLL integration using callback messages (not recommended)
-        "enable_lws_dsh": [True, False],                                        # Support lws_dsh_t Disordered Shared Heap
-        "enable_external_http_proxying": [True, False],                         # Support external http proxies for client connections
-        "enable_file_ops": [True, False],                                       # Support file operations vfs
-        "enable_detailed_latency": [True, False],                               # Record detailed latency stats for each read and write
-        "enable_udp": [True, False],                                            # Platform supports UDP
-        "enable_spawn": [True, False],                                          # Spawn subprocesses with piped stdin/out/stderr
+        "without_client": [True, False],  # Don't build the client part of the library
+        "without_server": [True, False],  # Don't build the server part of the library
+        "enable_extensions": [True, False],  # Compile with extensions
+        "enable_builtin_getifaddrs": [
+            True,
+            False,
+        ],  # Use the BSD getifaddrs implementation from libwebsockets if it is missing (this will result in a compilation error) ... The default is to assume that your libc provides it. On some systems such as uclibc it doesn't exist.
+        "enable_fallback_gethostbyname": [
+            True,
+            False,
+        ],  # Also try to do dns resolution using gethostbyname if getaddrinfo fails
+        "enable_builtin_sha1": [
+            True,
+            False,
+        ],  # Build the lws sha-1 (eg, because openssl will provide it
+        "enable_daemonize": [True, False],  # Build the daemonization api
+        "enable_lejp": [True, False],  # With the Lightweight JSON Parser
+        "enable_struct_json": [True, False],  # Generic struct serialization to and from JSON
+        "enable_struct_sqlite3": [True, False],  # Generic struct serialization to and from SQLITE3
+        "disable_logs": [
+            True,
+            False,
+        ],  # Disable all logging other than _err and _user from being compiled in
+        "logs_timestamp": [True, False],  # Timestamp at start of logs
+        "avoid_sigpipe_ign": [True, False],  # Android 7+ reportedly needs this
+        "enable_stats": [True, False],  # Keep statistics of lws internal operations
+        "enable_jose": [True, False],  # JSON Web Signature / Encryption / Keys (RFC7515/6/) API
+        "enable_gencrypto": [
+            True,
+            False,
+        ],  # Enable support for Generic Crypto apis independent of TLS backend
+        "enable_selftests": [True, False],  # Selftests run at context creation
+        "enable_gcov": [True, False],  # Build with gcc gcov coverage instrumentation
+        "enable_lwsac": [True, False],  # lwsac Chunk Allocation api
+        "enable_custom_headers": [
+            True,
+            False,
+        ],  # Store and allow querying custom HTTP headers (H1 only)
+        "enable_diskcache": [
+            True,
+            False,
+        ],  # Hashed cache directory with lazy LRU deletion to size limit
+        "enable_dir": [True, False],  # Directory scanning api support
+        "enable_lejp_conf": [True, False],  # With LEJP configuration parser as used by lwsws
+        "enable_deprecated_lws_dll": [True, False],  # Migrate to lws_dll2 instead ASAP
+        "enable_sequencer": [True, False],  # lws_seq_t support
+        "enable_external_poll": [
+            True,
+            False,
+        ],  # Support external POLL integration using callback messages (not recommended)
+        "enable_lws_dsh": [True, False],  # Support lws_dsh_t Disordered Shared Heap
+        "enable_external_http_proxying": [
+            True,
+            False,
+        ],  # Support external http proxies for client connections
+        "enable_file_ops": [True, False],  # Support file operations vfs
+        "enable_detailed_latency": [
+            True,
+            False,
+        ],  # Record detailed latency stats for each read and write
+        "enable_udp": [True, False],  # Platform supports UDP
+        "enable_spawn": [True, False],  # Spawn subprocesses with piped stdin/out/stderr
     }
     default_options = {
         "shared": False,
@@ -113,10 +166,8 @@ class LibwebsocketsConan(ConanFile):
         "with_sqlite3": False,
         "with_libmount": False,
         "with_hubbub": False,
-
         "ssl_client_use_os_ca_certs": True,
         "ssl_server_with_ecdh_cert": False,
-
         "enable_network": True,
         "role_h1": True,
         "role_ws": True,
@@ -152,10 +203,8 @@ class LibwebsocketsConan(ConanFile):
         "enable_secure_streams_proxy_api": False,
         "enable_secure_streams_sys_auth_api_amazon_com": False,
         "enable_secure_streams_static_policy_only": False,
-
         "without_client": False,
         "without_server": False,
-
         "enable_extensions": False,
         "enable_builtin_getifaddrs": True,
         "enable_fallback_gethostbyname": False,
@@ -164,7 +213,6 @@ class LibwebsocketsConan(ConanFile):
         "enable_lejp": True,
         "enable_struct_json": False,
         "enable_struct_sqlite3": False,
-
         "disable_logs": False,
         "logs_timestamp": True,
         "avoid_sigpipe_ign": False,
@@ -186,7 +234,7 @@ class LibwebsocketsConan(ConanFile):
         "enable_file_ops": True,
         "enable_detailed_latency": False,
         "enable_udp": True,
-        "enable_spawn": False
+        "enable_spawn": False,
     }
 
     def layout(self):
@@ -231,15 +279,38 @@ class LibwebsocketsConan(ConanFile):
             self.requires("wolfssl/4.8.1")
 
     def validate(self):
-        if self.options.shared and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
+        if (
+            self.options.shared
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "5"
+        ):
             # https://github.com/conan-io/conan-center-index/pull/5321#issuecomment-826367276
-            raise ConanInvalidConfiguration("{}/{} shared=True with gcc<5 does not build. Please submit a PR with a fix.".format(self.name, self.version))
-        if Version(self.version) <= "4.0.15" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "12":
-            raise ConanInvalidConfiguration("{}/{} with apple-clang>=12 does not build. Please submit a PR with a fix.".format(self.name, self.version))
+            raise ConanInvalidConfiguration(
+                "{}/{} shared=True with gcc<5 does not build. Please submit a PR with a fix.".format(
+                    self.name, self.version
+                )
+            )
+        if (
+            Version(self.version) <= "4.0.15"
+            and self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) >= "12"
+        ):
+            raise ConanInvalidConfiguration(
+                "{}/{} with apple-clang>=12 does not build. Please submit a PR with a fix.".format(
+                    self.name, self.version
+                )
+            )
         if Version(self.version) >= "4.3.2":
-            if ("Visual" in str(self.settings.compiler.version) and Version(self.settings.compiler.version) < 16) or  \
-                    ("msvc" == str(self.settings.compiler.version) and Version(self.settings.compiler.version) < 192):
-                raise ConanInvalidConfiguration ("{}/{} requires at least Visual Studio 2019".format(self.name, self.version))
+            if (
+                "Visual" in str(self.settings.compiler.version)
+                and Version(self.settings.compiler.version) < 16
+            ) or (
+                "msvc" == str(self.settings.compiler.version)
+                and Version(self.settings.compiler.version) < 192
+            ):
+                raise ConanInvalidConfiguration(
+                    "{}/{} requires at least Visual Studio 2019".format(self.name, self.version)
+                )
 
         if self.options.with_hubbub:
             raise ConanInvalidConfiguration("Library hubbub not implemented (yet) in CCI")
@@ -250,7 +321,7 @@ class LibwebsocketsConan(ConanFile):
 
     def _get_library_extension(self, dep):
         if self.dependencies[dep].options.shared:
-            if self.settings.os == "Windows" :
+            if self.settings.os == "Windows":
                 if is_msvc(self):
                     return ".lib"
                 else:
@@ -270,7 +341,7 @@ class LibwebsocketsConan(ConanFile):
 
     def _find_library(self, libname, dep):
         prefix = "lib" if self.settings.os != "Windows" else ""
-        for path in self.dependencies[dep].cpp_info.libdirs:  
+        for path in self.dependencies[dep].cpp_info.libdirs:
             lib_fullpath = os.path.join(path, prefix + libname + self._get_library_extension(dep))
             self.output.info("Dependency library full path : " + str(lib_fullpath))
             if os.path.isfile(lib_fullpath):
@@ -296,53 +367,91 @@ class LibwebsocketsConan(ConanFile):
         tc.variables["LWS_WITH_SSL"] = bool(self.options.with_ssl)
 
         if self.options.with_ssl == "openssl":
-            tc.variables["LWS_OPENSSL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("openssl"))
-            tc.variables["LWS_OPENSSL_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["openssl"].cpp_info.includedirs)
+            tc.variables["LWS_OPENSSL_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("openssl")
+            )
+            tc.variables["LWS_OPENSSL_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["openssl"].cpp_info.includedirs
+            )
         elif self.options.with_ssl == "mbedtls":
             tc.variables["LWS_WITH_MBEDTLS"] = True
-            tc.variables["LWS_MBEDTLS_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("mbedtls"))
-            tc.variables["LWS_MBEDTLS_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["mbedtls"].cpp_info.includedirs)
+            tc.variables["LWS_MBEDTLS_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("mbedtls")
+            )
+            tc.variables["LWS_MBEDTLS_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["mbedtls"].cpp_info.includedirs
+            )
         elif self.options.with_ssl == "wolfssl":
             tc.variables["LWS_WITH_WOLFSSL"] = True
-            tc.variables["LWS_WOLFSSL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("wolfssl"))
-            tc.variables["LWS_WOLFSSL_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["wolfssl"].cpp_info.includedirs)
+            tc.variables["LWS_WOLFSSL_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("wolfssl")
+            )
+            tc.variables["LWS_WOLFSSL_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["wolfssl"].cpp_info.includedirs
+            )
         else:
             tc.variables["LWS_WITH_WOLFSSL"] = False
 
         tc.variables["LWS_WITH_LIBEV"] = self.options.with_libevent == "libev"
         if self.options.with_libevent == "libev":
-            tc.variables["LWS_LIBEV_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libev"))
-            tc.variables["LWS_LIBEV_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["libev"].cpp_info.includedirs).replace("\\", "/")
+            tc.variables["LWS_LIBEV_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libev")
+            )
+            tc.variables["LWS_LIBEV_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["libev"].cpp_info.includedirs
+            ).replace("\\", "/")
 
         tc.variables["LWS_WITH_LIBUV"] = self.options.with_libuv
         if self.options.with_libuv:
-            tc.variables["LWS_LIBUV_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libuv"))
-            tc.variables["LWS_LIBUV_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["libuv"].cpp_info.includedirs)
+            tc.variables["LWS_LIBUV_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libuv")
+            )
+            tc.variables["LWS_LIBUV_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["libuv"].cpp_info.includedirs
+            )
 
         tc.variables["LWS_WITH_LIBEVENT"] = self.options.with_libevent == "libevent"
         if self.options.with_libevent == "libevent":
-            tc.variables["LWS_LIBEVENT_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libevent"))
-            tc.variables["LWS_LIBEVENT_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["libevent"].cpp_info.includedirs)
+            tc.variables["LWS_LIBEVENT_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libevent")
+            )
+            tc.variables["LWS_LIBEVENT_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["libevent"].cpp_info.includedirs
+            )
 
         tc.variables["LWS_WITH_ZLIB"] = self.options.with_zlib != False
         tc.variables["LWS_WITH_MINIZ"] = self.options.with_zlib == "miniz"
         tc.variables["LWS_WITH_BUNDLED_ZLIB"] = self.options.with_zlib == "bundled"
         if self.options.with_zlib == "zlib":
-            tc.variables["LWS_ZLIB_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("zlib"))
-            tc.variables["LWS_ZLIB_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["zlib"].cpp_info.includedirs)
+            tc.variables["LWS_ZLIB_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("zlib")
+            )
+            tc.variables["LWS_ZLIB_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["zlib"].cpp_info.includedirs
+            )
         elif self.options.with_zlib == "miniz":
             tc.variables["MINIZ_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("miniz"))
-            tc.variables["MINIZ_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["miniz"].cpp_info.includedirs)
+            tc.variables["MINIZ_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["miniz"].cpp_info.includedirs
+            )
 
         tc.variables["LWS_WITH_SQLITE3"] = self.options.with_sqlite3
         if self.options.with_sqlite3:
-            tc.variables["LWS_SQLITE3_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("sqlite3"))
-            tc.variables["LWS_SQLITE3_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["sqlite3"].cpp_info.includedirs)
+            tc.variables["LWS_SQLITE3_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("sqlite3")
+            )
+            tc.variables["LWS_SQLITE3_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["sqlite3"].cpp_info.includedirs
+            )
 
         tc.variables["LWS_WITH_FSMOUNT"] = self.options.with_libmount
         if self.options.with_libmount:
-            tc.variables["LWS_LIBMOUNT_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libmount"))
-            tc.variables["LWS_LIBMOUNT_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["libmount"].cpp_info.includedirs)
+            tc.variables["LWS_LIBMOUNT_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libmount")
+            )
+            tc.variables["LWS_LIBMOUNT_INCLUDE_DIRS"] = self._cmakify_path_list(
+                self.dependencies["libmount"].cpp_info.includedirs
+            )
 
         tc.variables["LWS_WITH_HUBBUB"] = self.options.with_hubbub
 
@@ -371,7 +480,9 @@ class LibwebsocketsConan(ConanFile):
         tc.variables["LWS_WITH_RANGES"] = self.options.enable_ranges
         tc.variables["LWS_WITH_SERVER_STATUS"] = self.options.enable_server_status
         tc.variables["LWS_WITH_THREADPOOL"] = self.options.enable_threadpool
-        tc.variables["LWS_WITH_HTTP_STREAM_COMPRESSION"] = self.options.enable_http_stream_compression
+        tc.variables[
+            "LWS_WITH_HTTP_STREAM_COMPRESSION"
+        ] = self.options.enable_http_stream_compression
         tc.variables["LWS_WITH_HTTP_BROTLI"] = self.options.enable_http_brotli
         tc.variables["LWS_WITH_ACME"] = self.options.enable_acme
         tc.variables["LWS_WITH_FTS"] = self.options.enable_fts
@@ -426,21 +537,25 @@ class LibwebsocketsConan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, 
+        replace_in_file(
+            self,
             cmakelists,
-            "SET(CMAKE_INSTALL_NAME_DIR \"${CMAKE_INSTALL_PREFIX}/${LWS_INSTALL_LIB_DIR}${LIB_SUFFIX}\")",
+            'SET(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${LWS_INSTALL_LIB_DIR}${LIB_SUFFIX}")',
             "",
         )
         if Version(self.version) == "4.0.15" and self.options.with_ssl:
-            replace_in_file(self, 
+            replace_in_file(
+                self,
                 cmakelists,
                 "list(APPEND LIB_LIST ws2_32.lib userenv.lib psapi.lib iphlpapi.lib)",
-                "list(APPEND LIB_LIST ws2_32.lib userenv.lib psapi.lib iphlpapi.lib crypt32.lib)"
+                "list(APPEND LIB_LIST ws2_32.lib userenv.lib psapi.lib iphlpapi.lib crypt32.lib)",
             )
         if Version(self.version) < "4.1.0":
             replace_in_file(self, cmakelists, "-Werror", "")
         if Version(self.version) >= "4.1.4":
-            replace_in_file(self, cmakelists, "add_compile_options(/W3 /WX)", "add_compile_options(/W3)")
+            replace_in_file(
+                self, cmakelists, "add_compile_options(/W3 /WX)", "add_compile_options(/W3)"
+            )
 
     def build(self):
         self._patch_sources()
@@ -449,7 +564,12 @@ class LibwebsocketsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -460,18 +580,22 @@ class LibwebsocketsConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._cmake_target: "Libwebsockets::{}".format(self._cmake_target)}
+            {self._cmake_target: "Libwebsockets::{}".format(self._cmake_target)},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property
@@ -499,11 +623,19 @@ class LibwebsocketsConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Libwebsockets"
         self.cpp_info.names["pkg_config"] = pkgconfig_name
         self.cpp_info.components["_libwebsockets"].names["cmake_find_package"] = self._cmake_target
-        self.cpp_info.components["_libwebsockets"].names["cmake_find_package_multi"] = self._cmake_target
-        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["_libwebsockets"].names[
+            "cmake_find_package_multi"
+        ] = self._cmake_target
+        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["_libwebsockets"].builddirs.append(os.path.join("lib", "cmake"))
-        self.cpp_info.components["_libwebsockets"].set_property("cmake_target_name", self._cmake_target)
+        self.cpp_info.components["_libwebsockets"].set_property(
+            "cmake_target_name", self._cmake_target
+        )
         self.cpp_info.components["_libwebsockets"].set_property("pkg_config_name", pkgconfig_name)
         if self.options.with_libuv:
             self.cpp_info.components["_libwebsockets"].requires.append("libuv::libuv")

@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class ZXingCppConan(ConanFile):
     name = "zxing-cpp"
     description = "C++ port of ZXing, a barcode scanning library"
@@ -34,20 +35,20 @@ class ZXingCppConan(ConanFile):
     @property
     def _compiler_cpp_support(self):
         return {
-            "14" : {
+            "14": {
                 "gcc": "5",
                 "Visual Studio": "14",
                 "msvc": "190",
                 "clang": "3.4",
                 "apple-clang": "3.4",
             },
-            "17" : {
+            "17": {
                 "gcc": "7" if Version(self.version) < "2.0.0" else "8",
                 "Visual Studio": "16",
                 "msvc": "192",
                 "clang": "5" if Version(self.version) < "2.0.0" else "7",
                 "apple-clang": "5" if Version(self.version) < "2.0.0" else "12",
-            }
+            },
         }
 
     def export_sources(self):
@@ -69,12 +70,20 @@ class ZXingCppConan(ConanFile):
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, cpp_version)
-        min_version = self._compiler_cpp_support.get(str(cpp_version)).get(str(self.settings.compiler))
+        min_version = self._compiler_cpp_support.get(str(cpp_version)).get(
+            str(self.settings.compiler)
+        )
         if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(f"This compiler is too old. {self.ref} needs a compiler with c++{cpp_version} support")
+            raise ConanInvalidConfiguration(
+                f"This compiler is too old. {self.ref} needs a compiler with c++{cpp_version} support"
+            )
 
         # FIXME: This is a workaround for "The system cannot execute the specified program."
-        if Version(self.version) >= "1.3.0" and is_msvc_static_runtime(self) and self.settings.build_type == "Debug":
+        if (
+            Version(self.version) >= "1.3.0"
+            and is_msvc_static_runtime(self)
+            and self.settings.build_type == "Debug"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support MT + Debug.")
 
     def source(self):
@@ -103,7 +112,12 @@ class ZXingCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

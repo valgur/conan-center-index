@@ -47,10 +47,6 @@ class CairommConan(ConanFile):
             )
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -64,8 +60,8 @@ class CairommConan(ConanFile):
             # conformant! see:
             # https://developercommunity.visualstudio.com/t/error-c2760-in-combaseapih-with-windows-sdk-81-and/185399
             tools.replace_in_file(
-                os.path.join(self._source_subfolder, "meson.build"),
-                "cpp_std=c++", "cpp_std=vc++")
+                os.path.join(self._source_subfolder, "meson.build"), "cpp_std=c++", "cpp_std=vc++"
+            )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -124,8 +120,7 @@ class CairommConan(ConanFile):
         meson = self._configure_meson()
         meson.install()
         if is_msvc(self):
-            tools.remove_files_by_mask(
-                os.path.join(self.package_folder, "bin"), "*.pdb")
+            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
             if not self.options.shared:
                 rename(
                     self,
@@ -134,18 +129,18 @@ class CairommConan(ConanFile):
                         "lib",
                         f"libcairomm-{self._abi_version()}.a",
                     ),
-                    os.path.join(self.package_folder, "lib",
-                                 f"cairomm-{self._abi_version()}.lib"),
+                    os.path.join(self.package_folder, "lib", f"cairomm-{self._abi_version()}.lib"),
                 )
 
         for header_file in glob.glob(
-                os.path.join(
-                    self.package_folder,
-                    "lib",
-                    f"cairomm-{self._abi_version()}",
-                    "include",
-                    "*.h",
-                )):
+            os.path.join(
+                self.package_folder,
+                "lib",
+                f"cairomm-{self._abi_version()}",
+                "include",
+                "*.h",
+            )
+        ):
             shutil.move(
                 header_file,
                 os.path.join(
@@ -157,38 +152,33 @@ class CairommConan(ConanFile):
             )
 
         for dir_to_remove in ["pkgconfig", f"cairomm-{self._abi_version()}"]:
-            tools.rmdir(os.path.join(self.package_folder, "lib",
-                                     dir_to_remove))
+            tools.rmdir(os.path.join(self.package_folder, "lib", dir_to_remove))
 
     def package_info(self):
         if self._abi_version() == "1.16":
-            self.cpp_info.components["cairomm-1.16"].names[
-                "pkg_config"] = "cairomm-1.16"
+            self.cpp_info.components["cairomm-1.16"].names["pkg_config"] = "cairomm-1.16"
             self.cpp_info.components["cairomm-1.16"].includedirs = [
                 os.path.join("include", "cairomm-1.16")
             ]
             self.cpp_info.components["cairomm-1.16"].libs = ["cairomm-1.16"]
             self.cpp_info.components["cairomm-1.16"].requires = [
-                "libsigcpp::sigc++", "cairo::cairo_"
+                "libsigcpp::sigc++",
+                "cairo::cairo_",
             ]
             if tools.is_apple_os(self.settings.os):
-                self.cpp_info.components["cairomm-1.16"].frameworks = [
-                    "CoreFoundation"
-                ]
+                self.cpp_info.components["cairomm-1.16"].frameworks = ["CoreFoundation"]
         else:
-            self.cpp_info.components["cairomm-1.0"].names[
-                "pkg_config"] = "cairomm-1.0"
+            self.cpp_info.components["cairomm-1.0"].names["pkg_config"] = "cairomm-1.0"
             self.cpp_info.components["cairomm-1.0"].includedirs = [
                 os.path.join("include", "cairomm-1.0")
             ]
             self.cpp_info.components["cairomm-1.0"].libs = ["cairomm-1.0"]
             self.cpp_info.components["cairomm-1.0"].requires = [
-                "libsigcpp::sigc++-2.0", "cairo::cairo_"
+                "libsigcpp::sigc++-2.0",
+                "cairo::cairo_",
             ]
             if tools.is_apple_os(self.settings.os):
-                self.cpp_info.components["cairomm-1.0"].frameworks = [
-                    "CoreFoundation"
-                ]
+                self.cpp_info.components["cairomm-1.0"].frameworks = ["CoreFoundation"]
 
     def package_id(self):
         self.info.requires["cairo"].full_package_mode()

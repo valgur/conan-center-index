@@ -31,17 +31,35 @@ class TslHatTrieConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         rmdir(self, os.path.join(self.source_folder, "include", "tsl", "array-hash"))
-        replace_in_file(self, os.path.join(self.source_folder, "include", "tsl", "htrie_hash.h"),
-                              '#include "array-hash/', '#include "tsl/')
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "include", "tsl", "htrie_hash.h"),
+            '#include "array-hash/',
+            '#include "tsl/',
+        )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tsl-hat-trie")

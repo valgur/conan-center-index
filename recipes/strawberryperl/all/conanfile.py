@@ -25,19 +25,45 @@ class StrawberryPerlConan(ConanFile):
 
     def validate(self):
         if self.info.settings.os != "Windows":
-            raise ConanInvalidConfiguration("Strawberry Perl is only intended to be used on Windows.")
+            raise ConanInvalidConfiguration(
+                "Strawberry Perl is only intended to be used on Windows."
+            )
 
     def source(self):
         pass
 
     def build(self):
-        get(self, **self.conan_data["sources"][self.version][str(self.settings.arch)], destination=self.build_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version][str(self.settings.arch)],
+            destination=self.build_folder
+        )
 
     def package(self):
-        copy(self, pattern="License.rtf*", src=os.path.join(self.build_folder, "licenses"), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="*", src=os.path.join(self.build_folder, "perl", "bin"), dst=os.path.join(self.package_folder, "bin"))
-        copy(self, pattern="*", src=os.path.join(self.build_folder, "perl", "lib"), dst=os.path.join(self.package_folder, "lib"))
-        copy(self, pattern="*", src=os.path.join(self.build_folder, "perl", "vendor", "lib"), dst=os.path.join(self.package_folder, "lib"))
+        copy(
+            self,
+            pattern="License.rtf*",
+            src=os.path.join(self.build_folder, "licenses"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            pattern="*",
+            src=os.path.join(self.build_folder, "perl", "bin"),
+            dst=os.path.join(self.package_folder, "bin"),
+        )
+        copy(
+            self,
+            pattern="*",
+            src=os.path.join(self.build_folder, "perl", "lib"),
+            dst=os.path.join(self.package_folder, "lib"),
+        )
+        copy(
+            self,
+            pattern="*",
+            src=os.path.join(self.build_folder, "perl", "vendor", "lib"),
+            dst=os.path.join(self.package_folder, "lib"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):

@@ -116,7 +116,9 @@ class GperftoolsConan(ConanFile):
         args["enable-dynamic-sized-delete-support"] = self.options.dynamic_sized_delete_support
         args["enable-sized-delete"] = self.options.sized_delete
         args["enable-large-alloc-report"] = self.options.enable_large_alloc_report
-        args["enable-aggressive-decommit-by-default"] = self.options.enable_aggressive_decommit_by_default
+        args[
+            "enable-aggressive-decommit-by-default"
+        ] = self.options.enable_aggressive_decommit_by_default
         if self._build_minimal:
             # No stack trace support will be built
             args["enable-libunwind"] = False

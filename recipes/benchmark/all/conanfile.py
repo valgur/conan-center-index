@@ -79,7 +79,9 @@ class BenchmarkConan(ConanFile):
                 tc.variables["HAVE_STD_REGEX"] = False
                 tc.variables["HAVE_POSIX_REGEX"] = False
                 tc.variables["HAVE_STEADY_CLOCK"] = False
-            tc.variables["BENCHMARK_USE_LIBCXX"] = self.settings.compiler.get_safe("libcxx") == "libc++"
+            tc.variables["BENCHMARK_USE_LIBCXX"] = (
+                self.settings.compiler.get_safe("libcxx") == "libc++"
+            )
         else:
             tc.variables["BENCHMARK_USE_LIBCXX"] = False
         tc.generate()
@@ -90,7 +92,12 @@ class BenchmarkConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -101,7 +108,9 @@ class BenchmarkConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "benchmark")
         self.cpp_info.set_property("pkg_config_name", "benchmark")
 
-        self.cpp_info.components["_benchmark"].set_property("cmake_target_name", "benchmark::benchmark")
+        self.cpp_info.components["_benchmark"].set_property(
+            "cmake_target_name", "benchmark::benchmark"
+        )
         self.cpp_info.components["_benchmark"].libs = ["benchmark"]
         if Version(self.version) >= "1.7.0" and not self.options.shared:
             self.cpp_info.components["_benchmark"].defines.append("BENCHMARK_STATIC_DEFINE")
@@ -113,9 +122,10 @@ class BenchmarkConan(ConanFile):
             self.cpp_info.components["_benchmark"].system_libs.append("kstat")
         if self.options.get_safe("enable_libpfm"):
             self.cpp_info.components["_benchmark"].requires.append("libpfm4::libpfm4")
-        
 
-        self.cpp_info.components["benchmark_main"].set_property("cmake_target_name", "benchmark::benchmark_main")
+        self.cpp_info.components["benchmark_main"].set_property(
+            "cmake_target_name", "benchmark::benchmark_main"
+        )
         self.cpp_info.components["benchmark_main"].libs = ["benchmark_main"]
         self.cpp_info.components["benchmark_main"].requires = ["_benchmark"]
 

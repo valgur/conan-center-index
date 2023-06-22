@@ -59,10 +59,17 @@ class LibZipppConan(ConanFile):
 
         libzippp_version = str(self.version)
         if libzippp_version != "4.0" and len(libzippp_version.split("-")) != 2:
-            raise ConanInvalidConfiguration(f"{self.ref}: version number must include '-'. (ex. '5.0-1.8.0')")
+            raise ConanInvalidConfiguration(
+                f"{self.ref}: version number must include '-'. (ex. '5.0-1.8.0')"
+            )
 
-        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
-            raise ConanInvalidConfiguration(f"{self.ref} does not support clang with libc++. Use libstdc++ instead.")
+        if (
+            self.settings.compiler == "clang"
+            and self.settings.compiler.get_safe("libcxx") == "libc++"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support clang with libc++. Use libstdc++ instead."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -80,9 +87,12 @@ class LibZipppConan(ConanFile):
         deps.generate()
 
     def _patch_source(self):
-        replace_in_file(self, os.path.join(self.source_folder, 'CMakeLists.txt'),
-                        'find_package(LIBZIP MODULE REQUIRED)',
-                        'find_package(libzip REQUIRED CONFIG)')
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "find_package(LIBZIP MODULE REQUIRED)",
+            "find_package(libzip REQUIRED CONFIG)",
+        )
 
     def build(self):
         self._patch_source()
@@ -91,7 +101,12 @@ class LibZipppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENCE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

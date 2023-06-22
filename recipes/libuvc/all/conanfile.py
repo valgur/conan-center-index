@@ -48,7 +48,9 @@ class LibuvcConan(ConanFile):
 
         # TODO: to remove once deprecated jpeg_turbo option removed
         if self.options.jpeg_turbo != "deprecated":
-            self.output.warning("jpeg_turbo option is deprecated, please use with_jpeg option instead")
+            self.output.warning(
+                "jpeg_turbo option is deprecated, please use with_jpeg option instead"
+            )
             if self.options.jpeg_turbo:
                 self.options.with_jpeg == "libjpeg-turbo"
 
@@ -109,7 +111,12 @@ class LibuvcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -137,5 +144,7 @@ class LibuvcConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "LibUVC"
         self.cpp_info.components["_libuvc"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["_libuvc"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_libuvc"].set_property("cmake_target_name", f"LibUVC::{cmake_target}")
+        self.cpp_info.components["_libuvc"].set_property(
+            "cmake_target_name", f"LibUVC::{cmake_target}"
+        )
         self.cpp_info.components["_libuvc"].set_property("pkg_config_name", "libuvc")

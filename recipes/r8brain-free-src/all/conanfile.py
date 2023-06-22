@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class R8brainFreeSrcConan(ConanFile):
     name = "r8brain-free-src"
     description = "High-quality pro audio sample rate converter / resampler C++ library"
@@ -19,7 +20,11 @@ class R8brainFreeSrcConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "fft": ["ooura", "pffft", "pffft_double", ]
+        "fft": [
+            "ooura",
+            "pffft",
+            "pffft_double",
+        ],
     }
     default_options = {
         "shared": False,
@@ -70,7 +75,12 @@ class R8brainFreeSrcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

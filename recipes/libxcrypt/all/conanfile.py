@@ -17,7 +17,7 @@ class LibxcryptConan(ConanFile):
     homepage = "https://github.com/besser82/libxcrypt"
     description = "Extended crypt library for descrypt, md5crypt, bcrypt, and others"
     topics = ("hash", "password", "one-way", "bcrypt", "md5", "sha256", "sha512")
-    license = ("LGPL-2.1-or-later", )
+    license = ("LGPL-2.1-or-later",)
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -57,8 +57,12 @@ class LibxcryptConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -68,8 +72,12 @@ class LibxcryptConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),
-                              "\nlibcrypt_la_LDFLAGS = ", "\nlibcrypt_la_LDFLAGS = -no-undefined ")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
+            "\nlibcrypt_la_LDFLAGS = ",
+            "\nlibcrypt_la_LDFLAGS = -no-undefined ",
+        )
 
     def build(self):
         self._patch_sources()
@@ -81,7 +89,12 @@ class LibxcryptConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.LIB",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class SoleConan(ConanFile):
     name = "sole"
     description = "Sole is a lightweight C++11 library to generate universally unique identificators (UUID), both v1 and v4."
@@ -30,13 +31,23 @@ class SoleConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hpp",

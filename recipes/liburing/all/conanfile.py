@@ -13,8 +13,10 @@ class LiburingConan(ConanFile):
     license = "GPL-2.0-or-later"
     homepage = "https://github.com/axboe/liburing"
     url = "https://github.com/conan-io/conan-center-index"
-    description = ("helpers to setup and teardown io_uring instances, and also a simplified interface for "
-                   "applications that don't need (or want) to deal with the full kernel side implementation.")
+    description = (
+        "helpers to setup and teardown io_uring instances, and also a simplified interface for "
+        "applications that don't need (or want) to deal with the full kernel side implementation."
+    )
     topics = ("asynchronous-io", "async", "kernel")
 
     settings = "os", "arch", "compiler", "build_type"
@@ -32,10 +34,6 @@ class LiburingConan(ConanFile):
     exports_sources = ["patches/*"]
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -57,12 +55,15 @@ class LiburingConan(ConanFile):
         # FIXME: use kernel version of build/host machine.
         # kernel version should be encoded in profile
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(
-                "liburing is supported only on linux")
+            raise ConanInvalidConfiguration("liburing is supported only on linux")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-              destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -87,14 +88,22 @@ class LiburingConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING*",
+            src=self._source_subfolder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE",
+            src=self._source_subfolder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         with chdir(self, self._source_subfolder):
             autotools = self._configure_autotools()
-            install_args = [
-                "ENABLE_SHARED={}".format(1 if self.options.shared else 0)
-            ]
+            install_args = ["ENABLE_SHARED={}".format(1 if self.options.shared else 0)]
             autotools.install(args=install_args)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

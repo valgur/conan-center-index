@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.microsoft import is_msvc, unix_path
@@ -12,24 +19,33 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class MpcConan(ConanFile):
     name = "mpc"
     package_type = "library"
-    description = "GNU MPC is a C library for the arithmetic of complex numbers with arbitrarily high precision " \
-                  "and correct rounding of the result"
+    description = (
+        "GNU MPC is a C library for the arithmetic of complex numbers with arbitrarily high precision "
+        "and correct rounding of the result"
+    )
     topics = ("conan", "mpc", "multiprecision", "math", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.multiprecision.org/mpc/home.html"
     license = "LGPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
     def configure(self):
@@ -45,7 +61,9 @@ class MpcConan(ConanFile):
     def validate(self):
         # FIXME: add msvc support, upstream has a makefile.vc
         if is_msvc(self):
-            raise ConanInvalidConfiguration("mpc can be built with msvc, but it's not supported yet in this recipe.")
+            raise ConanInvalidConfiguration(
+                "mpc can be built with msvc, but it's not supported yet in this recipe."
+            )
 
     @property
     def _settings_build(self):
@@ -61,8 +79,12 @@ class MpcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -72,8 +94,12 @@ class MpcConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append(f'--with-gmp={unix_path(self, self.dependencies["gmp"].package_folder)}')
-        tc.configure_args.append(f'--with-mpfr={unix_path(self, self.dependencies["mpfr"].package_folder)}')
+        tc.configure_args.append(
+            f'--with-gmp={unix_path(self, self.dependencies["gmp"].package_folder)}'
+        )
+        tc.configure_args.append(
+            f'--with-mpfr={unix_path(self, self.dependencies["mpfr"].package_folder)}'
+        )
         tc.generate()
 
         tc = AutotoolsDeps(self)
@@ -88,7 +114,13 @@ class MpcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING.LESSER", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self,
+            "COPYING.LESSER",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
         autotools = Autotools(self)
         autotools.install()
         fix_apple_shared_install_name(self)

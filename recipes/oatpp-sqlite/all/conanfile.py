@@ -51,14 +51,23 @@ class OatppsqliteConan(ConanFile):
             check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared library with msvc"
+            )
 
-        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
+        if (
+            self.info.settings.compiler == "gcc"
+            and Version(self.info.settings.compiler.version) < "5"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -74,7 +83,12 @@ class OatppsqliteConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -86,9 +100,13 @@ class OatppsqliteConan(ConanFile):
         self.cpp_info.components["_oatpp-sqlite"].includedirs = [
             os.path.join("include", f"oatpp-{self.version}", "oatpp-sqlite")
         ]
-        self.cpp_info.components["_oatpp-sqlite"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.components["_oatpp-sqlite"].libdirs = [
+            os.path.join("lib", f"oatpp-{self.version}")
+        ]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-sqlite"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.components["_oatpp-sqlite"].bindirs = [
+                os.path.join("bin", f"oatpp-{self.version}")
+            ]
         else:
             self.cpp_info.components["_oatpp-sqlite"].bindirs = []
         self.cpp_info.components["_oatpp-sqlite"].libs = ["oatpp-sqlite"]
@@ -102,5 +120,7 @@ class OatppsqliteConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
         self.cpp_info.components["_oatpp-sqlite"].names["cmake_find_package"] = "oatpp-sqlite"
         self.cpp_info.components["_oatpp-sqlite"].names["cmake_find_package_multi"] = "oatpp-sqlite"
-        self.cpp_info.components["_oatpp-sqlite"].set_property("cmake_target_name", "oatpp::oatpp-sqlite")
+        self.cpp_info.components["_oatpp-sqlite"].set_property(
+            "cmake_target_name", "oatpp::oatpp-sqlite"
+        )
         self.cpp_info.components["_oatpp-sqlite"].requires = ["oatpp::oatpp", "sqlite3::sqlite3"]

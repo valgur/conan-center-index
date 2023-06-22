@@ -6,6 +6,7 @@ from conan import ConanFile
 
 required_conan_version = ">=1.33.0"
 
+
 class EasyloggingppConan(ConanFile):
     name = "easyloggingpp"
     license = "The MIT License (MIT)"
@@ -15,7 +16,7 @@ class EasyloggingppConan(ConanFile):
     topics = ("logging", "stacktrace", "efficient-logging")
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
-    exports_sources = "CMakeLists.txt",
+    exports_sources = ("CMakeLists.txt",)
     options = {
         "enable_crash_log": [True, False],
         "enable_thread_safe": [True, False],
@@ -28,7 +29,7 @@ class EasyloggingppConan(ConanFile):
         "disable_error_logs": [True, False],
         "disable_fatal_logs": [True, False],
         "disable_verbose_logs": [True, False],
-        "disable_trace_logs": [True, False]
+        "disable_trace_logs": [True, False],
     }
     default_options = {
         "enable_crash_log": False,
@@ -42,13 +43,9 @@ class EasyloggingppConan(ConanFile):
         "disable_error_logs": False,
         "disable_fatal_logs": False,
         "disable_verbose_logs": False,
-        "disable_trace_logs": False
+        "disable_trace_logs": False,
     }
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -75,8 +72,12 @@ class EasyloggingppConan(ConanFile):
         return self._cmake
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        files.get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         cmake = self._configure_cmake()
@@ -86,9 +87,7 @@ class EasyloggingppConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         files.rmdir(self, os.path.join(self.package_folder, "share"))
-        self.copy(pattern="LICENSE",
-                  dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "easyloggingpp"
@@ -118,4 +117,3 @@ class EasyloggingppConan(ConanFile):
             self.cpp_info.defines.append("ELPP_DISABLE_VERBOSE_LOGS")
         if self.options.disable_trace_logs:
             self.cpp_info.defines.append("ELPP_DISABLE_TRACE_LOGS")
-

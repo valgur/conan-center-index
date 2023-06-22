@@ -8,8 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class CqrlibConan(ConanFile):
     name = "cqrlib"
-    description = "CQRlib is an ANSI C implementation of a utility library " \
-                  "for quaternion arithmetic and quaternion rotation math."
+    description = (
+        "CQRlib is an ANSI C implementation of a utility library "
+        "for quaternion arithmetic and quaternion rotation math."
+    )
     license = "LGPL-2.1-only"
     topics = ("cqrlib", "quaternion")
     homepage = "https://github.com/yayahjb/cqrlib"
@@ -54,7 +56,12 @@ class CqrlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "lgpl.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "lgpl.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

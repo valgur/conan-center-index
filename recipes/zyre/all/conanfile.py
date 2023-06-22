@@ -5,14 +5,14 @@ import functools
 
 required_conan_version = ">=1.33.0"
 
+
 class ZyreConan(ConanFile):
     name = "zyre"
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zeromq/zyre"
     description = "Local Area Clustering for Peer-to-Peer Applications."
-    topics = ("zyre", "czmq", "zmq", "zeromq",
-              "message-queue", "asynchronous")
+    topics = ("zyre", "czmq", "zmq", "zeromq", "message-queue", "asynchronous")
     settings = "os", "arch", "compiler", "build_type"
     generators = ["cmake", "cmake_find_package"]
     options = {
@@ -25,10 +25,6 @@ class ZyreConan(ConanFile):
         "fPIC": True,
         "drafts": False,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -54,8 +50,11 @@ class ZyreConan(ConanFile):
             self.requires("libsystemd/249.7")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -74,18 +73,37 @@ class ZyreConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", src=self._source_subfolder,
-                  dst="licenses")
+        self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig",))
-        tools.rmdir(os.path.join(self.package_folder, "share",))
-        tools.rmdir(os.path.join(self.package_folder, "cmake",))
+        tools.rmdir(
+            os.path.join(
+                self.package_folder,
+                "lib",
+                "pkgconfig",
+            )
+        )
+        tools.rmdir(
+            os.path.join(
+                self.package_folder,
+                "share",
+            )
+        )
+        tools.rmdir(
+            os.path.join(
+                self.package_folder,
+                "cmake",
+            )
+        )
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libzyre"
-        
-        libname = "libzyre" if tools.Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared else "zyre"
+
+        libname = (
+            "libzyre"
+            if tools.Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared
+            else "zyre"
+        )
         self.cpp_info.libs = [libname]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "dl", "rt", "m"]

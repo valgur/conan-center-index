@@ -64,7 +64,8 @@ class LibsrtpRecipe(ConanFile):
 
     def build(self):
         replace_in_file(
-            self, os.path.join(self.source_folder, "CMakeLists.txt"),
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "install(TARGETS srtp2 DESTINATION lib)",
             (
                 "include(GNUInstallDirs)\n"
@@ -79,7 +80,12 @@ class LibsrtpRecipe(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

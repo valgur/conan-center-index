@@ -55,5 +55,5 @@ class SysConfigGLUConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["glu32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            pkg_config = PkgConfig(self, 'glu')
+            pkg_config = PkgConfig(self, "glu")
             pkg_config.fill_cpp_info(self.cpp_info, is_system=self.settings.os != "FreeBSD")

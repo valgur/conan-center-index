@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -9,7 +17,9 @@ required_conan_version = ">=1.53.0"
 
 class LibmikmodConan(ConanFile):
     name = "libmikmod"
-    description = "Module player and library supporting many formats, including mod, s3m, it, and xm."
+    description = (
+        "Module player and library supporting many formats, including mod, s3m, it, and xm."
+    )
     topics = ("audio",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mikmod.sourceforge.net"
@@ -95,14 +105,20 @@ class LibmikmodConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
 
-         # Ensure missing dependencies yields errors
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "MESSAGE(WARNING",
-                              "MESSAGE(FATAL_ERROR")
+        # Ensure missing dependencies yields errors
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "MESSAGE(WARNING",
+            "MESSAGE(FATAL_ERROR",
+        )
 
-        replace_in_file(self, os.path.join(self.source_folder, "drivers", "drv_alsa.c"),
-                              "alsa_pcm_close(pcm_h);",
-                              "if (pcm_h) alsa_pcm_close(pcm_h);")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "drivers", "drv_alsa.c"),
+            "alsa_pcm_close(pcm_h);",
+            "if (pcm_h) alsa_pcm_close(pcm_h);",
+        )
 
     def build(self):
         self._patch_sources()
@@ -111,7 +127,12 @@ class LibmikmodConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.LESSER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.LESSER",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         if self.settings.os == "Windows" and self.options.shared:

@@ -11,6 +11,7 @@ from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.53.0"
 
+
 class ReadLineConan(ConanFile):
     name = "readline"
     description = "A set of functions for use by applications that allow users to edit command lines as they are typed in"
@@ -64,9 +65,11 @@ class ReadLineConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--with-curses={}".format("yes" if self.options.with_library == "curses" else "no"),
-        ])
+        tc.configure_args.extend(
+            [
+                "--with-curses={}".format("yes" if self.options.with_library == "curses" else "no"),
+            ]
+        )
         if cross_building(self):
             tc.configure_args.append("bash_cv_wcwidth_broken=yes")
         tc.generate()
@@ -74,9 +77,15 @@ class ReadLineConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "shlib", "Makefile.in"), "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
-                              "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap")
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "shlib", "Makefile.in"),
+            "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
+            "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap",
+        )
+        replace_in_file(
+            self, os.path.join(self.source_folder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap"
+        )
 
     def build(self):
         self._patch_sources()
@@ -85,7 +94,12 @@ class ReadLineConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
 

@@ -10,10 +10,16 @@ required_conan_version = ">=1.53.0"
 class AwsCCompression(ConanFile):
     name = "aws-c-compression"
     description = "C99 implementation of huffman encoding/decoding"
-    topics = ("aws", "amazon", "cloud", "compression", "huffman", )
+    topics = (
+        "aws",
+        "amazon",
+        "cloud",
+        "compression",
+        "huffman",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-compression"
-    license = "Apache-2.0",
+    license = ("Apache-2.0",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -57,7 +63,12 @@ class AwsCCompression(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-compression"))
@@ -65,18 +76,20 @@ class AwsCCompression(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-compression": "aws-c-compression::aws-c-compression"}
+            {"AWS::aws-c-compression": "aws-c-compression::aws-c-compression"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.43.0"
 
+
 class TinkerforgeBindingsConan(ConanFile):
     name = "tinkerforge-bindings"
     url = "https://github.com/conan-io/conan-center-index"
@@ -26,10 +27,6 @@ class TinkerforgeBindingsConan(ConanFile):
     generators = "cmake"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -47,11 +44,19 @@ class TinkerforgeBindingsConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio" and self.options.shared and "MT" in self.settings.compiler.runtime:
+        if (
+            self.settings.compiler == "Visual Studio"
+            and self.options.shared
+            and "MT" in self.settings.compiler.runtime
+        ):
             raise ConanInvalidConfiguration("Static runtime + shared is failing to link")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=False)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=False
+        )
 
     def _configure_cmake(self):
         if self._cmake:

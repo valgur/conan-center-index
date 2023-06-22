@@ -9,7 +9,7 @@ class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
-    
+
     def requirements(self):
         self.requires(self.tested_reference_str)
 

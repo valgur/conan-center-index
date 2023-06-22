@@ -3,6 +3,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class PlusaesConan(ConanFile):
     name = "plusaes"
     description = "Header only C++ AES cipher library"
@@ -13,10 +14,6 @@ class PlusaesConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def package_id(self):
         self.info.header_only()
 
@@ -25,8 +22,11 @@ class PlusaesConan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         root_dir = self._source_subfolder

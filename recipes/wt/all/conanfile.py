@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
@@ -8,6 +15,7 @@ import os
 import shutil
 
 required_conan_version = ">=1.53.0"
+
 
 class WtConan(ConanFile):
     name = "wt"
@@ -113,8 +121,10 @@ class WtConan(ConanFile):
             self.requires("libunwind/1.6.2")
 
     def validate(self):
-        miss_boost_required_comp = any(self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-                                       for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
+            for boost_comp in self._required_boost_components
+        )
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
@@ -126,7 +136,7 @@ class WtConan(ConanFile):
 
     def _get_library_extension(self, dep):
         if self.dependencies[dep].options.shared:
-            if self.settings.os == "Windows" :
+            if self.settings.os == "Windows":
                 if is_msvc(self):
                     return ".lib"
                 else:
@@ -150,15 +160,19 @@ class WtConan(ConanFile):
 
     def _find_library(self, libname, dep):
         for path in self.dependencies[dep].cpp_info.aggregated_components().libdirs:
-            lib_fullpath = os.path.join(path, self._get_library_prefix + libname + self._get_library_extension(dep))
+            lib_fullpath = os.path.join(
+                path, self._get_library_prefix + libname + self._get_library_extension(dep)
+            )
             self.output.info("_find_library : " + str(lib_fullpath))
             if os.path.isfile(lib_fullpath):
                 return lib_fullpath
         raise ConanException(f"Library {lib_fullpath} not found")
 
     def _find_libraries(self, dep):
-
-        return [self._find_library(lib, dep) for lib in self.dependencies[dep].cpp_info.aggregated_components().libs]
+        return [
+            self._find_library(lib, dep)
+            for lib in self.dependencies[dep].cpp_info.aggregated_components().libs
+        ]
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -190,34 +204,66 @@ class WtConan(ConanFile):
 
         # FIXME: all this logic coming from upstream custom find module files seems fragile, to improve later !
         #        we can't even inject cmake_find_package generator, it breaks the all upstream logic
-        tc.variables["BOOST_PREFIX"] = self._cmakify_path_list(self.dependencies["boost"].package_folder)
+        tc.variables["BOOST_PREFIX"] = self._cmakify_path_list(
+            self.dependencies["boost"].package_folder
+        )
         if self.options.connector_http:
-            tc.variables["ZLIB_PREFIX"] = self._cmakify_path_list(self.dependencies["zlib"].package_folder)
+            tc.variables["ZLIB_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["zlib"].package_folder
+            )
         if self.options.with_ssl:
-            tc.variables["SSL_PREFIX"] = self._cmakify_path_list(self.dependencies["openssl"].package_folder)
-            tc.variables["OPENSSL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("openssl"))
-            tc.variables["OPENSSL_INCLUDE_DIR"] = self._cmakify_path_list(self.dependencies["openssl"].cpp_info.aggregated_components().includedirs)
+            tc.variables["SSL_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["openssl"].package_folder
+            )
+            tc.variables["OPENSSL_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("openssl")
+            )
+            tc.variables["OPENSSL_INCLUDE_DIR"] = self._cmakify_path_list(
+                self.dependencies["openssl"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["OPENSSL_FOUND"] = True
         if self.options.get_safe("with_sqlite"):
-            tc.variables["SQLITE3_PREFIX"] = self._cmakify_path_list(self.dependencies["sqlite3"].package_folder)
+            tc.variables["SQLITE3_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["sqlite3"].package_folder
+            )
         if self.options.get_safe("with_mysql"):
-            tc.variables["MYSQL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libmysqlclient"))
-            libmysqlclient_cppinfo = self.dependencies["libmysqlclient"].cpp_info.aggregated_components()
-            tc.variables["MYSQL_INCLUDE"] = self._cmakify_path_list(libmysqlclient_cppinfo.includedirs)
-            tc.variables["MYSQL_DEFINITIONS"] = ";".join(f"-D{d}" for d in libmysqlclient_cppinfo.defines)
+            tc.variables["MYSQL_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libmysqlclient")
+            )
+            libmysqlclient_cppinfo = self.dependencies[
+                "libmysqlclient"
+            ].cpp_info.aggregated_components()
+            tc.variables["MYSQL_INCLUDE"] = self._cmakify_path_list(
+                libmysqlclient_cppinfo.includedirs
+            )
+            tc.variables["MYSQL_DEFINITIONS"] = ";".join(
+                f"-D{d}" for d in libmysqlclient_cppinfo.defines
+            )
             tc.variables["MYSQL_FOUND"] = True
         if self.options.get_safe("with_postgres"):
-            tc.variables["POSTGRES_PREFIX"] = self._cmakify_path_list(self.dependencies["libpq"].package_folder)
-            tc.variables["POSTGRES_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libpq"))
-            tc.variables["POSTGRES_INCLUDE"] = self._cmakify_path_list(self.dependencies["libpq"].cpp_info.aggregated_components().includedirs)
+            tc.variables["POSTGRES_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["libpq"].package_folder
+            )
+            tc.variables["POSTGRES_LIBRARIES"] = self._cmakify_path_list(
+                self._find_libraries("libpq")
+            )
+            tc.variables["POSTGRES_INCLUDE"] = self._cmakify_path_list(
+                self.dependencies["libpq"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["POSTGRES_FOUND"] = True
         if self.options.get_safe("with_mssql") and self.settings.os != "Windows":
-            tc.variables["ODBC_PREFIX"] = self._cmakify_path_list(self.dependencies["odbc"].package_folder)
+            tc.variables["ODBC_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["odbc"].package_folder
+            )
             tc.variables["ODBC_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("odbc"))
-            tc.variables["ODBC_INCLUDE"] = self._cmakify_path_list(self.dependencies["odbc"].cpp_info.aggregated_components().includedirs)
+            tc.variables["ODBC_INCLUDE"] = self._cmakify_path_list(
+                self.dependencies["odbc"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["ODBC_FOUND"] = True
         if self.options.get_safe("with_unwind"):
-            tc.variables["UNWIND_PREFIX"] = self._cmakify_path_list(self.dependencies["libunwind"].package_folder)
+            tc.variables["UNWIND_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["libunwind"].package_folder
+            )
         if self.settings.os == "Windows":
             tc.variables["CONNECTOR_FCGI"] = False
             tc.variables["CONNECTOR_ISAPI"] = self.options.connector_isapi
@@ -235,27 +281,45 @@ class WtConan(ConanFile):
         apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "find_package(OpenSSL)", "#find_package(OpenSSL)")
-        replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindMysql.txt)", "#INCLUDE(cmake/WtFindMysql.txt)")
-        replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindPostgresql.txt)", "#INCLUDE(cmake/WtFindPostgresql.txt)")
+        replace_in_file(
+            self, cmakelists, "INCLUDE(cmake/WtFindMysql.txt)", "#INCLUDE(cmake/WtFindMysql.txt)"
+        )
+        replace_in_file(
+            self,
+            cmakelists,
+            "INCLUDE(cmake/WtFindPostgresql.txt)",
+            "#INCLUDE(cmake/WtFindPostgresql.txt)",
+        )
         if self.settings.os != "Windows":
-            replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)")
+            replace_in_file(
+                self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)"
+            )
 
         # Do not pollute rpath of shared libs of the install tree on macOS please
-        replace_in_file(self,
+        replace_in_file(
+            self,
             cmakelists,
-            "IF(APPLE)\n  SET(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")",
+            'IF(APPLE)\n  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")',
             "if(0)",
         )
 
-        replace_in_file(self,
+        replace_in_file(
+            self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
             "TARGET_LINK_LIBRARIES(wt PRIVATE Crypt32.lib)",
-            "TARGET_LINK_LIBRARIES(wt PUBLIC crypt32)"
+            "TARGET_LINK_LIBRARIES(wt PUBLIC crypt32)",
         )
 
-        dbo_cmakelsts = os.path.join(self.source_folder, "src", "Wt", "Dbo", "backend", "CMakeLists.txt")
-        replace_in_file(self, dbo_cmakelsts, "FIND_PACKAGE( Sqlite3 REQUIRED)", "FIND_PACKAGE( SQLite3 REQUIRED)")
-        replace_in_file(self, dbo_cmakelsts, '${SQLITE3_LIBRARIES}', '${SQLite3_LIBRARIES}')
+        dbo_cmakelsts = os.path.join(
+            self.source_folder, "src", "Wt", "Dbo", "backend", "CMakeLists.txt"
+        )
+        replace_in_file(
+            self,
+            dbo_cmakelsts,
+            "FIND_PACKAGE( Sqlite3 REQUIRED)",
+            "FIND_PACKAGE( SQLite3 REQUIRED)",
+        )
+        replace_in_file(self, dbo_cmakelsts, "${SQLITE3_LIBRARIES}", "${SQLite3_LIBRARIES}")
 
     def build(self):
         self._patch_sources()
@@ -264,10 +328,18 @@ class WtConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
-        shutil.move(os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin"))
+        shutil.move(
+            os.path.join(self.package_folder, "share", "Wt"),
+            os.path.join(self.package_folder, "bin"),
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "var"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -329,7 +401,9 @@ class WtConan(ConanFile):
 
         # wtdbosqlite3
         if self.options.get_safe("with_sqlite"):
-            self.cpp_info.components["wtdbosqlite3"].set_property("cmake_target_name", "Wt::DboSqlite3")
+            self.cpp_info.components["wtdbosqlite3"].set_property(
+                "cmake_target_name", "Wt::DboSqlite3"
+            )
             self.cpp_info.components["wtdbosqlite3"].libs = ["wtdbosqlite3{}".format(suffix)]
             self.cpp_info.components["wtdbosqlite3"].requires = ["wtdbo", "sqlite3::sqlite3"]
             if self.settings.os in ["Linux", "FreeBSD"]:
@@ -337,7 +411,9 @@ class WtConan(ConanFile):
 
         # wtdbopostgres
         if self.options.get_safe("with_postgres"):
-            self.cpp_info.components["wtdbopostgres"].set_property("cmake_target_name", "Wt::DboPostgres")
+            self.cpp_info.components["wtdbopostgres"].set_property(
+                "cmake_target_name", "Wt::DboPostgres"
+            )
             self.cpp_info.components["wtdbopostgres"].libs = ["wtdbopostgres{}".format(suffix)]
             self.cpp_info.components["wtdbopostgres"].requires = ["wtdbo", "libpq::libpq"]
 
@@ -345,12 +421,19 @@ class WtConan(ConanFile):
         if self.options.get_safe("with_mysql"):
             self.cpp_info.components["wtdbomysql"].set_property("cmake_target_name", "Wt::DboMySQL")
             self.cpp_info.components["wtdbomysql"].libs = ["wtdbomysql{}".format(suffix)]
-            self.cpp_info.components["wtdbomysql"].requires = ["wtdbo", "libmysqlclient::libmysqlclient"]
+            self.cpp_info.components["wtdbomysql"].requires = [
+                "wtdbo",
+                "libmysqlclient::libmysqlclient",
+            ]
 
         # wtdbomssqlserver
         if self.options.get_safe("with_mssql"):
-            self.cpp_info.components["wtdbomssqlserver"].set_property("cmake_target_name", "Wt::DboMSSQLServer")
-            self.cpp_info.components["wtdbomssqlserver"].libs = ["wtdbomssqlserver{}".format(suffix)]
+            self.cpp_info.components["wtdbomssqlserver"].set_property(
+                "cmake_target_name", "Wt::DboMSSQLServer"
+            )
+            self.cpp_info.components["wtdbomssqlserver"].libs = [
+                "wtdbomssqlserver{}".format(suffix)
+            ]
             self.cpp_info.components["wtdbomssqlserver"].requires = ["wtdbo"]
             if self.settings.os == "Windows":
                 self.cpp_info.components["wtdbomssqlserver"].system_libs.append("odbc32")
@@ -381,13 +464,21 @@ class WtConan(ConanFile):
             self.cpp_info.components["wtdbo"].names["cmake_find_package_multi"] = "Dbo"
         if self.options.get_safe("with_sqlite"):
             self.cpp_info.components["wtdbosqlite3"].names["cmake_find_package"] = "DboSqlite3"
-            self.cpp_info.components["wtdbosqlite3"].names["cmake_find_package_multi"] = "DboSqlite3"
+            self.cpp_info.components["wtdbosqlite3"].names[
+                "cmake_find_package_multi"
+            ] = "DboSqlite3"
         if self.options.get_safe("with_postgres"):
             self.cpp_info.components["wtdbopostgres"].names["cmake_find_package"] = "DboPostgres"
-            self.cpp_info.components["wtdbopostgres"].names["cmake_find_package_multi"] = "DboPostgres"
+            self.cpp_info.components["wtdbopostgres"].names[
+                "cmake_find_package_multi"
+            ] = "DboPostgres"
         if self.options.get_safe("with_mysql"):
             self.cpp_info.components["wtdbomysql"].names["cmake_find_package"] = "DboMySQL"
             self.cpp_info.components["wtdbomysql"].names["cmake_find_package_multi"] = "DboMySQL"
         if self.options.get_safe("with_mssql"):
-            self.cpp_info.components["wtdbomssqlserver"].names["cmake_find_package"] = "DboMSSQLServer"
-            self.cpp_info.components["wtdbomssqlserver"].names["cmake_find_package_multi"] = "DboMSSQLServer"
+            self.cpp_info.components["wtdbomssqlserver"].names[
+                "cmake_find_package"
+            ] = "DboMSSQLServer"
+            self.cpp_info.components["wtdbomssqlserver"].names[
+                "cmake_find_package_multi"
+            ] = "DboMSSQLServer"

@@ -123,9 +123,7 @@ class LelyConan(ConanFile):
                 "hence support for it will be skipped for now "
             )
         if self.settings.compiler != "gcc":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can only be compiled with GCC currently"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} can only be compiled with GCC currently")
 
     def source(self):
         get(
@@ -233,9 +231,5 @@ class LelyConan(ConanFile):
         }
         for component, dependencies in components.items():
             self.cpp_info.components[component].libs = [f"lely-{component}"]
-            self.cpp_info.components[component].requires = dependencies.get(
-                "requires", []
-            )
-            self.cpp_info.components[component].system_libs = dependencies.get(
-                "system_libs", []
-            )
+            self.cpp_info.components[component].requires = dependencies.get("requires", [])
+            self.cpp_info.components[component].system_libs = dependencies.get("system_libs", [])

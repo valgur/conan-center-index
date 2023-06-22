@@ -13,9 +13,7 @@ required_conan_version = ">=1.53.0"
 
 class MBitsUtfConvConan(ConanFile):
     name = "mbits-utfconv"
-    description = (
-        "Conversion library between string, u16string, u32string and u8string."
-    )
+    description = "Conversion library between string, u16string, u32string and u8string."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mbits-libs/utfconv"
@@ -61,10 +59,7 @@ class MBitsUtfConvConan(ConanFile):
             minimum_version = self._compilers_minimum_version.get(
                 str(self.settings.compiler), False
             )
-            if (
-                minimum_version
-                and Version(self.settings.compiler.version) < minimum_version
-            ):
+            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
@@ -108,8 +103,6 @@ class MBitsUtfConvConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-utfconv"
         self.cpp_info.names["cmake_find_package"] = "mbits"
         self.cpp_info.names["cmake_find_package_multi"] = "mbits"
-        self.cpp_info.components["utfconv"].set_property(
-            "cmake_target_name", "mbits::utfconv"
-        )
+        self.cpp_info.components["utfconv"].set_property("cmake_target_name", "mbits::utfconv")
         self.cpp_info.components["utfconv"].libs = ["utfconv"]
         self.cpp_info.components["utfconv"].requires = ["mbits-semver::semver"]

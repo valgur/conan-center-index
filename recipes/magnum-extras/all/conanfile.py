@@ -35,10 +35,6 @@ class MagnumExtrasConan(ConanFile):
     short_paths = True
     generators = "cmake", "cmake_find_package"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         self.copy("CMakeLists.txt")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -72,14 +68,19 @@ class MagnumExtrasConan(ConanFile):
         if not getattr(self.options["magnum"], opt_name):
             raise ConanInvalidConfiguration("Magnum needs option '{opt}=True'".format(opt=opt_name))
         if self.settings.os == "Emscripten" and self.options["magnum"].target_gl == "gles2":
-            raise ConanInvalidConfiguration("OpenGL ES 3 required, use option 'magnum:target_gl=gles3'")
+            raise ConanInvalidConfiguration(
+                "OpenGL ES 3 required, use option 'magnum:target_gl=gles3'"
+            )
 
     def build_requirements(self):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -100,17 +101,27 @@ class MagnumExtrasConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
-                              "")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
+            "",
+        )
 
-        cmakelists = [os.path.join("src", "Magnum", "Ui", "CMakeLists.txt"),
-                      os.path.join("src", "player","CMakeLists.txt")]
-        app_name = "{}Application".format("XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize())
+        cmakelists = [
+            os.path.join("src", "Magnum", "Ui", "CMakeLists.txt"),
+            os.path.join("src", "player", "CMakeLists.txt"),
+        ]
+        app_name = "{}Application".format(
+            "XEgl"
+            if self.options.application == "xegl"
+            else str(self.options.application).capitalize()
+        )
         for cmakelist in cmakelists:
-            tools.replace_in_file(os.path.join(self._source_subfolder, cmakelist),
-                                  "Magnum::Application",
-                                  "Magnum::{}".format(app_name))
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, cmakelist),
+                "Magnum::Application",
+                "Magnum::{}".format(app_name),
+            )
 
     def build(self):
         self._patch_sources()
@@ -136,9 +147,14 @@ class MagnumExtrasConan(ConanFile):
             self.cpp_info.components["ui"].names["cmake_find_package"] = "Ui"
             self.cpp_info.components["ui"].names["cmake_find_package_multi"] = "Ui"
             self.cpp_info.components["ui"].libs = ["MagnumUi{}".format(lib_suffix)]
-            self.cpp_info.components["ui"].requires = ["corrade::interconnect", "magnum::magnum_main", "magnum::gl", "magnum::text"]
+            self.cpp_info.components["ui"].requires = [
+                "corrade::interconnect",
+                "magnum::magnum_main",
+                "magnum::gl",
+                "magnum::text",
+            ]
 
         if self.options.player or self.options.ui_gallery:
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info('Appending PATH environment variable: %s' % bin_path)
+            self.output.info("Appending PATH environment variable: %s" % bin_path)
             self.env_info.path.append(bin_path)

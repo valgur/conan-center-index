@@ -21,10 +21,6 @@ class LzipConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -43,22 +39,30 @@ class LzipConan(ConanFile):
         tools.rmdir("detectdir")
         tools.mkdir("detectdir")
         with tools.chdir("detectdir"):
-            tools.save("CMakeLists.txt", textwrap.dedent("""\
+            tools.save(
+                "CMakeLists.txt",
+                textwrap.dedent(
+                    """\
                 cmake_minimum_required(VERSION 2.8)
                 project(test C CXX)
                 message(STATUS "CC=${CMAKE_C_COMPILER}")
                 message(STATUS "CXX=${CMAKE_CXX_COMPILER}")
                 file(WRITE cc.txt "${CMAKE_C_COMPILER}")
                 file(WRITE cxx.txt "${CMAKE_CXX_COMPILER}")
-                """))
+                """
+                ),
+            )
             CMake(self).configure(source_folder="detectdir", build_folder="detectdir")
             cc = tools.load("cc.txt").strip()
             cxx = tools.load("cxx.txt").strip()
         return cc, cxx
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -75,8 +79,7 @@ class LzipConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        conf_args = [
-        ]
+        conf_args = []
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         return self._autotools
 

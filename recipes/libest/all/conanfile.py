@@ -12,14 +12,16 @@ class LibEstConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "patches/**"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -31,8 +33,7 @@ class LibEstConan(ConanFile):
 
     def configure(self):
         if self.settings.os in ("Windows", "Macos"):
-            raise ConanInvalidConfiguration(
-                "Platform is currently not supported by this recipe")
+            raise ConanInvalidConfiguration("Platform is currently not supported by this recipe")
         if self.options.shared:
             del self.options.fPIC
         del self.settings.compiler.libcxx
@@ -49,14 +50,14 @@ class LibEstConan(ConanFile):
     def _configure_autotools(self):
         if not self._autotools:
             self._autotools = AutoToolsBuildEnvironment(self)
-            # TODO: 
+            # TODO:
             # - Static only build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L140
             # - Release build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L253
             args = []
             if self.options.shared:
-                 args.extend(["--enable-shared", "--disable-static"])
+                args.extend(["--enable-shared", "--disable-static"])
             else:
-                 args.extend(["--disable-shared", "--enable-static"])
+                args.extend(["--disable-shared", "--enable-static"])
             self._autotools.configure(args=args)
         return self._autotools
 

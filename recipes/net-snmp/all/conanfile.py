@@ -39,9 +39,7 @@ class NetSnmpConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and not self._is_msvc:
-            raise ConanInvalidConfiguration(
-                "net-snmp is setup to build only with MSVC on Windows"
-            )
+            raise ConanInvalidConfiguration("net-snmp is setup to build only with MSVC on Windows")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version], strip_root=True)
@@ -68,20 +66,14 @@ class NetSnmpConan(ConanFile):
         ssl_info = self.deps_cpp_info["openssl"]
         openssl_root = ssl_info.rootpath.replace("\\", "/")
         search_replace = [
-            (
-                r'$default_openssldir . "\\include"',
-                f"'{openssl_root}/include'"
-            ),
+            (r'$default_openssldir . "\\include"', f"'{openssl_root}/include'"),
             (r'$default_openssldir . "\\lib\\VC"', f"'{openssl_root}/lib'"),
-            ("$openssl = false", "$openssl = true")
+            ("$openssl = false", "$openssl = true"),
         ]
         if self._is_debug:
             search_replace.append(("$debug = false", "$debug = true"))
         if self.options.shared:
-            search_replace.append((
-                "$link_dynamic = false",
-                "$link_dynamic = true"
-            ))
+            search_replace.append(("$link_dynamic = false", "$link_dynamic = true"))
         if self.options.with_ipv6:
             search_replace.append(("$b_ipv6 = false", "$b_ipv6 = true"))
         for search, replace in search_replace:
@@ -89,8 +81,7 @@ class NetSnmpConan(ConanFile):
         runtime = self.settings.compiler.runtime
         tools.replace_in_file("win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
-            f'#    pragma comment(lib, "{lib}.lib")'
-            for lib in ssl_info.libs + ssl_info.system_libs
+            f'#    pragma comment(lib, "{lib}.lib")' for lib in ssl_info.libs + ssl_info.system_libs
         )
         config = r"win32\net-snmp\net-snmp-config.h.in"
         tools.replace_in_file(config, "/* Conan: system_libs */", link_lines)
@@ -130,23 +121,19 @@ class NetSnmpConan(ConanFile):
         return autotools
 
     def _patch_unix(self):
-        tools.replace_in_file(
-            "configure",
-            "-install_name \\$rpath/",
-            "-install_name @rpath/"
-        )
+        tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
         crypto_libs = self.deps_cpp_info["openssl"].system_libs
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
             tools.replace_in_file(
                 "configure",
                 'LIBCRYPTO="-l${CRYPTO}"',
-                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,)
+                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,),
             )
             tools.replace_in_file(
                 "configure",
                 'LIBS="-lcrypto  $LIBS"',
-                f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
+                f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"',
             )
 
     def build(self):
@@ -157,13 +144,12 @@ class NetSnmpConan(ConanFile):
         else:
             self._patch_unix()
             os.chmod("configure", os.stat("configure").st_mode | stat.S_IEXEC)
-            self._configure_autotools()\
-                .make(target="snmplib", args=["NOAUTODEPS=1"])
+            self._configure_autotools().make(target="snmplib", args=["NOAUTODEPS=1"])
 
     def _package_msvc(self):
         cfg = "debug" if self._is_debug else "release"
-        self.copy("netsnmp.dll", "bin", fr"win32\bin\{cfg}")
-        self.copy("netsnmp.lib", "lib", fr"win32\lib\{cfg}")
+        self.copy("netsnmp.dll", "bin", rf"win32\bin\{cfg}")
+        self.copy("netsnmp.lib", "lib", rf"win32\lib\{cfg}")
         self.copy("include/net-snmp/*.h")
         for directory in ["", "agent/", "library/"]:
             self.copy(f"net-snmp/{directory}*.h", "include", "win32")

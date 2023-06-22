@@ -40,12 +40,17 @@ class ExprTkConan(ConanFile):
         file = os.path.join(self.source_folder, exprtk_header_file)
         file_content = load(self, file)
         license_end = "/MIT                        *"
-        license_contents = file_content[2:file_content.find(license_end) + len(license_end)]
+        license_contents = file_content[2 : file_content.find(license_end) + len(license_end)]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
         self._extract_license()
-        copy(self, "exprtk.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(
+            self,
+            "exprtk.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

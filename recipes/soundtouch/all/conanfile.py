@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class SoundTouchConan(ConanFile):
     name = "soundtouch"
     description = "an open-source audio processing library that allows changing the sound tempo, pitch and playback rate parameters independently"
@@ -44,7 +45,12 @@ class SoundTouchConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -60,7 +66,12 @@ class SoundTouchConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING.TXT",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -73,7 +84,9 @@ class SoundTouchConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SoundTouch")
 
-        self.cpp_info.components["_soundtouch"].set_property("cmake_target_name", "SoundTouch::SoundTouch")
+        self.cpp_info.components["_soundtouch"].set_property(
+            "cmake_target_name", "SoundTouch::SoundTouch"
+        )
         self.cpp_info.components["_soundtouch"].set_property("pkg_config_name", "soundtouch")
         self.cpp_info.components["_soundtouch"].libs = ["SoundTouch"]
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -90,7 +103,9 @@ class SoundTouchConan(ConanFile):
             self.cpp_info.components["_soundtouch"].exelinkflags = openmp_flags
 
         if self.options.with_dll:
-            self.cpp_info.components["SoundTouchDLL"].set_property("cmake_target_name", "SoundTouch::SoundTouchDLL")
+            self.cpp_info.components["SoundTouchDLL"].set_property(
+                "cmake_target_name", "SoundTouch::SoundTouchDLL"
+            )
             self.cpp_info.components["SoundTouchDLL"].libs = ["SoundTouchDLL"]
             self.cpp_info.components["SoundTouchDLL"].requires = ["_soundtouch"]
 
@@ -107,7 +122,9 @@ class SoundTouchConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "SoundTouch"
         if self.options.with_dll:
             self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package"] = "SoundTouchDLL"
-            self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package_multi"] = "SoundTouchDLL"
+            self.cpp_info.components["SoundTouchDLL"].names[
+                "cmake_find_package_multi"
+            ] = "SoundTouchDLL"
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("mvec")

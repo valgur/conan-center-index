@@ -3,6 +3,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class LightPcapNgConan(ConanFile):
     name = "lightpcapng"
     homepage = "https://github.com/Technica-Engineering/LightPcapNg"
@@ -26,10 +27,6 @@ class LightPcapNgConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -50,7 +47,11 @@ class LightPcapNgConan(ConanFile):
             self.requires("zstd/1.4.5")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         cmake = self._configure_cmake()
@@ -74,9 +75,10 @@ class LightPcapNgConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "light_pcapng"
         self.cpp_info.names["cmake_find_package_multi"] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].names["cmake_find_package"] = "light_pcapng"
-        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package_multi"] = "light_pcapng"
+        self.cpp_info.components["liblight_pcapng"].names[
+            "cmake_find_package_multi"
+        ] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].libs = ["light_pcapng"]
 
         if self.options.with_zstd:
             self.cpp_info.components["liblight_pcapng"].requires = ["zstd::zstd"]
-

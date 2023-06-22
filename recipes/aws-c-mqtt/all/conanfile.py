@@ -11,7 +11,7 @@ required_conan_version = ">=1.47.0"
 class AwsCMQTT(ConanFile):
     name = "aws-c-mqtt"
     description = "C99 implementation of the MQTT 3.1.1 specification."
-    license = "Apache-2.0",
+    license = ("Apache-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-mqtt"
     topics = ("aws", "amazon", "cloud", "mqtt")
@@ -58,7 +58,12 @@ class AwsCMQTT(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -74,7 +79,12 @@ class AwsCMQTT(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-mqtt"))
@@ -89,12 +99,14 @@ class AwsCMQTT(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "AWS"
         self.cpp_info.components["aws-c-mqtt-lib"].names["cmake_find_package"] = "aws-c-mqtt"
         self.cpp_info.components["aws-c-mqtt-lib"].names["cmake_find_package_multi"] = "aws-c-mqtt"
-        self.cpp_info.components["aws-c-mqtt-lib"].set_property("cmake_target_name", "AWS::aws-c-mqtt")
+        self.cpp_info.components["aws-c-mqtt-lib"].set_property(
+            "cmake_target_name", "AWS::aws-c-mqtt"
+        )
 
         self.cpp_info.components["aws-c-mqtt-lib"].libs = ["aws-c-mqtt"]
         self.cpp_info.components["aws-c-mqtt-lib"].requires = [
             "aws-c-common::aws-c-common-lib",
             "aws-c-cal::aws-c-cal-lib",
             "aws-c-io::aws-c-io-lib",
-            "aws-c-http::aws-c-http-lib"
+            "aws-c-http::aws-c-http-lib",
         ]

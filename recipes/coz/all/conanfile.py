@@ -25,17 +25,25 @@ class CozConan(ConanFile):
     def validate(self):
         compiler = self.settings.compiler
         compiler_version = tools.Version(self.settings.compiler.version)
-        if self.settings.os == "Macos" or compiler == "Visual Studio" or (
-                compiler == "gcc" and compiler_version < "5.0"):
+        if (
+            self.settings.os == "Macos"
+            or compiler == "Visual Studio"
+            or (compiler == "gcc" and compiler_version < "5.0")
+        ):
             raise ConanInvalidConfiguration(
                 "coz doesn't support compiler: {} on OS: {}.".format(
-                    self.settings.compiler, self.settings.os))
+                    self.settings.compiler, self.settings.os
+                )
+            )
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     _cmake = None
 

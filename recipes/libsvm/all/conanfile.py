@@ -20,11 +20,11 @@ class libsvmConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        }
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
-        }
+    }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -60,7 +60,12 @@ class libsvmConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYRIGHT",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

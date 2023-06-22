@@ -27,10 +27,6 @@ class LibCpuidConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -51,11 +47,16 @@ class LibCpuidConan(ConanFile):
 
     def validate(self):
         if self.settings.arch not in ("x86", "x86_64"):
-            raise ConanInvalidConfiguration("libcpuid is only available for x86 and x86_64 architecture")
+            raise ConanInvalidConfiguration(
+                "libcpuid is only available for x86 and x86_64 architecture"
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:

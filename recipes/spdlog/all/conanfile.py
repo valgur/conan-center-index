@@ -71,10 +71,14 @@ class SpdlogConan(ConanFile):
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, 11)
-        if self.settings.os != "Windows" and (self.options.wchar_support or self.options.wchar_filenames):
+        if self.settings.os != "Windows" and (
+            self.options.wchar_support or self.options.wchar_filenames
+        ):
             raise ConanInvalidConfiguration("wchar is only supported under windows")
         if self.options.get_safe("shared") and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Visual Studio build for shared library with MT runtime is not supported"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -90,7 +94,9 @@ class SpdlogConan(ConanFile):
             tc.variables["SPDLOG_BUILD_BENCH"] = False
             tc.variables["SPDLOG_FMT_EXTERNAL"] = not fmt.options.header_only
             tc.variables["SPDLOG_FMT_EXTERNAL_HO"] = fmt.options.header_only
-            tc.variables["SPDLOG_BUILD_SHARED"] = not self.options.header_only and self.options.shared
+            tc.variables["SPDLOG_BUILD_SHARED"] = (
+                not self.options.header_only and self.options.shared
+            )
             tc.variables["SPDLOG_WCHAR_SUPPORT"] = self.options.wchar_support
             tc.variables["SPDLOG_WCHAR_FILENAMES"] = self.options.wchar_filenames
             tc.variables["SPDLOG_INSTALL"] = True
@@ -113,13 +119,21 @@ class SpdlogConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self.options.header_only:
-            copy(self,
-                 src=os.path.join(self.source_folder, "include"),
-                 pattern="*.h", dst=os.path.join(self.package_folder, "include"),
-                 # Unvendor bundled dependencies https://github.com/gabime/spdlog/commit/18495bf25dad3a4e8c2fe3777a5f79acecde27e3
-                 excludes=("spdlog/fmt/bundled/*"))
+            copy(
+                self,
+                src=os.path.join(self.source_folder, "include"),
+                pattern="*.h",
+                dst=os.path.join(self.package_folder, "include"),
+                # Unvendor bundled dependencies https://github.com/gabime/spdlog/commit/18495bf25dad3a4e8c2fe3777a5f79acecde27e3
+                excludes=("spdlog/fmt/bundled/*"),
+            )
         else:
             cmake = CMake(self)
             cmake.install()

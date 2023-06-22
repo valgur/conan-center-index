@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 class TestPackage(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "cmake_find_package"
@@ -15,7 +16,6 @@ class TestPackage(ConanFile):
         cmake.definitions["WITH_OVR"] = self.options["magnum-integration"].with_ovr
         cmake.configure()
         cmake.build()
-
 
     def test(self):
         if not tools.cross_building(self):

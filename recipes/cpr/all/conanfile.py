@@ -76,7 +76,7 @@ class CprConan(ConanFile):
     def _can_auto_ssl(self):
         # https://github.com/libcpr/cpr/releases/tag/1.6.0
         return not self._uses_old_cmake_options and not (
-           #  https://github.com/libcpr/cpr/issues/546
+            #  https://github.com/libcpr/cpr/issues/546
             Version(self.version) in ["1.6.0", "1.6.1"]
             and is_apple_os(self)
         )
@@ -106,10 +106,14 @@ class CprConan(ConanFile):
         ssl_library = str(self.options.get_safe("with_ssl"))
         if not self._can_auto_ssl and ssl_library == CprConan._AUTO_SSL:
             if self._supports_openssl:
-                self.output.info("Auto SSL is not available below version 1.6.0. Falling back to openssl")
+                self.output.info(
+                    "Auto SSL is not available below version 1.6.0. Falling back to openssl"
+                )
                 self.options.with_ssl = "openssl"
             else:
-                self.output.info("Auto SSL is not available below version 1.6.0 (or below 1.6.2 on macOS), and openssl not supported. Disabling SSL")
+                self.output.info(
+                    "Auto SSL is not available below version 1.6.0 (or below 1.6.2 on macOS), and openssl not supported. Disabling SSL"
+                )
                 self.options.with_ssl = CprConan._NO_SSL
 
         if Version(self.version) < "1.10.0":
@@ -136,7 +140,7 @@ class CprConan(ConanFile):
             "openssl": self._supports_openssl,
             "darwinssl": self._supports_darwinssl,
             "winssl": self._supports_winssl,
-            CprConan._AUTO_SSL: self._can_auto_ssl
+            CprConan._AUTO_SSL: self._can_auto_ssl,
         }
 
         # A KeyError should never happen, as the options are validated by conan.
@@ -155,11 +159,13 @@ class CprConan(ConanFile):
             "openssl": "OpenSSL is not supported on macOS or on CPR versions < 1.5.0",
             "darwinssl": "DarwinSSL is only supported on macOS and on CPR versions >= 1.6.1",
             "winssl": "WinSSL is only on Windows and on CPR versions >= 1.5.1",
-            CprConan._AUTO_SSL: "Automatic SSL selection is only available on CPR versions >= 1.6.0 (and only >= 1.6.2 on macOS)"
+            CprConan._AUTO_SSL: "Automatic SSL selection is only available on CPR versions >= 1.6.0 (and only >= 1.6.2 on macOS)",
         }
 
         if not self._uses_valid_abi_and_compiler:
-            raise ConanInvalidConfiguration(f"Cannot compile {self.ref} with libstdc++ on clang < 9")
+            raise ConanInvalidConfiguration(
+                f"Cannot compile {self.ref} with libstdc++ on clang < 9"
+            )
 
         ssl_library = str(self.options.with_ssl)
         if not self._supports_ssl_library(ssl_library):
@@ -169,7 +175,10 @@ class CprConan(ConanFile):
                 else f"Invalid value of ssl option, {ssl_library}"
             )
 
-        if ssl_library not in (CprConan._AUTO_SSL, CprConan._NO_SSL, "winssl") and ssl_library != self.dependencies["libcurl"].options.with_ssl:
+        if (
+            ssl_library not in (CprConan._AUTO_SSL, CprConan._NO_SSL, "winssl")
+            and ssl_library != self.dependencies["libcurl"].options.with_ssl
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref}:with_ssl={self.options.with_ssl} requires libcurl:with_ssl={self.options.with_ssl}"
             )
@@ -180,9 +189,15 @@ class CprConan(ConanFile):
             )
 
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Visual Studio build for shared library with MT runtime is not supported"
+            )
 
-        if Version(self.version) >= "1.9.0" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
+        if (
+            Version(self.version) >= "1.9.0"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "6"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < 6")
 
     def source(self):
@@ -203,9 +218,7 @@ class CprConan(ConanFile):
             # Get the translated option if we can, or the original if one isn't defined.
             return CPR_1_6_CMAKE_OPTIONS_TO_OLD.get(option, option)
 
-        CPR_1_6_CMAKE_OPTIONS_TO_1_10 = {
-            "CPR_FORCE_USE_SYSTEM_CURL": "CPR_USE_SYSTEM_CURL"
-        }
+        CPR_1_6_CMAKE_OPTIONS_TO_1_10 = {"CPR_FORCE_USE_SYSTEM_CURL": "CPR_USE_SYSTEM_CURL"}
 
         if Version(self.version) >= "1.10.0":
             return CPR_1_6_CMAKE_OPTIONS_TO_1_10.get(option, option)
@@ -223,12 +236,15 @@ class CprConan(ConanFile):
             "CPR_FORCE_DARWINSSL_BACKEND": ssl_value == "darwinssl",
             "CPR_FORCE_OPENSSL_BACKEND": ssl_value == "openssl",
             "CPR_FORCE_WINSSL_BACKEND": ssl_value == "winssl",
-            "CMAKE_USE_OPENSSL": ssl_value == "openssl"
+            "CMAKE_USE_OPENSSL": ssl_value == "openssl",
         }
         for cmake_option, value in SSL_OPTIONS.items():
             tc.variables[self._get_cmake_option(cmake_option)] = value
         # If we are on a version where disabling SSL requires a cmake option, disable it
-        if not self._uses_old_cmake_options and str(self.options.get_safe("with_ssl")) == CprConan._NO_SSL:
+        if (
+            not self._uses_old_cmake_options
+            and str(self.options.get_safe("with_ssl")) == CprConan._NO_SSL
+        ):
             tc.variables["CPR_ENABLE_SSL"] = False
 
         if self.options.get_safe("verbose_logging", False):
@@ -253,7 +269,12 @@ class CprConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

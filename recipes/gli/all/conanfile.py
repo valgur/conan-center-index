@@ -46,7 +46,9 @@ class GliConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 180)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -59,15 +61,23 @@ class GliConan(ConanFile):
         pass
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license()
+        )
         for headers in ("*.hpp", "*.inl", "*.h"):
-            copy(self, headers, src=os.path.join(self.source_folder, "gli"),
-                                dst=os.path.join(self.package_folder, "include", "gli"))
+            copy(
+                self,
+                headers,
+                src=os.path.join(self.source_folder, "gli"),
+                dst=os.path.join(self.package_folder, "include", "gli"),
+            )
 
     def _get_license(self):
         manual = load(self, os.path.join(self.source_folder, "manual.md"))
         begin = manual.find("### The Happy Bunny License (Modified MIT License)")
-        end = manual.find("\n![](https://github.com/g-truc/glm/blob/manual/doc/manual/frontpage2.png)", begin)
+        end = manual.find(
+            "\n![](https://github.com/g-truc/glm/blob/manual/doc/manual/frontpage2.png)", begin
+        )
         return manual[begin:end]
 
     def package_info(self):

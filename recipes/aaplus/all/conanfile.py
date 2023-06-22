@@ -13,7 +13,7 @@ class Aaplusconan(ConanFile):
     name = "aaplus"
     description = (
         "AA+ is a C++ implementation for the algorithms as presented in the "
-        "book \"Astronomical Algorithms\" by Jean Meeus"
+        'book "Astronomical Algorithms" by Jean Meeus'
     )
     license = "Unlicense"
     topics = ("aa+", "astronomy", "astronomical-algorithms", "orbital-mechanics")
@@ -70,7 +70,9 @@ class Aaplusconan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
-        if self.settings.compiler == "clang" and (compiler_version >= "10" and compiler_version < "12"):
+        if self.settings.compiler == "clang" and (
+            compiler_version >= "10" and compiler_version < "12"
+        ):
             raise ConanInvalidConfiguration(
                 "AA+ cannot handle clang 10 and 11 due to filesystem being under experimental namespace"
             )
@@ -89,7 +91,9 @@ class Aaplusconan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -42,8 +42,8 @@ class CAFConan(ConanFile):
             "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
-            "clang": "6",   # Should be 5 but clang 5 has a bug that breaks compiling CAF
-                            # see https://github.com/actor-framework/actor-framework/issues/1226
+            "clang": "6",  # Should be 5 but clang 5 has a bug that breaks compiling CAF
+            # see https://github.com/actor-framework/actor-framework/issues/1226
             "apple-clang": "10",
         }
 
@@ -72,12 +72,19 @@ class CAFConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) > "10.0" and \
-           self.settings.arch == "x86":
+        if (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) > "10.0"
+            and self.settings.arch == "x86"
+        ):
             raise ConanInvalidConfiguration("clang >= 11.0 does not support x86")
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")
-        if self.options.with_openssl and self.settings.os == "Windows" and self.settings.arch == "x86":
+        if (
+            self.options.with_openssl
+            and self.settings.os == "Windows"
+            and self.settings.arch == "x86"
+        ):
             raise ConanInvalidConfiguration("OpenSSL is not supported for Windows x86")
 
     def source(self):
@@ -102,7 +109,12 @@ class CAFConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -124,7 +136,9 @@ class CAFConan(ConanFile):
             self.cpp_info.components["caf_io"].system_libs = ["ws2_32"]
 
         if self.options.with_openssl:
-            self.cpp_info.components["caf_openssl"].set_property("cmake_target_name", "CAF::openssl")
+            self.cpp_info.components["caf_openssl"].set_property(
+                "cmake_target_name", "CAF::openssl"
+            )
             self.cpp_info.components["caf_openssl"].libs = ["caf_openssl"]
             self.cpp_info.components["caf_openssl"].requires = ["caf_io", "openssl::openssl"]
 

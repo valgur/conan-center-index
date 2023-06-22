@@ -13,7 +13,9 @@ class AutoconfArchiveConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/autoconf-archive/"
     license = "GPL-2.0-or-later"
-    description = "The GNU Autoconf Archive is a collection of more than 500 macros for GNU Autoconf"
+    description = (
+        "The GNU Autoconf Archive is a collection of more than 500 macros for GNU Autoconf"
+    )
     topics = ("conan", "GNU", "autoconf", "autoconf-archive", "macro")
     settings = "os"
 
@@ -37,8 +39,12 @@ class AutoconfArchiveConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -53,11 +59,19 @@ class AutoconfArchiveConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         mkdir(self, os.path.join(self.package_folder, "res"))
-        rename(self, os.path.join(self.package_folder, "share", "aclocal"),
-                     os.path.join(self.package_folder, "res", "aclocal"))
+        rename(
+            self,
+            os.path.join(self.package_folder, "share", "aclocal"),
+            os.path.join(self.package_folder, "res", "aclocal"),
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
@@ -70,8 +84,12 @@ class AutoconfArchiveConan(ConanFile):
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)
 
         # Remove for Conan 2.0
-        aclocal_path = "/" + aclocal_path.replace("\\", "/").replace(":", "") # Can't use unix_path with Conan 2.0
-        self.output.info(f'Appending ACLOCAL_PATH env: {aclocal_path}')
+        aclocal_path = "/" + aclocal_path.replace("\\", "/").replace(
+            ":", ""
+        )  # Can't use unix_path with Conan 2.0
+        self.output.info(f"Appending ACLOCAL_PATH env: {aclocal_path}")
         self.env_info.ACLOCAL_PATH.append(aclocal_path)
-        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment var: {}".format(aclocal_path))
+        self.output.info(
+            "Appending AUTOMAKE_CONAN_INCLUDES environment var: {}".format(aclocal_path)
+        )
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal_path)

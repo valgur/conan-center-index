@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -10,9 +18,11 @@ required_conan_version = ">=1.53.0"
 
 class GlfwConan(ConanFile):
     name = "glfw"
-    description = "GLFW is a free, Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan" \
-                  "application development. It provides a simple, platform-independent API for creating" \
-                  "windows, contexts and surfaces, reading input, handling events, etc."
+    description = (
+        "GLFW is a free, Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan"
+        "application development. It provides a simple, platform-independent API for creating"
+        "windows, contexts and surfaces, reading input, handling events, etc."
+    )
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/glfw/glfw"
@@ -70,11 +80,19 @@ class GlfwConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # don't force PIC
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                              "POSITION_INDEPENDENT_CODE ON", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+            "POSITION_INDEPENDENT_CODE ON",
+            "",
+        )
         # don't force static link to libgcc if MinGW
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                              "target_link_libraries(glfw PRIVATE \"-static-libgcc\")", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+            'target_link_libraries(glfw PRIVATE "-static-libgcc")',
+            "",
+        )
 
         # Allow to link vulkan-loader into shared glfw
         if self.options.vulkan_static:
@@ -100,25 +118,31 @@ class GlfwConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"glfw": "glfw::glfw"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"glfw": "glfw::glfw"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -141,10 +165,17 @@ class GlfwConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("gdi32")
         elif self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend([
-                "AppKit", "Cocoa", "CoreFoundation", "CoreGraphics",
-                "CoreServices", "Foundation", "IOKit",
-            ])
+            self.cpp_info.frameworks.extend(
+                [
+                    "AppKit",
+                    "Cocoa",
+                    "CoreFoundation",
+                    "CoreGraphics",
+                    "CoreServices",
+                    "Foundation",
+                    "IOKit",
+                ]
+            )
 
         # backward support of cmake_find_package, cmake_find_package_multi & pkg_config generators
         self.cpp_info.filenames["cmake_find_package"] = "glfw3"

@@ -2,6 +2,7 @@ import os
 
 from conans import ConanFile, tools
 
+
 class RandomConan(ConanFile):
     name = "effolkronium-random"
     description = "Random for modern C++ with convenient API."
@@ -10,10 +11,6 @@ class RandomConan(ConanFile):
     homepage = "https://github.com/effolkronium/random"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

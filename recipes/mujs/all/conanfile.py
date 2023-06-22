@@ -8,8 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class MujsConan(ConanFile):
     name = "mujs"
-    description = "MuJS is a lightweight Javascript interpreter designed for " \
-                  "embedding in other software to extend them with scripting capabilities."
+    description = (
+        "MuJS is a lightweight Javascript interpreter designed for "
+        "embedding in other software to extend them with scripting capabilities."
+    )
     license = "ISC"
     topics = ("interpreter", "javascript")
     homepage = "https://mujs.com"
@@ -55,7 +57,12 @@ class MujsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

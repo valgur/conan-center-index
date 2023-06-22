@@ -9,9 +9,11 @@ required_conan_version = ">=1.53.0"
 
 class MinizConan(ConanFile):
     name = "miniz"
-    description = "Lossless, high performance data compression library that " \
-                  "implements the zlib (RFC 1950) and Deflate (RFC 1951) " \
-                  "compressed data format specification standards"
+    description = (
+        "Lossless, high performance data compression library that "
+        "implements the zlib (RFC 1950) and Deflate (RFC 1951) "
+        "compressed data format specification standards"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/richgel999/miniz"
@@ -43,8 +45,12 @@ class MinizConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -65,7 +71,12 @@ class MinizConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

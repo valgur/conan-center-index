@@ -17,10 +17,6 @@ class MsdfAtlasGenConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
         self.requires("artery-font-format/1.0")
         self.requires("msdfgen/1.9.1")
@@ -33,17 +29,17 @@ class MsdfAtlasGenConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _patch_sources(self):
-        cmakelists = os.path.join(
-            self._source_subfolder, "CMakeLists.txt")
+        cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
 
-        tools.replace_in_file(cmakelists,
-                              "add_subdirectory(msdfgen)", "")
-        tools.save_append(cmakelists,
-                          "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")
+        tools.replace_in_file(cmakelists, "add_subdirectory(msdfgen)", "")
+        tools.save_append(cmakelists, "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")
 
     def _configure_cmake(self):
         if self._cmake:

@@ -2,11 +2,18 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import get, replace_in_file, copy, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import (
+    get,
+    replace_in_file,
+    copy,
+    export_conandata_patches,
+    apply_conandata_patches,
+)
 import os
 
 
 required_conan_version = ">=1.53.0"
+
 
 class RmluiConan(ConanFile):
     name = "rmlui"
@@ -23,7 +30,7 @@ class RmluiConan(ConanFile):
         "matrix_mode": ["column_major", "row_major"],
         "shared": [True, False],
         "with_lua_bindings": [True, False],
-        "with_thirdparty_containers": [True, False]
+        "with_thirdparty_containers": [True, False],
     }
     default_options = {
         "font_interface": "freetype",
@@ -31,7 +38,7 @@ class RmluiConan(ConanFile):
         "matrix_mode": "column_major",
         "shared": False,
         "with_lua_bindings": False,
-        "with_thirdparty_containers": True
+        "with_thirdparty_containers": True,
     }
 
     @property
@@ -43,7 +50,7 @@ class RmluiConan(ConanFile):
             "gcc": "5",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15"
+            "Visual Studio": "15",
         }
 
     @property
@@ -71,13 +78,16 @@ class RmluiConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        min_version = self._minimum_compilers_version.get(
-            str(self.settings.compiler))
+        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warning(f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support.")
+            self.output.warning(
+                f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
+            )
         else:
             if lazy_lt_semver(str(self.settings.compiler.version), min_version):
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._minimum_cpp_standard} support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._minimum_cpp_standard} support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                )
 
     def requirements(self):
         if self.options.font_interface == "freetype":
@@ -93,8 +103,12 @@ class RmluiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -116,10 +130,10 @@ class RmluiConan(ConanFile):
 
         # If we are using robin_hood hashing provided by conan, we need to change its include path
         if self.options.with_thirdparty_containers:
-            config_path = os.path.join(self.source_folder,
-                                       "Include", "RmlUi", "Config", "Config.h")
+            config_path = os.path.join(self.source_folder, "Include", "RmlUi", "Config", "Config.h")
             replace_in_file(
-                self, config_path, "\"../Core/Containers/robin_hood.h\"", "<robin_hood.h>")
+                self, config_path, '"../Core/Containers/robin_hood.h"', "<robin_hood.h>"
+            )
 
     def build(self):
         self._patch_sources()
@@ -128,7 +142,13 @@ class RmluiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="*LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder, excludes=("Samples/*", "Tests/*"))
+        copy(
+            self,
+            pattern="*LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+            excludes=("Samples/*", "Tests/*"),
+        )
         cmake = CMake(self)
         cmake.install()
 

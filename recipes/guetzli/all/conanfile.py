@@ -16,22 +16,25 @@ class GoogleGuetzliConan(ConanFile):
     requires = ["libpng/1.6.37"]
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return self.settings.compiler == "Visual Studio"
 
     def configure(self):
         if self.settings.os not in ["Linux", "Windows"]:
-            raise ConanInvalidConfiguration("conan recipe for guetzli v{0} is not \
-                available in {1}.".format(self.version, self.settings.os))
-       
-        if self.settings.compiler.get_safe("libcxx") == "libc++":
-            raise ConanInvalidConfiguration("conan recipe for guetzli v{0} cannot be\
-                built with libc++".format(self.version))
+            raise ConanInvalidConfiguration(
+                "conan recipe for guetzli v{0} is not \
+                available in {1}.".format(
+                    self.version, self.settings.os
+                )
+            )
 
+        if self.settings.compiler.get_safe("libcxx") == "libc++":
+            raise ConanInvalidConfiguration(
+                "conan recipe for guetzli v{0} cannot be\
+                built with libc++".format(
+                    self.version
+                )
+            )
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -54,17 +57,24 @@ class GoogleGuetzliConan(ConanFile):
                 env_vars = {"PKG_CONFIG_PATH": self.build_folder}
                 env_vars.update(autotools.vars)
                 with tools.environment_append(env_vars):
-                    make_args = [
-                        "config=release",
-                        "verbose=1',"
-                    ]
+                    make_args = ["config=release", "verbose=1',"]
                     autotools.make(args=make_args)
 
     def package(self):
         if self._is_msvc:
-            self.copy(os.path.join(self._source_subfolder, "bin", str(self.settings.arch), "Release", "guetzli.exe"), dst="bin", keep_path=False)
+            self.copy(
+                os.path.join(
+                    self._source_subfolder, "bin", str(self.settings.arch), "Release", "guetzli.exe"
+                ),
+                dst="bin",
+                keep_path=False,
+            )
         else:
-            self.copy(os.path.join(self._source_subfolder, "bin", "Release", "guetzli"), dst="bin", keep_path=False)
+            self.copy(
+                os.path.join(self._source_subfolder, "bin", "Release", "guetzli"),
+                dst="bin",
+                keep_path=False,
+            )
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
 
     def package_id(self):

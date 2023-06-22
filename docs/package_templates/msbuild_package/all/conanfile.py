@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+)
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildDeps, MSBuildToolchain
 import os
@@ -57,7 +64,9 @@ class PackageConan(ConanFile):
     def validate(self):
         # in case it does not work in another configuration, it should validated here too
         if not is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can be built only by Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can be built only by Visual Studio and msvc."
+            )
 
     # if another tool than the compiler or CMake is required to build the project (pkgconf, bison, flex etc)
     def build_requirements(self):
@@ -102,19 +111,21 @@ class PackageConan(ConanFile):
         for props_file in ["conantoolchain.props", "conandeps.props"]:
             props_path = os.path.join(self.generators_folder, props_file)
             if os.path.exists(props_path):
-                import_conan_generators += f"<Import Project=\"{props_path}\" />"
+                import_conan_generators += f'<Import Project="{props_path}" />'
         for vcxproj_file in vcxproj_files:
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 # change this v142 value depending on actual value in vcxproj file
                 "<PlatformToolset>v142</PlatformToolset>",
                 f"<PlatformToolset>{platform_toolset}</PlatformToolset>",
             )
             if props_path:
                 replace_in_file(
-                    self, vcxproj_file,
-                    "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                    f"{import_conan_generators}<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                    self,
+                    vcxproj_file,
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
                 )
 
     def build(self):
@@ -125,10 +136,32 @@ class PackageConan(ConanFile):
         msbuild.build(sln="project_2017.sln")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.lib",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.dll",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["package_lib"]

@@ -10,6 +10,7 @@ from conan.tools.build import check_min_cppstd
 
 required_conan_version = ">=1.51.3"
 
+
 class DacapClipConan(ConanFile):
     name = "dacap-clip"
     description = "Cross-platform C++ library to copy/paste clipboard content"
@@ -57,11 +58,22 @@ class DacapClipConan(ConanFile):
     def validate(self):
         if self.info.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
-        if is_msvc(self) and self.info.settings.build_type == "Debug" and self.info.options.shared == True:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC debug shared build (now).")
+        if (
+            is_msvc(self)
+            and self.info.settings.build_type == "Debug"
+            and self.info.options.shared == True
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support MSVC debug shared build (now)."
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder,
+        )
 
     def generate(self):
         toolchain = CMakeToolchain(self)
@@ -69,7 +81,9 @@ class DacapClipConan(ConanFile):
         toolchain.variables["CLIP_TESTS"] = False
         toolchain.variables["CLIP_X11_WITH_PNG"] = self.options.get_safe("with_png", False)
         if is_msvc(self):
-            toolchain.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = bool(self.options.shared)
+            toolchain.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = bool(
+                self.options.shared
+            )
         toolchain.generate()
 
         deps = CMakeDeps(self)
@@ -81,13 +95,50 @@ class DacapClipConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "clip.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.so", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self, "clip.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include")
+        )
+        copy(
+            self,
+            "*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.so",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.dylib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.lib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.dll",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["clip"]
@@ -99,12 +150,14 @@ class DacapClipConan(ConanFile):
             self.cpp_info.requires.append("xorg::xcb")
             self.cpp_info.system_libs.append("pthread")
         elif is_apple_os(self):
-            self.cpp_info.frameworks = ['Cocoa', 'Carbon', 'CoreFoundation', 'Foundation', 'AppKit']
+            self.cpp_info.frameworks = ["Cocoa", "Carbon", "CoreFoundation", "Foundation", "AppKit"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend([
-                "shlwapi",
-                "windowscodecs",
-            ])
+            self.cpp_info.system_libs.extend(
+                [
+                    "shlwapi",
+                    "windowscodecs",
+                ]
+            )
 
         self.cpp_info.set_property("cmake_file_name", "clip")
         self.cpp_info.set_property("cmake_target_name", "clip::clip")

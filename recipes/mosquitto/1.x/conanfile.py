@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -12,7 +19,7 @@ class MosquittoConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eclipse/mosquitto"
     topics = ("mqtt", "broker", "libwebsockets", "eclipse", "iot")
-    license = "EPL-1.0", "BSD-3-Clause" # https://lists.spdx.org/g/Spdx-legal/message/2701
+    license = "EPL-1.0", "BSD-3-Clause"  # https://lists.spdx.org/g/Spdx-legal/message/2701
     description = "Eclipse Mosquitto - An open source MQTT broker"
 
     settings = "os", "arch", "compiler", "build_type"
@@ -75,7 +82,12 @@ class MosquittoConan(ConanFile):
 
     def package(self):
         for license_file in ("LICENSE.txt", "edl-v10", "epl-v10"):
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license_file,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -96,7 +108,9 @@ class MosquittoConan(ConanFile):
             self.cpp_info.components["libmosquitto"].defines.append("LIBMOSQUITTO_STATIC")
         if self.options.with_tls:
             self.cpp_info.components["libmosquitto"].requires.append("openssl::openssl")
-            self.cpp_info.components["libmosquitto"].defines.extend(["WITH_TLS", "WITH_TLS_PSK", "WITH_EC"])
+            self.cpp_info.components["libmosquitto"].defines.extend(
+                ["WITH_TLS", "WITH_TLS_PSK", "WITH_EC"]
+            )
         if self.options.with_websockets:
             self.cpp_info.components["libmosquitto"].requires.append("libwebsockets::libwebsockets")
             self.cpp_info.components["libmosquitto"].defines.append("WITH_WEBSOCKETS")

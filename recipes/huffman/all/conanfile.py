@@ -3,6 +3,7 @@ import functools
 
 required_conan_version = ">=1.33.0"
 
+
 class HuffmanConan(ConanFile):
     name = "huffman"
     description = "huffman encoder/decoder"
@@ -10,21 +11,17 @@ class HuffmanConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/drichardson/huffman"
     topics = ["huffman", "encoder", "decoder", "compression"]
-    settings = "os", "arch",  "compiler","build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
-        'shared': False,
-        'fPIC': True,
+        "shared": False,
+        "fPIC": True,
     }
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,8 +39,11 @@ class HuffmanConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -58,8 +58,7 @@ class HuffmanConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
 

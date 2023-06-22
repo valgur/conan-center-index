@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools
 import os
 
+
 class KeychainConan(ConanFile):
     name = "keychain"
     homepage = "https://github.com/hrantzsch/keychain"
@@ -11,19 +12,17 @@ class KeychainConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake", "pkg_config"
-    options = {'fPIC': [False, True]}
-    default_options = {'fPIC': True}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    options = {"fPIC": [False, True]}
+    default_options = {
+        "fPIC": True,
+    }
 
     def configure(self):
-     if self.settings.compiler.cppstd:
-         tools.check_min_cppstd(self, 11)
+        if self.settings.compiler.cppstd:
+            tools.check_min_cppstd(self, 11)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def requirements(self):
@@ -56,7 +55,7 @@ class KeychainConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
 
-        if self.settings.os == 'Macos':
-            self.cpp_info.frameworks = ['Security', 'CoreFoundation']
+        if self.settings.os == "Macos":
+            self.cpp_info.frameworks = ["Security", "CoreFoundation"]
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ['crypt32']
+            self.cpp_info.system_libs = ["crypt32"]

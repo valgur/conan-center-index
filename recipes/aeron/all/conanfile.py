@@ -47,7 +47,7 @@ class AeronConan(ConanFile):
         }
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -68,7 +68,9 @@ class AeronConan(ConanFile):
             )
 
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration("This platform (os=Macos arch=armv8) is not yet supported by this recipe")
+            raise ConanInvalidConfiguration(
+                "This platform (os=Macos arch=armv8) is not yet supported by this recipe"
+            )
 
     def build_requirements(self):
         self.tool_requires("zulu-openjdk/11.0.15")
@@ -102,15 +104,29 @@ class AeronConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
-        archive_resources_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "resources")
+        archive_resources_dir = os.path.join(
+            self.source_folder, "aeron-archive", "src", "main", "resources"
+        )
         copy(self, "*", src=archive_resources_dir, dst=os.path.join(self.package_folder, "res"))
 
-        archive_include_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "cpp", "client")
-        copy(self, "*.h", src=archive_include_dir, dst=os.path.join(self.package_folder, "include", "aeron-archive"))
+        archive_include_dir = os.path.join(
+            self.source_folder, "aeron-archive", "src", "main", "cpp", "client"
+        )
+        copy(
+            self,
+            "*.h",
+            src=archive_include_dir,
+            dst=os.path.join(self.package_folder, "include", "aeron-archive"),
+        )
 
         lib_folder = os.path.join(self.package_folder, "lib")
         bin_folder = os.path.join(self.package_folder, "bin")

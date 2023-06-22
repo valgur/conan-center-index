@@ -34,10 +34,6 @@ class MatioConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -59,8 +55,11 @@ class MatioConan(ConanFile):
             raise ConanInvalidConfiguration("Support of version 7.3 MAT files requires HDF5")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -77,7 +76,9 @@ class MatioConan(ConanFile):
         self._cmake.definitions["MATIO_MAT73"] = self.options.mat73
         self._cmake.definitions["MATIO_WITH_HDF5"] = self.options.with_hdf5
         self._cmake.definitions["MATIO_WITH_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["HDF5_USE_STATIC_LIBRARIES"] = self.options.with_hdf5 and not self.options["hdf5"].shared
+        self._cmake.definitions["HDF5_USE_STATIC_LIBRARIES"] = (
+            self.options.with_hdf5 and not self.options["hdf5"].shared
+        )
         self._cmake.configure()
         return self._cmake
 

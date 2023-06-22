@@ -55,7 +55,7 @@ class FftConan(ConanFile):
 
     def validate(self):
         def _is_power_of_two(n):
-            return (n != 0) and (n & (n-1) == 0)
+            return (n != 0) and (n & (n - 1) == 0)
 
         if self.options.threads:
             if not self.options.max_threads.isdigit():
@@ -83,11 +83,14 @@ class FftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
-"""Copyright
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENSE"),
+            """Copyright
     Copyright(C) 1997,2001 Takuya OOURA (email: ooura@kurims.kyoto-u.ac.jp).
     You may use, copy, modify this code for any purpose and
-    without fee. You may distribute this ORIGINAL package.""")
+    without fee. You may distribute this ORIGINAL package.""",
+        )
         cmake = CMake(self)
         cmake.install()
 

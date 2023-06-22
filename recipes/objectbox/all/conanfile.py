@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class ObjectboxCConan(ConanFile):
     name = "objectbox"
     description = "ObjectBox C and C++: super-fast database for objects and structs"
@@ -43,7 +44,12 @@ class ObjectboxCConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -9,8 +9,10 @@ required_conan_version = ">=1.53.0"
 
 class FreeImageConan(ConanFile):
     name = "freeimage"
-    description = "Open Source library project for developers who would like to support popular graphics image formats"\
-                  "like PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
+    description = (
+        "Open Source library project for developers who would like to support popular graphics image formats"
+        "like PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
+    )
     homepage = "https://freeimage.sourceforge.io"
     url = "https://github.com/conan-io/conan-center-index"
     license = "FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later"
@@ -131,7 +133,12 @@ class FreeImageConan(ConanFile):
 
     def package(self):
         for license in ["license-fi.txt", "license-gplv3.txt", "license-fi.txt"]:
-            copy(self, license, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.install()
 

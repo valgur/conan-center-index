@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -80,7 +87,12 @@ class CjsonConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -91,19 +103,20 @@ class CjsonConan(ConanFile):
         if self.options.utils:
             targets.update({"cjson_utils": "cJSON::cjson_utils"})
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            targets
+            os.path.join(self.package_folder, self._module_file_rel_path), targets
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -121,7 +134,9 @@ class CjsonConan(ConanFile):
 
         if self.options.utils:
             self.cpp_info.components["cjson_utils"].set_property("cmake_target_name", "cjson_utils")
-            self.cpp_info.components["cjson_utils"].set_property("pkg_config_name", "libcjson_utils")
+            self.cpp_info.components["cjson_utils"].set_property(
+                "pkg_config_name", "libcjson_utils"
+            )
             self.cpp_info.components["cjson_utils"].libs = ["cjson_utils"]
             self.cpp_info.components["cjson_utils"].requires = ["_cjson"]
 
@@ -130,12 +145,22 @@ class CjsonConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "cJSON"
         self.cpp_info.components["_cjson"].names["cmake_find_package"] = "cjson"
         self.cpp_info.components["_cjson"].names["cmake_find_package_multi"] = "cjson"
-        self.cpp_info.components["_cjson"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_cjson"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["_cjson"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["_cjson"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["_cjson"].names["pkg_config"] = "libcjson"
         if self.options.utils:
             self.cpp_info.components["cjson_utils"].names["cmake_find_package"] = "cjson_utils"
-            self.cpp_info.components["cjson_utils"].names["cmake_find_package_multi"] = "cjson_utils"
-            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["cjson_utils"].names[
+                "cmake_find_package_multi"
+            ] = "cjson_utils"
+            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
             self.cpp_info.components["cjson_utils"].names["pkg_config"] = "libcjson_utils"

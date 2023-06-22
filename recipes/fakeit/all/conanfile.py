@@ -8,9 +8,12 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class FakeItConan(ConanFile):
     name = "fakeit"
-    description = "C++ mocking made easy. A simple yet very expressive, headers only library for c++ mocking."
+    description = (
+        "C++ mocking made easy. A simple yet very expressive, headers only library for c++ mocking."
+    )
     topics = ("mock", "fake", "spy")
     license = "MIT"
     homepage = "https://github.com/eranpeer/FakeIt"
@@ -18,7 +21,18 @@ class FakeItConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "integration": ["boost", "catch", "cute", "gtest", "mettle", "nunit", "mstest", "qtest", "standalone", "tpunit"]
+        "integration": [
+            "boost",
+            "catch",
+            "cute",
+            "gtest",
+            "mettle",
+            "nunit",
+            "mstest",
+            "qtest",
+            "standalone",
+            "tpunit",
+        ]
     }
     default_options = {"integration": "standalone"}
     no_copy_source = True
@@ -45,7 +59,9 @@ class FakeItConan(ConanFile):
         elif self.options.integration == "standalone":
             pass
         else:
-            raise ConanInvalidConfiguration("%s is not (yet) available on cci" % self.options.integration)
+            raise ConanInvalidConfiguration(
+                "%s is not (yet) available on cci" % self.options.integration
+            )
 
     def package_id(self):
         # The "integration" option must be kept because it will impact which header is packaged,
@@ -64,7 +80,12 @@ class FakeItConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="fakeit.hpp",

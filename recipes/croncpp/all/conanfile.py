@@ -4,6 +4,7 @@ from conans import ConanFile, CMake, tools
 
 required_conan_version = ">=1.33.0"
 
+
 class CroncppConan(ConanFile):
     name = "croncpp"
     description = "A C++11/14/17 header-only cross-platform library for handling CRON expressions"
@@ -12,11 +13,7 @@ class CroncppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mariusbancila/croncpp/"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake",
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    generators = ("cmake",)
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -29,8 +26,11 @@ class CroncppConan(ConanFile):
             tools.check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 import os
 import textwrap
 
@@ -58,7 +65,12 @@ class CmockaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -68,7 +80,8 @@ class CmockaConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             if(NOT DEFINED CMOCKA_INCLUDE_DIR)
                 set(CMOCKA_INCLUDE_DIR ${cmocka_INCLUDE_DIRS}
                                        ${cmocka_INCLUDE_DIRS_RELEASE}
@@ -84,7 +97,8 @@ class CmockaConan(ConanFile):
                     set(CMOCKA_LIBRARIES cmocka::cmocka)
                 endif()
             endif()
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property

@@ -7,6 +7,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=1.45.0"
 
+
 class StatusCodeConan(ConanFile):
     name = "status-code"
     license = "Apache-2.0"
@@ -34,9 +35,13 @@ class StatusCodeConan(ConanFile):
         min_version = self._compiler_required_version.get(str(self.settings.compiler))
         if min_version:
             if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("This package requires c++11 support. The current compiler does not support it.")
+                raise ConanInvalidConfiguration(
+                    "This package requires c++11 support. The current compiler does not support it."
+                )
         else:
-            self.output.warning("This recipe has no support for the current compiler. Please consider adding it.")
+            self.output.warning(
+                "This recipe has no support for the current compiler. Please consider adding it."
+            )
 
     def package_id(self):
         self.info.clear()
@@ -45,9 +50,24 @@ class StatusCodeConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "Licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*.ipp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "Licence.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "*.ipp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         # See https://github.com/ned14/status-code/blob/38e1e862386cb38d577664fd681ef829b0e03fba/CMakeLists.txt#L126

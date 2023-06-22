@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.files import apply_conandata_patches, chdir, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, NMakeToolchain
 import os
@@ -71,12 +80,17 @@ class TclConan(ConanFile):
             tc.generate()
         else:
             tc = AutotoolsToolchain(self, prefix=self.package_folder)
-            def yes_no(v): return "yes" if v else "no"
-            tc.configure_args.extend([
-                "--enable-threads",
-                "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
-                "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
-            ])
+
+            def yes_no(v):
+                return "yes" if v else "no"
+
+            tc.configure_args.extend(
+                [
+                    "--enable-threads",
+                    "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
+                    "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
+                ]
+            )
             tc.generate()
 
     def _get_default_build_system_subdir(self):
@@ -95,18 +109,28 @@ class TclConan(ConanFile):
         apply_conandata_patches(self)
 
         if is_apple_os(self) and self.settings.arch not in ("x86", "x86_64"):
-            replace_in_file(self, os.path.join(self._get_configure_dir(), "configure"), "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
+            replace_in_file(
+                self,
+                os.path.join(self._get_configure_dir(), "configure"),
+                "#define HAVE_CPUID 1",
+                "#undef HAVE_CPUID",
+            )
 
         unix_config_dir = self._get_configure_dir("unix")
         # When disabling 64-bit support (in 32-bit), this test must be 0 in order to use "long long" for 64-bit ints
         # (${tcl_type_64bit} can be either "__int64" or "long long")
-        replace_in_file(self, os.path.join(unix_config_dir, "configure"),
-                        "(sizeof(${tcl_type_64bit})==sizeof(long))",
-                        "(sizeof(${tcl_type_64bit})!=sizeof(long))")
+        replace_in_file(
+            self,
+            os.path.join(unix_config_dir, "configure"),
+            "(sizeof(${tcl_type_64bit})==sizeof(long))",
+            "(sizeof(${tcl_type_64bit})!=sizeof(long))",
+        )
 
         unix_makefile_in = os.path.join(unix_config_dir, "Makefile.in")
         # Avoid building internal libraries as shared libraries
-        replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
+        replace_in_file(
+            self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads"
+        )
         # Avoid clearing CFLAGS and LDFLAGS in the makefile
         replace_in_file(self, unix_makefile_in, "\nCFLAGS\t", "\n#CFLAGS\t")
         replace_in_file(self, unix_makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
@@ -123,10 +147,7 @@ class TclConan(ConanFile):
         replace_in_file(self, win_rules_vc, "cwarn = $(cwarn) -WX", "")
         # disable whole program optimization to be portable across different MSVC versions.
         # See conan-io/conan-center-index#4811 conan-io/conan-center-index#4094
-        replace_in_file(self,
-                        win_rules_vc,
-                        "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL",
-                        "")
+        replace_in_file(self, win_rules_vc, "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL", "")
 
     def _build_nmake(self, targets):
         opts = []
@@ -143,12 +164,14 @@ class TclConan(ConanFile):
             opts.append("unchecked")
 
         with chdir(self, self._get_configure_dir("win")):
-            self.run('nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {targets}'.format(
-                cfgdir=self._get_configure_dir("win"),
-                pkgdir=self.package_folder,
-                opts=",".join(opts),
-                targets=" ".join(targets),
-            ))
+            self.run(
+                'nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {targets}'.format(
+                    cfgdir=self._get_configure_dir("win"),
+                    pkgdir=self.package_folder,
+                    opts=",".join(opts),
+                    targets=" ".join(targets),
+                )
+            )
 
     def build(self):
         self._patch_sources()
@@ -161,10 +184,17 @@ class TclConan(ConanFile):
             # https://core.tcl.tk/tcl/tktview/840660e5a1
             for root, _, list_of_files in os.walk(self.build_folder):
                 if "Makefile" in list_of_files:
-                    replace_in_file(self, os.path.join(root, "Makefile"), "-Dstrtod=fixstrtod", "", strict=False)
+                    replace_in_file(
+                        self, os.path.join(root, "Makefile"), "-Dstrtod=fixstrtod", "", strict=False
+                    )
 
     def package(self):
-        copy(self, "license.terms", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "license.terms",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             self._build_nmake(["install-binaries", "install-libraries"])
         else:
@@ -184,21 +214,13 @@ class TclConan(ConanFile):
             drive, path = os.path.splitdrive(self.build_folder)
             build_folder = "".join([drive, path.lower().replace("\\", "/")])
 
-        replace_in_file(self, tclConfigShPath,
-                        package_path,
-                        "${TCL_ROOT}")
-        replace_in_file(self, tclConfigShPath,
-                        build_folder,
-                        "${TCL_BUILD_ROOT}")
+        replace_in_file(self, tclConfigShPath, package_path, "${TCL_ROOT}")
+        replace_in_file(self, tclConfigShPath, build_folder, "${TCL_BUILD_ROOT}")
 
-        replace_in_file(self, tclConfigShPath,
-                        "\nTCL_BUILD_",
-                        "\n#TCL_BUILD_")
-        replace_in_file(self, tclConfigShPath,
-                        "\nTCL_SRC_DIR",
-                        "\n#TCL_SRC_DIR")
+        replace_in_file(self, tclConfigShPath, "\nTCL_BUILD_", "\n#TCL_BUILD_")
+        replace_in_file(self, tclConfigShPath, "\nTCL_SRC_DIR", "\n#TCL_SRC_DIR")
 
-        #fix_apple_shared_install_name(self)
+        # fix_apple_shared_install_name(self)
 
     def package_info(self):
         libs = []
@@ -230,20 +252,29 @@ class TclConan(ConanFile):
             self.cpp_info.frameworks = ["CoreFoundation"]
             self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
 
-        tcl_library = os.path.join(self.package_folder, "lib", "{}{}".format(self.name, ".".join(self.version.split(".")[:2])))
+        tcl_library = os.path.join(
+            self.package_folder,
+            "lib",
+            "{}{}".format(self.name, ".".join(self.version.split(".")[:2])),
+        )
         self.output.info("Setting TCL_LIBRARY environment variable to {}".format(tcl_library))
-        self.runenv_info.define_path('TCL_LIBRARY', tcl_library)
+        self.runenv_info.define_path("TCL_LIBRARY", tcl_library)
         self.env_info.TCL_LIBRARY = tcl_library
 
         tcl_root = self.package_folder
         self.output.info("Setting TCL_ROOT environment variable to {}".format(tcl_root))
-        self.runenv_info.define_path('TCL_ROOT', tcl_root)
+        self.runenv_info.define_path("TCL_ROOT", tcl_root)
         self.env_info.TCL_ROOT = tcl_root
 
-        tclsh_list = list(filter(lambda fn: fn.startswith("tclsh"), os.listdir(os.path.join(self.package_folder, "bin"))))
+        tclsh_list = list(
+            filter(
+                lambda fn: fn.startswith("tclsh"),
+                os.listdir(os.path.join(self.package_folder, "bin")),
+            )
+        )
         tclsh = os.path.join(self.package_folder, "bin", tclsh_list[0])
         self.output.info("Setting TCLSH environment variable to {}".format(tclsh))
-        self.runenv_info.define_path('TCLSH', tclsh)
+        self.runenv_info.define_path("TCLSH", tclsh)
         self.env_info.TCLSH = tclsh
 
         bindir = os.path.join(self.package_folder, "bin")

@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 class OzzAnimationConan(ConanFile):
     name = "ozz-animation"
     description = "Open source c++ skeletal animation library and toolset."
@@ -23,7 +24,7 @@ class OzzAnimationConan(ConanFile):
     _build_subfolder = "build_subfolder"
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
@@ -43,12 +44,25 @@ class OzzAnimationConan(ConanFile):
         return cmake
 
     def build(self):
-        for before, after in [('string(REGEX REPLACE "/MT" "/MD" ${flag} "${${flag}}")', ""), ('string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")', "")]:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"), before, after)
+        for before, after in [
+            ('string(REGEX REPLACE "/MT" "/MD" ${flag} "${${flag}}")', ""),
+            ('string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")', ""),
+        ]:
+            tools.replace_in_file(
+                os.path.join(
+                    self._source_subfolder, "build-utils", "cmake", "compiler_settings.cmake"
+                ),
+                before,
+                after,
+            )
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"), 
-                              "if(NOT EMSCRIPTEN)",
-                              "if(NOT CMAKE_CROSSCOMPILING)")
+        tools.replace_in_file(
+            os.path.join(
+                self._source_subfolder, "src", "animation", "offline", "tools", "CMakeLists.txt"
+            ),
+            "if(NOT EMSCRIPTEN)",
+            "if(NOT CMAKE_CROSSCOMPILING)",
+        )
 
         cmake = self._configure_cmake()
         cmake.build()

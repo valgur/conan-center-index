@@ -16,10 +16,6 @@ class CertifyConan(ConanFile):
     no_copy_source = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
@@ -48,22 +44,29 @@ class CertifyConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
+            self.output.warn(
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
+                    self.name
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
+            raise ConanInvalidConfiguration(
+                "{} requires C++17, which your compiler does not support.".format(self.name)
+            )
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
-        self.copy(pattern="LICENSE_1_0.txt", dst="licenses",
-                  src=self._source_subfolder)
-        self.copy(pattern="*", dst="include",
-                  src=os.path.join(self._source_subfolder, "include"))
+        self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)
+        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "certify")

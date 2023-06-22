@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
 import os
@@ -43,9 +50,13 @@ class UlfiusConan(ConanFile):
 
     def validate(self):
         if self.options.with_gnutls:
-            raise ConanInvalidConfiguration("with_gnutls=True is not yet implemented due to missing gnutls CCI recipe")
+            raise ConanInvalidConfiguration(
+                "with_gnutls=True is not yet implemented due to missing gnutls CCI recipe"
+            )
         if self.settings.os == "Windows" and self.options.enable_websockets:
-            raise ConanInvalidConfiguration("ulfius does not support with_websockets=True on Windows")
+            raise ConanInvalidConfiguration(
+                "ulfius does not support with_websockets=True on Windows"
+            )
 
     def configure(self):
         if self.options.shared:
@@ -73,8 +84,12 @@ class UlfiusConan(ConanFile):
             self.requires("libcurl/7.85.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -97,7 +112,11 @@ class UlfiusConan(ConanFile):
         deps.generate()
 
         # https://github.com/conan-io/conan/issues/12367 + move this before running CMakeDeps.generate()
-        save(self, os.path.join(self.generators_folder, "MHDConfig.cmake"), textwrap.dedent(f"""\
+        save(
+            self,
+            os.path.join(self.generators_folder, "MHDConfig.cmake"),
+            textwrap.dedent(
+                f"""\
             include(CMakeFindDependencyMacro)
             find_dependency(libmicrohttpd)
 
@@ -105,8 +124,14 @@ class UlfiusConan(ConanFile):
             add_library(MHD::MHD INTERFACE IMPORTED)
             set_target_properties(MHD::MHD PROPERTIES INTERFACE_LINK_LIBRARIES "libmicrohttpd::libmicrohttpd")
             set(MHD_VERSION_STRING {self.dependencies['libmicrohttpd'].ref.version})
-        """))
-        save(self, os.path.join(self.generators_folder, "MHDConfigVersion.cmake"), textwrap.dedent(f"""\
+        """
+            ),
+        )
+        save(
+            self,
+            os.path.join(self.generators_folder, "MHDConfigVersion.cmake"),
+            textwrap.dedent(
+                f"""\
             set(PACKAGE_VERSION "{ self.dependencies['libmicrohttpd'].ref.version }")
 
             if(PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
@@ -117,29 +142,52 @@ class UlfiusConan(ConanFile):
                     set(PACKAGE_VERSION_EXACT TRUE)
                 endif()
             endif()
-        """))
+        """
+            ),
+        )
 
         # Shared ulfius looks for Orcania::Orcania and Yder::Yder
         # Static ulfius looks for Orcania::Orcania-static and Yder::Yder-static
         if self.options.shared:
             if not self.dependencies["orcania"].options.shared:
-                save(self, os.path.join(self.generators_folder, "OrcaniaConfig.cmake"), textwrap.dedent("""\
+                save(
+                    self,
+                    os.path.join(self.generators_folder, "OrcaniaConfig.cmake"),
+                    textwrap.dedent(
+                        """\
                     add_library(Orcania::Orcania INTERFACE IMPORTED)
                     set_target_properties(Orcania::Orcania PROPERTIES INTERFACE_LINK_LIBRARIES "Orcania::Orcania-static")
-                """), append=True)
+                """
+                    ),
+                    append=True,
+                )
             if self.options.with_yder and not self.dependencies["yder"].options.shared:
-                save(self, os.path.join(self.generators_folder, "YderConfig.cmake"), textwrap.dedent("""\
+                save(
+                    self,
+                    os.path.join(self.generators_folder, "YderConfig.cmake"),
+                    textwrap.dedent(
+                        """\
                     add_library(Yder::Yder INTERFACE IMPORTED)
                     set_target_properties(Yder::Yder PROPERTIES INTERFACE_LINK_LIBRARIES "Yder::Yder-static")
-                """), append=True)
+                """
+                    ),
+                    append=True,
+                )
 
         # Create Jansson::Jansson
         if self.options.with_jansson:
-            save(self, os.path.join(self.generators_folder, "jansson-config.cmake"), textwrap.dedent(f"""\
+            save(
+                self,
+                os.path.join(self.generators_folder, "jansson-config.cmake"),
+                textwrap.dedent(
+                    f"""\
                 add_library(Jansson::Jansson INTERFACE IMPORTED)
                 set_target_properties(Jansson::Jansson PROPERTIES INTERFACE_LINK_LIBRARIES "jansson::jansson")
                 set(JANSSON_VERSION_STRING {self.dependencies['jansson'].ref.version})
-            """), append=True)
+            """
+                ),
+                append=True,
+            )
 
         if self.options.with_gnutls:
             # FIXME: make sure gnutls creates GnuTLSCOnfig.cmake + GnuTLS::GnuTLS target + GNUTLS_VERSION_STRING
@@ -155,7 +203,12 @@ class UlfiusConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            os.path.join(self.source_folder),
+            os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -164,26 +217,33 @@ class UlfiusConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        save(self, os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(f"""\
+        save(
+            self,
+            os.path.join(self.package_folder, self._variable_file_rel_path),
+            textwrap.dedent(
+                f"""\
                 set(ULFIUS_VERSION_STRING "{self.version}")
-           """))
+           """
+            ),
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Ulfius::Ulfius-static": "Ulfius::Ulfius"}
+            {} if self.options.shared else {"Ulfius::Ulfius-static": "Ulfius::Ulfius"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -213,5 +273,11 @@ class UlfiusConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Ulfius"
         self.cpp_info.names["pkg_config"] = "libulfius"
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path, self._variable_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, self._variable_file_rel_path]
+        self.cpp_info.build_modules["cmake_find_package"] = [
+            self._module_file_rel_path,
+            self._variable_file_rel_path,
+        ]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path,
+            self._variable_file_rel_path,
+        ]

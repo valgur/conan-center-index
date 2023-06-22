@@ -25,7 +25,8 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         qt_install_prefix = self.dependencies["qt"].package_folder.replace("\\", "/")
-        qt_conf = textwrap.dedent(f"""\
+        qt_conf = textwrap.dedent(
+            f"""\
             [Paths]
             Prefix = {qt_install_prefix}
             ArchData = bin/archdatadir
@@ -39,7 +40,8 @@ class TestPackageConan(ConanFile):
             Translations = bin/datadir/translations
             Documentation = bin/datadir/doc
             Examples = bin/datadir/examples
-        """)
+        """
+        )
         save(self, "qt.conf", qt_conf)
 
         VirtualRunEnv(self).generate()
@@ -53,6 +55,11 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            copy(self, "qt.conf", src=self.generators_folder, dst=os.path.join(self.cpp.build.bindirs[0]))
+            copy(
+                self,
+                "qt.conf",
+                src=self.generators_folder,
+                dst=os.path.join(self.cpp.build.bindirs[0]),
+            )
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             self.run(bin_path, env="conanrun")

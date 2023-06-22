@@ -16,10 +16,6 @@ class FrugallyDeepConan(ConanFile):
     no_copy_source = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "4.9",
@@ -45,16 +41,23 @@ class FrugallyDeepConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("frugally-deep requires C++14. Your compiler is unknown. Assuming it supports C++14.")
+            self.output.warn(
+                "frugally-deep requires C++14. Your compiler is unknown. Assuming it supports C++14."
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("frugally-deep requires C++14, which your compiler does not support.")
+            raise ConanInvalidConfiguration(
+                "frugally-deep requires C++14, which your compiler does not support."
+            )
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
@@ -64,8 +67,10 @@ class FrugallyDeepConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "frugally-deep")
         self.cpp_info.set_property("cmake_target_name", "frugally-deep::fdeep")
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["fdeep"].requires = ["eigen::eigen",
-                                                      "functionalplus::functionalplus",
-                                                      "nlohmann_json::nlohmann_json"]
+        self.cpp_info.components["fdeep"].requires = [
+            "eigen::eigen",
+            "functionalplus::functionalplus",
+            "nlohmann_json::nlohmann_json",
+        ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["fdeep"].system_libs = ["pthread"]

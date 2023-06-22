@@ -15,8 +15,12 @@ class CppcheckConan(ConanFile):
     license = "GPL-3.0-or-later"
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"have_rules": [True, False]}
-    default_options = {"have_rules": True}
+    options = {
+        "have_rules": [True, False],
+    }
+    default_options = {
+        "have_rules": True,
+    }
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -49,8 +53,18 @@ class CppcheckConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder))
-        copy(self, "cppcheck-htmlreport", dst=os.path.join(self.package_folder, "bin"), src=os.path.join(self.source_folder, "htmlreport"))
+        copy(
+            self,
+            "COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder),
+        )
+        copy(
+            self,
+            "cppcheck-htmlreport",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "htmlreport"),
+        )
         cmake = CMake(self)
         cmake.install()
 

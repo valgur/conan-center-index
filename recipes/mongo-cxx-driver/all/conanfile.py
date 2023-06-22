@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, rm, rmdir
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    copy,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 import shutil
@@ -53,39 +60,21 @@ class MongoCxxConan(ConanFile):
 
     @property
     def _minimal_std_version(self):
-        return {
-            "std": "17",
-            "experimental": "14",
-            "boost": "11",
-            "polyfill": "11"
-        }[str(self.options.polyfill)]
+        return {"std": "17", "experimental": "14", "boost": "11", "polyfill": "11"}[
+            str(self.options.polyfill)
+        ]
 
     @property
     def _compilers_minimum_version(self):
         if self.info.options.polyfill == "std":
             # C++17
-            return {
-                "Visual Studio": "15",
-                "gcc": "7",
-                "clang": "5",
-                "apple-clang": "10"
-            }
+            return {"Visual Studio": "15", "gcc": "7", "clang": "5", "apple-clang": "10"}
         elif self.info.options.polyfill == "experimental":
             # C++14
-            return {
-                "Visual Studio": "15",
-                "gcc": "5",
-                "clang": "3.5",
-                "apple-clang": "10"
-            }
+            return {"Visual Studio": "15", "gcc": "5", "clang": "3.5", "apple-clang": "10"}
         elif self.info.options.polyfill == "boost":
             # C++11
-            return {
-                "Visual Studio": "14",
-                "gcc": "5",
-                "clang": "3.3",
-                "apple-clang": "9"
-            }
+            return {"Visual Studio": "14", "gcc": "5", "clang": "3.3", "apple-clang": "9"}
         else:
             raise ConanException(
                 f"please, specify _compilers_minimum_version for {self.options.polyfill} polyfill"
@@ -93,7 +82,9 @@ class MongoCxxConan(ConanFile):
 
     def validate(self):
         if self.options.with_ssl and not bool(self.dependencies["mongo-c-driver"].options.with_ssl):
-            raise ConanInvalidConfiguration("mongo-cxx-driver with_ssl=True requires mongo-c-driver with a ssl implementation")
+            raise ConanInvalidConfiguration(
+                "mongo-cxx-driver with_ssl=True requires mongo-c-driver with a ssl implementation"
+            )
 
         if self.options.polyfill == "mnmlstc":
             # TODO: add mnmlstc polyfill support
@@ -105,10 +96,15 @@ class MongoCxxConan(ConanFile):
 
         compiler = str(self.settings.compiler)
         if self.options.polyfill == "experimental" and compiler == "apple-clang":
-            raise ConanInvalidConfiguration("experimental polyfill is not supported for apple-clang")
+            raise ConanInvalidConfiguration(
+                "experimental polyfill is not supported for apple-clang"
+            )
 
         version = Version(self.settings.compiler.version)
-        if compiler in self._compilers_minimum_version and version < self._compilers_minimum_version[compiler]:
+        if (
+            compiler in self._compilers_minimum_version
+            and version < self._compilers_minimum_version[compiler]
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires a compiler that supports at least C++{self._minimal_std_version}",
             )
@@ -123,8 +119,12 @@ class MongoCxxConan(ConanFile):
         tc.variables["BSONCXX_POLY_USE_STD_EXPERIMENTAL"] = self.options.polyfill == "experimental"
         tc.variables["BSONCXX_POLY_USE_BOOST"] = self.options.polyfill == "boost"
         tc.cache_variables["BUILD_VERSION"] = self.version
-        tc.cache_variables["BSONCXX_LINK_WITH_STATIC_MONGOC"] = "OFF" if self.dependencies["mongo-c-driver"].options.shared else "ON"
-        tc.cache_variables["MONGOCXX_LINK_WITH_STATIC_MONGOC"] = "OFF" if self.dependencies["mongo-c-driver"].options.shared else "ON"
+        tc.cache_variables["BSONCXX_LINK_WITH_STATIC_MONGOC"] = (
+            "OFF" if self.dependencies["mongo-c-driver"].options.shared else "ON"
+        )
+        tc.cache_variables["MONGOCXX_LINK_WITH_STATIC_MONGOC"] = (
+            "OFF" if self.dependencies["mongo-c-driver"].options.shared else "ON"
+        )
         tc.variables["MONGOCXX_ENABLE_SSL"] = self.options.with_ssl
         if not valid_min_cppstd(self, self._minimal_std_version):
             tc.variables["CMAKE_CXX_STANDARD"] = self._minimal_std_version
@@ -149,8 +149,18 @@ class MongoCxxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "THIRD-PARTY-NOTICES", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "THIRD-PARTY-NOTICES",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         if self.settings.os == "Windows":
@@ -172,26 +182,38 @@ class MongoCxxConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "mongo"
 
         # mongocxx
-        self.cpp_info.components["mongocxx"].set_property("cmake_target_name", f"mongo::{mongocxx_target}")
-        self.cpp_info.components["mongocxx"].set_property("pkg_config_name", "libmongocxx" if self.options.shared else "libmongocxx-static")
+        self.cpp_info.components["mongocxx"].set_property(
+            "cmake_target_name", f"mongo::{mongocxx_target}"
+        )
+        self.cpp_info.components["mongocxx"].set_property(
+            "pkg_config_name", "libmongocxx" if self.options.shared else "libmongocxx-static"
+        )
 
         self.cpp_info.components["mongocxx"].names["cmake_find_package"] = mongocxx_target
         self.cpp_info.components["mongocxx"].names["cmake_find_package_multi"] = mongocxx_target
 
-        self.cpp_info.components["mongocxx"].libs = ["mongocxx" if self.options.shared else "mongocxx-static"]
+        self.cpp_info.components["mongocxx"].libs = [
+            "mongocxx" if self.options.shared else "mongocxx-static"
+        ]
         if not self.options.shared:
             self.cpp_info.components["mongocxx"].defines.append("MONGOCXX_STATIC")
         self.cpp_info.components["mongocxx"].requires = ["mongo-c-driver::mongoc", "bsoncxx"]
 
         # bsoncxx
         bsoncxx_target = "bsoncxx_shared" if self.options.shared else "bsoncxx_static"
-        self.cpp_info.components["bsoncxx"].set_property("cmake_target_name", f"mongo::{bsoncxx_target}")
-        self.cpp_info.components["bsoncxx"].set_property("pkg_config_name", "libbsoncxx" if self.options.shared else "libbsoncxx-static")
+        self.cpp_info.components["bsoncxx"].set_property(
+            "cmake_target_name", f"mongo::{bsoncxx_target}"
+        )
+        self.cpp_info.components["bsoncxx"].set_property(
+            "pkg_config_name", "libbsoncxx" if self.options.shared else "libbsoncxx-static"
+        )
 
         self.cpp_info.components["bsoncxx"].names["cmake_find_package"] = bsoncxx_target
         self.cpp_info.components["bsoncxx"].names["cmake_find_package_multi"] = bsoncxx_target
 
-        self.cpp_info.components["bsoncxx"].libs = ["bsoncxx" if self.options.shared else "bsoncxx-static"]
+        self.cpp_info.components["bsoncxx"].libs = [
+            "bsoncxx" if self.options.shared else "bsoncxx-static"
+        ]
         if not self.options.shared:
             self.cpp_info.components["bsoncxx"].defines = ["BSONCXX_STATIC"]
         self.cpp_info.components["bsoncxx"].requires = ["mongo-c-driver::bson"]

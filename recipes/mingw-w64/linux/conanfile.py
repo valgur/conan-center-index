@@ -27,18 +27,27 @@ class MingwConan(ConanFile):
     def validate(self):
         valid_os = ["Linux"]
         if str(self.settings.os) not in valid_os:
-            raise ConanInvalidConfiguration("MinGW {} is only supported for the following operating systems: {}"
-                                            .format(self.version, valid_os))
+            raise ConanInvalidConfiguration(
+                "MinGW {} is only supported for the following operating systems: {}".format(
+                    self.version, valid_os
+                )
+            )
         valid_arch = ["x86_64"]
         if str(self.settings.arch) not in valid_arch:
-            raise ConanInvalidConfiguration("MinGW {} is only supported for the following architectures on {}: {}"
-                                            .format(self.version, str(self.settings.os), valid_arch))
+            raise ConanInvalidConfiguration(
+                "MinGW {} is only supported for the following architectures on {}: {}".format(
+                    self.version, str(self.settings.os), valid_arch
+                )
+            )
 
         if "gcc" in self.conan_data["sources"][self.version]:
             valid_gcc = self.conan_data["sources"][self.version]["gcc"].keys()
             if str(self.options.gcc) not in valid_gcc:
-                raise ConanInvalidConfiguration("gcc version {} is not in the list of valid versions: {}"
-                                                .format(str(self.options.gcc), valid_gcc))
+                raise ConanInvalidConfiguration(
+                    "gcc version {} is not in the list of valid versions: {}".format(
+                        str(self.options.gcc), valid_gcc
+                    )
+                )
 
     def build_requirements(self):
         self.build_requires("m4/1.4.19")
@@ -56,11 +65,21 @@ class MingwConan(ConanFile):
         for package in arch_data:
             if package == "gcc":
                 continue
-            self.output.info("Downloading {} from {}".format(package, arch_data[package]['url']))
-            get(self, **arch_data[package], strip_root=True, destination=os.path.join(self.build_folder, "sources", package))
+            self.output.info("Downloading {} from {}".format(package, arch_data[package]["url"]))
+            get(
+                self,
+                **arch_data[package],
+                strip_root=True,
+                destination=os.path.join(self.build_folder, "sources", package)
+            )
         # Download gcc version
         gcc_data = arch_data["gcc"][str(self.options.gcc)]
-        get(self, **gcc_data, strip_root=True, destination=os.path.join(self.build_folder, "sources", "gcc"))
+        get(
+            self,
+            **gcc_data,
+            strip_root=True,
+            destination=os.path.join(self.build_folder, "sources", "gcc")
+        )
 
     @property
     def _target_tag(self):
@@ -92,7 +111,7 @@ class MingwConan(ConanFile):
             with_gmp_mpfc_mpc = [
                 "--with-gmp={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
                 "--with-mpfr={}".format(self.deps_cpp_info["mpfr"].rootpath.replace("\\", "/")),
-                "--with-mpc={}".format(self.deps_cpp_info["mpc"].rootpath.replace("\\", "/"))
+                "--with-mpc={}".format(self.deps_cpp_info["mpc"].rootpath.replace("\\", "/")),
             ]
 
             self.output.info("Building binutils ...")
@@ -103,13 +122,18 @@ class MingwConan(ConanFile):
                     "--enable-silent-rules",
                     "--with-sysroot={}".format(self.package_folder),
                     "--disable-nls",
-                    "--disable-shared"
+                    "--disable-shared",
                 ]
                 if build_multilib:
                     conf_args.append("--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32")
                 conf_args.extend(with_gmp_mpfc_mpc)
-                autotools.configure(configure_dir=os.path.join(self.build_folder, "sources", "binutils"),
-                                    args=conf_args, target=target_tag, host=False, build=False)
+                autotools.configure(
+                    configure_dir=os.path.join(self.build_folder, "sources", "binutils"),
+                    args=conf_args,
+                    target=target_tag,
+                    host=False,
+                    build=False,
+                )
                 autotools.make()
                 autotools.install()
 
@@ -118,8 +142,15 @@ class MingwConan(ConanFile):
             with chdir(self, os.path.join(self.build_folder, "mingw-w64-tools")):
                 autotools = AutoToolsBuildEnvironment(self)
                 conf_args = []
-                autotools.configure(configure_dir=os.path.join(self.build_folder, "sources", "mingw-w64", "mingw-w64-tools", "widl"),
-                                    args=conf_args, target=target_tag, host=False, build=False)
+                autotools.configure(
+                    configure_dir=os.path.join(
+                        self.build_folder, "sources", "mingw-w64", "mingw-w64-tools", "widl"
+                    ),
+                    args=conf_args,
+                    target=target_tag,
+                    host=False,
+                    build=False,
+                )
                 autotools.make()
                 autotools.install()
 
@@ -131,10 +162,17 @@ class MingwConan(ConanFile):
                     "--enable-silent-rules",
                     "--with-widl={}".format(os.path.join(self.package_folder, "bin")),
                     "--enable-sdk=all",
-                    "--prefix={}".format(os.path.join(self.package_folder, target_tag))
+                    "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
                 ]
-                autotools.configure(configure_dir=os.path.join(self.build_folder, "sources", "mingw-w64", "mingw-w64-headers"),
-                                    args=conf_args, target=False, host=target_tag, build=host_tag)
+                autotools.configure(
+                    configure_dir=os.path.join(
+                        self.build_folder, "sources", "mingw-w64", "mingw-w64-headers"
+                    ),
+                    args=conf_args,
+                    target=False,
+                    host=target_tag,
+                    build=host_tag,
+                )
                 autotools.make()
                 autotools.install()
                 # Step 3) GCC requires the x86_64-w64-mingw32 directory be mirrored as a
@@ -143,14 +181,22 @@ class MingwConan(ConanFile):
                 #     ln -s /usr/local/x86_64-w64-mingw32 /usr/local/mingw
                 #     or, for sysroot, type:
                 #     ln -s /mypath/x86_64-w64-mingw32 /mypath/mingw
-                self.run("ln -s {} {}".format(os.path.join(self.package_folder, target_tag),
-                                              os.path.join(self.package_folder, 'mingw')))
+                self.run(
+                    "ln -s {} {}".format(
+                        os.path.join(self.package_folder, target_tag),
+                        os.path.join(self.package_folder, "mingw"),
+                    )
+                )
                 # Step 5) Symlink x86_64-w64-mingw32/lib directory as x86_64-w64-mingw32/lib64:
                 # ln -s /usr/local/x86_64-w64-mingw32/lib /usr/local/x86_64-w64-mingw32/lib64
                 # or, for sysroot:
                 #     ln -s /mypath/x86_64-w64-mingw32/lib /mypath/x86_64-w64-mingw32/lib64
-                self.run("ln -s {} {}".format(os.path.join(self.package_folder, target_tag, 'lib'),
-                                              os.path.join(self.package_folder, target_tag, 'lib64')))
+                self.run(
+                    "ln -s {} {}".format(
+                        os.path.join(self.package_folder, target_tag, "lib"),
+                        os.path.join(self.package_folder, target_tag, "lib64"),
+                    )
+                )
 
             self.output.info("Building core gcc ...")
             mkdir(self, os.path.join(self.build_folder, "gcc"))
@@ -160,7 +206,7 @@ class MingwConan(ConanFile):
                     "--enable-silent-rules",
                     "--enable-languages=c,c++",
                     "--with-sysroot={}".format(self.package_folder),
-                    "--disable-shared"
+                    "--disable-shared",
                 ]
                 if build_multilib:
                     conf_args.append("--enable-targets=all")
@@ -172,15 +218,22 @@ class MingwConan(ConanFile):
                     conf_args.append("--enable-sjlj-exceptions")
                 if self.options.threads == "posix":
                     # Some specific options which need to be set for posix thread. Otherwise it fails compiling.
-                    conf_args.extend([
-                        "--enable-silent-rules",
-                        "--enable-threads=posix",
-                        # Not 100% sure why, but the following options are required, otherwise
-                        # gcc fails to build with posix threads
-                    ])
+                    conf_args.extend(
+                        [
+                            "--enable-silent-rules",
+                            "--enable-threads=posix",
+                            # Not 100% sure why, but the following options are required, otherwise
+                            # gcc fails to build with posix threads
+                        ]
+                    )
                 autotools_gcc.libs = []
-                autotools_gcc.configure(configure_dir=os.path.join(self.build_folder, "sources", "gcc"),
-                                        args=conf_args, target=target_tag, host=False, build=False)
+                autotools_gcc.configure(
+                    configure_dir=os.path.join(self.build_folder, "sources", "gcc"),
+                    args=conf_args,
+                    target=target_tag,
+                    host=False,
+                    build=False,
+                )
                 autotools_gcc.make(target="all-gcc")
                 autotools_gcc.make(target="install-gcc")
 
@@ -198,28 +251,48 @@ class MingwConan(ConanFile):
                     conf_args = [
                         "--enable-silent-rules",
                         "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
-                        "--with-sysroot={}".format(self.package_folder)
+                        "--with-sysroot={}".format(self.package_folder),
                     ]
                     if build_multilib:
                         conf_args.append("--enable-lib32")
-                    autotools.configure(configure_dir=os.path.join(self.build_folder, "sources", "mingw-w64", "mingw-w64-crt"),
-                                        args=conf_args, target=False, host=target_tag, build=False,
-                                        use_default_install_dirs=False)
+                    autotools.configure(
+                        configure_dir=os.path.join(
+                            self.build_folder, "sources", "mingw-w64", "mingw-w64-crt"
+                        ),
+                        args=conf_args,
+                        target=False,
+                        host=target_tag,
+                        build=False,
+                        use_default_install_dirs=False,
+                    )
                     autotools.make()
                     autotools.install()
 
                 if self.options.threads == "posix":
                     self.output.info("Building mingw-w64-libraries-winpthreads ...")
                     mkdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads"))
-                    with chdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")):
+                    with chdir(
+                        self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")
+                    ):
                         autotools = AutoToolsBuildEnvironment(self)
                         conf_args = [
                             "--enable-silent-rules",
                             "--disable-shared",
-                            "--prefix={}".format(os.path.join(self.package_folder, target_tag))
+                            "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
                         ]
-                        autotools.configure(configure_dir=os.path.join(self.build_folder, "sources", "mingw-w64", "mingw-w64-libraries", "winpthreads"),
-                                            args=conf_args, target=False, host=target_tag, build=False)
+                        autotools.configure(
+                            configure_dir=os.path.join(
+                                self.build_folder,
+                                "sources",
+                                "mingw-w64",
+                                "mingw-w64-libraries",
+                                "winpthreads",
+                            ),
+                            args=conf_args,
+                            target=False,
+                            host=target_tag,
+                            build=False,
+                        )
                         autotools.make()
                         autotools.install()
 
@@ -231,35 +304,49 @@ class MingwConan(ConanFile):
         self.output.info("Building done!")
 
     def package(self):
-        self.copy("COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses")
+        self.copy(
+            "COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses"
+        )
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # replace with relative symlinks so they'll resolve correctly on consumer's machine
-        os.unlink(os.path.join(self.package_folder, 'mingw'))
-        os.unlink(os.path.join(self.package_folder, self._target_tag, 'lib64'))
-        self.run("ln -s {} {}".format(os.path.join(os.curdir, self._target_tag),
-                                        os.path.join(self.package_folder, 'mingw')))
-        self.run("ln -s {} {}".format(os.path.join(os.curdir, 'lib'),
-                                        os.path.join(self.package_folder, self._target_tag, 'lib64')))
+        os.unlink(os.path.join(self.package_folder, "mingw"))
+        os.unlink(os.path.join(self.package_folder, self._target_tag, "lib64"))
+        self.run(
+            "ln -s {} {}".format(
+                os.path.join(os.curdir, self._target_tag),
+                os.path.join(self.package_folder, "mingw"),
+            )
+        )
+        self.run(
+            "ln -s {} {}".format(
+                os.path.join(os.curdir, "lib"),
+                os.path.join(self.package_folder, self._target_tag, "lib64"),
+            )
+        )
 
     def package_info(self):
         if getattr(self, "settings_target", None):
             if self.settings_target.compiler != "gcc":
                 raise ConanInvalidConfiguration("Only GCC is allowed as compiler.")
             if str(self.settings_target.compiler.threads) != str(self.options.threads):
-                raise ConanInvalidConfiguration("Build requires 'mingw' provides binaries for gcc "
-                                                "with threads={}, your profile:host declares "
-                                                "threads={}, please use the same value for both."
-                                                .format(self.options.threads,
-                                                        self.settings_target.compiler.threads))
+                raise ConanInvalidConfiguration(
+                    "Build requires 'mingw' provides binaries for gcc "
+                    "with threads={}, your profile:host declares "
+                    "threads={}, please use the same value for both.".format(
+                        self.options.threads, self.settings_target.compiler.threads
+                    )
+                )
             if str(self.settings_target.compiler.exception) != str(self.options.exception):
-                raise ConanInvalidConfiguration("Build requires 'mingw' provides binaries for gcc "
-                                                "with exception={}, your profile:host declares "
-                                                "exception={}, please use the same value for both."
-                                                .format(self.options.exception,
-                                                        self.settings_target.compiler.exception))
+                raise ConanInvalidConfiguration(
+                    "Build requires 'mingw' provides binaries for gcc "
+                    "with exception={}, your profile:host declares "
+                    "exception={}, please use the same value for both.".format(
+                        self.options.exception, self.settings_target.compiler.exception
+                    )
+                )
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH env var with : {}".format(bin_path))

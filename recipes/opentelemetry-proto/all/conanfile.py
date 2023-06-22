@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class OpenTelemetryProtoConan(ConanFile):
     name = "opentelemetry-proto"
     license = "Apache-2.0"
@@ -25,7 +26,12 @@ class OpenTelemetryProtoConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.proto",
@@ -36,7 +42,9 @@ class OpenTelemetryProtoConan(ConanFile):
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
-        self.conf_info.define("user.opentelemetry-proto:proto_root", os.path.join(self.package_folder, "res"))
+        self.conf_info.define(
+            "user.opentelemetry-proto:proto_root", os.path.join(self.package_folder, "res")
+        )
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

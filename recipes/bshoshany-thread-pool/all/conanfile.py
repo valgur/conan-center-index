@@ -16,7 +16,16 @@ class BShoshanyThreadPoolConan(ConanFile):
     name = "bshoshany-thread-pool"
     no_copy_source = True
     settings = "arch", "build_type", "compiler", "os"
-    topics = ("concurrency", "cpp17", "header-only", "library", "multi-threading", "parallel-computing", "thread-pool", "threads")
+    topics = (
+        "concurrency",
+        "cpp17",
+        "header-only",
+        "library",
+        "multi-threading",
+        "parallel-computing",
+        "thread-pool",
+        "threads",
+    )
     url = "https://github.com/conan-io/conan-center-index"
 
     @property
@@ -33,13 +42,14 @@ class BShoshanyThreadPoolConan(ConanFile):
     def _min_cppstd(self):
         return "17"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def package(self):
         copy(self, "*.hpp", self.source_folder, os.path.join(self.package_folder, "include"))
-        copy(self, "*.hpp", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            os.path.join(self.source_folder, "include"),
+            os.path.join(self.package_folder, "include"),
+        )
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
 
     def package_id(self):
@@ -52,7 +62,12 @@ class BShoshanyThreadPoolConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "bshoshany-thread-pool"
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):

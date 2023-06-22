@@ -24,10 +24,6 @@ class TCSBankUconfigConan(ConanFile):
     }
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -43,8 +39,10 @@ class TCSBankUconfigConan(ConanFile):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, min_req_cppstd)
         else:
-            self.output.warn("%s recipe lacks information about the %s compiler"
-                             " standard version support." % (self.name, compiler))
+            self.output.warn(
+                "%s recipe lacks information about the %s compiler"
+                " standard version support." % (self.name, compiler)
+            )
 
         minimal_version = {
             "Visual Studio": "16",
@@ -54,15 +52,22 @@ class TCSBankUconfigConan(ConanFile):
         }
         # Exclude not supported compilers
         if compiler not in minimal_version:
-            self.output.info("%s requires a compiler that supports at least C++%s" % (self.name, min_req_cppstd))
+            self.output.info(
+                "%s requires a compiler that supports at least C++%s" % (self.name, min_req_cppstd)
+            )
             return
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s. %s %s is not supported." %
-                (self.name, min_req_cppstd, compiler, compiler_version))
+                "%s requires a compiler that supports at least C++%s. %s %s is not supported."
+                % (self.name, min_req_cppstd, compiler, compiler_version)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

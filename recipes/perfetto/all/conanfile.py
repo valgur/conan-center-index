@@ -21,7 +21,7 @@ class PerfettoConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "disable_logging": [True, False], # switches PERFETTO_DISABLE_LOG
+        "disable_logging": [True, False],  # switches PERFETTO_DISABLE_LOG
     }
     default_options = {
         "shared": False,
@@ -78,8 +78,12 @@ class PerfettoConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -95,7 +99,12 @@ class PerfettoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -107,4 +116,3 @@ class PerfettoConan(ConanFile):
             self.cpp_info.system_libs.append("ws2_32")
         if is_msvc(self):
             self.cpp_info.cxxflags.append("/Zc:__cplusplus")
-

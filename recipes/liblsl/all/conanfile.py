@@ -11,11 +11,12 @@ required_conan_version = ">=1.54.0"
 
 class LiblslConan(ConanFile):
     name = "liblsl"
-    description = "Lab Streaming Layer is a C++ library for multi-modal " \
-                  "time-synched data transmission over the local network"
+    description = (
+        "Lab Streaming Layer is a C++ library for multi-modal "
+        "time-synched data transmission over the local network"
+    )
     license = "MIT"
-    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal",
-              "transmission")
+    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal", "transmission")
     homepage = "https://github.com/sccn/liblsl"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -68,8 +69,12 @@ class LiblslConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -89,7 +94,7 @@ class LiblslConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
                 "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
-                ""
+                "",
             )
 
     def build(self):
@@ -105,7 +110,12 @@ class LiblslConan(ConanFile):
         rm(self, "lslver*", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LSL")
@@ -119,7 +129,12 @@ class LiblslConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_liblsl"].system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["_liblsl"].system_libs = ["iphlpapi", "winmm", "mswsock", "ws2_32"]
+            self.cpp_info.components["_liblsl"].system_libs = [
+                "iphlpapi",
+                "winmm",
+                "mswsock",
+                "ws2_32",
+            ]
 
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "LSL"

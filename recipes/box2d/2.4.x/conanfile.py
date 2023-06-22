@@ -1,6 +1,13 @@
 import os
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rm, rmdir, copy
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+    copy,
+)
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 
@@ -15,9 +22,14 @@ class Box2dConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("physics-engine", "graphic", "2d", "collision")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False],
-               "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True,}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -40,7 +52,12 @@ class Box2dConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -56,7 +73,12 @@ class Box2dConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

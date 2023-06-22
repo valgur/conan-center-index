@@ -5,6 +5,7 @@ import glob
 
 required_conan_version = ">=1.33.0"
 
+
 class ElfutilsConan(ConanFile):
     name = "elfutils"
     description = "A dwarf, dwfl and dwelf functions to read DWARF, find separate debuginfo, symbols and inspect process state."
@@ -12,7 +13,7 @@ class ElfutilsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("elfutils", "libelf", "libdw", "libasm")
     license = ["GPL-1.0-or-later", "LGPL-3.0-or-later", "GPL-2.0-or-later"]
-    
+
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -43,7 +44,7 @@ class ElfutilsConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
         if tools.Version(self.version) < "0.186":
             del self.options.libdebuginfod
@@ -57,12 +58,16 @@ class ElfutilsConan(ConanFile):
     def validate(self):
         if tools.Version(self.version) >= "0.186":
             if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
-                raise ConanInvalidConfiguration("Compiler %s not supported. "
-                            "elfutils only supports gcc and clang" % self.settings.compiler)
+                raise ConanInvalidConfiguration(
+                    "Compiler %s not supported. "
+                    "elfutils only supports gcc and clang" % self.settings.compiler
+                )
         else:
             if self.settings.compiler in ["Visual Studio", "clang", "apple-clang", "msvc"]:
-                raise ConanInvalidConfiguration("Compiler %s not supported. "
-                            "elfutils only supports gcc" % self.settings.compiler)
+                raise ConanInvalidConfiguration(
+                    "Compiler %s not supported. "
+                    "elfutils only supports gcc" % self.settings.compiler
+                )
         if self.settings.compiler != "gcc":
             self.output.warn("Compiler %s is not gcc." % self.settings.compiler)
 
@@ -92,10 +97,13 @@ class ElfutilsConan(ConanFile):
         self.build_requires("pkgconf/1.7.4")
         if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-    
+
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -110,8 +118,12 @@ class ElfutilsConan(ConanFile):
                 "--enable-debuginfod" if self.options.debuginfod else "--disable-debuginfod",
             ]
             if tools.Version(self.version) >= "0.186":
-                args.append("--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod")
-            args.append('BUILD_STATIC={}'.format("0" if self.options.shared else "1"))
+                args.append(
+                    "--enable-libdebuginfod"
+                    if self.options.libdebuginfod
+                    else "--disable-libdebuginfod"
+                )
+            args.append("BUILD_STATIC={}".format("0" if self.options.shared else "1"))
 
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self._autotools.configure(configure_dir=self._source_subfolder, args=args)
@@ -124,7 +136,7 @@ class ElfutilsConan(ConanFile):
             self.run("autoreconf -fiv")
         autotools = self._configure_autotools()
         autotools.make()
-    
+
     def package(self):
         self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
         autotools = self._configure_autotools()
@@ -137,7 +149,7 @@ class ElfutilsConan(ConanFile):
         else:
             tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so")
             tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so.1")
-        
+
     def package_info(self):
         # library components
         self.cpp_info.components["libelf"].libs = ["elf"]
@@ -164,8 +176,10 @@ class ElfutilsConan(ConanFile):
         self.env_info.PATH.append(bin_path)
 
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
-        
-        addr2line = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
+
+        addr2line = tools.unix_path(
+            os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext)
+        )
         self.output.info("Setting ADDR2LINE to {}".format(addr2line))
         self.env_info.ADDR2LINE = addr2line
 
@@ -173,7 +187,9 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting AR to {}".format(ar))
         self.env_info.AR = ar
 
-        elfclassify = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
+        elfclassify = tools.unix_path(
+            os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext)
+        )
         self.output.info("Setting ELFCLASSIFY to {}".format(elfclassify))
         self.env_info.ELFCLASSIFY = elfclassify
 
@@ -181,7 +197,9 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting ELFCMP to {}".format(elfcmp))
         self.env_info.ELFCMP = elfcmp
 
-        elfcompress = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
+        elfcompress = tools.unix_path(
+            os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext)
+        )
         self.output.info("Setting ELFCOMPRESS to {}".format(elfcompress))
         self.env_info.ELFCOMPRESS = elfcompress
 
@@ -189,11 +207,15 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting ELFLINT to {}".format(elflint))
         self.env_info.ELFLINT = elflint
 
-        findtextrel = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
+        findtextrel = tools.unix_path(
+            os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext)
+        )
         self.output.info("Setting FINDTEXTREL to {}".format(findtextrel))
         self.env_info.FINDTEXTREL = findtextrel
 
-        make_debug_archive = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext))
+        make_debug_archive = tools.unix_path(
+            os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext)
+        )
         self.output.info("Setting MAKE_DEBUG_ARCHIVE to {}".format(make_debug_archive))
         self.env_info.MAKE_DEBUG_ARCHIVE = make_debug_archive
 
@@ -232,4 +254,3 @@ class ElfutilsConan(ConanFile):
         unstrip = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-unstrip" + bin_ext))
         self.output.info("Setting UNSTRIP to {}".format(unstrip))
         self.env_info.UNSTRIP = unstrip
-

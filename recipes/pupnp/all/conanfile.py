@@ -28,7 +28,7 @@ class PupnpConan(ConanFile):
         "largefile": [True, False],
         "tools": [True, False],
         "blocking-tcp": [True, False],
-        "debug":  [True, False]
+        "debug": [True, False],
     }
     default_options = {
         "shared": False,
@@ -41,14 +41,10 @@ class PupnpConan(ConanFile):
         "largefile": True,
         "tools": True,
         "blocking-tcp": False,
-        "debug": True # Actually enables logging routines...
+        "debug": True,  # Actually enables logging routines...
     }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -78,8 +74,11 @@ class PupnpConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -104,12 +103,15 @@ class PupnpConan(ConanFile):
                         "device",
                         "largefile",
                         "tools",
-                        "debug"
+                        "debug",
                     ),
                 )
             )
 
-            args.append("--%s-blocking_tcp_connections" % ("enable" if getattr(self.options, "blocking-tcp") else "disable"))
+            args.append(
+                "--%s-blocking_tcp_connections"
+                % ("enable" if getattr(self.options, "blocking-tcp") else "disable")
+            )
 
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             self._autotools.configure(configure_dir=self._source_subfolder, args=args)
@@ -117,7 +119,9 @@ class PupnpConan(ConanFile):
 
     def build(self):
         with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+            )
         autotools = self._configure_autotools()
         autotools.make()
 

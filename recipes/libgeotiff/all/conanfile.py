@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 import os
 import textwrap
 
@@ -9,8 +17,10 @@ required_conan_version = ">=1.53.0"
 
 class LibgeotiffConan(ConanFile):
     name = "libgeotiff"
-    description = "Libgeotiff is an open source library normally hosted on top " \
-                  "of libtiff for reading, and writing GeoTIFF information tags."
+    description = (
+        "Libgeotiff is an open source library normally hosted on top "
+        "of libtiff for reading, and writing GeoTIFF information tags."
+    )
     license = ["MIT", "BSD-3-Clause"]
     topics = ("geotiff", "tiff")
     homepage = "https://github.com/OSGeo/libgeotiff"
@@ -64,7 +74,12 @@ class LibgeotiffConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -75,11 +90,12 @@ class LibgeotiffConan(ConanFile):
         )
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_target_file),
-            {"geotiff_library": "geotiff::geotiff"}
+            {"geotiff_library": "geotiff::geotiff"},
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             set(GEOTIFF_FOUND ${GeoTIFF_FOUND})
             if(DEFINED GeoTIFF_INCLUDE_DIR)
                 set(GEOTIFF_INCLUDE_DIR ${GeoTIFF_INCLUDE_DIR})
@@ -87,18 +103,21 @@ class LibgeotiffConan(ConanFile):
             if(DEFINED GeoTIFF_LIBRARIES)
                 set(GEOTIFF_LIBRARIES ${GeoTIFF_LIBRARIES})
             endif()
-        """)
+        """
+        )
         save(self, module_file, content)
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

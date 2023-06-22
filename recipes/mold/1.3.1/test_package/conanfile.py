@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "build_type", "compiler"
 

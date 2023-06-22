@@ -24,13 +24,9 @@ class UniAlgoConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "header_only": [True, False]
+        "header_only": [True, False],
     }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "header_only": False
-    }
+    default_options = {"shared": False, "fPIC": True, "header_only": False}
 
     @property
     def _min_cppstd(self):
@@ -96,7 +92,12 @@ class UniAlgoConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self.options.header_only:
             copy(
                 self,

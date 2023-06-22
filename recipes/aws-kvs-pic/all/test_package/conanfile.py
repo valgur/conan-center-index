@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 class TestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "pkg_config"

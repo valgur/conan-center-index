@@ -12,8 +12,7 @@ class TestPackageConan(ConanFile):
             lzip = os.path.join(self.deps_cpp_info["lzip"].bin_paths[0], "lzip")
             self.run("{} --version".format(lzip))
 
-            shutil.copy(os.path.join(self.source_folder, "conanfile.py"),
-                        "conanfile.py")
+            shutil.copy(os.path.join(self.source_folder, "conanfile.py"), "conanfile.py")
 
             sha256_original = tools.sha256sum("conanfile.py")
             self.run("{} conanfile.py".format(lzip), run_environment=True)

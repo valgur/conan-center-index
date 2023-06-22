@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    replace_in_file,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
@@ -47,14 +55,11 @@ class CclientConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "c-client is setup to build only with MSVC for Windows"
-            )
+            raise ConanInvalidConfiguration("c-client is setup to build only with MSVC for Windows")
         # FIXME: need krb5 recipe
         if self.settings.os == "Macos":
             raise ConanInvalidConfiguration(
-                "c-client depends on krb5 on MacOS and it's not packaged by "
-                "Conan yet"
+                "c-client depends on krb5 on MacOS and it's not packaged by " "Conan yet"
             )
 
     def source(self):
@@ -84,7 +89,8 @@ class CclientConan(ConanFile):
         os.chmod(path, os.stat(path).st_mode | stat.S_IEXEC)
 
     def _touch(self, path):
-        with open(path, "a", encoding=None): pass
+        with open(path, "a", encoding=None):
+            pass
 
     def _build_unix(self):
         self._touch(os.path.join(self.source_folder, "ip6"))
@@ -94,12 +100,15 @@ class CclientConan(ConanFile):
         self._chmod_x(os.path.join(unix, "drivers"))
         self._chmod_x(os.path.join(unix, "mkauths"))
         ssldir = self.dependencies["openssl"].package_folder
-        replace_in_file(self, os.path.join(unix, "Makefile"), "SSLDIR=/usr/local/ssl", f"SSLDIR={ssldir}")
+        replace_in_file(
+            self, os.path.join(unix, "Makefile"), "SSLDIR=/usr/local/ssl", f"SSLDIR={ssldir}"
+        )
         # This is from the Homebrew Formula
         replace_in_file(
-            self, os.path.join(unix, "ssl_unix.c"),
+            self,
+            os.path.join(unix, "ssl_unix.c"),
             "#include <x509v3.h>\n#include <ssl.h>",
-            "#include <ssl.h>\n#include <x509v3.h>"
+            "#include <ssl.h>\n#include <x509v3.h>",
         )
         target = "osx" if self.settings.os == "Macos" else "slx"
         # NOTE: only one job is used, because there are issues with dependency
@@ -117,16 +126,28 @@ class CclientConan(ConanFile):
             self._build_unix()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         # Install headers (headers in build tree are symlinks)
         include_folder = os.path.join(self.package_folder, "include", "c-client")
         mkdir(self, include_folder)
         for header_path in glob.glob(os.path.join(self.source_folder, "c-client", "*.h")):
             # conan.tools.files.copy can't be used because it copies symlinks instead of real files
-            shutil.copy(src=header_path, dst=os.path.join(include_folder, os.path.basename(header_path)))
+            shutil.copy(
+                src=header_path, dst=os.path.join(include_folder, os.path.basename(header_path))
+            )
         # Install libs
         for lib in ("*.a", "*.lib"):
-            copy(self, lib, src=os.path.join(self.source_folder, "c-client"), dst=os.path.join(self.package_folder, "lib"))
+            copy(
+                self,
+                lib,
+                src=os.path.join(self.source_folder, "c-client"),
+                dst=os.path.join(self.package_folder, "lib"),
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["cclient" if is_msvc(self) else "c-client"]

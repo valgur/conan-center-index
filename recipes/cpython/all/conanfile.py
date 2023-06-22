@@ -30,13 +30,11 @@ class CPythonConan(ConanFile):
         "with_sqlite3": [True, False],
         "with_tkinter": [True, False],
         "with_curses": [True, False],
-
         # Python 2 options
         "unicode": ["ucs2", "ucs4"],
         "with_bsddb": [True, False],
         # Python 3 options
         "with_lzma": [True, False],
-
         # options that don't change package id
         "env_vars": [True, False],  # set environment variables
     }
@@ -53,22 +51,16 @@ class CPythonConan(ConanFile):
         "with_sqlite3": True,
         "with_tkinter": True,
         "with_curses": True,
-
         # Python 2 options
         "unicode": "ucs2",
         "with_bsddb": False,  # True,  # FIXME: libdb package missing (#5309/#5392)
         # Python 3 options
         "with_lzma": True,
-
         # options that don't change package id
         "env_vars": True,
     }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _version_number_only(self):
@@ -123,12 +115,12 @@ class CPythonConan(ConanFile):
         if self.options.shared:
             del self.options.fPIC
         if not self._supports_modules:
-                del self.options.with_bz2
-                del self.options.with_sqlite3
-                del self.options.with_tkinter
+            del self.options.with_bz2
+            del self.options.with_sqlite3
+            del self.options.with_tkinter
 
-                del self.options.with_bsddb
-                del self.options.with_lzma
+            del self.options.with_bsddb
+            del self.options.with_lzma
         if self.settings.compiler == "Visual Studio":
             # The msbuild generator only works with Visual Studio
             self.generators.append("MSBuildDeps")
@@ -136,25 +128,35 @@ class CPythonConan(ConanFile):
     def validate(self):
         if self.options.shared:
             if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
-                raise ConanInvalidConfiguration("cpython does not support MT(d) runtime when building a shared cpython library")
+                raise ConanInvalidConfiguration(
+                    "cpython does not support MT(d) runtime when building a shared cpython library"
+                )
         if self.settings.compiler == "Visual Studio":
             if self.options.optimizations:
-                raise ConanInvalidConfiguration("This recipe does not support optimized MSVC cpython builds (yet)")
+                raise ConanInvalidConfiguration(
+                    "This recipe does not support optimized MSVC cpython builds (yet)"
+                )
                 # FIXME: should probably throw when cross building
                 # FIXME: optimizations for Visual Studio, before building the final `build_type`:
                 # 1. build the MSVC PGInstrument build_type,
                 # 2. run the instrumented binaries, (PGInstrument should have created a `python.bat` file in the PCbuild folder)
                 # 3. build the MSVC PGUpdate build_type
             if self.settings.build_type == "Debug" and "d" not in self.settings.compiler.runtime:
-                raise ConanInvalidConfiguration("Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode symbol, which only debug runtimes define)")
+                raise ConanInvalidConfiguration(
+                    "Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode symbol, which only debug runtimes define)"
+                )
             if self._is_py2:
                 if self.settings.compiler.version >= tools.Version("14"):
-                    self.output.warn("Visual Studio versions 14 and higher were never officially supported by the CPython developers")
+                    self.output.warn(
+                        "Visual Studio versions 14 and higher were never officially supported by the CPython developers"
+                    )
             if str(self.settings.arch) not in self._msvc_archs:
                 raise ConanInvalidConfiguration("Visual Studio does not support this architecture")
 
             if not self.options.shared and tools.Version(self._version_number_only) >= "3.10":
-                raise ConanInvalidConfiguration("Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no attribute 'winver'\"")
+                raise ConanInvalidConfiguration(
+                    "Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no attribute 'winver'\""
+                )
 
         if self.options.get_safe("with_curses", False) and not self.options["ncurses"].with_widec:
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
@@ -163,14 +165,19 @@ class CPythonConan(ConanFile):
         del self.info.options.env_vars
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @property
     def _with_libffi(self):
         # cpython 3.7.x on MSVC uses an ancient libffi 2.00-beta (which is not available at cci, and is API/ABI incompatible with current 3.2+)
-        return self._supports_modules \
-               and (self.settings.compiler != "Visual Studio" or tools.Version(self._version_number_only) >= "3.8")
+        return self._supports_modules and (
+            self.settings.compiler != "Visual Studio"
+            or tools.Version(self._version_number_only) >= "3.8"
+        )
 
     def requirements(self):
         self.requires("zlib/1.2.11")
@@ -224,15 +231,21 @@ class CPythonConan(ConanFile):
             "--with-pydebug={}".format(yes_no(self.settings.build_type == "Debug")),
         ]
         if self._is_py2:
-            conf_args.extend([
-                "--enable-unicode={}".format(yes_no(self.options.unicode)),
-            ])
+            conf_args.extend(
+                [
+                    "--enable-unicode={}".format(yes_no(self.options.unicode)),
+                ]
+            )
         if self._is_py3:
-            conf_args.extend([
-                "--with-system-libmpdec",
-                "--with-openssl={}".format(self.deps_cpp_info["openssl"].rootpath),
-                "--enable-loadable-sqlite-extensions={}".format(yes_no(not self.options["sqlite3"].omit_load_extension)),
-            ])
+            conf_args.extend(
+                [
+                    "--with-system-libmpdec",
+                    "--with-openssl={}".format(self.deps_cpp_info["openssl"].rootpath),
+                    "--enable-loadable-sqlite-extensions={}".format(
+                        yes_no(not self.options["sqlite3"].omit_load_extension)
+                    ),
+                ]
+            )
         if self.settings.compiler == "intel":
             conf_args.extend(["--with-icc"])
         if tools.get_env("CC") or self.settings.compiler != "gcc":
@@ -247,10 +260,12 @@ class CPythonConan(ConanFile):
             if self.settings.os == "Linux" and not self.options["tk"].shared:
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend(["-l{}".format(lib) for lib in ("X11", "Xss")])
-            conf_args.extend([
-                "--with-tcltk-includes={}".format(" ".join(tcltk_includes)),
-                "--with-tcltk-libs={}".format(" ".join(tcltk_libs)),
-            ])
+            conf_args.extend(
+                [
+                    "--with-tcltk-includes={}".format(" ".join(tcltk_includes)),
+                    "--with-tcltk-libs={}".format(" ".join(tcltk_libs)),
+                ]
+            )
         if self.settings.os in ("Linux", "FreeBSD"):
             # Building _testembed fails due to missing pthread/rt symbols
             self._autotools.link_flags.append("-lpthread")
@@ -258,16 +273,19 @@ class CPythonConan(ConanFile):
         build = None
         if tools.cross_building(self) and not tools.cross_building(self, skip_x64_x86=True):
             # Building from x86_64 to x86 is not a "real" cross build, so set build == host
-            build = tools.get_gnu_triplet(str(self.settings.os), str(self.settings.arch), str(self.settings.compiler))
+            build = tools.get_gnu_triplet(
+                str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
+            )
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder, build=build)
         return self._autotools
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches",{}).get(self.version, []):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         if self._is_py3 and tools.Version(self._version_number_only) < "3.10":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "setup.py"),
-                                  ":libmpdec.so.2", "mpdec")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "setup.py"), ":libmpdec.so.2", "mpdec"
+            )
         if self.settings.compiler == "Visual Studio":
             runtime_library = {
                 "MT": "MultiThreaded",
@@ -276,10 +294,16 @@ class CPythonConan(ConanFile):
                 "MDd": "MultiThreadedDebugDLL",
             }[str(self.settings.compiler.runtime)]
             self.output.info("Patching runtime")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pyproject.props"),
-                                  "MultiThreadedDLL", runtime_library)
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pyproject.props"),
-                                  "MultiThreadedDebugDLL", runtime_library)
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pyproject.props"),
+                "MultiThreadedDLL",
+                runtime_library,
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pyproject.props"),
+                "MultiThreadedDebugDLL",
+                runtime_library,
+            )
 
         # Remove vendored packages
         tools.rmdir(os.path.join(self._source_subfolder, "Modules", "_decimal", "libmpdec"))
@@ -287,28 +311,56 @@ class CPythonConan(ConanFile):
 
         if self.options.get_safe("with_curses", False):
             # FIXME: this will link to ALL libraries of ncurses. Only need to link to ncurses(w) (+ eventually tinfo)
-            tools.replace_in_file(os.path.join(self._source_subfolder, "setup.py"),
-                                  "curses_libs = ",
-                                  "curses_libs = {} #".format(repr(self.deps_cpp_info["ncurses"].libs + self.deps_cpp_info["ncurses"].system_libs)))
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "setup.py"),
+                "curses_libs = ",
+                "curses_libs = {} #".format(
+                    repr(
+                        self.deps_cpp_info["ncurses"].libs
+                        + self.deps_cpp_info["ncurses"].system_libs
+                    )
+                ),
+            )
 
         # Enable static MSVC cpython
         if not self.options.shared:
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
-                                  "<PreprocessorDefinitions>","<PreprocessorDefinitions>Py_NO_BUILD_SHARED;")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
-                                  "Py_ENABLE_SHARED", "Py_NO_ENABLE_SHARED")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
-                                  "DynamicLibrary", "StaticLibrary")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
+                "<PreprocessorDefinitions>",
+                "<PreprocessorDefinitions>Py_NO_BUILD_SHARED;",
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
+                "Py_ENABLE_SHARED",
+                "Py_NO_ENABLE_SHARED",
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pythoncore.vcxproj"),
+                "DynamicLibrary",
+                "StaticLibrary",
+            )
 
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "python.vcxproj"),
-                                  "<Link>", "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "python.vcxproj"),
-                                  "<PreprocessorDefinitions>", "<PreprocessorDefinitions>Py_NO_ENABLE_SHARED;")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "python.vcxproj"),
+                "<Link>",
+                "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>",
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "python.vcxproj"),
+                "<PreprocessorDefinitions>",
+                "<PreprocessorDefinitions>Py_NO_ENABLE_SHARED;",
+            )
 
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pythonw.vcxproj"),
-                                  "<Link>", "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
-            tools.replace_in_file(os.path.join(self._source_subfolder, "PCbuild", "pythonw.vcxproj"),
-                                  "<ItemDefinitionGroup>", "<ItemDefinitionGroup><ClCompile><PreprocessorDefinitions>Py_NO_ENABLE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pythonw.vcxproj"),
+                "<Link>",
+                "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>",
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "PCbuild", "pythonw.vcxproj"),
+                "<ItemDefinitionGroup>",
+                "<ItemDefinitionGroup><ClCompile><PreprocessorDefinitions>Py_NO_ENABLE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>",
+            )
 
     def _upgrade_single_project_file(self, project_file):
         """
@@ -317,22 +369,32 @@ class CPythonConan(ConanFile):
         This is needed for static cpython or for disabled optional dependencies (e.g. tkinter=False)
         Restore it afterwards because it is needed to build some targets.
         """
-        tools.rename(os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln"),
-                     os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln.bak"))
-        tools.rename(os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj"),
-                     os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj.bak"))
+        tools.rename(
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln"),
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln.bak"),
+        )
+        tools.rename(
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj"),
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj.bak"),
+        )
         with tools.vcvars(self.settings):
-            self.run("devenv \"{}\" /upgrade".format(project_file), run_environment=True)
-        tools.rename(os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln.bak"),
-                     os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln"))
-        tools.rename(os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj.bak"),
-                     os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj"))
+            self.run('devenv "{}" /upgrade'.format(project_file), run_environment=True)
+        tools.rename(
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln.bak"),
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln"),
+        )
+        tools.rename(
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj.bak"),
+            os.path.join(self._source_subfolder, "PCbuild", "pcbuild.proj"),
+        )
 
     @property
     def _solution_projects(self):
         if self.options.shared:
             solution_path = os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln")
-            projects = set(m.group(1) for m in re.finditer("\"([^\"]+)\\.vcxproj\"", open(solution_path).read()))
+            projects = set(
+                m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path).read())
+            )
 
             def project_build(name):
                 if os.path.basename(name) in self._msvc_discarded_projects:
@@ -343,8 +405,8 @@ class CPythonConan(ConanFile):
 
             def sort_importance(key):
                 importance = (
-                    "pythoncore",   # The python library MUST be built first. All modules and executables depend on it
-                    "python",       # Build the python executable next (for convenience, when debugging)
+                    "pythoncore",  # The python library MUST be built first. All modules and executables depend on it
+                    "python",  # Build the python executable next (for convenience, when debugging)
                 )
                 try:
                     return importance.index(key)
@@ -367,11 +429,15 @@ class CPythonConan(ConanFile):
             discarded.add("_tkinter")
         if self._is_py2:
             # Python 2 Visual Studio projects NOT to build
-            discarded = discarded.union({"bdist_wininst", "libeay", "ssleay", "sqlite3", "tcl", "tk", "tix"})
+            discarded = discarded.union(
+                {"bdist_wininst", "libeay", "ssleay", "sqlite3", "tcl", "tk", "tix"}
+            )
             if not self.options.with_bsddb:
                 discarded.add("_bsddb")
         elif self._is_py3:
-            discarded = discarded.union({"bdist_wininst", "liblzma", "openssl", "sqlite3", "xxlimited"})
+            discarded = discarded.union(
+                {"bdist_wininst", "liblzma", "openssl", "sqlite3", "xxlimited"}
+            )
             if not self.options.with_lzma:
                 discarded.add("_lzma")
         return discarded
@@ -383,11 +449,13 @@ class CPythonConan(ConanFile):
             "x86_64": "x64",
         }
         if tools.Version(self._version_number_only) >= "3.8":
-            archs.update({
-                "armv7": "ARM",
-                "armv8_32": "ARM",
-                "armv8": "ARM64",
-            })
+            archs.update(
+                {
+                    "armv7": "ARM",
+                    "armv8_32": "ARM",
+                    "armv8": "ARM64",
+                }
+            )
         return archs
 
     def _msvc_build(self):
@@ -400,25 +468,42 @@ class CPythonConan(ConanFile):
 
         with tools.no_op():
             for project_i, project in enumerate(projects, 1):
-                self.output.info("[{}/{}] Building project '{}'...".format(project_i, len(projects), project))
+                self.output.info(
+                    "[{}/{}] Building project '{}'...".format(project_i, len(projects), project)
+                )
                 project_file = os.path.join(self._source_subfolder, "PCbuild", project + ".vcxproj")
                 self._upgrade_single_project_file(project_file)
-                msbuild.build(project_file, upgrade_project=False, build_type="Debug" if self.settings.build_type == "Debug" else "Release",
-                              platforms=self._msvc_archs, properties=msbuild_properties)
+                msbuild.build(
+                    project_file,
+                    upgrade_project=False,
+                    build_type="Debug" if self.settings.build_type == "Debug" else "Release",
+                    platforms=self._msvc_archs,
+                    properties=msbuild_properties,
+                )
 
     def build(self):
         # FIXME: these checks belong in validate, but the versions of dependencies are not available there yet
         if self._supports_modules:
             if tools.Version(self._version_number_only) < "3.8.0":
                 if tools.Version(self.deps_cpp_info["mpdecimal"].version) >= "2.5.0":
-                    raise ConanInvalidConfiguration("cpython versions lesser then 3.8.0 require a mpdecimal lesser then 2.5.0")
+                    raise ConanInvalidConfiguration(
+                        "cpython versions lesser then 3.8.0 require a mpdecimal lesser then 2.5.0"
+                    )
             elif tools.Version(self._version_number_only) >= "3.9.0":
                 if tools.Version(self.deps_cpp_info["mpdecimal"].version) < "2.5.0":
-                    raise ConanInvalidConfiguration("cpython 3.9.0 (and newer) requires (at least) mpdecimal 2.5.0")
+                    raise ConanInvalidConfiguration(
+                        "cpython 3.9.0 (and newer) requires (at least) mpdecimal 2.5.0"
+                    )
 
         if self._with_libffi:
-            if tools.Version(self.deps_cpp_info["libffi"].version) >= "3.3" and self.settings.compiler == "Visual Studio" and "d" in str(self.settings.compiler.runtime):
-                raise ConanInvalidConfiguration("libffi versions >= 3.3 cause 'read access violations' when using a debug runtime (MTd/MDd)")
+            if (
+                tools.Version(self.deps_cpp_info["libffi"].version) >= "3.3"
+                and self.settings.compiler == "Visual Studio"
+                and "d" in str(self.settings.compiler.runtime)
+            ):
+                raise ConanInvalidConfiguration(
+                    "libffi versions >= 3.3 cause 'read access violations' when using a debug runtime (MTd/MDd)"
+                )
 
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
@@ -434,12 +519,16 @@ class CPythonConan(ConanFile):
             "x86": "win32",
         }
         if tools.Version(self._version_number_only) >= "3.8":
-            build_subdir_lut.update({
-                "armv7": "arm32",
-                "armv8_32": "arm32",
-                "armv8": "arm64",
-            })
-        return os.path.join(self._source_subfolder, "PCbuild", build_subdir_lut[str(self.settings.arch)])
+            build_subdir_lut.update(
+                {
+                    "armv7": "arm32",
+                    "armv8_32": "arm32",
+                    "armv8": "arm64",
+                }
+            )
+        return os.path.join(
+            self._source_subfolder, "PCbuild", build_subdir_lut[str(self.settings.arch)]
+        )
 
     @property
     def _msvc_install_subprefix(self):
@@ -469,9 +558,12 @@ class CPythonConan(ConanFile):
         layout_args = [
             os.path.join(self._source_subfolder, "PC", "layout", "main.py"),
             "-v",
-            "-s", self._source_subfolder,
-            "-b", build_path,
-            "--copy", install_prefix,
+            "-s",
+            self._source_subfolder,
+            "-b",
+            build_path,
+            "--copy",
+            install_prefix,
             "-p",
             "--include-pip",
             "--include-venv",
@@ -481,7 +573,7 @@ class CPythonConan(ConanFile):
             layout_args.append("--include-tcltk")
         if self.settings.build_type == "Debug":
             layout_args.append("-d")
-        python_args = " ".join("\"{}\"".format(a) for a in layout_args)
+        python_args = " ".join('"{}"'.format(a) for a in layout_args)
         self.run("{} {}".format(python_built, python_args), run_environment=True)
 
         tools.rmdir(os.path.join(self.package_folder, "bin", "tcl"))
@@ -498,13 +590,41 @@ class CPythonConan(ConanFile):
     def _msvc_package_copy(self):
         build_path = self._msvc_artifacts_path
         infix = "_d" if self.settings.build_type == "Debug" else ""
-        self.copy("*.exe", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix))
-        self.copy("*.dll", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix))
-        self.copy("*.pyd", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "DLLs"))
-        self.copy("python{}{}.lib".format(self._version_suffix, infix), src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "libs"))
-        self.copy("*", src=os.path.join(self._source_subfolder, "Include"), dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"))
-        self.copy("pyconfig.h", src=os.path.join(self._source_subfolder, "PC"), dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"))
-        self.copy("*.py", src=os.path.join(self._source_subfolder, "lib"), dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib"))
+        self.copy(
+            "*.exe",
+            src=build_path,
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix),
+        )
+        self.copy(
+            "*.dll",
+            src=build_path,
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix),
+        )
+        self.copy(
+            "*.pyd",
+            src=build_path,
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "DLLs"),
+        )
+        self.copy(
+            "python{}{}.lib".format(self._version_suffix, infix),
+            src=build_path,
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "libs"),
+        )
+        self.copy(
+            "*",
+            src=os.path.join(self._source_subfolder, "Include"),
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"),
+        )
+        self.copy(
+            "pyconfig.h",
+            src=os.path.join(self._source_subfolder, "PC"),
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"),
+        )
+        self.copy(
+            "*.py",
+            src=os.path.join(self._source_subfolder, "lib"),
+            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib"),
+        )
         tools.rmdir(os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib", "test"))
 
         packages = {}
@@ -519,10 +639,20 @@ class CPythonConan(ConanFile):
             if add:
                 packages[name] = fn
         for fname in packages.values():
-            tools.unzip(filename=os.path.join(whldir, fname), destination=os.path.join(self.package_folder, "bin", "Lib", "site-packages"))
+            tools.unzip(
+                filename=os.path.join(whldir, fname),
+                destination=os.path.join(self.package_folder, "bin", "Lib", "site-packages"),
+            )
 
-        self.run("{} -c \"import compileall; compileall.compile_dir('{}')\"".format(os.path.join(build_path, self._cpython_interpreter_name), os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib").replace("\\", "/")),
-                 run_environment=True)
+        self.run(
+            "{} -c \"import compileall; compileall.compile_dir('{}')\"".format(
+                os.path.join(build_path, self._cpython_interpreter_name),
+                os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib").replace(
+                    "\\", "/"
+                ),
+            ),
+            run_environment=True,
+        )
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
@@ -547,12 +677,18 @@ class CPythonConan(ConanFile):
                     continue
                 with open(filepath, "rb") as fn:
                     firstline = fn.readline(1024)
-                    if not(firstline.startswith(b"#!") and b"/python" in firstline and b"/bin/sh" not in firstline):
+                    if not (
+                        firstline.startswith(b"#!")
+                        and b"/python" in firstline
+                        and b"/bin/sh" not in firstline
+                    ):
                         continue
                     text = fn.read()
                 self.output.info("Rewriting shebang of {}".format(filename))
                 with open(filepath, "wb") as fn:
-                    fn.write(textwrap.dedent("""\
+                    fn.write(
+                        textwrap.dedent(
+                            """\
                         #!/bin/sh
                         ''':'
                         __file__="$0"
@@ -561,7 +697,11 @@ class CPythonConan(ConanFile):
                         done
                         exec "$(dirname "$__file__")/python{}" "$0" "$@"
                         '''
-                        """.format(self._version_suffix)).encode())
+                        """.format(
+                                self._version_suffix
+                            )
+                        ).encode()
+                    )
                     fn.write(text)
 
             if not os.path.exists(self._cpython_symlink):
@@ -612,7 +752,9 @@ class CPythonConan(ConanFile):
             else:
                 lib_ext = ""
         else:
-            lib_ext = self._abi_suffix + (".dll.a" if self.options.shared and self.settings.os == "Windows" else "")
+            lib_ext = self._abi_suffix + (
+                ".dll.a" if self.options.shared and self.settings.os == "Windows" else ""
+            )
         return "python{}{}".format(self._version_suffix, lib_ext)
 
     def _fix_install_name(self):
@@ -620,7 +762,7 @@ class CPythonConan(ConanFile):
             buffer = StringIO()
             python = os.path.join(self.package_folder, "bin", "python")
             self.run('otool -L "%s"' % python, output=buffer)
-            lines = buffer.getvalue().strip().split('\n')[1:]
+            lines = buffer.getvalue().strip().split("\n")[1:]
             for line in lines:
                 library = line.split()[0]
                 if library.startswith(self.package_folder):
@@ -637,37 +779,53 @@ class CPythonConan(ConanFile):
         py_version = tools.Version(self._version_number_only)
         # python component: "Build a C extension for Python"
         if self.settings.compiler == "Visual Studio":
-            self.cpp_info.components["python"].includedirs = [os.path.join(self._msvc_install_subprefix, "include")]
+            self.cpp_info.components["python"].includedirs = [
+                os.path.join(self._msvc_install_subprefix, "include")
+            ]
             libdir = os.path.join(self._msvc_install_subprefix, "libs")
         else:
-            self.cpp_info.components["python"].includedirs.append(os.path.join("include", "python{}{}".format(self._version_suffix, self._abi_suffix)))
+            self.cpp_info.components["python"].includedirs.append(
+                os.path.join("include", "python{}{}".format(self._version_suffix, self._abi_suffix))
+            )
             libdir = "lib"
         if self.options.shared:
             self.cpp_info.components["python"].defines.append("Py_ENABLE_SHARED")
         else:
             self.cpp_info.components["python"].defines.append("Py_NO_ENABLE_SHARED")
             if self.settings.os == "Linux":
-                self.cpp_info.components["python"].system_libs.extend(["dl", "m", "pthread", "util"])
+                self.cpp_info.components["python"].system_libs.extend(
+                    ["dl", "m", "pthread", "util"]
+                )
             elif self.settings.os == "Windows":
-                self.cpp_info.components["python"].system_libs.extend(["pathcch", "shlwapi", "version", "ws2_32"])
+                self.cpp_info.components["python"].system_libs.extend(
+                    ["pathcch", "shlwapi", "version", "ws2_32"]
+                )
         self.cpp_info.components["python"].requires = ["zlib::zlib"]
         if self.settings.os != "Windows":
             self.cpp_info.components["python"].requires.append("libxcrypt::libxcrypt")
-        self.cpp_info.components["python"].names["pkg_config"] = "python-{}.{}".format(py_version.major, py_version.minor)
+        self.cpp_info.components["python"].names["pkg_config"] = "python-{}.{}".format(
+            py_version.major, py_version.minor
+        )
         self.cpp_info.components["python"].libdirs = []
 
-        self.cpp_info.components["_python_copy"].names["pkg_config"] = "python{}".format(py_version.major)
+        self.cpp_info.components["_python_copy"].names["pkg_config"] = "python{}".format(
+            py_version.major
+        )
         self.cpp_info.components["_python_copy"].requires = ["python"]
         self.cpp_info.components["_python_copy"].libdirs = []
 
         # embed component: "Embed Python into an application"
         self.cpp_info.components["embed"].libs = [self._lib_name]
         self.cpp_info.components["embed"].libdirs = [libdir]
-        self.cpp_info.components["embed"].names["pkg_config"] = "python-{}.{}-embed".format(py_version.major, py_version.minor)
+        self.cpp_info.components["embed"].names["pkg_config"] = "python-{}.{}-embed".format(
+            py_version.major, py_version.minor
+        )
         self.cpp_info.components["embed"].requires = ["python"]
 
         self.cpp_info.components["_embed_copy"].requires = ["embed"]
-        self.cpp_info.components["_embed_copy"].names["pkg_config"] = ["python{}-embed".format(py_version.major)]
+        self.cpp_info.components["_embed_copy"].names["pkg_config"] = [
+            "python{}-embed".format(py_version.major)
+        ]
         self.cpp_info.components["_embed_copy"].libdirs = []
 
         if self._supports_modules:
@@ -717,10 +875,14 @@ class CPythonConan(ConanFile):
             pythonhome = self.package_folder
         else:
             version = tools.Version(self._version_number_only)
-            pythonhome = os.path.join(self.package_folder, "lib", "python{}.{}".format(version.major, version.minor))
+            pythonhome = os.path.join(
+                self.package_folder, "lib", "python{}.{}".format(version.major, version.minor)
+            )
         self.user_info.pythonhome = pythonhome
 
-        pythonhome_required = self.settings.compiler == "Visual Studio" or tools.is_apple_os(self.settings.os)
+        pythonhome_required = self.settings.compiler == "Visual Studio" or tools.is_apple_os(
+            self.settings.os
+        )
         self.user_info.module_requires_pythonhome = pythonhome_required
 
         if self.settings.compiler == "Visual Studio":

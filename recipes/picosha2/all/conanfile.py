@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class PicoSHA2Conan(ConanFile):
     name = "picosha2"
     description = "a header-file-only, SHA256 hash generator in C++ "
@@ -32,7 +33,12 @@ class PicoSHA2Conan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
@@ -43,10 +49,18 @@ class PicoSHA2Conan(ConanFile):
             file_content = load(save, filename)
             license_start = "/*"
             license_end = "*/"
-            license_contents = file_content[file_content.find(license_start)+len(license_start):file_content.find(license_end)]
+            license_contents = file_content[
+                file_content.find(license_start)
+                + len(license_start) : file_content.find(license_end)
+            ]
             save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
         else:
-            copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            copy(
+                self,
+                pattern="LICENSE",
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=self.source_folder,
+            )
         copy(
             self,
             pattern="*.h",

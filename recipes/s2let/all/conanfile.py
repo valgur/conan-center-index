@@ -24,10 +24,6 @@ class S2let(ConanFile):
     exports_sources = ["CMakeLists.txt"]
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -46,9 +42,7 @@ class S2let(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
-            raise ConanInvalidConfiguration(
-                "S2LET requires C99 support for complex numbers."
-            )
+            raise ConanInvalidConfiguration("S2LET requires C99 support for complex numbers.")
 
     def source(self):
         tools.get(

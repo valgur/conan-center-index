@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -17,7 +25,9 @@ class GnuTLSConan(ConanFile):
     name = "gnutls"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnutls.org"
-    description = "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
+    description = (
+        "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
+    )
     topics = ("tls", "ssl", "secure communications")
     license = ("LGPL-2.1-or-later", "GPL-3-or-later")
     package_type = "library"
@@ -99,34 +109,38 @@ class GnuTLSConan(ConanFile):
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-tests",
-            "--disable-doc",
-            "--disable-guile",
-            "--disable-libdane",
-            "--disable-manpages",
-            "--disable-silent-rules",
-            "--disable-full-test-suite",
-            "--disable-maintainer-mode",
-            "--disable-option-checking",
-            "--disable-dependency-tracking",
-            "--disable-heartbeat-support",
-            "--disable-gtk-doc-html",
-            "--without-p11-kit",
-            "--disable-rpath",
-            "--without-idn",
-            "--with-included-unistring",
-            "--with-included-libtasn1",
-            "--with-libiconv-prefix={}".format(self.dependencies["libiconv"].package_folder),
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--with-cxx={}".format(yes_no(self.options.enable_cxx)),
-            "--with-zlib={}".format(yes_no(self.options.with_zlib)),
-            "--with-brotli={}".format(yes_no(self.options.with_brotli)),
-            "--with-zstd={}".format(yes_no(self.options.with_zstd)),
-            "--enable-tools={}".format(yes_no(self.options.enable_tools)),
-            "--enable-openssl-compatibility={}".format(yes_no(self.options.enable_openssl_compatibility)),
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-tests",
+                "--disable-doc",
+                "--disable-guile",
+                "--disable-libdane",
+                "--disable-manpages",
+                "--disable-silent-rules",
+                "--disable-full-test-suite",
+                "--disable-maintainer-mode",
+                "--disable-option-checking",
+                "--disable-dependency-tracking",
+                "--disable-heartbeat-support",
+                "--disable-gtk-doc-html",
+                "--without-p11-kit",
+                "--disable-rpath",
+                "--without-idn",
+                "--with-included-unistring",
+                "--with-included-libtasn1",
+                "--with-libiconv-prefix={}".format(self.dependencies["libiconv"].package_folder),
+                "--enable-shared={}".format(yes_no(self.options.shared)),
+                "--enable-static={}".format(yes_no(not self.options.shared)),
+                "--with-cxx={}".format(yes_no(self.options.enable_cxx)),
+                "--with-zlib={}".format(yes_no(self.options.with_zlib)),
+                "--with-brotli={}".format(yes_no(self.options.with_brotli)),
+                "--with-zstd={}".format(yes_no(self.options.with_zstd)),
+                "--enable-tools={}".format(yes_no(self.options.enable_tools)),
+                "--enable-openssl-compatibility={}".format(
+                    yes_no(self.options.enable_openssl_compatibility)
+                ),
+            ]
+        )
         if is_apple_os(self):
             # fix_apple_shared_install_name() may fail without -headerpad_max_install_names
             # (see https://github.com/conan-io/conan-center-index/pull/15946#issuecomment-1464321305)
@@ -149,7 +163,12 @@ class GnuTLSConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -161,7 +180,8 @@ class GnuTLSConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(f"""\
+        content = textwrap.dedent(
+            f"""\
             set(GNUTLS_FOUND TRUE)
             if(NOT DEFINED GNUTLS_INCLUDE_DIR AND DEFINED GnuTLS_INCLUDE_DIRS)
                 set(GNUTLS_INCLUDE_DIR ${{GnuTLS_INCLUDE_DIRS}})
@@ -177,7 +197,8 @@ class GnuTLSConan(ConanFile):
                 endif()
             endif()
             set(GNUTLS_VERSION {self.version})
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property

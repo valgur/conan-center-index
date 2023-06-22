@@ -78,7 +78,9 @@ class IXWebSocketConan(ConanFile):
         if self.options.tls == "applessl" and not is_apple_os(self):
             raise ConanInvalidConfiguration("Can only use Apple SSL on Apple.")
         elif not self._can_use_openssl and self.options.tls == "openssl":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support OpenSSL with Windows; use v7.9.3 or newer for this to be valid")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support OpenSSL with Windows; use v7.9.3 or newer for this to be valid"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -106,19 +108,30 @@ class IXWebSocketConan(ConanFile):
             replace_in_file(self, cmakelists, "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
         # Allow shared
         if Version(self.version) < "11.1.4":
-            replace_in_file(self, cmakelists, "add_library( ixwebsocket STATIC", "add_library( ixwebsocket")
+            replace_in_file(
+                self, cmakelists, "add_library( ixwebsocket STATIC", "add_library( ixwebsocket"
+            )
         if Version(self.version) < "9.8.5":
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib",
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib",
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin",
+            )
         elif Version(self.version) < "11.4.3":
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION lib",
-                                  "ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION lib",
+                "ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin",
+            )
         else:
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION bin",
+            )
 
     def build(self):
         self._patch_sources()
@@ -127,7 +140,12 @@ class IXWebSocketConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

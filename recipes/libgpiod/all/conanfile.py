@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class LibgpiodConan(ConanFile):
     name = "libgpiod"
     url = "https://github.com/conan-io/conan-center-index"
@@ -24,12 +25,8 @@ class LibgpiodConan(ConanFile):
         "enable_bindings_cxx": False,
         "enable_tools": False,
     }
-    
-    _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    _autotools = None
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -49,11 +46,15 @@ class LibgpiodConan(ConanFile):
         self.build_requires("linux-headers-generic/5.13.9")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
-                return self._autotools
+            return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self)
         yes_no = lambda v: "yes" if v else "no"
         args = [

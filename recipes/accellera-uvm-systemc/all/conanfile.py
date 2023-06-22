@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class UvmSystemC(ConanFile):
     name = "accellera-uvm-systemc"
     description = """Universal Verification Methodology for SystemC"""
@@ -25,10 +26,6 @@ class UvmSystemC(ConanFile):
         "shared": False,
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
         self.requires("systemc/2.3.3")
 
@@ -38,7 +35,7 @@ class UvmSystemC(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-            
+
     def validate(self):
         if self.settings.os == "Macos":
             raise ConanInvalidConfiguration("Macos build not supported")
@@ -50,8 +47,12 @@ class UvmSystemC(ConanFile):
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def build(self):
         autotools = AutoToolsBuildEnvironment(self)
@@ -64,9 +65,24 @@ class UvmSystemC(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=os.path.join(self.build_folder, self._source_subfolder), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "NOTICE", src=os.path.join(self.build_folder, self._source_subfolder), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "COPYING", src=os.path.join(self.build_folder, self._source_subfolder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=os.path.join(self.build_folder, self._source_subfolder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "NOTICE",
+            src=os.path.join(self.build_folder, self._source_subfolder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "COPYING",
+            src=os.path.join(self.build_folder, self._source_subfolder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = AutoToolsBuildEnvironment(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "docs"))
@@ -80,7 +96,11 @@ class UvmSystemC(ConanFile):
         rm(self, "RELEASENOTES", self.package_folder)
         rm(self, "README", self.package_folder)
         rm(self, "INSTALL", self.package_folder)
-        rename(self, os.path.join(self.package_folder, "lib-linux64"), os.path.join(self.package_folder, "lib"))
+        rename(
+            self,
+            os.path.join(self.package_folder, "lib-linux64"),
+            os.path.join(self.package_folder, "lib"),
+        )
         rm(self, "libuvm-systemc.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

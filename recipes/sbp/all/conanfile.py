@@ -12,16 +12,18 @@ class SbpConan(ConanFile):
     description = "Swift Binary Protocol client library"
     topics = ("gnss",)
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generators = "cmake"
     exports_sources = "CMakeLists.txt", "c"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -33,13 +35,19 @@ class SbpConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("Windows shared builds are not supported right now, see issue https://github.com/swift-nav/libsbp/issues/1062")
+            raise ConanInvalidConfiguration(
+                "Windows shared builds are not supported right now, see issue https://github.com/swift-nav/libsbp/issues/1062"
+            )
 
     def source(self):
         data = self.conan_data["sources"][self.version]
 
         tools.get(**data["source"], strip_root=True, destination=self._source_subfolder)
-        tools.get(**data["cmake"], strip_root=True, destination=os.path.join(self._source_subfolder, "c", "cmake", "common"))
+        tools.get(
+            **data["cmake"],
+            strip_root=True,
+            destination=os.path.join(self._source_subfolder, "c", "cmake", "common")
+        )
 
     def _configure_cmake(self):
         if self._cmake:

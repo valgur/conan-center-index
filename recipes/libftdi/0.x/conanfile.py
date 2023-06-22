@@ -27,10 +27,6 @@ class LibFtdi(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -68,9 +64,21 @@ class LibFtdi(ConanFile):
     def _patch_sources(self):
         for patch in self.conan_data["patches"][self.version]:
             tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "ftdipp", "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            "CMAKE_BINARY_DIR",
+            "PROJECT_BINARY_DIR",
+        )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            "CMAKE_SOURCE_DIR",
+            "PROJECT_SOURCE_DIR",
+        )
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "ftdipp", "CMakeLists.txt"),
+            "CMAKE_SOURCE_DIR",
+            "PROJECT_SOURCE_DIR",
+        )
 
     def build(self):
         self._patch_sources()

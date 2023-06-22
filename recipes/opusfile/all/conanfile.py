@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildDeps, MSBuildToolchain
@@ -63,7 +71,9 @@ class OpusFileConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support building as shared with Visual Studio")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support building as shared with Visual Studio"
+            )
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -91,10 +101,12 @@ class OpusFileConan(ConanFile):
             VirtualBuildEnv(self).generate()
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--enable-http={yes_no(self.options.http)}",
-                "--disable-examples",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-http={yes_no(self.options.http)}",
+                    "--disable-examples",
+                ]
+            )
             tc.generate()
             PkgConfigDeps(self).generate()
 
@@ -106,15 +118,17 @@ class OpusFileConan(ConanFile):
             if not self.options.http:
                 replace_in_file(self, vcxproj, "OP_ENABLE_HTTP;", "")
 
-            #==============================
+            # ==============================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<WholeProgramOptimization>true</WholeProgramOptimization>",
                 "",
             )
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<PlatformToolset>v140</PlatformToolset>",
                 f"<PlatformToolset>{MSBuildToolchain(self).toolset}</PlatformToolset>",
             )
@@ -122,13 +136,14 @@ class OpusFileConan(ConanFile):
             for props_file in [MSBuildToolchain.filename, "conandeps.props"]:
                 props_path = os.path.join(self.generators_folder, props_file)
                 if os.path.exists(props_path):
-                    import_conan_generators += f"<Import Project=\"{props_path}\" />"
+                    import_conan_generators += f'<Import Project="{props_path}" />'
             replace_in_file(
-                self, vcxproj,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"{import_conan_generators}<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-            #==============================
+            # ==============================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
@@ -141,12 +156,34 @@ class OpusFileConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             include_folder = os.path.join(self.source_folder, "include")
-            copy(self, "*", src=include_folder, dst=os.path.join(self.package_folder, "include", "opus"))
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(
+                self,
+                "*",
+                src=include_folder,
+                dst=os.path.join(self.package_folder, "include", "opus"),
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

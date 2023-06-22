@@ -64,7 +64,12 @@ class Bzip2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         self._create_cmake_module_variables(
@@ -72,7 +77,8 @@ class Bzip2Conan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(f"""\
+        content = textwrap.dedent(
+            f"""\
             set(BZIP2_NEED_PREFIX TRUE)
             set(BZIP2_FOUND TRUE)
             if(NOT DEFINED BZIP2_INCLUDE_DIRS AND DEFINED BZip2_INCLUDE_DIRS)
@@ -85,7 +91,8 @@ class Bzip2Conan(ConanFile):
                 set(BZIP2_LIBRARIES ${{BZip2_LIBRARIES}})
             endif()
             set(BZIP2_VERSION_STRING "{self.version}")
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property

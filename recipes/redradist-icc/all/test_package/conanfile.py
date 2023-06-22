@@ -3,8 +3,8 @@ import os
 
 
 class ICCTestConan(ConanFile):
-    settings = 'os', 'compiler', 'build_type', 'arch'
-    generators = 'cmake', 'cmake_find_package'
+    settings = "os", "compiler", "build_type", "arch"
+    generators = "cmake", "cmake_find_package"
 
     def build(self):
         cmake = CMake(self)
@@ -13,5 +13,5 @@ class ICCTestConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self):
-            bin_path = os.path.join('bin', 'example')
+            bin_path = os.path.join("bin", "example")
             self.run(bin_path, run_environment=True)

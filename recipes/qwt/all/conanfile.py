@@ -70,15 +70,24 @@ class QwtConan(ConanFile):
             raise ConanInvalidConfiguration("qwt:svg=True requires qt:qtsvg=True")
         if self.info.options.opengl and qt_options.opengl == "no":
             raise ConanInvalidConfiguration("qwt:opengl=True is not compatible with qt:opengl=no")
-        if self.info.options.designer and not (qt_options.qttools and qt_options.gui and qt_options.widgets):
-            raise ConanInvalidConfiguration("qwt:designer=True requires qt:qttools=True, qt::gui=True and qt::widgets=True")
+        if self.info.options.designer and not (
+            qt_options.qttools and qt_options.gui and qt_options.widgets
+        ):
+            raise ConanInvalidConfiguration(
+                "qwt:designer=True requires qt:qttools=True, qt::gui=True and qt::widgets=True"
+            )
 
     def build_requirements(self):
         if hasattr(self, "settings_build") and cross_building(self):
             self.tool_requires("qt/5.15.7")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         if hasattr(self, "settings_build") and cross_building(self):
@@ -94,7 +103,7 @@ class QwtConan(ConanFile):
         tc.variables["QWT_PLOT"] = self.options.plot
         tc.variables["QWT_WIDGETS"] = self.options.widgets
         tc.variables["QWT_SVG"] = self.options.svg
-        tc.variables["QWT_OPENGL"] =self.options.opengl
+        tc.variables["QWT_OPENGL"] = self.options.opengl
         tc.variables["QWT_DESIGNER"] = self.options.designer
         tc.variables["QWT_POLAR"] = self.options.polar
         tc.variables["QWT_BUILD_PLAYGROUND"] = False
@@ -114,7 +123,12 @@ class QwtConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -146,8 +160,10 @@ class QwtConan(ConanFile):
 
         if self.options.designer:
             qt_plugin_path = os.path.join(
-                self.package_folder, "res" if self.settings.os == "Windows" else "lib",
-                f"qt{Version(self.dependencies['qt'].ref.version).major}", "plugins",
+                self.package_folder,
+                "res" if self.settings.os == "Windows" else "lib",
+                f"qt{Version(self.dependencies['qt'].ref.version).major}",
+                "plugins",
             )
             self.runenv_info.prepend_path("QT_PLUGIN_PATH", qt_plugin_path)
 

@@ -62,8 +62,18 @@ class Rectpack2dConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder, "include", "rectpack2d"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "src"),
+            dst=os.path.join(self.package_folder, "include", "rectpack2d"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

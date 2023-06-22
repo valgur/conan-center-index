@@ -1,5 +1,12 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, load, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    rmdir,
+    load,
+    save,
+)
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 
@@ -7,6 +14,7 @@ import os
 import re
 
 required_conan_version = ">=1.53.0"
+
 
 class QCBORConan(ConanFile):
     name = "qcbor"
@@ -43,18 +51,29 @@ class QCBORConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
         if Version(self.version) >= "1.2":
-            tc.variables["QCBOR_OPT_DISABLE_FLOAT_HW_USE"] = self.options.disable_float in ["HW_USE", "PREFERRED", "ALL"]
-            tc.variables["QCBOR_OPT_DISABLE_FLOAT_PREFERRED"] = self.options.disable_float in ["PREFERRED", "ALL"]
+            tc.variables["QCBOR_OPT_DISABLE_FLOAT_HW_USE"] = self.options.disable_float in [
+                "HW_USE",
+                "PREFERRED",
+                "ALL",
+            ]
+            tc.variables["QCBOR_OPT_DISABLE_FLOAT_PREFERRED"] = self.options.disable_float in [
+                "PREFERRED",
+                "ALL",
+            ]
             tc.variables["QCBOR_OPT_DISABLE_FLOAT_ALL"] = self.options.disable_float == "ALL"
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
@@ -77,6 +96,7 @@ class QCBORConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["qcbor"]
-        if self.settings.os in ["Linux", "FreeBSD"] and \
-            (Version(self.version) < "1.2" or self.options.disable_float == False):
+        if self.settings.os in ["Linux", "FreeBSD"] and (
+            Version(self.version) < "1.2" or self.options.disable_float == False
+        ):
             self.cpp_info.system_libs.append("m")

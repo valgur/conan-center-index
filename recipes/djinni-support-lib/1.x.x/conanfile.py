@@ -8,28 +8,32 @@ class DjinniSuppotLib(ConanFile):
     name = "djinni-support-lib"
     homepage = "https://djinni.xlcpp.dev"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Djinni is a tool for generating cross-language type declarations and interface bindings"
+    description = (
+        "Djinni is a tool for generating cross-language type declarations and interface bindings"
+    )
     topics = ("java", "Objective-C", "Android", "iOS")
     license = "Apache-2.0"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False],
-               "fPIC": [True, False],
-               "target": ["jni", "objc", "python", "cppcli", "auto", "deprecated"],
-               "with_jni": [True, False, "auto"],
-               "with_objc": [True, False, "auto"],
-               "with_python": [True, False, "auto"],
-               "with_cppcli": [True, False, "auto"],
-               "system_java": [True, False]
-               }
-    default_options = {"shared": False,
-                       "fPIC": True,
-                       "target": "deprecated",
-                       "with_jni": "auto",
-                       "with_objc": "auto",
-                       "with_python": "auto",
-                       "with_cppcli": "auto",
-                       "system_java": False,
-                       }
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "target": ["jni", "objc", "python", "cppcli", "auto", "deprecated"],
+        "with_jni": [True, False, "auto"],
+        "with_objc": [True, False, "auto"],
+        "with_python": [True, False, "auto"],
+        "with_cppcli": [True, False, "auto"],
+        "system_java": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "target": "deprecated",
+        "with_jni": "auto",
+        "with_objc": "auto",
+        "with_python": "auto",
+        "with_cppcli": "auto",
+        "system_java": False,
+    }
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake", "cmake_find_package"
 
@@ -64,10 +68,6 @@ class DjinniSuppotLib(ConanFile):
         if self.settings.compiler == "Visual Studio" or self.options.shared:
             del self.options.fPIC
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def build_requirements(self):
         if not self.options.system_java and self._jni_support:
             self.build_requires("zulu-openjdk/11.0.12@")
@@ -89,33 +89,58 @@ class DjinniSuppotLib(ConanFile):
 
     def validate(self):
         if self.options.target != "deprecated":
-            self.output.warn("The 'target' option is deprecated and will be removed soon. Use 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options instead.")
-        if not (self._objc_support or self._jni_support or self._python_support or self._cppcli_support):
-            raise ConanInvalidConfiguration("Target language could not be determined automatically. Set at least one of 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options to `True`.")
+            self.output.warn(
+                "The 'target' option is deprecated and will be removed soon. Use 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options instead."
+            )
+        if not (
+            self._objc_support or self._jni_support or self._python_support or self._cppcli_support
+        ):
+            raise ConanInvalidConfiguration(
+                "Target language could not be determined automatically. Set at least one of 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options to `True`."
+            )
         if self._cppcli_support:
             if self.settings.os != "Windows":
-                raise ConanInvalidConfiguration("C++/CLI has been enabled on a non-Windows operating system. This is not supported.")
+                raise ConanInvalidConfiguration(
+                    "C++/CLI has been enabled on a non-Windows operating system. This is not supported."
+                )
             if self.options.shared:
-                raise ConanInvalidConfiguration("C++/CLI does not support building as shared library")
+                raise ConanInvalidConfiguration(
+                    "C++/CLI does not support building as shared library"
+                )
             if self.settings.compiler.runtime == "MT" or self.settings.compiler.runtime == "MTd":
-                raise ConanInvalidConfiguration("'/clr' and '/MT' command-line options are incompatible")
+                raise ConanInvalidConfiguration(
+                    "'/clr' and '/MT' command-line options are incompatible"
+                )
             if self._objc_support or self._jni_support or self._python_support:
                 raise ConanInvalidConfiguration(
-                    "C++/CLI is not yet supported with other languages enabled as well. Disable 'with_jni', 'with_objc' and 'with_python' options for a valid configuration.")
+                    "C++/CLI is not yet supported with other languages enabled as well. Disable 'with_jni', 'with_objc' and 'with_python' options for a valid configuration."
+                )
         if self._python_support:
             if self.settings.os == "Windows":
-                raise ConanInvalidConfiguration("Python on Windows is not fully yet supported, please see https://github.com/cross-language-cpp/djinni-support-lib/issues.")
+                raise ConanInvalidConfiguration(
+                    "Python on Windows is not fully yet supported, please see https://github.com/cross-language-cpp/djinni-support-lib/issues."
+                )
         if self.settings.get_safe("compiler.cppstd"):
             tools.check_min_cppstd(self, "17")
         try:
-            minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
+            minimum_required_compiler_version = self._supported_compilers[
+                str(self.settings.compiler)
+            ]
             if tools.Version(self.settings.compiler.version) < minimum_required_compiler_version:
-                raise ConanInvalidConfiguration("This package requires c++17 support. The current compiler does not support it.")
+                raise ConanInvalidConfiguration(
+                    "This package requires c++17 support. The current compiler does not support it."
+                )
         except KeyError:
-            self.output.warn("This recipe has no support for the current compiler. Please consider adding it.")
+            self.output.warn(
+                "This recipe has no support for the current compiler. Please consider adding it."
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake:

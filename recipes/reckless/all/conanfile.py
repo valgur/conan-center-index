@@ -13,7 +13,7 @@ class RecklessConan(ConanFile):
     name = "reckless"
     description = "Reckless is an extremely low-latency, high-throughput logging library."
     license = "MIT"
-    topics = ("logging")
+    topics = "logging"
     homepage = "https://github.com/mattiasflodin/reckless"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -53,12 +53,19 @@ class RecklessConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} only supports Visual Studio on Windows")
         if is_msvc(self) and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
-        if self.info.settings.compiler == "clang" and self.info.settings.compiler.get_safe("libcxx") == "libc++":
+        if (
+            self.info.settings.compiler == "clang"
+            and self.info.settings.compiler.get_safe("libcxx") == "libc++"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang with libc++")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,7 +79,12 @@ class RecklessConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -25,10 +25,6 @@ class BtyaccConan(ConanFile):
     exports_sources = "CMakeLists.txt"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -61,12 +57,14 @@ class BtyaccConan(ConanFile):
         self._configure_cmake().install()
         tools.rmdir(os.path.join(self.package_folder, "share"))
         variables = os.path.join(self.package_folder, self._variables)
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             set(BTYACC_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/btyacc")
             if(NOT EXISTS "${BTYACC_EXECUTABLE}")
               set(BTYACC_EXECUTABLE "${BTYACC_EXECUTABLE}.exe")
             endif()
-        """)
+        """
+        )
         tools.save(variables, content)
 
     def package_info(self):
@@ -75,6 +73,5 @@ class BtyaccConan(ConanFile):
         self.env_info.PATH.append(bindir)
         self.cpp_info.build_modules["cmake"] = [self._variables]
         self.cpp_info.build_modules["cmake_find_package"] = [self._variables]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = \
-            [self._variables]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._variables]
         self.cpp_info.builddirs = ["bin"]

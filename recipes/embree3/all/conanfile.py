@@ -2,7 +2,16 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 import glob
@@ -145,11 +154,24 @@ class EmbreeConan(ConanFile):
 
         check_min_vs(self, 191)
 
-        if self.settings.os == "Linux" and self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++":
-            raise ConanInvalidConfiguration(f"{self.ref} cannot be built with clang libc++, use libstdc++ instead")
+        if (
+            self.settings.os == "Linux"
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.libcxx == "libc++"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} cannot be built with clang libc++, use libstdc++ instead"
+            )
 
-        if self.settings.compiler == "apple-clang" and not self.options.shared and compiler_version >= "9.0" and self._num_isa > 1:
-            raise ConanInvalidConfiguration(f"{self.ref} static with apple-clang >=9 and multiple ISA (simd) is not supported")
+        if (
+            self.settings.compiler == "apple-clang"
+            and not self.options.shared
+            and compiler_version >= "9.0"
+            and self._num_isa > 1
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} static with apple-clang >=9 and multiple ISA (simd) is not supported"
+            )
 
         if self._num_isa == 0:
             raise ConanInvalidConfiguration("At least one ISA (simd) must be enabled")
@@ -201,7 +223,7 @@ class EmbreeConan(ConanFile):
         # some compilers (e.g. clang) do not like UTF-16 sources
         rc = os.path.join(self.source_folder, "kernels", "embree.rc")
         content = load(self, rc, encoding="utf_16_le")
-        if content[0] == '\ufeff':
+        if content[0] == "\ufeff":
             content = content[1:]
         content = "#pragma code_page(65001)\n" + content
         save(self, rc, content)
@@ -214,7 +236,12 @@ class EmbreeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -232,18 +259,20 @@ class EmbreeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"embree": "embree::embree"}
+            {"embree": "embree::embree"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -261,7 +290,11 @@ class EmbreeConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.libs.extend(["sys", "math", "simd", "lexers", "tasking"])
             simd_libs = ["embree_sse42", "embree_avx", "embree_avx2"]
-            simd_libs.extend(["embree_avx512knl", "embree_avx512skx"] if Version(self.version) < "3.12.2" else ["embree_avx512"])
+            simd_libs.extend(
+                ["embree_avx512knl", "embree_avx512skx"]
+                if Version(self.version) < "3.12.2"
+                else ["embree_avx512"]
+            )
             for lib in simd_libs:
                 if _lib_exists(lib):
                     self.cpp_info.libs.append(lib)

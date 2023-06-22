@@ -8,34 +8,33 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
+
 class DiligentToolsConan(ConanFile):
     name = "diligent-tools"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/DiligentGraphics/DiligentTools/"
     description = "Diligent Core is a modern cross-platfrom low-level graphics API."
-    license = ("Apache-2.0")
+    license = "Apache-2.0"
     topics = ("graphics", "texture", "gltf", "draco", "imgui")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], 
-               "fPIC": [True, False],
-               "jpeg": [False, "libjpeg-turbo", "libjpeg"],
-               "with_render_state_packager": [True, False],
-               "with_archiver": [True, False],
-              }
-    default_options = {"shared": False, 
-                       "fPIC": True,
-                       "jpeg": "libjpeg",
-                       "with_render_state_packager": False,
-                       "with_archiver": True,
-                      }
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "jpeg": [False, "libjpeg-turbo", "libjpeg"],
+        "with_render_state_packager": [True, False],
+        "with_archiver": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "jpeg": "libjpeg",
+        "with_render_state_packager": False,
+        "with_archiver": True,
+    }
 
     generators = "cmake_find_package", "cmake_find_package_multi", "cmake"
     _cmake = None
     short_paths = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -47,7 +46,12 @@ class DiligentToolsConan(ConanFile):
         self.copy("BuildUtils.cmake")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def package_id(self):
         if self.settings.compiler == "Visual Studio":
@@ -82,7 +86,7 @@ class DiligentToolsConan(ConanFile):
             self.requires("imgui/1.87")
         else:
             self.requires("diligent-core/{}".format(self.version))
-            self.requires('taywee-args/6.3.0')
+            self.requires("taywee-args/6.3.0")
             self.requires("imgui/1.85")
 
         if self.options.jpeg == "libjpeg":
@@ -121,12 +125,16 @@ class DiligentToolsConan(ConanFile):
         self._cmake.definitions["DILIGENT_BUILD_TESTS"] = False
         self._cmake.definitions["DILIGENT_BUILD_TOOLS_TESTS"] = False
         self._cmake.definitions["DILIGENT_BUILD_TOOLS_INCLUDE_TEST"] = False
-        self._cmake.definitions["DILIGENT_NO_RENDER_STATE_PACKAGER"] = not self.options.with_render_state_packager
+        self._cmake.definitions[
+            "DILIGENT_NO_RENDER_STATE_PACKAGER"
+        ] = not self.options.with_render_state_packager
         self._cmake.definitions["ARCHIVER_SUPPORTED"] = not self.options.with_archiver
 
-        if self.version != "cci.20211009" and \
-        (self.version.startswith("api") and self.version >= "api.252005") or \
-        (self.version > "2.5.2"):
+        if (
+            self.version != "cci.20211009"
+            and (self.version.startswith("api") and self.version >= "api.252005")
+            or (self.version > "2.5.2")
+        ):
             self._cmake.definitions["GL_SUPPORTED"] = True
             self._cmake.definitions["GLES_SUPPORTED"] = True
             self._cmake.definitions["VULKAN_SUPPORTED"] = True
@@ -142,7 +150,7 @@ class DiligentToolsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("*.hpp", src=self._source_subfolder, dst="include/DiligentTools", keep_path=True)        
+        self.copy("*.hpp", src=self._source_subfolder, dst="include/DiligentTools", keep_path=True)
         self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
         self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
@@ -155,11 +163,13 @@ class DiligentToolsConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools"))
-        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
+        self.cpp_info.includedirs.append(
+            os.path.join("include", "DiligentTools", "AssetLoader", "interface")
+        )
 
         self.cpp_info.defines.append(f"{self._diligent_platform}=1")
 
         if self.settings.os in ["Macos", "Linux"]:
             self.cpp_info.system_libs = ["dl", "pthread"]
-        if self.settings.os == 'Macos':
-            self.cpp_info.frameworks = ["CoreFoundation", 'Cocoa']
+        if self.settings.os == "Macos":
+            self.cpp_info.frameworks = ["CoreFoundation", "Cocoa"]

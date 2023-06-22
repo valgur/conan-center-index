@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, MSBuildToolchain
@@ -59,7 +67,9 @@ class LibsodiumConan(ConanFile):
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Cannot build shared libsodium libraries with static runtime")
+            raise ConanInvalidConfiguration(
+                "Cannot build shared libsodium libraries with static runtime"
+            )
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -87,7 +97,9 @@ class LibsodiumConan(ConanFile):
 
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.append("--enable-soname-versions={}".format(yes_no(self.options.use_soname)))
+            tc.configure_args.append(
+                "--enable-soname-versions={}".format(yes_no(self.options.use_soname))
+            )
             tc.configure_args.append("--enable-pie={}".format(yes_no(self.options.PIE)))
             if self._is_mingw:
                 tc.extra_ldflags.append("-lssp")
@@ -122,27 +134,31 @@ class LibsodiumConan(ConanFile):
             sln_folders["msvc"]["193"] = "vs2022"
             default_folder = "vs2022"
 
-        return sln_folders.get(str(self.settings.compiler), {}).get(str(self.settings.compiler.version), default_folder)
+        return sln_folders.get(str(self.settings.compiler), {}).get(
+            str(self.settings.compiler.version), default_folder
+        )
 
     def _build_msvc(self):
         msvc_sln_folder = os.path.join(self.source_folder, "builds", "msvc", self._msvc_sln_folder)
 
-        #==============================
+        # ==============================
         # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
         if self.version == "1.0.18" and self._msvc_sln_folder == "vs2019":
             toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
+                self,
+                os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
                 "<PlatformToolset>v142</PlatformToolset>",
                 f"<PlatformToolset>{toolset}</PlatformToolset>",
             )
         conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
         replace_in_file(
-            self, os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
-            "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-            f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+            self,
+            os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
+            '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+            f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
         )
-        #==============================
+        # ==============================
 
         msbuild = MSBuild(self)
         msbuild.build_type = "{}{}".format(
@@ -164,13 +180,36 @@ class LibsodiumConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             output_dir = os.path.join(self.source_folder, "bin")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "*.lib",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
             inc_src = os.path.join(self.source_folder, "src", "libsodium", "include")
-            copy(self, "*.h", src=inc_src, dst=os.path.join(self.package_folder, "include"), excludes=("*/private/*"))
+            copy(
+                self,
+                "*.h",
+                src=inc_src,
+                dst=os.path.join(self.package_folder, "include"),
+                excludes=("*/private/*"),
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

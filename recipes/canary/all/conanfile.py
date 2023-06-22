@@ -34,7 +34,12 @@ class SocketcanCanaryConan(ConanFile):
         self.requires("boost/1.74.0", transitive_headers=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -46,7 +51,12 @@ class SocketcanCanaryConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE_1_0.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

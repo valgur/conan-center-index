@@ -8,7 +8,7 @@ required_conan_version = ">=1.33.0"
 class GnuLibConanFile(ConanFile):
     name = "gnulib"
     description = "Gnulib is a central location for common GNU code, intended to be shared among GNU packages."
-    homepage =  "https://www.gnu.org/software/gnulib/"
+    homepage = "https://www.gnu.org/software/gnulib/"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("gnulib", "library", "gnu")
     license = ("GPL-3.0-or-later", "LGPL-3.0-or-later", "Unlicense")
@@ -21,8 +21,12 @@ class GnuLibConanFile(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True, filename="gnulib.tar.gz")
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+            filename="gnulib.tar.gz"
+        )
 
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")

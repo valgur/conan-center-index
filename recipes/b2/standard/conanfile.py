@@ -12,7 +12,7 @@ class B2Conan(ConanFile):
     settings = "os", "arch"
     url = "https://github.com/conan-io/conan-center-index"
 
-    '''
+    """
     * use_cxx_env: False, True
 
     Indicates if the build will use the CXX and
@@ -31,35 +31,58 @@ class B2Conan(ConanFile):
     toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
     toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
     'CXX' and 'CXXFLAGS' variables for use in subprocesses.
-    '''
+    """
     options = {
-        'use_cxx_env': [False, True],
-        'toolset': [
-            'auto', 'cxx', 'cross-cxx',
-            'acc', 'borland', 'clang', 'como', 'gcc-nocygwin', 'gcc',
-            'intel-darwin', 'intel-linux', 'intel-win32', 'kcc', 'kylix',
-            'mingw', 'mipspro', 'pathscale', 'pgi', 'qcc', 'sun', 'sunpro',
-            'tru64cxx', 'vacpp', 'vc12', 'vc14', 'vc141', 'vc142', 'vc143']
+        "use_cxx_env": [False, True],
+        "toolset": [
+            "auto",
+            "cxx",
+            "cross-cxx",
+            "acc",
+            "borland",
+            "clang",
+            "como",
+            "gcc-nocygwin",
+            "gcc",
+            "intel-darwin",
+            "intel-linux",
+            "intel-win32",
+            "kcc",
+            "kylix",
+            "mingw",
+            "mipspro",
+            "pathscale",
+            "pgi",
+            "qcc",
+            "sun",
+            "sunpro",
+            "tru64cxx",
+            "vacpp",
+            "vc12",
+            "vc14",
+            "vc141",
+            "vc142",
+            "vc143",
+        ],
     }
-    default_options = {
-        'use_cxx_env': False,
-        'toolset': 'auto'
-    }
+    default_options = {"use_cxx_env": False, "toolset": "auto"}
 
     def configure(self):
-        if (self.options.toolset == 'cxx' or self.options.toolset == 'cross-cxx') and not self.options.use_cxx_env:
+        if (
+            self.options.toolset == "cxx" or self.options.toolset == "cross-cxx"
+        ) and not self.options.use_cxx_env:
             raise ConanInvalidConfiguration(
-                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'")
+                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination="source")
+        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination="source")
 
     def build(self):
-        use_windows_commands = os.name == 'nt'
+        use_windows_commands = os.name == "nt"
         command = "build" if use_windows_commands else "./build.sh"
-        if self.options.toolset != 'auto':
-            command += " "+str(self.options.toolset)
+        if self.options.toolset != "auto":
+            command += " " + str(self.options.toolset)
         build_dir = os.path.join(self.source_folder, "source")
         engine_dir = os.path.join(build_dir, "src", "engine")
         os.chdir(engine_dir)
@@ -72,29 +95,31 @@ class B2Conan(ConanFile):
                 with tools.environment_append({"CXX": "", "CXXFLAGS": ""}):
                     self.run(command)
         os.chdir(build_dir)
-        command = os.path.join(
-            engine_dir, "b2.exe" if use_windows_commands else "b2")
-        if self.options.toolset != 'auto':
-            full_command = "{0} --ignore-site-config --prefix=../output --abbreviate-paths" \
-                           " toolset={1} install".format(command, self.options.toolset)
+        command = os.path.join(engine_dir, "b2.exe" if use_windows_commands else "b2")
+        if self.options.toolset != "auto":
+            full_command = (
+                "{0} --ignore-site-config --prefix=../output --abbreviate-paths"
+                " toolset={1} install".format(command, self.options.toolset)
+            )
         else:
-            full_command = "{0} --ignore-site-config --prefix=../output --abbreviate-paths" \
-                           " install".format(command)
+            full_command = (
+                "{0} --ignore-site-config --prefix=../output --abbreviate-paths"
+                " install".format(command)
+            )
         self.run(full_command)
 
     def package(self):
         self.copy("LICENSE.txt", dst="licenses", src="source")
         self.copy(pattern="*b2", dst="bin", src="output/bin")
         self.copy(pattern="*b2.exe", dst="bin", src="output/bin")
-        self.copy(pattern="*.jam", dst="bin/b2_src",
-                  src="output/share/boost-build")
+        self.copy(pattern="*.jam", dst="bin/b2_src", src="output/share/boost-build")
 
     def package_info(self):
         self.cpp_info.bindirs = ["bin"]
-        self.env_info.path = [os.path.join(
-            self.package_folder, "bin")]
+        self.env_info.path = [os.path.join(self.package_folder, "bin")]
         self.env_info.BOOST_BUILD_PATH = os.path.join(
-            self.package_folder, "bin", "b2_src", "src", "kernel")
+            self.package_folder, "bin", "b2_src", "src", "kernel"
+        )
 
     def package_id(self):
         del self.info.options.use_cxx_env

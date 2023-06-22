@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class PackageConan(ConanFile):
     name = "objectbox-generator"
     description = "ObjectBox Generator based on FlatBuffers schema files (fbs) for C and C++"
@@ -13,22 +14,24 @@ class PackageConan(ConanFile):
     topics = ("database", "code-generator", "objectbox")
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def validate(self):
         if self.settings.os not in ["Linux", "Windows", "Macos"] or self.settings.arch != "x86_64":
-            raise ConanInvalidConfiguration("{} doesn't support current environment".format(self.name))
+            raise ConanInvalidConfiguration(
+                "{} doesn't support current environment".format(self.name)
+            )
 
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][str(self.settings.os)],
-                  destination=self.source_folder)
-        tools.download(**self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
+        tools.get(
+            **self.conan_data["sources"][self.version][str(self.settings.os)],
+            destination=self.source_folder
+        )
+        tools.download(
+            **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt"
+        )
 
     def package(self):
         if self.settings.os != "Windows":

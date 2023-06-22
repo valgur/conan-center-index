@@ -14,12 +14,20 @@ class BoostLEAFConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/leaf"
-    description = ("Lightweight Error Augmentation Framework")
-    topics = ("multi-platform", "multi-threading", "cpp11", "error-handling",
-              "header-only", "low-latency", "no-dependencies", "single-header")
+    description = "Lightweight Error Augmentation Framework"
+    topics = (
+        "multi-platform",
+        "multi-threading",
+        "cpp11",
+        "error-handling",
+        "header-only",
+        "low-latency",
+        "no-dependencies",
+        "single-header",
+    )
     settings = "os", "compiler", "arch", "build_type"
     no_copy_source = True
-    deprecated = "boost"       
+    deprecated = "boost"
 
     def package_id(self):
         self.info.clear()
@@ -35,7 +43,7 @@ class BoostLEAFConan(ConanFile):
             "Visual Studio": "17",
             "msvc": "141",
             "clang": "3.9",
-            "apple-clang": "10.0.0"
+            "apple-clang": "10.0.0",
         }
 
     def requirements(self):
@@ -57,7 +65,8 @@ class BoostLEAFConan(ConanFile):
 
         if minimum_version and lazy_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support")
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support"
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -66,12 +75,24 @@ class BoostLEAFConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE_1_0.txt", dst=os.path.join(
-            self.package_folder, "licenses"),  src=self.source_folder)
-        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.hpp", dst=os.path.join(self.package_folder,
-             "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            "LICENSE_1_0.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "boost-leaf")

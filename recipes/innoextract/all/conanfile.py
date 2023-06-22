@@ -33,8 +33,12 @@ class InnoextractConan(ConanFile):
         self.info.requires.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -51,14 +55,19 @@ class InnoextractConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        os.remove(os.path.join(self.source_folder, 'cmake', 'FindLZMA.cmake'))
-        os.remove(os.path.join(self.source_folder, 'cmake', 'Findiconv.cmake'))
+        os.remove(os.path.join(self.source_folder, "cmake", "FindLZMA.cmake"))
+        os.remove(os.path.join(self.source_folder, "cmake", "Findiconv.cmake"))
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

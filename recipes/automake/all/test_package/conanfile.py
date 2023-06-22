@@ -57,8 +57,9 @@ class TestPackageConan(ConanFile):
 
         env = Environment()
 
-        compile_script = unix_path(self,
-            self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper"))
+        compile_script = unix_path(
+            self, self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper")
+        )
 
         # define CC and CXX such that if the user hasn't already defined it
         # via `tools.build:compiler_executables` or buildenv variables,
@@ -84,7 +85,7 @@ class TestPackageConan(ConanFile):
 
         # Build test project
         autotools = Autotools(self)
-        autotools.autoreconf(args=['--debug'])
+        autotools.autoreconf(args=["--debug"])
         autotools.configure()
         autotools.make()
 

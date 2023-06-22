@@ -17,10 +17,6 @@ class TarConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -35,7 +31,9 @@ class TarConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("This recipe does not support Windows builds of tar")  # FIXME: fails on MSVC and mingw-w64
+            raise ConanInvalidConfiguration(
+                "This recipe does not support Windows builds of tar"
+            )  # FIXME: fails on MSVC and mingw-w64
         if not self.options["bzip2"].build_executable:
             raise ConanInvalidConfiguration("bzip2:build_executable must be enabled")
 
@@ -43,8 +41,11 @@ class TarConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -76,8 +77,11 @@ class TarConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "gnu", "faccessat.c"),
-                                  "_GL_INCLUDING_UNISTD_H", "_GL_INCLUDING_UNISTD_H_NOP")
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "gnu", "faccessat.c"),
+                "_GL_INCLUDING_UNISTD_H",
+                "_GL_INCLUDING_UNISTD_H_NOP",
+            )
         autotools = self._configure_autotools()
         autotools.make()
 

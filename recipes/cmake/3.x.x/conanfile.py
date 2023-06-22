@@ -13,6 +13,7 @@ import json
 
 required_conan_version = ">=1.51.0"
 
+
 class CMakeConan(ConanFile):
     name = "cmake"
     package_type = "application"
@@ -59,15 +60,18 @@ class CMakeConan(ConanFile):
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warning(
-                f"{self.name} recipe lacks information about the {compiler} compiler standard version support")
+                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
+            )
             self.output.warning(
-                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}")
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
+            )
             return
 
         version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}")
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
+            )
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "x86":
@@ -80,8 +84,12 @@ class CMakeConan(ConanFile):
             cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
         rmdir(self, os.path.join(self.source_folder, "Tests", "RunCMake", "find_package"))
 
     def generate(self):
@@ -91,16 +99,26 @@ class CMakeConan(ConanFile):
             tc = AutotoolsDeps(self)
             tc.generate()
             bootstrap_cmake_options = ["--"]
-            bootstrap_cmake_options.append(f'-DCMAKE_CXX_STANDARD={"11" if not self.settings.compiler.cppstd else self.settings.compiler.cppstd}')
+            bootstrap_cmake_options.append(
+                f'-DCMAKE_CXX_STANDARD={"11" if not self.settings.compiler.cppstd else self.settings.compiler.cppstd}'
+            )
             if self.settings.os == "Linux":
                 if self.options.with_openssl:
                     openssl = self.dependencies["openssl"]
                     bootstrap_cmake_options.append("-DCMAKE_USE_OPENSSL=ON")
-                    bootstrap_cmake_options.append(f'-DOPENSSL_USE_STATIC_LIBS={"FALSE" if openssl.options.shared else "TRUE"}')
-                    bootstrap_cmake_options.append(f'-DOPENSSL_ROOT_DIR={openssl.package_path}')
+                    bootstrap_cmake_options.append(
+                        f'-DOPENSSL_USE_STATIC_LIBS={"FALSE" if openssl.options.shared else "TRUE"}'
+                    )
+                    bootstrap_cmake_options.append(f"-DOPENSSL_ROOT_DIR={openssl.package_path}")
                 else:
                     bootstrap_cmake_options.append("-DCMAKE_USE_OPENSSL=OFF")
-            save(self, "bootstrap_args", json.dumps({"bootstrap_cmake_options": ' '.join(arg for arg in bootstrap_cmake_options)}))
+            save(
+                self,
+                "bootstrap_args",
+                json.dumps(
+                    {"bootstrap_cmake_options": " ".join(arg for arg in bootstrap_cmake_options)}
+                ),
+            )
         else:
             tc = CMakeToolchain(self)
             # Disabling testing because CMake tests build can fail in Windows in some cases
@@ -114,8 +132,8 @@ class CMakeConan(ConanFile):
                     openssl = self.dependencies["openssl"]
                     tc.variables["OPENSSL_USE_STATIC_LIBS"] = not openssl.options.shared
             if cross_building(self):
-                tc.variables["HAVE_POLL_FINE_EXITCODE"] = ''
-                tc.variables["HAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT"] = ''
+                tc.variables["HAVE_POLL_FINE_EXITCODE"] = ""
+                tc.variables["HAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT"] = ""
             # TODO: Remove after fixing https://github.com/conan-io/conan-center-index/issues/13159
             # C3I workaround to force CMake to choose the highest version of
             # the windows SDK available in the system
@@ -127,13 +145,16 @@ class CMakeConan(ConanFile):
             tc.set_property("openssl", "cmake_find_mode", "module")
             tc.generate()
 
-
     def build(self):
         if self.options.bootstrap:
-            toolchain_file_content = json.loads(load(self, os.path.join(self.generators_folder, "bootstrap_args")))
+            toolchain_file_content = json.loads(
+                load(self, os.path.join(self.generators_folder, "bootstrap_args"))
+            )
             bootstrap_cmake_options = toolchain_file_content.get("bootstrap_cmake_options")
             with chdir(self, self.source_folder):
-                self.run(f'./bootstrap --prefix="" --parallel={build_jobs(self)} {bootstrap_cmake_options}')
+                self.run(
+                    f'./bootstrap --prefix="" --parallel={build_jobs(self)} {bootstrap_cmake_options}'
+                )
                 autotools = Autotools(self)
                 autotools.make()
         else:
@@ -142,7 +163,13 @@ class CMakeConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "Copyright.txt", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self,
+            "Copyright.txt",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
         if self.options.bootstrap:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

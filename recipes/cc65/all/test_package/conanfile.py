@@ -13,7 +13,9 @@ class TestPackageConan(ConanFile):
     def build(self):
         if not tools.cross_building(self.settings):
             for src in self.exports_sources:
-                shutil.copy(os.path.join(self.source_folder, src), os.path.join(self.build_folder, src))
+                shutil.copy(
+                    os.path.join(self.source_folder, src), os.path.join(self.build_folder, src)
+                )
             for target in self._targets:
                 output = "hello_{}".format(target)
                 tools.mkdir(target)
@@ -22,10 +24,18 @@ class TestPackageConan(ConanFile):
                     os.unlink(output)
                 except FileNotFoundError:
                     pass
-                self.run("{p} -O -t {t} hello.c -o {t}/hello.s".format(p=os.environ["CC65"], t=target))
-                self.run("{p} -t {t} {t}/hello.s -o {t}/hello.o".format(p=os.environ["AS65"], t=target))
+                self.run(
+                    "{p} -O -t {t} hello.c -o {t}/hello.s".format(p=os.environ["CC65"], t=target)
+                )
+                self.run(
+                    "{p} -t {t} {t}/hello.s -o {t}/hello.o".format(p=os.environ["AS65"], t=target)
+                )
                 self.run("{p} -t {t} text.s -o {t}/text.o".format(p=os.environ["AS65"], t=target))
-                self.run("{p} -o {o} -t {t} {t}/hello.o {t}/text.o {t}.lib".format(o=output, p=os.environ["LD65"], t=target))
+                self.run(
+                    "{p} -o {o} -t {t} {t}/hello.o {t}/text.o {t}.lib".format(
+                        o=output, p=os.environ["LD65"], t=target
+                    )
+                )
 
     def test(self):
         if not tools.cross_building(self.settings):

@@ -8,23 +8,26 @@ required_conan_version = ">=1.33.0"
 class LibNlConan(ConanFile):
     name = "libnl"
     description = "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
-    topics = ("netlink")
+    topics = "netlink"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.infradead.org/~tgr/libnl/"
     license = "LGPL-2.1-only"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"fPIC": [True, False], "shared": [True, False]}
+    options = {
+        "fPIC": [True, False],
+        "shared": [True, False],
+    }
     default_options = {"fPIC": True, "shared": False}
-    build_requires = ( "flex/2.6.4", "bison/3.7.6" )
+    build_requires = ("flex/2.6.4", "bison/3.7.6")
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def configure(self):
         if self.options.shared:
@@ -70,7 +73,7 @@ class LibNlConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["nl"].libs = ["nl-3"]
-        self.cpp_info.components["nl"].includedirs = [os.path.join('include', 'libnl3')]
+        self.cpp_info.components["nl"].includedirs = [os.path.join("include", "libnl3")]
         if self._settings_build.os != "Windows":
             self.cpp_info.components["nl"].system_libs = ["pthread", "m"]
         self.cpp_info.components["nl-route"].libs = ["nl-route-3"]

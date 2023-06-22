@@ -62,8 +62,12 @@ class LibnaboConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "copyright", src=os.path.join(self.source_folder, "debian"),
-                                dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "copyright",
+            src=os.path.join(self.source_folder, "debian"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -50,7 +57,7 @@ class MsdfgenConan(ConanFile):
 
     def requirements(self):
         self.requires("freetype/2.12.1")
-        if  Version(self.version) < "1.10":
+        if Version(self.version) < "1.10":
             self.requires("lodepng/cci.20200615")
         else:
             self.requires("libpng/1.6.39")
@@ -65,8 +72,12 @@ class MsdfgenConan(ConanFile):
             raise ConanInvalidConfiguration("skia recipe not available yet in CCI")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -86,7 +97,12 @@ class MsdfgenConan(ConanFile):
         apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # workaround against CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
-        replace_in_file(self, cmakelists, "find_package(Freetype REQUIRED)", "find_package(Freetype REQUIRED MODULE)")
+        replace_in_file(
+            self,
+            cmakelists,
+            "find_package(Freetype REQUIRED)",
+            "find_package(Freetype REQUIRED MODULE)",
+        )
         # remove bundled lodepng & tinyxml2
         rmdir(self, os.path.join(self.source_folder, "lib"))
         rmdir(self, os.path.join(self.source_folder, "include"))
@@ -104,19 +120,19 @@ class MsdfgenConan(ConanFile):
                     self,
                     cmakelists,
                     'set_property(TARGET msdfgen-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
-                    ''
+                    "",
                 )
                 replace_in_file(
                     self,
                     cmakelists,
                     'set_property(TARGET msdfgen-ext PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
-                    ''
+                    "",
                 )
                 replace_in_file(
                     self,
                     cmakelists,
                     'set_property(TARGET msdfgen PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
-                    ''
+                    "",
                 )
 
     def build(self):
@@ -126,7 +142,12 @@ class MsdfgenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -145,21 +166,28 @@ class MsdfgenConan(ConanFile):
         self.cpp_info.components["_msdfgen"].names["cmake_find_package"] = "msdfgen"
         self.cpp_info.components["_msdfgen"].names["cmake_find_package_multi"] = "msdfgen"
         self.cpp_info.components["_msdfgen"].includedirs.append(includedir)
-        self.cpp_info.components["_msdfgen"].libs = ["msdfgen" if Version(self.version) < "1.10" else "msdfgen-core"]
+        self.cpp_info.components["_msdfgen"].libs = [
+            "msdfgen" if Version(self.version) < "1.10" else "msdfgen-core"
+        ]
         self.cpp_info.components["_msdfgen"].defines = ["MSDFGEN_USE_CPP11"]
         if Version(self.version) >= "1.10":
             if self.options.shared and is_msvc(self):
-                self.cpp_info.components["_msdfgen"].defines.append("MSDFGEN_PUBLIC=__declspec(dllimport)")
+                self.cpp_info.components["_msdfgen"].defines.append(
+                    "MSDFGEN_PUBLIC=__declspec(dllimport)"
+                )
             else:
                 self.cpp_info.components["_msdfgen"].defines.append("MSDFGEN_PUBLIC=")
 
-        self.cpp_info.components["msdfgen-ext"].set_property("cmake_target_name", "msdfgen::msdfgen-ext")
+        self.cpp_info.components["msdfgen-ext"].set_property(
+            "cmake_target_name", "msdfgen::msdfgen-ext"
+        )
         self.cpp_info.components["msdfgen-ext"].names["cmake_find_package"] = "msdfgen-ext"
         self.cpp_info.components["msdfgen-ext"].names["cmake_find_package_multi"] = "msdfgen-ext"
         self.cpp_info.components["msdfgen-ext"].includedirs.append(includedir)
         self.cpp_info.components["msdfgen-ext"].libs = ["msdfgen-ext"]
         self.cpp_info.components["msdfgen-ext"].requires = [
-            "_msdfgen", "freetype::freetype",
+            "_msdfgen",
+            "freetype::freetype",
             "lodepng::lodepng" if Version(self.version) < "1.10" else "libpng::libpng",
             "tinyxml2::tinyxml2",
         ]

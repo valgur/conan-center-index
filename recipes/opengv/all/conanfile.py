@@ -4,7 +4,14 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import get, copy, rmdir, save, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import (
+    get,
+    copy,
+    rmdir,
+    save,
+    apply_conandata_patches,
+    export_conandata_patches,
+)
 
 required_conan_version = ">=1.53.0"
 
@@ -52,7 +59,7 @@ class opengvConan(ConanFile):
         # Disable windows builds since they error out.
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Windows builds are not supported by this recipe.")
-        #FIXME this passes locally but fails on CCI with a clang internal error
+        # FIXME this passes locally but fails on CCI with a clang internal error
         if self.settings.compiler == "clang" and self.settings.compiler.version == 12:
             raise ConanInvalidConfiguration("Clang 12 builds fail on Conan CI.")
 
@@ -63,7 +70,9 @@ class opengvConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_PYTHON"] = self.options.with_python_bindings
-        tc.variables["BUILD_POSITION_INDEPENDENT_CODE"] = self.settings.os != "Windows" and self.options.get_safe("fPIC", True)
+        tc.variables[
+            "BUILD_POSITION_INDEPENDENT_CODE"
+        ] = self.settings.os != "Windows" and self.options.get_safe("fPIC", True)
         tc.generate()
 
         cd = CMakeDeps(self)
@@ -76,7 +85,12 @@ class opengvConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "License.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -84,18 +98,20 @@ class opengvConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"opengv": "opengv::opengv"}
+            {"opengv": "opengv::opengv"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -107,9 +123,11 @@ class opengvConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "opengv")
         self.cpp_info.libs = ["opengv"]
         if self.options.with_python_bindings:
-            opengv_dist_packages = os.path.join(self.package_folder, "lib", "python3", "dist-packages")
+            opengv_dist_packages = os.path.join(
+                self.package_folder, "lib", "python3", "dist-packages"
+            )
             self.runenv_info.prepend_path("PYTHONPATH", opengv_dist_packages)
-            self.env_info.PYTHONPATH.append(opengv_dist_packages) # remove in conan v2?
+            self.env_info.PYTHONPATH.append(opengv_dist_packages)  # remove in conan v2?
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

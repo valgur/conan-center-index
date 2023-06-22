@@ -27,10 +27,6 @@ class IslConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -43,15 +39,25 @@ class IslConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)")
+            raise ConanInvalidConfiguration(
+                "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)"
+            )
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration("Apple M1 is not yet supported. Contributions are welcome")
+            raise ConanInvalidConfiguration(
+                "Apple M1 is not yet supported. Contributions are welcome"
+            )
         if self.options.with_int != "gmp":
             # FIXME: missing imath recipe
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < 16 and self.settings.compiler.runtime == "MDd":
+        if (
+            self.settings.compiler == "Visual Studio"
+            and tools.Version(self.settings.compiler.version) < 16
+            and self.settings.compiler.runtime == "MDd"
+        ):
             # gmp.lib(bdiv_dbm1c.obj) : fatal error LNK1318: Unexpected PDB error; OK (0)
-            raise ConanInvalidConfiguration("isl fails to link with this version of visual studio and MDd runtime")
+            raise ConanInvalidConfiguration(
+                "isl fails to link with this version of visual studio and MDd runtime"
+            )
 
     def requirements(self):
         if self.options.with_int == "gmp":
@@ -68,8 +74,11 @@ class IslConan(ConanFile):
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     @contextmanager
     def _build_context(self):
@@ -77,8 +86,14 @@ class IslConan(ConanFile):
             with tools.vcvars(self.settings):
                 env = {
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
-                    "CC": "{} cl -nologo -{}".format(tools.unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime),
-                    "CXX": "{} cl -nologo -{}".format(tools.unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime),
+                    "CC": "{} cl -nologo -{}".format(
+                        tools.unix_path(self.deps_user_info["automake"].compile),
+                        self.settings.compiler.runtime,
+                    ),
+                    "CXX": "{} cl -nologo -{}".format(
+                        tools.unix_path(self.deps_user_info["automake"].compile),
+                        self.settings.compiler.runtime,
+                    ),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
@@ -102,10 +117,14 @@ class IslConan(ConanFile):
             "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
         if self.options.with_int == "gmp":
-            conf_args.extend([
-                "--with-gmp=system",
-                "--with-gmp-prefix={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
-            ])
+            conf_args.extend(
+                [
+                    "--with-gmp=system",
+                    "--with-gmp-prefix={}".format(
+                        self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")
+                    ),
+                ]
+            )
         if self.settings.compiler == "Visual Studio":
             if tools.Version(self.settings.compiler.version) >= 15:
                 self._autotools.flags.append("-Zf")

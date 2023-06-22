@@ -51,10 +51,13 @@ class RoaringConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, "11")
-        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "11":
+        if (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) < "11"
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires at least apple-clang 11 to support runtime dispatching.",
-                )
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -71,13 +74,23 @@ class RoaringConan(ConanFile):
         tc.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_MACOSX_RPATH OFF)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_MACOSX_RPATH OFF)",
+            "",
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

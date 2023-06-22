@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildToolchain
@@ -75,7 +83,9 @@ class LibmicrohttpdConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.settings.arch not in ("x86", "x86_64"):
-            raise ConanInvalidConfiguration("Unsupported architecture (only x86 and x86_64 are supported)")
+            raise ConanInvalidConfiguration(
+                "Unsupported architecture (only x86 and x86_64 are supported)"
+            )
         if self.options.get_safe("with_https"):
             raise ConanInvalidConfiguration("gnutls is not (yet) available in cci")
 
@@ -100,18 +110,20 @@ class LibmicrohttpdConan(ConanFile):
                 VirtualRunEnv(self).generate(scope="build")
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--enable-shared={yes_no(self.options.shared)}",
-                f"--enable-static={yes_no(not self.options.shared)}",
-                f"--enable-https={yes_no(self.options.with_https)}",
-                f"--enable-messages={yes_no(self.options.with_error_messages)}",
-                f"--enable-postprocessor={yes_no(self.options.with_postprocessor)}",
-                f"--enable-dauth={yes_no(self.options.with_digest_authentification)}",
-                f"--enable-epoll={yes_no(self.options.get_safe('epoll'))}",
-                "--disable-doc",
-                "--disable-examples",
-                "--disable-curl",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-shared={yes_no(self.options.shared)}",
+                    f"--enable-static={yes_no(not self.options.shared)}",
+                    f"--enable-https={yes_no(self.options.with_https)}",
+                    f"--enable-messages={yes_no(self.options.with_error_messages)}",
+                    f"--enable-postprocessor={yes_no(self.options.with_postprocessor)}",
+                    f"--enable-dauth={yes_no(self.options.with_digest_authentification)}",
+                    f"--enable-epoll={yes_no(self.options.get_safe('epoll'))}",
+                    "--disable-doc",
+                    "--disable-examples",
+                    "--disable-curl",
+                ]
+            )
             tc.generate()
             AutotoolsDeps(self).generate()
 
@@ -129,44 +141,73 @@ class LibmicrohttpdConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
-            #==============================
+            # ==============================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             vcxproj_file = os.path.join(self._msvc_sln_folder, "libmicrohttpd.vcxproj")
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 "<WholeProgramOptimization Condition=\"! $(Configuration.StartsWith('Debug'))\">true</WholeProgramOptimization>",
                 "",
             )
             toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 "<PlatformToolset>v143</PlatformToolset>",
                 f"<PlatformToolset>{toolset}</PlatformToolset>",
             )
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             replace_in_file(
-                self, vcxproj_file,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj_file,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-            #==============================
+            # ==============================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msvc_configuration
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-            msbuild.build(sln=os.path.join(self._msvc_sln_folder, "libmicrohttpd.sln"), targets=["libmicrohttpd"])
+            msbuild.build(
+                sln=os.path.join(self._msvc_sln_folder, "libmicrohttpd.sln"),
+                targets=["libmicrohttpd"],
+            )
         else:
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             output_dir = os.path.join(self._msvc_sln_folder, "Output")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "*.h", src=output_dir, dst=os.path.join(self.package_folder, "include"), keep_path=False)
+            copy(
+                self,
+                "*.lib",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.h",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "include"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

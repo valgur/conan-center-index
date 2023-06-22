@@ -1,6 +1,7 @@
 import os
 from conans import ConanFile, CMake, tools
 
+
 class EnkiTSConan(ConanFile):
     name = "enkits"
     description = "A permissively licensed C and C++ Task Scheduler for creating parallel programs."
@@ -23,10 +24,6 @@ class EnkiTSConan(ConanFile):
     }
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -63,7 +60,7 @@ class EnkiTSConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["enkiTS"]
-        
+
         if self.options.shared:
             self.cpp_info.defines.append("ENKITS_DLL=1")
         if self.settings.os == "Linux":

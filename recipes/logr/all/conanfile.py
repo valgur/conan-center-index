@@ -10,14 +10,14 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class LogrConan(ConanFile):
     name = "logr"
     license = "BSD-3-Clause"
     homepage = "https://github.com/ngrodzitski/logr"
     url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "Logger frontend substitution for spdlog, glog, etc "
-        "for server/desktop applications"
+        "Logger frontend substitution for spdlog, glog, etc " "for server/desktop applications"
     )
     topics = ("logger", "development", "util", "utils")
 
@@ -71,18 +71,10 @@ class LogrConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = (
-            self.options.backend == "spdlog"
-        )
-        tc.variables["LOGR_WITH_GLOG_BACKEND"] = (
-            self.options.backend == "glog"
-        )
-        tc.variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = (
-            self.options.backend == "log4cplus"
-        )
-        tc.variables["LOGR_WITH_BOOSTLOG_BACKEND"] = (
-            self.options.backend == "boostlog"
-        )
+        tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = self.options.backend == "spdlog"
+        tc.variables["LOGR_WITH_GLOG_BACKEND"] = self.options.backend == "glog"
+        tc.variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = self.options.backend == "log4cplus"
+        tc.variables["LOGR_WITH_BOOSTLOG_BACKEND"] = self.options.backend == "boostlog"
         tc.variables["LOGR_INSTALL"] = True
         tc.variables["LOGR_CONAN_PACKAGING"] = True
         tc.variables["LOGR_BUILD_TESTS"] = False
@@ -94,11 +86,20 @@ class LogrConan(ConanFile):
         deps.generate()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "logr"))
         cmake.install()

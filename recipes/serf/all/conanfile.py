@@ -34,10 +34,6 @@ class SerfConan(ConanFile):
         del self.settings.compiler.cppstd
         del self.settings.compiler.libcxx
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
         self.requires("apr-util/1.6.1")
         self.requires("zlib/1.2.12")
@@ -74,9 +70,13 @@ class SerfConan(ConanFile):
     def _build_context(self):
         extra_env = {}
         if self.settings.compiler == "Visual Studio":
-            extra_env["OPENSSL_LIBS"] = ";".join("{}.lib".format(lib) for lib in self.deps_cpp_info["openssl"].libs)
+            extra_env["OPENSSL_LIBS"] = ";".join(
+                "{}.lib".format(lib) for lib in self.deps_cpp_info["openssl"].libs
+            )
         with tools.environment_append(extra_env):
-            with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
+            with tools.vcvars(
+                self.settings
+            ) if self.settings.compiler == "Visual Studio" else tools.no_op():
                 yield
 
     def build(self):
@@ -92,23 +92,43 @@ class SerfConan(ConanFile):
             "ZLIB": self.deps_cpp_info["zlib"].rootpath.replace("\\", "/"),
             "DEBUG": self.settings.build_type == "Debug",
             "APR_STATIC": not self.options["apr"].shared,
-            "CFLAGS": " ".join(self.deps_cpp_info.cflags + (["-fPIC"] if self.options.get_safe("fPIC") else []) + autotools.flags),
-            "LINKFLAGS": " ".join(self.deps_cpp_info.sharedlinkflags) + " " + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.lib_paths),
-            "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines) + " " + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.include_paths),
+            "CFLAGS": " ".join(
+                self.deps_cpp_info.cflags
+                + (["-fPIC"] if self.options.get_safe("fPIC") else [])
+                + autotools.flags
+            ),
+            "LINKFLAGS": " ".join(self.deps_cpp_info.sharedlinkflags)
+            + " "
+            + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.lib_paths),
+            "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines)
+            + " "
+            + " ".join(
+                "-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.include_paths
+            ),
             "CC": self._cc,
             "SOURCE_LAYOUT": "False",
         }
 
         if self.settings.compiler == "Visual Studio":
-            kwargs.update({
-                "TARGET_ARCH": str(self.settings.arch),
-                "MSVC_VERSION": "{:.1f}".format(float(tools.msvs_toolset(self.settings).lstrip("v")) / 10),
-            })
+            kwargs.update(
+                {
+                    "TARGET_ARCH": str(self.settings.arch),
+                    "MSVC_VERSION": "{:.1f}".format(
+                        float(tools.msvs_toolset(self.settings).lstrip("v")) / 10
+                    ),
+                }
+            )
 
-        escape_str = lambda x : "\"{}\"".format(x)
+        escape_str = lambda x: '"{}"'.format(x)
         with tools.chdir(self._source_subfolder):
             with self._build_context():
-                    self.run("scons {} {}".format(" ".join(escape_str(s) for s in args), " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items())), run_environment=True)
+                self.run(
+                    "scons {} {}".format(
+                        " ".join(escape_str(s) for s in args),
+                        " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items()),
+                    ),
+                    run_environment=True,
+                )
 
     @property
     def _static_ext(self):
@@ -126,7 +146,12 @@ class SerfConan(ConanFile):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         with tools.chdir(self._source_subfolder):
             with self._build_context():
-                self.run("scons install -Y \"{}\"".format(os.path.join(self.source_folder, self._source_subfolder)), run_environment=True)
+                self.run(
+                    'scons install -Y "{}"'.format(
+                        os.path.join(self.source_folder, self._source_subfolder)
+                    ),
+                    run_environment=True,
+                )
 
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
@@ -135,13 +160,27 @@ class SerfConan(ConanFile):
             for file in glob.glob(os.path.join(self.package_folder, "lib", "*.pdb")):
                 os.unlink(file)
             if self.options.shared:
-                for file in glob.glob(os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))):
+                for file in glob.glob(
+                    os.path.join(
+                        self.package_folder, "lib", "serf-{}.*".format(self._version_major)
+                    )
+                ):
                     os.unlink(file)
                 tools.mkdir(os.path.join(self.package_folder, "bin"))
-                os.rename(os.path.join(self.package_folder, "lib", "libserf-{}.dll".format(self._version_major)),
-                          os.path.join(self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)))
+                os.rename(
+                    os.path.join(
+                        self.package_folder, "lib", "libserf-{}.dll".format(self._version_major)
+                    ),
+                    os.path.join(
+                        self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)
+                    ),
+                )
             else:
-                for file in glob.glob(os.path.join(self.package_folder, "lib", "libserf-{}.*".format(self._version_major))):
+                for file in glob.glob(
+                    os.path.join(
+                        self.package_folder, "lib", "libserf-{}.*".format(self._version_major)
+                    )
+                ):
                     os.unlink(file)
         else:
             ext_to_remove = self._static_ext if self.options.shared else self._shared_ext
@@ -159,7 +198,18 @@ class SerfConan(ConanFile):
             libprefix = "lib"
         libname = "{}serf-{}".format(libprefix, self._version_major)
         self.cpp_info.libs = [libname]
-        self.cpp_info.includedirs.append(os.path.join("include", "serf-{}".format(self._version_major)))
+        self.cpp_info.includedirs.append(
+            os.path.join("include", "serf-{}".format(self._version_major))
+        )
         self.cpp_info.names["pkg_config"] = libname
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["user32", "advapi32", "gdi32", "ws2_32", "crypt32", "mswsock", "rpcrt4", "secur32"]
+            self.cpp_info.system_libs = [
+                "user32",
+                "advapi32",
+                "gdi32",
+                "ws2_32",
+                "crypt32",
+                "mswsock",
+                "rpcrt4",
+                "secur32",
+            ]

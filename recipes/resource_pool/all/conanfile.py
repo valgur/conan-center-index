@@ -14,15 +14,9 @@ class ResourcePool(ConanFile):
     license = "MIT"
 
     settings = "os", "arch", "compiler", "build_type"
-    requires = (
-        "boost/1.75.0"
-    )
+    requires = "boost/1.75.0"
     generators = "cmake_find_package"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -44,9 +38,13 @@ class ResourcePool(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
 
         if not minimum_version:
-            self.output.warn("resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
+            raise ConanInvalidConfiguration(
+                "resource_pool requires a compiler that supports at least C++17"
+            )
 
     def validate(self):
         self._validate_compiler_settings()
@@ -57,7 +55,11 @@ class ResourcePool(ConanFile):
         os.rename(extracted_dir, self._source_subfolder)
 
     def package(self):
-        self.copy(pattern="*", dst=os.path.join("include", "yamail"), src=os.path.join(self._source_subfolder, "include", "yamail"))
+        self.copy(
+            pattern="*",
+            dst=os.path.join("include", "yamail"),
+            src=os.path.join(self._source_subfolder, "include", "yamail"),
+        )
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_id(self):

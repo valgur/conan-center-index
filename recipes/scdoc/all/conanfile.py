@@ -15,10 +15,6 @@ class ScdocInstallerConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def build_requirements(self):
         self.build_requires("make/4.3")
 
@@ -30,8 +26,11 @@ class ScdocInstallerConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     @staticmethod
     def _chmod_plus_x(filename):
@@ -53,27 +52,25 @@ class ScdocInstallerConan(ConanFile):
         autotools = self._configure_autotools()
         with tools.chdir(self._source_subfolder):
             autotools.install(args=[f"PREFIX={self.package_folder}"])
-        self.copy(pattern="COPYING", dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
         tools.rmdir(os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []
 
         scdoc_root = os.path.join(self.package_folder, "bin")
-        self.output.info(
-            "Appending PATH environment variable: {}".format(scdoc_root))
+        self.output.info("Appending PATH environment variable: {}".format(scdoc_root))
         self.env_info.PATH.append(scdoc_root)
         self._chmod_plus_x(os.path.join(scdoc_root, "scdoc"))
         pkgconfig_variables = {
-            'exec_prefix': '${prefix}/bin',
-            'scdoc': '${exec_prefix}/scdoc',
+            "exec_prefix": "${prefix}/bin",
+            "scdoc": "${exec_prefix}/scdoc",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join("%s=%s" % (key, value) for key,value in pkgconfig_variables.items()))
+            "\n".join("%s=%s" % (key, value) for key, value in pkgconfig_variables.items()),
+        )
 
     def validate(self):
         if self.settings.os in ["Macos", "Windows"]:
-            raise ConanInvalidConfiguration(
-                f"Builds aren't supported on {self.settings.os}")
+            raise ConanInvalidConfiguration(f"Builds aren't supported on {self.settings.os}")

@@ -30,10 +30,6 @@ class PdfiumConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -65,23 +61,35 @@ class PdfiumConan(ConanFile):
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version:
             if tools.Version(self.settings.compiler.version) < min_compiler_version:
-                raise ConanInvalidConfiguration("pdfium needs at least compiler version {}".format(min_compiler_version))
+                raise ConanInvalidConfiguration(
+                    "pdfium needs at least compiler version {}".format(min_compiler_version)
+                )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version]["pdfium-cmake"],
-                  destination="pdfium-cmake", strip_root=True)
-        tools.get(**self.conan_data["sources"][self.version]["pdfium"],
-                  destination=self._source_subfolder)
-        tools.get(**self.conan_data["sources"][self.version]["trace_event"],
-                  destination=os.path.join(self._source_subfolder, "base", "trace_event", "common"))
-        tools.get(**self.conan_data["sources"][self.version]["chromium_build"],
-                  destination=os.path.join(self._source_subfolder, "build"))
+        tools.get(
+            **self.conan_data["sources"][self.version]["pdfium-cmake"],
+            destination="pdfium-cmake",
+            strip_root=True
+        )
+        tools.get(
+            **self.conan_data["sources"][self.version]["pdfium"], destination=self._source_subfolder
+        )
+        tools.get(
+            **self.conan_data["sources"][self.version]["trace_event"],
+            destination=os.path.join(self._source_subfolder, "base", "trace_event", "common")
+        )
+        tools.get(
+            **self.conan_data["sources"][self.version]["chromium_build"],
+            destination=os.path.join(self._source_subfolder, "build")
+        )
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
-        self._cmake.definitions["PDFIUM_ROOT"] = os.path.join(self.source_folder, self._source_subfolder).replace("\\", "/")
+        self._cmake.definitions["PDFIUM_ROOT"] = os.path.join(
+            self.source_folder, self._source_subfolder
+        ).replace("\\", "/")
         self._cmake.definitions["PDF_LIBJPEG_TURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
         self._cmake.configure()
         return self._cmake

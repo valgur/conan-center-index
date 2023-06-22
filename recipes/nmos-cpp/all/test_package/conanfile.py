@@ -28,14 +28,20 @@ class NmosCppTestPackageConan(ConanFile):
             with open("registry-config.json", "w", encoding="utf-8") as config:
                 config.write('{"http_port": 10000, "domain": "local.", "pri": 51967}')
             with open("node-config.json", "w", encoding="utf-8") as config:
-                config.write('{"http_port": 20000, "domain": "local.", "highest_pri": 51967, "lowest_pri": 51967}')
+                config.write(
+                    '{"http_port": 20000, "domain": "local.", "highest_pri": 51967, "lowest_pri": 51967}'
+                )
 
             # find and start up the installed nmos-cpp-registry to check it works
-            registry_path = shutil.which("nmos-cpp-registry", path=os.pathsep.join(self.env["PATH"]))
-            registry = subprocess.Popen([registry_path, "registry-config.json"],
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.STDOUT,
-                                        universal_newlines=True)
+            registry_path = shutil.which(
+                "nmos-cpp-registry", path=os.pathsep.join(self.env["PATH"])
+            )
+            registry = subprocess.Popen(
+                [registry_path, "registry-config.json"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
 
             # run the test_package node which should have time to register and then exit
             node_out = StringIO()
@@ -45,10 +51,11 @@ class NmosCppTestPackageConan(ConanFile):
             finally:
                 registry.terminate()
             if "Adopting registered operation" not in node_out.getvalue():
-                self.output.warn("test_package node failed to register with nmos-cpp-registry\n"
-                                 "\n"
-                                 "nmos-cpp-registry log:\n"
-                                 "{}\n"
-                                 "test_package log:\n"
-                                 "{}"
-                                 .format(registry.communicate()[0], node_out.getvalue()))
+                self.output.warn(
+                    "test_package node failed to register with nmos-cpp-registry\n"
+                    "\n"
+                    "nmos-cpp-registry log:\n"
+                    "{}\n"
+                    "test_package log:\n"
+                    "{}".format(registry.communicate()[0], node_out.getvalue())
+                )

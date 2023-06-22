@@ -46,7 +46,7 @@ class fastgltf(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        cmake_layout(self, src_folder='src')
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -70,7 +70,12 @@ class fastgltf(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

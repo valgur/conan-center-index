@@ -29,10 +29,6 @@ class OpenTracingConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -61,9 +57,7 @@ class OpenTracingConan(ConanFile):
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["BUILD_MOCKTRACER"] = self.options.enable_mocktracer
-        self._cmake.definitions[
-            "BUILD_DYNAMIC_LOADING"
-        ] = self.options.enable_dynamic_load
+        self._cmake.definitions["BUILD_DYNAMIC_LOADING"] = self.options.enable_dynamic_load
         self._cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
         self._cmake.definitions["BUILD_STATIC_LIBS"] = not self.options.shared
         self._cmake.definitions["BUILD_TESTING"] = False
@@ -83,9 +77,7 @@ class OpenTracingConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "OpenTracing"
 
         target_suffix = "" if self.options.shared else "-static"
-        lib_suffix = (
-            "" if self.options.shared or self.settings.os != "Windows" else "-static"
-        )
+        lib_suffix = "" if self.options.shared or self.settings.os != "Windows" else "-static"
         # opentracing
         self.cpp_info.components["opentracing"].names["cmake_find_package"] = (
             "opentracing" + target_suffix
@@ -101,18 +93,16 @@ class OpenTracingConan(ConanFile):
 
         # opentracing_mocktracer
         if self.options.enable_mocktracer:
-            self.cpp_info.components["opentracing_mocktracer"].names[
-                "cmake_find_package"
-            ] = ("opentracing_mocktracer" + target_suffix)
-            self.cpp_info.components["opentracing_mocktracer"].names[
-                "cmake_find_package_multi"
-            ] = ("opentracing_mocktracer" + target_suffix)
+            self.cpp_info.components["opentracing_mocktracer"].names["cmake_find_package"] = (
+                "opentracing_mocktracer" + target_suffix
+            )
+            self.cpp_info.components["opentracing_mocktracer"].names["cmake_find_package_multi"] = (
+                "opentracing_mocktracer" + target_suffix
+            )
             self.cpp_info.components["opentracing_mocktracer"].libs = [
                 "opentracing_mocktracer" + lib_suffix
             ]
-            self.cpp_info.components["opentracing_mocktracer"].requires = [
-                "opentracing"
-            ]
+            self.cpp_info.components["opentracing_mocktracer"].requires = ["opentracing"]
             if not self.options.shared:
                 self.cpp_info.components["opentracing_mocktracer"].defines.append(
                     "OPENTRACING_MOCK_TRACER_STATIC"

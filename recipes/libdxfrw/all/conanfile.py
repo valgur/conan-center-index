@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibdxfrwConan(ConanFile):
     name = "libdxfrw"
     description = "C++ library to read/write DXF and read DWG files"
@@ -60,7 +61,12 @@ class LibdxfrwConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

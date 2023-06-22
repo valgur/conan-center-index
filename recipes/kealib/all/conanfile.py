@@ -15,14 +15,16 @@ class KealibConan(ConanFile):
     exports_sources = ["CMakeLists.txt", "patches/**"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -54,7 +56,9 @@ class KealibConan(ConanFile):
             return self._cmake
         self._cmake = CMake(self)
         self._cmake.definitions["HDF5_USE_STATIC_LIBRARIES"] = not self.options["hdf5"].shared
-        self._cmake.definitions["HDF5_PREFER_PARALLEL"] = False # TODO: rely on self.options["hdf5"].parallel when implemented in hdf5 recipe
+        self._cmake.definitions[
+            "HDF5_PREFER_PARALLEL"
+        ] = False  # TODO: rely on self.options["hdf5"].parallel when implemented in hdf5 recipe
         self._cmake.definitions["LIBKEA_WITH_GDAL"] = False
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

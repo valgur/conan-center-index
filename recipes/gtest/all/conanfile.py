@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc_static_runtime, msvc_runtime_flag
 from conan.tools.scm import Version
 import os
@@ -80,7 +88,7 @@ class GTestConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.options.no_main # Only used to expose more targets
+        del self.info.options.no_main  # Only used to expose more targets
 
     def validate(self):
         if self.options.shared and is_msvc_static_runtime(self):
@@ -124,7 +132,9 @@ class GTestConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # No warnings as errors
-        internal_utils = os.path.join(self.source_folder, "googletest", "cmake", "internal_utils.cmake")
+        internal_utils = os.path.join(
+            self.source_folder, "googletest", "cmake", "internal_utils.cmake"
+        )
         replace_in_file(self, internal_utils, "-WX", "")
         if Version(self.version) < "1.12.0":
             replace_in_file(self, internal_utils, "-Werror", "")
@@ -166,8 +176,12 @@ class GTestConan(ConanFile):
 
         # gtest_main
         if not self.options.no_main:
-            self.cpp_info.components["gtest_main"].set_property("cmake_target_name", "GTest::gtest_main")
-            self.cpp_info.components["gtest_main"].set_property("cmake_target_aliases", ["GTest::Main"])
+            self.cpp_info.components["gtest_main"].set_property(
+                "cmake_target_name", "GTest::gtest_main"
+            )
+            self.cpp_info.components["gtest_main"].set_property(
+                "cmake_target_aliases", ["GTest::Main"]
+            )
             self.cpp_info.components["gtest_main"].set_property("pkg_config_name", "gtest_main")
             self.cpp_info.components["gtest_main"].libs = [f"gtest_main{self._postfix}"]
             self.cpp_info.components["gtest_main"].requires = ["libgtest"]
@@ -181,7 +195,9 @@ class GTestConan(ConanFile):
 
             # gmock_main
             if not self.options.no_main:
-                self.cpp_info.components["gmock_main"].set_property("cmake_target_name", "GTest::gmock_main")
+                self.cpp_info.components["gmock_main"].set_property(
+                    "cmake_target_name", "GTest::gmock_main"
+                )
                 self.cpp_info.components["gmock_main"].set_property("pkg_config_name", "gmock_main")
                 self.cpp_info.components["gmock_main"].libs = [f"gmock_main{self._postfix}"]
                 self.cpp_info.components["gmock_main"].requires = ["gmock"]

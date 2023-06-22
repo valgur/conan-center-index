@@ -28,10 +28,6 @@ class FunctionsFrameworkCppConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -67,10 +63,10 @@ class FunctionsFrameworkCppConan(ConanFile):
         return ["program_options"]
 
     def validate(self):
-        miss_boost_required_comp = \
-            any(getattr(self.options["boost"],
-                        "without_{}".format(boost_comp),
-                        True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            for boost_comp in self._required_boost_components
+        )
         if self.options["boost"].header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 "{0} requires non-header-only boost with these components: {1}".format(
@@ -88,7 +84,9 @@ class FunctionsFrameworkCppConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 "{} requires C++17, which your compiler does not support.".format(self.name)
             )
@@ -97,9 +95,7 @@ class FunctionsFrameworkCppConan(ConanFile):
             raise ConanInvalidConfiguration("Fails to build for Visual Studio as a DLL")
 
         if hasattr(self, "settings_build") and tools.cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Recipe not prepared for cross-building (yet)"
-            )
+            raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
     def source(self):
         tools.get(
@@ -150,5 +146,9 @@ class FunctionsFrameworkCppConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package"] = "functions_framework_cpp"
         self.cpp_info.filenames["cmake_find_package_multi"] = "functions_framework_cpp"
         self.cpp_info.names["pkg_config"] = "functions_framework_cpp"
-        self.cpp_info.components["framework"].set_property("cmake_target_name", "functions-framework-cpp::framework")
-        self.cpp_info.components["framework"].set_property("pkg_config_name", "functions_framework_cpp")
+        self.cpp_info.components["framework"].set_property(
+            "cmake_target_name", "functions-framework-cpp::framework"
+        )
+        self.cpp_info.components["framework"].set_property(
+            "pkg_config_name", "functions_framework_cpp"
+        )

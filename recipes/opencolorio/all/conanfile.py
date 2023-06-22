@@ -29,10 +29,6 @@ class OpenColorIOConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -68,8 +64,11 @@ class OpenColorIOConan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -112,7 +111,10 @@ class OpenColorIOConan(ConanFile):
             tools.patch(**patch)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath"):
-            tools.remove_files_by_mask(os.path.join(self._source_subfolder, "share", "cmake", "modules"), "Find"+module+".cmake")
+            tools.remove_files_by_mask(
+                os.path.join(self._source_subfolder, "share", "cmake", "modules"),
+                "Find" + module + ".cmake",
+            )
 
     def build(self):
         self._patch_sources()
@@ -125,8 +127,7 @@ class OpenColorIOConan(ConanFile):
         cm.install()
 
         if not self.options.shared:
-            self.copy("*", src=os.path.join(self.package_folder,
-                      "lib", "static"), dst="lib")
+            self.copy("*", src=os.path.join(self.package_folder, "lib", "static"), dst="lib")
             tools.rmdir(os.path.join(self.package_folder, "lib", "static"))
 
         tools.rmdir(os.path.join(self.package_folder, "cmake"))

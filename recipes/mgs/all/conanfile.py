@@ -53,8 +53,18 @@ class MgsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "mgs")
@@ -64,29 +74,74 @@ class MgsConan(ConanFile):
         self.cpp_info.components["mgs-meta"].set_property("cmake_target_name", "mgs::meta")
         self.cpp_info.components["mgs-meta"].requires = ["mgs-config"]
 
-        self.cpp_info.components["mgs-exceptions"].set_property("cmake_target_name", "mgs::exceptions")
+        self.cpp_info.components["mgs-exceptions"].set_property(
+            "cmake_target_name", "mgs::exceptions"
+        )
         self.cpp_info.components["mgs-exceptions"].requires = ["mgs-config"]
 
         self.cpp_info.components["mgs-codecs"].set_property("cmake_target_name", "mgs::codecs")
-        self.cpp_info.components["mgs-codecs"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions"]
+        self.cpp_info.components["mgs-codecs"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+        ]
 
         self.cpp_info.components["mgs-base_n"].set_property("cmake_target_name", "mgs::base_n")
-        self.cpp_info.components["mgs-base_n"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs"]
+        self.cpp_info.components["mgs-base_n"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+        ]
 
         self.cpp_info.components["mgs-base16"].set_property("cmake_target_name", "mgs::base16")
-        self.cpp_info.components["mgs-base16"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
+        self.cpp_info.components["mgs-base16"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+            "mgs-base_n",
+        ]
 
         self.cpp_info.components["mgs-base32"].set_property("cmake_target_name", "mgs::base32")
-        self.cpp_info.components["mgs-base32"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
+        self.cpp_info.components["mgs-base32"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+            "mgs-base_n",
+        ]
 
         self.cpp_info.components["mgs-base64"].set_property("cmake_target_name", "mgs::base64")
-        self.cpp_info.components["mgs-base64"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
+        self.cpp_info.components["mgs-base64"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+            "mgs-base_n",
+        ]
 
-        self.cpp_info.components["mgs-base64url"].set_property("cmake_target_name", "mgs::base64url")
-        self.cpp_info.components["mgs-base64url"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
+        self.cpp_info.components["mgs-base64url"].set_property(
+            "cmake_target_name", "mgs::base64url"
+        )
+        self.cpp_info.components["mgs-base64url"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+            "mgs-base_n",
+        ]
 
-        self.cpp_info.components["mgs-base32hex"].set_property("cmake_target_name", "mgs::base32hex")
-        self.cpp_info.components["mgs-base32hex"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
+        self.cpp_info.components["mgs-base32hex"].set_property(
+            "cmake_target_name", "mgs::base32hex"
+        )
+        self.cpp_info.components["mgs-base32hex"].requires = [
+            "mgs-config",
+            "mgs-meta",
+            "mgs-exceptions",
+            "mgs-codecs",
+            "mgs-base_n",
+        ]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "mgs"

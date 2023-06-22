@@ -3,8 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file,
-    rm, rmdir, save
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
 )
 from conan.tools.scm import Version
 import os
@@ -82,9 +88,13 @@ class LibmediainfoConan(ConanFile):
                 postfix += "d"
             elif is_apple_os(self):
                 postfix += "_debug"
-        mediainfodll_h = os.path.join(self.source_folder, "Source", "MediaInfoDLL", "MediaInfoDLL.h")
+        mediainfodll_h = os.path.join(
+            self.source_folder, "Source", "MediaInfoDLL", "MediaInfoDLL.h"
+        )
         replace_in_file(self, mediainfodll_h, "MediaInfo.dll", f"MediaInfo{postfix}.dll")
-        replace_in_file(self, mediainfodll_h, "libmediainfo.0.dylib", f"libmediainfo{postfix}.0.dylib")
+        replace_in_file(
+            self, mediainfodll_h, "libmediainfo.0.dylib", f"libmediainfo{postfix}.0.dylib"
+        )
 
     def build(self):
         self._patch_sources()
@@ -93,8 +103,18 @@ class LibmediainfoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "License.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "License.html",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -105,18 +125,20 @@ class LibmediainfoConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"mediainfo": "MediaInfoLib::MediaInfoLib"}
+            {"mediainfo": "MediaInfoLib::MediaInfoLib"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

@@ -58,9 +58,18 @@ class SigslotConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "signal.hpp", src=os.path.join(self.source_folder, "include", "sigslot"),
-                                 dst=os.path.join(self.package_folder, "include", "sigslot"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "signal.hpp",
+            src=os.path.join(self.source_folder, "include", "sigslot"),
+            dst=os.path.join(self.package_folder, "include", "sigslot"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PalSigslot")
@@ -72,7 +81,7 @@ class SigslotConan(ConanFile):
             self.cpp_info.components["_sigslot"].system_libs.append("pthread")
         elif self.settings.os == "Windows":
             if is_msvc(self) or self.settings.compiler == "clang":
-                self.cpp_info.components["_sigslot"].exelinkflags.append('-OPT:NOICF')
+                self.cpp_info.components["_sigslot"].exelinkflags.append("-OPT:NOICF")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "PalSigslot"

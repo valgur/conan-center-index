@@ -62,13 +62,20 @@ class PackageConan(ConanFile):
             env.define("RANLIB", ":")
             env.define("STRIP", ":")
             # INFO: It's not able to find lib math on Windows without passing its path.
-            env.define("MATHLIB", os.path.join(self.dependencies.build["msys2"].package_folder, "usr", "lib", "libm.a"))
+            env.define(
+                "MATHLIB",
+                os.path.join(
+                    self.dependencies.build["msys2"].package_folder, "usr", "lib", "libm.a"
+                ),
+            )
             env.vars(self).save_script("conanbuild_msvc")
 
     def _patch_sources(self):
         if is_msvc(self):
             # INFO: MAWK_RAND_MAX is not defined when building on Windows. Use system RAND_MAX instead.
-            replace_in_file(self, os.path.join(self.source_folder, 'bi_funct.c'), 'MAWK_RAND_MAX', 'RAND_MAX')
+            replace_in_file(
+                self, os.path.join(self.source_folder, "bi_funct.c"), "MAWK_RAND_MAX", "RAND_MAX"
+            )
 
     def build(self):
         self._patch_sources()
@@ -77,7 +84,12 @@ class PackageConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -68,12 +75,18 @@ class ZintConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} needs qt:gui=True")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib").replace("\\", "/")
+        tc.variables["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib").replace(
+            "\\", "/"
+        )
         tc.variables["ZINT_USE_QT"] = self.options.with_qt
         if self.options.with_qt:
             tc.variables["QT_VERSION_MAJOR"] = Version(self.dependencies["qt"].ref.version).major
@@ -88,7 +101,7 @@ class ZintConan(ConanFile):
         replace_in_file(
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_OSX_SYSROOT \"/\")",
+            'set(CMAKE_OSX_SYSROOT "/")',
             "",
         )
 
@@ -99,7 +112,12 @@ class ZintConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -108,7 +126,9 @@ class ZintConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Zint")
 
         self.cpp_info.components["libzint"].set_property("cmake_target_name", "Zint::Zint")
-        self.cpp_info.components["libzint"].libs = ["zint" if self.options.shared else "zint-static"]
+        self.cpp_info.components["libzint"].libs = [
+            "zint" if self.options.shared else "zint-static"
+        ]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["libzint"].defines = ["ZINT_DLL"]
         if self.options.with_libpng:
@@ -117,15 +137,19 @@ class ZintConan(ConanFile):
         if self.options.with_qt:
             self.cpp_info.components["libqzint"].set_property("cmake_target_name", "Zint::QZint")
             self.cpp_info.components["libqzint"].libs = ["QZint"]
-            self.cpp_info.components["libqzint"].requires.extend([
-                "libzint",
-                "qt::qtGui",
-            ])
+            self.cpp_info.components["libqzint"].requires.extend(
+                [
+                    "libzint",
+                    "qt::qtGui",
+                ]
+            )
             if self.settings.os == "Windows" and self.options.shared:
                 self.cpp_info.components["libqzint"].defines = ["QZINT_DLL"]
 
         # Trick to only define Zint::QZint and Zint::Zint in CMakeDeps generator
-        self.cpp_info.set_property("cmake_target_name", "Zint::QZint" if self.options.with_qt else "Zint::Zint")
+        self.cpp_info.set_property(
+            "cmake_target_name", "Zint::QZint" if self.options.with_qt else "Zint::Zint"
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Zint"

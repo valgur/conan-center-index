@@ -8,12 +8,15 @@ class TestPackageConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     test_type = "explicit"
+
     def requirements(self):
-         self.requires(self.tested_reference_str)
+        self.requires(self.tested_reference_str)
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["IGN_CMAKE_VER"] = tools.Version(self.deps_cpp_info["ignition-cmake"].version).major
+        cmake.definitions["IGN_CMAKE_VER"] = tools.Version(
+            self.deps_cpp_info["ignition-cmake"].version
+        ).major
         cmake.configure()
         cmake.build()
 

@@ -6,23 +6,28 @@ import os
 
 required_conan_version = ">=1.54"
 
+
 class ImplotConan(ConanFile):
     name = "implot"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/epezent/implot"
     description = "Advanced 2D Plotting for Dear ImGui"
-    topics = ("imgui", "plot", "graphics", )
+    topics = (
+        "imgui",
+        "plot",
+        "graphics",
+    )
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
 
     options = {
         "shared": [True, False],
-         "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -30,7 +35,7 @@ class ImplotConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            del self.options.fPIC # rm_safe not needed
+            del self.options.fPIC  # rm_safe not needed
 
     def configure(self):
         if self.options.shared:
@@ -64,7 +69,12 @@ class ImplotConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

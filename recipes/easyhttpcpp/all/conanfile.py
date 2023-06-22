@@ -60,7 +60,12 @@ class EasyhttpcppConan(ConanFile):
         return comps
 
     def validate(self):
-        if any([not self.dependencies["poco"].options.get_safe(comp, False) for comp in self._required_poco_components]):
+        if any(
+            [
+                not self.dependencies["poco"].options.get_safe(comp, False)
+                for comp in self._required_poco_components
+            ]
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
             )
@@ -89,7 +94,12 @@ class EasyhttpcppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -107,8 +117,10 @@ class EasyhttpcppConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["easyhttp"].defines.append("EASYHTTPCPP_DLL")
         self.cpp_info.components["easyhttp"].requires = [
-            "poco::poco_foundation", "poco::poco_data",
-            "poco::poco_datasqlite", "poco::poco_net",
+            "poco::poco_foundation",
+            "poco::poco_data",
+            "poco::poco_datasqlite",
+            "poco::poco_net",
         ]
         if self.settings.os == "Windows":
             self.cpp_info.components["easyhttp"].requires.append("poco::poco_netsslwin")
@@ -122,4 +134,6 @@ class EasyhttpcppConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "easyhttpcpp"
         self.cpp_info.components["easyhttp"].names["cmake_find_package"] = "easyhttp"
         self.cpp_info.components["easyhttp"].names["cmake_find_package_multi"] = "easyhttp"
-        self.cpp_info.components["easyhttp"].set_property("cmake_target_name", "easyhttpcpp::easyhttp")
+        self.cpp_info.components["easyhttp"].set_property(
+            "cmake_target_name", "easyhttpcpp::easyhttp"
+        )

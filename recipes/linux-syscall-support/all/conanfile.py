@@ -41,8 +41,15 @@ class LinuxSyscallSupportConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        copy(self, "linux_syscall_support.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
+        copy(
+            self,
+            "linux_syscall_support.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

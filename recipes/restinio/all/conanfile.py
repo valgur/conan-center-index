@@ -16,7 +16,9 @@ class RestinioConan(ConanFile):
     license = "BSD-3-Clause"
     homepage = "https://github.com/Stiffstream/restinio"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "RESTinio is a header-only C++14 library that gives you an embedded HTTP/Websocket server."
+    description = (
+        "RESTinio is a header-only C++14 library that gives you an embedded HTTP/Websocket server."
+    )
     topics = ("http-server", "websockets", "rest", "tls-support")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -108,7 +110,12 @@ class RestinioConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "dev", "restinio"))
         cmake.install()
@@ -119,7 +126,13 @@ class RestinioConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "restinio")
         self.cpp_info.set_property("cmake_target_name", "restinio::restinio")
-        self.cpp_info.defines.extend(["RESTINIO_EXTERNAL_EXPECTED_LITE", "RESTINIO_EXTERNAL_OPTIONAL_LITE",
-                                      "RESTINIO_EXTERNAL_STRING_VIEW_LITE", "RESTINIO_EXTERNAL_VARIANT_LITE"])
+        self.cpp_info.defines.extend(
+            [
+                "RESTINIO_EXTERNAL_EXPECTED_LITE",
+                "RESTINIO_EXTERNAL_OPTIONAL_LITE",
+                "RESTINIO_EXTERNAL_STRING_VIEW_LITE",
+                "RESTINIO_EXTERNAL_VARIANT_LITE",
+            ]
+        )
         if self.options.asio == "boost":
             self.cpp_info.defines.append("RESTINIO_USE_BOOST_ASIO")

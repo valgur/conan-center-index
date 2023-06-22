@@ -11,16 +11,19 @@ class PciUtilsConan(ConanFile):
     homepage = "https://github.com/pciutils/pciutils"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_zlib": [True, False], "with_udev": [True, False]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_zlib": [True, False],
+        "with_udev": [True, False],
+    }
     default_options = {"shared": False, "fPIC": True, "with_zlib": True, "with_udev": False}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("Platform {} is currently not supported by this recipe".format(self.settings.os))
+            raise ConanInvalidConfiguration(
+                "Platform {} is currently not supported by this recipe".format(self.settings.os)
+            )
 
         if self.options.shared:
             del self.options.fPIC
@@ -43,14 +46,19 @@ class PciUtilsConan(ConanFile):
     def _make(self, targets):
         yes_no = lambda v: "yes" if v else "no"
         autotools = AutoToolsBuildEnvironment(self)
-        autotools.make(args=["SHARED={}".format(yes_no(self.options.shared)),
-                             "ZLIB={}".format(yes_no(self.options.with_zlib)),
-                             "HWDB={}".format(yes_no(self.options.with_udev)),
-                             "PREFIX={}".format(self.package_folder),
-                             "OPT={}".format("{} {}".format(
-                                 autotools.vars["CPPFLAGS"], autotools.vars["CFLAGS"])),
-                             "DNS=no"],
-                       target=" ".join(targets))
+        autotools.make(
+            args=[
+                "SHARED={}".format(yes_no(self.options.shared)),
+                "ZLIB={}".format(yes_no(self.options.with_zlib)),
+                "HWDB={}".format(yes_no(self.options.with_udev)),
+                "PREFIX={}".format(self.package_folder),
+                "OPT={}".format(
+                    "{} {}".format(autotools.vars["CPPFLAGS"], autotools.vars["CFLAGS"])
+                ),
+                "DNS=no",
+            ],
+            target=" ".join(targets),
+        )
 
     def build(self):
         with tools.chdir(self._source_subfolder):
@@ -64,8 +72,10 @@ class PciUtilsConan(ConanFile):
         self.copy("*.h", src=self._source_subfolder, dst="include", keep_path=True)
 
         if self.options.shared:
-            tools.rename(src=os.path.join(self._source_subfolder, "lib", "libpci.so.3.7.0"),
-                dst=os.path.join(self.package_folder, "lib", "libpci.so"))
+            tools.rename(
+                src=os.path.join(self._source_subfolder, "lib", "libpci.so.3.7.0"),
+                dst=os.path.join(self.package_folder, "lib", "libpci.so"),
+            )
 
         tools.rmdir(os.path.join(self.package_folder, "sbin"))
         tools.rmdir(os.path.join(self.package_folder, "share"))

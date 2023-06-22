@@ -1,5 +1,12 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, collect_libs
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    collect_libs,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
@@ -7,10 +14,11 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class Log4cplusConan(ConanFile):
     name = "log4cplus"
     description = "simple to use C++ logging API, modelled after the Java log4j API"
-    license = ("BSD-2-Clause, Apache-2.0")
+    license = "BSD-2-Clause, Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/log4cplus/log4cplus"
     topics = ("logging", "log", "logging-library")
@@ -92,7 +100,12 @@ class Log4cplusConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

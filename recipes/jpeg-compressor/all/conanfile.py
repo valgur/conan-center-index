@@ -46,11 +46,17 @@ class JpegCompressorConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if self.info.options.shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Visual Studio build for shared library with MT runtime is not supported"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,7 +78,11 @@ class JpegCompressorConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENCE.txt"), self._extract_license())
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENCE.txt"),
+            self._extract_license(),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -3,6 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 from conans.tools import Version
 import os
 
+
 class TwitchTvLibSoundtrackUtilConan(ConanFile):
     name = "twitchtv-libsoundtrackutil"
     license = "MIT"
@@ -11,19 +12,20 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     description = "Twitch Soundtrack utility library"
     topics = ("twitch", "soundtrack")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False]}
-    default_options = {"fPIC": True}
+    options = {
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+    }
     generators = "cmake"
     exports = ["CMakeLists.txt", "patches/**"]
-    requires = ("twitch-native-ipc/3.1.1",
-                "ms-gsl/2.0.0",
-                )
+    requires = (
+        "twitch-native-ipc/3.1.1",
+        "ms-gsl/2.0.0",
+    )
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -66,7 +68,10 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self._cmake.definitions["BUILD_TESTING"] = False
 
         if self.settings.compiler == "Visual Studio":
-            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
+            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in (
+                "MD",
+                "MDd",
+            )
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

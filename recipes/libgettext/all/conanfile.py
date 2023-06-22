@@ -4,13 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -42,8 +36,11 @@ class GetTextConan(ConanFile):
 
     @property
     def _is_clang_cl(self):
-        return self.settings.os == "Windows" and self.settings.compiler == "clang" and \
-               self.settings.compiler.get_safe("runtime")
+        return (
+            self.settings.os == "Windows"
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.get_safe("runtime")
+        )
 
     @property
     def _gettext_folder(self):
@@ -56,7 +53,9 @@ class GetTextConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
-        self.options.threads = {"Solaris": "solaris", "Windows": "windows"}.get(str(self.settings.os), "posix")
+        self.options.threads = {"Solaris": "solaris", "Windows": "windows"}.get(
+            str(self.settings.os), "posix"
+        )
 
     def configure(self):
         if self.options.shared:
@@ -103,7 +102,9 @@ class GetTextConan(ConanFile):
             "--disable-csharp",
             "--disable-libasprintf",
             "--disable-curses",
-            "--disable-threads" if self.options.threads == "disabled" else ("--enable-threads=" + str(self.options.threads)),
+            "--disable-threads"
+            if self.options.threads == "disabled"
+            else ("--enable-threads=" + str(self.options.threads)),
             f"--with-libiconv-prefix={unix_path(self, self.dependencies['libiconv'].package_folder)}",
         ]
         if is_msvc(self) or self._is_clang_cl:
@@ -116,12 +117,18 @@ class GetTextConan(ConanFile):
             if target is not None:
                 tc.configure_args += [f"--host={target}", f"--build={target}"]
 
-            if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler.version) >= "12") or \
-               (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler.version) >= "180"):
+            if (
+                str(self.settings.compiler) == "Visual Studio"
+                and Version(self.settings.compiler.version) >= "12"
+            ) or (
+                str(self.settings.compiler) == "msvc"
+                and Version(self.settings.compiler.version) >= "180"
+            ):
                 tc.extra_cflags += ["-FS"]
         tc.make_args += ["-C", "intl"]
         env = tc.environment()
         if is_msvc(self) or self._is_clang_cl:
+
             def programs():
                 rc = None
                 if self.settings.arch == "x86_64":
@@ -129,11 +136,18 @@ class GetTextConan(ConanFile):
                 elif self.settings.arch == "x86":
                     rc = "windres --target=pe-i386"
                 if self._is_clang_cl:
-                    return os.environ.get("CC", "clang-cl"), os.environ.get("AR", "llvm-lib"), os.environ.get("LD", "lld-link"), rc
+                    return (
+                        os.environ.get("CC", "clang-cl"),
+                        os.environ.get("AR", "llvm-lib"),
+                        os.environ.get("LD", "lld-link"),
+                        rc,
+                    )
                 if is_msvc(self):
                     return "cl -nologo", "lib", "link", rc
 
-            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))
+            compile_wrapper = unix_path(
+                self, self.conf.get("user.automake:compile-wrapper", check_type=str)
+            )
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             cc, ar, link, rc = programs()
             env.define("CC", f"{compile_wrapper} {cc}")
@@ -169,7 +183,10 @@ class GetTextConan(ConanFile):
                 cflags.extend(deps_cpp_info.cflags)
 
             env = Environment()
-            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
+            env.append(
+                "CPPFLAGS",
+                [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines],
+            )
             env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in libs])
             env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
             env.append("CXXFLAGS", cxxflags)
@@ -196,7 +213,11 @@ class GetTextConan(ConanFile):
         copy(self, "*gnuintl*.so*", self.build_folder, dest_lib_dir, keep_path=False)
         copy(self, "*gnuintl*.dylib", self.build_folder, dest_lib_dir, keep_path=False)
         copy(self, "*libgnuintl.h", self.build_folder, dest_include_dir, keep_path=False)
-        rename(self, os.path.join(dest_include_dir, "libgnuintl.h"), os.path.join(dest_include_dir, "libintl.h"))
+        rename(
+            self,
+            os.path.join(dest_include_dir, "libgnuintl.h"),
+            os.path.join(dest_include_dir, "libintl.h"),
+        )
         fix_msvc_libname(self)
 
     def package_info(self):
@@ -210,18 +231,22 @@ class GetTextConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "Intl"
         self.cpp_info.names["cmake_find_package_multi"] = "Intl"
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     from conan.tools.files import rename
     import glob
+
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
+                rename(
+                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
+                )

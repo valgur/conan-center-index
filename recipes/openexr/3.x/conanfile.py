@@ -10,8 +10,10 @@ required_conan_version = ">=1.53.0"
 
 class OpenEXRConan(ConanFile):
     name = "openexr"
-    description = "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & " \
-                  "Magic for use in computer imaging applications."
+    description = (
+        "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & "
+        "Magic for use in computer imaging applications."
+    )
     topics = ("openexr", "hdr", "image", "picture")
     license = "BSD-3-Clause"
     homepage = "https://github.com/AcademySoftwareFoundation/openexr"
@@ -69,7 +71,12 @@ class OpenEXRConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -123,7 +130,8 @@ class OpenEXRConan(ConanFile):
         IlmThread = self._add_component("IlmThread")
         IlmThread.libs = [f"IlmThread{lib_suffix}"]
         IlmThread.requires = [
-            self._conan_comp("IlmThreadConfig"), self._conan_comp("Iex"),
+            self._conan_comp("IlmThreadConfig"),
+            self._conan_comp("Iex"),
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             IlmThread.system_libs = ["pthread"]
@@ -137,8 +145,10 @@ class OpenEXRConan(ConanFile):
         OpenEXR = self._add_component("OpenEXR")
         OpenEXR.libs = [f"OpenEXR{lib_suffix}"]
         OpenEXR.requires = [
-            self._conan_comp("OpenEXRCore"), self._conan_comp("IlmThread"),
-            self._conan_comp("Iex"), "imath::imath",
+            self._conan_comp("OpenEXRCore"),
+            self._conan_comp("IlmThread"),
+            self._conan_comp("Iex"),
+            "imath::imath",
         ]
 
         # OpenEXR::OpenEXRUtil

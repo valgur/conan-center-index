@@ -20,10 +20,6 @@ class SasscConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
@@ -33,7 +29,9 @@ class SasscConan(ConanFile):
 
     def validate(self):
         if not is_msvc(self) and self.info.settings.os not in ["Linux", "FreeBSD", "Macos"]:
-            raise ConanInvalidConfiguration("sassc supports only Linux, FreeBSD, Macos and Windows Visual Studio at this time, contributions are welcomed")
+            raise ConanInvalidConfiguration(
+                "sassc supports only Linux, FreeBSD, Macos and Windows Visual Studio at this time, contributions are welcomed"
+            )
 
     def requirements(self):
         self.requires("libsass/3.6.5")
@@ -43,14 +41,20 @@ class SasscConan(ConanFile):
             self.tool_requires("libtool/2.4.7")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
-        replace_in_file(self,
+        replace_in_file(
+            self,
             os.path.join(self.build_folder, self._source_subfolder, "win", "sassc.vcxproj"),
             "$(LIBSASS_DIR)\\win\\libsass.targets",
-            os.path.join(self.build_folder, "conanbuildinfo.props"))
+            os.path.join(self.build_folder, "conanbuildinfo.props"),
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -61,10 +65,7 @@ class SasscConan(ConanFile):
 
     def _build_msbuild(self):
         msbuild = MSBuild(self)
-        platforms = {
-            "x86": "Win32",
-            "x86_64": "Win64"
-        }
+        platforms = {"x86": "Win32", "x86_64": "Win64"}
         msbuild.build("win/sassc.sln", platforms=platforms)
 
     def build(self):
@@ -81,7 +82,12 @@ class SasscConan(ConanFile):
     def package(self):
         with chdir(self, self._source_subfolder):
             if is_msvc(self):
-                self.copy("*.exe", dst="bin", src=os.path.join(self._source_subfolder, "bin"), keep_path=False)
+                self.copy(
+                    "*.exe",
+                    dst="bin",
+                    src=os.path.join(self._source_subfolder, "bin"),
+                    keep_path=False,
+                )
             else:
                 autotools = self._configure_autotools()
                 autotools.install()

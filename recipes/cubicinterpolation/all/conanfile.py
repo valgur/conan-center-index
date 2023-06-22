@@ -53,8 +53,10 @@ class CubicInterpolationConan(ConanFile):
         return ["filesystem", "math", "serialization"]
 
     def validate(self):
-
-        miss_boost_required_comp = any(getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True)
+            for boost_comp in self._required_boost_components
+        )
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
@@ -64,17 +66,21 @@ class CubicInterpolationConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, "14")
 
-        if not check_min_vs(self, 192, raise_invalid=False):    
-            raise ConanInvalidConfiguration(f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome")
+        if not check_min_vs(self, 192, raise_invalid=False):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome"
+            )
 
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} shared is not supported with Visual Studio"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = CMakeToolchain(self)  
+        tc = CMakeToolchain(self)
         tc.variables["BUILD_EXAMPLE"] = False
         tc.variables["BUILD_DOCUMENTATION"] = False
         tc.generate()
@@ -90,7 +96,12 @@ class CubicInterpolationConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -99,7 +110,13 @@ class CubicInterpolationConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "CubicInterpolation")
         self.cpp_info.set_property("cmake_target_name", "CubicInterpolation::CubicInterpolation")
         self.cpp_info.libs = ["CubicInterpolation"]
-        self.cpp_info.requires = ["boost::headers", "boost::filesystem", "boost::math", "boost::serialization", "eigen::eigen"]
+        self.cpp_info.requires = [
+            "boost::headers",
+            "boost::filesystem",
+            "boost::math",
+            "boost::serialization",
+            "eigen::eigen",
+        ]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CubicInterpolation"

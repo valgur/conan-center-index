@@ -61,10 +61,6 @@ class DCMTKConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -104,14 +100,22 @@ class DCMTKConan(ConanFile):
             self.requires("tcp-wrappers/7.6")
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self) and \
-           self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if (
+            hasattr(self, "settings_build")
+            and cross_building(self)
+            and self.settings.os == "Macos"
+            and self.settings.arch == "armv8"
+        ):
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'
             raise ConanInvalidConfiguration("Cross building to Macos M1 is not supported (yet)")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -159,7 +163,9 @@ class DCMTKConan(ConanFile):
         cmake.definitions["DCMTK_ENABLE_PRIVATE_TAGS"] = self.options.builtin_private_tags
         if self.options.external_dictionary is not None:
             if Version(self.version) < "3.6.7":
-                cmake.definitions["DCMTK_ENABLE_EXTERNAL_DICTIONARY"] = self.options.external_dictionary
+                cmake.definitions[
+                    "DCMTK_ENABLE_EXTERNAL_DICTIONARY"
+                ] = self.options.external_dictionary
             else:
                 cmake.definitions["DCMTK_DEFAULT_DICT"] = self.options.external_dictionary
         if self.options.builtin_dictionary is not None:
@@ -172,7 +178,9 @@ class DCMTKConan(ConanFile):
 
         if is_msvc(self):
             cmake.definitions["DCMTK_ICONV_FLAGS_ANALYZED"] = True
-            cmake.definitions["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = "MD" in msvc_runtime_flag(self)
+            cmake.definitions["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = "MD" in msvc_runtime_flag(
+                self
+            )
 
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
@@ -196,18 +204,22 @@ class DCMTKConan(ConanFile):
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {target: f"DCMTK::{target}" for target in self._dcmtk_components}
+            {target: f"DCMTK::{target}" for target in self._dcmtk_components},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property
@@ -222,7 +234,11 @@ class DCMTKConan(ConanFile):
     def _dcmtk_components(self):
         def charset_conversion():
             if bool(self.options.charset_conversion):
-                return ["libiconv::libiconv"] if self.options.charset_conversion == "libiconv" else ["icu::icu"]
+                return (
+                    ["libiconv::libiconv"]
+                    if self.options.charset_conversion == "libiconv"
+                    else ["icu::icu"]
+                )
             return []
 
         def zlib():
@@ -238,7 +254,9 @@ class DCMTKConan(ConanFile):
             return ["openssl::openssl"] if self.options.with_openssl else []
 
         def tcpwrappers():
-            return ["tcp-wrappers::tcp-wrappers"] if self.options.get_safe("with_tcpwrappers") else []
+            return (
+                ["tcp-wrappers::tcp-wrappers"] if self.options.get_safe("with_tcpwrappers") else []
+            )
 
         def xml2():
             return ["libxml2::libxml2"] if self.options.with_libxml2 else []
@@ -246,32 +264,53 @@ class DCMTKConan(ConanFile):
         charls = "dcmtkcharls" if Version("3.6.6") <= self.version else "charls"
 
         return {
-            "ofstd"   : charset_conversion(),
-            "oflog"   : ["ofstd"],
-            "dcmdata" : ["ofstd", "oflog"] + zlib(),
-            "i2d"     : ["dcmdata"],
+            "ofstd": charset_conversion(),
+            "oflog": ["ofstd"],
+            "dcmdata": ["ofstd", "oflog"] + zlib(),
+            "i2d": ["dcmdata"],
             "dcmimgle": ["ofstd", "oflog", "dcmdata"],
             "dcmimage": ["oflog", "dcmdata", "dcmimgle"] + png() + tiff(),
-            "dcmjpeg" : ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage", "ijg8", "ijg12", "ijg16"],
-            "ijg8"    : [],
-            "ijg12"   : [],
-            "ijg16"   : [],
-            "dcmjpls" : ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage", charls],
-            charls    : ["ofstd", "oflog"],
-            "dcmtls"  : ["ofstd", "dcmdata", "dcmnet"] + openssl(),
-            "dcmnet"  : ["ofstd", "oflog", "dcmdata"] + tcpwrappers(),
-            "dcmsr"   : ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage"] + xml2(),
-            "cmr"     : ["dcmsr"],
-            "dcmdsig" : ["ofstd", "dcmdata"] + openssl(),
-            "dcmwlm"  : ["ofstd", "dcmdata", "dcmnet"],
-            "dcmqrdb" : ["ofstd", "dcmdata", "dcmnet"],
-            "dcmpstat": ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage", "dcmnet", "dcmdsig", "dcmtls", "dcmsr", "dcmqrdb"] + openssl(),
-            "dcmrt"   : ["ofstd", "oflog", "dcmdata", "dcmimgle"],
-            "dcmiod"  : ["dcmdata", "ofstd", "oflog"],
-            "dcmfg"   : ["dcmiod", "dcmdata", "ofstd", "oflog"],
-            "dcmseg"  : ["dcmfg", "dcmiod", "dcmdata", "ofstd", "oflog"],
+            "dcmjpeg": [
+                "ofstd",
+                "oflog",
+                "dcmdata",
+                "dcmimgle",
+                "dcmimage",
+                "ijg8",
+                "ijg12",
+                "ijg16",
+            ],
+            "ijg8": [],
+            "ijg12": [],
+            "ijg16": [],
+            "dcmjpls": ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage", charls],
+            charls: ["ofstd", "oflog"],
+            "dcmtls": ["ofstd", "dcmdata", "dcmnet"] + openssl(),
+            "dcmnet": ["ofstd", "oflog", "dcmdata"] + tcpwrappers(),
+            "dcmsr": ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage"] + xml2(),
+            "cmr": ["dcmsr"],
+            "dcmdsig": ["ofstd", "dcmdata"] + openssl(),
+            "dcmwlm": ["ofstd", "dcmdata", "dcmnet"],
+            "dcmqrdb": ["ofstd", "dcmdata", "dcmnet"],
+            "dcmpstat": [
+                "ofstd",
+                "oflog",
+                "dcmdata",
+                "dcmimgle",
+                "dcmimage",
+                "dcmnet",
+                "dcmdsig",
+                "dcmtls",
+                "dcmsr",
+                "dcmqrdb",
+            ]
+            + openssl(),
+            "dcmrt": ["ofstd", "oflog", "dcmdata", "dcmimgle"],
+            "dcmiod": ["dcmdata", "ofstd", "oflog"],
+            "dcmfg": ["dcmiod", "dcmdata", "ofstd", "oflog"],
+            "dcmseg": ["dcmfg", "dcmiod", "dcmdata", "ofstd", "oflog"],
             "dcmtract": ["dcmiod", "dcmdata", "ofstd", "oflog"],
-            "dcmpmap" : ["dcmfg", "dcmiod", "dcmdata", "ofstd", "oflog"],
+            "dcmpmap": ["dcmfg", "dcmiod", "dcmdata", "ofstd", "oflog"],
         }
 
     @property
@@ -289,20 +328,26 @@ class DCMTKConan(ConanFile):
             for target_lib, requires in components.items():
                 self.cpp_info.components[target_lib].set_property("cmake_target_name", target_lib)
                 self.cpp_info.components[target_lib].libs = [target_lib]
-                self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "dcmtk"))
+                self.cpp_info.components[target_lib].includedirs.append(
+                    os.path.join("include", "dcmtk")
+                )
                 self.cpp_info.components[target_lib].requires = requires
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
                 self.cpp_info.components[target_lib].names["cmake_find_package"] = target_lib
                 self.cpp_info.components[target_lib].names["cmake_find_package_multi"] = target_lib
                 self.cpp_info.components[target_lib].builddirs.append(self._module_subfolder)
-                self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-                self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+                self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [
+                    self._module_file_rel_path
+                ]
+                self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [
+                    self._module_file_rel_path
+                ]
 
             if self.settings.os == "Windows":
-                self.cpp_info.components["ofstd"].system_libs.extend([
-                    "iphlpapi", "ws2_32", "netapi32", "wsock32"
-                ])
+                self.cpp_info.components["ofstd"].system_libs.extend(
+                    ["iphlpapi", "ws2_32", "netapi32", "wsock32"]
+                )
             elif self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["ofstd"].system_libs.append("m")
                 if self.options.with_multithreading:
@@ -313,7 +358,7 @@ class DCMTKConan(ConanFile):
         dcmdictpath = os.path.join(self._dcm_datadictionary_path, "dcmtk", "dicom.dic")
         self.output.info(f"Settings DCMDICTPATH environment variable: {dcmdictpath}")
         self.runenv_info.define_path("DCMDICTPATH", dcmdictpath)
-        self.env_info.DCMDICTPATH = dcmdictpath # remove in conan v2?
+        self.env_info.DCMDICTPATH = dcmdictpath  # remove in conan v2?
 
         if self.options.with_applications:
             self.buildenv_info.define_path("DCMDICTPATH", dcmdictpath)

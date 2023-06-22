@@ -14,15 +14,17 @@ class LibId3TagConan(ConanFile):
     homepage = "https://www.underbit.com/products/mad/"
     license = "GPL-2.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     generator = "pkg_config", "visual_studio"
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,8 +60,11 @@ class LibId3TagConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         if self._is_msvc:
@@ -98,10 +103,14 @@ class LibId3TagConan(ConanFile):
         return getattr(self, "user_info_build", self.deps_user_info)
 
     def _build_autotools(self):
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
-                    os.path.join(self._source_subfolder, "config.sub"))
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
-                    os.path.join(self._source_subfolder, "config.guess"))
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_SUB,
+            os.path.join(self._source_subfolder, "config.sub"),
+        )
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_GUESS,
+            os.path.join(self._source_subfolder, "config.guess"),
+        )
         autotools = self._configure_autotools()
         autotools.make()
 

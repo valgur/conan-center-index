@@ -9,8 +9,10 @@ required_conan_version = ">=1.53.0"
 
 class CpuinfoConan(ConanFile):
     name = "cpuinfo"
-    description = "cpuinfo is a library to detect essential for performance " \
-                  "optimization information about host CPU."
+    description = (
+        "cpuinfo is a library to detect essential for performance "
+        "optimization information about host CPU."
+    )
     license = "BSD-2-Clause"
     topics = ("cpu", "cpuid", "cpu-cache", "cpu-model", "instruction-set", "cpu-topology")
     homepage = "https://github.com/pytorch/cpuinfo"
@@ -65,9 +67,12 @@ class CpuinfoConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "SET_PROPERTY(TARGET clog PROPERTY POSITION_INDEPENDENT_CODE ON)",
-                              "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "SET_PROPERTY(TARGET clog PROPERTY POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -76,7 +81,12 @@ class CpuinfoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

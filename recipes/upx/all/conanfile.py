@@ -15,10 +15,6 @@ class UPXConan(ConanFile):
     no_copy_source = True
     settings = "os", "arch"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def _conan_data_sources(self):
         # Don't surround this with try/catch to catch unknown versions
         conandata_version = self.conan_data["sources"][self.version]
@@ -29,11 +25,12 @@ class UPXConan(ConanFile):
 
     def validate(self):
         if not self._conan_data_sources():
-            raise ConanInvalidConfiguration(f"This recipe has no upx binary for os/arch={self.settings.os}/{self.settings.arch}")
+            raise ConanInvalidConfiguration(
+                f"This recipe has no upx binary for os/arch={self.settings.os}/{self.settings.arch}"
+            )
 
     def build(self):
-        tools.get(**self._conan_data_sources(),
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(**self._conan_data_sources(), destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

@@ -49,7 +49,9 @@ class EntityXConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("entityx shared library does not export all symbols with Visual Studio")
+            raise ConanInvalidConfiguration(
+                "entityx shared library does not export all symbols with Visual Studio"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,7 +72,12 @@ class EntityXConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

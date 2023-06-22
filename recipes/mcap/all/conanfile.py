@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class McapConan(ConanFile):
     name = "mcap"
     description = (
@@ -71,8 +72,18 @@ class McapConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_package_path)
-        copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self._source_package_path, "include"))
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self._source_package_path,
+        )
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self._source_package_path, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

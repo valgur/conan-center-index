@@ -33,8 +33,12 @@ class WaylandProtocolsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -47,9 +51,12 @@ class WaylandProtocolsConan(ConanFile):
     def _patch_sources(self):
         if Version(self.version) <= "1.23":
             # fixed upstream in https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/113
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                            "dep_scanner = dependency('wayland-scanner', native: true)",
-                            "#dep_scanner = dependency('wayland-scanner', native: true)")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "meson.build"),
+                "dep_scanner = dependency('wayland-scanner', native: true)",
+                "#dep_scanner = dependency('wayland-scanner', native: true)",
+            )
 
     def build(self):
         self._patch_sources()
@@ -65,12 +72,13 @@ class WaylandProtocolsConan(ConanFile):
 
     def package_info(self):
         pkgconfig_variables = {
-            'datarootdir': '${prefix}/res',
-            'pkgdatadir': '${datarootdir}/wayland-protocols',
+            "datarootdir": "${prefix}/res",
+            "pkgdatadir": "${datarootdir}/wayland-protocols",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join(f"{key}={value}" for key,value in pkgconfig_variables.items()))
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
+        )
 
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []

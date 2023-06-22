@@ -8,7 +8,9 @@ required_conan_version = ">=1.50.0"
 
 class PlfnanotimerConan(ConanFile):
     name = "plf_nanotimer"
-    description = "A simple C++ 03/11/etc timer class for ~microsecond-precision cross-platform benchmarking."
+    description = (
+        "A simple C++ 03/11/etc timer class for ~microsecond-precision cross-platform benchmarking."
+    )
     license = "Zlib"
     topics = ("plf_nanotimer", "timer", "benchmark")
     homepage = "https://plflib.org/nanotimer.htm"
@@ -23,15 +25,29 @@ class PlfnanotimerConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "plf_nanotimer.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "plf_nanotimer.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -10,8 +10,10 @@ required_conan_version = ">=1.52.0"
 
 class GsoapConan(ConanFile):
     name = "gsoap"
-    description = "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and " \
-                  "REST XML Web services and generic C/C++ XML data bindings."
+    description = (
+        "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and "
+        "REST XML Web services and generic C/C++ XML data bindings."
+    )
     license = ("gSOAP-1.3b", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/gsoap2"
@@ -87,19 +89,33 @@ class GsoapConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "GPLv2_license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "GPLv2_license.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         defines = []
         if self.options.with_openssl:
-            libs = ["gsoapssl++", ]
+            libs = [
+                "gsoapssl++",
+            ]
             defines.append("WITH_OPENSSL")
             defines.append("WITH_GZIP")
         else:
-            libs = ["gsoap++", ]
+            libs = [
+                "gsoap++",
+            ]
         self.cpp_info.libs = libs
 
         if self.options.with_ipv6:

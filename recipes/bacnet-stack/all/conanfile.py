@@ -14,7 +14,7 @@ class BacnetStackConan(ConanFile):
     description = """
         BACnet Protocol Stack library provides a BACnet application layer,
         network layer and media access (MAC) layer communications services."""
-    topics = ("bacnet")
+    topics = "bacnet"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -22,7 +22,7 @@ class BacnetStackConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -42,7 +42,12 @@ class BacnetStackConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -56,7 +61,12 @@ class BacnetStackConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="gpl-2.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "license"))
+        copy(
+            self,
+            pattern="gpl-2.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "license"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

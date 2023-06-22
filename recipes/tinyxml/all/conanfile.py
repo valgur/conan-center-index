@@ -68,7 +68,9 @@ class TinyXmlConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 

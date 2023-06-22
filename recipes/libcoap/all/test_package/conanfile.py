@@ -9,7 +9,7 @@ class TestConan(ConanFile):
     def build(self):
         cmake = CMake(self)
 
-        version = self.deps_cpp_info["libcoap"].version;
+        version = self.deps_cpp_info["libcoap"].version
         if version == "cci.20200424":
             cmake.definitions["LIB_VERSION"] = 2
         else:

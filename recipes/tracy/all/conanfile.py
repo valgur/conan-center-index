@@ -63,8 +63,12 @@ class TracyConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,8 +86,12 @@ class TracyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -94,11 +102,9 @@ class TracyConan(ConanFile):
         # TODO: back to global scope in conan v2
         self.cpp_info.components["tracyclient"].libs = ["TracyClient"]
         if self.options.shared:
-            self.cpp_info.components["tracyclient"].defines.append(
-                "TRACY_IMPORTS")
+            self.cpp_info.components["tracyclient"].defines.append("TRACY_IMPORTS")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["tracyclient"].system_libs.append(
-                "pthread")
+            self.cpp_info.components["tracyclient"].system_libs.append("pthread")
         if self.settings.os == "Linux":
             self.cpp_info.components["tracyclient"].system_libs.append("dl")
 
@@ -115,4 +121,5 @@ class TracyConan(ConanFile):
         self.cpp_info.components["tracyclient"].names["cmake_find_package"] = "TracyClient"
         self.cpp_info.components["tracyclient"].names["cmake_find_package_multi"] = "TracyClient"
         self.cpp_info.components["tracyclient"].set_property(
-            "cmake_target_name", "Tracy::TracyClient")
+            "cmake_target_name", "Tracy::TracyClient"
+        )

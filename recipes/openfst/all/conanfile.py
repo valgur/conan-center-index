@@ -50,10 +50,6 @@ class OpenFstConan(ConanFile):
     }
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -67,8 +63,7 @@ class OpenFstConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(
-                "OpenFst is only supported on linux")
+            raise ConanInvalidConfiguration("OpenFst is only supported on linux")
 
         compilers = {
             "gcc": "8",
@@ -80,20 +75,34 @@ class OpenFstConan(ConanFile):
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
             if tools.Version(self.settings.compiler.version) < minimum_compiler:
-                raise ConanInvalidConfiguration(f"{self.name} requires c++17, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires c++17, which your compiler does not support."
+                )
         else:
-            self.output.warn(f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17.")
+            self.output.warn(
+                f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17."
+            )
 
         # Check stdlib ABI compatibility
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration('Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name)
-        elif self.settings.compiler == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
-            raise ConanInvalidConfiguration('Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
-                                            ' or "compiler.libcxx=libc++"' % self.name)
+            raise ConanInvalidConfiguration(
+                'Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name
+            )
+        elif self.settings.compiler == "clang" and self.settings.compiler.libcxx not in [
+            "libstdc++11",
+            "libc++",
+        ]:
+            raise ConanInvalidConfiguration(
+                'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
+                ' or "compiler.libcxx=libc++"' % self.name
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -142,7 +151,9 @@ class OpenFstConan(ConanFile):
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
         if os.path.exists(lib_subdir):
             for fn in os.listdir(lib_subdir):
-                tools.rename(os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
+                tools.rename(
+                    os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn))
+                )
             tools.rmdir(lib_subdir)
 
         tools.rmdir(os.path.join(self.package_folder, "share"))
@@ -154,8 +165,13 @@ class OpenFstConan(ConanFile):
 
     @property
     def _get_compact_fsts_libs(self):
-        return ["compact{}_{}-fst".format(n, fst)
-                for n, fst in product([8, 16, 64], ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"])]
+        return [
+            "compact{}_{}-fst".format(n, fst)
+            for n, fst in product(
+                [8, 16, 64],
+                ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"],
+            )
+        ]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenFst")

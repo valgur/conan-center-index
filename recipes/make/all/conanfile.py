@@ -38,8 +38,12 @@ class MakeConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         if is_msvc(self):
@@ -65,15 +69,28 @@ class MakeConan(ConanFile):
             self.run(command)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         for make_exe in ("make", "*gnumake.exe"):
-            copy(self, make_exe, src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                make_exe,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 
-        make = os.path.join(self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make")
+        make = os.path.join(
+            self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make"
+        )
         self.conf_info.define("tools.gnu:make_program", make)
 
         # TODO: to remove in conan v2

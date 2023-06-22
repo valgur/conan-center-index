@@ -2,6 +2,7 @@ import os
 import re
 import textwrap
 
+
 class _ProtoLibrary:
     name: str = None
     qname: str = None
@@ -12,27 +13,35 @@ class _ProtoLibrary:
 
     def __init__(self, is_cc) -> None:
         self.srcs = []
-        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
+        self.deps = set(
+            ["protobuf::libprotobuf"]
+        )  # Add to all libraries even if not explicitly set
         self.is_cc = is_cc
         self.is_used = self.is_cc
 
     def validate(self, source_folder, all_deps):
         # Check all files exists
         for it in self.srcs:
-            assert os.path.exists(os.path.join(source_folder, it)), f"{self.qname}:{self.name} - file '{it}' doesn't exist"
+            assert os.path.exists(
+                os.path.join(source_folder, it)
+            ), f"{self.qname}:{self.name} - file '{it}' doesn't exist"
         # Check all deps exists
         for it in self.deps:
             assert it in all_deps, f"{self.qname}:{self.name} - dep '{it}' not found"
 
     def dumps(self):
         import json
-        return json.dumps({
-            "name": self.name,
-            "qname": self.qname,
-            "srcs": self.srcs,
-            "deps": list(self.deps),
-            "is_cc": self.is_cc,
-        }, indent=4)
+
+        return json.dumps(
+            {
+                "name": self.name,
+                "qname": self.qname,
+                "srcs": self.srcs,
+                "deps": list(self.deps),
+                "is_cc": self.is_cc,
+            },
+            indent=4,
+        )
 
     @property
     def cmake_target(self):
@@ -46,9 +55,9 @@ class _ProtoLibrary:
         prefix = "google_"
         suffix = "_proto"
         if cmake_target.startswith(prefix):
-            short_name = short_name[len(prefix):]
+            short_name = short_name[len(prefix) :]
         if short_name.endswith(suffix):
-            short_name = short_name[:-len(suffix)]
+            short_name = short_name[: -len(suffix)]
         return short_name
 
     @property
@@ -57,6 +66,7 @@ class _ProtoLibrary:
             if item.startswith("//"):
                 return item[2:].replace("/", "_").replace(":", "_")
             return item
+
         return [to_cmake_target(it) for it in self.deps]
 
     @property
@@ -67,14 +77,17 @@ class _ProtoLibrary:
     def cmake_content(self):
         cmake_target_short = self.shorten_cmake_target(self.cmake_target)
         content = f"\n\n# {self.cmake_target} ({cmake_target_short})\n"
-        content += "\n".join([f"#{it}" for it in self.dumps().split('\n')])
+        content += "\n".join([f"#{it}" for it in self.dumps().split("\n")])
         content += "\n"
         if not self.srcs:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 add_library({cmake_target_short} INTERFACE)
-            """)
+            """
+            )
         else:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 set({cmake_target_short}_PROTOS {" ".join(["${CMAKE_SOURCE_DIR}/"+it for it in self.srcs])})
                 add_library({cmake_target_short} ${{{cmake_target_short}_PROTOS}})
                 target_include_directories({cmake_target_short} PUBLIC ${{CMAKE_BINARY_DIR}})
@@ -86,42 +99,50 @@ class _ProtoLibrary:
                                 PROTOS ${{{cmake_target_short}_PROTOS}}
                                 IMPORT_DIRS ${{CMAKE_SOURCE_DIR}}
                                 )
-            """)
+            """
+            )
 
         if self.deps:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 target_link_libraries({cmake_target_short} {"PUBLIC" if self.srcs else "INTERFACE"} {" ".join(self.cmake_deps_short)})
-            """)
+            """
+            )
 
         return content
+
 
 def parse_proto_libraries(filename, source_folder, error):
     # Generate the libraries to build dynamically
     re_name = re.compile(r'name = "(.*)"')
     re_srcs_oneline = re.compile(r'srcs = \["(.*)"\],')
     re_deps_oneline = re.compile(r'deps = \["(.*)"\],')
-    re_add_varname = re.compile(r'] \+ (.*),')
+    re_add_varname = re.compile(r"] \+ (.*),")
 
     proto_libraries = []
 
     basedir = os.path.dirname(filename)
-    current_folder_str = os.path.relpath(basedir, source_folder).replace('\\', '/')  # We need forward slashes because of Windows
+    current_folder_str = os.path.relpath(basedir, source_folder).replace(
+        "\\", "/"
+    )  # We need forward slashes because of Windows
     proto_library = None
 
     def parsing_sources(line):
-        proto_path = os.path.relpath(os.path.join(basedir, line.strip(",").strip("\"")), source_folder).replace('\\', '/')
+        proto_path = os.path.relpath(
+            os.path.join(basedir, line.strip(",").strip('"')), source_folder
+        ).replace("\\", "/")
         proto_library.srcs.append(proto_path)
 
     def parsing_deps(line):
         # Remove any comments
-        line = line.split('#', 1)[0].strip()
-        line = line.strip(",").strip("\"")
-        if line == '':
+        line = line.split("#", 1)[0].strip()
+        line = line.strip(",").strip('"')
+        if line == "":
             pass
         elif line.startswith("@com_google_protobuf//:"):
             proto_library.deps.add("protobuf::libprotobuf")
         elif line.startswith("@com_google_googleapis//"):
-            proto_library.deps.add(line[len("@com_google_googleapis"):])
+            proto_library.deps.add(line[len("@com_google_googleapis") :])
         elif line.startswith(":"):
             proto_library.deps.add(f"//{current_folder_str}{line}")
         elif line.startswith("//google/"):
@@ -132,10 +153,10 @@ def parse_proto_libraries(filename, source_folder, error):
             error(f"Unrecognized dep: {line} -- {os.path.relpath(filename, source_folder)}")
 
     def collecting_items(collection, line):
-        line = line.strip(",").strip("\"")
+        line = line.strip(",").strip('"')
         collection.append(line)
 
-    with open(filename, 'r', encoding='utf-8') as f:
+    with open(filename, "r", encoding="utf-8") as f:
         action = None
         parsing_variable = None
         variables = {}
@@ -148,9 +169,11 @@ def parse_proto_libraries(filename, source_folder, error):
             elif line == "cc_proto_library(":
                 assert proto_library == None
                 proto_library = _ProtoLibrary(is_cc=True)
-            elif line == '_PROTO_SUBPACKAGE_DEPS = [':
+            elif line == "_PROTO_SUBPACKAGE_DEPS = [":
                 variables["_PROTO_SUBPACKAGE_DEPS"] = []
-                parsing_variable = lambda u: collecting_items(variables["_PROTO_SUBPACKAGE_DEPS"], u)
+                parsing_variable = lambda u: collecting_items(
+                    variables["_PROTO_SUBPACKAGE_DEPS"], u
+                )
             elif parsing_variable != None:
                 if line == "]":
                     parsing_variable = None

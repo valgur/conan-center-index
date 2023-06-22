@@ -5,6 +5,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.43.0"
 
+
 class LibnfnetlinkConan(ConanFile):
     name = "libnfnetlink"
     license = "GPL-2.0-or-later"
@@ -13,16 +14,21 @@ class LibnfnetlinkConan(ConanFile):
     description = "low-level library for netfilter related kernel/userspace communication"
     topics = ("libnfnetlink", "netlink", "netfilter")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -61,7 +67,7 @@ class LibnfnetlinkConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["nfnetlink"]
-        self.cpp_info.set_property("pkg_config_name",  "libnfnetlink")
+        self.cpp_info.set_property("pkg_config_name", "libnfnetlink")
 
         # TODO: to remove in conan v2 once pkg_config generator is removed
         self.cpp_info.names["pkg_config"] = "libnfnetlink"

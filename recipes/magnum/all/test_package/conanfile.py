@@ -11,12 +11,14 @@ class TestPackageConan(ConanFile):
     def _executables(self):
         available = []
         #            (executable, option name)
-        all_execs = (("gl-info", "gl_info"),
-                     ("al-info", "al_info"),
-                     ("distancefieldconverter", "distance_field_converter"),
-                     ("fontconverter", "font_converter"),
-                     ("imageconverter", "image_converter"),
-                     ("sceneconverter", "scene_converter"))
+        all_execs = (
+            ("gl-info", "gl_info"),
+            ("al-info", "al_info"),
+            ("distancefieldconverter", "distance_field_converter"),
+            ("fontconverter", "font_converter"),
+            ("imageconverter", "image_converter"),
+            ("sceneconverter", "scene_converter"),
+        )
         for executable, opt_name in all_execs:
             try:
                 if getattr(self.options["magnum"], opt_name):
@@ -29,8 +31,12 @@ class TestPackageConan(ConanFile):
         cmake = CMake(self)
         for exec in self._executables:
             cmake.definitions["EXEC_{}".format(exec.replace("-", "_")).upper()] = True
-        cmake.definitions["IMPORTER_PLUGINS_FOLDER"] = os.path.join(self.deps_user_info["magnum"].plugins_basepath, "importers").replace("\\", "/")
-        cmake.definitions["OBJ_FILE"] = os.path.join(self.source_folder, "triangleMesh.obj").replace("\\", "/")
+        cmake.definitions["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
+            self.deps_user_info["magnum"].plugins_basepath, "importers"
+        ).replace("\\", "/")
+        cmake.definitions["OBJ_FILE"] = os.path.join(
+            self.source_folder, "triangleMesh.obj"
+        ).replace("\\", "/")
         cmake.definitions["SHARED_PLUGINS"] = self.options["magnum"].shared_plugins
         cmake.configure()
         cmake.build()

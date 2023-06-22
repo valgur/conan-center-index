@@ -8,10 +8,12 @@ required_conan_version = ">=1.53.0"
 
 class PtexConan(ConanFile):
     name = "ptex"
-    description = "Ptex is a texture mapping system developed by Walt Disney " \
-                  "Animation Studios for production-quality rendering."
+    description = (
+        "Ptex is a texture mapping system developed by Walt Disney "
+        "Animation Studios for production-quality rendering."
+    )
     license = "BSD-3-Clause"
-    topics = ("texture-mapping")
+    topics = "texture-mapping"
     homepage = "https://ptex.us"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -43,8 +45,12 @@ class PtexConan(ConanFile):
         self.requires("zlib/1.2.13")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -61,7 +67,12 @@ class PtexConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

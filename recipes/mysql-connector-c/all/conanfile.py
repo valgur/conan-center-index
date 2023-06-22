@@ -13,16 +13,20 @@ class MysqlConnectorCConan(ConanFile):
     exports_sources = ["CMakeLists.txt", "patches/*.patch"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "with_ssl": [True, False], "with_zlib": [True, False]}
-    default_options = {'shared': False, 'with_ssl': True, 'with_zlib': True}
-    
+    options = {
+        "shared": [True, False],
+        "with_ssl": [True, False],
+        "with_zlib": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "with_ssl": True,
+        "with_zlib": True,
+    }
+
     deprecated = "libmysqlclient"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def requirements(self):
         if self.options.with_ssl:
@@ -33,11 +37,16 @@ class MysqlConnectorCConan(ConanFile):
 
     def validate(self):
         if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
-            raise ConanInvalidConfiguration("Cross compilation not yet supported by the recipe. contributions are welcome.")
+            raise ConanInvalidConfiguration(
+                "Cross compilation not yet supported by the recipe. contributions are welcome."
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -46,7 +55,9 @@ class MysqlConnectorCConan(ConanFile):
 
         self._cmake.definitions["DISABLE_SHARED"] = not self.options.shared
         self._cmake.definitions["DISABLE_STATIC"] = self.options.shared
-        self._cmake.definitions["STACK_DIRECTION"] = "-1"  # stack grows downwards, on very few platforms stack grows upwards
+        self._cmake.definitions[
+            "STACK_DIRECTION"
+        ] = "-1"  # stack grows downwards, on very few platforms stack grows upwards
         self._cmake.definitions["REQUIRE_STDCPP"] = tools.stdcpp_library(self)
 
         if self.settings.compiler == "Visual Studio":
@@ -81,17 +92,25 @@ class MysqlConnectorCConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         tools.mkdir(os.path.join(self.package_folder, "licenses"))
-        tools.rename(os.path.join(self.package_folder, "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING"))
-        tools.rename(os.path.join(self.package_folder, "COPYING-debug"), os.path.join(self.package_folder, "licenses", "COPYING-debug"))
+        tools.rename(
+            os.path.join(self.package_folder, "COPYING"),
+            os.path.join(self.package_folder, "licenses", "COPYING"),
+        )
+        tools.rename(
+            os.path.join(self.package_folder, "COPYING-debug"),
+            os.path.join(self.package_folder, "licenses", "COPYING-debug"),
+        )
         tools.remove_files_by_mask(self.package_folder, "README*")
         tools.remove_files_by_mask(self.package_folder, "*.pdb")
         tools.rmdir(os.path.join(self.package_folder, "docs"))
 
     def package_info(self):
-        self.cpp_info.libs = ["libmysql" if self.options.shared and self.settings.os == "Windows" else "mysqlclient"]
+        self.cpp_info.libs = [
+            "libmysql" if self.options.shared and self.settings.os == "Windows" else "mysqlclient"
+        ]
         if not self.options.shared:
             stdcpp_library = tools.stdcpp_library(self)
             if stdcpp_library:
                 self.cpp_info.system_libs.append(stdcpp_library)
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs.append('m')
+                self.cpp_info.system_libs.append("m")

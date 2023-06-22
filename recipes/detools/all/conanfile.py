@@ -10,8 +10,7 @@ class DetoolsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eerimoq/detools"
     license = "MIT"
-    topics = ("delta-compression", "delta-update", "delta-encoding",
-              "ota", "bsdiff", "hdiffpatch")
+    topics = ("delta-compression", "delta-update", "delta-encoding", "ota", "bsdiff", "hdiffpatch")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -23,11 +22,7 @@ class DetoolsConan(ConanFile):
     }
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
-    requires = ['heatshrink/0.4.1', 'lz4/1.9.3', 'xz_utils/5.2.5']
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    requires = ["heatshrink/0.4.1", "lz4/1.9.3", "xz_utils/5.2.5"]
 
     @property
     def _build_subfolder(self):
@@ -35,7 +30,9 @@ class DetoolsConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This library is only compatible with Linux and FreeBSD")
+            raise ConanInvalidConfiguration(
+                "This library is only compatible with Linux and FreeBSD"
+            )
 
     def configure(self):
         if self.options.shared:
@@ -44,7 +41,11 @@ class DetoolsConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

@@ -2,8 +2,16 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir,
-    rename, replace_in_file, rm, rmdir
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -83,76 +91,112 @@ class Argon2Conan(ConanFile):
             env = VirtualBuildEnv(self)
             env.generate()
             tc = AutotoolsToolchain(self)
-            tc.make_args.extend([
-                "LIBRARY_REL=lib",
-                f"KERNEL_NAME={self._kernel_name}",
-                "RUN_EXT={}".format(".exe" if self.settings.os == "Windows" else ""),
-            ])
+            tc.make_args.extend(
+                [
+                    "LIBRARY_REL=lib",
+                    f"KERNEL_NAME={self._kernel_name}",
+                    "RUN_EXT={}".format(".exe" if self.settings.os == "Windows" else ""),
+                ]
+            )
             tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
-            vcxproj = os.path.join(self.source_folder, "vs2015", "Argon2OptDll", "Argon2OptDll.vcxproj")
+            vcxproj = os.path.join(
+                self.source_folder, "vs2015", "Argon2OptDll", "Argon2OptDll.vcxproj"
+            )
             argon2_header = os.path.join(self.source_folder, "include", "argon2.h")
             if not self.options.shared:
                 replace_in_file(self, argon2_header, "__declspec(dllexport)", "")
                 replace_in_file(self, vcxproj, "DynamicLibrary", "StaticLibrary")
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<ClCompile>",
                 "<ClCompile><AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>",
             )
-            replace_in_file(self, vcxproj, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
+            replace_in_file(
+                self,
+                vcxproj,
+                "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>",
+                "",
+            )
 
-            #==========================
+            # ==========================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
-            replace_in_file(self, vcxproj, "<WholeProgramOptimization>true</WholeProgramOptimization>", "")
+            replace_in_file(
+                self, vcxproj, "<WholeProgramOptimization>true</WholeProgramOptimization>", ""
+            )
             platform_toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>",
                 f"<PlatformToolset>{platform_toolset}</PlatformToolset>",
             )
             replace_in_file(
-                self, vcxproj,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-            #==========================
+            # ==========================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
             msbuild.build(os.path.join(self.source_folder, "Argon2.sln"), targets=["Argon2OptDll"])
             if self.options.shared:
-                replace_in_file(self, argon2_header, "__declspec(dllexport)", "__declspec(dllimport)")
+                replace_in_file(
+                    self, argon2_header, "__declspec(dllexport)", "__declspec(dllimport)"
+                )
         else:
             autotools = Autotools(self)
             with chdir(self, self.source_folder):
                 autotools.make(target="libs")
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         bin_folder = os.path.join(self.package_folder, "bin")
         lib_folder = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
             output_folder = os.path.join(self.source_folder, "vs2015", "build")
             copy(self, "*.dll", src=output_folder, dst=bin_folder, keep_path=False)
             copy(self, "*.lib", src=output_folder, dst=lib_folder, keep_path=False)
-            rename(self, os.path.join(lib_folder, "Argon2OptDll.lib"), os.path.join(lib_folder, "argon2.lib"))
+            rename(
+                self,
+                os.path.join(lib_folder, "Argon2OptDll.lib"),
+                os.path.join(lib_folder, "argon2.lib"),
+            )
         else:
             autotools = Autotools(self)
             with chdir(self, self.source_folder):
-                autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}", "PREFIX=/"])
+                autotools.install(
+                    args=[f"DESTDIR={unix_path(self, self.package_folder)}", "PREFIX=/"]
+                )
             rmdir(self, os.path.join(lib_folder, "pkgconfig"))
             rmdir(self, bin_folder)
             if self.options.shared:
                 rm(self, "*.a", lib_folder)
                 if self.settings.os == "Windows":
                     mkdir(self, bin_folder)
-                    rename(self, os.path.join(lib_folder, "libargon2.dll"), os.path.join(bin_folder, "libargon2.dll"))
+                    rename(
+                        self,
+                        os.path.join(lib_folder, "libargon2.dll"),
+                        os.path.join(bin_folder, "libargon2.dll"),
+                    )
                     copy(self, "libargon2.dll.a", src=self.source_folder, dst=lib_folder)
             else:
                 rm(self, "*.dll", lib_folder)

@@ -43,7 +43,9 @@ class Poly2triConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["POLY2TRI_SRC_DIR"] = os.path.join(self.source_folder, "poly2tri").replace("\\", "/")
+        tc.variables["POLY2TRI_SRC_DIR"] = os.path.join(self.source_folder, "poly2tri").replace(
+            "\\", "/"
+        )
         tc.generate()
 
     def build(self):
@@ -52,7 +54,12 @@ class Poly2triConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

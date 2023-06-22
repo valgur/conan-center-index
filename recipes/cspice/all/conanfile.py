@@ -2,8 +2,16 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, download, export_conandata_patches,
-    get, load, rename, rmdir, save
+    apply_conandata_patches,
+    chdir,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    rename,
+    rmdir,
+    save,
 )
 import os
 
@@ -14,7 +22,17 @@ class CspiceConan(ConanFile):
     name = "cspice"
     description = "NASA C SPICE library"
     license = "TSPA"
-    topics = ("spice", "naif", "kernels", "space", "nasa", "jpl", "spacecraft", "planet", "robotics")
+    topics = (
+        "spice",
+        "naif",
+        "kernels",
+        "space",
+        "nasa",
+        "jpl",
+        "spacecraft",
+        "planet",
+        "robotics",
+    )
     homepage = "https://naif.jpl.nasa.gov/naif/toolkit.html"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -93,7 +111,7 @@ class CspiceConan(ConanFile):
             arch = str(self.settings.arch)
             data = self.conan_data["sources"][self.version][host_os][compiler][arch]
             url = data["url"]
-            if url.endswith(".tar.Z"): # Python doesn't have any module to uncompress .Z files
+            if url.endswith(".tar.Z"):  # Python doesn't have any module to uncompress .Z files
                 tarball = os.path.basename(url)
                 download(self, url, tarball, sha256=data["sha256"])
                 self.run(f"zcat {tarball} | tar -xf -")
@@ -111,7 +129,9 @@ class CspiceConan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 

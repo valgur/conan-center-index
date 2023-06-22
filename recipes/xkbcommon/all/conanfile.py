@@ -104,7 +104,10 @@ class XkbcommonConan(ConanFile):
         pkg_config_deps = PkgConfigDeps(self)
         if self._has_build_profile and self.options.get_safe("with_wayland"):
             pkg_config_deps.build_context_activated = ["wayland", "wayland-protocols"]
-            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD", "wayland-protocols": "_BUILD"}
+            pkg_config_deps.build_context_suffix = {
+                "wayland": "_BUILD",
+                "wayland-protocols": "_BUILD",
+            }
         pkg_config_deps.generate()
 
     def build(self):
@@ -118,24 +121,39 @@ class XkbcommonConan(ConanFile):
                 get_pkg_config_var = "get_pkgconfig_variable("
 
             if self._has_build_profile:
-                replace_in_file(self, meson_build_file,
-                                "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                                "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)")
-                replace_in_file(self, meson_build_file,
-                                "wayland_protocols_dep = dependency('wayland-protocols', version: '>=1.12', required: false)",
-                                "wayland_protocols_dep = dependency('wayland-protocols_BUILD', version: '>=1.12', required: false, native: true)")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                    "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)",
+                )
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "wayland_protocols_dep = dependency('wayland-protocols', version: '>=1.12', required: false)",
+                    "wayland_protocols_dep = dependency('wayland-protocols_BUILD', version: '>=1.12', required: false, native: true)",
+                )
             else:
-                replace_in_file(self, meson_build_file,
-                                "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                                "# wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                    "# wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                )
 
-                replace_in_file(self, meson_build_file,
-                                "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not wayland_scanner_dep.found()",
-                                "if not wayland_client_dep.found() or not wayland_protocols_dep.found()")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not wayland_scanner_dep.found()",
+                    "if not wayland_client_dep.found() or not wayland_protocols_dep.found()",
+                )
 
-                replace_in_file(self, meson_build_file,
-                                f"wayland_scanner = find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))",
-                                "wayland_scanner = find_program('wayland-scanner')")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    f"wayland_scanner = find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))",
+                    "wayland_scanner = find_program('wayland-scanner')",
+                )
 
         meson = Meson(self)
         meson.configure()
@@ -156,19 +174,31 @@ class XkbcommonConan(ConanFile):
         self.cpp_info.components["libxkbcommon"].resdirs = ["res"]
 
         if self.options.with_x11:
-            self.cpp_info.components["libxkbcommon-x11"].set_property("pkg_config_name", "xkbcommon-x11")
+            self.cpp_info.components["libxkbcommon-x11"].set_property(
+                "pkg_config_name", "xkbcommon-x11"
+            )
             self.cpp_info.components["libxkbcommon-x11"].libs = ["xkbcommon-x11"]
-            self.cpp_info.components["libxkbcommon-x11"].requires = ["libxkbcommon", "xorg::xcb", "xorg::xcb-xkb"]
+            self.cpp_info.components["libxkbcommon-x11"].requires = [
+                "libxkbcommon",
+                "xorg::xcb",
+                "xorg::xcb-xkb",
+            ]
         if self.options.get_safe("xkbregistry"):
-            self.cpp_info.components["libxkbregistry"].set_property("pkg_config_name", "xkbregistry")
+            self.cpp_info.components["libxkbregistry"].set_property(
+                "pkg_config_name", "xkbregistry"
+            )
             self.cpp_info.components["libxkbregistry"].libs = ["xkbregistry"]
             self.cpp_info.components["libxkbregistry"].requires = ["libxml2::libxml2"]
         if self.options.get_safe("with_wayland", False):
             self.cpp_info.components["xkbcli-interactive-wayland"].libs = []
             self.cpp_info.components["xkbcli-interactive-wayland"].includedirs = []
-            self.cpp_info.components["xkbcli-interactive-wayland"].requires = ["wayland::wayland-client"]
+            self.cpp_info.components["xkbcli-interactive-wayland"].requires = [
+                "wayland::wayland-client"
+            ]
             if not self._has_build_profile:
-                self.cpp_info.components["xkbcli-interactive-wayland"].requires.append("wayland-protocols::wayland-protocols")
+                self.cpp_info.components["xkbcli-interactive-wayland"].requires.append(
+                    "wayland-protocols::wayland-protocols"
+                )
 
         if Version(self.version) >= "1.0.0":
             bindir = os.path.join(self.package_folder, "bin")

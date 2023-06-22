@@ -72,7 +72,12 @@ class LibfreenectConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "APACHE20", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "APACHE20",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         copy(self, "GPL", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()

@@ -58,8 +58,10 @@ class LibmadConan(ConanFile):
 
     def build(self):
         replace_in_file(
-            self, os.path.join(self.source_folder, "msvc++", "mad.h"),
-            "# define FPM_INTEL", "# define FPM_DEFAULT",
+            self,
+            os.path.join(self.source_folder, "msvc++", "mad.h"),
+            "# define FPM_INTEL",
+            "# define FPM_DEFAULT",
         )
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
@@ -67,7 +69,12 @@ class LibmadConan(ConanFile):
 
     def package(self):
         for license_file in ("COPYRIGHT", "COPYING", "CREDITS"):
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license_file,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.install()
 

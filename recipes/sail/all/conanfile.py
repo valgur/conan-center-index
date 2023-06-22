@@ -1,17 +1,25 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    copy,
+    get,
+    rename,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class SAILConan(ConanFile):
     name = "sail"
     description = "The missing small and fast image decoding library for humans (not for machines)"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sail.software"
-    topics = ( "image", "encoding", "decoding", "graphics" )
+    topics = ("image", "encoding", "decoding", "graphics")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -72,8 +80,12 @@ class SAILConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            strip_root=True, destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder
+        )
 
     def generate(self):
         enable_codecs = []
@@ -122,9 +134,19 @@ class SAILConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",       self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE.INIH.txt",  self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE.MUNIT.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.INIH.txt",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE.MUNIT.txt",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+        )
 
         cmake = CMake(self)
         cmake.install()
@@ -133,26 +155,33 @@ class SAILConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # Move icons
-        rename(self, os.path.join(self.package_folder, "share"),
-                     os.path.join(self.package_folder, "res"))
+        rename(
+            self,
+            os.path.join(self.package_folder, "share"),
+            os.path.join(self.package_folder, "res"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Sail")
 
-        self.cpp_info.filenames["cmake_find_package"]       = "Sail"
+        self.cpp_info.filenames["cmake_find_package"] = "Sail"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Sail"
-        self.cpp_info.names["cmake_find_package"]           = "SAIL"
-        self.cpp_info.names["cmake_find_package_multi"]     = "SAIL"
+        self.cpp_info.names["cmake_find_package"] = "SAIL"
+        self.cpp_info.names["cmake_find_package_multi"] = "SAIL"
 
-        self.cpp_info.components["sail-common"].set_property("cmake_target_name", "SAIL::SailCommon")
+        self.cpp_info.components["sail-common"].set_property(
+            "cmake_target_name", "SAIL::SailCommon"
+        )
         self.cpp_info.components["sail-common"].set_property("pkg_config_name", "libsail-common")
-        self.cpp_info.components["sail-common"].names["cmake_find_package"]       = "SailCommon"
+        self.cpp_info.components["sail-common"].names["cmake_find_package"] = "SailCommon"
         self.cpp_info.components["sail-common"].names["cmake_find_package_multi"] = "SailCommon"
         self.cpp_info.components["sail-common"].includedirs = ["include/sail"]
         self.cpp_info.components["sail-common"].libs = ["sail-common"]
 
-        self.cpp_info.components["sail-codecs"].set_property("cmake_target_name", "SAIL::SailCodecs")
-        self.cpp_info.components["sail-codecs"].names["cmake_find_package"]       = "SailCodecs"
+        self.cpp_info.components["sail-codecs"].set_property(
+            "cmake_target_name", "SAIL::SailCodecs"
+        )
+        self.cpp_info.components["sail-codecs"].names["cmake_find_package"] = "SailCodecs"
         self.cpp_info.components["sail-codecs"].names["cmake_find_package_multi"] = "SailCodecs"
         self.cpp_info.components["sail-codecs"].libs = ["sail-codecs"]
         self.cpp_info.components["sail-codecs"].requires = ["sail-common"]
@@ -163,7 +192,9 @@ class SAILConan(ConanFile):
         if self.options.with_jpeg2000:
             self.cpp_info.components["sail-codecs"].requires.append("jasper::jasper")
         if self.options.with_jpeg:
-            self.cpp_info.components["sail-codecs"].requires.append("{0}::{0}".format(self.options.with_jpeg))
+            self.cpp_info.components["sail-codecs"].requires.append(
+                "{0}::{0}".format(self.options.with_jpeg)
+            )
         if self.options.with_png:
             self.cpp_info.components["sail-codecs"].requires.append("libpng::libpng")
         if self.options.with_tiff:
@@ -184,14 +215,14 @@ class SAILConan(ConanFile):
 
         self.cpp_info.components["sail-manip"].set_property("cmake_target_name", "SAIL::SailManip")
         self.cpp_info.components["sail-manip"].set_property("pkg_config_name", "libsail-manip")
-        self.cpp_info.components["sail-manip"].names["cmake_find_package"]       = "SailManip"
+        self.cpp_info.components["sail-manip"].names["cmake_find_package"] = "SailManip"
         self.cpp_info.components["sail-manip"].names["cmake_find_package_multi"] = "SailManip"
         self.cpp_info.components["sail-manip"].libs = ["sail-manip"]
         self.cpp_info.components["sail-manip"].requires = ["sail-common"]
 
         self.cpp_info.components["sail-c++"].set_property("cmake_target_name", "SAIL::SailC++")
         self.cpp_info.components["sail-c++"].set_property("pkg_config_name", "libsail-c++")
-        self.cpp_info.components["sail-c++"].names["cmake_find_package"]       = "SailC++"
+        self.cpp_info.components["sail-c++"].names["cmake_find_package"] = "SailC++"
         self.cpp_info.components["sail-c++"].names["cmake_find_package_multi"] = "SailC++"
         self.cpp_info.components["sail-c++"].libs = ["sail-c++"]
         self.cpp_info.components["sail-c++"].requires = ["libsail", "sail-manip"]

@@ -9,7 +9,7 @@ class LibCoapConan(ConanFile):
     homepage = "https://github.com/obgm/libcoap"
     url = "https://github.com/conan-io/conan-center-index"
     description = """A CoAP (RFC 7252) implementation in C"""
-    topics = ("coap")
+    topics = "coap"
     exports_sources = "CMakeLists.txt"
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -27,10 +27,6 @@ class LibCoapConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -59,8 +55,11 @@ class LibCoapConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -99,7 +98,10 @@ class LibCoapConan(ConanFile):
 
         self.cpp_info.components["coap"].names["cmake_find_package"] = "coap"
         self.cpp_info.components["coap"].names["cmake_find_package_multi"] = "coap"
-        pkgconfig_filename = "{}{}".format(pkgconfig_name, "-{}".format(self.options.dtls_backend) if self.options.dtls_backend else "")
+        pkgconfig_filename = "{}{}".format(
+            pkgconfig_name,
+            "-{}".format(self.options.dtls_backend) if self.options.dtls_backend else "",
+        )
         self.cpp_info.components["coap"].names["pkg_config"] = pkgconfig_filename
         self.cpp_info.components["coap"].libs = [library_name]
 

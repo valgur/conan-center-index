@@ -2,10 +2,15 @@ import os
 from conans import ConanFile, tools, CMake
 from conans.errors import ConanInvalidConfiguration
 
+
 class OpenvrConan(ConanFile):
     name = "openvr"
     description = "API and runtime that allows access to VR hardware from applications have specific knowledge of the hardware they are targeting."
-    topics = ("conan", "openvr", "vr", )
+    topics = (
+        "conan",
+        "openvr",
+        "vr",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ValveSoftware/openvr"
     license = "BSD-3-Clause"
@@ -24,10 +29,6 @@ class OpenvrConan(ConanFile):
     generators = "cmake"
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -39,8 +40,11 @@ class OpenvrConan(ConanFile):
             tools.check_min_cppstd(self, "11")
 
         if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration("OpenVR can't be compiled by {0} {1}".format(self.settings.compiler,
-                                                                                         self.settings.compiler.version))
+            raise ConanInvalidConfiguration(
+                "OpenVR can't be compiled by {0} {1}".format(
+                    self.settings.compiler, self.settings.compiler.version
+                )
+            )
 
     def requirements(self):
         self.requires("jsoncpp/1.9.4")
@@ -54,11 +58,11 @@ class OpenvrConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         # Honor fPIC=False
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "-fPIC", "")
+        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"), "-fPIC", "")
         # Unvendor jsoncpp (we rely on our CMake wrapper for jsoncpp injection)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                              "jsoncpp.cpp", "")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"), "jsoncpp.cpp", ""
+        )
         tools.rmdir(os.path.join(self._source_subfolder, "src", "json"))
 
     def _configure_cmake(self):
@@ -78,7 +82,9 @@ class OpenvrConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
+        self.copy(
+            "LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses"
+        )
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="openvr_api*.dll", dst="bin", src="bin", keep_path=False)

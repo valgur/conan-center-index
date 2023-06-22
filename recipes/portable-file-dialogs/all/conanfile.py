@@ -12,10 +12,6 @@ class PortableFileDialogsConan(ConanFile):
     no_copy_source = True
     settings = "compiler"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, 11)

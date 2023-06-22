@@ -1,6 +1,6 @@
 import os
 from conan import ConanFile
-from conan.tools import  files, scm, build
+from conan.tools import files, scm, build
 from conan.errors import ConanInvalidConfiguration
 
 
@@ -25,10 +25,6 @@ class PackioConan(ConanFile):
         "nlohmann_json": True,
         "boost_json": "default",
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -62,7 +58,7 @@ class PackioConan(ConanFile):
         if self.options.get_safe("nlohmann_json"):
             self.requires("nlohmann_json/3.9.1")
 
-         # defaults to True if using boost.asio, False if using asio
+        # defaults to True if using boost.asio, False if using asio
         if self.options.get_safe("boost_json") == "default":
             self.options.boost_json = not self.options.standalone_asio
 
@@ -84,9 +80,13 @@ class PackioConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if scm.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("packio requires C++17, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    "packio requires C++17, which your compiler does not support."
+                )
         else:
-            self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "packio requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
@@ -101,7 +101,15 @@ class PackioConan(ConanFile):
                 self.cpp_info.defines.append("PACKIO_STANDALONE_ASIO")
         else:
             # Starting from 2.1.0, preprocessor defines can be defined to 0 to force-disable
-            self.cpp_info.defines.append(f"PACKIO_STANDALONE_ASIO={1 if self.options.get_safe('standalone_asio') else 0}")
-            self.cpp_info.defines.append(f"PACKIO_HAS_MSGPACK={1 if self.options.get_safe('msgpack') else 0}")
-            self.cpp_info.defines.append(f"PACKIO_HAS_NLOHMANN_JSON={1 if self.options.get_safe('nlohmann_json') else 0}")
-            self.cpp_info.defines.append(f"PACKIO_HAS_BOOST_JSON={1 if self.options.get_safe('boost_json') else 0}")
+            self.cpp_info.defines.append(
+                f"PACKIO_STANDALONE_ASIO={1 if self.options.get_safe('standalone_asio') else 0}"
+            )
+            self.cpp_info.defines.append(
+                f"PACKIO_HAS_MSGPACK={1 if self.options.get_safe('msgpack') else 0}"
+            )
+            self.cpp_info.defines.append(
+                f"PACKIO_HAS_NLOHMANN_JSON={1 if self.options.get_safe('nlohmann_json') else 0}"
+            )
+            self.cpp_info.defines.append(
+                f"PACKIO_HAS_BOOST_JSON={1 if self.options.get_safe('boost_json') else 0}"
+            )

@@ -8,9 +8,12 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class UwebsocketsConan(ConanFile):
     name = "uwebsockets"
-    description = "Simple, secure & standards compliant web server for the most demanding of applications"
+    description = (
+        "Simple, secure & standards compliant web server for the most demanding of applications"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/uNetworking/uWebSockets"
@@ -76,21 +79,32 @@ class UwebsocketsConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if Version(self.version) >= "20.14.0" and self.settings.compiler == "clang" and str(self.settings.compiler.libcxx) == "libstdc++":
+        if (
+            Version(self.version) >= "20.14.0"
+            and self.settings.compiler == "clang"
+            and str(self.settings.compiler.libcxx) == "libstdc++"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} needs recent libstdc++ with charconv.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self,
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
             pattern="*.h",
             src=os.path.join(self.source_folder, "src"),
             dst=os.path.join(self.package_folder, "include", "uWebSockets"),
             keep_path=False,
         )
-        copy(self,
+        copy(
+            self,
             pattern="*.hpp",
             src=os.path.join(self.source_folder, "src", "f2"),
             dst=os.path.join(self.package_folder, "include", "uWebSockets", "f2"),

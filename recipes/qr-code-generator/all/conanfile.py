@@ -84,9 +84,7 @@ class QrCodeGeneratorConan(ConanFile):
         cmake.build()
 
     def _extract_license(self):
-        header_name = (
-            "QrCode.hpp" if Version(self.version) < "1.7.0" else "qrcodegen.hpp"
-        )
+        header_name = "QrCode.hpp" if Version(self.version) < "1.7.0" else "qrcodegen.hpp"
         header = load(self, os.path.join(self.source_folder, "cpp", header_name))
         license_contents = header[2 : header.find("*/", 1)]
         return license_contents
@@ -101,8 +99,6 @@ class QrCodeGeneratorConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = [
-            "qrcodegen" if Version(self.version) < "1.7.0" else "qrcodegencpp"
-        ]
+        self.cpp_info.libs = ["qrcodegen" if Version(self.version) < "1.7.0" else "qrcodegencpp"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

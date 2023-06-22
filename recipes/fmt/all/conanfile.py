@@ -95,9 +95,19 @@ class FmtConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="*LICENSE.rst", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="*LICENSE.rst",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.options.header_only:
-            copy(self, pattern="*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                pattern="*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
         else:
             cmake = CMake(self)
             cmake.install()
@@ -110,7 +120,7 @@ class FmtConan(ConanFile):
         target = "fmt-header-only" if self.options.header_only else "fmt"
         self.cpp_info.set_property("cmake_file_name", "fmt")
         self.cpp_info.set_property("cmake_target_name", f"fmt::{target}")
-        self.cpp_info.set_property("pkg_config_name",  "fmt")
+        self.cpp_info.set_property("pkg_config_name", "fmt")
 
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if self.options.with_fmt_alias:

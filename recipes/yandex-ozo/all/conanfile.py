@@ -8,7 +8,9 @@ required_conan_version = ">=1.33.0"
 
 class YandexOzoConan(ConanFile):
     name = "yandex-ozo"
-    description = "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
+    description = (
+        "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
+    )
     topics = ("ozo", "yandex", "postgres", "postgresql", "cpp17", "database", "db", "asio")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yandex/ozo"
@@ -17,10 +19,6 @@ class YandexOzoConan(ConanFile):
     settings = "os", "compiler"
     requires = ("boost/1.76.0", "resource_pool/cci.20210322", "libpq/13.2")
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -38,7 +36,9 @@ class YandexOzoConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
 
         if not minimum_version:
-            self.output.warn("ozo requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "ozo requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("ozo requires a compiler that supports at least C++17")
 
@@ -49,10 +49,18 @@ class YandexOzoConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
-        self.copy(pattern="*", dst=os.path.join("include", "ozo"), src=os.path.join(self._source_subfolder, "include", "ozo"))
+        self.copy(
+            pattern="*",
+            dst=os.path.join("include", "ozo"),
+            src=os.path.join(self._source_subfolder, "include", "ozo"),
+        )
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_id(self):
@@ -61,7 +69,10 @@ class YandexOzoConan(ConanFile):
     def package_info(self):
         main_comp = self.cpp_info.components["_ozo"]
         main_comp.requires = [
-            "boost::boost", "boost::system", "boost::thread", "boost::coroutine",
+            "boost::boost",
+            "boost::system",
+            "boost::thread",
+            "boost::coroutine",
             "resource_pool::resource_pool",
             "libpq::pq",
         ]

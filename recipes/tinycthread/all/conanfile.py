@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class TinycthreadConan(ConanFile):
     name = "tinycthread"
     description = "Small, portable implementation of the C11 threads API"
@@ -49,7 +50,12 @@ class TinycthreadConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

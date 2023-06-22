@@ -1,7 +1,17 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, MSBuildToolchain
@@ -22,7 +32,7 @@ class XZUtilsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tukaani.org/xz"
     topics = ("lzma", "xz", "compression")
-    license = "Unlicense", "LGPL-2.1-or-later",  "GPL-2.0-or-later", "GPL-3.0-or-later"
+    license = "Unlicense", "LGPL-2.1-or-later", "GPL-2.0-or-later", "GPL-3.0-or-later"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -92,22 +102,26 @@ class XZUtilsConan(ConanFile):
 
     @property
     def _msvc_sln_folder(self):
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or \
-           (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if (
+            str(self.settings.compiler) == "Visual Studio"
+            and Version(self.settings.compiler) >= "15"
+        ) or (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
             return "vs2017"
         return "vs2013"
 
     def _build_msvc(self):
         build_script_folder = os.path.join(self.source_folder, "windows", self._msvc_sln_folder)
 
-        #==============================
+        # ==============================
         # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client.
         vcxproj_files = [
             os.path.join(build_script_folder, "liblzma.vcxproj"),
             os.path.join(build_script_folder, "liblzma_dll.vcxproj"),
         ]
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or \
-           (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if (
+            str(self.settings.compiler) == "Visual Studio"
+            and Version(self.settings.compiler) >= "15"
+        ) or (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
             old_toolset = "v141"
         else:
             old_toolset = "v120"
@@ -115,21 +129,25 @@ class XZUtilsConan(ConanFile):
         conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
         for vcxproj_file in vcxproj_files:
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 f"<PlatformToolset>{old_toolset}</PlatformToolset>",
                 f"<PlatformToolset>{new_toolset}</PlatformToolset>",
             )
             replace_in_file(
-                self, vcxproj_file,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj_file,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-        #==============================
+        # ==============================
 
         msbuild = MSBuild(self)
         msbuild.build_type = self._effective_msbuild_type
         msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-        msbuild.build(os.path.join(build_script_folder, "xz_win.sln"), targets=[self._msbuild_target])
+        msbuild.build(
+            os.path.join(build_script_folder, "xz_win.sln"), targets=[self._msbuild_target]
+        )
 
     def build(self):
         apply_conandata_patches(self)
@@ -141,15 +159,35 @@ class XZUtilsConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             inc_dir = os.path.join(self.source_folder, "src", "liblzma", "api")
             copy(self, "*.h", src=inc_dir, dst=os.path.join(self.package_folder, "include"))
             output_dir = os.path.join(self.source_folder, "windows")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            rename(self, os.path.join(self.package_folder, "lib", "liblzma.lib"),
-                         os.path.join(self.package_folder, "lib", "lzma.lib"))
+            copy(
+                self,
+                "*.lib",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "liblzma.lib"),
+                os.path.join(self.package_folder, "lib", "lzma.lib"),
+            )
         else:
             autotools = Autotools(self)
             autotools.install()
@@ -164,7 +202,8 @@ class XZUtilsConan(ConanFile):
 
     def _create_cmake_module_variables(self, module_file):
         # TODO: also add LIBLZMA_HAS_AUTO_DECODER, LIBLZMA_HAS_EASY_ENCODER & LIBLZMA_HAS_LZMA_PRESET
-        content = textwrap.dedent(f"""\
+        content = textwrap.dedent(
+            f"""\
             set(LIBLZMA_FOUND TRUE)
             if(DEFINED LibLZMA_INCLUDE_DIRS)
                 set(LIBLZMA_INCLUDE_DIRS ${{LibLZMA_INCLUDE_DIRS}})
@@ -176,7 +215,8 @@ class XZUtilsConan(ConanFile):
             set(LIBLZMA_VERSION_MINOR {Version(self.version).minor})
             set(LIBLZMA_VERSION_PATCH {Version(self.version).patch})
             set(LIBLZMA_VERSION_STRING "{self.version}")
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property

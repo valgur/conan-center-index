@@ -5,6 +5,7 @@ from conans import CMake
 
 required_conan_version = ">=1.50.0"
 
+
 class SshtConan(ConanFile):
     name = "ssht"
     license = "GPL-3.0-or-later"
@@ -13,15 +14,15 @@ class SshtConan(ConanFile):
     description = "Fast spin spherical harmonic transforms"
     settings = "os", "arch", "compiler", "build_type"
     topics = ("physics", "astrophysics", "radio interferometry")
-    options = {"fPIC": [True, False]}
-    default_options = {"fPIC": True}
+    options = {
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+    }
     requires = "fftw/3.3.9"
     generators = "cmake", "cmake_find_package", "cmake_paths"
     exports_sources = ["CMakeLists.txt"]
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -30,14 +31,18 @@ class SshtConan(ConanFile):
     def config_options(self):
         del self.settings.compiler.cppstd
         del self.settings.compiler.libcxx
-    
+
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("SSHT requires C99 support for complex numbers.")
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        files.get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @property
     def cmake(self):

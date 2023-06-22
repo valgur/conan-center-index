@@ -53,15 +53,29 @@ class Md4QtConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "md4qt"), dst=os.path.join(self.package_folder, "include", "md4qt"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "md4qt"),
+            dst=os.path.join(self.package_folder, "include", "md4qt"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "md4qt")

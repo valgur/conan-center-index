@@ -45,10 +45,6 @@ class NCursesConan(ConanFile):
     exports_sources = "patches/*"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -93,21 +89,38 @@ class NCursesConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
-        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and tools.cross_building(self):
+        if any(
+            "arm" in arch for arch in (self.settings.arch, self._settings_build.arch)
+        ) and tools.cross_building(self):
             # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
             # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
-            raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
-        if self.options.shared and self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
-            raise ConanInvalidConfiguration("Cannot build shared libraries with static (MT) runtime")
+            raise ConanInvalidConfiguration(
+                "Cross building to/from arm is (currently) not supported"
+            )
+        if (
+            self.options.shared
+            and self.settings.compiler == "Visual Studio"
+            and "MT" in self.settings.compiler.runtime
+        ):
+            raise ConanInvalidConfiguration(
+                "Cannot build shared libraries with static (MT) runtime"
+            )
         if self.settings.os == "Windows":
             if self._with_tinfo:
-                raise ConanInvalidConfiguration("terminfo cannot be built on Windows because it requires a term driver")
+                raise ConanInvalidConfiguration(
+                    "terminfo cannot be built on Windows because it requires a term driver"
+                )
             if self.options.shared and self._with_ticlib:
-                raise ConanInvalidConfiguration("ticlib cannot be built separately as a shared library on Windows")
+                raise ConanInvalidConfiguration(
+                    "ticlib cannot be built separately as a shared library on Windows"
+                )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -118,7 +131,9 @@ class NCursesConan(ConanFile):
             "--with-cxx-shared={}".format(yes_no(self.options.shared)),
             "--with-normal={}".format(yes_no(not self.options.shared)),
             "--enable-widec={}".format(yes_no(self.options.with_widec)),
-            "--enable-ext-colors={}".format(yes_no(self.options.get_safe("with_extended_colors", False))),
+            "--enable-ext-colors={}".format(
+                yes_no(self.options.get_safe("with_extended_colors", False))
+            ),
             "--enable-reentrant={}".format(yes_no(self.options.with_reentrant)),
             "--with-pcre2={}".format(yes_no(self.options.with_pcre2)),
             "--with-cxx-binding={}".format(yes_no(self.options.with_cxx)),
@@ -140,20 +155,24 @@ class NCursesConan(ConanFile):
         build = None
         host = None
         if self.settings.os == "Windows":
-            conf_args.extend([
-                "--disable-macros",
-                "--disable-termcap",
-                "--enable-database",
-                "--enable-sp-funcs",
-                "--enable-term-driver",
-                "--enable-interop",
-            ])
+            conf_args.extend(
+                [
+                    "--disable-macros",
+                    "--disable-termcap",
+                    "--enable-database",
+                    "--enable-sp-funcs",
+                    "--enable-term-driver",
+                    "--enable-interop",
+                ]
+            )
         if self.settings.compiler == "Visual Studio":
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
-            conf_args.extend([
-                "ac_cv_func_getopt=yes",
-                "ac_cv_func_setvbuf_reversed=no",
-            ])
+            conf_args.extend(
+                [
+                    "ac_cv_func_getopt=yes",
+                    "ac_cv_func_setvbuf_reversed=no",
+                ]
+            )
             autotools.cxx_flags.append("-EHsc")
             if tools.Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
@@ -165,7 +184,9 @@ class NCursesConan(ConanFile):
         if host:
             conf_args.append(f"ac_cv_host={host}")
             conf_args.append(f"ac_cv_target={host}")
-        autotools.configure(args=conf_args, configure_dir=self._source_subfolder, host=host, build=build)
+        autotools.configure(
+            args=conf_args, configure_dir=self._source_subfolder, host=host, build=build
+        )
         return autotools
 
     def _patch_sources(self):
@@ -203,7 +224,10 @@ class NCursesConan(ConanFile):
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file):
-        tools.save(module_file, textwrap.dedent("""\
+        tools.save(
+            module_file,
+            textwrap.dedent(
+                """\
             set(CURSES_FOUND ON)
             set(CURSES_INCLUDE_DIRS ${ncurses_libcurses_INCLUDE_DIRS})
             set(CURSES_LIBRARIES ${ncurses_libcurses_LINK_LIBS})
@@ -218,7 +242,9 @@ class NCursesConan(ConanFile):
             # Backward Compatibility
             set(CURSES_INCLUDE_DIR ${CURSES_INCLUDE_DIRS})
             set(CURSES_LIBRARY ${CURSES_LIBRARIES})
-        """))
+        """
+            ),
+        )
 
     def package(self):
         # return
@@ -227,9 +253,17 @@ class NCursesConan(ConanFile):
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autotools.install()
 
-            os.unlink(os.path.join(self.package_folder, "bin", "ncurses{}{}-config".format(self._suffix, self._major_version)))
+            os.unlink(
+                os.path.join(
+                    self.package_folder,
+                    "bin",
+                    "ncurses{}{}-config".format(self._suffix, self._major_version),
+                )
+            )
 
-        self._create_cmake_module_alias_targets(os.path.join(self.package_folder, self._module_subfolder, self._module_file))
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_subfolder, self._module_file)
+        )
 
     @property
     def _suffix(self):
@@ -266,11 +300,15 @@ class NCursesConan(ConanFile):
         if self._with_tinfo:
             self.cpp_info.components["tinfo"].libs = ["tinfo" + self._lib_suffix]
             self.cpp_info.components["tinfo"].names["pkg_config"] = "tinfo" + self._lib_suffix
-            self.cpp_info.components["tinfo"].includedirs.append(os.path.join("include", "ncurses" + self._suffix))
+            self.cpp_info.components["tinfo"].includedirs.append(
+                os.path.join("include", "ncurses" + self._suffix)
+            )
 
         self.cpp_info.components["libcurses"].libs = ["ncurses" + self._lib_suffix]
         self.cpp_info.components["libcurses"].names["pkg_config"] = "ncurses" + self._lib_suffix
-        self.cpp_info.components["libcurses"].includedirs.append(os.path.join("include", "ncurses" + self._suffix))
+        self.cpp_info.components["libcurses"].includedirs.append(
+            os.path.join("include", "ncurses" + self._suffix)
+        )
         if not self.options.shared:
             self.cpp_info.components["libcurses"].defines = ["NCURSES_STATIC"]
             if self.settings.os == "Linux":
@@ -279,17 +317,25 @@ class NCursesConan(ConanFile):
             self.cpp_info.components["libcurses"].requires.append("tinfo")
 
         if self.settings.compiler == "Visual Studio":
-            self.cpp_info.components["libcurses"].requires.extend([
-                "getopt-for-visual-studio::getopt-for-visual-studio",
-                "dirent::dirent",
-            ])
+            self.cpp_info.components["libcurses"].requires.extend(
+                [
+                    "getopt-for-visual-studio::getopt-for-visual-studio",
+                    "dirent::dirent",
+                ]
+            )
             if self.options.get_safe("with_extended_colors", False):
-                self.cpp_info.components["libcurses"].requires.append("naive-tsearch::naive-tsearch")
+                self.cpp_info.components["libcurses"].requires.append(
+                    "naive-tsearch::naive-tsearch"
+                )
 
         module_rel_path = os.path.join(self._module_subfolder, self._module_file)
         self.cpp_info.components["libcurses"].builddirs.append(self._module_subfolder)
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [module_rel_path]
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [module_rel_path]
+        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [
+            module_rel_path
+        ]
+        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [
+            module_rel_path
+        ]
 
         self.cpp_info.components["panel"].libs = ["panel" + self._lib_suffix]
         self.cpp_info.components["panel"].names["pkg_config"] = "panel" + self._lib_suffix
@@ -307,7 +353,9 @@ class NCursesConan(ConanFile):
 
         if self.options.with_cxx:
             self.cpp_info.components["curses++"].libs = ["ncurses++" + self._lib_suffix]
-            self.cpp_info.components["curses++"].names["pkg_config"] = "ncurses++" + self._lib_suffix
+            self.cpp_info.components["curses++"].names["pkg_config"] = (
+                "ncurses++" + self._lib_suffix
+            )
             self.cpp_info.components["curses++"].requires = ["libcurses"]
 
         if self._with_ticlib:

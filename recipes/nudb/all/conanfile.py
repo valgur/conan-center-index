@@ -3,6 +3,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class NudbConan(ConanFile):
     name = "nudb"
     license = "BSL-1.0"
@@ -12,16 +13,15 @@ class NudbConan(ConanFile):
     topics = ("header-only", "KVS", "insert-only")
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
         self.requires("boost/1.78.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         self.copy("LICENSE*", "licenses", self._source_subfolder)

@@ -3,6 +3,7 @@ import os
 
 required_conan_version = ">=1.35.0"
 
+
 class FFNvEncHeaders(ConanFile):
     name = "nv-codec-headers"
     description = "FFmpeg version of headers required to interface with Nvidia's codec APIs"
@@ -28,7 +29,11 @@ class FFNvEncHeaders(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -43,8 +48,12 @@ class FFNvEncHeaders(ConanFile):
 
     def _extract_license(self):
         # Extract the License/s from the header to a file
-        tmp = tools.load(os.path.join(self._source_subfolder, "include", "ffnvcodec", "nvEncodeAPI.h"))
-        license_contents = tmp[2:tmp.find("*/", 1)] # The license begins with a C comment /* and ends with */
+        tmp = tools.load(
+            os.path.join(self._source_subfolder, "include", "ffnvcodec", "nvEncodeAPI.h")
+        )
+        license_contents = tmp[
+            2 : tmp.find("*/", 1)
+        ]  # The license begins with a C comment /* and ends with */
         tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):

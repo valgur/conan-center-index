@@ -12,7 +12,9 @@ class RabbitmqcConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alanxz/rabbitmq-c"
-    description = "This is a C-language AMQP client library for use with v2.0+ of the RabbitMQ broker."
+    description = (
+        "This is a C-language AMQP client library for use with v2.0+ of the RabbitMQ broker."
+    )
     topics = ("rabbitmq", "message queue")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -45,8 +47,12 @@ class RabbitmqcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -74,8 +80,18 @@ class RabbitmqcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE-MIT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE-MIT",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -111,7 +127,9 @@ class RabbitmqcConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "librabbitmq"
         self.cpp_info.components["rabbitmq"].names["cmake_find_package"] = rabbitmq_target
         self.cpp_info.components["rabbitmq"].names["cmake_find_package_multi"] = rabbitmq_target
-        self.cpp_info.components["rabbitmq"].set_property("cmake_target_name", f"rabbitmq::{rabbitmq_target}")
+        self.cpp_info.components["rabbitmq"].set_property(
+            "cmake_target_name", f"rabbitmq::{rabbitmq_target}"
+        )
         self.cpp_info.components["rabbitmq"].set_property("pkg_config_name", "librabbitmq")
         if self.options.ssl:
             self.cpp_info.components["rabbitmq"].requires.append("openssl::openssl")

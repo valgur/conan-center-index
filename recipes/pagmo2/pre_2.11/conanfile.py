@@ -28,10 +28,6 @@ class Pagmo2Conan(ConanFile):
     generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         self.copy("CMakeLists.txt")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -56,16 +52,26 @@ class Pagmo2Conan(ConanFile):
         if self.options.with_ipopt:
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
 
-        miss_boost_required_comp = any(getattr(self.options["boost"], "without_{}".format(boost_comp), True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            for boost_comp in self._required_boost_components
+        )
         if self.options["boost"].header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration("{0} requires non header-only boost with these components: {1}".format(self.name, ", ".join(self._required_boost_components)))
+            raise ConanInvalidConfiguration(
+                "{0} requires non header-only boost with these components: {1}".format(
+                    self.name, ", ".join(self._required_boost_components)
+                )
+            )
 
     def package_id(self):
         self.info.settings.clear()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -93,7 +99,11 @@ class Pagmo2Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "pagmo")
         self.cpp_info.set_property("cmake_target_name", "Pagmo::pagmo")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_pagmo"].requires = ["boost::headers", "boost::serialization", "onetbb::onetbb"]
+        self.cpp_info.components["_pagmo"].requires = [
+            "boost::headers",
+            "boost::serialization",
+            "onetbb::onetbb",
+        ]
         if self.options.with_eigen:
             self.cpp_info.components["_pagmo"].requires.append("eigen::eigen")
         if self.options.with_nlopt:

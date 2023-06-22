@@ -11,7 +11,7 @@ class I2cConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://i2c.wiki.kernel.org/index.php/I2C_Tools"
     description = "I2C tools for the linux kernel as well as an I2C library."
-    topics = ("i2c")
+    topics = "i2c"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -22,10 +22,6 @@ class I2cConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def configure(self):
         if self.options.shared:
@@ -41,13 +37,18 @@ class I2cConan(ConanFile):
             raise ConanInvalidConfiguration("i2c-tools only support Linux")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile"),
-                              "SRCDIRS	:= include lib eeprom stub tools $(EXTRA)",
-                              "SRCDIRS	:= include lib $(EXTRA)")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "Makefile"),
+            "SRCDIRS	:= include lib eeprom stub tools $(EXTRA)",
+            "SRCDIRS	:= include lib $(EXTRA)",
+        )
 
     @property
     def _make_args(self):

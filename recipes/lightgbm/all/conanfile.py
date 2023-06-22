@@ -19,17 +19,13 @@ class LightGBMConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_openmp": [True, False]
+        "with_openmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": True
+        "with_openmp": True,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -51,8 +47,11 @@ class LightGBMConan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):

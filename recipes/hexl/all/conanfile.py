@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.43.0"
 
+
 class HexlConan(ConanFile):
     name = "hexl"
     license = "Apache-2.0"
@@ -28,7 +29,7 @@ class HexlConan(ConanFile):
         "fPIC": [True, False],
         "experimental": [True, False],
         "fpga_compatibility_dyadic_multiply": [True, False],
-        "fpga_compatibility_keyswitch":  [True, False]
+        "fpga_compatibility_keyswitch": [True, False],
     }
 
     default_options = {
@@ -36,19 +37,20 @@ class HexlConan(ConanFile):
         "fPIC": True,
         "experimental": False,
         "fpga_compatibility_dyadic_multiply": False,
-        "fpga_compatibility_keyswitch": False
+        "fpga_compatibility_keyswitch": False,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
         return "build_subfolder"
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build_requirements(self):
         self.build_requires("cmake/3.22.0")
@@ -74,9 +76,15 @@ class HexlConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++17, which your compiler does not support.".format(self.name)
+                )
         else:
-            self.output.warn("{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
+            self.output.warn(
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
+                    self.name
+                )
+            )
 
         if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("Hexl only supports x86 architecture")
@@ -91,15 +99,16 @@ class HexlConan(ConanFile):
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
-        self._cmake = CMake(self);
-
+        self._cmake = CMake(self)
 
         self._cmake.definitions["HEXL_BENCHMARK"] = False
         self._cmake.definitions["HEXL_TESTING"] = False
         self._cmake.definitions["HEXL_EXPERIMENTAL"] = self.options.experimental
 
-
-        if self.options.fpga_compatibility_dyadic_multiply and self.options.fpga_compatibility_keyswitch:
+        if (
+            self.options.fpga_compatibility_dyadic_multiply
+            and self.options.fpga_compatibility_keyswitch
+        ):
             self._cmake.definitions["HEXL_FPGA_COMPATIBILITY"] = 3
         elif self.options.fpga_compatibility_dyadic_multiply:
             self._cmake.definitions["HEXL_FPGA_COMPATIBILITY"] = 1
@@ -155,4 +164,3 @@ class HexlConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["Hexl"].system_libs = ["pthread", "m"]
-

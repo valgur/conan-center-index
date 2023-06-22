@@ -28,21 +28,17 @@ class QCoroConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
     @property
     def _compilers_minimum_version(self):
         minimum_versions = {
-                "gcc": "10",
-                "Visual Studio": "17",
-                "msvc": "19.29",
-                "clang": "8",
-                "apple-clang": "13"
+            "gcc": "10",
+            "Visual Studio": "17",
+            "msvc": "19.29",
+            "clang": "8",
+            "apple-clang": "13",
         }
         return minimum_versions
 
@@ -70,23 +66,38 @@ class QCoroConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        #Special check for clang that can only be linked to libc++
+        # Special check for clang that can only be linked to libc++
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libc++":
-            raise ConanInvalidConfiguration("imagl requires some C++20 features, which are available in libc++ for clang compiler.")
+            raise ConanInvalidConfiguration(
+                "imagl requires some C++20 features, which are available in libc++ for clang compiler."
+            )
 
         compiler_version = str(self.settings.compiler.version)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("qcoro requires C++20. Your compiler is unknown. Assuming it supports C++20.")
+            self.output.warn(
+                "qcoro requires C++20. Your compiler is unknown. Assuming it supports C++20."
+            )
         elif lazy_lt_semver(compiler_version, minimum_version):
-            raise ConanInvalidConfiguration("qcoro requires some C++20 features, which your {} {} compiler does not support.".format(str(self.settings.compiler), compiler_version))
+            raise ConanInvalidConfiguration(
+                "qcoro requires some C++20 features, which your {} {} compiler does not support.".format(
+                    str(self.settings.compiler), compiler_version
+                )
+            )
         else:
-            print("Your compiler is {} {} and is compatible.".format(str(self.settings.compiler), compiler_version))
+            print(
+                "Your compiler is {} {} and is compatible.".format(
+                    str(self.settings.compiler), compiler_version
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -126,13 +137,23 @@ class QCoroConan(ConanFile):
         self.cpp_info.components["qcoro-core"].names["cmake_find_package"] = "Core"
         self.cpp_info.components["qcoro-core"].names["cmake_find_package_multi"] = "Core"
         self.cpp_info.components["qcoro-core"].libs = ["QCoro6Core"]
-        self.cpp_info.components["qcoro-core"].includedirs.append(os.path.join("include", "qcoro6", "qcoro"))
+        self.cpp_info.components["qcoro-core"].includedirs.append(
+            os.path.join("include", "qcoro6", "qcoro")
+        )
         self.cpp_info.components["qcoro-core"].requires = ["qt::qtCore"]
-        self.cpp_info.components["qcoro-core"].build_modules["cmake_find_package"].append(os.path.join("lib", "cmake", "QCoro6Coro", "QCoroMacros.cmake"))
-        self.cpp_info.components["qcoro-core"].build_modules["cmake_find_package_multi"].append(os.path.join("lib", "cmake", "QCoro6Coro", "QCoroMacros.cmake"))
-        self.cpp_info.components["qcoro-core"].builddirs.append(os.path.join("lib", "cmake", "QCoro6Coro"))
+        self.cpp_info.components["qcoro-core"].build_modules["cmake_find_package"].append(
+            os.path.join("lib", "cmake", "QCoro6Coro", "QCoroMacros.cmake")
+        )
+        self.cpp_info.components["qcoro-core"].build_modules["cmake_find_package_multi"].append(
+            os.path.join("lib", "cmake", "QCoro6Coro", "QCoroMacros.cmake")
+        )
+        self.cpp_info.components["qcoro-core"].builddirs.append(
+            os.path.join("lib", "cmake", "QCoro6Coro")
+        )
 
-        self.cpp_info.components["qcoro-network"].set_property("cmake_target_name", "QCoro::Network")
+        self.cpp_info.components["qcoro-network"].set_property(
+            "cmake_target_name", "QCoro::Network"
+        )
         self.cpp_info.components["qcoro-network"].names["cmake_find_package"] = "Network"
         self.cpp_info.components["qcoro-network"].names["cmake_find_package_multi"] = "Network"
         self.cpp_info.components["qcoro-network"].libs = ["QCoro6Network"]

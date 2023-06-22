@@ -11,8 +11,8 @@ required_conan_version = ">=1.54.0"
 
 class ApriltagConan(ConanFile):
     name = "apriltag"
-    description = ("AprilTag is a visual fiducial system, useful for a wide variety of tasks \
-                    including augmented reality, robotics, and camera calibration")
+    description = "AprilTag is a visual fiducial system, useful for a wide variety of tasks \
+                    including augmented reality, robotics, and camera calibration"
     homepage = "https://april.eecs.umich.edu/software/apriltag"
     topics = ("robotics",)
     license = "BSD-2-Clause"
@@ -73,7 +73,12 @@ class ApriltagConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

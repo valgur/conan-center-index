@@ -12,17 +12,20 @@ class ChaiScriptConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False], "dyn_load": [True, False], "use_std_make_shared": [True, False],
-               "multithread_support": [True, False],
-               "header_only": [True, False]}
-    default_options = {"fPIC": True, "dyn_load": True,
-                       "use_std_make_shared": True,
-                       "multithread_support": True,
-                       "header_only": True}
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    options = {
+        "fPIC": [True, False],
+        "dyn_load": [True, False],
+        "use_std_make_shared": [True, False],
+        "multithread_support": [True, False],
+        "header_only": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+        "dyn_load": True,
+        "use_std_make_shared": True,
+        "multithread_support": True,
+        "header_only": True,
+    }
 
     @property
     def _build_subfolder(self):
@@ -56,8 +59,9 @@ class ChaiScriptConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         if self.options.header_only:
-            self.copy(pattern="*.hpp", dst="include",
-                      src=os.path.join(self._source_subfolder, 'include'))
+            self.copy(
+                pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include")
+            )
         else:
             cmake = self._configure_cmake()
             cmake.install()

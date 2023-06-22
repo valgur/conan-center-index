@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class CistaConan(ConanFile):
     name = "cista"
     description = (
@@ -32,7 +33,7 @@ class CistaConan(ConanFile):
             "msvc": "191" if Version(self.version) < "0.11" else "192",
             "gcc": "8",
             "clang": "6",
-            "apple-clang": "9.1"
+            "apple-clang": "9.1",
         }
 
     def package_id(self):
@@ -49,7 +50,9 @@ class CistaConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), None)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
@@ -63,8 +66,18 @@ class CistaConan(ConanFile):
             download(self, filename=filename, **file)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cista.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "cista.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cista")

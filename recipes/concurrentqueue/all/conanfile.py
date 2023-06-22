@@ -39,9 +39,19 @@ class ConcurrentqueueConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         for file in ["blockingconcurrentqueue.h", "concurrentqueue.h", "lightweightsemaphore.h"]:
-            copy(self, file, src=self.source_folder, dst=os.path.join(self.package_folder, "include", "moodycamel"))
+            copy(
+                self,
+                file,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "include", "moodycamel"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "concurrentqueue")

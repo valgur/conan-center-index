@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -82,7 +89,12 @@ class GlbindingConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -93,17 +105,23 @@ class GlbindingConan(ConanFile):
 
         suffix = "d" if self.settings.build_type == "Debug" else ""
         # glbinding
-        self.cpp_info.components["_glbinding"].set_property("cmake_target_name", "glbinding::glbinding")
+        self.cpp_info.components["_glbinding"].set_property(
+            "cmake_target_name", "glbinding::glbinding"
+        )
         self.cpp_info.components["_glbinding"].libs = ["glbinding" + suffix]
         self.cpp_info.components["_glbinding"].requires = ["khrplatform"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_glbinding"].system_libs = ["dl", "pthread"]
         # glbinding-aux
-        self.cpp_info.components["glbinding-aux"].set_property("cmake_target_name", "glbinding::glbinding-aux")
+        self.cpp_info.components["glbinding-aux"].set_property(
+            "cmake_target_name", "glbinding::glbinding-aux"
+        )
         self.cpp_info.components["glbinding-aux"].libs = ["glbinding-aux" + suffix]
         self.cpp_info.components["glbinding-aux"].requires = ["_glbinding"]
         # KHRplatform
-        self.cpp_info.components["khrplatform"].set_property("cmake_target_name", "glbinding::KHRplatform")
+        self.cpp_info.components["khrplatform"].set_property(
+            "cmake_target_name", "glbinding::KHRplatform"
+        )
         self.cpp_info.components["khrplatform"].libdirs = []
 
         # workaround to propagate all components in CMakeDeps generator
@@ -115,6 +133,8 @@ class GlbindingConan(ConanFile):
         self.cpp_info.components["_glbinding"].names["cmake_find_package"] = "glbinding"
         self.cpp_info.components["_glbinding"].names["cmake_find_package_multi"] = "glbinding"
         self.cpp_info.components["glbinding-aux"].names["cmake_find_package"] = "glbinding-aux"
-        self.cpp_info.components["glbinding-aux"].names["cmake_find_package_multi"] = "glbinding-aux"
+        self.cpp_info.components["glbinding-aux"].names[
+            "cmake_find_package_multi"
+        ] = "glbinding-aux"
         self.cpp_info.components["khrplatform"].names["cmake_find_package"] = "KHRplatform"
         self.cpp_info.components["khrplatform"].names["cmake_find_package_multi"] = "KHRplatform"

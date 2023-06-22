@@ -2,7 +2,16 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, MSBuild, MSBuildToolchain
@@ -79,7 +88,7 @@ class ZimgConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
-            #==========================
+            # ==========================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             vcxproj_files = [
                 os.path.join(self.source_folder, "_msvc", "zimg", "zimg.vcxproj"),
@@ -87,30 +96,35 @@ class ZimgConan(ConanFile):
             ]
             for vcxproj_file in vcxproj_files:
                 replace_in_file(
-                    self, vcxproj_file,
+                    self,
+                    vcxproj_file,
                     "<WholeProgramOptimization>true</WholeProgramOptimization>",
-                    ""
+                    "",
                 )
             platform_toolset = MSBuildToolchain(self).toolset
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             for vcxproj_file in vcxproj_files:
                 replace_in_file(
-                    self, vcxproj_file,
+                    self,
+                    vcxproj_file,
                     "<PlatformToolset>v142</PlatformToolset>",
                     f"<PlatformToolset>{platform_toolset}</PlatformToolset>",
                 )
                 replace_in_file(
-                    self, vcxproj_file,
-                    "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                    f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                    self,
+                    vcxproj_file,
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
                 )
-            #==========================
+            # ==========================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-            msbuild.build(os.path.join(self.source_folder, "_msvc", "zimg.sln"),
-                          targets=["dll" if self.options.shared else "zimg"])
+            msbuild.build(
+                os.path.join(self.source_folder, "_msvc", "zimg.sln"),
+                targets=["dll" if self.options.shared else "zimg"],
+            )
         else:
             autotools = Autotools(self)
             autotools.autoreconf()
@@ -118,17 +132,47 @@ class ZimgConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             src_include_dir = os.path.join(self.source_folder, "src", "zimg", "api")
-            copy(self, "zimg.h", src=src_include_dir, dst=os.path.join(self.package_folder, "include"))
-            copy(self, "zimg++.hpp", src=src_include_dir, dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "zimg.h",
+                src=src_include_dir,
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "zimg++.hpp",
+                src=src_include_dir,
+                dst=os.path.join(self.package_folder, "include"),
+            )
             output_dir = os.path.join(self.source_folder, "_msvc")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "*.lib",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_dir,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
             old_lib = "z_imp.lib" if self.options.shared else "z.lib"
-            rename(self, os.path.join(self.package_folder, "lib", old_lib),
-                         os.path.join(self.package_folder, "lib", "zimg.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", old_lib),
+                os.path.join(self.package_folder, "lib", "zimg.lib"),
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

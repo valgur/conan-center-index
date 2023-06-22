@@ -7,8 +7,9 @@ required_conan_version = ">=1.32.0"
 
 class SleefConan(ConanFile):
     name = "sleef"
-    description = "SLEEF is a library that implements vectorized versions " \
-                  "of C standard math functions."
+    description = (
+        "SLEEF is a library that implements vectorized versions " "of C standard math functions."
+    )
     license = "BSL-1.0"
     topics = ("conan", "sleef", "vectorization", "simd")
     homepage = "https://sleef.org"
@@ -31,10 +32,6 @@ class SleefConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -50,7 +47,9 @@ class SleefConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("shared sleef not supported on Windows, it produces runtime errors")
+            raise ConanInvalidConfiguration(
+                "shared sleef not supported on Windows, it produces runtime errors"
+            )
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

@@ -30,10 +30,6 @@ class ITKConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -63,7 +59,9 @@ class ITKConan(ConanFile):
         self.requires("fftw/3.3.9")
         self.requires("gdcm/3.0.9")
         self.requires("hdf5/1.12.0")
-        self.requires("icu/71.1") # TODO: to remove? Seems to be a transitivie dependency through dcmtk
+        self.requires(
+            "icu/71.1"
+        )  # TODO: to remove? Seems to be a transitivie dependency through dcmtk
         self.requires("libjpeg/9d")
         self.requires("libpng/1.6.37")
         self.requires("libtiff/4.3.0")
@@ -86,23 +84,36 @@ class ITKConan(ConanFile):
 
     def validate(self):
         if self.options.shared and not self.options["hdf5"].shared:
-            raise ConanInvalidConfiguration("When building a shared itk, hdf5 needs to be shared too (or not linked to by the consumer).\n"
-                                            "This is because H5::DataSpace::ALL might get initialized twice, which will cause a H5::DataSpaceIException to be thrown).")
+            raise ConanInvalidConfiguration(
+                "When building a shared itk, hdf5 needs to be shared too (or not linked to by the consumer).\n"
+                "This is because H5::DataSpace::ALL might get initialized twice, which will cause a H5::DataSpaceIException to be thrown)."
+            )
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
         else:
             if tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                    self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
-
+                raise ConanInvalidConfiguration(
+                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
+                        self.name,
+                        self._minimum_cpp_standard,
+                        self.settings.compiler,
+                        self.settings.compiler.version,
+                    )
+                )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -256,30 +267,38 @@ class ITKConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "share"))
         tools.rmdir(os.path.join(self.package_folder, self._cmake_module_dir, "Modules"))
         # Do not remove UseITK.cmake and *.h.in files
-        for cmake_file in glob.glob(os.path.join(self.package_folder, self._cmake_module_dir, "*.cmake")):
+        for cmake_file in glob.glob(
+            os.path.join(self.package_folder, self._cmake_module_dir, "*.cmake")
+        ):
             if os.path.basename(cmake_file) != "UseITK.cmake":
                 os.remove(cmake_file)
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {target:"ITK::{}".format(target) for target in self._itk_components.keys()},
+            {target: "ITK::{}".format(target) for target in self._itk_components.keys()},
         )
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         tools.save(module_file, content)
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(self._cmake_module_dir, "conan-official-{}-targets.cmake".format(self.name))
+        return os.path.join(
+            self._cmake_module_dir, "conan-official-{}-targets.cmake".format(self.name)
+        )
 
     @property
     def _cmake_module_dir(self):
@@ -304,13 +323,19 @@ class ITKConan(ConanFile):
             "itktestlib": {"requires": ["itkvcl"]},
             "ITKVNLInstantiation": {
                 "requires": [
-                    "itkvnl_algo", "itkvnl", "itkv3p_netlib", "itkvcl",
+                    "itkvnl_algo",
+                    "itkvnl",
+                    "itkv3p_netlib",
+                    "itkvcl",
                 ],
             },
             "ITKCommon": {
                 "requires": [
-                    "itksys", "ITKVNLInstantiation", "eigen::eigen",
-                    "onetbb::onetbb", "double-conversion::double-conversion",
+                    "itksys",
+                    "ITKVNLInstantiation",
+                    "eigen::eigen",
+                    "onetbb::onetbb",
+                    "double-conversion::double-conversion",
                 ],
                 "system_libs": libm(),
             },
@@ -324,8 +349,11 @@ class ITKConan(ConanFile):
             "ITKImageIntensity": {},
             "ITKLabelMap": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
                 ],
             },
             "ITKQuadEdgeMesh": {"requires": ["ITKMesh"]},
@@ -337,23 +365,35 @@ class ITKConan(ConanFile):
             "ITKPolynomials": {"requires": ["ITKCommon"]},
             "ITKBiasCorrection": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
                 ],
             },
             "ITKColormap": {},
             "ITKFFT": {"requires": ["ITKCommon", "fftw::fftw"]},
             "ITKConvolution": {
                 "requires": [
-                    "ITKFFT", "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
+                    "ITKFFT",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
                 ],
             },
             "ITKDICOMParser": {},
             "ITKDeformableMesh": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform", "ITKImageFeature",
-                    "ITKSpatialObjects", "ITKPath", "ITKMesh",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKImageFeature",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKMesh",
                 ],
             },
             "ITKDenoising": {},
@@ -362,22 +402,37 @@ class ITKConan(ConanFile):
             "ITKIOSpatialObjects": {"requires": ["ITKSpatialObjects", "ITKIOXML", "ITKMesh"]},
             "ITKFEM": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
-                    "ITKSmoothing", "ITKImageFeature", "ITKOptimizers", "ITKMetaIO",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKSmoothing",
+                    "ITKImageFeature",
+                    "ITKOptimizers",
+                    "ITKMetaIO",
                 ],
             },
             "ITKPDEDeformableRegistration": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath", "ITKSmoothing",
-                    "ITKImageFeature", "ITKOptimizers",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKSmoothing",
+                    "ITKImageFeature",
+                    "ITKOptimizers",
                 ],
             },
             "ITKFEMRegistration": {
                 "requires": [
-                    "ITKFEM", "ITKImageFeature", "ITKCommon", "ITKSpatialObjects",
-                    "ITKTransform", "ITKPDEDeformableRegistration",
+                    "ITKFEM",
+                    "ITKImageFeature",
+                    "ITKCommon",
+                    "ITKSpatialObjects",
+                    "ITKTransform",
+                    "ITKPDEDeformableRegistration",
                 ],
             },
             "ITKznz": {"requires": ["zlib::zlib"]},
@@ -387,7 +442,9 @@ class ITKConan(ConanFile):
             "ITKIOBioRad": {"requires": ["ITKIOImageBase"]},
             "ITKIOCSV": {"requires": ["ITKIOImageBase"]},
             "ITKIODCMTK": {"requires": ["ITKIOImageBase", "dcmtk::dcmtk", "icu::icu"]},
-            "ITKIOGDCM": {"requires": ["ITKCommon", "ITKIOImageBase", "gdcm::gdcmDICT", "gdcm::gdcmMSFF"]},
+            "ITKIOGDCM": {
+                "requires": ["ITKCommon", "ITKIOImageBase", "gdcm::gdcmDICT", "gdcm::gdcmMSFF"]
+            },
             "ITKIOIPL": {"requires": ["ITKIOImageBase"]},
             "ITKIOGE": {"requires": ["ITKIOIPL", "ITKIOImageBase"]},
             "ITKIOGIPL": {"requires": ["ITKIOImageBase", "zlib::zlib"]},
@@ -395,7 +452,10 @@ class ITKConan(ConanFile):
             "ITKIOJPEG": {"requires": ["ITKIOImageBase", "libjpeg::libjpeg"]},
             "ITKIOMeshBase": {
                 "requires": [
-                    "ITKCommon", "ITKIOImageBase", "ITKMesh", "ITKQuadEdgeMesh",
+                    "ITKCommon",
+                    "ITKIOImageBase",
+                    "ITKMesh",
+                    "ITKQuadEdgeMesh",
                 ],
             },
             "ITKIOMeshBYU": {"requires": ["ITKCommon", "ITKIOMeshBase"]},
@@ -403,7 +463,9 @@ class ITKConan(ConanFile):
             "ITKIOMeshGifti": {"requires": ["ITKCommon", "ITKIOMeshBase", "ITKgiftiio"]},
             "ITKIOMeshOBJ": {"requires": ["ITKCommon", "ITKIOMeshBase"]},
             "ITKIOMeshOFF": {"requires": ["ITKCommon", "ITKIOMeshBase"]},
-            "ITKIOMeshVTK": {"requires": ["ITKCommon", "ITKIOMeshBase", "double-conversion::double-conversion"]},
+            "ITKIOMeshVTK": {
+                "requires": ["ITKCommon", "ITKIOMeshBase", "double-conversion::double-conversion"]
+            },
             "ITKIOMeta": {"requires": ["ITKIOImageBase", "ITKMetaIO"]},
             "ITKIONIFTI": {"requires": ["ITKIOImageBase", "ITKznz", "ITKniftiio", "ITKTransform"]},
             "ITKNrrdIO": {"requires": ["zlib::zlib"]},
@@ -414,17 +476,24 @@ class ITKConan(ConanFile):
             "ITKIOStimulate": {"requires": ["ITKIOImageBase"]},
             "ITKIOTIFF": {"requires": ["ITKIOImageBase", "libtiff::libtiff"]},
             "ITKTransformFactory": {"requires": ["ITKCommon", "ITKTransform"]},
-            "ITKIOTransformBase": {"requires": ["ITKCommon", "ITKTransform", "ITKTransformFactory"]},
+            "ITKIOTransformBase": {
+                "requires": ["ITKCommon", "ITKTransform", "ITKTransformFactory"]
+            },
             "ITKIOTransformHDF5": {"requires": ["ITKIOTransformBase", "hdf5::hdf5"]},
-            "ITKIOTransformInsightLegacy": {"requires": ["ITKIOTransformBase", "double-conversion::double-conversion"]},
+            "ITKIOTransformInsightLegacy": {
+                "requires": ["ITKIOTransformBase", "double-conversion::double-conversion"]
+            },
             "ITKIOTransformMatlab": {"requires": ["ITKIOTransformBase"]},
             "ITKIOVTK": {"requires": ["ITKIOImageBase"]},
             "ITKKLMRegionGrowing": {"requires": ["ITKCommon"]},
             "itklbfgs": {},
             "ITKMarkovRandomFieldsClassifiers": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
                 ],
             },
             "ITKOptimizersv4": {"requires": ["ITKOptimizers", "itklbfgs"]},
@@ -432,46 +501,106 @@ class ITKConan(ConanFile):
             "ITKQuadEdgeMeshFiltering": {"requires": ["ITKMesh"]},
             "ITKRegionGrowing": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
                 ],
             },
             "ITKRegistrationMethodsv4": {
                 "requires": [
-                    "ITKCommon", "ITKOptimizersv4", "ITKStatistics", "ITKTransform",
-                    "ITKSpatialObjects", "ITKPath", "ITKSmoothing", "ITKImageFeature",
+                    "ITKCommon",
+                    "ITKOptimizersv4",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKSmoothing",
+                    "ITKImageFeature",
                     "ITKOptimizers",
                 ],
             },
             "ITKVTK": {"requires": ["ITKCommon"]},
             "ITKWatersheds": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform", "ITKSpatialObjects",
-                    "ITKPath", "ITKSmoothing",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKSmoothing",
                 ],
             },
             "ITKReview": {
                 "requires": [
-                    "ITKCommon", "ITKStatistics", "ITKTransform", "ITKLabelMap",
-                    "ITKSpatialObjects", "ITKPath", "ITKFastMarching", "ITKIOImageBase",
-                    "ITKImageFeature", "ITKOptimizers", "ITKBiasCorrection",
-                    "ITKDeformableMesh", "ITKDiffusionTensorImage", "ITKSmoothing",
-                    "ITKFFT", "ITKIOBMP", "ITKIOBioRad", "ITKIOGDCM", "ITKIOGE",
-                    "ITKIOGIPL", "ITKIOIPL", "ITKIOJPEG", "ITKIOMeta", "ITKIONIFTI",
-                    "ITKIONRRD", "ITKIOPNG", "ITKIOSiemens", "ITKIOStimulate", "ITKIOTIFF",
-                    "ITKIOTransformHDF5", "ITKIOTransformInsightLegacy",
-                    "ITKIOTransformMatlab", "ITKIOVTK", "ITKIOXML", "ITKKLMRegionGrowing",
-                    "ITKMarkovRandomFieldsClassifiers", "ITKMesh", "ITKPDEDeformableRegistration",
-                    "ITKPolynomials", "ITKQuadEdgeMesh", "ITKQuadEdgeMeshFiltering",
-                    "ITKRegionGrowing", "ITKVTK", "ITKWatersheds", "itkopenjpeg",
+                    "ITKCommon",
+                    "ITKStatistics",
+                    "ITKTransform",
+                    "ITKLabelMap",
+                    "ITKSpatialObjects",
+                    "ITKPath",
+                    "ITKFastMarching",
+                    "ITKIOImageBase",
+                    "ITKImageFeature",
+                    "ITKOptimizers",
+                    "ITKBiasCorrection",
+                    "ITKDeformableMesh",
+                    "ITKDiffusionTensorImage",
+                    "ITKSmoothing",
+                    "ITKFFT",
+                    "ITKIOBMP",
+                    "ITKIOBioRad",
+                    "ITKIOGDCM",
+                    "ITKIOGE",
+                    "ITKIOGIPL",
+                    "ITKIOIPL",
+                    "ITKIOJPEG",
+                    "ITKIOMeta",
+                    "ITKIONIFTI",
+                    "ITKIONRRD",
+                    "ITKIOPNG",
+                    "ITKIOSiemens",
+                    "ITKIOStimulate",
+                    "ITKIOTIFF",
+                    "ITKIOTransformHDF5",
+                    "ITKIOTransformInsightLegacy",
+                    "ITKIOTransformMatlab",
+                    "ITKIOVTK",
+                    "ITKIOXML",
+                    "ITKKLMRegionGrowing",
+                    "ITKMarkovRandomFieldsClassifiers",
+                    "ITKMesh",
+                    "ITKPDEDeformableRegistration",
+                    "ITKPolynomials",
+                    "ITKQuadEdgeMesh",
+                    "ITKQuadEdgeMeshFiltering",
+                    "ITKRegionGrowing",
+                    "ITKVTK",
+                    "ITKWatersheds",
+                    "itkopenjpeg",
                 ],
             },
             "ITKTestKernel": {
                 "requires": [
-                    "ITKCommon", "ITKIOImageBase", "ITKIOBMP", "ITKIOGDCM", "ITKIOGIPL",
-                    "ITKIOJPEG", "ITKIOMeshBYU", "ITKIOMeshFreeSurfer", "ITKIOMeshGifti",
-                    "ITKIOMeshOBJ", "ITKIOMeshOFF", "ITKIOMeshVTK", "ITKIOMeta", "ITKIONIFTI",
-                    "ITKIONRRD", "ITKIOPNG", "ITKIOTIFF", "ITKIOVTK",
+                    "ITKCommon",
+                    "ITKIOImageBase",
+                    "ITKIOBMP",
+                    "ITKIOGDCM",
+                    "ITKIOGIPL",
+                    "ITKIOJPEG",
+                    "ITKIOMeshBYU",
+                    "ITKIOMeshFreeSurfer",
+                    "ITKIOMeshGifti",
+                    "ITKIOMeshOBJ",
+                    "ITKIOMeshOFF",
+                    "ITKIOMeshVTK",
+                    "ITKIOMeta",
+                    "ITKIONIFTI",
+                    "ITKIONRRD",
+                    "ITKIOPNG",
+                    "ITKIOTIFF",
+                    "ITKIOVTK",
                 ],
             },
             "ITKVideoCore": {"requires": ["ITKCommon"]},
@@ -479,7 +608,9 @@ class ITKConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ITK")
-        self.cpp_info.set_property("cmake_build_modules", [os.path.join(self._cmake_module_dir, "UseITK.cmake")])
+        self.cpp_info.set_property(
+            "cmake_build_modules", [os.path.join(self._cmake_module_dir, "UseITK.cmake")]
+        )
 
         itk_version = tools.Version(self.version)
         lib_suffix = "-{}.{}".format(itk_version.major, itk_version.minor)
@@ -490,7 +621,9 @@ class ITKConan(ConanFile):
             requires = values.get("requires", [])
             self.cpp_info.components[name].set_property("cmake_target_name", name)
             self.cpp_info.components[name].builddirs.append(self._cmake_module_dir)
-            self.cpp_info.components[name].includedirs.append(os.path.join("include", self._itk_subdir))
+            self.cpp_info.components[name].includedirs.append(
+                os.path.join("include", self._itk_subdir)
+            )
             if not is_header_only:
                 self.cpp_info.components[name].libs = ["{}{}".format(name, lib_suffix)]
             self.cpp_info.components[name].system_libs = system_libs
@@ -499,9 +632,15 @@ class ITKConan(ConanFile):
             # TODO: to remove in conan v2 once cmake_find_package* generators removed
             self.cpp_info.components[name].names["cmake_find_package"] = name
             self.cpp_info.components[name].names["cmake_find_package_multi"] = name
-            self.cpp_info.components[name].build_modules.append(os.path.join(self._cmake_module_dir, "UseITK.cmake"))
-            self.cpp_info.components[name].build_modules["cmake_find_package"].append(self._module_file_rel_path)
-            self.cpp_info.components[name].build_modules["cmake_find_package_multi"].append(self._module_file_rel_path)
+            self.cpp_info.components[name].build_modules.append(
+                os.path.join(self._cmake_module_dir, "UseITK.cmake")
+            )
+            self.cpp_info.components[name].build_modules["cmake_find_package"].append(
+                self._module_file_rel_path
+            )
+            self.cpp_info.components[name].build_modules["cmake_find_package_multi"].append(
+                self._module_file_rel_path
+            )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "ITK"

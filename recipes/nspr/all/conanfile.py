@@ -38,10 +38,6 @@ class NsprConan(ConanFile):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -70,8 +66,7 @@ class NsprConan(ConanFile):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination="tmp", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination="tmp", strip_root=True)
         rename(self, os.path.join("tmp", "nspr"), self._source_subfolder)
         rmdir(self, "tmp")
 
@@ -90,25 +85,33 @@ class NsprConan(ConanFile):
         yes_no = lambda v: "yes" if v else "no"
         conf_args = [
             "--with-mozilla={}".format(yes_no(self.options.with_mozilla)),
-            "--enable-64bit={}".format(yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))),
-            "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
+            "--enable-64bit={}".format(
+                yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))
+            ),
+            "--enable-strip={}".format(
+                yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))
+            ),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
             "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
             "--disable-cplus",
         ]
         if self._is_msvc:
-            conf_args.extend([
-                "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
-                "--enable-static-rtl={}".format(yes_no("MT" in msvc_runtime_flag(self))),
-                "--enable-debug-rtl={}".format(yes_no("d" in msvc_runtime_flag(self))),
-            ])
+            conf_args.extend(
+                [
+                    "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
+                    "--enable-static-rtl={}".format(yes_no("MT" in msvc_runtime_flag(self))),
+                    "--enable-debug-rtl={}".format(yes_no("d" in msvc_runtime_flag(self))),
+                ]
+            )
         elif self.settings.os == "Android":
-            conf_args.extend([
-                "--with-android-ndk={}".format(tools.get_env(["NDK_ROOT"])),
-                "--with-android-version={}".format(self.settings.os.api_level),
-                "--with-android-platform={}".format(tools.get_env("ANDROID_PLATFORM")),
-                "--with-android-toolchain={}".format(tools.get_env("ANDROID_TOOLCHAIN")),
-            ])
+            conf_args.extend(
+                [
+                    "--with-android-ndk={}".format(tools.get_env(["NDK_ROOT"])),
+                    "--with-android-version={}".format(self.settings.os.api_level),
+                    "--with-android-platform={}".format(tools.get_env("ANDROID_PLATFORM")),
+                    "--with-android-toolchain={}".format(tools.get_env("ANDROID_TOOLCHAIN")),
+                ]
+            )
         elif self.settings.os == "Windows":
             conf_args.append("--enable-win32-target={}".format(self.options.win32_target))
         env = autotools.vars
@@ -124,10 +127,8 @@ class NsprConan(ConanFile):
     def build(self):
         with chdir(self, self._source_subfolder):
             # relocatable shared libs on macOS
-            replace_in_file(self,
-                "configure",
-                "-install_name @executable_path/",
-                "-install_name @rpath/"
+            replace_in_file(
+                self, "configure", "-install_name @executable_path/", "-install_name @rpath/"
             )
             with self._build_context():
                 autotools = self._configure_autotools()
@@ -149,19 +150,32 @@ class NsprConan(ConanFile):
                 libsuffix = "lib" if self._is_msvc else "a"
                 libprefix = "" if self._is_msvc else "lib"
                 if self.options.shared:
-                    os.unlink(os.path.join(self.package_folder, "lib", f"{libprefix}{lib}_s.{libsuffix}"))
-                    rename(self, os.path.join(self.package_folder, "lib", f"{lib}.dll"),
-                                 os.path.join(self.package_folder, "bin", f"{lib}.dll"))
+                    os.unlink(
+                        os.path.join(self.package_folder, "lib", f"{libprefix}{lib}_s.{libsuffix}")
+                    )
+                    rename(
+                        self,
+                        os.path.join(self.package_folder, "lib", f"{lib}.dll"),
+                        os.path.join(self.package_folder, "bin", f"{lib}.dll"),
+                    )
                 else:
-                    os.unlink(os.path.join(self.package_folder, "lib", f"{libprefix}{lib}.{libsuffix}"))
+                    os.unlink(
+                        os.path.join(self.package_folder, "lib", f"{libprefix}{lib}.{libsuffix}")
+                    )
                     os.unlink(os.path.join(self.package_folder, "lib", f"{lib}.dll"))
             if not self.options.shared:
-                replace_in_file(self, os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
-                                      "#define NSPR_API(__type) PR_IMPORT(__type)",
-                                      "#define NSPR_API(__type) extern __type")
-                replace_in_file(self, os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
-                                      "#define NSPR_DATA_API(__type) PR_IMPORT_DATA(__type)",
-                                      "#define NSPR_DATA_API(__type) extern __type")
+                replace_in_file(
+                    self,
+                    os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
+                    "#define NSPR_API(__type) PR_IMPORT(__type)",
+                    "#define NSPR_API(__type) extern __type",
+                )
+                replace_in_file(
+                    self,
+                    os.path.join(self.package_folder, "include", "nspr", "prtypes.h"),
+                    "#define NSPR_DATA_API(__type) PR_IMPORT_DATA(__type)",
+                    "#define NSPR_DATA_API(__type) extern __type",
+                )
         else:
             shared_ext = "dylib" if self.settings.os == "Macos" else "so"
             for lib in self._library_names:

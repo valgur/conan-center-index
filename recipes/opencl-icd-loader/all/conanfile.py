@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
@@ -54,7 +61,9 @@ class OpenclIcdLoaderConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        opencl_headers_includedirs = self.dependencies["opencl-headers"].cpp_info.aggregated_components().includedirs
+        opencl_headers_includedirs = (
+            self.dependencies["opencl-headers"].cpp_info.aggregated_components().includedirs
+        )
         tc.cache_variables["OPENCL_ICD_LOADER_HEADERS_DIR"] = ";".join(opencl_headers_includedirs)
         if is_msvc(self):
             tc.variables["USE_DYNAMIC_VCXX_RUNTIME"] = not is_msvc_static_runtime(self)
@@ -71,7 +80,12 @@ class OpenclIcdLoaderConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

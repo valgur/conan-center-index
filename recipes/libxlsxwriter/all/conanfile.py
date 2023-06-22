@@ -61,11 +61,17 @@ class LibxlsxwriterConan(ConanFile):
 
     def validate(self):
         if Version(self.version) < "1.0.6" and self.info.options.md5 == "openssl":
-            raise ConanInvalidConfiguration(f"{self.name}:md5=openssl is not suppported in {self.ref}")
+            raise ConanInvalidConfiguration(
+                f"{self.name}:md5=openssl is not suppported in {self.ref}"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -91,7 +97,12 @@ class LibxlsxwriterConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "License.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

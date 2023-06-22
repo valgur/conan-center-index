@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -29,7 +36,7 @@ class LibtiffConan(ConanFile):
         "zstd": [True, False],
         "jbig": [True, False],
         "webp": [True, False],
-        "cxx":  [True, False],
+        "cxx": [True, False],
     }
     default_options = {
         "shared": False,
@@ -41,7 +48,7 @@ class LibtiffConan(ConanFile):
         "zstd": True,
         "jbig": True,
         "webp": True,
-        "cxx":  True,
+        "cxx": True,
     }
 
     @property
@@ -120,7 +127,7 @@ class LibtiffConan(ConanFile):
         if self._has_webp_option:
             tc.variables["webp"] = self.options.webp
         if Version(self.version) >= "4.3.0":
-            tc.variables["lerc"] = False # TODO: add lerc support for libtiff versions >= 4.3.0
+            tc.variables["lerc"] = False  # TODO: add lerc support for libtiff versions >= 4.3.0
         if Version(self.version) >= "4.5.0":
             # Disable tools, test, contrib, man & html generation
             tc.variables["tiff-tools"] = False
@@ -138,15 +145,22 @@ class LibtiffConan(ConanFile):
         apply_conandata_patches(self)
 
         # Export symbols of tiffxx for msvc shared
-        replace_in_file(self, os.path.join(self.source_folder, "libtiff", "CMakeLists.txt"),
-                              "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
-                              "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "libtiff", "CMakeLists.txt"),
+            "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
+            "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)",
+        )
 
         # Disable tools, test, contrib, man & html generation
         if Version(self.version) < "4.5.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
-                                  "add_subdirectory(man)\nadd_subdirectory(html)", "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
+                "add_subdirectory(man)\nadd_subdirectory(html)",
+                "",
+            )
 
     def build(self):
         self._patch_sources()
@@ -156,7 +170,14 @@ class LibtiffConan(ConanFile):
 
     def package(self):
         license_file = "COPYRIGHT" if Version(self.version) < "4.5.0" else "LICENSE.md"
-        copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
+        copy(
+            self,
+            license_file,
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            ignore_case=True,
+            keep_path=False,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -21,10 +21,6 @@ class LibunifexConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
@@ -39,14 +35,13 @@ class LibunifexConan(ConanFile):
 
     # FIXME: Add support for liburing
     # def requirements(self):
-        # TODO: Make an option to opt-out of liburing for old kernel versions
-        # if self.settings.os == "Linux":
-        #    self.requires("liburing/2.1")
+    # TODO: Make an option to opt-out of liburing for old kernel versions
+    # if self.settings.os == "Linux":
+    #    self.requires("liburing/2.1")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(
-                self, self._minimum_standard)
+            tools.check_min_cppstd(self, self._minimum_standard)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -54,20 +49,26 @@ class LibunifexConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn(
-                "{0} {1} requires C++{2}. Your compiler is unknown. Assuming it supports C++{2}."
-                .format(self.name, self.version, self._minimum_standard))
+                "{0} {1} requires C++{2}. Your compiler is unknown. Assuming it supports C++{2}.".format(
+                    self.name, self.version, self._minimum_standard
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                "{} {} requires C++{}, which your compiler does not support."
-                .format(self.name, self.version, self._minimum_standard))
+                "{} {} requires C++{}, which your compiler does not support.".format(
+                    self.name, self.version, self._minimum_standard
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -100,8 +101,7 @@ class LibunifexConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "unifex"
         self.cpp_info.components["unifex"].names["cmake_find_package"] = "unifex"
         self.cpp_info.components["unifex"].names["cmake_find_package_multi"] = "unifex"
-        self.cpp_info.components["unifex"].set_property(
-            "cmake_target_name", "unifex::unifex")
+        self.cpp_info.components["unifex"].set_property("cmake_target_name", "unifex::unifex")
         self.cpp_info.components["unifex"].libs = ["unifex"]
 
         if self.settings.os == "Linux":

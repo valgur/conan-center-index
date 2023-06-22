@@ -47,8 +47,12 @@ class YASMConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version][0],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def _generate_autotools(self):
         env = VirtualBuildEnv(self)
@@ -56,11 +60,13 @@ class YASMConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         enable_debug = "yes" if self.settings.build_type == "Debug" else "no"
-        tc.configure_args.extend([
-            f"--enable-debug={enable_debug}",
-            "--disable-rpath",
-            "--disable-nls",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-debug={enable_debug}",
+                "--disable-rpath",
+                "--disable-nls",
+            ]
+        )
         tc.generate()
 
     def _generate_cmake(self):
@@ -90,8 +96,18 @@ class YASMConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="BSD.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="BSD.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            pattern="COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()

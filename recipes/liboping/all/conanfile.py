@@ -26,10 +26,6 @@ class LibopingConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -47,7 +43,9 @@ class LibopingConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("liboping is not supported by Visual Studio")
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("Liboping could not be built on {} as shared library".format(self.settings.os))
+            raise ConanInvalidConfiguration(
+                "Liboping could not be built on {} as shared library".format(self.settings.os)
+            )
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             # Build error - NO Access to a Mac/M1 - please fix when possible - see issue 8634
             raise ConanInvalidConfiguration("Liboping cannot be built on a Mac/M1 at this time")
@@ -57,8 +55,11 @@ class LibopingConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:

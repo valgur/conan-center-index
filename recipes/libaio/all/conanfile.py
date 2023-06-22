@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibaioConan(ConanFile):
     name = "libaio"
     description = "libaio provides the Linux-native API for async I/O."
@@ -45,10 +46,17 @@ class LibaioConan(ConanFile):
 
     def validate(self):
         if self.info.settings.os != "Linux":
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.info.settings.os}.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is not supported on {self.info.settings.os}."
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         if not cross_building(self):
@@ -63,7 +71,12 @@ class LibaioConan(ConanFile):
             autotools.make(target="all")
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         with chdir(self, self.source_folder):
             autotools.make(target="install", args=["prefix=" + self.package_folder])

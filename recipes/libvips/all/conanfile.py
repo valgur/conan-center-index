@@ -117,7 +117,9 @@ class LibvipsConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/2.5.0")
-        self.requires("glib/2.76.1", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires(
+            "glib/2.76.1", transitive_headers=True, transitive_libs=True, run=can_run(self)
+        )
         if self.options.with_cfitsio:
             self.requires("cfitsio/4.1.0")
         if self.options.with_cgif:
@@ -169,17 +171,27 @@ class LibvipsConan(ConanFile):
         if self.options.vapi and not self.options.introspection:
             raise ConanInvalidConfiguration("vapi requires introspection")
         if self.options.with_pangocairo and not self.dependencies["pango"].options.with_cairo:
-            raise ConanInvalidConfiguration(f"{self.ref}:with_pangocairo=True requires pango/*:with_cairo=True")
+            raise ConanInvalidConfiguration(
+                f"{self.ref}:with_pangocairo=True requires pango/*:with_cairo=True"
+            )
         if self.options.with_pdfium and self.options.with_poppler:
             raise ConanInvalidConfiguration("pdf support is enabled either with pdfium or poppler")
-        if self.options.with_cgif and not (self.options.with_imagequant or self.options.with_quantizr):
-            raise ConanInvalidConfiguration("with_cgif requires either with_imagequant or with_quantizr")
+        if self.options.with_cgif and not (
+            self.options.with_imagequant or self.options.with_quantizr
+        ):
+            raise ConanInvalidConfiguration(
+                "with_cgif requires either with_imagequant or with_quantizr"
+            )
 
         # Visual Studio < 2019 doesn't seem to like pointer restrict of pointer restrict in libnsgif
         check_min_vs(self, "192")
 
-        if is_msvc(self) and is_msvc_static_runtime(self) and not self.options.shared and \
-           self.dependencies["glib"].options.shared:
+        if (
+            is_msvc(self)
+            and is_msvc_static_runtime(self)
+            and not self.options.shared
+            and self.dependencies["glib"].options.shared
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} static with MT runtime not supported if glib shared due to conancenter CI limitations"
             )
@@ -286,7 +298,12 @@ class LibvipsConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         meson = Meson(self)
         meson.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -301,7 +318,10 @@ class LibvipsConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["vips"].system_libs.extend(["m", "pthread"])
         self.cpp_info.components["vips"].requires = [
-            "expat::expat", "glib::glib-2.0", "glib::gio-2.0", "glib::gobject-2.0",
+            "expat::expat",
+            "glib::glib-2.0",
+            "glib::gio-2.0",
+            "glib::gobject-2.0",
         ]
         if self.options.with_cfitsio:
             self.cpp_info.components["vips"].requires.append("cfitsio::cfitsio")
@@ -358,10 +378,12 @@ class LibvipsConan(ConanFile):
         # TODO: to remove once conan v1 support dropped
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     from conan.tools.files import rename
     import glob
+
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
@@ -369,7 +391,9 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
+                rename(
+                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
+                )

@@ -12,8 +12,10 @@ class Chipmunk2DConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chipmunk-physics.net"
     topics = ("physics", "engine", "game development")
-    description = "Chipmunk2D is a simple, lightweight, fast and portable 2D "\
-                  "rigid body physics library written in C."
+    description = (
+        "Chipmunk2D is a simple, lightweight, fast and portable 2D "
+        "rigid body physics library written in C."
+    )
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -58,7 +60,12 @@ class Chipmunk2DConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

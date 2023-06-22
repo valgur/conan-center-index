@@ -4,6 +4,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
+
 class ForestDBConan(ConanFile):
     name = "forestdb"
     description = "ForestDB is a KeyValue store based on a Hierarchical B+-Tree."
@@ -16,7 +17,7 @@ class ForestDBConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_snappy": [True, False]
+        "with_snappy": [True, False],
     }
     default_options = {
         "shared": False,
@@ -25,10 +26,6 @@ class ForestDBConan(ConanFile):
     }
 
     generators = "cmake"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -53,7 +50,11 @@ class ForestDBConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -69,7 +70,7 @@ class ForestDBConan(ConanFile):
         cmake.build(target=lib_target)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses/", src=self._source_subfolder )
+        self.copy("LICENSE", dst="licenses/", src=self._source_subfolder)
         # Parent Build system does not support library type selection
         # and will only install the shared object from cmake; so we must
         # handpick our libraries.
@@ -78,7 +79,12 @@ class ForestDBConan(ConanFile):
         self.copy("*.so*", dst="lib", src="lib", symlinks=True)
         self.copy("*.dylib*", dst="lib", src="lib", symlinks=True)
         self.copy("*.dll*", dst="lib", src="lib")
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
+        self.copy(
+            "*.h",
+            dst="include",
+            src=os.path.join(self._source_subfolder, "include"),
+            keep_path=True,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]

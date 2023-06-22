@@ -19,10 +19,6 @@ class EnchantConan(ConanFile):
     generators = "cmake", "cmake_find_package_multi"
     requires = "glib/2.71.3", "hunspell/1.7.0"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         self.copy("CMakeLists.txt")
         self.copy("configmake.h")

@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -125,9 +132,21 @@ class CBlosc2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt", "LZ4.txt", "ZLIB.txt", "STDINT.txt"]
+        licenses = [
+            "BLOSC.txt",
+            "BITSHUFFLE.txt",
+            "FASTLZ.txt",
+            "LZ4.txt",
+            "ZLIB.txt",
+            "STDINT.txt",
+        ]
         for license_file in licenses:
-            copy(self, pattern=license_file, dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "LICENSES"))
+            copy(
+                self,
+                pattern=license_file,
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=os.path.join(self.source_folder, "LICENSES"),
+            )
 
         cmake = CMake(self)
         cmake.install()
@@ -135,7 +154,12 @@ class CBlosc2Conan(ConanFile):
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            rm(self, pattern=dll_pattern_to_remove, folder=os.path.join(self.package_folder, "bin"), recursive=True)
+            rm(
+                self,
+                pattern=dll_pattern_to_remove,
+                folder=os.path.join(self.package_folder, "bin"),
+                recursive=True,
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "blosc2")

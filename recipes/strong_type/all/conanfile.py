@@ -43,20 +43,28 @@ class StrongTypeConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "*", src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "strong_type")
-        self.cpp_info.set_property(
-            "cmake_target_name", "rollbear::strong_type")
+        self.cpp_info.set_property("cmake_target_name", "rollbear::strong_type")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
         self.cpp_info.components["strong_type"].set_property(
-            "cmake_target_name", "rollbear::strong_type")
+            "cmake_target_name", "rollbear::strong_type"
+        )
         self.cpp_info.components["strong_type"].bindirs = []
         self.cpp_info.components["strong_type"].libdirs = []
 

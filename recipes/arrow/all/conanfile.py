@@ -11,39 +11,61 @@ import glob
 
 required_conan_version = ">=1.53.0"
 
+
 class ArrowConan(ConanFile):
     name = "arrow"
     description = "Apache Arrow is a cross-language development platform for in-memory data"
     license = ("Apache-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://arrow.apache.org/"
-    topics = ("memory", "gandiva", "parquet", "skyhook", "acero", "hdfs", "csv", "cuda", "gcs", "json", "hive", "s3", "grpc")
+    topics = (
+        "memory",
+        "gandiva",
+        "parquet",
+        "skyhook",
+        "acero",
+        "hdfs",
+        "csv",
+        "cuda",
+        "gcs",
+        "json",
+        "hive",
+        "s3",
+        "grpc",
+    )
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "gandiva":  [True, False],
+        "gandiva": [True, False],
         "parquet": ["auto", True, False],
         "substrait": [True, False],
         "skyhook": [True, False],
         "acero": [True, False],
         "cli": [True, False],
         "compute": ["auto", True, False],
-        "dataset_modules":  ["auto", True, False],
+        "dataset_modules": ["auto", True, False],
         "deprecated": [True, False],
         "encryption": [True, False],
-        "filesystem_layer":  [True, False],
+        "filesystem_layer": [True, False],
         "hdfs_bridgs": [True, False],
         "plasma": [True, False, "deprecated"],
-        "simd_level": [None, "default", "sse4_2", "avx2", "avx512", "neon", ],
+        "simd_level": [
+            None,
+            "default",
+            "sse4_2",
+            "avx2",
+            "avx512",
+            "neon",
+        ],
         "runtime_simd_level": [None, "sse4_2", "avx2", "avx512", "max"],
         "with_backtrace": [True, False],
         "with_boost": ["auto", True, False],
         "with_csv": [True, False],
         "with_cuda": [True, False],
-        "with_flight_rpc":  ["auto", True, False],
-        "with_flight_sql":  [True, False],
+        "with_flight_rpc": ["auto", True, False],
+        "with_flight_sql": [True, False],
         "with_gcs": [True, False],
         "with_gflags": ["auto", True, False],
         "with_glog": ["auto", True, False],
@@ -164,7 +186,9 @@ class ArrowConan(ConanFile):
 
     def _compute(self, required=False):
         if required or self.options.compute == "auto":
-            return bool(self._parquet() or self._dataset_modules()) or bool(self.options.get_safe("substrait", False))
+            return bool(self._parquet() or self._dataset_modules()) or bool(
+                self.options.get_safe("substrait", False)
+            )
         else:
             return bool(self.options.compute)
 
@@ -198,7 +222,12 @@ class ArrowConan(ConanFile):
 
     def _with_protobuf(self, required=False):
         if required or self.options.with_protobuf == "auto":
-            return bool(self.options.gandiva or self._with_flight_rpc() or self.options.with_orc or self.options.get_safe("substrait", False))
+            return bool(
+                self.options.gandiva
+                or self._with_flight_rpc()
+                or self.options.with_orc
+                or self.options.get_safe("substrait", False)
+            )
         else:
             return bool(self.options.with_protobuf)
 
@@ -232,7 +261,11 @@ class ArrowConan(ConanFile):
                 return True
             version = Version(self.version)
             if version.major == "1":
-                if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
+                if (
+                    self._parquet()
+                    and self.settings.compiler == "gcc"
+                    and self.settings.compiler.version < Version("4.9")
+                ):
                     return True
             elif version.major >= "2":
                 if is_msvc(self):
@@ -311,9 +344,11 @@ class ArrowConan(ConanFile):
             self.requires("lz4/1.9.4")
         if self.options.with_snappy:
             self.requires("snappy/1.1.9")
-        if Version(self.version) >= "6.0.0" and \
-            self.options.get_safe("simd_level") != None or \
-            self.options.get_safe("runtime_simd_level") != None:
+        if (
+            Version(self.version) >= "6.0.0"
+            and self.options.get_safe("simd_level") != None
+            or self.options.get_safe("runtime_simd_level") != None
+        ):
             self.requires("xsimd/9.0.1")
         if self.options.with_zlib:
             self.requires("zlib/1.2.13")
@@ -381,14 +416,22 @@ class ArrowConan(ConanFile):
 
         if self.options.shared and self._with_jemalloc():
             if self.dependencies["jemalloc"].options.enable_cxx:
-                raise ConanInvalidConfiguration("jemmalloc.enable_cxx of a static jemalloc must be disabled")
+                raise ConanInvalidConfiguration(
+                    "jemmalloc.enable_cxx of a static jemalloc must be disabled"
+                )
 
         if Version(self.version) < "6.0.0" and self.options.get_safe("simd_level") == "default":
-            raise ConanInvalidConfiguration(f"In {self.ref}, simd_level options is not supported `default` value.")
+            raise ConanInvalidConfiguration(
+                f"In {self.ref}, simd_level options is not supported `default` value."
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            filename=f"apache-arrow-{self.version}.tar.gz", strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            filename=f"apache-arrow-{self.version}.tar.gz",
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -402,7 +445,9 @@ class ArrowConan(ConanFile):
         if is_msvc(self):
             tc.variables["ARROW_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
         tc.variables["ARROW_DEPENDENCY_SOURCE"] = "SYSTEM"
-        tc.variables["ARROW_PACKAGE_KIND"] = "conan" # See https://github.com/conan-io/conan-center-index/pull/14903/files#r1057938314 for details
+        tc.variables[
+            "ARROW_PACKAGE_KIND"
+        ] = "conan"  # See https://github.com/conan-io/conan-center-index/pull/14903/files#r1057938314 for details
         tc.variables["ARROW_GANDIVA"] = bool(self.options.gandiva)
         tc.variables["ARROW_PARQUET"] = self._parquet()
         tc.variables["ARROW_SUBSTRAIT"] = bool(self.options.get_safe("substrait", False))
@@ -429,7 +474,9 @@ class ArrowConan(ConanFile):
         tc.variables["BOOST_SOURCE"] = "SYSTEM"
         tc.variables["Protobuf_SOURCE"] = "SYSTEM"
         if self._with_protobuf():
-            tc.variables["ARROW_PROTOBUF_USE_SHARED"] = bool(self.dependencies["protobuf"].options.shared)
+            tc.variables["ARROW_PROTOBUF_USE_SHARED"] = bool(
+                self.dependencies["protobuf"].options.shared
+            )
         tc.variables["gRPC_SOURCE"] = "SYSTEM"
         if self._with_grpc():
             tc.variables["ARROW_GRPC_USE_SHARED"] = bool(self.dependencies["grpc"].options.shared)
@@ -440,10 +487,14 @@ class ArrowConan(ConanFile):
         tc.variables["ARROW_WITH_BROTLI"] = bool(self.options.with_brotli)
         tc.variables["brotli_SOURCE"] = "SYSTEM"
         if self.options.with_brotli:
-            tc.variables["ARROW_BROTLI_USE_SHARED"] = bool(self.dependencies["brotli"].options.shared)
+            tc.variables["ARROW_BROTLI_USE_SHARED"] = bool(
+                self.dependencies["brotli"].options.shared
+            )
         tc.variables["gflags_SOURCE"] = "SYSTEM"
         if self._with_gflags():
-            tc.variables["ARROW_GFLAGS_USE_SHARED"] = bool(self.dependencies["gflags"].options.shared)
+            tc.variables["ARROW_GFLAGS_USE_SHARED"] = bool(
+                self.dependencies["gflags"].options.shared
+            )
         tc.variables["ARROW_WITH_BZ2"] = bool(self.options.with_bz2)
         tc.variables["BZip2_SOURCE"] = "SYSTEM"
         if self.options.with_bz2:
@@ -456,7 +507,9 @@ class ArrowConan(ConanFile):
         tc.variables["RapidJSON_SOURCE"] = "SYSTEM"
         tc.variables["Snappy_SOURCE"] = "SYSTEM"
         if self.options.with_snappy:
-            tc.variables["ARROW_SNAPPY_USE_SHARED"] = bool(self.dependencies["snappy"].options.shared)
+            tc.variables["ARROW_SNAPPY_USE_SHARED"] = bool(
+                self.dependencies["snappy"].options.shared
+            )
         tc.variables["ARROW_WITH_ZLIB"] = bool(self.options.with_zlib)
         tc.variables["re2_SOURCE"] = "SYSTEM"
         tc.variables["ZLIB_SOURCE"] = "SYSTEM"
@@ -474,12 +527,20 @@ class ArrowConan(ConanFile):
         tc.variables["ARROW_WITH_THRIFT"] = self._with_thrift()
         tc.variables["Thrift_SOURCE"] = "SYSTEM"
         if self._with_thrift():
-            tc.variables["THRIFT_VERSION"] = bool(self.dependencies["thrift"].ref.version) # a recent thrift does not require boost
-            tc.variables["ARROW_THRIFT_USE_SHARED"] = bool(self.dependencies["thrift"].options.shared)
+            tc.variables["THRIFT_VERSION"] = bool(
+                self.dependencies["thrift"].ref.version
+            )  # a recent thrift does not require boost
+            tc.variables["ARROW_THRIFT_USE_SHARED"] = bool(
+                self.dependencies["thrift"].options.shared
+            )
         tc.variables["ARROW_USE_OPENSSL"] = self._with_openssl()
         if self._with_openssl():
-            tc.variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
-            tc.variables["ARROW_OPENSSL_USE_SHARED"] = bool(self.dependencies["openssl"].options.shared)
+            tc.variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace(
+                "\\", "/"
+            )
+            tc.variables["ARROW_OPENSSL_USE_SHARED"] = bool(
+                self.dependencies["openssl"].options.shared
+            )
         if self._with_boost():
             tc.variables["ARROW_USE_BOOST"] = True
             tc.variables["ARROW_BOOST_USE_SHARED"] = bool(self.dependencies["boost"].options.shared)
@@ -497,12 +558,16 @@ class ArrowConan(ConanFile):
         tc.variables["ARROW_BOOST_REQUIRED"] = self._with_boost()
         tc.variables["utf8proc_SOURCE"] = "SYSTEM"
         if self._with_utf8proc():
-            tc.variables["ARROW_UTF8PROC_USE_SHARED"] = bool(self.dependencies["utf8proc"].options.shared)
+            tc.variables["ARROW_UTF8PROC_USE_SHARED"] = bool(
+                self.dependencies["utf8proc"].options.shared
+            )
         tc.variables["BUILD_WARNING_LEVEL"] = "PRODUCTION"
         if is_msvc(self):
             tc.variables["ARROW_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
         if self._with_llvm():
-            tc.variables["LLVM_DIR"] = self.dependencies["llvm-core"].package_folder.replace("\\", "/")
+            tc.variables["LLVM_DIR"] = self.dependencies["llvm-core"].package_folder.replace(
+                "\\", "/"
+            )
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -511,7 +576,9 @@ class ArrowConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if "7.0.0" <= Version(self.version) < "10.0.0":
-            for filename in glob.glob(os.path.join(self.source_folder, "cpp", "cmake_modules", "Find*.cmake")):
+            for filename in glob.glob(
+                os.path.join(self.source_folder, "cpp", "cmake_modules", "Find*.cmake")
+            ):
                 if os.path.basename(filename) not in [
                     "FindArrow.cmake",
                     "FindArrowAcero.cmake",
@@ -531,14 +598,24 @@ class ArrowConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake =CMake(self)
+        cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "cpp"))
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="NOTICE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        cmake =CMake(self)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="NOTICE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        cmake = CMake(self)
         cmake.install()
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -567,7 +644,9 @@ class ArrowConan(ConanFile):
                 self.cpp_info.components["libparquet"].defines = ["PARQUET_STATIC"]
 
         if self.options.get_safe("substrait"):
-            self.cpp_info.components["libarrow_substrait"].set_property("pkg_config_name", "arrow_substrait")
+            self.cpp_info.components["libarrow_substrait"].set_property(
+                "pkg_config_name", "arrow_substrait"
+            )
             self.cpp_info.components["libarrow_substrait"].libs = [f"arrow_substrait{suffix}"]
             self.cpp_info.components["libarrow_substrait"].requires = ["libparquet", "dataset"]
 
@@ -589,21 +668,30 @@ class ArrowConan(ConanFile):
                 self.cpp_info.components["libgandiva"].defines = ["GANDIVA_STATIC"]
 
         if self._with_flight_rpc():
-            self.cpp_info.components["libarrow_flight"].set_property("pkg_config_name", "flight_rpc")
+            self.cpp_info.components["libarrow_flight"].set_property(
+                "pkg_config_name", "flight_rpc"
+            )
             self.cpp_info.components["libarrow_flight"].libs = [f"arrow_flight{suffix}"]
             self.cpp_info.components["libarrow_flight"].requires = ["libarrow"]
 
         if self.options.get_safe("with_flight_sql"):
-            self.cpp_info.components["libarrow_flight_sql"].set_property("pkg_config_name", "flight_sql")
+            self.cpp_info.components["libarrow_flight_sql"].set_property(
+                "pkg_config_name", "flight_sql"
+            )
             self.cpp_info.components["libarrow_flight_sql"].libs = [f"arrow_flight_sql{suffix}"]
-            self.cpp_info.components["libarrow_flight_sql"].requires = ["libarrow", "libarrow_flight"]
+            self.cpp_info.components["libarrow_flight_sql"].requires = [
+                "libarrow",
+                "libarrow_flight",
+            ]
 
         if self._dataset_modules():
             self.cpp_info.components["dataset"].libs = ["arrow_dataset"]
             if self._parquet():
                 self.cpp_info.components["dataset"].requires = ["libparquet"]
 
-        if self.options.cli and (self.options.with_cuda or self._with_flight_rpc() or self._parquet()):
+        if self.options.cli and (
+            self.options.with_cuda or self._with_flight_rpc() or self._parquet()
+        ):
             binpath = os.path.join(self.package_folder, "bin")
             self.output.info(f"Appending PATH env var: {binpath}")
             self.env_info.PATH.append(binpath)
@@ -612,7 +700,11 @@ class ArrowConan(ConanFile):
             if self.options.gandiva:
                 # FIXME: only filesystem component is used
                 self.cpp_info.components["libgandiva"].requires.append("boost::boost")
-            if self._parquet() and self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
+            if (
+                self._parquet()
+                and self.settings.compiler == "gcc"
+                and self.settings.compiler.version < Version("4.9")
+            ):
                 self.cpp_info.components["libparquet"].requires.append("boost::boost")
             if Version(self.version) >= "2.0":
                 # FIXME: only headers components is used
@@ -654,7 +746,9 @@ class ArrowConan(ConanFile):
         if self.options.with_orc:
             self.cpp_info.components["libarrow"].requires.append("orc::orc")
         if self.options.get_safe("with_opentelemetry"):
-            self.cpp_info.components["libarrow"].requires.append("opentelemetry-cpp::opentelemetry-cpp")
+            self.cpp_info.components["libarrow"].requires.append(
+                "opentelemetry-cpp::opentelemetry-cpp"
+            )
         if self.options.with_brotli:
             self.cpp_info.components["libarrow"].requires.append("brotli::brotli")
         if self.options.with_bz2:
@@ -663,7 +757,10 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("lz4::lz4")
         if self.options.with_snappy:
             self.cpp_info.components["libarrow"].requires.append("snappy::snappy")
-        if self.options.get_safe("simd_level") != None or self.options.get_safe("runtime_simd_level") != None:
+        if (
+            self.options.get_safe("simd_level") != None
+            or self.options.get_safe("runtime_simd_level") != None
+        ):
             self.cpp_info.components["libarrow"].requires.append("xsimd::xsimd")
         if self.options.with_zlib:
             self.cpp_info.components["libarrow"].requires.append("zlib::zlib")
@@ -685,16 +782,28 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libparquet"].names["cmake_find_package"] = "parquet"
             self.cpp_info.components["libparquet"].names["cmake_find_package_multi"] = "parquet"
         if self.options.get_safe("substrait"):
-            self.cpp_info.components["libarrow_substrait"].names["cmake_find_package"] = "arrow_substrait"
-            self.cpp_info.components["libarrow_substrait"].names["cmake_find_package_multi"] = "arrow_substrait"
+            self.cpp_info.components["libarrow_substrait"].names[
+                "cmake_find_package"
+            ] = "arrow_substrait"
+            self.cpp_info.components["libarrow_substrait"].names[
+                "cmake_find_package_multi"
+            ] = "arrow_substrait"
         if self.options.gandiva:
             self.cpp_info.components["libgandiva"].names["cmake_find_package"] = "gandiva"
             self.cpp_info.components["libgandiva"].names["cmake_find_package_multi"] = "gandiva"
         if self._with_flight_rpc():
             self.cpp_info.components["libarrow_flight"].names["cmake_find_package"] = "flight_rpc"
-            self.cpp_info.components["libarrow_flight"].names["cmake_find_package_multi"] = "flight_rpc"
+            self.cpp_info.components["libarrow_flight"].names[
+                "cmake_find_package_multi"
+            ] = "flight_rpc"
         if self.options.get_safe("with_flight_sql"):
-            self.cpp_info.components["libarrow_flight_sql"].names["cmake_find_package"] = "flight_sql"
-            self.cpp_info.components["libarrow_flight_sql"].names["cmake_find_package_multi"] = "flight_sql"
-        if self.options.cli and (self.options.with_cuda or self._with_flight_rpc() or self._parquet()):
+            self.cpp_info.components["libarrow_flight_sql"].names[
+                "cmake_find_package"
+            ] = "flight_sql"
+            self.cpp_info.components["libarrow_flight_sql"].names[
+                "cmake_find_package_multi"
+            ] = "flight_sql"
+        if self.options.cli and (
+            self.options.with_cuda or self._with_flight_rpc() or self._parquet()
+        ):
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

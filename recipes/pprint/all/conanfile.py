@@ -13,10 +13,6 @@ class PprintConan(ConanFile):
     topics = ("conan", "pprint", "pretty", "printer")
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def configure(self):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, 17)
@@ -34,7 +30,6 @@ class PprintConan(ConanFile):
         else:
             self.output.warn("pprint needs a c++17 capable compiler")
 
-
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
         os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
@@ -42,7 +37,9 @@ class PprintConan(ConanFile):
     def package(self):
         self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
         self.copy(pattern="*.h", src=os.path.join(self._source_subfolder, "include"), dst="include")
-        self.copy(pattern="*.hpp", src=os.path.join(self._source_subfolder, "include"), dst="include")
+        self.copy(
+            pattern="*.hpp", src=os.path.join(self._source_subfolder, "include"), dst="include"
+        )
 
     def package_id(self):
         self.info.header_only()

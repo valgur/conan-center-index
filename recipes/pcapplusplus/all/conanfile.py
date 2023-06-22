@@ -3,7 +3,15 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
-from conan.tools.files import apply_conandata_patches, copy, chdir, export_conandata_patches, get, rename, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    chdir,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, MSBuild, MSBuildToolchain
@@ -53,13 +61,19 @@ class PcapplusplusConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self):
-            raise ConanInvalidConfiguration("Can not build on Windows: only msvc compiler is supported.")
+            raise ConanInvalidConfiguration(
+                "Can not build on Windows: only msvc compiler is supported."
+            )
         if self.settings.os not in ("FreeBSD", "Linux", "Macos", "Windows"):
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     @property
     def _configure_sh_script(self):
@@ -72,19 +86,28 @@ class PcapplusplusConan(ConanFile):
 
     def _patch_sources(self):
         if not self.options.get_safe("fPIC") and self.settings.os != "Windows":
-            replace_in_file(self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"),
-                                  "-fPIC", "")
+            replace_in_file(
+                self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"), "-fPIC", ""
+            )
         apply_conandata_patches(self)
         if self.settings.os != "Windows":
-            rename(self, os.path.join(self.source_folder, self._configure_sh_script), os.path.join(self.source_folder, "configure"))
+            rename(
+                self,
+                os.path.join(self.source_folder, self._configure_sh_script),
+                os.path.join(self.source_folder, "configure"),
+            )
         else:
             props_file = os.path.join(self.generators_folder, "conantoolchain.props")
             vcxproj_templates = glob.glob(f"{self.source_folder}/mk/vs/*.vcxproj.template")
             for template_file in vcxproj_templates:
-                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props 
+                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props
                 # so that we have precedence over PlatformToolset version
-                replace_in_file(self, template_file, '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />', 
-                                f'<Import Project="{props_file}" />\n<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />')
+                replace_in_file(
+                    self,
+                    template_file,
+                    '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
+                    f'<Import Project="{props_file}" />\n<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
+                )
 
     def generate(self):
         if self.settings.os == "Windows":
@@ -92,17 +115,31 @@ class PcapplusplusConan(ConanFile):
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
-            tc.configure_args.clear() # this configure script does not accept the typical arguments
-            tc.configure_args.extend([
-                "--libpcap-include-dir", unix_path(self, self.dependencies["libpcap"].cpp_info.aggregated_components().includedirs[0]),
-                "--libpcap-lib-dir", unix_path(self, self.dependencies["libpcap"].cpp_info.aggregated_components().includedirs[0]),
-            ])
+            tc.configure_args.clear()  # this configure script does not accept the typical arguments
+            tc.configure_args.extend(
+                [
+                    "--libpcap-include-dir",
+                    unix_path(
+                        self,
+                        self.dependencies["libpcap"]
+                        .cpp_info.aggregated_components()
+                        .includedirs[0],
+                    ),
+                    "--libpcap-lib-dir",
+                    unix_path(
+                        self,
+                        self.dependencies["libpcap"]
+                        .cpp_info.aggregated_components()
+                        .includedirs[0],
+                    ),
+                ]
+            )
 
             if self.options.immediate_mode:
                 tc.configure_args.append("--use-immediate-mode")
             if is_apple_os(self) and "arm" in self.settings.arch:
                 tc.configure_args.append("--arm64")
-            
+
             tc.generate()
 
     def build(self):
@@ -119,21 +156,46 @@ class PcapplusplusConan(ConanFile):
         with chdir(self, self.source_folder):
             config_args = [
                 "configure-windows-visual-studio.bat",
-                "--pcap-sdk", self.dependencies["npcap"].package_folder,
-                "--vs-version", "vs2015", # this will be later overridden by the props file generated by MSBuildToolchain
+                "--pcap-sdk",
+                self.dependencies["npcap"].package_folder,
+                "--vs-version",
+                "vs2015",  # this will be later overridden by the props file generated by MSBuildToolchain
             ]
             if self.version < "22.11":
                 config_args += ["--pthreads-home", self.dependencies["pthreads4w"].package_folder]
             self.run(" ".join(config_args), env="conanbuild")
             msbuild = MSBuild(self)
-            targets = ['Common++', 'Packet++', 'Pcap++']
+            targets = ["Common++", "Packet++", "Pcap++"]
             msbuild.build("mk/vs2015/PcapPlusPlus.sln", targets=targets)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
-        copy(self, "*.h", src=os.path.join(self.source_folder,  "Dist", "header"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*.a", src=os.path.join(self.source_folder,  "Dist"), dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.lib", src=os.path.join(self.source_folder,  "Dist"), dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "Dist", "header"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "*.a",
+            src=os.path.join(self.source_folder, "Dist"),
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.lib",
+            src=os.path.join(self.source_folder, "Dist"),
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["Pcap++", "Packet++", "Common++"]

@@ -11,16 +11,18 @@ class CgltfConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
 
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -37,16 +39,12 @@ class CgltfConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def _create_source_files(self):
-        cgltf_c = (
-            "#define CGLTF_IMPLEMENTATION\n"
-            "#include \"cgltf.h\"\n"
-        )
-        cgltf_write_c = (
-            "#define CGLTF_WRITE_IMPLEMENTATION\n"
-            "#include \"cgltf_write.h\"\n"
-        )
+        cgltf_c = "#define CGLTF_IMPLEMENTATION\n" '#include "cgltf.h"\n'
+        cgltf_write_c = "#define CGLTF_WRITE_IMPLEMENTATION\n" '#include "cgltf_write.h"\n'
         tools.save(os.path.join(self.build_folder, self._source_subfolder, "cgltf.c"), cgltf_c)
-        tools.save(os.path.join(self.build_folder, self._source_subfolder, "cgltf_write.c"), cgltf_write_c)
+        tools.save(
+            os.path.join(self.build_folder, self._source_subfolder, "cgltf_write.c"), cgltf_write_c
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -82,7 +80,7 @@ class CgltfConan(ConanFile):
                 " * Implementation removed by conan during packaging.\n"
                 " * Don't forget to link libs provided in this package.\n"
                 " */\n\n"
-            )
+            ),
         )
 
     def package_info(self):

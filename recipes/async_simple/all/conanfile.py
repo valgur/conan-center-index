@@ -49,7 +49,9 @@ class AsyncSimpleConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -61,19 +63,29 @@ class AsyncSimpleConan(ConanFile):
         pass
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.h",
             dst=os.path.join(self.package_folder, "include/async_simple"),
             src=os.path.join(self.source_folder, "async_simple"),
-            excludes=("test", "executors", "uthread")
+            excludes=("test", "executors", "uthread"),
         )
 
     def package_info(self):
@@ -89,6 +101,12 @@ class AsyncSimpleConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "async_simple"
         self.cpp_info.names["cmake_find_package"] = "async_simple"
         self.cpp_info.names["cmake_find_package_multi"] = "async_simple"
-        self.cpp_info.components["_async_simple"].names["cmake_find_package"] = "async_simple_header_only"
-        self.cpp_info.components["_async_simple"].names["cmake_find_package_multi"] = "async_simple_header_only"
-        self.cpp_info.components["_async_simple"].set_property("cmake_target_name", "async_simple::async_simple_header_only")
+        self.cpp_info.components["_async_simple"].names[
+            "cmake_find_package"
+        ] = "async_simple_header_only"
+        self.cpp_info.components["_async_simple"].names[
+            "cmake_find_package_multi"
+        ] = "async_simple_header_only"
+        self.cpp_info.components["_async_simple"].set_property(
+            "cmake_target_name", "async_simple::async_simple_header_only"
+        )

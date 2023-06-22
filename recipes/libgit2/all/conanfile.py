@@ -26,7 +26,14 @@ class LibGit2Conan(ConanFile):
         "with_iconv": [True, False],
         "with_libssh2": [True, False],
         "with_https": [False, "openssl", "mbedtls", "winhttp", "security"],
-        "with_sha1": ["collisiondetection", "commoncrypto", "openssl", "mbedtls", "generic", "win32"],
+        "with_sha1": [
+            "collisiondetection",
+            "commoncrypto",
+            "openssl",
+            "mbedtls",
+            "generic",
+            "win32",
+        ],
         "with_ntlmclient": [True, False],
         "with_regex": ["builtin", "pcre", "pcre2", "regcomp_l", "regcomp"],
     }
@@ -42,10 +49,6 @@ class LibGit2Conan(ConanFile):
         "with_regex": "builtin",
     }
     generators = "cmake", "cmake_find_package"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -109,14 +112,24 @@ class LibGit2Conan(ConanFile):
 
         if self.options.with_regex == "regcomp" or self.options.with_regex == "regcomp_l":
             if self.settings.compiler == "Visual Studio":
-                raise ConanInvalidConfiguration("{} isn't supported by Visual Studio".format(self.options.with_regex))
+                raise ConanInvalidConfiguration(
+                    "{} isn't supported by Visual Studio".format(self.options.with_regex)
+                )
 
-        if self.settings.os in ["iOS", "tvOS", "watchOS"] and self.options.with_regex == "regcomp_l":
-            raise ConanInvalidConfiguration("regcomp_l isn't supported on {}".format(self.settings.os))
+        if (
+            self.settings.os in ["iOS", "tvOS", "watchOS"]
+            and self.options.with_regex == "regcomp_l"
+        ):
+            raise ConanInvalidConfiguration(
+                "regcomp_l isn't supported on {}".format(self.settings.os)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     _cmake_https = {
         "openssl": "OpenSSL",

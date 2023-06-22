@@ -15,13 +15,15 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self):
-            ttf_path = os.path.join(
-                self.source_folder, "Sacramento-Regular.ttf")
-            charset_path = os.path.join(
-                self.source_folder, "uppercase_charset")
+            ttf_path = os.path.join(self.source_folder, "Sacramento-Regular.ttf")
+            charset_path = os.path.join(self.source_folder, "uppercase_charset")
 
             ret_code = self.run(
-                "msdf-atlas-gen -font {} -charset {} -imageout {} -json {}".format(ttf_path, charset_path, self._atlas_texture_file, self._atlas_desc_file), run_environment=True)
+                "msdf-atlas-gen -font {} -charset {} -imageout {} -json {}".format(
+                    ttf_path, charset_path, self._atlas_texture_file, self._atlas_desc_file
+                ),
+                run_environment=True,
+            )
 
             assert ret_code == 0
             assert os.path.isfile(self._atlas_texture_file)

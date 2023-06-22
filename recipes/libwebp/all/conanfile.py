@@ -90,7 +90,12 @@ class LibwebpConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
@@ -99,7 +104,9 @@ class LibwebpConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libwebp-all-do-not-use")
 
         # webpdecoder
-        self.cpp_info.components["webpdecoder"].set_property("cmake_target_name", "WebP::webpdecoder")
+        self.cpp_info.components["webpdecoder"].set_property(
+            "cmake_target_name", "WebP::webpdecoder"
+        )
         self.cpp_info.components["webpdecoder"].set_property("pkg_config_name", "libwebpdecoder")
         self.cpp_info.components["webpdecoder"].libs = ["webpdecoder"]
         if self.settings.os in ["Linux", "FreeBSD"]:

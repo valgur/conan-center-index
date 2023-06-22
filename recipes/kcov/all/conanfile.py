@@ -3,6 +3,7 @@ from conan import ConanFile
 from conans import CMake, tools
 from conans.errors import ConanInvalidConfiguration
 
+
 class KcovConan(ConanFile):
     name = "kcov"
     license = "GPL-2.0"
@@ -14,10 +15,7 @@ class KcovConan(ConanFile):
     topics = ("coverage", "linux", "debug")
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "CMakeLists.txt", "patches/**"
-    requires = ["zlib/1.2.12",
-                "libiberty/9.1.0",
-                "libcurl/7.83.1",
-                "elfutils/0.180"]
+    requires = ["zlib/1.2.12", "libiberty/9.1.0", "libcurl/7.83.1", "elfutils/0.180"]
     generators = "cmake"
     _cmake = None
     _source_subfolder = "source_subfolder"
@@ -25,8 +23,7 @@ class KcovConan(ConanFile):
 
     def configure(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "kcov can not be built on windows.")
+            raise ConanInvalidConfiguration("kcov can not be built on windows.")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -57,7 +54,6 @@ class KcovConan(ConanFile):
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}"
-                         .format(bindir))
+        self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
         self.cpp_info.includedirs = []

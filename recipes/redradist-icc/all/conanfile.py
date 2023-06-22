@@ -4,30 +4,28 @@ import os
 
 
 class ICCConan(ConanFile):
-    name = 'redradist-icc'
-    homepage = 'https://github.com/redradist/Inter-Component-Communication'
-    license = 'MIT'
-    url = 'https://github.com/conan-io/conan-center-index'
-    description = "I.C.C. - Inter Component Communication, This is a library created to simplify communication between " \
-                  "components inside of single application. It is thread safe and could be used for creating " \
-                  "components that works in different threads. "
+    name = "redradist-icc"
+    homepage = "https://github.com/redradist/Inter-Component-Communication"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    description = (
+        "I.C.C. - Inter Component Communication, This is a library created to simplify communication between "
+        "components inside of single application. It is thread safe and could be used for creating "
+        "components that works in different threads. "
+    )
     topics = ("thread-safe", "active-object", "communication")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
-        'fPIC': [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        'shared': False,
-        'fPIC': True,
+        "shared": False,
+        "fPIC": True,
     }
     generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _minimum_cpp_standard(self):
@@ -35,18 +33,13 @@ class ICCConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {
-            "Visual Studio": "15",
-            "apple-clang": "9.4",
-            "clang": "3.3",
-            "gcc": "4.9.4"
-        }
+        return {"Visual Studio": "15", "apple-clang": "9.4", "clang": "3.3", "gcc": "4.9.4"}
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         cmake = CMake(self)
-        cmake.definitions['ICC_BUILD_SHARED'] = self.options.shared
+        cmake.definitions["ICC_BUILD_SHARED"] = self.options.shared
         cmake.configure()
         self._cmake = cmake
         return self._cmake
@@ -57,9 +50,7 @@ class ICCConan(ConanFile):
 
         os = self.settings.os
         if os not in ("Windows", "Linux"):
-            msg = (
-                "OS {} is not supported !!"
-            ).format(os)
+            msg = ("OS {} is not supported !!").format(os)
             raise ConanInvalidConfiguration(msg)
 
         compiler = self.settings.compiler
@@ -78,7 +69,7 @@ class ICCConan(ConanFile):
             self.output.warn(msg)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -91,7 +82,11 @@ class ICCConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         cmake = self._configure_cmake()
@@ -109,7 +104,7 @@ class ICCConan(ConanFile):
         else:
             self.cpp_info.libs = ["ICC_static"]
 
-        if self.settings.os == 'Windows':
-            self.cpp_info.system_libs = ['ws2_32', 'wsock32']
-        if self.settings.os == 'Linux':
-            self.cpp_info.system_libs = ['pthread']
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs = ["ws2_32", "wsock32"]
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs = ["pthread"]

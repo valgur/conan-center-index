@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class QuillConan(ConanFile):
     name = "quill"
     description = "Asynchronous Low Latency C++ Logging Library"
@@ -41,20 +42,18 @@ class QuillConan(ConanFile):
     @property
     def _compilers_minimum_versions(self):
         return {
-            "14":
-                {
-                    "gcc": "5",
-                    "Visual Studio": "15",
-                    "clang": "5",
-                    "apple-clang": "10",
-                },
-            "17":
-                {
-                    "gcc": "8",
-                    "Visual Studio": "16",
-                    "clang": "7",
-                    "apple-clang": "12",
-                },
+            "14": {
+                "gcc": "5",
+                "Visual Studio": "15",
+                "clang": "5",
+                "apple-clang": "10",
+            },
+            "17": {
+                "gcc": "8",
+                "Visual Studio": "16",
+                "clang": "7",
+                "apple-clang": "12",
+            },
         }
 
     def config_options(self):
@@ -84,14 +83,23 @@ class QuillConan(ConanFile):
         minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
         else:
-            self.output.warning(f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
+            self.output.warning(
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
+            )
 
-        if Version(self.version) >= "2.0.0" and \
-            self.settings.compiler== "clang" and Version(self.settings.compiler.version).major == "11" and \
-            self.settings.compiler.libcxx == "libstdc++":
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++ filesystem library, which your compiler doesn't support.")
+        if (
+            Version(self.version) >= "2.0.0"
+            and self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version).major == "11"
+            and self.settings.compiler.libcxx == "libstdc++"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++ filesystem library, which your compiler doesn't support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -128,7 +136,9 @@ class QuillConan(ConanFile):
             else:
                 tc.preprocessor_definitions["QUILL_X86ARCH"] = 1
             tc.variables["CMAKE_CXX_FLAGS"] = "-mclflushopt"
-        if Version(self.version) >= "2.8.0" and self.options.get_safe("with_bounded_blocking_queue"):
+        if Version(self.version) >= "2.8.0" and self.options.get_safe(
+            "with_bounded_blocking_queue"
+        ):
             tc.preprocessor_definitions["QUILL_USE_BOUNDED_BLOCKING_QUEUE"] = 1
 
         tc.generate()
@@ -138,13 +148,20 @@ class QuillConan(ConanFile):
 
     def _patch_sources(self):
         # remove bundled fmt
-        rmdir(self, os.path.join(self.source_folder, "quill", "quill", "include", "quill", "bundled", "fmt"))
+        rmdir(
+            self,
+            os.path.join(
+                self.source_folder, "quill", "quill", "include", "quill", "bundled", "fmt"
+            ),
+        )
         rmdir(self, os.path.join(self.source_folder, "quill", "quill", "src", "bundled", "fmt"))
 
         if "2.0.0" <= Version(self.version) < "2.9.1":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
                 """set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/quill/cmake" CACHE STRING "Modules for CMake" FORCE)""",
-                """set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/quill/cmake")"""
+                """set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/quill/cmake")""",
             )
 
     def build(self):
@@ -154,7 +171,12 @@ class QuillConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -170,6 +192,9 @@ class QuillConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-        if Version(self.version) >= "2.0.0" and \
-            self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
+        if (
+            Version(self.version) >= "2.0.0"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version).major == "8"
+        ):
             self.cpp_info.system_libs.append("stdc++fs")

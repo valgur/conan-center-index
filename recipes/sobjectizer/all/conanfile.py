@@ -11,11 +11,19 @@ class SobjectizerConan(ConanFile):
     homepage = "https://github.com/Stiffstream/sobjectizer"
     url = "https://github.com/conan-io/conan-center-index"
     description = (
-            "A framework for simplification of development of sophisticated "
-            "concurrent and event-driven applications in C++ "
-            "by using Actor, Publish-Subscribe and CSP models."
+        "A framework for simplification of development of sophisticated "
+        "concurrent and event-driven applications in C++ "
+        "by using Actor, Publish-Subscribe and CSP models."
     )
-    topics = ("concurrency", "actor-framework", "actors", "agents", "actor-model", "publish-subscribe", "CSP")
+    topics = (
+        "concurrency",
+        "actor-framework",
+        "actors",
+        "agents",
+        "actor-model",
+        "publish-subscribe",
+        "CSP",
+    )
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -30,10 +38,6 @@ class SobjectizerConan(ConanFile):
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -51,23 +55,25 @@ class SobjectizerConan(ConanFile):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-            "Visual Studio": "15"
-        }
+        minimal_version = {"gcc": "7", "clang": "6", "apple-clang": "10", "Visual Studio": "15"}
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
+                "%s recipe lacks information about the %s compiler standard version support"
+                % (self.name, compiler)
+            )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+                "%s requires a compiler that supports at least C++%s"
+                % (self.name, minimal_cpp_standard)
+            )
             return
 
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+            raise ConanInvalidConfiguration(
+                "%s requires a compiler that supports at least C++%s"
+                % (self.name, minimal_cpp_standard)
+            )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -86,13 +92,22 @@ class SobjectizerConan(ConanFile):
         cmake.build()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        self.copy("license*", src=self._source_subfolder, dst="licenses",  ignore_case=True, keep_path=False)
+        self.copy(
+            "license*",
+            src=self._source_subfolder,
+            dst="licenses",
+            ignore_case=True,
+            keep_path=False,
+        )
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
@@ -111,4 +126,6 @@ class SobjectizerConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "sobjectizer"
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_sobjectizer"].set_property("cmake_target_name", "sobjectizer::{}".format(cmake_target))
+        self.cpp_info.components["_sobjectizer"].set_property(
+            "cmake_target_name", "sobjectizer::{}".format(cmake_target)
+        )

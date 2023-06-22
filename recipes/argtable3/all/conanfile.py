@@ -1,11 +1,19 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 import textwrap
 
 required_conan_version = ">=1.53.0"
+
 
 class Argtable3Conan(ConanFile):
     name = "argtable3"
@@ -63,16 +71,23 @@ class Argtable3Conan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -83,7 +98,7 @@ class Argtable3Conan(ConanFile):
         target_name = "argtable3" if self.options.shared else "argtable3_static"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {target_name: "argtable3::argtable3"}
+            {target_name: "argtable3::argtable3"},
         )
 
     def package_info(self):
@@ -99,7 +114,9 @@ class Argtable3Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Argtable3")
         self.cpp_info.set_property("cmake_target_name", "argtable3::argtable3")
         # These targets were for versions < 3.2.1 (newer create argtable3::argtable3)
-        self.cpp_info.set_property("cmake_target_aliases", ["argtable3" if self.options.shared else "argtable3_static"])
+        self.cpp_info.set_property(
+            "cmake_target_aliases", ["argtable3" if self.options.shared else "argtable3_static"]
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Argtable3"

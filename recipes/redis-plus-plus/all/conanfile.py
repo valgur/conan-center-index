@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -75,18 +82,26 @@ class RedisPlusPlusConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(
+            str(self.info.settings.compiler), False
+        )
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
         if self.info.options.with_tls and not self.dependencies["hiredis"].options.with_ssl:
-            raise ConanInvalidConfiguration(f"{self.name}:with_tls=True requires hiredis:with_ssl=True")
+            raise ConanInvalidConfiguration(
+                f"{self.name}:with_tls=True requires hiredis:with_ssl=True"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -110,9 +125,12 @@ class RedisPlusPlusConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if Version(self.version) < "1.2.3":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "set_target_properties(${STATIC_LIB} PROPERTIES POSITION_INDEPENDENT_CODE ON)",
-                                  "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "set_target_properties(${STATIC_LIB} PROPERTIES POSITION_INDEPENDENT_CODE ON)",
+                "",
+            )
 
     def build(self):
         self._patch_sources()
@@ -121,7 +139,12 @@ class RedisPlusPlusConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -147,7 +170,13 @@ class RedisPlusPlusConan(ConanFile):
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "redis++"
         self.cpp_info.names["cmake_find_package_multi"] = "redis++"
-        self.cpp_info.components["redis++lib"].names["cmake_find_package"] = f"redis++{target_suffix}"
-        self.cpp_info.components["redis++lib"].names["cmake_find_package_multi"] = f"redis++{target_suffix}"
-        self.cpp_info.components["redis++lib"].set_property("cmake_target_name", f"redis++::redis++{target_suffix}")
+        self.cpp_info.components["redis++lib"].names[
+            "cmake_find_package"
+        ] = f"redis++{target_suffix}"
+        self.cpp_info.components["redis++lib"].names[
+            "cmake_find_package_multi"
+        ] = f"redis++{target_suffix}"
+        self.cpp_info.components["redis++lib"].set_property(
+            "cmake_target_name", f"redis++::redis++{target_suffix}"
+        )
         self.cpp_info.components["redis++lib"].set_property("pkg_config_name", "redis++")

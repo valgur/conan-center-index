@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class NaiveTsearchConan(ConanFile):
     name = "naive-tsearch"
     description = "A simple tsearch() implementation for platforms without one"
@@ -12,7 +13,7 @@ class NaiveTsearchConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kulp/naive-tsearch"
     topics = ("tsearch", "search", "tree", "msvc")
-    package_type = 'static-library'
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -31,7 +32,7 @@ class NaiveTsearchConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if self.options.header_only:
-            self.package_type = 'header-library'
+            self.package_type = "header-library"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,7 +58,12 @@ class NaiveTsearchConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -67,7 +73,11 @@ class NaiveTsearchConan(ConanFile):
         else:
             rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            rm(self, "tsearch_hdronly.h", os.path.join(self.package_folder, "include", "naive-tsearch"))
+            rm(
+                self,
+                "tsearch_hdronly.h",
+                os.path.join(self.package_folder, "include", "naive-tsearch"),
+            )
             rm(self, "tsearch.c.inc", os.path.join(self.package_folder, "include", "naive-tsearch"))
 
     def package_info(self):
@@ -75,20 +85,36 @@ class NaiveTsearchConan(ConanFile):
             self.cpp_info.components["header_only"].libs = []
             self.cpp_info.components["header_only"].libdirs = []
             self.cpp_info.components["header_only"].bindirs = []
-            self.cpp_info.components["header_only"].includedirs.append(os.path.join("include", "naive-tsearch"))
+            self.cpp_info.components["header_only"].includedirs.append(
+                os.path.join("include", "naive-tsearch")
+            )
             self.cpp_info.components["header_only"].defines = ["NAIVE_TSEARCH_HDRONLY"]
-            self.cpp_info.components["header_only"].set_property("cmake_target_name", "naive-tsearch::naive-tsearch-hdronly")
+            self.cpp_info.components["header_only"].set_property(
+                "cmake_target_name", "naive-tsearch::naive-tsearch-hdronly"
+            )
             self.cpp_info.components["header_only"].set_property("pkg_config_name", "naive-tsearch")
         else:
             self.cpp_info.components["naive_tsearch"].libs = ["naive-tsearch"]
-            self.cpp_info.components["naive_tsearch"].includedirs.append(os.path.join("include", "naive-tsearch"))
-            self.cpp_info.components["naive_tsearch"].set_property("cmake_target_name", "naive-tsearch::naive-tsearch")
-            self.cpp_info.components["naive_tsearch"].set_property("pkg_config_name", "naive-tsearch")
+            self.cpp_info.components["naive_tsearch"].includedirs.append(
+                os.path.join("include", "naive-tsearch")
+            )
+            self.cpp_info.components["naive_tsearch"].set_property(
+                "cmake_target_name", "naive-tsearch::naive-tsearch"
+            )
+            self.cpp_info.components["naive_tsearch"].set_property(
+                "pkg_config_name", "naive-tsearch"
+            )
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         if self.options.header_only:
-            self.cpp_info.components["header_only"].names["cmake_find_package"] = "naive-tsearch-hdronly"
-            self.cpp_info.components["header_only"].names["cmake_find_package_multi"] = "naive-tsearch-hdronly"
+            self.cpp_info.components["header_only"].names[
+                "cmake_find_package"
+            ] = "naive-tsearch-hdronly"
+            self.cpp_info.components["header_only"].names[
+                "cmake_find_package_multi"
+            ] = "naive-tsearch-hdronly"
         else:
             self.cpp_info.components["naive_tsearch"].names["cmake_find_package"] = "naive-tsearch"
-            self.cpp_info.components["naive_tsearch"].names["cmake_find_package_multi"] = "naive-tsearch"
+            self.cpp_info.components["naive_tsearch"].names[
+                "cmake_find_package_multi"
+            ] = "naive-tsearch"

@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    save,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -56,11 +63,15 @@ class IrrXMLConan(ConanFile):
 
     def _extract_license(self):
         header = load(self, os.path.join(self.source_folder, "src", "irrXML.h"))
-        license_contents = header[header.find(r"\section license License")+25:header.find(r"\section history", 1)]
+        license_contents = header[
+            header.find(r"\section license License") + 25 : header.find(r"\section history", 1)
+        ]
         return license_contents
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 

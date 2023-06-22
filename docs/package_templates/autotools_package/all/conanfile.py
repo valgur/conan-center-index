@@ -3,7 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -112,11 +119,13 @@ class PackageConan(ConanFile):
         tc = AutotoolsToolchain(self)
         # autotools usually uses 'yes' and 'no' to enable/disable options
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--with-foobar={yes_no(self.options.with_foobar)}",
-            "--enable-tools=no",
-            "--enable-manpages=no",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--with-foobar={yes_no(self.options.with_foobar)}",
+                "--enable-tools=no",
+                "--enable-manpages=no",
+            ]
+        )
         tc.generate()
         # generate pkg-config files of dependencies (useless if upstream configure.ac doesn't rely on PKG_CHECK_MODULES macro)
         tc = PkgConfigDeps(self)
@@ -132,12 +141,16 @@ class PackageConan(ConanFile):
             # it's not always required to wrap CC, CXX & AR with these scripts, it depends on how much love was put in
             # upstream build files
             automake_conf = self.dependencies.build["automake"].conf_info
-            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
-            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            compile_wrapper = unix_path(
+                self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
+            )
+            ar_wrapper = unix_path(
+                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
+            )
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -155,7 +168,12 @@ class PackageConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
 

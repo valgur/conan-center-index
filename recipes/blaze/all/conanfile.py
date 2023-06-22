@@ -29,8 +29,12 @@ class BlazeConan(ConanFile):
 
     def source(self):
         base_source_dir = os.path.join(self.source_folder, os.pardir)
-        get(self, **self.conan_data["sources"][self.version],
-            destination=base_source_dir, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=base_source_dir,
+            strip_root=True,
+        )
         with chdir(self, base_source_dir):
             rmdir(self, self.source_folder)
             rename(self, src=f"blaze-{self.version}", dst=self.source_folder)
@@ -39,8 +43,18 @@ class BlazeConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "blaze/*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "blaze/*.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "blaze")

@@ -11,14 +11,16 @@ class PbtoolsConan(ConanFile):
     license = "MIT"
     topics = ("protobuf", "serialization", "rpc", "protocol-buffers")
     settings = ("os", "compiler", "build_type", "arch")
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -33,7 +35,11 @@ class PbtoolsConan(ConanFile):
             raise ConanInvalidConfiguration("This library is not compatible with Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

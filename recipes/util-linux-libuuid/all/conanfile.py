@@ -65,16 +65,22 @@ class UtilLinuxLibuuidConan(ConanFile):
         return min_version.get(str(compiler), {}).get(str(build_type), "0")
 
     def validate(self):
-        min_version = self._minimum_compiler_version(self.settings.compiler, self.settings.build_type)
+        min_version = self._minimum_compiler_version(
+            self.settings.compiler, self.settings.build_type
+        )
         if Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version requirement of version {min_version}")
+            raise ConanInvalidConfiguration(
+                f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version requirement of version {min_version}"
+            )
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows")
         if self.settings.os == "Macos":
             # FIXME: Add Macos compatibility. This is currently breaking because builds are unable to find libtool-2
             # This is a bit puzzling given `libtool` is a tool_requires, and I haven't been able to replicate this error
             # locally.
-            raise ConanInvalidConfiguration(f"{self.ref} is not currently supported on Macos. Please contribute this functionality if you require it.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is not currently supported on Macos. Please contribute this functionality if you require it."
+            )
 
     def requirements(self):
         if self.settings.os == "Macos":
@@ -116,7 +122,12 @@ class UtilLinuxLibuuidConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING.BSD-3-Clause", src=os.path.join(self.source_folder, "Documentation", "licenses"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.BSD-3-Clause",
+            src=os.path.join(self.source_folder, "Documentation", "licenses"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

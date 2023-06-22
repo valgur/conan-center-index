@@ -13,12 +13,8 @@ class FlatcConan(ConanFile):
     topics = ("conan", "flatbuffers", "serialization", "rpc", "json-parser", "installer")
     description = "Memory Efficient Serialization Library"
     settings = "os", "arch"
-    exports_sources = ["CMakeLists.txt","patches/**"]
+    exports_sources = ["CMakeLists.txt", "patches/**"]
     generators = "cmake"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -54,11 +50,15 @@ class FlatcConan(ConanFile):
         bin_dir = os.path.join(self._build_subfolder, "bin")
         self.copy(pattern="flatc" + extension, dst="bin", src=bin_dir)
         self.copy(pattern="flathash" + extension, dst="bin", src=bin_dir)
-        self.copy(pattern="BuildFlatBuffers.cmake", dst="bin/cmake", src=os.path.join(self._source_subfolder,"CMake"))
+        self.copy(
+            pattern="BuildFlatBuffers.cmake",
+            dst="bin/cmake",
+            src=os.path.join(self._source_subfolder, "CMake"),
+        )
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info('Appending PATH environment variable: %s' % bin_path)
+        self.output.info("Appending PATH environment variable: %s" % bin_path)
         self.env_info.PATH.append(bin_path)
         self.cpp_info.builddirs.append("bin/cmake")
         self.cpp_info.build_modules.append("bin/cmake/BuildFlatBuffers.cmake")

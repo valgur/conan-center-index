@@ -73,7 +73,12 @@ class QuaZIPConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -87,7 +92,9 @@ class QuaZIPConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", f"quazip{quazip_major}-qt{self._qt_major}")
         suffix = "d" if self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [f"quazip{quazip_major}-qt{self._qt_major}{suffix}"]
-        self.cpp_info.includedirs = [os.path.join("include", f"QuaZip-Qt{self._qt_major}-{self.version}")]
+        self.cpp_info.includedirs = [
+            os.path.join("include", f"QuaZip-Qt{self._qt_major}-{self.version}")
+        ]
         if not self.options.shared:
             self.cpp_info.defines.append("QUAZIP_STATIC")
 

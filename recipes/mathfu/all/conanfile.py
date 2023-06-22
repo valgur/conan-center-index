@@ -8,7 +8,9 @@ required_conan_version = ">=1.52.0"
 
 class MathfuConan(ConanFile):
     name = "mathfu"
-    description = "C++ math library developed primarily for games focused on simplicity and efficiency."
+    description = (
+        "C++ math library developed primarily for games focused on simplicity and efficiency."
+    )
     topics = ("math", "geometry")
     license = "Apache-2.0"
     homepage = "https://github.com/google/mathfu"
@@ -26,15 +28,29 @@ class MathfuConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -57,7 +57,12 @@ class AafConan(ConanFile):
         else:
             tc.cache_variables["ARCH"] = "x86_64"
         tc.cache_variables["AAF_NO_STRUCTURED_STORAGE"] = not self.options.structured_storage
-        jpeg_res_dirs = ";".join([p.replace("\\", "/") for p in self.dependencies["libjpeg"].cpp_info.aggregated_components().resdirs])
+        jpeg_res_dirs = ";".join(
+            [
+                p.replace("\\", "/")
+                for p in self.dependencies["libjpeg"].cpp_info.aggregated_components().resdirs
+            ]
+        )
         tc.variables["JPEG_RES_DIRS"] = jpeg_res_dirs
         tc.generate()
         deps = CMakeDeps(self)
@@ -70,15 +75,50 @@ class AafConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "AAFSDKPSL.TXT", src=os.path.join(self.source_folder, "LEGAL"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "AAFSDKPSL.TXT",
+            src=os.path.join(self.source_folder, "LEGAL"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         out_include_folder = os.path.join(self.source_folder, "out", "shared", "include")
         out_target_folder = os.path.join(self.source_folder, "out", "target")
         copy(self, "*.h", src=out_include_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*/RefImpl/*.dll", src=out_target_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, "*/RefImpl/*.lib", src=out_target_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*/RefImpl/*.so*", src=out_target_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*/RefImpl/*.dylib", src=out_target_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*/RefImpl/*.a", src=out_target_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(
+            self,
+            "*/RefImpl/*.dll",
+            src=out_target_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*/RefImpl/*.lib",
+            src=out_target_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*/RefImpl/*.so*",
+            src=out_target_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*/RefImpl/*.dylib",
+            src=out_target_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*/RefImpl/*.a",
+            src=out_target_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

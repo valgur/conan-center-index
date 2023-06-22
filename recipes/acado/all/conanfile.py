@@ -28,10 +28,6 @@ class AcadoConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -86,15 +82,21 @@ class AcadoConan(ConanFile):
 
         self.copy("*", src="lib", dst="lib")
         self.copy("qpoases.cmake", src="cmake", dst="lib/cmake")
-        qpoases_sources_from = os.path.join(self.package_folder, "share", "acado", "external_packages", "qpoases")
+        qpoases_sources_from = os.path.join(
+            self.package_folder, "share", "acado", "external_packages", "qpoases"
+        )
         self.copy("*", src=qpoases_sources_from, dst=self._qpoases_sources)
 
         tools.rmdir(os.path.join(self.package_folder, "share"))
         tools.remove_files_by_mask(self.package_folder, "*.pdb")
 
     def package_info(self):
-        acado_template_paths = os.path.join(self.package_folder, "include", "acado", "code_generation", "templates")
-        self.output.info("Setting ACADO_TEMPLATE_PATHS environment variable: {}".format(acado_template_paths))
+        acado_template_paths = os.path.join(
+            self.package_folder, "include", "acado", "code_generation", "templates"
+        )
+        self.output.info(
+            "Setting ACADO_TEMPLATE_PATHS environment variable: {}".format(acado_template_paths)
+        )
         self.env_info.ACADO_TEMPLATE_PATHS = acado_template_paths
 
         if self.options.shared:
@@ -124,7 +126,15 @@ class AcadoConan(ConanFile):
 
         # acado requires libstdc++11 for shared builds
         # https://github.com/conan-io/conan-center-index/pull/3967#issuecomment-752985640
-        if self.options.shared and self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libstdc++11":
+        if (
+            self.options.shared
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.libcxx != "libstdc++11"
+        ):
             raise ConanInvalidConfiguration("libstdc++11 required")
-        if self.options.shared and self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
+        if (
+            self.options.shared
+            and self.settings.compiler == "gcc"
+            and self.settings.compiler.libcxx != "libstdc++11"
+        ):
             raise ConanInvalidConfiguration("libstdc++11 required")

@@ -55,7 +55,9 @@ class PugiXmlConan(ConanFile):
     def validate(self):
         if self.options.get_safe("shared") and self.options.wchar_mode:
             # The app crashes with error "The procedure entry point ... could not be located in the dynamic link library"
-            raise ConanInvalidConfiguration("Combination of 'shared' and 'wchar_mode' options is not supported")
+            raise ConanInvalidConfiguration(
+                "Combination of 'shared' and 'wchar_mode' options is not supported"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -73,16 +75,23 @@ class PugiXmlConan(ConanFile):
             header_file = os.path.join(self.source_folder, "src", "pugiconfig.hpp")
             # For the library build mode, options applied via change the configuration file
             if self.options.wchar_mode:
-                replace_in_file(self, header_file, "// #define PUGIXML_WCHAR_MODE", "#define PUGIXML_WCHAR_MODE")
+                replace_in_file(
+                    self, header_file, "// #define PUGIXML_WCHAR_MODE", "#define PUGIXML_WCHAR_MODE"
+                )
             if self.options.no_exceptions:
-                replace_in_file(self, header_file, "// #define PUGIXML_NO_EXCEPTIONS", "#define PUGIXML_NO_EXCEPTIONS")
+                replace_in_file(
+                    self,
+                    header_file,
+                    "// #define PUGIXML_NO_EXCEPTIONS",
+                    "#define PUGIXML_NO_EXCEPTIONS",
+                )
             cmake = CMake(self)
             cmake.configure()
             cmake.build()
 
     def package(self):
         readme_contents = load(self, os.path.join(self.source_folder, "readme.txt"))
-        license_contents = readme_contents[readme_contents.find("This library is"):]
+        license_contents = readme_contents[readme_contents.find("This library is") :]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
         if self.options.header_only:
             source_dir = os.path.join(self.source_folder, "src")

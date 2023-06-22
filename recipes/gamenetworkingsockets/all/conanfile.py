@@ -19,20 +19,12 @@ class GameNetworkingSocketsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "encryption": ["openssl", "libsodium", "bcrypt"]
+        "encryption": ["openssl", "libsodium", "bcrypt"],
     }
 
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "encryption": "openssl"
-    }
+    default_options = {"shared": False, "fPIC": True, "encryption": "openssl"}
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -64,7 +56,11 @@ class GameNetworkingSocketsConan(ConanFile):
             self.requires("libsodium/1.0.18")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -123,4 +119,3 @@ class GameNetworkingSocketsConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "crypt32", "winmm"]
             if self.options.encryption == "bcrypt":
                 self.cpp_info.system_libs += ["bcrypt"]
-        

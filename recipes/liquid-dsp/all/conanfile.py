@@ -5,11 +5,10 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class LiquidDspConan(ConanFile):
     name = "liquid-dsp"
-    description = (
-        "Digital signal processing library for software-defined radios (and more)"
-    )
+    description = "Digital signal processing library for software-defined radios (and more)"
     topics = ("dsp", "sdr", "liquid-dsp")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jgaeddert/liquid-dsp"
@@ -26,10 +25,6 @@ class LiquidDspConan(ConanFile):
     }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _libname(self):
@@ -69,14 +64,16 @@ class LiquidDspConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self.build_requires("mingw-w64/8.1")
             self.build_requires("automake/1.16.4")
-            
+
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             self.copy(patch["patch_file"])
 
     def validate(self):
         if hasattr(self, "settings_build") and tools.cross_building(self):
-            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
+            raise ConanInvalidConfiguration(
+                "Cross building is not yet supported. Contributions are welcome"
+            )
 
     def source(self):
         tools.get(

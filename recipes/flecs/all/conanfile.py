@@ -11,9 +11,17 @@ class FlecsConan(ConanFile):
     name = "flecs"
     description = "A fast entity component system (ECS) for C & C++"
     license = "MIT"
-    topics = ("gamedev", "cpp", "data-oriented-design", "c99",
-              "game-development", "ecs", "entity-component-system",
-              "cpp11", "ecs-framework")
+    topics = (
+        "gamedev",
+        "cpp",
+        "data-oriented-design",
+        "c99",
+        "game-development",
+        "ecs",
+        "entity-component-system",
+        "cpp11",
+        "ecs-framework",
+    )
     homepage = "https://github.com/SanderMertens/flecs"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -41,8 +49,12 @@ class FlecsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -62,7 +74,12 @@ class FlecsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -87,4 +104,6 @@ class FlecsConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "flecs"
         self.cpp_info.components["_flecs"].names["cmake_find_package"] = f"flecs{suffix}"
         self.cpp_info.components["_flecs"].names["cmake_find_package_multi"] = f"flecs{suffix}"
-        self.cpp_info.components["_flecs"].set_property("cmake_target_name", f"flecs::flecs{suffix}")
+        self.cpp_info.components["_flecs"].set_property(
+            "cmake_target_name", f"flecs::flecs{suffix}"
+        )

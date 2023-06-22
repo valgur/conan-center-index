@@ -11,8 +11,10 @@ required_conan_version = ">=1.54.0"
 
 class EdlibConan(ConanFile):
     name = "edlib"
-    description = "Lightweight, super fast C/C++ (& Python) library for " \
-                  "sequence alignment using edit (Levenshtein) distance."
+    description = (
+        "Lightweight, super fast C/C++ (& Python) library for "
+        "sequence alignment using edit (Levenshtein) distance."
+    )
     topics = ("sequence-alignment", "edit-distance", "levehnstein-distance", "alignment-path")
     license = "MIT"
     homepage = "https://github.com/Martinsos/edlib"
@@ -91,7 +93,12 @@ class EdlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

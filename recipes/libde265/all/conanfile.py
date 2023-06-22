@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -61,8 +69,12 @@ class Libde265Conan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -71,7 +83,12 @@ class Libde265Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -83,18 +100,20 @@ class Libde265Conan(ConanFile):
             {
                 "de265": "libde265::libde265",
                 "libde265": "libde265::libde265",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -104,7 +123,9 @@ class Libde265Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libde265")
         self.cpp_info.set_property("cmake_target_name", "de265")
-        self.cpp_info.set_property("cmake_target_aliases", ["libde265"]) # official imported target before 1.0.10
+        self.cpp_info.set_property(
+            "cmake_target_aliases", ["libde265"]
+        )  # official imported target before 1.0.10
         self.cpp_info.set_property("pkg_config_name", "libde265")
         prefix = "lib" if Version(self.version) < "1.0.10" else ""
         self.cpp_info.libs = [f"{prefix}de265"]

@@ -30,9 +30,13 @@ class DiceTemplateLibrary(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration("apple-clang is not supported because a full concept implementation is needed")
+            raise ConanInvalidConfiguration(
+                "apple-clang is not supported because a full concept implementation is needed"
+            )
         if self.settings.compiler == "Visual Studio":
-            raise ConanInvalidConfiguration("MSVC is not supported because a full concept implementation is needed")
+            raise ConanInvalidConfiguration(
+                "MSVC is not supported because a full concept implementation is needed"
+            )
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -40,19 +44,26 @@ class DiceTemplateLibrary(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("{} {} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(self.name, self.version))
+            self.output.warn(
+                "{} {} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(
+                    self.name, self.version
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("{} {} requires C++20, which your compiler does not support.".format(self.name, self.version))
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+            raise ConanInvalidConfiguration(
+                "{} {} requires C++20, which your compiler does not support.".format(
+                    self.name, self.version
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

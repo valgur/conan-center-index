@@ -34,10 +34,6 @@ class CunitConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -62,7 +58,11 @@ class CunitConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
         with tools.chdir(self._source_subfolder):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
@@ -76,15 +76,23 @@ class CunitConan(ConanFile):
         env = {}
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
-                env.update({
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "NM": "dumpbin -symbols",
-                    "OBJDUMP": ":",
-                    "RANLIB": ":",
-                    "STRIP": ":",
-                })
+                env.update(
+                    {
+                        "AR": "{} lib".format(
+                            tools.unix_path(self._user_info_build["automake"].ar_lib)
+                        ),
+                        "CC": "{} cl -nologo".format(
+                            tools.unix_path(self._user_info_build["automake"].compile)
+                        ),
+                        "CXX": "{} cl -nologo".format(
+                            tools.unix_path(self._user_info_build["automake"].compile)
+                        ),
+                        "NM": "dumpbin -symbols",
+                        "OBJDUMP": ":",
+                        "RANLIB": ":",
+                        "STRIP": ":",
+                    }
+                )
                 with tools.environment_append(env):
                     yield
         else:
@@ -102,7 +110,9 @@ class CunitConan(ConanFile):
             # MSVC canonical names aren't understood
             host, build = False, False
         conf_args = [
-            "--datarootdir={}".format(os.path.join(self.package_folder, "bin", "share").replace("\\", "/")),
+            "--datarootdir={}".format(
+                os.path.join(self.package_folder, "bin", "share").replace("\\", "/")
+            ),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
             "--enable-automated" if self.options.enable_automated else "--disable-automated",
             "--enable-basic" if self.options.enable_basic else "--disable-basic",
@@ -121,7 +131,9 @@ class CunitConan(ConanFile):
             tools.patch(**patch)
         with self._build_context():
             with tools.chdir(self._source_subfolder):
-                self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+                self.run(
+                    "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+                )
                 autotools = self._configure_autotools()
                 autotools.make()
 
@@ -133,8 +145,10 @@ class CunitConan(ConanFile):
                 autotools.install()
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "cunit.lib"))
+            tools.rename(
+                os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
+                os.path.join(self.package_folder, "lib", "cunit.lib"),
+            )
 
         tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
         tools.rmdir(os.path.join(self.package_folder, "bin", "share", "man"))

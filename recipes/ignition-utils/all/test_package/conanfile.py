@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools
 import os
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "cmake_find_package_multi"
@@ -10,7 +11,9 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["IGN_UTILS_MAJOR_VER"] = tools.Version(self.deps_cpp_info["ignition-utils"].version).major
+        cmake.definitions["IGN_UTILS_MAJOR_VER"] = tools.Version(
+            self.deps_cpp_info["ignition-utils"].version
+        ).major
         cmake.configure()
         cmake.build()
 

@@ -28,15 +28,29 @@ class TslHopscotchMapConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tsl-hopscotch-map")
@@ -51,8 +65,12 @@ class TslHopscotchMapConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "tsl"
         self.cpp_info.names["cmake_find_package_multi"] = "tsl"
         self.cpp_info.components["hopscotch_map"].names["cmake_find_package"] = "hopscotch_map"
-        self.cpp_info.components["hopscotch_map"].names["cmake_find_package_multi"] = "hopscotch_map"
-        self.cpp_info.components["hopscotch_map"].set_property("cmake_target_name", "tsl::hopscotch_map")
+        self.cpp_info.components["hopscotch_map"].names[
+            "cmake_find_package_multi"
+        ] = "hopscotch_map"
+        self.cpp_info.components["hopscotch_map"].set_property(
+            "cmake_target_name", "tsl::hopscotch_map"
+        )
         self.cpp_info.components["hopscotch_map"].bindirs = []
         self.cpp_info.components["hopscotch_map"].libdirs = []
         self.cpp_info.components["hopscotch_map"].resdirs = []

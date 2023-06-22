@@ -3,6 +3,7 @@ import os
 from conans import ConanFile, CMake, tools
 from conan.tools.build import cross_building
 
+
 class PlayrhoTestConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "cmake", "cmake_find_package_multi"

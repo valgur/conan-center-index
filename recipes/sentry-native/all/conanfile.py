@@ -4,7 +4,14 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rm, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import (
+    copy,
+    get,
+    rm,
+    rmdir,
+    export_conandata_patches,
+    apply_conandata_patches,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 import os
@@ -34,7 +41,7 @@ class SentryNativeConan(ConanFile):
         "qt": [True, False],
         "with_crashpad": ["google", "sentry"],
         "with_breakpad": ["google", "sentry"],
-        "wer" : [True, False],
+        "wer": [True, False],
     }
     default_options = {
         "shared": False,
@@ -44,7 +51,7 @@ class SentryNativeConan(ConanFile):
         "qt": False,
         "with_crashpad": "sentry",
         "with_breakpad": "sentry",
-        "wer": False
+        "wer": False,
     }
 
     @property
@@ -74,13 +81,17 @@ class SentryNativeConan(ConanFile):
         # Configure default transport
         if self.settings.os == "Windows":
             self.options.transport = "winhttp"
-        elif self.settings.os in ("FreeBSD", "Linux") or self.settings.os == "Macos":  # Don't use tools.is_apple_os(os) here
+        elif (
+            self.settings.os in ("FreeBSD", "Linux") or self.settings.os == "Macos"
+        ):  # Don't use tools.is_apple_os(os) here
             self.options.transport = "curl"
         else:
             self.options.transport = "none"
 
         # Configure default backend
-        if self.settings.os == "Windows" or self.settings.os == "Macos":  # Don't use tools.is_apple_os(os) here
+        if (
+            self.settings.os == "Windows" or self.settings.os == "Macos"
+        ):  # Don't use tools.is_apple_os(os) here
             # FIXME: for self.version < 0.4: default backend is "breakpad" when building with MSVC for Windows xp; else: backend=none
             self.options.backend = "crashpad"
         elif self.settings.os in ("FreeBSD", "Linux"):
@@ -129,13 +140,17 @@ class SentryNativeConan(ConanFile):
             )
         if self.options.transport == "winhttp" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("The winhttp transport is only supported on Windows")
-        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "10.0":
+        if (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) < "10.0"
+        ):
             raise ConanInvalidConfiguration("apple-clang < 10.0 not supported")
 
     def _cmake_new_enough(self, required_version):
         try:
             import re
             from io import StringIO
+
             output = StringIO()
             self.run("cmake --version", output)
             m = re.search(r"cmake version (\d+\.\d+\.\d+)", output.getvalue())
@@ -177,7 +192,12 @@ class SentryNativeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -1,16 +1,25 @@
 from conan import ConanFile
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibgdConan(ConanFile):
     name = "libgd"
-    description = ("GD is an open source code library for the dynamic"
-                   "creation of images by programmers.")
+    description = (
+        "GD is an open source code library for the dynamic" "creation of images by programmers."
+    )
     license = "BSD-like"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libgd.github.io"
@@ -95,14 +104,19 @@ class LibgdConan(ConanFile):
     def _patch(self):
         apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}",
-                        "${CMAKE_CURRENT_SOURCE_DIR}")
-        replace_in_file(self, cmakelists,
-                        "SET(CMAKE_MODULE_PATH \"${GD_SOURCE_DIR}/cmake/modules\")",
-                        "LIST(APPEND CMAKE_MODULE_PATH \"${GD_SOURCE_DIR}/cmake/modules\")")
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                        "RUNTIME DESTINATION bin",
-                        "RUNTIME DESTINATION bin BUNDLE DESTINATION bin")
+        replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}", "${CMAKE_CURRENT_SOURCE_DIR}")
+        replace_in_file(
+            self,
+            cmakelists,
+            'SET(CMAKE_MODULE_PATH "${GD_SOURCE_DIR}/cmake/modules")',
+            'LIST(APPEND CMAKE_MODULE_PATH "${GD_SOURCE_DIR}/cmake/modules")',
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+            "RUNTIME DESTINATION bin",
+            "RUNTIME DESTINATION bin BUNDLE DESTINATION bin",
+        )
 
     def build(self):
         self._patch()
@@ -111,7 +125,12 @@ class LibgdConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -135,4 +154,4 @@ class LibgdConan(ConanFile):
         self.env_info.PATH.append(bin_path)
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"]= "gdlib"
+        self.cpp_info.names["pkg_config"] = "gdlib"

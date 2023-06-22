@@ -14,7 +14,9 @@ required_conan_version = ">=1.54.0"
 
 class LibevConan(ConanFile):
     name = "libev"
-    description = "A full-featured and high-performance event loop that is loosely modelled after libevent"
+    description = (
+        "A full-featured and high-performance event loop that is loosely modelled after libevent"
+    )
     topics = ("event", "event-loop", "periodic-timer", "notify")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://software.schmorp.de/pkg/libev.html"
@@ -55,7 +57,9 @@ class LibevConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self) and self.options.shared:
             # libtool:   error: can't build i686-pc-mingw32 shared library unless -no-undefined is specified
-            raise ConanInvalidConfiguration(f"{self.ref} can't be built as shared on Windows without Visual Studio")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can't be built as shared on Windows without Visual Studio"
+            )
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not is_msvc(self):
@@ -90,7 +94,12 @@ class LibevConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()

@@ -24,7 +24,12 @@ class CanvasItyConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
@@ -33,7 +38,7 @@ class CanvasItyConan(ConanFile):
         filename = os.path.join(self.source_folder, "src", "canvas_ity.hpp")
         file_content = load(self, filename)
         license_end = "// ======== ABOUT ========"
-        license_contents = file_content[:file_content.find(license_end)].replace("//", "")
+        license_contents = file_content[: file_content.find(license_end)].replace("//", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
         copy(

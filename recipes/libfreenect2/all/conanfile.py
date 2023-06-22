@@ -30,10 +30,6 @@ class Libfreenect2Conan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -64,7 +60,11 @@ class Libfreenect2Conan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -78,10 +78,10 @@ class Libfreenect2Conan(ConanFile):
         self._cmake.definitions["BUILD_OPENNI2_DRIVER"] = False
         self._cmake.definitions["ENABLE_CXX11"] = True
         self._cmake.definitions["ENABLE_OPENCL"] = self.options.with_opencl
-        self._cmake.definitions["ENABLE_CUDA"] = False # TODO: CUDA
+        self._cmake.definitions["ENABLE_CUDA"] = False  # TODO: CUDA
         self._cmake.definitions["ENABLE_OPENGL"] = self.options.with_opengl
         self._cmake.definitions["ENABLE_VAAPI"] = self.options.get_safe("with_vaapi", False)
-        self._cmake.definitions["ENABLE_TEGRAJPEG"] = False # TODO: TegraJPEG
+        self._cmake.definitions["ENABLE_TEGRAJPEG"] = False  # TODO: TegraJPEG
         self._cmake.definitions["ENABLE_PROFILING"] = False
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -107,4 +107,6 @@ class Libfreenect2Conan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
         elif self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend(["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"])
+            self.cpp_info.frameworks.extend(
+                ["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"]
+            )

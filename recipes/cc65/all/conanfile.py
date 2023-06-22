@@ -24,7 +24,9 @@ class Cc65Conan(ConanFile):
             if self.settings.arch not in ("x86", "x86_64"):
                 raise ConanInvalidConfiguration("Invalid arch")
             if self.settings.arch == "x86_64":
-                self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
+                self.output.info(
+                    "This recipe will build x86 instead of x86_64 (the binaries are compatible)"
+                )
 
     def build_requirements(self):
         if self.settings.compiler == "Visual Studio" and not tools.which("make"):
@@ -53,9 +55,12 @@ class Cc65Conan(ConanFile):
             self.output.warn("{} detected: building x86 instead".format(self.settings.arch))
             arch = "x86"
 
-        msbuild.build(os.path.join(self._source_subfolder, "src", "cc65.sln"),
-                      build_type="Debug" if self.settings.build_type == "Debug" else "Release",
-                      arch=arch, platforms=msvc_platforms)
+        msbuild.build(
+            os.path.join(self._source_subfolder, "src", "cc65.sln"),
+            build_type="Debug" if self.settings.build_type == "Debug" else "Release",
+            arch=arch,
+            platforms=msvc_platforms,
+        )
         autotools = self._configure_autotools()
         with tools.chdir(os.path.join(self._source_subfolder, "libsrc")):
             autotools.make()
@@ -98,14 +103,26 @@ class Cc65Conan(ConanFile):
                     if not fn.endswith(".vcxproj"):
                         continue
                     tools.replace_in_file(fn, "v141", tools.msvs_toolset(self))
-                    tools.replace_in_file(fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
+                    tools.replace_in_file(
+                        fn,
+                        "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>",
+                        "",
+                    )
         if self.settings.os == "Windows":
             # Add ".exe" suffix to calls from cl65 to other utilities
-            for fn, var in (("cc65", "CC65"), ("ca65", "CA65"), ("co65", "CO65"), ("ld65", "LD65"), ("grc65", "GRC")):
+            for fn, var in (
+                ("cc65", "CC65"),
+                ("ca65", "CA65"),
+                ("co65", "CO65"),
+                ("ld65", "LD65"),
+                ("grc65", "GRC"),
+            ):
                 v = "{},".format(var).ljust(5)
-                tools.replace_in_file(os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
-                                      "CmdInit (&{v} CmdPath, \"{n}\");".format(v=v, n=fn),
-                                      "CmdInit (&{v} CmdPath, \"{n}.exe\");".format(v=v, n=fn))
+                tools.replace_in_file(
+                    os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
+                    'CmdInit (&{v} CmdPath, "{n}");'.format(v=v, n=fn),
+                    'CmdInit (&{v} CmdPath, "{n}.exe");'.format(v=v, n=fn),
+                )
 
     def build(self):
         self._patch_sources()
@@ -115,9 +132,18 @@ class Cc65Conan(ConanFile):
             self._build_autotools()
 
     def _package_msvc(self):
-        self.copy("*.exe", src=os.path.join(self._source_subfolder, "bin"), dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        self.copy(
+            "*.exe",
+            src=os.path.join(self._source_subfolder, "bin"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
         for dir in ("asminc", "cfg", "include", "lib", "target"):
-            self.copy("*", src=os.path.join(self._source_subfolder, dir), dst=os.path.join(self._datadir, dir))
+            self.copy(
+                "*",
+                src=os.path.join(self._source_subfolder, dir),
+                dst=os.path.join(self._datadir, dir),
+            )
 
     def _package_autotools(self):
         autotools = self._configure_autotools()

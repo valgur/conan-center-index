@@ -5,7 +5,9 @@ import glob
 
 class CuteHeadersConan(ConanFile):
     name = "cute_headers"
-    description = "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
+    description = (
+        "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
+    )
     topics = ("conan", "various", "pure-c")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/RandyGaul/cute_headers"
@@ -15,11 +17,7 @@ class CuteHeadersConan(ConanFile):
     def _extract_license(self):
         file = os.path.join(self.package_folder, "include/cute_math2d.h")
         file_content = tools.load(file)
-        return file_content[file_content.rfind('/*'):]
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+        return file_content[file_content.rfind("/*") :]
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -31,9 +29,11 @@ class CuteHeadersConan(ConanFile):
             pattern="*.h",
             dst="include",
             src=self._source_subfolder,
-            excludes=("examples_cute_*", "test_cute_*")
+            excludes=("examples_cute_*", "test_cute_*"),
         )
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        tools.save(
+            os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
 
     def package_id(self):
         self.info.header_only()

@@ -43,10 +43,6 @@ class OpenVDBConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -93,7 +89,9 @@ class OpenVDBConan(ConanFile):
         version = tools.Version(self.settings.compiler.version)
         minimum_version = self._compilers_min_version.get(compiler, False)
         if minimum_version and version < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.name} requires a {compiler} version greater than {minimum_version}")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires a {compiler} version greater than {minimum_version}"
+            )
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -104,7 +102,11 @@ class OpenVDBConan(ConanFile):
         self._check_compilier_version()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder,
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -216,7 +218,9 @@ if(OpenEXR_FOUND)
         if not self.options["openexr"].shared:
             self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_OPENEXR_STATICLIB")
         if self.options.with_exr:
-            self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_TOOLS_RAYTRACER_USE_EXR")
+            self.cpp_info.components["openvdb-core"].defines.append(
+                "OPENVDB_TOOLS_RAYTRACER_USE_EXR"
+            )
         if self.options.with_log4cplus:
             self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_USE_LOG4CPLUS")
 
@@ -244,4 +248,6 @@ if(OpenEXR_FOUND)
         self.cpp_info.names["cmake_find_package_multi"] = "OpenVDB"
         self.cpp_info.components["openvdb-core"].names["cmake_find_package"] = "openvdb"
         self.cpp_info.components["openvdb-core"].names["cmake_find_package_multi"] = "openvdb"
-        self.cpp_info.components["openvdb-core"].set_property("cmake_target_name", "OpenVDB::openvdb")
+        self.cpp_info.components["openvdb-core"].set_property(
+            "cmake_target_name", "OpenVDB::openvdb"
+        )

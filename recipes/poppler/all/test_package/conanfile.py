@@ -16,4 +16,3 @@ class TestPackageConan(ConanFile):
             bin_path = os.path.join("bin", "test_package")
             pdf_path = os.path.join(self.source_folder, "sample.pdf")
             self.run("{} {}".format(bin_path, pdf_path), run_environment=True)
-

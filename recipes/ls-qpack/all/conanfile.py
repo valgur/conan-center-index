@@ -5,10 +5,11 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LsQpackConan(ConanFile):
     name = "ls-qpack"
     description = "QPACK compression library for use with HTTP/3"
-    license = "MIT",
+    license = ("MIT",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/litespeedtech/ls-qpack/"
     topics = ("compression", "quic", "http3", "qpack")
@@ -65,7 +66,12 @@ class LsQpackConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

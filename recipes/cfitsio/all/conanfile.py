@@ -10,8 +10,10 @@ required_conan_version = ">=1.54.0"
 
 class CfitsioConan(ConanFile):
     name = "cfitsio"
-    description = "C library for reading and writing data files in FITS " \
-                  "(Flexible Image Transport System) data format"
+    description = (
+        "C library for reading and writing data files in FITS "
+        "(Flexible Image Transport System) data format"
+    )
     license = "ISC"
     topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
     homepage = "https://heasarc.gsfc.nasa.gov/fitsio/"
@@ -57,8 +59,11 @@ class CfitsioConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.2.13")
-        if self.options.threadsafe and self.settings.os == "Windows" and \
-           self.settings.compiler.get_safe("threads") != "posix":
+        if (
+            self.options.threadsafe
+            and self.settings.os == "Windows"
+            and self.settings.compiler.get_safe("threads") != "posix"
+        ):
             self.requires("pthreads4w/3.0.0")
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
@@ -104,7 +109,12 @@ class CfitsioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "License.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

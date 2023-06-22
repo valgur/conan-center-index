@@ -10,11 +10,16 @@ class EigenConan(ConanFile):
     name = "eigen"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://eigen.tuxfamily.org"
-    description = "Eigen is a C++ template library for linear algebra: matrices, vectors," \
-                  " numerical solvers, and related algorithms."
+    description = (
+        "Eigen is a C++ template library for linear algebra: matrices, vectors,"
+        " numerical solvers, and related algorithms."
+    )
     topics = ("algebra", "linear-algebra", "matrix", "vector", "numerical", "header-only")
     package_type = "header-library"
-    license = ("MPL-2.0", "LGPL-3.0-or-later")  # Taking into account the default value of MPL2_only option
+    license = (
+        "MPL-2.0",
+        "LGPL-3.0-or-later",
+    )  # Taking into account the default value of MPL2_only option
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -37,12 +42,18 @@ class EigenConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["BUILD_TESTING"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
+        tc.cache_variables["BUILD_TESTING"] = not self.conf.get(
+            "tools.build:skip_test", default=True, check_type=bool
+        )
         tc.cache_variables["EIGEN_TEST_NOQT"] = True
         tc.generate()
 

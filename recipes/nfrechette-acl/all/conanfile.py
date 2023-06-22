@@ -15,10 +15,6 @@ class AclConan(ConanFile):
     no_copy_source = True
     settings = "compiler"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def requirements(self):
         self.requires("rtm/2.1.4")
 
@@ -28,8 +24,11 @@ class AclConan(ConanFile):
             tools.check_min_cppstd(self, minimal_cpp_standard)
 
         if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration("acl can't be compiled by {0} {1}".format(self.settings.compiler,
-                                                                                      self.settings.compiler.version))
+            raise ConanInvalidConfiguration(
+                "acl can't be compiled by {0} {1}".format(
+                    self.settings.compiler, self.settings.compiler.version
+                )
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])

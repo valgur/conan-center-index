@@ -58,7 +58,11 @@ class LibaomAv1Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=Version(self.version) >= "3.3.0")
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=Version(self.version) >= "3.3.0"
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -87,7 +91,12 @@ class LibaomAv1Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

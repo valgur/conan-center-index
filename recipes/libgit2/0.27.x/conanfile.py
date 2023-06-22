@@ -41,10 +41,6 @@ class LibGit2Conan(ConanFile):
     exports_sources = "CMakeLists.txt"
     generators = "cmake", "cmake_find_package"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -85,8 +81,11 @@ class LibGit2Conan(ConanFile):
                 raise ConanInvalidConfiguration("win32 is only valid on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     _cmake_https = {
         "openssl": "OpenSSL",
@@ -124,17 +123,21 @@ class LibGit2Conan(ConanFile):
         return cmake
 
     def _patch_sources(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                              "FIND_PKGLIBRARIES(LIBSSH2 libssh2)",
-                              "FIND_PACKAGE(Libssh2 REQUIRED)\n"
-                              "\tSET(LIBSSH2_FOUND ON)\n"
-                              "\tSET(LIBSSH2_INCLUDE_DIRS ${Libssh2_INCLUDE_DIRS})\n"
-                              "\tSET(LIBSSH2_LIBRARIES ${Libssh2_LIBRARIES})\n"
-                              "\tSET(LIBSSH2_LIBRARY_DIRS ${Libssh2_LIB_DIRS})")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            "FIND_PKGLIBRARIES(LIBSSH2 libssh2)",
+            "FIND_PACKAGE(Libssh2 REQUIRED)\n"
+            "\tSET(LIBSSH2_FOUND ON)\n"
+            "\tSET(LIBSSH2_INCLUDE_DIRS ${Libssh2_INCLUDE_DIRS})\n"
+            "\tSET(LIBSSH2_LIBRARIES ${Libssh2_LIBRARIES})\n"
+            "\tSET(LIBSSH2_LIBRARY_DIRS ${Libssh2_LIB_DIRS})",
+        )
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                              "FIND_PKGLIBRARIES(CURL libcurl)",
-                              "FIND_PACKAGE(CURL REQUIRED)\n")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+            "FIND_PKGLIBRARIES(CURL libcurl)",
+            "FIND_PACKAGE(CURL REQUIRED)\n",
+        )
 
     def build(self):
         self._patch_sources()

@@ -55,19 +55,27 @@ class SQLiteCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if self.settings.compiler == "clang" and \
-           Version(self.settings.compiler.version) < "6.0" and \
-                 self.settings.compiler.libcxx == "libc++" and \
-                 Version(self.version) < "3":
-            replace_in_file(self,
+        if (
+            self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "6.0"
+            and self.settings.compiler.libcxx == "libc++"
+            and Version(self.version) < "3"
+        ):
+            replace_in_file(
+                self,
                 os.path.join(self.source_folder, "include", "SQLiteCpp", "Utils.h"),
                 "const nullptr_t nullptr = {};",
-                "")
+                "",
+            )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,7 +98,12 @@ class SQLiteCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -99,18 +112,20 @@ class SQLiteCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"SQLiteCpp": "SQLiteCpp::SQLiteCpp"}
+            {"SQLiteCpp": "SQLiteCpp::SQLiteCpp"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

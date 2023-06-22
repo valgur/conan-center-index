@@ -29,21 +29,17 @@ class ImaglConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
     @property
     def _compilers_minimum_version(self):
         minimum_versions = {
-                "gcc": "9",
-                "Visual Studio": "16.2",
-                "msvc": "19.22",
-                "clang": "10",
-                "apple-clang": "11"
+            "gcc": "9",
+            "Visual Studio": "16.2",
+            "msvc": "19.22",
+            "clang": "10",
+            "apple-clang": "11",
         }
         if tools.Version(self.version) <= "0.1.1" or tools.Version(self.version) == "0.2.0":
             minimum_versions["Visual Studio"] = "16.5"
@@ -80,23 +76,38 @@ class ImaglConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        #Special check for clang that can only be linked to libc++
+        # Special check for clang that can only be linked to libc++
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libc++":
-            raise ConanInvalidConfiguration("imagl requires some C++20 features, which are available in libc++ for clang compiler.")
+            raise ConanInvalidConfiguration(
+                "imagl requires some C++20 features, which are available in libc++ for clang compiler."
+            )
 
         compiler_version = str(self.settings.compiler.version)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("imaGL requires C++20. Your compiler is unknown. Assuming it supports C++20.")
+            self.output.warn(
+                "imaGL requires C++20. Your compiler is unknown. Assuming it supports C++20."
+            )
         elif lazy_lt_semver(compiler_version, minimum_version):
-            raise ConanInvalidConfiguration("imaGL requires some C++20 features, which your {} {} compiler does not support.".format(str(self.settings.compiler), compiler_version))
+            raise ConanInvalidConfiguration(
+                "imaGL requires some C++20 features, which your {} {} compiler does not support.".format(
+                    str(self.settings.compiler), compiler_version
+                )
+            )
         else:
-            print("Your compiler is {} {} and is compatible.".format(str(self.settings.compiler), compiler_version))
+            print(
+                "Your compiler is {} {} and is compatible.".format(
+                    str(self.settings.compiler), compiler_version
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -128,4 +139,3 @@ class ImaglConan(ConanFile):
         self.cpp_info.libs = ["imaGL{}{}".format(debug_suffix, static_suffix)]
         if not self.options.shared:
             self.cpp_info.defines = ["IMAGL_STATIC=1"]
-

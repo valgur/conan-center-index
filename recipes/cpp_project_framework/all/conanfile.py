@@ -34,7 +34,7 @@ class CppProjectFrameworkConan(ConanFile):
         }
 
     def validate(self):
-        if self.settings.os not in ('Linux', 'Windows'):
+        if self.settings.os not in ("Linux", "Windows"):
             raise ConanInvalidConfiguration(f"{self.name} is just supported for Linux and Windows")
 
         compiler = self.settings.compiler
@@ -42,24 +42,33 @@ class CppProjectFrameworkConan(ConanFile):
         if compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
 
-        if compiler in ('gcc', 'clang'):
+        if compiler in ("gcc", "clang"):
             if compiler.get_safe("libcxx") != "libstdc++":
                 raise ConanInvalidConfiguration(f"only supported {compiler} with libstdc++")
 
         min_version = self._minimum_compilers_version.get(str(compiler))
         if not min_version:
-            self.output.warn(f"{self.name} recipe lacks information about the {compiler} compiler support.")
+            self.output.warn(
+                f"{self.name} recipe lacks information about the {compiler} compiler support."
+            )
         else:
             if Version(compiler.version) < min_version:
-                raise ConanInvalidConfiguration(f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler {compiler} {compiler.version} does not support it.")
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler {compiler} {compiler.version} does not support it."
+                )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst=os.path.join("include", self.name), src=os.path.join(self._source_subfolder, self.name))
+        self.copy(
+            "*.h",
+            dst=os.path.join("include", self.name),
+            src=os.path.join(self._source_subfolder, self.name),
+        )

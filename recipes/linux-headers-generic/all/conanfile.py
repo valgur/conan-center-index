@@ -14,10 +14,6 @@ class LinuxHeadersGenericConan(ConanFile):
     topics = ("linux", "headers", "generic")
     settings = "os", "arch", "build_type", "compiler"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def package_id(self):
         del self.info.settings.os
         del self.info.settings.build_type
@@ -30,8 +26,11 @@ class LinuxHeadersGenericConan(ConanFile):
             raise ConanInvalidConfiguration("linux-headers-generic can not be cross-compiled")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         with tools.chdir(os.path.join(self._source_subfolder)):

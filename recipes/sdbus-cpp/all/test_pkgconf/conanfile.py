@@ -22,8 +22,12 @@ class SdbusCppTestConan(ConanFile):
 
     def generate(self):
         # workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18150
-        copy(self, "*.pc", self.generators_folder,
-             os.path.join(self.generators_folder, "lib", "pkgconfig"))
+        copy(
+            self,
+            "*.pc",
+            self.generators_folder,
+            os.path.join(self.generators_folder, "lib", "pkgconfig"),
+        )
 
     def build(self):
         cmake = CMake(self)

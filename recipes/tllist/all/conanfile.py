@@ -16,18 +16,17 @@ class TllistConan(ConanFile):
     settings = "os", "arch", "build_type", "compiler"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def validate(self):
         # tllist relies on __typeof__, not implemented in Visual Studio
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("Visual Studio compiler is not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

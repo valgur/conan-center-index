@@ -46,4 +46,6 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             for locale in ["en", "ru", "es"]:
-                self.run(f"{bin_path} {os.path.abspath(self.source_folder)}", env=f"conanrun_{locale}")
+                self.run(
+                    f"{bin_path} {os.path.abspath(self.source_folder)}", env=f"conanrun_{locale}"
+                )

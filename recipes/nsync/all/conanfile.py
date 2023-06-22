@@ -1,5 +1,11 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    replace_in_file,
+)
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
@@ -59,19 +65,17 @@ class NsyncConan(ConanFile):
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
             "set (CMAKE_POSITION_INDEPENDENT_CODE ON)",
-            ""
+            "",
         )
 
         if self.settings.os == "Windows" and self.options.shared:
-            ar_dest = \
-                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} " \
-                "COMPONENT Development"
+            ar_dest = "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} " "COMPONENT Development"
             rt_dest = 'RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"'
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
                 f"{ar_dest})",
-                f"{ar_dest}\n{rt_dest})"
+                f"{ar_dest}\n{rt_dest})",
             )
 
     def build(self):
@@ -81,7 +85,12 @@ class NsyncConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

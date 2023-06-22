@@ -11,8 +11,14 @@ class Nmslib(ConanFile):
     topics = ("knn-search", "non-metric", "neighborhood-graphs", "neighborhood-graphs", "vp-tree")
     license = "Apache-2.0"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = "CMakeLists.txt", "patches/**"
     generators = "cmake"
 
@@ -21,9 +27,13 @@ class Nmslib(ConanFile):
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.version == "14":
-                raise ConanInvalidConfiguration("Visual Studio 14 builds are not supported")  # TODO: add reason in message
+                raise ConanInvalidConfiguration(
+                    "Visual Studio 14 builds are not supported"
+                )  # TODO: add reason in message
             if self.options.shared:
-                raise ConanInvalidConfiguration("Visual Studio shared builds are not supported (.lib artifacts missing)")
+                raise ConanInvalidConfiguration(
+                    "Visual Studio shared builds are not supported (.lib artifacts missing)"
+                )
 
     def configure(self):
         if self.options.shared:
@@ -33,13 +43,12 @@ class Nmslib(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake is None:

@@ -3,7 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
@@ -44,8 +51,12 @@ class VulkanLoaderConan(ConanFile):
 
     @property
     def _is_pkgconf_needed(self):
-        return self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib") or \
-               self.options.get_safe("with_wsi_wayland") or self.options.get_safe("with_wsi_directfb")
+        return (
+            self.options.get_safe("with_wsi_xcb")
+            or self.options.get_safe("with_wsi_xlib")
+            or self.options.get_safe("with_wsi_wayland")
+            or self.options.get_safe("with_wsi_directfb")
+        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -87,7 +98,9 @@ class VulkanLoaderConan(ConanFile):
         check_min_vs(self, "191")
         # TODO: to replace by some version range check
         if self.dependencies["vulkan-headers"].ref.version != self.version:
-            self.output.warning("vulkan-loader should be built & consumed with the same version than vulkan-headers.")
+            self.output.warning(
+                "vulkan-loader should be built & consumed with the same version than vulkan-headers."
+            )
 
     def build_requirements(self):
         if self._is_pkgconf_needed:
@@ -105,7 +118,9 @@ class VulkanLoaderConan(ConanFile):
             env.generate()
 
         tc = CMakeToolchain(self)
-        tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies["vulkan-headers"].package_folder.replace("\\", "/")
+        tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies[
+            "vulkan-headers"
+        ].package_folder.replace("\\", "/")
         tc.variables["BUILD_TESTS"] = False
         tc.variables["USE_CCACHE"] = False
         if self.settings.os == "Linux":
@@ -133,13 +148,19 @@ class VulkanLoaderConan(ConanFile):
         apply_conandata_patches(self)
 
         if Version(self.version) < "1.3.234":
-            replace_in_file(self, os.path.join(self.source_folder, "cmake", "FindVulkanHeaders.cmake"),
-                                  "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",
-                                  "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/res/vulkan/registry")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "cmake", "FindVulkanHeaders.cmake"),
+                "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",
+                "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/res/vulkan/registry",
+            )
         # Honor settings.compiler.runtime
-        replace_in_file(self, os.path.join(self.source_folder, "loader", "CMakeLists.txt"),
-                              "if(${configuration} MATCHES \"/MD\")",
-                              "if(FALSE)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "loader", "CMakeLists.txt"),
+            'if(${configuration} MATCHES "/MD")',
+            "if(FALSE)",
+        )
 
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # No warnings as errors
@@ -147,12 +168,26 @@ class VulkanLoaderConan(ConanFile):
             replace_in_file(self, cmakelists, "/WX", "")
         # This fix is needed due to CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in CMakeToolchain (see https://github.com/conan-io/conan/issues/10387).
         # Indeed we want to use upstream Find modules of xcb, x11, wayland and directfb. There are properly using pkgconfig under the hood.
-        replace_in_file(self, cmakelists, "find_package(XCB REQUIRED)", "find_package(XCB REQUIRED MODULE)")
-        replace_in_file(self, cmakelists, "find_package(X11 REQUIRED)", "find_package(X11 REQUIRED MODULE)")
+        replace_in_file(
+            self, cmakelists, "find_package(XCB REQUIRED)", "find_package(XCB REQUIRED MODULE)"
+        )
+        replace_in_file(
+            self, cmakelists, "find_package(X11 REQUIRED)", "find_package(X11 REQUIRED MODULE)"
+        )
         # find_package(Wayland REQUIRED) was removed, as it was unused
         if Version(self.version) < "1.3.231":
-            replace_in_file(self, cmakelists, "find_package(Wayland REQUIRED)", "find_package(Wayland REQUIRED MODULE)")
-        replace_in_file(self, cmakelists, "find_package(DirectFB REQUIRED)", "find_package(DirectFB REQUIRED MODULE)")
+            replace_in_file(
+                self,
+                cmakelists,
+                "find_package(Wayland REQUIRED)",
+                "find_package(Wayland REQUIRED MODULE)",
+            )
+        replace_in_file(
+            self,
+            cmakelists,
+            "find_package(DirectFB REQUIRED)",
+            "find_package(DirectFB REQUIRED MODULE)",
+        )
 
     def build(self):
         self._patch_sources()
@@ -163,7 +198,12 @@ class VulkanLoaderConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "loader"))
 
@@ -176,7 +216,9 @@ class VulkanLoaderConan(ConanFile):
         self.cpp_info.libs = [f"vulkan{suffix}"]
 
         # allow to properly set Vulkan_INCLUDE_DIRS in CMake like generators
-        self.cpp_info.includedirs = self.dependencies["vulkan-headers"].cpp_info.aggregated_components().includedirs
+        self.cpp_info.includedirs = (
+            self.dependencies["vulkan-headers"].cpp_info.aggregated_components().includedirs
+        )
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread", "m"]

@@ -9,8 +9,10 @@ required_conan_version = ">=1.52.0"
 
 class AlacConan(ConanFile):
     name = "alac"
-    description = "The Apple Lossless Audio Codec (ALAC) is a lossless audio " \
-                  "codec developed by Apple and deployed on all of its platforms and devices."
+    description = (
+        "The Apple Lossless Audio Codec (ALAC) is a lossless audio "
+        "codec developed by Apple and deployed on all of its platforms and devices."
+    )
     license = "Apache-2.0"
     topics = ("alac", "audio-codec")
     homepage = "https://macosforge.github.io/alac"
@@ -45,8 +47,12 @@ class AlacConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -60,7 +66,12 @@ class AlacConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

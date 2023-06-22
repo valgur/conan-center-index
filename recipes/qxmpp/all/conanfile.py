@@ -29,10 +29,6 @@ class QxmppConan(ConanFile):
 
     generators = "cmake", "cmake_find_package_multi"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
         self.copy("CMakeLists.txt")
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -53,7 +49,12 @@ class QxmppConan(ConanFile):
             self.requires("glib/2.70.1")
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        files.get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -81,8 +82,11 @@ class QxmppConan(ConanFile):
 
         if self.options.shared and self.settings.os == "Windows":
             files.mkdir(self, os.path.join(self.package_folder, "bin"))
-            files.rename(self, os.path.join(self.package_folder, "lib", "qxmpp.dll"),
-                         os.path.join(self.package_folder, "bin", "qxmpp.dll"))
+            files.rename(
+                self,
+                os.path.join(self.package_folder, "lib", "qxmpp.dll"),
+                os.path.join(self.package_folder, "bin", "qxmpp.dll"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "QXmpp")

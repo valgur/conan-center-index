@@ -3,6 +3,7 @@ from conans import ConanFile, tools
 
 required_conan_version = ">=1.33.0"
 
+
 class XXSDSSDSLLite(ConanFile):
     name = "xxsds-sdsl-lite"
     description = "SDSL - Succinct Data Structure Library"
@@ -14,25 +15,23 @@ class XXSDSSDSLLite(ConanFile):
     exports_sources = "patches/*"
     provides = "sdsl-lite"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
     def package(self):
-        self.copy("*.hpp", dst="include",
-                  src=os.path.join(self._source_subfolder, "include"))
+        self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_id(self):

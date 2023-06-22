@@ -20,15 +20,18 @@ class FruitConan(ConanFile):
     license = "Apache-2.0"
     topics = ("injection", "framework")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False],
-               "use_boost": [True, False, "deprecated"],
-               "with_boost": [True, False],
-               "fPIC": [True, False]}
+    options = {
+        "shared": [True, False],
+        "use_boost": [True, False, "deprecated"],
+        "with_boost": [True, False],
+        "fPIC": [True, False],
+    }
     default_options = {
         "shared": False,
         "use_boost": "deprecated",
         "with_boost": True,
-        "fPIC": True}
+        "fPIC": True,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -60,18 +63,14 @@ class FruitConan(ConanFile):
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version.value)
 
-        minimal_version = {
-            "gcc": "5",
-            "clang": "3.5",
-            "apple-clang": "7.3",
-            "Visual Studio": "14"
-        }
+        minimal_version = {"gcc": "5", "clang": "3.5", "apple-clang": "7.3", "Visual Studio": "14"}
 
-        if compiler in minimal_version and \
-           compiler_version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports"
-                                            " at least C++11. {compiler} {compiler_version} is not"
-                                            " supported.")
+        if compiler in minimal_version and compiler_version < minimal_version[compiler]:
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires a compiler that supports"
+                " at least C++11. {compiler} {compiler_version} is not"
+                " supported."
+            )
 
     def source(self):
         if Version(self.version) == "3.4.0":
@@ -79,19 +78,25 @@ class FruitConan(ConanFile):
             download(self, filename=filename, **self.conan_data["sources"][self.version])
             extracted_dir = self.name + "-" + self.version
 
-            with tarfile.TarFile.open(filename, 'r:*') as tarredgzippedFile:
+            with tarfile.TarFile.open(filename, "r:*") as tarredgzippedFile:
                 # NOTE: In fruit v3.4.0, The archive file contains the file names
                 # build and BUILD in the extras/bazel_root/third_party/fruit directory.
                 # Extraction fails on a case-insensitive file system due to file
                 # name conflicts.
                 # Exclude build as a workaround.
                 exclude_pattern = f"{extracted_dir}/extras/bazel_root/third_party/fruit/build"
-                members = list(filter(lambda m: not fnmatch(m.name, exclude_pattern),
-                                    tarredgzippedFile.getmembers()))
+                members = list(
+                    filter(
+                        lambda m: not fnmatch(m.name, exclude_pattern),
+                        tarredgzippedFile.getmembers(),
+                    )
+                )
                 tarredgzippedFile.extractall(path=self.source_folder, members=members)
             allfiles = os.listdir(os.path.join(self.source_folder, extracted_dir))
             for file_name in allfiles:
-                shutil.move(os.path.join(self.source_folder, extracted_dir, file_name), self.source_folder)
+                shutil.move(
+                    os.path.join(self.source_folder, extracted_dir, file_name), self.source_folder
+                )
         else:
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -114,7 +119,12 @@ class FruitConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -17,16 +17,12 @@ class FuseppConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
     exports_sources = "CMakeLists.txt"
 
     generators = "cmake"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -46,8 +42,11 @@ class FuseppConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def requirements(self):
         self.requires("libfuse/3.10.5")

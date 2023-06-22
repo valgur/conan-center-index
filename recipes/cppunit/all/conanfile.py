@@ -74,21 +74,25 @@ class CppunitConan(ConanFile):
             # https://github.com/conan-io/conan-center-index/pull/15759#issuecomment-1419046535
             tc.extra_ldflags.append("-headerpad_max_install_names")
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
-            "--enable-doxygen=no",
-            "--enable-dot=no",
-            "--enable-werror=no",
-            "--enable-html-docs=no",
-        ])
+        tc.configure_args.extend(
+            [
+                "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
+                "--enable-doxygen=no",
+                "--enable-dot=no",
+                "--enable-werror=no",
+                "--enable-html-docs=no",
+            ]
+        )
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))
+            compile_wrapper = unix_path(
+                self, self.conf.get("user.automake:compile-wrapper", check_type=str)
+            )
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -101,12 +105,20 @@ class CppunitConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "cppunit.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "cppunit.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "cppunit.dll.lib"),
+                os.path.join(self.package_folder, "lib", "cppunit.lib"),
+            )
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))

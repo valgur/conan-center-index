@@ -29,10 +29,6 @@ class TgbotConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -53,20 +49,30 @@ class TgbotConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, 11)
-        miss_boost_required_comp = any(getattr(self.options["boost"], "without_{}".format(boost_comp), True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            for boost_comp in self._required_boost_components
+        )
         if self.options["boost"].header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration("{0} requires non header-only boost with these components: {1}".format(self.name, ", ".join(self._required_boost_components)))
+            raise ConanInvalidConfiguration(
+                "{0} requires non header-only boost with these components: {1}".format(
+                    self.name, ", ".join(self._required_boost_components)
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         # Don't force PIC
         tools.replace_in_file(
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
             "set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)",
-            ""
+            "",
         )
 
     def _configure_cmake(self):
@@ -89,4 +95,9 @@ class TgbotConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["TgBot"]
-        self.cpp_info.requires = ["boost::headers", "boost::system", "libcurl::libcurl", "openssl::openssl"]
+        self.cpp_info.requires = [
+            "boost::headers",
+            "boost::system",
+            "libcurl::libcurl",
+            "openssl::openssl",
+        ]

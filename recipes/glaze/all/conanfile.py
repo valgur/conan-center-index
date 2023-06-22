@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.51.1"
 
+
 class GlazeConan(ConanFile):
     name = "glaze"
     description = "Extremely fast, in memory, JSON and interface library for modern C++"
@@ -68,7 +69,12 @@ class GlazeConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hpp",

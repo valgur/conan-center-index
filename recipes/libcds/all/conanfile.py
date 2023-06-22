@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -73,7 +80,12 @@ class LibcdsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -88,7 +100,10 @@ class LibcdsConan(ConanFile):
             self.cpp_info.components["_libcds"].defines = ["CDS_BUILD_STATIC_LIB"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_libcds"].system_libs = ["m", "pthread"]
-        if self.settings.compiler in ["gcc", "clang", "apple-clang"] and self.settings.arch == "x86_64":
+        if (
+            self.settings.compiler in ["gcc", "clang", "apple-clang"]
+            and self.settings.arch == "x86_64"
+        ):
             self.cpp_info.components["_libcds"].cxxflags = ["-mcx16"]
         self.cpp_info.components["_libcds"].requires = ["boost::boost"]
 
@@ -97,4 +112,6 @@ class LibcdsConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "LibCDS"
         self.cpp_info.components["_libcds"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["_libcds"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_libcds"].set_property("cmake_target_name", f"LibCDS::{cmake_target}")
+        self.cpp_info.components["_libcds"].set_property(
+            "cmake_target_name", f"LibCDS::{cmake_target}"
+        )

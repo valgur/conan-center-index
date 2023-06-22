@@ -106,14 +106,10 @@ class ArmadilloConan(ConanFile):
             self.options.use_blas == "framework_accelerate"
             or self.options.use_lapack == "framework_accelerate"
         ):
-            raise ConanInvalidConfiguration(
-                "framework_accelerate can only be used on Macos"
-            )
+            raise ConanInvalidConfiguration("framework_accelerate can only be used on Macos")
 
         for value, options in self._co_dependencies.items():
-            options_without_value = [
-                x for x in options if getattr(self.options, x) != value
-            ]
+            options_without_value = [x for x in options if getattr(self.options, x) != value]
             if options_without_value and (len(options) != len(options_without_value)):
                 raise ConanInvalidConfiguration(
                     "Options {} must all be set to '{}' to use this feature. To fix this, set option {} to '{}'.".format(
@@ -124,10 +120,7 @@ class ArmadilloConan(ConanFile):
                     )
                 )
 
-        if (
-            self.options.use_lapack == "openblas"
-            and self.options.use_blas != "openblas"
-        ):
+        if self.options.use_lapack == "openblas" and self.options.use_blas != "openblas":
             raise ConanInvalidConfiguration(
                 "OpenBLAS can only provide LAPACK functionality when also providing BLAS functionality. Set use_blas=openblas and try again."
             )
@@ -173,20 +166,12 @@ class ArmadilloConan(ConanFile):
             # a fortran compiler installed. If you don't, OpenBLAS will build successfully but
             # without LAPACK support, which isn't obvious.
             # This can be achieved by setting the FC environment variable in your conan profile
-            self.options["openblas"].build_lapack = (
-                self.options.use_lapack == "openblas"
-            )
-        if (
-            self.options.use_blas == "intel_mkl"
-            and self.options.use_lapack == "intel_mkl"
-        ):
+            self.options["openblas"].build_lapack = self.options.use_lapack == "openblas"
+        if self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl":
             # Consumers can override this requirement with their own
             # by using self.requires("intel-mkl/version@user/channel, override=True)
             # in their consumer conanfile.py
-            if (
-                self.options.use_blas == "intel_mkl"
-                or self.options.use_lapack == "intel_mkl"
-            ):
+            if self.options.use_blas == "intel_mkl" or self.options.use_lapack == "intel_mkl":
                 self.output.warning(
                     "The intel-mkl package does not exist in CCI. To use an Intel MKL package, override this requirement with your own recipe."
                 )
@@ -208,18 +193,24 @@ class ArmadilloConan(ConanFile):
             or self.options.use_lapack == "framework_accelerate"
         ) and self.settings.os == "Macos"
         tc.variables["DETECT_HDF5"] = self.options.use_hdf5
-        tc.variables["USE_OPENBLAS"] = (self.options.use_blas == "openblas")
-        tc.variables["USE_MKL"] = self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl"
+        tc.variables["USE_OPENBLAS"] = self.options.use_blas == "openblas"
+        tc.variables["USE_MKL"] = (
+            self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl"
+        )
         tc.variables["USE_SYSTEM_LAPACK"] = self.options.use_lapack == "system_lapack"
-        tc.variables["USE_SYSTEM_BLAS"] = (self.options.use_blas == "system_blas")
+        tc.variables["USE_SYSTEM_BLAS"] = self.options.use_blas == "system_blas"
         tc.variables["USE_SYSTEM_ATLAS"] = self.options.use_lapack == "system_atlas"
         tc.variables["USE_SYSTEM_HDF5"] = False
         tc.variables["USE_SYSTEM_ARPACK"] = self.options.use_arpack
         tc.variables["USE_SYSTEM_SUPERLU"] = self.options.use_superlu
         tc.variables["USE_SYSTEM_OPENBLAS"] = False
         tc.variables["USE_SYSTEM_FLEXIBLAS"] = self.options.use_blas == "system_flexiblas"
-        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
-        tc.variables["ALLOW_OPENBLAS_MACOS"] = self.options.use_blas == "openblas" and self.settings.os == "Macos"
+        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = (
+            self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
+        )
+        tc.variables["ALLOW_OPENBLAS_MACOS"] = (
+            self.options.use_blas == "openblas" and self.settings.os == "Macos"
+        )
         tc.variables["OPENBLAS_PROVIDES_LAPACK"] = self.options.use_lapack == "openblas"
         tc.variables["ALLOW_BLAS_LAPACK_MACOS"] = self.options.use_blas != "framework_accelerate"
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
@@ -231,10 +222,11 @@ class ArmadilloConan(ConanFile):
         deps.generate()
 
     def source(self):
-        get(self,
+        get(
+            self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            filename="f{self.name}-{self.version}.tar.xz"
+            filename="f{self.name}-{self.version}.tar.xz",
         )
 
     def build(self):
@@ -248,8 +240,18 @@ class ArmadilloConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "NOTICE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            "NOTICE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
@@ -284,10 +286,7 @@ class ArmadilloConan(ConanFile):
 
         if self.options.use_lapack:
             self.cpp_info.defines.append("ARMA_USE_LAPACK")
-            if (
-                self.options.use_lapack == "system_lapack"
-                and not self.options.use_wrapper
-            ):
+            if self.options.use_lapack == "system_lapack" and not self.options.use_wrapper:
                 self.cpp_info.system_libs.extend(["lapack"])
         else:
             self.cpp_info.defines.append("ARMA_DONT_USE_LAPACK")

@@ -25,10 +25,6 @@ class TreeSitterCConan(ConanFile):
     generators = "cmake", "cmake_find_package_multi"
     exports_sources = "CMakeLists.txt"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -43,8 +39,11 @@ class TreeSitterCConan(ConanFile):
         self.requires("tree-sitter/0.20.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -55,8 +54,7 @@ class TreeSitterCConan(ConanFile):
     def _patch_sources(self):
         if not self.options.shared:
             tools.replace_in_file(
-                os.path.join(self._source_subfolder, "src", "parser.c"),
-                "__declspec(dllexport)", ""
+                os.path.join(self._source_subfolder, "src", "parser.c"), "__declspec(dllexport)", ""
             )
 
     def build(self):

@@ -20,16 +20,7 @@ class GraphthewyConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "Visual Studio": "15.7",
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10"
-    }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+        return {"Visual Studio": "15.7", "gcc": "7", "clang": "7", "apple-clang": "10"}
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -43,13 +34,22 @@ class GraphthewyConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("graphthewy requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "graphthewy requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("graphthewy requires C++17, which your compiler does not support.")
+            raise ConanInvalidConfiguration(
+                "graphthewy requires C++17, which your compiler does not support."
+            )
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.hpp", dst=os.path.join("include", "graphthewy"), src=self._source_subfolder, keep_path=False)
+        self.copy(
+            "*.hpp",
+            dst=os.path.join("include", "graphthewy"),
+            src=self._source_subfolder,
+            keep_path=False,
+        )
 
     def package_id(self):
         self.info.header_only()

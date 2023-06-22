@@ -25,8 +25,12 @@ class PopplerDataConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     @property
     def _datadir(self):
@@ -44,7 +48,12 @@ class PopplerDataConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self._datadir, "pkgconfig"))
@@ -59,7 +68,9 @@ class PopplerDataConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = ["res"]
-        self.cpp_info.defines = ["POPPLER_DATADIR={}".format(self._poppler_datadir.replace("\\", "//"))]
+        self.cpp_info.defines = [
+            "POPPLER_DATADIR={}".format(self._poppler_datadir.replace("\\", "//"))
+        ]
         self.conf_info.define("user.poppler-data:datadir", self._poppler_datadir)
 
         # TODO: to remove in conan v2

@@ -12,7 +12,9 @@ required_conan_version = ">=1.51.3"
 
 class PackageConan(ConanFile):
     name = "unordered_dense"
-    description = "A fast & densely stored hashmap and hashset based on robin-hood backward shift deletion"
+    description = (
+        "A fast & densely stored hashmap and hashset based on robin-hood backward shift deletion"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinus/unordered_dense"
@@ -45,8 +47,13 @@ class PackageConan(ConanFile):
         if self.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.get_safe("compiler.version")) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support.")
+        if (
+            minimum_version
+            and Version(self.settings.get_safe("compiler.version")) < minimum_version
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,8 +62,18 @@ class PackageConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include", "ankerl"), src=os.path.join(self.source_folder, "include", "ankerl"))
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include", "ankerl"),
+            src=os.path.join(self.source_folder, "include", "ankerl"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

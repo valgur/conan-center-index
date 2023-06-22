@@ -1,13 +1,16 @@
 from conans import ConanFile, CMake, tools
 import os
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "cmake_find_package_multi"
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions["IGN_MATH_MAJOR_VER"] = tools.Version(self.deps_cpp_info["ignition-math"].version).major
+        cmake.definitions["IGN_MATH_MAJOR_VER"] = tools.Version(
+            self.deps_cpp_info["ignition-math"].version
+        ).major
         cmake.configure()
         cmake.build()
 

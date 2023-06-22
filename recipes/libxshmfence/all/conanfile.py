@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibxshmfenceConan(ConanFile):
     name = "libxshmfence"
     license = "X11"
@@ -29,10 +30,6 @@ class LibxshmfenceConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -53,10 +50,12 @@ class LibxshmfenceConan(ConanFile):
         # for plain C projects only
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-    
+
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("Windows is not supported by libxshmfence recipe. Contributions are welcome")
+            raise ConanInvalidConfiguration(
+                "Windows is not supported by libxshmfence recipe. Contributions are welcome"
+            )
 
     def build_requirements(self):
         self.build_requires("automake/1.16.5")
@@ -68,15 +67,21 @@ class LibxshmfenceConan(ConanFile):
         self.requires("xorg-proto/2022.2")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], 
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace("\\", "/"),
+                    "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace(
+                        "\\", "/"
+                    ),
                 }
                 with tools.environment_append(env):
                     yield
@@ -86,7 +91,9 @@ class LibxshmfenceConan(ConanFile):
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=self._settings_build.os == "Windows")
+        self._autotools = AutoToolsBuildEnvironment(
+            self, win_bash=self._settings_build.os == "Windows"
+        )
         self._autotools.libs = []
         yes_no = lambda v: "yes" if v else "no"
         configure_args = [

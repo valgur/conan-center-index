@@ -32,7 +32,7 @@ class SevenBitConfConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
@@ -137,4 +137,3 @@ class SevenBitConfConan(ConanFile):
 
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.append("m")
-

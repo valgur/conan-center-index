@@ -2,24 +2,24 @@ import os
 
 from conans import ConanFile, CMake, tools
 
+
 class DjinniSuppotLib(ConanFile):
     name = "djinni-support-lib"
     homepage = "https://djinni.xlcpp.dev"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Djinni is a tool for generating cross-language type declarations and interface bindings"
+    description = (
+        "Djinni is a tool for generating cross-language type declarations and interface bindings"
+    )
     topics = ("java", "Objective-C", "Android", "iOS")
     license = "Apache-2.0"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False],
-                "fPIC": [True, False],
-                "target": ["jni", "objc", "auto"],
-                "system_java": [True, False]
-               }
-    default_options = {"shared": False,
-                        "fPIC": True ,
-                        "target": "auto",
-                        "system_java": False
-                       }
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "target": ["jni", "objc", "auto"],
+        "system_java": [True, False],
+    }
+    default_options = {"shared": False, "fPIC": True, "target": "auto", "system_java": False}
     exports_sources = ["patches/**", "CMakeLists.txt"]
     generators = "cmake", "cmake_find_package"
 
@@ -39,10 +39,6 @@ class DjinniSuppotLib(ConanFile):
         else:
             return self.options.target == "jni"
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def build_requirements(self):
         if not self.options.system_java:
             self.build_requires("zulu-openjdk/11.0.8@")
@@ -56,8 +52,11 @@ class DjinniSuppotLib(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake:

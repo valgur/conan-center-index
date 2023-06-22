@@ -24,7 +24,9 @@ class TestPackageConan(ConanFile):
         src = os.path.join(self.build_folder, "test_package.c")
         self.run(f"gccmakedep {src}", env="conanbuild")
 
-        if load(self, os.path.join(self.source_folder, "Makefile")) == os.path.join(self.build_folder, "Makefile"):
+        if load(self, os.path.join(self.source_folder, "Makefile")) == os.path.join(
+            self.build_folder, "Makefile"
+        ):
             raise ConanException("xorg-gccmakedep did not modify `Makefile'")
 
     def test(self):

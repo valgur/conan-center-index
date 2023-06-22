@@ -1,10 +1,25 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
+from conan.tools.microsoft import (
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+)
 from conan.tools.scm import Version
 import glob
 import os
@@ -69,11 +84,13 @@ class LibffiConan(ConanFile):
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
-            "--enable-builddir=no",
-            "--enable-docs=no",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
+                "--enable-builddir=no",
+                "--enable-docs=no",
+            ]
+        )
 
         if self._settings_build.compiler == "apple-clang":
             tc.configure_args.append("--disable-multi-os-directory")
@@ -83,19 +100,20 @@ class LibffiConan(ConanFile):
             tc.extra_defines.append("FFI_BUILDING_DLL")
 
         env = tc.environment()
-        if self._settings_build.os == "Windows" and (is_msvc(self) or self.settings.compiler == "clang"):
+        if self._settings_build.os == "Windows" and (
+            is_msvc(self) or self.settings.compiler == "clang"
+        ):
             build = "{}-{}-{}".format(
                 "x86_64" if self._settings_build.arch == "x86_64" else "i686",
                 "pc" if self._settings_build.arch == "x86" else "win64",
-                "mingw64")
+                "mingw64",
+            )
             host = "{}-{}-{}".format(
                 "x86_64" if self.settings.arch == "x86_64" else "i686",
                 "pc" if self.settings.arch == "x86" else "win64",
-                "mingw64")
-            tc.update_configure_args({
-                "--build": build,
-                "--host": host
-                })
+                "mingw64",
+            )
+            tc.update_configure_args({"--build": build, "--host": host})
 
             if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
                 # https://github.com/conan-io/conan/issues/6514
@@ -119,11 +137,13 @@ class LibffiConan(ConanFile):
             if architecture_flag:
                 compile_wrapper = f"{compile_wrapper} {architecture_flag}"
 
-            ar_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper"))
+            ar_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
+            )
             env.define("CC", f"{compile_wrapper}")
             env.define("CXX", f"{compile_wrapper}")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -138,7 +158,10 @@ class LibffiConan(ConanFile):
         apply_conandata_patches(self)
 
         if Version(self.version) < "3.3":
-            if self.settings.compiler == "clang" and Version(str(self.settings.compiler.version)) >= 7.0:
+            if (
+                self.settings.compiler == "clang"
+                and Version(str(self.settings.compiler.version)) >= 7.0
+            ):
                 # https://android.googlesource.com/platform/external/libffi/+/ca22c3cb49a8cca299828c5ffad6fcfa76fdfa77
                 sysv_s_src = os.path.join(self.source_folder, "src", "arm", "sysv.S")
                 replace_in_file(self, sysv_s_src, "fldmiad", "vldmia")
@@ -156,7 +179,9 @@ class LibffiConan(ConanFile):
 
     def package(self):
         autotools = Autotools(self)
-        autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])  # Need to specify the `DESTDIR` as a Unix path, aware of the subsystem
+        autotools.install(
+            args=[f"DESTDIR={unix_path(self, self.package_folder)}"]
+        )  # Need to specify the `DESTDIR` as a Unix path, aware of the subsystem
         fix_apple_shared_install_name(self)
         mkdir(self, os.path.join(self.package_folder, "bin"))
         for dll in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):

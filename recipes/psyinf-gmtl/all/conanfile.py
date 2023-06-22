@@ -14,9 +14,9 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/psyinf/gmtl"
     topics = ("linear-algebra", "collision", "vector", "matrix", "template", "math", "header-only")
-    settings = "os", "arch", "compiler", "build_type" 
-    no_copy_source = True 
-   
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -24,11 +24,26 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="COPYING",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.h",
@@ -41,9 +56,7 @@ class PackageConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.names["cmake_find_package"] = "gmtl"
         self.cpp_info.names["cmake_find_package_multi"] = "gmtl"
-        
+
         self.cpp_info.set_property("cmake_file_name", "gmtl")
         self.cpp_info.set_property("cmake_target_name", "gmtl::gmtl")
         self.cpp_info.set_property("pkg_config_name", "gmtl")
-
-  

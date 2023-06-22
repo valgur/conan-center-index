@@ -59,7 +59,7 @@ class LzmaSdkConan(ConanFile):
             tc.generate()
         else:
             env = VirtualBuildEnv(self)
-            env.generate()            
+            env.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
             deps = AutotoolsDeps(self)
@@ -71,7 +71,7 @@ class LzmaSdkConan(ConanFile):
             (os.path.join(self.source_folder, "C", "Util", "7z"), "7zDec.exe"),
             (os.path.join(self.source_folder, "C", "Util", "Lzma"), "LZMAc.exe"),
             (os.path.join(self.source_folder, "CPP", "7zip", "UI", "Console"), "7z.exe"),
-            (os.path.join(self.source_folder, "CPP", "7zip","Bundles", "Alone7z"), "7zr.exe"),
+            (os.path.join(self.source_folder, "CPP", "7zip", "Bundles", "Alone7z"), "7zr.exe"),
             (os.path.join(self.source_folder, "CPP", "7zip", "Bundles", "LzmaCon"), "lzma.exe"),
         )
 
@@ -92,14 +92,18 @@ class LzmaSdkConan(ConanFile):
 
     def _build_msvc(self):
         for make_dir, _ in self._msvc_build_dirs:
-            self.run(f"nmake /f makefile NEW_COMPILER=1 CPU={self._msvc_cpu} NO_BUFFEROVERFLOWU=1", cwd=make_dir)
+            self.run(
+                f"nmake /f makefile NEW_COMPILER=1 CPU={self._msvc_cpu} NO_BUFFEROVERFLOWU=1",
+                cwd=make_dir,
+            )
 
     def _build_autotools(self):
         autotools = Autotools(self)
         for make_dir, _ in self._autotools_build_dirs:
             with chdir(self, make_dir):
                 args = [
-                    "-f", "makefile.gcc",
+                    "-f",
+                    "makefile.gcc",
                 ]
                 if self.settings.os == "Windows":
                     args.append("IS_MINGW=1")
@@ -107,26 +111,47 @@ class LzmaSdkConan(ConanFile):
 
     def _patch_sources(self):
         if is_msvc(self):
-            replace_in_file(self, os.path.join(self.source_folder, "CPP", "Build.mak"),
-                                  "-MT\r", "-" + str(self.settings.compiler.runtime))
-            replace_in_file(self, os.path.join(self.source_folder, "CPP", "Build.mak"),
-                                  "-MD\r", "-" + str(self.settings.compiler.runtime))
-            replace_in_file(self, os.path.join(self.source_folder, "CPP", "Build.mak"),
-                                  " -WX ", " ")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CPP", "Build.mak"),
+                "-MT\r",
+                "-" + str(self.settings.compiler.runtime),
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CPP", "Build.mak"),
+                "-MD\r",
+                "-" + str(self.settings.compiler.runtime),
+            )
+            replace_in_file(
+                self, os.path.join(self.source_folder, "CPP", "Build.mak"), " -WX ", " "
+            )
 
         # Patches for other build systems
-        replace_in_file(self, os.path.join(self.source_folder, "C", "Util", "7z", "makefile.gcc"),
-                              "CFLAGS = ",
-                              "CFLAGS += -fpermissive ")
-        replace_in_file(self, os.path.join(self.source_folder, "C", "Util", "7z", "makefile.gcc"),
-                              ": 7zAlloc.c",
-                              ": ../../7zAlloc.c")
-        replace_in_file(self, os.path.join(self.source_folder, "CPP", "7zip", "Bundles", "LzmaCon", "makefile.gcc"),
-                              "CFLAGS = ",
-                              "CFLAGS += -fpermissive ")
-        replace_in_file(self, os.path.join(self.source_folder, "CPP", "Common", "MyString.h"),
-                              "#ifdef _WIN32\r\n",
-                              "#ifdef _WIN32\r\n#ifndef UNDER_CE\r\n#include <windows.h>\r\n#endif\r\n")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "C", "Util", "7z", "makefile.gcc"),
+            "CFLAGS = ",
+            "CFLAGS += -fpermissive ",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "C", "Util", "7z", "makefile.gcc"),
+            ": 7zAlloc.c",
+            ": ../../7zAlloc.c",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CPP", "7zip", "Bundles", "LzmaCon", "makefile.gcc"),
+            "CFLAGS = ",
+            "CFLAGS += -fpermissive ",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CPP", "Common", "MyString.h"),
+            "#ifdef _WIN32\r\n",
+            "#ifdef _WIN32\r\n#ifndef UNDER_CE\r\n#include <windows.h>\r\n#endif\r\n",
+        )
 
     def build(self):
         self._patch_sources()
@@ -136,14 +161,36 @@ class LzmaSdkConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "lzma.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "7zC.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "lzma.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            "7zC.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if is_msvc(self):
             for make_dir, exe in self._msvc_build_dirs:
-                copy(self, exe, dst=os.path.join(self.package_folder, "bin"), src=os.path.join(make_dir, self._msvc_cpu), keep_path=False)
+                copy(
+                    self,
+                    exe,
+                    dst=os.path.join(self.package_folder, "bin"),
+                    src=os.path.join(make_dir, self._msvc_cpu),
+                    keep_path=False,
+                )
         else:
             for make_dir, exe in self._autotools_build_dirs:
-                copy(self, exe, dst=os.path.join(self.package_folder, "bin"), src=os.path.join(make_dir), keep_path=False)
+                copy(
+                    self,
+                    exe,
+                    dst=os.path.join(self.package_folder, "bin"),
+                    src=os.path.join(make_dir),
+                    keep_path=False,
+                )
 
     def package_info(self):
         self.cpp_info.libdirs = []

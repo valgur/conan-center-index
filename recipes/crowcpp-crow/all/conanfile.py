@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class CrowConan(ConanFile):
     name = "crowcpp-crow"
     description = "Crow is a C++ microframework for running web services."
@@ -84,9 +85,13 @@ class CrowConan(ConanFile):
             else:
                 cmake.build(target="crow_amalgamated")
 
-
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
         if self.options.amalgamation:
             copy(
@@ -132,4 +137,3 @@ class CrowConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Crow"
         self.cpp_info.names["cmake_find_package_multi"] = "Crow"
-

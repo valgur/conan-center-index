@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, load, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    copy,
+    get,
+    load,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 import re
@@ -17,7 +24,8 @@ class OneTBBConan(ConanFile):
     description = (
         "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel C++"
         " programs that take full advantage of multicore performance, that are portable, composable"
-        " and have future-proof scalability.")
+        " and have future-proof scalability."
+    )
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
     settings = "os", "arch", "compiler", "build_type"
@@ -66,7 +74,10 @@ class OneTBBConan(ConanFile):
             self.info.options.tbbproxy = True
 
     def validate_build(self):
-        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "11.0":
+        if (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) < "11.0"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} couldn't be built by apple-clang < 11.0")
         if not self.options.get_safe("shared", True):
             if Version(self.version) >= "2021.6.0":
@@ -101,7 +112,12 @@ class OneTBBConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -121,12 +137,11 @@ class OneTBBConan(ConanFile):
         tbb.set_property("cmake_target_name", "TBB::tbb")
         tbb.libs = [lib_name("tbb")]
         if self.settings.os == "Windows":
-            version_info = load(self,
-                os.path.join(self.package_folder, "include", "oneapi", "tbb",
-                             "version.h"))
+            version_info = load(
+                self, os.path.join(self.package_folder, "include", "oneapi", "tbb", "version.h")
+            )
             binary_version = re.sub(
-                r".*" + re.escape("#define __TBB_BINARY_VERSION ") +
-                r"(\d+).*",
+                r".*" + re.escape("#define __TBB_BINARY_VERSION ") + r"(\d+).*",
                 r"\1",
                 version_info,
                 flags=re.MULTILINE | re.DOTALL,

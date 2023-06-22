@@ -4,22 +4,35 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
+
 class StructoptConan(ConanFile):
     name = "structopt"
     description = "Parse command line arguments by defining a struct+"
-    topics = ("structopt", "argument-parser", "cpp17", "header-only",
-        "single-header-lib", "header-library", "command-line", "arguments",
-        "mit-license", "modern-cpp", "structopt", "lightweight", "reflection",
-        "cross-platform", "library", "type-safety", "type-safe", "argparse",
-        "clap",)
+    topics = (
+        "structopt",
+        "argument-parser",
+        "cpp17",
+        "header-only",
+        "single-header-lib",
+        "header-library",
+        "command-line",
+        "arguments",
+        "mit-license",
+        "modern-cpp",
+        "structopt",
+        "lightweight",
+        "reflection",
+        "cross-platform",
+        "library",
+        "type-safety",
+        "type-safe",
+        "argparse",
+        "clap",
+    )
     license = "MIT"
     homepage = "https://github.com/p-ranav/structopt"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -48,14 +61,25 @@ class StructoptConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if tools.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("structopt: Unsupported compiler: {}-{} "
-                                                "(https://github.com/p-ranav/structopt#compiler-compatibility)."
-                                                .format(self.settings.compiler, self.settings.compiler.version))
+                raise ConanInvalidConfiguration(
+                    "structopt: Unsupported compiler: {}-{} "
+                    "(https://github.com/p-ranav/structopt#compiler-compatibility).".format(
+                        self.settings.compiler, self.settings.compiler.version
+                    )
+                )
         else:
-            self.output.warn("{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name))
+            self.output.warn(
+                "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(
+                    self.name
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -66,7 +90,6 @@ class StructoptConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         tools.rmdir(os.path.join(self._source_subfolder, "include", "structopt", "third_party"))
-
 
     def package(self):
         self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")

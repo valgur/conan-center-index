@@ -26,8 +26,12 @@ class OpenGLRegistryConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
         pass
@@ -40,8 +44,18 @@ class OpenGLRegistryConan(ConanFile):
         license_data = license_data.replace("**", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
 
-        copy(self, "*", src=os.path.join(self.source_folder, "api"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*", src=os.path.join(self.source_folder, "xml"), dst=os.path.join(self.package_folder, "res", "xml"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "api"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "xml"),
+            dst=os.path.join(self.package_folder, "res", "xml"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

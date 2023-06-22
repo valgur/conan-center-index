@@ -33,7 +33,7 @@ class LibltcConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -65,8 +65,13 @@ class LibltcConan(ConanFile):
             tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper"))
-            lib_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper"))
+            compile_wrapper = unix_path(
+                self,
+                self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper"),
+            )
+            lib_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
+            )
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("AR", f"{lib_wrapper} lib")
@@ -79,7 +84,12 @@ class LibltcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -87,8 +97,11 @@ class LibltcConan(ConanFile):
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "ltc.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
+                os.path.join(self.package_folder, "lib", "ltc.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "ltc")

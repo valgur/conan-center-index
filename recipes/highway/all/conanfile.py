@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -78,9 +85,9 @@ class HighwayConan(ConanFile):
         # Honor fPIC option
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)", "")
-        replace_in_file(self, cmakelists,
-                              "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)",
-                              "")
+        replace_in_file(
+            self, cmakelists, "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)", ""
+        )
 
     def build(self):
         self._patch_sources()
@@ -89,7 +96,12 @@ class HighwayConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -102,7 +114,9 @@ class HighwayConan(ConanFile):
                 "HWY_SHARED_DEFINE" if self.options.shared else "HWY_STATIC_DEFINE"
             )
         if Version(self.version) >= "0.12.1":
-            self.cpp_info.components["hwy_contrib"].set_property("pkg_config_name", "libhwy-contrib")
+            self.cpp_info.components["hwy_contrib"].set_property(
+                "pkg_config_name", "libhwy-contrib"
+            )
             self.cpp_info.components["hwy_contrib"].libs = ["hwy_contrib"]
             self.cpp_info.components["hwy_contrib"].requires = ["hwy"]
         if Version(self.version) >= "0.15.0":

@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibRawConan(ConanFile):
     name = "libraw"
     description = "LibRaw is a library for reading RAW files obtained from digital photo cameras (CRW/CR2, NEF, RAF, DNG, and others)."
@@ -19,14 +20,14 @@ class LibRawConan(ConanFile):
         "fPIC": [True, False],
         "with_jpeg": [False, "libjpeg", "libjpeg-turbo"],
         "with_lcms": [True, False],
-        "with_jasper": [True, False]
+        "with_jasper": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_jpeg": "libjpeg",
         "with_lcms": True,
-        "with_jasper": True
+        "with_jasper": True,
     }
     exports_sources = ["CMakeLists.txt"]
 
@@ -62,7 +63,7 @@ class LibRawConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-       get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -79,8 +80,18 @@ class LibRawConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="COPYRIGHT",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

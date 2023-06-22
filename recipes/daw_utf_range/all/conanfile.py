@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.47.0"
 
+
 class DawUtfRangeConan(ConanFile):
     name = "daw_utf_range"
     description = "Range operations on character arrays"
@@ -46,7 +47,9 @@ class DawUtfRangeConan(ConanFile):
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(
+            str(self.info.settings.compiler), False
+        )
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
@@ -68,7 +71,12 @@ class DawUtfRangeConan(ConanFile):
         cmake.configure()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

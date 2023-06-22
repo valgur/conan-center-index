@@ -21,7 +21,7 @@ class PahoMqttCppConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "ssl": [True, False, "deprecated"], # TODO: deprecated option, to remove in few months
+        "ssl": [True, False, "deprecated"],  # TODO: deprecated option, to remove in few months
     }
     default_options = {
         "shared": False,
@@ -60,7 +60,7 @@ class PahoMqttCppConan(ConanFile):
             # Symbols are exposed   "_MQTTProperties_free", referenced from: mqtt::connect_options::~connect_options() in test_package.cpp.o
             self.requires("paho-mqtt-c/1.3.9", transitive_headers=True, transitive_libs=True)
         else:
-             # This is the "official tested" version https://github.com/eclipse/paho.mqtt.cpp/releases/tag/v1.1
+            # This is the "official tested" version https://github.com/eclipse/paho.mqtt.cpp/releases/tag/v1.1
             self.requires("paho-mqtt-c/1.3.1", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
@@ -72,8 +72,13 @@ class PahoMqttCppConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
         if self.dependencies["paho-mqtt-c"].options.shared != self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} requires paho-mqtt-c to have a matching 'shared' option.")
-        if Version(self.version) < "1.2.0" and Version(self.dependencies["paho-mqtt-c"].ref.version) >= "1.3.2":
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires paho-mqtt-c to have a matching 'shared' option."
+            )
+        if (
+            Version(self.version) < "1.2.0"
+            and Version(self.dependencies["paho-mqtt-c"].ref.version) >= "1.3.2"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires paho-mqtt-c =< 1.3.1")
 
     def source(self):
@@ -99,9 +104,24 @@ class PahoMqttCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "epl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "notice.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "edl-v10",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "epl-v10",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "notice.html",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -121,5 +141,7 @@ class PahoMqttCppConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "PahoMqttCpp"
         self.cpp_info.components["paho-mqttpp"].names["cmake_find_package"] = target
         self.cpp_info.components["paho-mqttpp"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["paho-mqttpp"].set_property("cmake_target_name", f"PahoMqttCpp::{target}")
+        self.cpp_info.components["paho-mqttpp"].set_property(
+            "cmake_target_name", f"PahoMqttCpp::{target}"
+        )
         self.cpp_info.components["paho-mqttpp"].requires = ["paho-mqtt-c::paho-mqtt-c"]

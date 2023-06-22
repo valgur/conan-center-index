@@ -14,7 +14,9 @@ class LibgcryptConan(ConanFile):
     name = "libgcrypt"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnupg.org/download/index.html#libgcrypt"
-    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
+    description = (
+        "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
+    )
     topics = ("gcrypt", "gnupg", "gpg", "crypto", "cryptography")
     license = "LGPL-2.1-or-later"
     package_type = "library"
@@ -43,7 +45,9 @@ class LibgcryptConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
+            raise ConanInvalidConfiguration(
+                "This recipe only support Linux. You can contribute Windows and/or Macos support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -54,10 +58,12 @@ class LibgcryptConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-doc",
-            f"--with-libgpg-error-prefix={self.dependencies['libgpg-error'].package_folder}",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-doc",
+                f"--with-libgpg-error-prefix={self.dependencies['libgpg-error'].package_folder}",
+            ]
+        )
         tc.generate()
 
         deps = AutotoolsDeps(self)
@@ -69,7 +75,12 @@ class LibgcryptConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*la", os.path.join(self.package_folder, "lib"))

@@ -4,7 +4,14 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -78,7 +85,7 @@ class AprUtilConan(ConanFile):
     def requirements(self):
         self.requires("apr/1.7.0", transitive_headers=True)
         if self.settings.os != "Windows":
-            #cmake build doesn't allow injection of iconv yet
+            # cmake build doesn't allow injection of iconv yet
             # https://github.com/conan-io/conan-center-index/pull/16142#issuecomment-1494282164
             # transitive_libs needs to be set because some sys-frameworks on the old mac images for c3i
             # are pulling it in - discovered in https://github.com/conan-io/conan-center-index/pull/16266
@@ -96,7 +103,9 @@ class AprUtilConan(ConanFile):
 
     def validate(self):
         if not self.options.with_expat:
-            raise ConanInvalidConfiguration("expat cannot be disabled (at this time) (check back later)")
+            raise ConanInvalidConfiguration(
+                "expat cannot be disabled (at this time) (check back later)"
+            )
         if self.options.shared != self.dependencies["apr"].options.shared:
             raise ConanInvalidConfiguration("apr-util must be built with same shared option as apr")
         if self.options.with_nss:
@@ -138,27 +147,32 @@ class AprUtilConan(ConanFile):
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
             rootpath_no = lambda v, req: self.dependencies[req].package_folder if v else "no"
-            tc.configure_args.extend([
-                f"--with-apr={rootpath_no(True, 'apr')}",
-                f"--with-crypto={yes_no(self._with_crypto)}",
-                f"--with-iconv={rootpath_no(True, 'libiconv')}",
-                f"--with-openssl={rootpath_no(self.options.with_openssl, 'openssl')}",
-                f"--with-expat={rootpath_no(self.options.with_expat, 'expat')}",
-                f"--with-mysql={rootpath_no(self.options.with_mysql, 'libmysqlclient')}",
-                f"--with-pgsql={rootpath_no(self.options.with_postgresql, 'libpq')}",
-                f"--with-sqlite3={rootpath_no(self.options.with_sqlite3, 'sqlite3')}",
-                f"--with-ldap={rootpath_no(self.options.with_ldap, 'ldap')}",
-                f"--with-berkeley-db={rootpath_no(self.options.dbm == 'db', 'libdb')}",
-                f"--with-gdbm={rootpath_no(self.options.dbm == 'gdbm', 'gdbm')}",
-                f"--with-ndbm={rootpath_no(self.options.dbm == 'ndbm', 'ndbm')}",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--with-apr={rootpath_no(True, 'apr')}",
+                    f"--with-crypto={yes_no(self._with_crypto)}",
+                    f"--with-iconv={rootpath_no(True, 'libiconv')}",
+                    f"--with-openssl={rootpath_no(self.options.with_openssl, 'openssl')}",
+                    f"--with-expat={rootpath_no(self.options.with_expat, 'expat')}",
+                    f"--with-mysql={rootpath_no(self.options.with_mysql, 'libmysqlclient')}",
+                    f"--with-pgsql={rootpath_no(self.options.with_postgresql, 'libpq')}",
+                    f"--with-sqlite3={rootpath_no(self.options.with_sqlite3, 'sqlite3')}",
+                    f"--with-ldap={rootpath_no(self.options.with_ldap, 'ldap')}",
+                    f"--with-berkeley-db={rootpath_no(self.options.dbm == 'db', 'libdb')}",
+                    f"--with-gdbm={rootpath_no(self.options.dbm == 'gdbm', 'gdbm')}",
+                    f"--with-ndbm={rootpath_no(self.options.dbm == 'ndbm', 'ndbm')}",
+                ]
+            )
             if self.options.dbm:
                 tc.configure_args.append(f"--with-dbm={self.options.dbm}")
             if self._with_crypto and self.settings.os in ["Linux", "FreeBSD"]:
                 tc.extra_ldflags.append("-ldl")
             env = tc.environment()
             env.define_path("APR_ROOT", self.dependencies["apr"].package_folder)
-            env.define_path("_APR_BUILDDIR", os.path.join(self.dependencies["apr"].package_folder, "res", "build-1"))
+            env.define_path(
+                "_APR_BUILDDIR",
+                os.path.join(self.dependencies["apr"].package_folder, "res", "build-1"),
+            )
             tc.generate(env)
 
             deps = AutotoolsDeps(self)
@@ -176,7 +190,12 @@ class AprUtilConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

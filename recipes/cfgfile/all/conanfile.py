@@ -15,7 +15,9 @@ class CfgfileConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/cfgfile.git"
     license = "MIT"
-    description = "Header-only library for reading/saving configuration files with schema defined in sources."
+    description = (
+        "Header-only library for reading/saving configuration files with schema defined in sources."
+    )
     topics = ("configuration", "file")
     settings = "os", "arch", "compiler", "build_type"
 
@@ -78,7 +80,12 @@ class CfgfileConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib"))

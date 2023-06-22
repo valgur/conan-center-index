@@ -10,18 +10,22 @@ class Gm2calcConan(ConanFile):
     license = "GPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/GM2Calc/GM2Calc"
-    description = "C++ library to calculate the anomalous magnetic moment of the muon in the MSSM and 2HDM"
+    description = (
+        "C++ library to calculate the anomalous magnetic moment of the muon in the MSSM and 2HDM"
+    )
     topics = ("high-energy", "physics", "hep", "magnetic moment", "muon", "mssm", "2hdm")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake", "cmake_find_package"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):

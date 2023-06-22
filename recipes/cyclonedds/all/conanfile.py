@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -14,8 +21,10 @@ class CycloneDDSConan(ConanFile):
     license = "EPL-2.0"
     homepage = "https://cyclonedds.io/"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Eclipse Cyclone DDS - An implementation"\
-                  " of the OMG Data Distribution Service (DDS) specification"
+    description = (
+        "Eclipse Cyclone DDS - An implementation"
+        " of the OMG Data Distribution Service (DDS) specification"
+    )
     topics = ("dds", "ipc", "ros", "middleware")
 
     package_type = "library"
@@ -24,8 +33,8 @@ class CycloneDDSConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_ssl": [True, False],
-        "with_shm" : [True, False],
-        "enable_security" : [True, False],
+        "with_shm": [True, False],
+        "enable_security": [True, False],
     }
     default_options = {
         "shared": False,
@@ -65,7 +74,7 @@ class CycloneDDSConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        cmake_layout(self,src_folder="src")
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_shm:
@@ -75,8 +84,9 @@ class CycloneDDSConan(ConanFile):
 
     def validate(self):
         if self.options.enable_security and not self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} currently do not support"\
-                                            "static build and security on")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} currently do not support" "static build and security on"
+            )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -148,7 +158,7 @@ class CycloneDDSConan(ConanFile):
                 "ws2_32",
                 "dbghelp",
                 "bcrypt",
-                "iphlpapi"
+                "iphlpapi",
             ]
 
         # TODO: to remove in conan v2

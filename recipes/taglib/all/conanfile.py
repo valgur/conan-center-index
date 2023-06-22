@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -10,7 +18,9 @@ required_conan_version = ">=1.54.0"
 
 class TaglibConan(ConanFile):
     name = "taglib"
-    description = "TagLib is a library for reading and editing the metadata of several popular audio formats."
+    description = (
+        "TagLib is a library for reading and editing the metadata of several popular audio formats."
+    )
     license = ("LGPL-2.1-or-later", "MPL-1.1")
     topics = ("audio", "metadata")
     homepage = "https://taglib.org"
@@ -79,14 +89,21 @@ class TaglibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "taglib-config", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "taglib_full_package") # unofficial, to avoid conflicts in pkg_config generator
+        self.cpp_info.set_property(
+            "pkg_config_name", "taglib_full_package"
+        )  # unofficial, to avoid conflicts in pkg_config generator
 
         self.cpp_info.components["tag"].set_property("pkg_config_name", "taglib")
         self.cpp_info.components["tag"].includedirs.append(os.path.join("include", "taglib"))

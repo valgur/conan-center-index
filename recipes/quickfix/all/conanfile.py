@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.33.0"
 
+
 class QuickfixConan(ConanFile):
     name = "quickfix"
     license = "The QuickFIX Software License, Version 1.0"
@@ -12,23 +13,23 @@ class QuickfixConan(ConanFile):
     description = "QuickFIX is a free and open source implementation of the FIX protocol"
     topics = ("conan", "QuickFIX", "FIX", "Financial Information Exchange", "libraries", "cpp")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False],
-               "shared": [True, False],
-               "with_ssl":  [True, False],
-               "with_postgres": [True, False],
-               "with_mysql": [None, "libmysqlclient"]}
-    default_options = {"fPIC": True,
-                       "shared": False,
-                       "with_ssl": False,
-                       "with_postgres": False,
-                       "with_mysql": None}
+    options = {
+        "fPIC": [True, False],
+        "shared": [True, False],
+        "with_ssl": [True, False],
+        "with_postgres": [True, False],
+        "with_mysql": [None, "libmysqlclient"],
+    }
+    default_options = {
+        "fPIC": True,
+        "shared": False,
+        "with_ssl": False,
+        "with_postgres": False,
+        "with_mysql": None,
+    }
     generators = "cmake"
     exports_sources = "patches/**"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -56,10 +57,16 @@ class QuickfixConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("QuickFIX cannot be built as shared lib on Windows")
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration("QuickFIX doesn't support ARM compilation")  # See issue: https://github.com/quickfix/quickfix/issues/206
+            raise ConanInvalidConfiguration(
+                "QuickFIX doesn't support ARM compilation"
+            )  # See issue: https://github.com/quickfix/quickfix/issues/206
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -67,7 +74,9 @@ class QuickfixConan(ConanFile):
             self._cmake.definitions["HAVE_SSL"] = self.options.with_ssl
             self._cmake.definitions["HAVE_POSTGRESQL"] = self.options.with_postgres
             self._cmake.definitions["HAVE_MYSQL"] = bool(self.options.with_mysql)
-            self._cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
+            self._cmake.configure(
+                source_folder=self._source_subfolder, build_folder=self._build_subfolder
+            )
         return self._cmake
 
     def build(self):

@@ -30,10 +30,6 @@ class MarisaConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -48,8 +44,12 @@ class MarisaConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.files.get(**self.conan_data["sources"][self.version],
-                        conanfile=self, destination=self._source_subfolder, strip_root=True)
+        tools.files.get(
+            **self.conan_data["sources"][self.version],
+            conanfile=self,
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -67,12 +67,10 @@ class MarisaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING.md", dst="licenses",
-                  src=self._source_subfolder)
+        self.copy(pattern="COPYING.md", dst="licenses", src=self._source_subfolder)
         cmake = self._configure_cmake()
         cmake.install()
-        tools.files.rmdir(self, os.path.join(
-            self.package_folder, "lib", "pkgconfig"))
+        tools.files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "marisa"

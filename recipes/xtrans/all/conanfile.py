@@ -44,10 +44,15 @@ class XtransConan(ConanFile):
 
     def package_info(self):
         pkg_config = PkgConfig(self, "xtrans")
-        pkg_config.fill_cpp_info(
-            self.cpp_info, is_system=self.settings.os != "FreeBSD")
+        pkg_config.fill_cpp_info(self.cpp_info, is_system=self.settings.os != "FreeBSD")
         self.cpp_info.version = pkg_config.version
         self.cpp_info.set_property("pkg_config_name", "xtrans")
         self.cpp_info.set_property("component_version", pkg_config.version)
-        self.cpp_info.set_property("pkg_config_custom_content",
-                                                    "\n".join(f"{key}={value}" for key, value in pkg_config.variables.items() if key not in ["pcfiledir","prefix", "includedir"]))
+        self.cpp_info.set_property(
+            "pkg_config_custom_content",
+            "\n".join(
+                f"{key}={value}"
+                for key, value in pkg_config.variables.items()
+                if key not in ["pcfiledir", "prefix", "includedir"]
+            ),
+        )

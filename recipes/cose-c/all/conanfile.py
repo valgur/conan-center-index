@@ -9,26 +9,14 @@ class CoseCConan(ConanFile):
     homepage = "https://github.com/cose-wg/COSE-C"
     url = "https://github.com/conan-io/conan-center-index"
     description = """Implementation of COSE in C using cn-cbor and openssl"""
-    topics = ("cbor")
-    exports_sources =  ["CMakeLists.txt", "patches/**"]
+    topics = "cbor"
+    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_ssl": ["openssl", "mbedtls"]
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "with_ssl": "openssl"
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "with_ssl": ["openssl", "mbedtls"]}
+    default_options = {"shared": False, "fPIC": True, "with_ssl": "openssl"}
     generators = "cmake", "cmake_find_package"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):

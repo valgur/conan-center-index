@@ -3,6 +3,7 @@ from conan.tools.build import can_run
 
 required_conan_version = ">=1.49.0"
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "VirtualBuildEnv"

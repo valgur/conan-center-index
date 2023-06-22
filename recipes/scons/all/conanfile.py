@@ -8,7 +8,9 @@ import textwrap
 
 class SConsConan(ConanFile):
     name = "scons"
-    description = "SCons is an Open Source software construction tool-that is, a next-generation build tool"
+    description = (
+        "SCons is an Open Source software construction tool-that is, a next-generation build tool"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index/"
     homepage = "https://scons.org"
@@ -22,8 +24,12 @@ class SConsConan(ConanFile):
         self.folders.source = "src"
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self.source_folder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self.source_folder
+        )
 
     def _chmod_x(self, path):
         if os.name == "posix":
@@ -41,16 +47,29 @@ class SConsConan(ConanFile):
         self.info.clear()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         if Version(self.version) < 4:
-            shutil.copytree(os.path.join(self.source_folder, "engine", "SCons"),
-                            os.path.join(self.package_folder, "res", "SCons"))
+            shutil.copytree(
+                os.path.join(self.source_folder, "engine", "SCons"),
+                os.path.join(self.package_folder, "res", "SCons"),
+            )
         else:
-            shutil.copytree(os.path.join(self.source_folder, "SCons"),
-                            os.path.join(self.package_folder, "res", "SCons"))
+            shutil.copytree(
+                os.path.join(self.source_folder, "SCons"),
+                os.path.join(self.package_folder, "res", "SCons"),
+            )
 
-        save(self, self._scons_sh, textwrap.dedent("""\
+        save(
+            self,
+            self._scons_sh,
+            textwrap.dedent(
+                """\
             #!/bin/sh
 
             realpath() (
@@ -70,9 +89,15 @@ class SConsConan(ConanFile):
 
             export PYTHONPATH="$currentdir/../res:$PYTHONPATH"
             exec ${PYTHON:-python3} "$currentdir/../res/SCons/__main__.py" "$@"
-        """))
+        """
+            ),
+        )
         self._chmod_x(self._scons_sh)
-        save(self, self._scons_cmd, textwrap.dedent(r"""
+        save(
+            self,
+            self._scons_cmd,
+            textwrap.dedent(
+                r"""
             @echo off
             set currentdir=%~dp0
             if not defined PYTHON (
@@ -80,7 +105,9 @@ class SConsConan(ConanFile):
             )
             set PYTHONPATH=%currentdir%\\..\\res;%PYTHONPATH%
             CALL %PYTHON% %currentdir%\\..\\res\\SCons\\__main__.py %*
-        """))
+        """
+            ),
+        )
 
     def package_info(self):
         self.cpp_info.includedirs = []

@@ -10,7 +10,9 @@ required_conan_version = ">=1.50.0"
 
 class ParallelHashmapConan(ConanFile):
     name = "parallel-hashmap"
-    description = "A family of header-only, very fast and memory-friendly hashmap and btree containers."
+    description = (
+        "A family of header-only, very fast and memory-friendly hashmap and btree containers."
+    )
     license = "Apache-2.0"
     topics = ("parallel-hashmap", "parallel", "hashmap", "btree")
     homepage = "https://github.com/greg7mdp/parallel-hashmap"
@@ -29,33 +31,52 @@ class ParallelHashmapConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "parallel_hashmap"),
-                          dst=os.path.join(self.package_folder, "include", "parallel_hashmap"))
-        copy(self, "phmap.natvis", src=self.source_folder, dst=os.path.join(self.source_folder, "res"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "parallel_hashmap"),
+            dst=os.path.join(self.package_folder, "include", "parallel_hashmap"),
+        )
+        copy(
+            self,
+            "phmap.natvis",
+            src=self.source_folder,
+            dst=os.path.join(self.source_folder, "res"),
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"phmap": "phmap::phmap"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"phmap": "phmap::phmap"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

@@ -46,7 +46,9 @@ class CityhashConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("cityhash does not support shared builds with Visual Studio")
+            raise ConanInvalidConfiguration(
+                "cityhash does not support shared builds with Visual Studio"
+            )
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -70,7 +72,9 @@ class CityhashConan(ConanFile):
                 tc.extra_cxxflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            ar_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper"))
+            ar_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
+            )
             env.define("CC", "cl -nologo")
             env.define("CXX", "cl -nologo")
             env.define("LD", "link -nologo")
@@ -88,7 +92,12 @@ class CityhashConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

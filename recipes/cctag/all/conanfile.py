@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc_static_runtime
 import os
 
@@ -13,8 +20,15 @@ class CCTagConan(ConanFile):
     name = "cctag"
     description = "Detection of CCTag markers made up of concentric circles."
     license = "MPL-2.0"
-    topics = ("cctag", "computer-vision", "detection", "image-processing",
-              "markers", "fiducial-markers", "concentric-circles")
+    topics = (
+        "cctag",
+        "computer-vision",
+        "detection",
+        "image-processing",
+        "markers",
+        "fiducial-markers",
+        "concentric-circles",
+    )
     homepage = "https://github.com/alicevision/CCTag"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -59,24 +73,39 @@ class CCTagConan(ConanFile):
     @property
     def _required_boost_components(self):
         return [
-            "atomic", "chrono", "date_time", "exception", "filesystem",
-            "math", "serialization", "stacktrace", "system", "thread", "timer",
+            "atomic",
+            "chrono",
+            "date_time",
+            "exception",
+            "filesystem",
+            "math",
+            "serialization",
+            "stacktrace",
+            "system",
+            "thread",
+            "timer",
         ]
 
     def validate(self):
-        miss_boost_required_comp = \
-            any(getattr(self.dependencies["boost"].options,
-                        f"without_{boost_comp}",
-                        True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True)
+            for boost_comp in self._required_boost_components
+        )
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
                 f"{', '.join(self._required_boost_components)}",
             )
 
-        if self.settings.compiler == "Visual Studio" and not self.options.shared and \
-           is_msvc_static_runtime(self) and self.dependencies["onetbb"].options.shared:
-            raise ConanInvalidConfiguration("this specific configuration is prevented due to internal c3i limitations")
+        if (
+            self.settings.compiler == "Visual Studio"
+            and not self.options.shared
+            and is_msvc_static_runtime(self)
+            and self.dependencies["onetbb"].options.shared
+        ):
+            raise ConanInvalidConfiguration(
+                "this specific configuration is prevented due to internal c3i limitations"
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14)
@@ -111,13 +140,19 @@ class CCTagConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # Cleanup RPATH if Apple in shared lib of install tree
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)",
-                              "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)",
+            "",
+        )
         # Link to OpenCV targets
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                              "${OpenCV_LIBS}",
-                              "opencv_core opencv_videoio opencv_imgproc opencv_imgcodecs")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+            "${OpenCV_LIBS}",
+            "opencv_core opencv_videoio opencv_imgproc opencv_imgcodecs",
+        )
 
     def build(self):
         self._patch_sources()
@@ -126,7 +161,12 @@ class CCTagConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -139,11 +179,22 @@ class CCTagConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "pthread"])
         self.cpp_info.requires = [
-            "boost::atomic", "boost::chrono", "boost::date_time", "boost::exception",
-            "boost::filesystem", "boost::serialization", "boost::system",
-            "boost::thread", "boost::timer", "boost::math_c99", "eigen::eigen",
-            "onetbb::onetbb", "opencv::opencv_core", "opencv::opencv_videoio",
-            "opencv::opencv_imgproc", "opencv::opencv_imgcodecs",
+            "boost::atomic",
+            "boost::chrono",
+            "boost::date_time",
+            "boost::exception",
+            "boost::filesystem",
+            "boost::serialization",
+            "boost::system",
+            "boost::thread",
+            "boost::timer",
+            "boost::math_c99",
+            "eigen::eigen",
+            "onetbb::onetbb",
+            "opencv::opencv_core",
+            "opencv::opencv_videoio",
+            "opencv::opencv_imgproc",
+            "opencv::opencv_imgcodecs",
         ]
         if self.settings.os == "Windows":
             self.cpp_info.requires.append("boost::stacktrace_windbg")

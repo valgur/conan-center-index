@@ -59,8 +59,13 @@ class WildmidiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="docs/license/LGPLv3.txt", dst=os.path.join(
-            self.package_folder, "licenses"), src=self.source_folder, keep_path=False)
+        copy(
+            self,
+            pattern="docs/license/LGPLv3.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+            keep_path=False,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -72,10 +77,10 @@ class WildmidiConan(ConanFile):
         if is_msvc(self):
             libname = "libWildMidi"
             if not self.options.shared:
-                libname += "-static" 
+                libname += "-static"
         else:
             libname = "WildMidi"
-            
+
         self.cpp_info.set_property("cmake_file_name", "WildMidi")
         self.cpp_info.set_property("cmake_target_name", "WildMidi::libwildmidi")
         self.cpp_info.set_property("pkg_config_name", "wildmidi")

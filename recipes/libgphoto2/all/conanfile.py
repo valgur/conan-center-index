@@ -3,7 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -87,15 +94,17 @@ class LibGphoto2(ConanFile):
 
         tc = AutotoolsToolchain(self)
         auto_no = lambda v: "auto" if v else "no"
-        tc.configure_args.extend([
-            f"--with-libcurl={auto_no(self.options.with_libcurl)}",
-            f"--with-libexif={auto_no(self.options.with_libexif)}",
-            f"--with-libxml-2.0={auto_no(self.options.with_libxml2)}",
-            "--disable-nls",
-            "--datadir=${prefix}/res",
-            "udevscriptdir=${prefix}/res",
-            "utilsdir=${prefix}/bin",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--with-libcurl={auto_no(self.options.with_libcurl)}",
+                f"--with-libexif={auto_no(self.options.with_libexif)}",
+                f"--with-libxml-2.0={auto_no(self.options.with_libxml2)}",
+                "--disable-nls",
+                "--datadir=${prefix}/res",
+                "udevscriptdir=${prefix}/res",
+                "utilsdir=${prefix}/bin",
+            ]
+        )
         if not self.options.with_libjpeg:
             tc.configure_args.append("--without-jpeg")
         tc.generate()
@@ -112,7 +121,12 @@ class LibGphoto2(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)

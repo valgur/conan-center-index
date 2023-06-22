@@ -1,6 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file, collect_libs
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+    replace_in_file,
+    collect_libs,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.scm import Version
@@ -13,6 +22,7 @@ from conan.tools.gnu import PkgConfigDeps
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class PistacheConan(ConanFile):
     name = "pistache"
@@ -74,9 +84,13 @@ class PistacheConan(ConanFile):
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
             if Version(self.settings.compiler.version) < minimum_compiler:
-                raise ConanInvalidConfiguration(f"{self.ref} requires c++17, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires c++17, which your compiler does not support."
+                )
         else:
-            self.output.warn(f"{self.ref} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17.")
+            self.output.warn(
+                f"{self.ref} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17."
+            )
 
     def build_requirements(self):
         if self.version != "cci.20201127":
@@ -115,9 +129,12 @@ class PistacheConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if self.version != "cci.20201127":
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                                    "dependency('RapidJSON', fallback: ['rapidjson', 'rapidjson_dep']),",
-                                    "dependency('rapidjson', fallback: ['rapidjson', 'rapidjson_dep']),")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "meson.build"),
+                "dependency('RapidJSON', fallback: ['rapidjson', 'rapidjson_dep']),",
+                "dependency('rapidjson', fallback: ['rapidjson', 'rapidjson_dep']),",
+            )
 
         if self.version == "cci.20201127":
             cmake = CMake(self)
@@ -129,7 +146,12 @@ class PistacheConan(ConanFile):
             meson.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self.version == "cci.20201127":
             cmake = CMake(self)
             cmake.install()
@@ -166,4 +188,6 @@ class PistacheConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "libpistache"
         suffix = "_{}".format("shared" if self.options.shared else "static")
         self.cpp_info.components["libpistache"].names["cmake_find_package"] = "pistache" + suffix
-        self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = "pistache" + suffix
+        self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = (
+            "pistache" + suffix
+        )

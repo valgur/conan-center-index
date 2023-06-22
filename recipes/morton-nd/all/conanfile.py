@@ -11,8 +11,10 @@ required_conan_version = ">=1.50.0"
 
 class MortonndConan(ConanFile):
     name = "morton-nd"
-    description = "A header-only Morton encode/decode library (C++14) capable " \
-                  "of encoding from and decoding to N-dimensional space."
+    description = (
+        "A header-only Morton encode/decode library (C++14) capable "
+        "of encoding from and decoding to N-dimensional space."
+    )
     license = "MIT"
     topics = ("morton-nd", "morton", "encoding", "decoding", "n-dimensional")
     homepage = "https://github.com/kevinhartman/morton-nd"
@@ -50,15 +52,29 @@ class MortonndConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "morton-nd")
@@ -73,7 +89,9 @@ class MortonndConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "morton-nd"
         self.cpp_info.components["mortonnd"].names["cmake_find_package"] = "MortonND"
         self.cpp_info.components["mortonnd"].names["cmake_find_package_multi"] = "MortonND"
-        self.cpp_info.components["mortonnd"].set_property("cmake_target_name", "morton-nd::MortonND")
+        self.cpp_info.components["mortonnd"].set_property(
+            "cmake_target_name", "morton-nd::MortonND"
+        )
         self.cpp_info.components["mortonnd"].bindirs = []
         self.cpp_info.components["mortonnd"].frameworkdirs = []
         self.cpp_info.components["mortonnd"].libdirs = []

@@ -51,21 +51,36 @@ class ArgparseConan(ConanFile):
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
-        if Version(self.version) > "2.1" and self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libstdc++":
-            raise ConanInvalidConfiguration("This recipe does not permit >2.1 with clang and stdlibc++. There may be an infrastructure issue in CCI.")
+        if (
+            Version(self.version) > "2.1"
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.libcxx == "libstdc++"
+        ):
+            raise ConanInvalidConfiguration(
+                "This recipe does not permit >2.1 with clang and stdlibc++. There may be an infrastructure issue in CCI."
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if Version(self.version) <= "2.1":
             include_dst = os.path.join(self.package_folder, "include", "argparse")
         else:

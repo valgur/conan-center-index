@@ -22,8 +22,12 @@ class BanditConan(ConanFile):
         self.requires("snowhouse/5.0.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def layout(self):
         basic_layout(self)
@@ -32,8 +36,18 @@ class BanditConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.txt", src=os.path.join(self.source_folder, "docs"), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "include", "bandit"), src=os.path.join(self.source_folder, "bandit"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=os.path.join(self.source_folder, "docs"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include", "bandit"),
+            src=os.path.join(self.source_folder, "bandit"),
+        )
 
     def package_id(self):
         self.info.clear()
@@ -43,4 +57,3 @@ class BanditConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-

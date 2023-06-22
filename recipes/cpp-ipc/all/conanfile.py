@@ -3,13 +3,17 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.33.0"
 
+
 class CppIPCConan(ConanFile):
     name = "cpp-ipc"
     description = "C++ IPC Library: A high-performance inter-process communication using shared memory on Linux/Windows."
-    topics = ("ipc", "shared memory", )
+    topics = (
+        "ipc",
+        "shared memory",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mutouyun/cpp-ipc"
-    license = "MIT",
+    license = ("MIT",)
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = ["CMakeLists.txt"]
     options = {
@@ -31,10 +35,6 @@ class CppIPCConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -53,16 +53,30 @@ class CppIPCConan(ConanFile):
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version:
             if tools.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("{} requires C++17, which your compiler does not support.".format(self.name))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++17, which your compiler does not support.".format(self.name)
+                )
         else:
-            self.output.warn("{0} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name))
+            self.output.warn(
+                "{0} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
+                    self.name
+                )
+            )
 
-        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
-            raise ConanInvalidConfiguration("{} doesn't support clang with libc++".format(self.name))
+        if (
+            self.settings.compiler == "clang"
+            and self.settings.compiler.get_safe("libcxx") == "libc++"
+        ):
+            raise ConanInvalidConfiguration(
+                "{} doesn't support clang with libc++".format(self.name)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:

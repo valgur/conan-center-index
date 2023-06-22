@@ -10,9 +10,11 @@ class METISConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/METIS"
-    description = "set of serial programs for partitioning graphs," \
-                  " partitioning finite element meshes, and producing" \
-                  " fill reducing orderings for sparse matrices"
+    description = (
+        "set of serial programs for partitioning graphs,"
+        " partitioning finite element meshes, and producing"
+        " fill reducing orderings for sparse matrices"
+    )
     topics = ("karypislab", "graph", "partitioning-algorithms")
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -25,10 +27,6 @@ class METISConan(ConanFile):
     }
     generators = "cmake", "cmake_find_package"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -61,8 +59,11 @@ class METISConan(ConanFile):
         self.requires("gklib/5.1.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _patch_sources(self):
         apply_conandata_patches(self)

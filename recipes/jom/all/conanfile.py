@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.47.0"
 
+
 class JomInstallerConan(ConanFile):
     name = "jom"
     description = "jom is a clone of nmake to support the execution of multiple independent commands in parallel"
@@ -31,7 +32,11 @@ class JomInstallerConan(ConanFile):
 
     def build(self):
         get(self, **self.conan_data["sources"][self.version])
-        download(self, f"https://code.qt.io/cgit/qt-labs/jom.git/plain/LICENSE.GPL?h=v{self.version}", filename="LICENSE.GPL")
+        download(
+            self,
+            f"https://code.qt.io/cgit/qt-labs/jom.git/plain/LICENSE.GPL?h=v{self.version}",
+            filename="LICENSE.GPL",
+        )
 
     def package(self):
         copy(self, "LICENSE.GPL", self.build_folder, os.path.join(self.package_folder, "licenses"))

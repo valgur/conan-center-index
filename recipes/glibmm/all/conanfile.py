@@ -15,7 +15,7 @@ from conan.tools.files import (
     replace_in_file,
     rename,
     rm,
-    rmdir
+    rmdir,
 )
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -94,7 +94,9 @@ class GlibmmConan(ConanFile):
             )
 
         if self.dependencies["glib"].options.shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Linking shared glib with the MSVC static runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Linking shared glib with the MSVC static runtime is not supported"
+            )
 
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")
@@ -112,11 +114,13 @@ class GlibmmConan(ConanFile):
         deps.generate()
 
         tc = MesonToolchain(self)
-        tc.project_options.update({
-            "build-examples": "false",
-            "build-documentation": "false",
-            "msvc14x-parallel-installable": "false"
-        })
+        tc.project_options.update(
+            {
+                "build-examples": "false",
+                "build-documentation": "false",
+                "msvc14x-parallel-installable": "false",
+            }
+        )
         tc.generate()
 
     def _patch_sources(self):
@@ -129,12 +133,14 @@ class GlibmmConan(ConanFile):
             # when building a static build !defined(GLiBMM_GEN_EXTRA_DEFS_STATIC)
             # evaluates to 0
             if not self.options.shared:
-                replace_in_file(self,
-                                      os.path.join(self.source_folder, "tools",
-                                                   "extra_defs_gen", "generate_extra_defs.h"),
-                                      "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
-                                      "#if 0",
-                                      )
+                replace_in_file(
+                    self,
+                    os.path.join(
+                        self.source_folder, "tools", "extra_defs_gen", "generate_extra_defs.h"
+                    ),
+                    "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
+                    "#if 0",
+                )
 
             # when using cpp_std=c++NM the /permissive- flag is added which
             # attempts enforcing standard conformant c++ code
@@ -152,12 +158,21 @@ class GlibmmConan(ConanFile):
     def package(self):
         def rename_msvc_static_libs():
             lib_folder = os.path.join(self.package_folder, "lib")
-            rename(self, os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"{self._glibmm_lib}.lib"))
-            rename(self, os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"{self._giomm_lib}.lib"))
-            rename(self, os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"))
+            rename(
+                self,
+                os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"{self._glibmm_lib}.lib"),
+            )
+            rename(
+                self,
+                os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"{self._giomm_lib}.lib"),
+            )
+            rename(
+                self,
+                os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"),
+            )
 
         meson = Meson(self)
         meson.install()
@@ -174,7 +189,9 @@ class GlibmmConan(ConanFile):
             for header_file in glob.glob(directory_path):
                 shutil.move(
                     header_file,
-                    os.path.join(self.package_folder, "include", directory, os.path.basename(header_file)),
+                    os.path.join(
+                        self.package_folder, "include", directory, os.path.basename(header_file)
+                    ),
                 )
 
         for dir_to_remove in ["pkgconfig", self._glibmm_lib, self._giomm_lib]:
@@ -185,11 +202,18 @@ class GlibmmConan(ConanFile):
         glibmm_component = f"glibmm-{self._abi_version}"
         self.cpp_info.components[glibmm_component].set_property("pkg_config_name", glibmm_component)
         self.cpp_info.components[glibmm_component].libs = [glibmm_component]
-        self.cpp_info.components[glibmm_component].includedirs = [os.path.join("include", glibmm_component)]
-        self.cpp_info.components[glibmm_component].requires = ["glib::gobject-2.0", "libsigcpp::libsigcpp"]
+        self.cpp_info.components[glibmm_component].includedirs = [
+            os.path.join("include", glibmm_component)
+        ]
+        self.cpp_info.components[glibmm_component].requires = [
+            "glib::gobject-2.0",
+            "libsigcpp::libsigcpp",
+        ]
 
         giomm_component = f"giomm-{self._abi_version}"
         self.cpp_info.components[giomm_component].set_property("pkg_config_name", giomm_component)
         self.cpp_info.components[giomm_component].libs = [giomm_component]
-        self.cpp_info.components[giomm_component].includedirs = [os.path.join("include", giomm_component)]
+        self.cpp_info.components[giomm_component].includedirs = [
+            os.path.join("include", giomm_component)
+        ]
         self.cpp_info.components[giomm_component].requires = [glibmm_component, "glib::gio-2.0"]

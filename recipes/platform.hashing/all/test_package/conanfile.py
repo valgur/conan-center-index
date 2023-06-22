@@ -14,7 +14,11 @@ class TestPackageConan(ConanFile):
     def build(self):
         if self.settings.compiler != "Visual Studio":
             if not self._extra_flags:
-                raise ConanException("Suggested flags are not available for os={}/arch={}".format(self.settings.os, self.settings.arch))
+                raise ConanException(
+                    "Suggested flags are not available for os={}/arch={}".format(
+                        self.settings.os, self.settings.arch
+                    )
+                )
 
         cmake = CMake(self)
         if self.settings.compiler != "Visual Studio":

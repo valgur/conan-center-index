@@ -6,6 +6,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.35.0"
 
+
 class AwsCdiSdkConan(ConanFile):
     name = "aws-cdi-sdk"
     description = "AWS Cloud Digital Interface (CDI) SDK"
@@ -16,10 +17,6 @@ class AwsCdiSdkConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = ["CMakeLists.txt", "patches/**"]
     generators = "cmake", "cmake_find_package"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     _autotools = None
     _cmake = None
@@ -34,7 +31,9 @@ class AwsCdiSdkConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This recipe currently only supports Linux. Feel free to contribute other platforms!")
+            raise ConanInvalidConfiguration(
+                "This recipe currently only supports Linux. Feel free to contribute other platforms!"
+            )
         if not self.options["aws-libfabric"].shared or not self.options["aws-sdk-cpp"].shared:
             raise ConanInvalidConfiguration("Cannot build with static dependencies")
         if not getattr(self.options["aws-sdk-cpp"], "monitoring"):
@@ -43,8 +42,11 @@ class AwsCdiSdkConan(ConanFile):
             tools.check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -65,7 +67,7 @@ class AwsCdiSdkConan(ConanFile):
         cxx = re.search("CMAKE_CXX_COMPILER:FILEPATH=(.*)", cmake_cache)[1]
         return cc, cxx
 
-    def build(self):        
+    def build(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
@@ -76,7 +78,11 @@ class AwsCdiSdkConan(ConanFile):
         autotools = self._configure_autotools()
         with tools.chdir(self._source_subfolder):
             # configure autotools to find aws-cpp-sdk-cdi
-            autotools.include_paths.append(os.path.join(self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include"))
+            autotools.include_paths.append(
+                os.path.join(
+                    self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include"
+                )
+            )
             autotools.library_paths.append(os.path.join(self.build_folder, "lib"))
             autotools.libs.append("aws-cpp-sdk-cdi")
 
@@ -98,14 +104,16 @@ class AwsCdiSdkConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
         config = "debug" if self.settings.build_type == "Debug" else "release"
-        self.copy(pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib"))
+        self.copy(
+            pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib")
+        )
 
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-    def package_info(self):        
+    def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-cdi-sdk")
-        
+
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         # TODO: Remove the namespace on CMake targets
         self.cpp_info.names["cmake_find_package"] = "AWS"
@@ -117,7 +125,7 @@ class AwsCdiSdkConan(ConanFile):
         cppSdk.libs = ["aws-cpp-sdk-cdi"]
 
         cppSdk.requires = ["aws-sdk-cpp::monitoring", "aws-libfabric::aws-libfabric"]
-        
+
         cppSdk.set_property("cmake_target_name", "AWS::aws-cpp-sdk-cdi")
         cppSdk.set_property("pkg_config_name", "aws-cpp-sdk-cdi")
 
@@ -141,4 +149,3 @@ class AwsCdiSdkConan(ConanFile):
         cSdk.names["cmake_find_package"] = "aws-cdi-sdk"
         cSdk.names["cmake_find_package_multi"] = "aws-cdi-sdk"
         cSdk.names["pkg_config"] = "aws-cdi-sdk"
-

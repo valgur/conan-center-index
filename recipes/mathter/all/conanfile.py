@@ -2,6 +2,7 @@ from conans import ConanFile, tools
 from conans.errors import ConanInvalidConfiguration
 import os
 
+
 class MathterConan(ConanFile):
     name = "mathter"
     license = "MIT"
@@ -11,10 +12,6 @@ class MathterConan(ConanFile):
     topics = ("game-dev", "linear-algebra", "vector-math", "matrix-library")
     no_copy_source = True
     settings = "compiler"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -32,17 +29,29 @@ class MathterConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if tools.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("mathter requires C++17, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    "mathter requires C++17, which your compiler does not support."
+                )
         else:
-            self.output.warn("mathter requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "mathter requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
         os.rename("Mathter-" + self.version, self._source_subfolder)
-            
+
     def package(self):
-        self.copy("*.hpp", dst=os.path.join("include", "Mathter"), src=os.path.join(self._source_subfolder, "Mathter"))
-        self.copy("*.natvis", dst=os.path.join("include", "Mathter"), src=os.path.join(self._source_subfolder, "Mathter"))
+        self.copy(
+            "*.hpp",
+            dst=os.path.join("include", "Mathter"),
+            src=os.path.join(self._source_subfolder, "Mathter"),
+        )
+        self.copy(
+            "*.natvis",
+            dst=os.path.join("include", "Mathter"),
+            src=os.path.join(self._source_subfolder, "Mathter"),
+        )
         self.copy("LICENCE", dst="licenses", src=self._source_subfolder)
 
     def package_id(self):

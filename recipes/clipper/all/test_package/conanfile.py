@@ -18,7 +18,9 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CLIPPER_MAJOR_VERSION"] = Version(self.dependencies["clipper"].ref.version).major
+        tc.variables["CLIPPER_MAJOR_VERSION"] = Version(
+            self.dependencies["clipper"].ref.version
+        ).major
         tc.generate()
 
     def build(self):

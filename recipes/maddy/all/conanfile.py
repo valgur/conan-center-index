@@ -8,17 +8,11 @@ class MaddyConan(ConanFile):
     name = "maddy"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/progsource/maddy"
-    description = (
-        "open-source, maddy is a C++ Markdown to HTML header-only parser library."
-    )
+    description = "open-source, maddy is a C++ Markdown to HTML header-only parser library."
     topics = ("maddy", "markdown", "header-only")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

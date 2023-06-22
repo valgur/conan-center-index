@@ -13,9 +13,10 @@ class GKlibConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/GKlib"
-    description = "A library of various helper routines and frameworks" \
-                  " used by many of the lab's software"
-    topics = ("karypislab")
+    description = (
+        "A library of various helper routines and frameworks" " used by many of the lab's software"
+    )
+    topics = "karypislab"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -50,7 +51,8 @@ class GKlibConan(ConanFile):
     def validate(self):
         if self.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} shared not supported with Visual Studio")
+                f"{self.name} {self.version} shared not supported with Visual Studio"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,8 +72,12 @@ class GKlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", src=self.source_folder,
-             dst=path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            src=self.source_folder,
+            dst=path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

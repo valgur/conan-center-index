@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
@@ -61,14 +69,16 @@ class OdbcConan(ConanFile):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         libtool_cppinfo = self.dependencies["libtool"].cpp_info.aggregated_components()
-        tc.configure_args.extend([
-            "--without-included-ltdl",
-            f"--with-ltdl-include={libtool_cppinfo.includedirs[0]}",
-            f"--with-ltdl-lib={libtool_cppinfo.libdirs[0]}",
-            "--disable-ltdl-install",
-            f"--enable-iconv={yes_no(self.options.with_libiconv)}",
-            "--sysconfdir=/etc",
-        ])
+        tc.configure_args.extend(
+            [
+                "--without-included-ltdl",
+                f"--with-ltdl-include={libtool_cppinfo.includedirs[0]}",
+                f"--with-ltdl-lib={libtool_cppinfo.libdirs[0]}",
+                "--disable-ltdl-install",
+                f"--enable-iconv={yes_no(self.options.with_libiconv)}",
+                "--sysconfdir=/etc",
+            ]
+        )
         if self.options.with_libiconv:
             libiconv_prefix = self.dependencies["libiconv"].package_folder
             tc.configure_args.append(f"--with-libiconv-prefix={libiconv_prefix}")
@@ -82,15 +92,22 @@ class OdbcConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
         # allow external libtdl (in libtool recipe)
         replace_in_file(
             self,
             os.path.join(self.source_folder, "configure"),
-            "if test -f \"$with_ltdl_lib/libltdl.la\";",
+            'if test -f "$with_ltdl_lib/libltdl.la";',
             "if true;",
         )
-        libtool_system_libs = self.dependencies["libtool"].cpp_info.aggregated_components().system_libs
+        libtool_system_libs = (
+            self.dependencies["libtool"].cpp_info.aggregated_components().system_libs
+        )
         if libtool_system_libs:
             replace_in_file(
                 self,
@@ -106,7 +123,12 @@ class OdbcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

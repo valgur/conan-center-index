@@ -4,6 +4,7 @@ import os
 
 required_conan_version = ">=1.32.0"
 
+
 class LibDispatchConan(ConanFile):
     name = "libdispatch"
     homepage = "https://github.com/apple/swift-corelibs-libdispatch"
@@ -15,18 +16,20 @@ class LibDispatchConan(ConanFile):
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
 
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     _cmake = None
 
     def validate(self):
         if self.settings.compiler != "clang":
             raise ConanInvalidConfiguration("Clang compiler is required.")
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):

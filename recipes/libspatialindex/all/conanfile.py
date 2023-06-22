@@ -1,7 +1,13 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+)
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -63,7 +69,12 @@ class LibspatialindexConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -73,7 +84,9 @@ class LibspatialindexConan(ConanFile):
 
         suffix = self._get_lib_suffix()
 
-        self.cpp_info.components["spatialindex"].set_property("cmake_target_name", "libspatialindex::spatialindex")
+        self.cpp_info.components["spatialindex"].set_property(
+            "cmake_target_name", "libspatialindex::spatialindex"
+        )
         self.cpp_info.components["spatialindex"].libs = ["spatialindex" + suffix]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["spatialindex"].system_libs.append("m")
@@ -82,7 +95,9 @@ class LibspatialindexConan(ConanFile):
             if libcxx:
                 self.cpp_info.components["spatialindex"].system_libs.append(libcxx)
 
-        self.cpp_info.components["spatialindex_c"].set_property("cmake_target_name", "libspatialindex::spatialindex_c")
+        self.cpp_info.components["spatialindex_c"].set_property(
+            "cmake_target_name", "libspatialindex::spatialindex_c"
+        )
         self.cpp_info.components["spatialindex_c"].libs = ["spatialindex_c" + suffix]
         self.cpp_info.components["spatialindex_c"].requires = ["spatialindex"]
 

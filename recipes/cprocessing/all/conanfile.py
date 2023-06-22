@@ -5,6 +5,7 @@ import re
 
 required_conan_version = ">=1.43.0"
 
+
 class CProcessingConan(ConanFile):
     name = "cprocessing"
     description = "Processsing programming for C++ "
@@ -15,17 +16,13 @@ class CProcessingConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _compilers_minimum_version(self):
         return {
-                "gcc": "9",
-                "Visual Studio": "16.2",
-                "msvc": "19.22",
-                "clang": "10",
-                "apple-clang": "11"
+            "gcc": "9",
+            "Visual Studio": "16.2",
+            "msvc": "19.22",
+            "clang": "10",
+            "apple-clang": "11",
         }
 
     def requirements(self):
@@ -52,18 +49,27 @@ class CProcessingConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("{} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(self.name))
+            self.output.warn(
+                "{} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(
+                    self.name
+                )
+            )
         elif lazy_lt_semver(compiler_version, minimum_version):
             raise ConanInvalidConfiguration("{} requires some C++20 features,".format(self.name))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "lib", "PImage.h"),
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "lib", "PImage.h"),
             "stb/stb_image.h",
-            "stb_image.h")
+            "stb_image.h",
+        )
 
     def package(self):
         self.copy("*.h", "include", os.path.join(self._source_subfolder, "lib"))

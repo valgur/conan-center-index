@@ -23,4 +23,4 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             md_path = os.path.join(self.source_folder, "test.md")
-            self.run("{} \"{}\"".format(bin_path, md_path), env="conanrun")
+            self.run('{} "{}"'.format(bin_path, md_path), env="conanrun")

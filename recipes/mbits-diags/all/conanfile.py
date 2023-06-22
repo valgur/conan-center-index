@@ -62,10 +62,7 @@ class MBitsDiagsConan(ConanFile):
             minimum_version = self._compilers_minimum_version.get(
                 str(self.settings.compiler), False
             )
-            if (
-                minimum_version
-                and Version(self.settings.compiler.version) < minimum_version
-            ):
+            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
@@ -107,9 +104,7 @@ class MBitsDiagsConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-diags"
         self.cpp_info.names["cmake_find_package"] = "mbits"
         self.cpp_info.names["cmake_find_package_multi"] = "mbits"
-        self.cpp_info.components["diags"].set_property(
-            "cmake_target_name", "mbits::diags"
-        )
+        self.cpp_info.components["diags"].set_property("cmake_target_name", "mbits::diags")
         self.cpp_info.components["diags"].libs = ["diags"]
         self.cpp_info.components["diags"].requires = [
             "fmt::fmt",

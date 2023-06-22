@@ -9,10 +9,7 @@ required_conan_version = ">=1.43.0"
 
 class WineditlineConan(ConanFile):
     name = "wineditline"
-    description = (
-        "A BSD-licensed EditLine API implementation for the native "
-        "Windows Console"
-    )
+    description = "A BSD-licensed EditLine API implementation for the native " "Windows Console"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mingweditline.sourceforge.net/"
     topics = ("readline", "editline", "windows")
@@ -31,10 +28,6 @@ class WineditlineConan(ConanFile):
         if self.settings.os != "Windows":
             message = "wineditline is supported only on Windows."
             raise ConanInvalidConfiguration(message)
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def source(self):
         root = self._source_subfolder

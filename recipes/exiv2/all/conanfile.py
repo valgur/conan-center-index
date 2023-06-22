@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.files import get, copy, rmdir, save, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import (
+    get,
+    copy,
+    rmdir,
+    save,
+    export_conandata_patches,
+    apply_conandata_patches,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -11,8 +18,10 @@ required_conan_version = ">=1.53.0"
 
 class Exiv2Conan(ConanFile):
     name = "exiv2"
-    description = "Exiv2 is a C++ library and a command-line utility " \
-                  "to read, write, delete and modify Exif, IPTC, XMP and ICC image metadata."
+    description = (
+        "Exiv2 is a C++ library and a command-line utility "
+        "to read, write, delete and modify Exif, IPTC, XMP and ICC image metadata."
+    )
     license = "GPL-2.0"
     topics = ("image", "exif", "xmp")
     homepage = "https://www.exiv2.org"
@@ -89,7 +98,9 @@ class Exiv2Conan(ConanFile):
         if is_msvc(self):
             tc.variables["EXIV2_ENABLE_DYNAMIC_RUNTIME"] = not is_msvc_static_runtime(self)
         # set PIC manually because of object target exiv2_int
-        tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = bool(self.options.get_safe("fPIC", True))
+        tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = bool(
+            self.options.get_safe("fPIC", True)
+        )
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -102,7 +113,12 @@ class Exiv2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -114,19 +130,20 @@ class Exiv2Conan(ConanFile):
         if self.options.with_xmp == "bundled":
             targets.update({"exiv2-xmp": "exiv2::exiv2-xmp"})
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            targets
+            os.path.join(self.package_folder, self._module_file_rel_path), targets
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -140,7 +157,7 @@ class Exiv2Conan(ConanFile):
         # component exiv2lib
         self.cpp_info.components["exiv2lib"].set_property("cmake_target_name", "exiv2lib")
         self.cpp_info.components["exiv2lib"].libs = ["exiv2"]
-        self.cpp_info.components["exiv2lib"].requires = [ "libiconv::libiconv"]
+        self.cpp_info.components["exiv2lib"].requires = ["libiconv::libiconv"]
         if self.options.with_png:
             self.cpp_info.components["exiv2lib"].requires.extend(["libpng::libpng", "zlib::zlib"])
         if self.options.with_curl:
@@ -156,12 +173,20 @@ class Exiv2Conan(ConanFile):
         if self.options.with_xmp == "bundled":
             self.cpp_info.components["exiv2-xmp"].set_property("cmake_target_name", "exiv2-xmp")
             self.cpp_info.components["exiv2-xmp"].libs = ["exiv2-xmp"]
-            self.cpp_info.components["exiv2-xmp"].requires = [ "expat::expat" ]
+            self.cpp_info.components["exiv2-xmp"].requires = ["expat::expat"]
             self.cpp_info.components["exiv2lib"].requires.append("exiv2-xmp")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["exiv2lib"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["exiv2lib"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["exiv2lib"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["exiv2lib"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         if self.options.with_xmp == "bundled":
-            self.cpp_info.components["exiv2-xmp"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["exiv2-xmp"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["exiv2-xmp"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["exiv2-xmp"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

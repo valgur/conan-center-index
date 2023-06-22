@@ -15,9 +15,15 @@ class UnitsConan(ConanFile):
         "library built on c++14 with no dependencies"
     )
     license = "MIT"
-    topics = ("unit-conversion", "dimensional-analysis", "cpp14",
-              "template-metaprogramming", "compile-time", "header-only",
-              "no-dependencies")
+    topics = (
+        "unit-conversion",
+        "dimensional-analysis",
+        "cpp14",
+        "template-metaprogramming",
+        "compile-time",
+        "header-only",
+        "no-dependencies",
+    )
     homepage = "https://github.com/nholthaus/units"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -49,15 +55,29 @@ class UnitsConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "units.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "units.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "units")

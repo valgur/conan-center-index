@@ -17,10 +17,6 @@ class Re2CConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -40,8 +36,11 @@ class Re2CConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
@@ -52,10 +51,18 @@ class Re2CConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXX": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "LD": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXXLD": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
+                    "CC": "{} -nologo".format(
+                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
+                    ),
+                    "CXX": "{} -nologo".format(
+                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
+                    ),
+                    "LD": "{} -nologo".format(
+                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
+                    ),
+                    "CXXLD": "{} -nologo".format(
+                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
+                    ),
                     "AR": "lib",
                 }
                 with tools.environment_append(env):

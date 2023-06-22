@@ -50,11 +50,9 @@ class GodotCppConan(ConanFile):
 
     @property
     def _libname(self):
-        return "godot-cpp.{platform}.{target}.{bits}".format(platform=self._platform, target=self._target, bits=self._bits)
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+        return "godot-cpp.{platform}.{target}.{bits}".format(
+            platform=self._platform, target=self._target, bits=self._bits
+        )
 
     @property
     def _godot_headers(self):
@@ -82,18 +80,28 @@ class GodotCppConan(ConanFile):
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler standard version support".format(self.name, compiler))
+                "{} recipe lacks information about the {} compiler standard version support".format(
+                    self.name, compiler
+                )
+            )
             self.output.warn(
-                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard))
+                "{} requires a compiler that supports at least C++{}".format(
+                    self.name, minimal_cpp_standard
+                )
+            )
             return
 
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             if compiler in ["apple-clang", "clang"]:
                 raise ConanInvalidConfiguration(
-                    "{} requires a clang version that supports the '-Og' flag".format(self.name))
+                    "{} requires a clang version that supports the '-Og' flag".format(self.name)
+                )
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard))
+                "{} requires a compiler that supports at least C++{}".format(
+                    self.name, minimal_cpp_standard
+                )
+            )
 
     def build(self):
         self.run("python  --version")
@@ -101,25 +109,29 @@ class GodotCppConan(ConanFile):
             self.run("which python")
         self.run("scons  --version")
         self.run(
-            " ".join([
-                "scons",
-                "-C{}".format(self._source_subfolder),
-                "-j{}".format(tools.cpu_count()),
-                "generate_bindings=yes",
-                "use_custom_api_file=yes",
-                "bits={}".format(self._bits),
-                "custom_api_file={}".format(self._custom_api_file),
-                "headers_dir={}".format(self._headers_dir),
-                "platform={}".format(self._platform),
-                "target={}".format(self._target),
-                "use_llvm={}".format(self._use_llvm),
-                "use_mingw={}".format(self._use_mingw),
-            ])
+            " ".join(
+                [
+                    "scons",
+                    "-C{}".format(self._source_subfolder),
+                    "-j{}".format(tools.cpu_count()),
+                    "generate_bindings=yes",
+                    "use_custom_api_file=yes",
+                    "bits={}".format(self._bits),
+                    "custom_api_file={}".format(self._custom_api_file),
+                    "headers_dir={}".format(self._headers_dir),
+                    "platform={}".format(self._platform),
+                    "target={}".format(self._target),
+                    "use_llvm={}".format(self._use_llvm),
+                    "use_mingw={}".format(self._use_mingw),
+                ]
+            )
         )
 
     def package(self):
         self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy("*.hpp", dst="include/godot-cpp", src=os.path.join(self._source_subfolder, "include"))
+        self.copy(
+            "*.hpp", dst="include/godot-cpp", src=os.path.join(self._source_subfolder, "include")
+        )
         self.copy("*.a", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
         self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
 

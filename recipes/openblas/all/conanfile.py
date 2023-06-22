@@ -32,10 +32,6 @@ class OpenblasConan(ConanFile):
     short_paths = True
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -127,7 +123,9 @@ endif()"""
         self.cpp_info.set_property("cmake_file_name", "OpenBLAS")
         self.cpp_info.set_property("cmake_target_name", "OpenBLAS::OpenBLAS")
         self.cpp_info.set_property("pkg_config_name", "openblas")
-        cmake_component_name = "pthread" if self.options.use_thread else "serial" # TODO: ow to model this in CMakeDeps?
+        cmake_component_name = (
+            "pthread" if self.options.use_thread else "serial"
+        )  # TODO: ow to model this in CMakeDeps?
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", "openblas")
         self.cpp_info.components["openblas_component"].includedirs.append(
             os.path.join("include", "openblas")
@@ -148,5 +146,9 @@ endif()"""
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
-        self.cpp_info.components["openblas_component"].names["cmake_find_package"] = cmake_component_name
-        self.cpp_info.components["openblas_component"].names["cmake_find_package_multi"] = cmake_component_name
+        self.cpp_info.components["openblas_component"].names[
+            "cmake_find_package"
+        ] = cmake_component_name
+        self.cpp_info.components["openblas_component"].names[
+            "cmake_find_package_multi"
+        ] = cmake_component_name

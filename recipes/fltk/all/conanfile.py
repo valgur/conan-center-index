@@ -21,20 +21,16 @@ class FltkConan(ConanFile):
         "with_gl": [True, False],
         "with_threads": [True, False],
         "with_gdiplus": [True, False],
-        "abi_version": "ANY"
+        "abi_version": "ANY",
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_gl": True,
         "with_threads": True,
-        "with_gdiplus": True
+        "with_gdiplus": True,
     }
     generators = "cmake", "cmake_find_package_multi"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -56,9 +52,7 @@ class FltkConan(ConanFile):
                 _version_minor = int(_version_token[1])
                 _version_patch = 0
             self.options.abi_version = str(
-                int(_version_major) * 10000 +
-                int(_version_minor) * 100 +
-                int(_version_patch)
+                int(_version_major) * 10000 + int(_version_minor) * 100 + int(_version_patch)
             )
 
     def configure(self):
@@ -76,20 +70,24 @@ class FltkConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        tools.get(self, **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions['OPTION_BUILD_SHARED_LIBS'] = self.options.shared
-        cmake.definitions['FLTK_BUILD_TEST'] = False
-        cmake.definitions['FLTK_BUILD_EXAMPLES'] = False
-        cmake.definitions['OPTION_USE_GL'] = self.options.with_gl
-        cmake.definitions['OPTION_USE_THREADS'] = self.options.with_threads
-        cmake.definitions['OPTION_BUILD_HTML_DOCUMENTATION'] = False
-        cmake.definitions['OPTION_BUILD_PDF_DOCUMENTATION'] = False
+        cmake.definitions["OPTION_BUILD_SHARED_LIBS"] = self.options.shared
+        cmake.definitions["FLTK_BUILD_TEST"] = False
+        cmake.definitions["FLTK_BUILD_EXAMPLES"] = False
+        cmake.definitions["OPTION_USE_GL"] = self.options.with_gl
+        cmake.definitions["OPTION_USE_THREADS"] = self.options.with_threads
+        cmake.definitions["OPTION_BUILD_HTML_DOCUMENTATION"] = False
+        cmake.definitions["OPTION_BUILD_PDF_DOCUMENTATION"] = False
         if self.options.abi_version:
-            cmake.definitions['OPTION_ABI_VERSION'] = self.options.abi_version
+            cmake.definitions["OPTION_ABI_VERSION"] = self.options.abi_version
         cmake.configure()
         return cmake
 
@@ -121,11 +119,18 @@ class FltkConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os in ("Linux", "FreeBSD"):
             if self.options.with_threads:
-                self.cpp_info.system_libs.extend(['pthread', 'dl'])
+                self.cpp_info.system_libs.extend(["pthread", "dl"])
             if self.options.with_gl:
-                self.cpp_info.system_libs.extend(['GL', 'GLU'])
+                self.cpp_info.system_libs.extend(["GL", "GLU"])
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks = ['Cocoa', 'OpenGL', 'IOKit', 'Carbon', 'CoreFoundation', 'CoreVideo']
+            self.cpp_info.frameworks = [
+                "Cocoa",
+                "OpenGL",
+                "IOKit",
+                "Carbon",
+                "CoreFoundation",
+                "CoreVideo",
+            ]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = [
                 "gdi32",

@@ -29,10 +29,6 @@ class TidyHtml5Conan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -47,21 +43,25 @@ class TidyHtml5Conan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def _configure_cmake(self):
         if self._cmake:
             return self._cmake
         cmake = CMake(self)
-        cmake.definitions['BUILD_TAB2SPACE'] = False
-        cmake.definitions['BUILD_SAMPLE_CODE'] = False
-        cmake.definitions['TIDY_COMPAT_HEADERS'] = False
-        cmake.definitions['SUPPORT_CONSOLE_APP'] = False
-        cmake.definitions['SUPPORT_LOCALIZATIONS'] = self.options.support_localizations
-        cmake.definitions['ENABLE_DEBUG_LOG'] = False
-        cmake.definitions['ENABLE_ALLOC_DEBUG'] = False
-        cmake.definitions['ENABLE_MEMORY_DEBUG'] = False
-        cmake.definitions['BUILD_SHARED_LIB'] = self.options.shared
+        cmake.definitions["BUILD_TAB2SPACE"] = False
+        cmake.definitions["BUILD_SAMPLE_CODE"] = False
+        cmake.definitions["TIDY_COMPAT_HEADERS"] = False
+        cmake.definitions["SUPPORT_CONSOLE_APP"] = False
+        cmake.definitions["SUPPORT_LOCALIZATIONS"] = self.options.support_localizations
+        cmake.definitions["ENABLE_DEBUG_LOG"] = False
+        cmake.definitions["ENABLE_ALLOC_DEBUG"] = False
+        cmake.definitions["ENABLE_MEMORY_DEBUG"] = False
+        cmake.definitions["BUILD_SHARED_LIB"] = self.options.shared
         cmake.configure(build_folder=self._build_subfolder)
         self._cmake = cmake
         return self._cmake
@@ -74,7 +74,7 @@ class TidyHtml5Conan(ConanFile):
 
     def package(self):
         self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy("LICENSE.md", dst="licenses", src=os.path.join(self._source_subfolder, 'README'))
+        self.copy("LICENSE.md", dst="licenses", src=os.path.join(self._source_subfolder, "README"))
         cmake = self._configure_cmake()
         cmake.install()
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -86,7 +86,11 @@ class TidyHtml5Conan(ConanFile):
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "tidy"
         suffix = "_static" if self.settings.os == "Windows" and not self.options.shared else ""
-        suffix += "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""
+        suffix += (
+            "d"
+            if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug"
+            else ""
+        )
         self.cpp_info.libs = ["tidy" + suffix]
         if self.settings.os == "Windows" and not self.options.shared:
             self.cpp_info.defines.append("TIDY_STATIC")

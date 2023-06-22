@@ -57,7 +57,9 @@ class TestPackageConan(ConanFile):
                 env.define("LD_PRELOAD", f"{self._lib_name}.so")
             elif self.settings.os == "Macos":
                 env.define("DYLD_FORCE_FLAT_NAMESPACE", "1")
-                insert_library = os.path.join(self.dependencies["mimalloc"].cpp_info.libdirs[0], f"{self._lib_name}.dylib")
+                insert_library = os.path.join(
+                    self.dependencies["mimalloc"].cpp_info.libdirs[0], f"{self._lib_name}.dylib"
+                )
                 env.define("DYLD_INSERT_LIBRARIES", insert_library)
         env.vars(self, scope="run").save_script("mimalloc_env_file")
 
@@ -69,4 +71,7 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             with chdir(self, self.build_folder):
-                self.run(f"ctest --output-on-failure -C {self.settings.build_type} -j {build_jobs(self)}", env="conanrun")
+                self.run(
+                    f"ctest --output-on-failure -C {self.settings.build_type} -j {build_jobs(self)}",
+                    env="conanrun",
+                )

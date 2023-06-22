@@ -81,10 +81,12 @@ class ImakeConan(ConanFile):
         if self.settings.os == "Windows":
             tc.extra_defines.append("WIN32")
         if is_msvc(self):
-            tc.extra_defines.extend([
-                "_CRT_SECURE_NO_WARNINGS",
-                "CROSSCOMPILE_CPP",
-            ])
+            tc.extra_defines.extend(
+                [
+                    "_CRT_SECURE_NO_WARNINGS",
+                    "CROSSCOMPILE_CPP",
+                ]
+            )
             if check_min_vs(self, "180", raise_invalid=False):
                 tc.extra_cflags.append("-FS")
                 tc.extra_cxxflags.append("-FS")
@@ -101,19 +103,24 @@ class ImakeConan(ConanFile):
             "--enable-xmkmf={}".format(yes_no(self.options.xmkmf)),
         ]
         if "CPP" in os.environ:
-            conf_args.extend([
-                "--with-script-preproc-cmd={}".format(os.environ["CPP"]),
-            ])
+            conf_args.extend(
+                [
+                    "--with-script-preproc-cmd={}".format(os.environ["CPP"]),
+                ]
+            )
 
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, self.conf.get('user.automake:compile-wrapper'))
+            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper"))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("CPP", f"{compile_wrapper} cl -E")
             # We may be able to use AutotoolsDeps, however there are outstanding
             # issues with path conversions: https://github.com/conan-io/conan/issues/12784
-            xorg_proto_include = unix_path(self, self.dependencies['xorg-proto'].cpp_info.aggregated_components().includedirs[0])
+            xorg_proto_include = unix_path(
+                self,
+                self.dependencies["xorg-proto"].cpp_info.aggregated_components().includedirs[0],
+            )
             env.append("CFLAGS", f"-I{xorg_proto_include}")
         tc.generate(env)
 
@@ -127,7 +134,12 @@ class ImakeConan(ConanFile):
         autotools.make(args=["V=1"])
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

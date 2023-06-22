@@ -11,8 +11,10 @@ required_conan_version = ">=1.53.0"
 
 class LibSafeCConan(ConanFile):
     name = "libsafec"
-    description = "This library implements the secure C11 Annex K[^5] functions" \
-            " on top of most libc implementations, which are missing from them."
+    description = (
+        "This library implements the secure C11 Annex K[^5] functions"
+        " on top of most libc implementations, which are missing from them."
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rurban/safeclib"
     license = "MIT"
@@ -33,10 +35,6 @@ class LibSafeCConan(ConanFile):
     }
 
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _settings_build(self):
@@ -69,17 +67,24 @@ class LibSafeCConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration(f"This platform is not yet supported by {self.ref} (os=Macos arch=armv8)")
+            raise ConanInvalidConfiguration(
+                f"This platform is not yet supported by {self.ref} (os=Macos arch=armv8)"
+            )
         if not self._supported_compiler:
             raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support {self.settings.compiler}-{self.settings.compiler.version}")
+                f"{self.ref} doesn't support {self.settings.compiler}-{self.settings.compiler.version}"
+            )
 
         if not str(self.info.options.strmax).isdigit():
             raise ConanException(f"{self.ref} option 'strmax' must be a valid integer number.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+        )
 
     def _configure_autotools(self):
         if self._autotools:
@@ -100,13 +105,21 @@ class LibSafeCConan(ConanFile):
 
     def build(self):
         with chdir(self, self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")),
-                     win_bash=tools.os_info.is_windows, run_environment=True)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")),
+                win_bash=tools.os_info.is_windows,
+                run_environment=True,
+            )
         autotools = self._configure_autotools()
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self._source_subfolder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

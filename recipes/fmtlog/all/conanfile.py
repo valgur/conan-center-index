@@ -78,7 +78,9 @@ class PackageConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -102,9 +104,19 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self.options.header_only:
-            copy(self, pattern="fmtlog*.h", dst=os.path.join(self.package_folder, "include", "fmtlog"), src=self.source_folder)
+            copy(
+                self,
+                pattern="fmtlog*.h",
+                dst=os.path.join(self.package_folder, "include", "fmtlog"),
+                src=self.source_folder,
+            )
         else:
             cmake = CMake(self)
             cmake.install()

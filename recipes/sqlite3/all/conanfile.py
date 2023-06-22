@@ -70,9 +70,9 @@ class Sqlite3Conan(ConanFile):
         "enable_unlock_notify": True,
         "enable_default_secure_delete": False,
         "disable_gethostuuid": False,
-        "max_column": None,             # Uses default value from source
-        "max_variable_number": None,    # Uses default value from source
-        "max_blob_size": None,          # Uses default value from source
+        "max_column": None,  # Uses default value from source
+        "max_variable_number": None,  # Uses default value from source
+        "max_blob_size": None,  # Uses default value from source
         "build_executable": True,
         "enable_default_vfs": True,
         "enable_dbpage_vtab": False,
@@ -103,9 +103,13 @@ class Sqlite3Conan(ConanFile):
         if self.options.build_executable:
             if not self.options.enable_default_vfs:
                 # Need to provide custom VFS code: https://www.sqlite.org/custombuild.html
-                raise ConanInvalidConfiguration("build_executable=True cannot be combined with enable_default_vfs=False")
+                raise ConanInvalidConfiguration(
+                    "build_executable=True cannot be combined with enable_default_vfs=False"
+                )
             if self.options.omit_load_extension:
-                raise ConanInvalidConfiguration("build_executable=True requires omit_load_extension=True")
+                raise ConanInvalidConfiguration(
+                    "build_executable=True requires omit_load_extension=True"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -137,7 +141,9 @@ class Sqlite3Conan(ConanFile):
         tc.variables["HAVE_FDATASYNC"] = True
         tc.variables["HAVE_GMTIME_R"] = True
         tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows"
-        tc.variables["HAVE_POSIX_FALLOCATE"] = not (self.settings.os in ["Windows", "Android"] or is_apple_os(self))
+        tc.variables["HAVE_POSIX_FALLOCATE"] = not (
+            self.settings.os in ["Windows", "Android"] or is_apple_os(self)
+        )
         tc.variables["HAVE_STRERROR_R"] = True
         tc.variables["HAVE_USLEEP"] = True
         tc.variables["DISABLE_GETHOSTUUID"] = self.options.disable_gethostuuid
@@ -158,11 +164,13 @@ class Sqlite3Conan(ConanFile):
 
     def _extract_license(self):
         header = load(self, os.path.join(self.source_folder, "sqlite3.h"))
-        license_content = header[3:header.find("***", 1)]
+        license_content = header[3 : header.find("***", 1)]
         return license_content
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(
+            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -173,14 +181,16 @@ class Sqlite3Conan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             if(DEFINED SQLite_INCLUDE_DIRS)
                 set(SQLite3_INCLUDE_DIRS ${SQLite_INCLUDE_DIRS})
             endif()
             if(DEFINED SQLite_LIBRARIES)
                 set(SQLite3_LIBRARIES ${SQLite_LIBRARIES})
             endif()
-        """)
+        """
+        )
         save(self, module_file, content)
 
     @property
@@ -206,7 +216,9 @@ class Sqlite3Conan(ConanFile):
                 self.cpp_info.components["sqlite"].system_libs.append("m")
         elif self.settings.os == "Windows":
             if self.options.shared:
-                self.cpp_info.components["sqlite"].defines.append("SQLITE_API=__declspec(dllimport)")
+                self.cpp_info.components["sqlite"].defines.append(
+                    "SQLITE_API=__declspec(dllimport)"
+                )
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "SQLite3"
@@ -215,8 +227,12 @@ class Sqlite3Conan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "SQLite"
         self.cpp_info.components["sqlite"].names["cmake_find_package"] = "SQLite3"
         self.cpp_info.components["sqlite"].names["cmake_find_package_multi"] = "SQLite3"
-        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["sqlite"].set_property("cmake_target_name", "SQLite::SQLite3")
         self.cpp_info.components["sqlite"].set_property("pkg_config_name", "sqlite3")
         if self.options.build_executable:

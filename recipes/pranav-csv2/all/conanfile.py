@@ -7,15 +7,27 @@ from conans import ConanFile, CMake, tools
 
 required_conan_version = ">=1.33.0"
 
+
 class PranavCSV2Conan(ConanFile):
     name = "pranav-csv2"
     license = "MIT"
-    description = "Various header libraries mostly future std lib, replacements for(e.g. visit), or some misc"
-    topics = ("csv", "iterator", "header-only", )
+    description = (
+        "Various header libraries mostly future std lib, replacements for(e.g. visit), or some misc"
+    )
+    topics = (
+        "csv",
+        "iterator",
+        "header-only",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/csv2"
-    settings = "os", "arch", "compiler", "build_type",
-    generators = "cmake",
+    settings = (
+        "os",
+        "arch",
+        "compiler",
+        "build_type",
+    )
+    generators = ("cmake",)
     no_copy_source = True
 
     _compiler_required_cpp11 = {
@@ -25,10 +37,6 @@ class PranavCSV2Conan(ConanFile):
         "apple-clang": "12.0",
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
             tools.check_min_cppstd(self, "11")
@@ -36,12 +44,22 @@ class PranavCSV2Conan(ConanFile):
         minimum_version = self._compiler_required_cpp11.get(str(self.settings.compiler), False)
         if minimum_version:
             if tools.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("{} requires C++11, which your compiler does not support.".format(self.name))
+                raise ConanInvalidConfiguration(
+                    "{} requires C++11, which your compiler does not support.".format(self.name)
+                )
         else:
-            self.output.warn("{0} requires C++11. Your compiler is unknown. Assuming it supports C++11.".format(self.name))
+            self.output.warn(
+                "{0} requires C++11. Your compiler is unknown. Assuming it supports C++11.".format(
+                    self.name
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
@@ -55,19 +73,24 @@ class PranavCSV2Conan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(self._module_subfolder,
-                            "conan-official-{}-targets.cmake".format(self.name))
+        return os.path.join(
+            self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name)
+        )
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         tools.save(module_file, content)
 
     def package(self):
@@ -79,8 +102,7 @@ class PranavCSV2Conan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "share"))
 
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"csv2": "csv2::csv2"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"csv2": "csv2::csv2"}
         )
 
     def package_id(self):

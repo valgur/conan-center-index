@@ -10,21 +10,26 @@ class QuickfastConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://objectcomputing.com/"
     description = "QuickFAST is an Open Source native C++ implementation of the FAST Protocol"
-    topics = ("conan", "QuickFAST", "FAST", "FIX", "Fix Adapted for STreaming", "Financial Information Exchange",
-              "libraries", "cpp")
+    topics = (
+        "conan",
+        "QuickFAST",
+        "FAST",
+        "FIX",
+        "Fix Adapted for STreaming",
+        "Financial Information Exchange",
+        "libraries",
+        "cpp",
+    )
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False],
-               "shared": [True, False]}
-    default_options = {"fPIC": True,
-                       "shared": False}
+    options = {
+        "fPIC": [True, False],
+        "shared": [True, False],
+    }
+    default_options = {"fPIC": True, "shared": False}
     requires = ["boost/1.75.0", "xerces-c/3.2.3"]
     generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):

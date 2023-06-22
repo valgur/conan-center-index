@@ -25,12 +25,7 @@ class ReadExcelConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "Visual Studio": "15",
-            "gcc": "5",
-            "clang": "3.5",
-            "apple-clang": "10"
-        }
+        return {"Visual Studio": "15", "gcc": "5", "clang": "3.5", "apple-clang": "10"}
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -45,15 +40,29 @@ class ReadExcelConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "read-excel"), dst=os.path.join(self.package_folder, "include", "read-excel"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "read-excel"),
+            dst=os.path.join(self.package_folder, "include", "read-excel"),
+        )
 
     def package_id(self):
         self.info.clear()

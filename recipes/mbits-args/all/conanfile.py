@@ -36,8 +36,12 @@ class MBitsArgsConan(ConanFile):
         "argument-parsing",
     )
     settings = "os", "compiler", "build_type", "arch"
-    options = {"fPIC": [True, False]}
-    default_options = {"fPIC": True}
+    options = {
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "fPIC": True,
+    }
 
     @property
     def _min_cppstd(self):
@@ -71,10 +75,7 @@ class MBitsArgsConan(ConanFile):
             minimum_version = self._compilers_minimum_version.get(
                 str(self.settings.compiler), False
             )
-            if (
-                minimum_version
-                and Version(self.settings.compiler.version) < minimum_version
-            ):
+            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
@@ -116,7 +117,5 @@ class MBitsArgsConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-args"
         self.cpp_info.names["cmake_find_package"] = "mbits"
         self.cpp_info.names["cmake_find_package_multi"] = "mbits"
-        self.cpp_info.components["args"].set_property(
-            "cmake_target_name", "mbits::args"
-        )
+        self.cpp_info.components["args"].set_property("cmake_target_name", "mbits::args")
         self.cpp_info.components["args"].libs = ["args"]

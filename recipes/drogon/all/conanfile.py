@@ -8,9 +8,12 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class DrogonConan(ConanFile):
     name = "drogon"
-    description = "A C++14/17/20 based HTTP web application framework running on Linux/macOS/Unix/Windows"
+    description = (
+        "A C++14/17/20 based HTTP web application framework running on Linux/macOS/Unix/Windows"
+    )
     topics = ("http-server", "non-blocking-io", "http-framework", "asynchronous-programming")
     license = "MIT"
     homepage = "https://github.com/drogonframework/drogon"
@@ -79,7 +82,7 @@ class DrogonConan(ConanFile):
                 "clang": "5",
                 "apple-clang": "10",
             }
-        else:       
+        else:
             return {
                 "Visual Studio": "16",
                 "msvc": "192",
@@ -92,12 +95,18 @@ class DrogonConan(ConanFile):
         if self.info.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
+        minimum_version = self._compilers_minimum_version.get(
+            str(self.info.settings.compiler), False
+        )
         if minimum_version:
             if Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
         else:
-            self.output.warn(f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
+            self.output.warn(
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
+            )
 
     def requirements(self):
         self.requires("trantor/1.5.8")
@@ -122,7 +131,12 @@ class DrogonConan(ConanFile):
             self.requires("hiredis/1.1.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -152,7 +166,12 @@ class DrogonConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

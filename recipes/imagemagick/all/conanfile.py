@@ -70,9 +70,7 @@ class ImageMagicConan(ConanFile):
 
     @property
     def _source_subfolder(self):
-        return (
-            "ImageMagick"  # name is important, VisualMagick uses relative paths to it
-        )
+        return "ImageMagick"  # name is important, VisualMagick uses relative paths to it
 
     @property
     def _build_subfolder(self):
@@ -151,9 +149,7 @@ class ImageMagicConan(ConanFile):
                 self.conan_data["sources"][self.version]["visualmagick"].keys()
             )[0]
             tools.get(
-                **self.conan_data["sources"][self.version]["visualmagick"][
-                    visualmagick_version
-                ],
+                **self.conan_data["sources"][self.version]["visualmagick"][visualmagick_version],
                 destination="VisualMagick",
                 strip_root=True
             )
@@ -216,7 +212,6 @@ class ImageMagicConan(ConanFile):
             tools.replace_in_file(project, "/MACHINE:I386", "/MACHINE:x64")
 
         with tools.chdir(os.path.join("VisualMagick", "configure")):
-
             toolset = tools.msvs_toolset(self)
             tools.replace_in_file(
                 "configure.vcxproj",
@@ -260,9 +255,7 @@ class ImageMagicConan(ConanFile):
             self.run(command, run_environment=True)
 
         # disable incorrectly detected OpenCL
-        baseconfig = os.path.join(
-            self._source_subfolder, "MagickCore", "magick-baseconfig.h"
-        )
+        baseconfig = os.path.join(self._source_subfolder, "MagickCore", "magick-baseconfig.h")
         tools.replace_in_file(
             baseconfig,
             "#define MAGICKCORE__OPENCL",
@@ -323,14 +316,11 @@ class ImageMagicConan(ConanFile):
     def _build_configure(self):
         if self._autotools:
             return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(
-            self, win_bash=tools.os_info.is_windows
-        )
+        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
 
         # FIXME: workaround for xorg/system adding system includes https://github.com/conan-io/conan-center-index/issues/6880
         if "/usr/include/uuid" in self._autotools.include_paths:
             self._autotools.include_paths.remove("/usr/include/uuid")
-
 
         def yes_no(o):
             return "yes" if o else "no"
@@ -464,9 +454,7 @@ class ImageMagicConan(ConanFile):
 
         if self._is_msvc:
             if not self.options.shared:
-                self.cpp_info.components["MagickCore"].libs.append(
-                    self._libname("coders")
-                )
+                self.cpp_info.components["MagickCore"].libs.append(self._libname("coders"))
         if self.settings.os == "Linux":
             self.cpp_info.components["MagickCore"].system_libs.append("pthread")
 
@@ -480,9 +468,7 @@ class ImageMagicConan(ConanFile):
             "_MAGICKDLL_=1" if self.options.shared else "_MAGICKLIB_=1"
         )
 
-        imagemagick_include_dir = (
-            "include/ImageMagick-%s" % tools.Version(self.version).major
-        )
+        imagemagick_include_dir = "include/ImageMagick-%s" % tools.Version(self.version).major
 
         self.cpp_info.components["MagickCore"].includedirs = [imagemagick_include_dir]
         self.cpp_info.components["MagickCore"].libs.append(self._libname("MagickCore"))
@@ -502,13 +488,11 @@ class ImageMagicConan(ConanFile):
         self.cpp_info.components["MagickWand"].names["pkg_config"] = ["MagickWand"]
 
         self.cpp_info.components[self._libname("MagickWand")].requires = ["MagickWand"]
-        self.cpp_info.components[self._libname("MagickWand")].names[
-            "pkg_config"
-        ] = self._libname("MagickWand")
+        self.cpp_info.components[self._libname("MagickWand")].names["pkg_config"] = self._libname(
+            "MagickWand"
+        )
 
-        self.cpp_info.components["Magick++"].includedirs = [
-            imagemagick_include_dir + "/Magick++"
-        ]
+        self.cpp_info.components["Magick++"].includedirs = [imagemagick_include_dir + "/Magick++"]
         self.cpp_info.components["Magick++"].libs = [self._libname("Magick++")]
         self.cpp_info.components["Magick++"].requires = ["MagickWand"]
         self.cpp_info.components["Magick++"].names["pkg_config"] = [
@@ -517,6 +501,6 @@ class ImageMagicConan(ConanFile):
         ]
 
         self.cpp_info.components[self._libname("Magick++")].requires = ["Magick++"]
-        self.cpp_info.components[self._libname("Magick++")].names[
-            "pkg_config"
-        ] = self._libname("Magick++")
+        self.cpp_info.components[self._libname("Magick++")].names["pkg_config"] = self._libname(
+            "Magick++"
+        )

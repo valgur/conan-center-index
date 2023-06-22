@@ -48,7 +48,9 @@ class ClhepConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("CLHEP doesn't properly build its shared libs with Visual Studio")
+            raise ConanInvalidConfiguration(
+                "CLHEP doesn't properly build its shared libs with Visual Studio"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,7 +68,12 @@ class ClhepConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING*", src=os.path.join(self.source_folder, "CLHEP"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING*",
+            src=os.path.join(self.source_folder, "CLHEP"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -85,7 +92,11 @@ class ClhepConan(ConanFile):
             {"name": "Geometry", "system_libs": libm() + pthread(), "requires": ["vector"]},
             {"name": "Random", "system_libs": libm() + pthread()},
             {"name": "Matrix", "system_libs": libm() + pthread(), "requires": ["random", "vector"]},
-            {"name": "RandomObjects", "system_libs": libm(), "requires": ["random", "matrix", "vector"]},
+            {
+                "name": "RandomObjects",
+                "system_libs": libm(),
+                "requires": ["random", "matrix", "vector"],
+            },
             {"name": "Cast", "system_libs": pthread()},
             {"name": "RefCount", "system_libs": pthread()},
             {"name": "Exceptions", "requires": ["cast", "refcount"]},
@@ -107,7 +118,9 @@ class ClhepConan(ConanFile):
             system_libs = component.get("system_libs", [])
             requires = component.get("requires", [])
 
-            self.cpp_info.components[conan_comp].set_property("cmake_target_name", f"CLHEP::{cmake_target}")
+            self.cpp_info.components[conan_comp].set_property(
+                "cmake_target_name", f"CLHEP::{cmake_target}"
+            )
             self.cpp_info.components[conan_comp].set_property("pkg_config_name", pkg_config_name)
             self.cpp_info.components[conan_comp].libs = [lib_name]
             self.cpp_info.components[conan_comp].system_libs = system_libs
@@ -125,6 +138,8 @@ class ClhepConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "clhep"
         self.cpp_info.components["clheplib"].names["cmake_find_package"] = f"CLHEP{suffix}"
         self.cpp_info.components["clheplib"].names["cmake_find_package_multi"] = f"CLHEP{suffix}"
-        self.cpp_info.components["clheplib"].set_property("cmake_target_name", f"CLHEP::CLHEP{suffix}")
+        self.cpp_info.components["clheplib"].set_property(
+            "cmake_target_name", f"CLHEP::CLHEP{suffix}"
+        )
         self.cpp_info.components["clheplib"].names["pkg_config"] = "clhep"
         self.cpp_info.components["clheplib"].set_property("pkg_config_name", "clhep")

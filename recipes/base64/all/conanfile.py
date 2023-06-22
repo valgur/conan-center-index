@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
-from conan.tools.files import copy, get, apply_conandata_patches, chdir, export_conandata_patches, rmdir
+from conan.tools.files import (
+    copy,
+    get,
+    apply_conandata_patches,
+    chdir,
+    export_conandata_patches,
+    rmdir,
+)
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -11,6 +18,7 @@ from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.52.0"
+
 
 class Base64Conan(ConanFile):
     name = "base64"
@@ -33,7 +41,7 @@ class Base64Conan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -62,8 +70,12 @@ class Base64Conan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support build shared.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     @property
     def _use_cmake(self):
@@ -97,13 +109,17 @@ class Base64Conan(ConanFile):
             else:
                 # ARM-specific instructions can be enabled here
                 pass
-            with env.vars(self).apply(), \
-                 chdir(self, self.source_folder):
+            with env.vars(self).apply(), chdir(self, self.source_folder):
                 autotools = Autotools(self)
                 autotools.make(target="lib/libbase64.a")
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()
@@ -112,11 +128,34 @@ class Base64Conan(ConanFile):
             else:
                 rmdir(self, os.path.join(self.package_folder, "cmake"))
                 rmdir(self, os.path.join(self.package_folder, "lib"))
-                copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+                copy(
+                    self,
+                    pattern="*.lib",
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=self.build_folder,
+                    keep_path=False,
+                )
         else:
-            copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-            copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
-            copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+            copy(
+                self,
+                pattern="*.h",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
+            copy(
+                self,
+                pattern="*.a",
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.source_folder,
+                keep_path=False,
+            )
+            copy(
+                self,
+                pattern="*.lib",
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.build_folder,
+                keep_path=False,
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["base64"]

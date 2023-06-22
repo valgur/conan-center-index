@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -74,7 +83,9 @@ class AravisConan(ConanFile):
 
     def validate(self):
         if is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Static runtime is not supported on Windows due to GLib issues")
+            raise ConanInvalidConfiguration(
+                "Static runtime is not supported on Windows due to GLib issues"
+            )
         if self.options.shared and not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration("Shared Aravis cannot link to static GLib")
         if self.settings.os == "Macos" and self.dependencies["glib"].options.shared:
@@ -105,8 +116,12 @@ class AravisConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["usb"] = "enabled" if self.options.usb else "disabled"
         tc.project_options["gst-plugin"] = "enabled" if self.options.gst_plugin else "disabled"
-        tc.project_options["packet-socket"] = "enabled" if self.options.get_safe("packet_socket") else "disabled"
-        tc.project_options["introspection"] = "enabled" if self.options.introspection else "disabled"
+        tc.project_options["packet-socket"] = (
+            "enabled" if self.options.get_safe("packet_socket") else "disabled"
+        )
+        tc.project_options["introspection"] = (
+            "enabled" if self.options.introspection else "disabled"
+        )
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False
         tc.project_options["documentation"] = "disabled"
@@ -133,7 +148,12 @@ class AravisConan(ConanFile):
                     rename(self, filename_old, filename_new)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         meson = Meson(self)
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))

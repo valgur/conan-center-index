@@ -4,7 +4,16 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rm,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 import functools
@@ -18,7 +27,9 @@ required_conan_version = ">=1.55.0"
 
 class VulkanValidationLayersConan(ConanFile):
     name = "vulkan-validationlayers"
-    description = "Khronos official Vulkan validation layers for Windows, Linux, Android, and MacOS."
+    description = (
+        "Khronos official Vulkan validation layers for Windows, Linux, Android, and MacOS."
+    )
     license = "Apache-2.0"
     topics = ("vulkan", "validation-layers")
     homepage = "https://github.com/KhronosGroup/Vulkan-ValidationLayers"
@@ -45,7 +56,9 @@ class VulkanValidationLayersConan(ConanFile):
     @property
     @functools.lru_cache(1)
     def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
+        dependencies_filepath = os.path.join(
+            self.recipe_folder, "dependencies", self._dependencies_filename
+        )
         if not os.path.isfile(dependencies_filepath):
             raise ConanException(f"Cannot find {dependencies_filepath}")
         cached_dependencies = yaml.safe_load(open(dependencies_filepath))
@@ -57,9 +70,11 @@ class VulkanValidationLayersConan(ConanFile):
 
     @property
     def _needs_pkg_config(self):
-        return self.options.get_safe("with_wsi_xcb") or \
-               self.options.get_safe("with_wsi_xlib") or \
-               self._needs_wayland_for_build
+        return (
+            self.options.get_safe("with_wsi_xcb")
+            or self.options.get_safe("with_wsi_xlib")
+            or self._needs_wayland_for_build
+        )
 
     @property
     def _min_cppstd(self):
@@ -80,7 +95,12 @@ class VulkanValidationLayersConan(ConanFile):
         }.get(self._min_cppstd, {})
 
     def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
+        copy(
+            self,
+            f"dependencies/{self._dependencies_filename}",
+            self.recipe_folder,
+            self.export_folder,
+        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -124,13 +144,17 @@ class VulkanValidationLayersConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and loose_lt_semver(
+            str(self.settings.compiler.version), minimum_version
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
         if self.dependencies["spirv-tools"].options.shared:
-            raise ConanInvalidConfiguration("vulkan-validationlayers can't depend on shared spirv-tools")
+            raise ConanInvalidConfiguration(
+                "vulkan-validationlayers can't depend on shared spirv-tools"
+            )
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 is not supported")
@@ -150,7 +174,9 @@ class VulkanValidationLayersConan(ConanFile):
 
         tc = CMakeToolchain(self)
         if Version(self.version) < "1.3.234":
-            tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies["vulkan-headers"].package_folder.replace("\\", "/")
+            tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies[
+                "vulkan-headers"
+            ].package_folder.replace("\\", "/")
         tc.variables["USE_CCACHE"] = False
         if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["BUILD_WSI_XCB_SUPPORT"] = self.options.with_wsi_xcb
@@ -179,9 +205,10 @@ class VulkanValidationLayersConan(ConanFile):
             vk_version = Version(self.dependencies["vulkan-headers"].ref.version)
             sanitized_vk_version = f"{vk_version.major}.{vk_version.minor}.{vk_version.patch}"
             replace_in_file(
-                self, os.path.join(self.source_folder, "layers", "CMakeLists.txt"),
+                self,
+                os.path.join(self.source_folder, "layers", "CMakeLists.txt"),
                 "set(JSON_API_VERSION ${VulkanHeaders_VERSION})",
-                f"set(JSON_API_VERSION \"{sanitized_vk_version}\")",
+                f'set(JSON_API_VERSION "{sanitized_vk_version}")',
             )
         # FIXME: two CMake module/config files should be generated (SPIRV-ToolsConfig.cmake and SPIRV-Tools-optConfig.cmake),
         # but it can't be modeled right now in spirv-tools recipe
@@ -198,7 +225,12 @@ class VulkanValidationLayersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -216,13 +248,21 @@ class VulkanValidationLayersConan(ConanFile):
         else:
             # Move json files to res, but keep in mind to preserve relative
             # path between module library and manifest json file
-            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "share"),
+                os.path.join(self.package_folder, "res"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["VkLayer_utils"]
 
-        manifest_subfolder = "bin" if self.settings.os == "Windows" else os.path.join("res", "vulkan", "explicit_layer.d")
+        manifest_subfolder = (
+            "bin"
+            if self.settings.os == "Windows"
+            else os.path.join("res", "vulkan", "explicit_layer.d")
+        )
         vk_layer_path = os.path.join(self.package_folder, manifest_subfolder)
         self.runenv_info.prepend_path("VK_LAYER_PATH", vk_layer_path)
         # TODO: to remove after conan v2, it allows to not break consumers still relying on virtualenv generator

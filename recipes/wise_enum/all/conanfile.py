@@ -19,11 +19,10 @@ class WiseEnumConan(ConanFile):
     topics = (
         "cplusplus",
         "enum-to-string",
-        "string-to-enum"
-        "serialization",
+        "string-to-enum" "serialization",
         "reflection",
         "header-only",
-        "compile-time"
+        "compile-time",
     )
     homepage = "https://github.com/quicknir/wise_enum"
     url = "https://github.com/conan-io/conan-center-index"
@@ -68,7 +67,12 @@ class WiseEnumConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
@@ -84,7 +88,9 @@ class WiseEnumConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "WiseEnum"
         self.cpp_info.components["_wise_enum"].names["cmake_find_package"] = "wise_enum"
         self.cpp_info.components["_wise_enum"].names["cmake_find_package_multi"] = "wise_enum"
-        self.cpp_info.components["_wise_enum"].set_property("cmake_target_name", "WiseEnum::wise_enum")
+        self.cpp_info.components["_wise_enum"].set_property(
+            "cmake_target_name", "WiseEnum::wise_enum"
+        )
         self.cpp_info.components["_wise_enum"].set_property("pkg_config_name", "WiseEnum")
         self.cpp_info.components["_wise_enum"].bindirs = []
         self.cpp_info.components["_wise_enum"].libdirs = []

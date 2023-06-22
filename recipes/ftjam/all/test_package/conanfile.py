@@ -12,8 +12,7 @@ class TestPackage(ConanFile):
 
     def build(self):
         for f in ("header.h", "main.c", "source.c", "Jamfile"):
-            shutil.copy(os.path.join(self.source_folder, f),
-                        os.path.join(self.build_folder, f))
+            shutil.copy(os.path.join(self.source_folder, f), os.path.join(self.build_folder, f))
         if not tools.cross_building(self):
             assert os.path.isfile(tools.get_env("JAM"))
 

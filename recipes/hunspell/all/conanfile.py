@@ -9,9 +9,7 @@ required_conan_version = ">=1.43.0"
 
 class HunspellConan(ConanFile):
     name = "hunspell"
-    description = (
-        "Hunspell is a free spell checker and morphological analyzer library"
-    )
+    description = "Hunspell is a free spell checker and morphological analyzer library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://hunspell.github.io/"
     topics = "spell", "spell-check"

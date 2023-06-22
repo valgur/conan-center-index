@@ -41,9 +41,13 @@ class LefticusToolsConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -52,10 +56,30 @@ class LefticusToolsConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="ProjectOptions", dst=os.path.join(self.package_folder, "lib", "cmake"), src=self.source_folder)
-        copy(self, pattern="*.cmake", dst=os.path.join(self.package_folder, "lib", "cmake", "cmake"), src=os.path.join(self.source_folder, "cmake"))
-        copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="ProjectOptions",
+            dst=os.path.join(self.package_folder, "lib", "cmake"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*.cmake",
+            dst=os.path.join(self.package_folder, "lib", "cmake", "cmake"),
+            src=os.path.join(self.source_folder, "cmake"),
+        )
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "lefticus::tools")

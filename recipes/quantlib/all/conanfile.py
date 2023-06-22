@@ -2,7 +2,13 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -14,7 +20,7 @@ class QuantlibConan(ConanFile):
     name = "quantlib"
     description = "QuantLib is a free/open-source library for modeling, trading, and risk management in real-life."
     license = "BSD-3-Clause"
-    topics = ("quantitative-finance")
+    topics = "quantitative-finance"
     homepage = "https://www.quantlib.org"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -48,14 +54,21 @@ class QuantlibConan(ConanFile):
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14 if self.version >= "1.24" else 11)
-        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
+        if (
+            self.info.settings.compiler == "gcc"
+            and Version(self.info.settings.compiler.version) < "5"
+        ):
             raise ConanInvalidConfiguration("gcc < 5 not supported")
         if self.version >= "1.24" and is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("MSVC DLL build is not supported by upstream")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,7 +85,9 @@ class QuantlibConan(ConanFile):
             # even if boost shared, the underlying upstream logic doesn't matter for conan
             tc.variables["USE_BOOST_DYNAMIC_LIBRARIES"] = False
             if is_msvc(self):
-                tc.variables["MSVC_RUNTIME"] = "static" if is_msvc_static_runtime(self) else "dynamic"
+                tc.variables["MSVC_RUNTIME"] = (
+                    "static" if is_msvc_static_runtime(self) else "dynamic"
+                )
             # Export symbols for msvc shared
             tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
@@ -86,7 +101,12 @@ class QuantlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.TXT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.TXT",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

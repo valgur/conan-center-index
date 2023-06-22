@@ -25,10 +25,6 @@ class JsonnetConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -60,7 +56,9 @@ class JsonnetConan(ConanFile):
             tools.check_min_cppstd(self, "11")
 
         if self.options.shared and is_msvc(self) and "d" in msvc_runtime_flag(self):
-            raise ConanInvalidConfiguration("shared {} is not supported with MTd/MDd runtime".format(self.name))
+            raise ConanInvalidConfiguration(
+                "shared {} is not supported with MTd/MDd runtime".format(self.name)
+            )
 
     def export_sources(self):
         self.copy("CMakeLists.txt")
@@ -68,8 +66,11 @@ class JsonnetConan(ConanFile):
             self.copy(patch["patch_file"])
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):

@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -96,7 +103,12 @@ class EpoxyConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         meson = Meson(self)
         meson.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -109,11 +121,11 @@ class EpoxyConan(ConanFile):
             self.cpp_info.system_libs = ["dl"]
         self.cpp_info.set_property("pkg_config_name", "epoxy")
         pkgconfig_variables = {
-            'epoxy_has_glx': '1' if self.options.get_safe("glx") else '0',
-            'epoxy_has_egl': '1' if self.options.get_safe("egl") else '0',
-            'epoxy_has_wgl': '1' if self.settings.os == "Windows" else '0',
+            "epoxy_has_glx": "1" if self.options.get_safe("glx") else "0",
+            "epoxy_has_egl": "1" if self.options.get_safe("egl") else "0",
+            "epoxy_has_wgl": "1" if self.settings.os == "Windows" else "0",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join(f"{key}={value}" for key,value in pkgconfig_variables.items()),
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )

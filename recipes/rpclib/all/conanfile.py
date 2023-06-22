@@ -17,17 +17,13 @@ class rpclibConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -42,8 +38,11 @@ class rpclibConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def build(self):
         cmake = self._configure_cmake()
@@ -76,7 +75,8 @@ class rpclibConan(ConanFile):
         if self.settings.os in ["Windows"]:
             if self.options.shared:
                 self.cpp_info.components["_rpc"].bindirs.append(
-                    os.path.join(self.package_folder, "lib"))
+                    os.path.join(self.package_folder, "lib")
+                )
 
         # TODO: Remove after Conan 2.0
         self.cpp_info.components["_rpc"].names["cmake_find_package"] = "rpc"

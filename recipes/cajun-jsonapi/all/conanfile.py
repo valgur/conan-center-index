@@ -31,11 +31,7 @@ class CajunJsonApiConan(ConanFile):
 
     def _extract_license(self):
         file_content = load(self, os.path.join(self.source_folder, "test.cpp"))
-        return (
-            file_content[: file_content.find("*/")]
-            .split("\n", 2)[-1]
-            .rsplit("\n", 1)[0]
-        )
+        return file_content[: file_content.find("*/")].split("\n", 2)[-1].rsplit("\n", 1)[0]
 
     def package(self):
         package_version = Version(self.version)

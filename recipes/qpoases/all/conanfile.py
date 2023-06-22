@@ -8,7 +8,9 @@ required_conan_version = ">=1.46.0"
 
 class ConanRecipe(ConanFile):
     name = "qpoases"
-    description = "Open-source C++ implementation of the recently proposed online active set strategy."
+    description = (
+        "Open-source C++ implementation of the recently proposed online active set strategy."
+    )
     topics = ("container", "parametric", "quadratic", "programming")
     homepage = "https://github.com/coin-or/qpOASES"
     url = "https://github.com/conan-io/conan-center-index"
@@ -30,8 +32,12 @@ class ConanRecipe(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -44,7 +50,12 @@ class ConanRecipe(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

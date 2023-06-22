@@ -65,18 +65,20 @@ class PackageConan(ConanFile):
 
     def validate(self):
         if is_apple_os(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not support MacOS at this time"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} does not support MacOS at this time")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self) and not self.dependencies["cpython"].options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} requires cpython:shared=True when using MSVC compiler")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires cpython:shared=True when using MSVC compiler"
+            )
 
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -91,9 +93,13 @@ class PackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
-        tc.variables["OPENASSETIO_ENABLE_TESTS"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
+        tc.variables["OPENASSETIO_ENABLE_TESTS"] = not self.conf.get(
+            "tools.build:skip_test", default=True, check_type=bool
+        )
 
-        tc.variables["OPENASSETIO_GLIBCXX_USE_CXX11_ABI"] = self.settings.get_safe("compiler.libcxx") == "libstdc++11"
+        tc.variables["OPENASSETIO_GLIBCXX_USE_CXX11_ABI"] = (
+            self.settings.get_safe("compiler.libcxx") == "libstdc++11"
+        )
 
         tc.variables["OPENASSETIO_ENABLE_PYTHON"] = self.options.with_python
         if self.options.with_python:
@@ -117,7 +123,8 @@ class PackageConan(ConanFile):
         pth = pathlib.Path(
             self.dependencies["cpython"].package_folder,
             self.dependencies["cpython"].cpp_info.components["embed"].libdirs[0],
-            self.dependencies["cpython"].cpp_info.components["embed"].libs[0])
+            self.dependencies["cpython"].cpp_info.components["embed"].libs[0],
+        )
         pth = pth.with_suffix(".lib")
         return pth.as_posix()
 
@@ -132,12 +139,25 @@ class PackageConan(ConanFile):
             self.info.requires["cpython"].minor_mode()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
-        rm(self, "OpenAssetIOConfig*.cmake", os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"))
-        rm(self, "OpenAssetIOTargets*.cmake", os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"))
+        rm(
+            self,
+            "OpenAssetIOConfig*.cmake",
+            os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"),
+        )
+        rm(
+            self,
+            "OpenAssetIOTargets*.cmake",
+            os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"),
+        )
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
@@ -145,13 +165,20 @@ class PackageConan(ConanFile):
         self.cpp_info.libs = []
         self.cpp_info.set_property("cmake_file_name", "OpenAssetIO")
         self.cpp_info.set_property("cmake_target_name", "OpenAssetIO::OpenAssetIO")
-        self.cpp_info.set_property("cmake_build_modules", [os.path.join("lib", "cmake", "OpenAssetIO", "OpenAssetIOVariables.cmake")])
+        self.cpp_info.set_property(
+            "cmake_build_modules",
+            [os.path.join("lib", "cmake", "OpenAssetIO", "OpenAssetIOVariables.cmake")],
+        )
         self.cpp_info.builddirs = [os.path.join("lib", "cmake")]
 
-        self.cpp_info.components["openassetio-core"].set_property("cmake_target_name", "OpenAssetIO::openassetio-core")
+        self.cpp_info.components["openassetio-core"].set_property(
+            "cmake_target_name", "OpenAssetIO::openassetio-core"
+        )
         self.cpp_info.components["openassetio-core"].libs = ["openassetio"]
         if self.options.with_python:
-            self.cpp_info.components["openassetio-python-bridge"].set_property("cmake_target_name", "OpenAssetIO::openassetio-python-bridge")
+            self.cpp_info.components["openassetio-python-bridge"].set_property(
+                "cmake_target_name", "OpenAssetIO::openassetio-python-bridge"
+            )
             self.cpp_info.components["openassetio-python-bridge"].requires = ["openassetio-core"]
             self.cpp_info.components["openassetio-python-bridge"].libs = ["openassetio-python"]
 

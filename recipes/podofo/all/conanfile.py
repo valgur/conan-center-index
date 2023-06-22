@@ -15,7 +15,7 @@ class PodofoConan(ConanFile):
     homepage = "http://podofo.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
     description = "PoDoFo is a library to work with the PDF file format."
-    topics = ("pdf")
+    topics = "pdf"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -84,8 +84,12 @@ class PodofoConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -107,7 +111,9 @@ class PodofoConan(ConanFile):
         tc.variables["PODOFO_WITH_TIFF"] = self.options.with_tiff
         tc.variables["PODOFO_WITH_PNG"] = self.options.with_png
         tc.variables["PODOFO_WITH_UNISTRING"] = self.options.with_unistring
-        tc.variables["PODOFO_HAVE_OPENSSL_1_1"] = Version(self.dependencies["openssl"].ref.version) >= "1.1"
+        tc.variables["PODOFO_HAVE_OPENSSL_1_1"] = (
+            Version(self.dependencies["openssl"].ref.version) >= "1.1"
+        )
         if self.options.with_openssl and ("no_rc4" in self.dependencies["openssl"].options):
             tc.variables["PODOFO_HAVE_OPENSSL_NO_RC4"] = self.dependencies["openssl"].options.no_rc4
         tc.generate()
@@ -122,14 +128,21 @@ class PodofoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         podofo_version = Version(self.version)
-        pkg_config_name = f"libpodofo-{podofo_version.major}" if podofo_version < "0.9.7" else "libpodofo"
+        pkg_config_name = (
+            f"libpodofo-{podofo_version.major}" if podofo_version < "0.9.7" else "libpodofo"
+        )
         self.cpp_info.set_property("pkg_config_name", pkg_config_name)
         self.cpp_info.libs = ["podofo"]
         if self.settings.os == "Windows" and self.options.shared:

@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class CloveUnitConan(ConanFile):
     name = "clove-unit"
     description = "Single-header Unit Testing framework for C (interoperable with C++) with test autodiscovery feature"
@@ -29,8 +30,18 @@ class CloveUnitConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "clove-unit.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "clove-unit.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

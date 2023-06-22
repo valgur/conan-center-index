@@ -20,10 +20,6 @@ class Asn1cConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _datarootdir(self):
         return os.path.join(self.package_folder, "res")
 
@@ -44,22 +40,28 @@ class Asn1cConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         conf_args = [
-                "--datarootdir={}".format(tools.unix_path(self._datarootdir)),
+            "--datarootdir={}".format(tools.unix_path(self._datarootdir)),
         ]
         self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
         return self._autotools
 
     def build(self):
         with chdir(self, self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run(
+                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
+            )
         autotools = self._configure_autotools()
         autotools.make()
 

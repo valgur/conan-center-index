@@ -21,11 +21,11 @@ class RuntimeQml(ConanFile):
 
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     @property
@@ -41,8 +41,7 @@ class RuntimeQml(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder,
-             self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -70,19 +69,23 @@ class RuntimeQml(ConanFile):
         check_min_vs(self, 191)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(
-                str(self.info.settings.compiler), False)
+                str(self.info.settings.compiler), False
+            )
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
                 )
         qt = self.dependencies["qt"]
         if not qt.options.qtdeclarative:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires option qt:qtdeclarative=True")
+            raise ConanInvalidConfiguration(f"{self.ref} requires option qt:qtdeclarative=True")
 
     def source(self):
-        get(self, **self.conan_data["sources"][str(self.version)],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][str(self.version)],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -96,8 +99,13 @@ class RuntimeQml(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
         cmake = CMake(self)
         cmake.install()
 

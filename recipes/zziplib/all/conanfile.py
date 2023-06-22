@@ -52,8 +52,12 @@ class ZziplibConan(ConanFile):
         self.requires("zlib/1.2.13")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -81,7 +85,12 @@ class ZziplibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.LIB",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -90,8 +99,9 @@ class ZziplibConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "zziplib-all-do-not-use")
 
         suffix = ""
-        if self.settings.build_type == "Release" and \
-           (not self.options.shared or self.settings.os == "Windows" or is_apple_os(self)):
+        if self.settings.build_type == "Release" and (
+            not self.options.shared or self.settings.os == "Windows" or is_apple_os(self)
+        ):
             suffix += f"-{Version(self.version).major}"
 
         # libzzip
@@ -112,7 +122,7 @@ class ZziplibConan(ConanFile):
             if Version(self.version) >= "0.13.72" and self.options.shared and is_apple_os(self):
                 self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko"]
             else:
-                self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko{suffix}"]            
+                self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko{suffix}"]
             self.cpp_info.components["zzipfseeko"].requires = ["zlib::zlib"]
         # libzzipwrap
         if self.options.zzipwrap:

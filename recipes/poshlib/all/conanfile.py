@@ -24,17 +24,13 @@ class PoshlibConan(ConanFile):
 
     _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = glob.glob('poshlib-*/')[0]
+        extracted_dir = glob.glob("poshlib-*/")[0]
         os.rename(extracted_dir, self._source_subfolder)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -51,9 +47,11 @@ class PoshlibConan(ConanFile):
         return self._cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "posh.h"),
-                              "defined _ARM",
-                              "defined _ARM || defined __arm64")
+        tools.replace_in_file(
+            os.path.join(self._source_subfolder, "posh.h"),
+            "defined _ARM",
+            "defined _ARM || defined __arm64",
+        )
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -64,5 +62,5 @@ class PoshlibConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        if self.settings.os == 'Windows' and self.options.shared:
+        if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("POSH_DLL")

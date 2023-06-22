@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class ItlibConan(ConanFile):
     name = "itlib"
     description = "A collection of small single-header C++ libraries similar to or extending the C++ standard library."
@@ -36,8 +37,18 @@ class ItlibConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

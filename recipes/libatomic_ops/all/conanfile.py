@@ -17,8 +17,14 @@ class Atomic_opsConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     _cmake_options_defaults = (
-        ("assertions",          False,),
-        ("atomic_intrinsics",   True,),
+        (
+            "assertions",
+            False,
+        ),
+        (
+            "atomic_intrinsics",
+            True,
+        ),
     )
 
     options = {
@@ -59,8 +65,12 @@ class Atomic_opsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -80,7 +90,12 @@ class Atomic_opsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -89,18 +104,24 @@ class Atomic_opsConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Atomic_ops")
-        self.cpp_info.set_property("cmake_target_name", "Atomic_ops::atomic_ops_gpl") # workaround to not define an unofficial target
+        self.cpp_info.set_property(
+            "cmake_target_name", "Atomic_ops::atomic_ops_gpl"
+        )  # workaround to not define an unofficial target
 
         # TODO: Remove on Conan 2.0
         self.cpp_info.names["cmake_find_package"] = "Atomic_ops"
         self.cpp_info.names["cmake_find_package_multi"] = "Atomic_ops"
 
-        self.cpp_info.components["atomic_ops"].set_property("cmake_target_name", "Atomic_ops::atomic_ops")
+        self.cpp_info.components["atomic_ops"].set_property(
+            "cmake_target_name", "Atomic_ops::atomic_ops"
+        )
         self.cpp_info.components["atomic_ops"].set_property("pkg_config_name", "atomic_ops")
         self.cpp_info.components["atomic_ops"].libs = ["atomic_ops"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["atomic_ops"].system_libs = ["pthread"]
 
-        self.cpp_info.components["atomic_ops_gpl"].set_property("cmake_target_name", "Atomic_ops::atomic_ops_gpl")
+        self.cpp_info.components["atomic_ops_gpl"].set_property(
+            "cmake_target_name", "Atomic_ops::atomic_ops_gpl"
+        )
         self.cpp_info.components["atomic_ops_gpl"].libs = ["atomic_ops_gpl"]
         self.cpp_info.components["atomic_ops_gpl"].requires = ["atomic_ops"]

@@ -23,10 +23,6 @@ class TcpWrappersConan(ConanFile):
     generators = "cmake"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -55,7 +51,9 @@ class TcpWrappersConan(ConanFile):
         with tools.chdir(self._source_subfolder):
             autotools = AutoToolsBuildEnvironment(self)
             make_args = [
-                "REAL_DAEMON_DIR={}".format(tools.unix_path(os.path.join(self.package_folder, "bin"))),
+                "REAL_DAEMON_DIR={}".format(
+                    tools.unix_path(os.path.join(self.package_folder, "bin"))
+                ),
                 "-j1",
                 "SHEXT={}".format(self._shext),
             ]
@@ -83,7 +81,12 @@ class TcpWrappersConan(ConanFile):
             self.copy(exe, src=self._source_subfolder, dst="bin", keep_path=False)
         self.copy("tcpd.h", src=self._source_subfolder, dst="include", keep_path=False)
         if self.options.shared:
-            self.copy("libwrap{}".format(self._shext), src=self._source_subfolder, dst="lib", keep_path=False)
+            self.copy(
+                "libwrap{}".format(self._shext),
+                src=self._source_subfolder,
+                dst="lib",
+                keep_path=False,
+            )
         else:
             self.copy("libwrap.a", src=self._source_subfolder, dst="lib", keep_path=False)
 

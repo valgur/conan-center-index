@@ -53,7 +53,7 @@ class ImathConan(ConanFile):
         if is_msvc(self) and self.settings.compiler.get_safe("cppstd"):
             # when msvc is working with a C++ standard level higher
             # than the default, we need the __cplusplus macro to be correct
-            tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"        
+            tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"
         tc.generate()
 
     def build(self):
@@ -62,7 +62,12 @@ class ImathConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))

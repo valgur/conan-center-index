@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -59,7 +67,9 @@ class LibxlsConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support Visual Studio (yet). Contributions are always welcomed")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support Visual Studio (yet). Contributions are always welcomed"
+            )
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -68,7 +78,12 @@ class LibxlsConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -90,7 +105,9 @@ class LibxlsConan(ConanFile):
 #define HAVE_ICONV 1
 #define ICONV_CONST
 #define PACKAGE_VERSION "{}"
-""".format(self.version)
+""".format(
+            self.version
+        )
         if self.settings.os == "Macos":
             config_h_content += "#define HAVE_XLOCALE_H 1\n"
         save(self, os.path.join(self.source_folder, "include", "config.h"), config_h_content)

@@ -12,7 +12,7 @@ class BrotliConan(ConanFile):
     topics = ("brotli", "compression")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/brotli"
-    license = "MIT",
+    license = ("MIT",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -89,7 +89,12 @@ class BrotliConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

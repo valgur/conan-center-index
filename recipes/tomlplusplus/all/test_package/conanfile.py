@@ -22,7 +22,13 @@ class TestPackageConan(ConanFile):
             self.single_header_only = True
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "8":
             self.single_header_only = True
-        variables = {"TOMLPP_BUILD_SINGLE_ONLY": True} if hasattr(self, "single_header_only") else None
+        variables = (
+            {
+                "TOMLPP_BUILD_SINGLE_ONLY": True,
+            }
+            if hasattr(self, "single_header_only")
+            else None
+        )
         cmake.configure(variables=variables)
         cmake.build()
 

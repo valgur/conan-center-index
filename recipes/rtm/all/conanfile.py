@@ -11,10 +11,6 @@ class Rtmonan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version

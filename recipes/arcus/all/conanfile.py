@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -11,9 +18,11 @@ required_conan_version = ">=1.53.0"
 
 class ArcusConan(ConanFile):
     name = "arcus"
-    description = "This library contains C++ code and Python3 bindings for " \
-                  "creating a socket in a thread and using this socket to send " \
-                  "and receive messages based on the Protocol Buffers library."
+    description = (
+        "This library contains C++ code and Python3 bindings for "
+        "creating a socket in a thread and using this socket to send "
+        "and receive messages based on the Protocol Buffers library."
+    )
     license = "LGPL-3.0-or-later"
     topics = ("protobuf", "socket", "cura")
     homepage = "https://github.com/Ultimaker/libArcus"
@@ -23,7 +32,6 @@ class ArcusConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-
     }
     default_options = {
         "shared": False,
@@ -72,26 +80,32 @@ class ArcusConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"Arcus": "Arcus::Arcus"}
+            os.path.join(self.package_folder, self._module_file_rel_path), {"Arcus": "Arcus::Arcus"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

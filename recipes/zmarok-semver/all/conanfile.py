@@ -21,7 +21,7 @@ class ZmarokSemverConan(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
@@ -62,7 +62,12 @@ class ZmarokSemverConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         # Parent Build system does not support installation; so we must manually package
         hdr_src = os.path.join(self.source_folder, "include")
         hdr_dst = os.path.join(self.package_folder, "include")
@@ -74,7 +79,13 @@ class ZmarokSemverConan(ConanFile):
         copy(self, "*.lib", self.build_folder, lib_dir, keep_path=False)
         copy(self, "*.so", self.build_folder, lib_dir, keep_path=False)
         copy(self, "*.dylib", self.build_folder, lib_dir, keep_path=False)
-        copy(self, "*.dll*", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(
+            self,
+            "*.dll*",
+            self.build_folder,
+            os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

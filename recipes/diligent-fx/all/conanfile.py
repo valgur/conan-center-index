@@ -2,32 +2,37 @@ import os
 from conan import ConanFile
 from conans import CMake
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, collect_libs, export_conandata_patches, apply_conandata_patches, rename
+from conan.tools.files import (
+    get,
+    collect_libs,
+    export_conandata_patches,
+    apply_conandata_patches,
+    rename,
+)
 import shutil
 
 required_conan_version = ">=1.52.0"
+
 
 class DiligentFxConan(ConanFile):
     name = "diligent-fx"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/DiligentGraphics/DiligentFx/"
     description = "DiligentFX is the Diligent Engine's high-level rendering framework."
-    license = ("Apache-2.0")
+    license = "Apache-2.0"
     topics = ("graphics", "game-engine", "renderer", "graphics-library")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], 
-    "fPIC":         [True, False],
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
     }
-    default_options = {"shared": False, 
-    "fPIC": True,
+    default_options = {
+        "shared": False,
+        "fPIC": True,
     }
     generators = "cmake_find_package", "cmake"
     _cmake = None
     short_paths = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -40,7 +45,12 @@ class DiligentFxConan(ConanFile):
         self.copy("script.py")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def validate(self):
         if self.options.shared:
@@ -100,10 +110,15 @@ class DiligentFxConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         self.copy("License.txt", dst="licenses", src=self._source_subfolder)
-        rename(self, src=os.path.join(self.package_folder, "include", "source_subfolder"),
-                     dst=os.path.join(self.package_folder, "include", "DiligentFx"))
-        shutil.move(os.path.join(self.package_folder, "Shaders"), 
-                    os.path.join(self.package_folder, "res", "Shaders"))
+        rename(
+            self,
+            src=os.path.join(self.package_folder, "include", "source_subfolder"),
+            dst=os.path.join(self.package_folder, "include", "DiligentFx"),
+        )
+        shutil.move(
+            os.path.join(self.package_folder, "Shaders"),
+            os.path.join(self.package_folder, "res", "Shaders"),
+        )
 
         self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
         self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
@@ -113,9 +128,15 @@ class DiligentFxConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx"))
-        self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx", "Components", "interface"))
-        self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx", "GLTF_PBR_Renderer", "interface"))
-        self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx", "PostProcess", "EpipolarLightScattering", "interface"))
+        self.cpp_info.includedirs.append(
+            os.path.join("include", "DiligentFx", "Components", "interface")
+        )
+        self.cpp_info.includedirs.append(
+            os.path.join("include", "DiligentFx", "GLTF_PBR_Renderer", "interface")
+        )
+        self.cpp_info.includedirs.append(
+            os.path.join(
+                "include", "DiligentFx", "PostProcess", "EpipolarLightScattering", "interface"
+            )
+        )
         self.cpp_info.includedirs.append(os.path.join("res"))
-
-

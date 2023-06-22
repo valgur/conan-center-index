@@ -27,7 +27,7 @@ class GrapheneConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_glib": [True, False],
-        }
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -85,11 +85,13 @@ class GrapheneConan(ConanFile):
         deps.generate()
 
         meson = MesonToolchain(self)
-        meson.project_options.update({
-            "tests": "false",
-            "installed_tests": "false",
-            "gtk_doc": "false",
-        })
+        meson.project_options.update(
+            {
+                "tests": "false",
+                "installed_tests": "false",
+                "gtk_doc": "false",
+            }
+        )
         meson.project_options["gobject_types"] = "true" if self.options.with_glib else "false"
         if Version(self.version) < "1.10.4":
             meson.project_options["introspection"] = "false"
@@ -114,21 +116,33 @@ class GrapheneConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["graphene-1.0"].set_property("pkg_config_name", "graphene-1.0")
         self.cpp_info.components["graphene-1.0"].libs = ["graphene-1.0"]
-        self.cpp_info.components["graphene-1.0"].includedirs = [os.path.join("include", "graphene-1.0"), os.path.join("lib", "graphene-1.0", "include")]
+        self.cpp_info.components["graphene-1.0"].includedirs = [
+            os.path.join("include", "graphene-1.0"),
+            os.path.join("lib", "graphene-1.0", "include"),
+        ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["graphene-1.0"].system_libs = ["m", "pthread"]
         if self.options.with_glib:
             self.cpp_info.components["graphene-1.0"].requires = ["glib::gobject-2.0"]
 
         if self.options.with_glib:
-            self.cpp_info.components["graphene-gobject-1.0"].set_property("pkg_config_name","graphene-gobject-1.0")
-            self.cpp_info.components["graphene-gobject-1.0"].includedirs = [os.path.join("include", "graphene-1.0")]
-            self.cpp_info.components["graphene-gobject-1.0"].requires = ["graphene-1.0", "glib::gobject-2.0"]
+            self.cpp_info.components["graphene-gobject-1.0"].set_property(
+                "pkg_config_name", "graphene-gobject-1.0"
+            )
+            self.cpp_info.components["graphene-gobject-1.0"].includedirs = [
+                os.path.join("include", "graphene-1.0")
+            ]
+            self.cpp_info.components["graphene-gobject-1.0"].requires = [
+                "graphene-1.0",
+                "glib::gobject-2.0",
+            ]
+
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     from conan.tools.files import rename
     import glob
+
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
@@ -136,7 +150,9 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
+                rename(
+                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
+                )

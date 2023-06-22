@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -10,6 +17,8 @@ import os
 
 
 required_conan_version = ">=1.53.0"
+
+
 class AtSpi2CoreConan(ConanFile):
     name = "at-spi2-core"
     description = "It provides a Service Provider Interface for the Assistive Technologies available on the GNOME platform and a library against which applications can be linked"
@@ -25,12 +34,12 @@ class AtSpi2CoreConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_x11": [True, False],
-        }
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_x11": False,
-        }
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -86,16 +95,26 @@ class AtSpi2CoreConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
-                                "if x11_dep.found()",
-                                "if get_option('x11').enabled()" if Version(self.version) >= "2.47.1"
-                                else "if x11_option == 'yes'")
-        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "bus", "meson.build"),
+            "if x11_dep.found()",
+            "if get_option('x11').enabled()"
+            if Version(self.version) >= "2.47.1"
+            else "if x11_option == 'yes'",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "meson.build"),
             "subdir('tests')",
-            "#subdir('tests')")
-        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
+            "#subdir('tests')",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "meson.build"),
             "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
-            "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
+            "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
+        )
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -107,22 +126,28 @@ class AtSpi2CoreConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
 
-
     def package_info(self):
-        self.cpp_info.components["atspi"].libs = ['atspi']
+        self.cpp_info.components["atspi"].libs = ["atspi"]
         self.cpp_info.components["atspi"].includedirs = ["include/at-spi-2.0"]
         self.cpp_info.components["atspi"].requires = ["dbus::dbus", "glib::glib"]
         self.cpp_info.components["atspi"].set_property("pkg_config_name", "atspi-2")
 
         self.cpp_info.components["atk"].libs = ["atk-1.0"]
-        self.cpp_info.components["atk"].includedirs = ['include/atk-1.0']
+        self.cpp_info.components["atk"].includedirs = ["include/atk-1.0"]
         self.cpp_info.components["atk"].requires = ["glib::glib"]
-        self.cpp_info.components["atk"].set_property("pkg_config_name", 'atk')
+        self.cpp_info.components["atk"].set_property("pkg_config_name", "atk")
 
-        self.cpp_info.components["atk-bridge"].libs = ['atk-bridge-2.0']
-        self.cpp_info.components["atk-bridge"].includedirs = [os.path.join('include', 'at-spi2-atk', '2.0')]
-        self.cpp_info.components["atk-bridge"].requires = ["dbus::dbus", "atk", "glib::glib", "atspi"]
-        self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", 'atk-bridge-2.0')
+        self.cpp_info.components["atk-bridge"].libs = ["atk-bridge-2.0"]
+        self.cpp_info.components["atk-bridge"].includedirs = [
+            os.path.join("include", "at-spi2-atk", "2.0")
+        ]
+        self.cpp_info.components["atk-bridge"].requires = [
+            "dbus::dbus",
+            "atk",
+            "glib::glib",
+            "atspi",
+        ]
+        self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", "atk-bridge-2.0")
 
     def package_id(self):
         self.info.requires["glib"].full_package_mode()

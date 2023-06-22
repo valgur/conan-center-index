@@ -3,6 +3,7 @@ from conan.tools.build import can_run
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 import os
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "VirtualRunEnv"
@@ -15,7 +16,9 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["TEST_SHARED_LIBRARY"] = True if "fPIC" not in self.options["physx"].fields else self.options["physx"].fPIC
+        tc.variables["TEST_SHARED_LIBRARY"] = (
+            True if "fPIC" not in self.options["physx"].fields else self.options["physx"].fPIC
+        )
         tc.generate()
 
     def build(self):

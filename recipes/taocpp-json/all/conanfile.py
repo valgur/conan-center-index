@@ -15,8 +15,7 @@ class TaoCPPJSONConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/json"
     description = "C++ header-only JSON library"
-    topics = ("json", "jaxn", "cbor", "msgpack",
-              "ubjson", "json-pointer", "json-patch")
+    topics = ("json", "jaxn", "cbor", "msgpack", "ubjson", "json-pointer", "json-patch")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -67,8 +66,18 @@ class TaoCPPJSONConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "taocpp-json")

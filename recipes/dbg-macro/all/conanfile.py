@@ -10,12 +10,8 @@ class DbgMacroConan(ConanFile):
     license = "MIT"
     description = "A dbg(...) macro for C++"
     topics = ("conan", "debugging", "macro", "pretty-printing", "header-only")
-    settings = ("compiler", )
+    settings = ("compiler",)
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -30,8 +26,7 @@ class DbgMacroConan(ConanFile):
         if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "dbg-mcro can't be used by {0} {1}".format(
-                    self.settings.compiler,
-                    self.settings.compiler.version
+                    self.settings.compiler, self.settings.compiler.version
                 )
             )
 

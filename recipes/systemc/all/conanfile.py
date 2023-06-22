@@ -33,7 +33,7 @@ class SystemcConan(ConanFile):
         "fPIC": True,
         "disable_async_updates": False,
         "disable_copyright_msg": False,
-        "disable_virtual_bind":  False,
+        "disable_virtual_bind": False,
         "enable_assertions": True,
         "enable_immediate_self_notifications": False,
         "enable_pthreads": False,
@@ -42,10 +42,6 @@ class SystemcConan(ConanFile):
     }
 
     generators = "cmake"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _is_msvc(self):
@@ -70,31 +66,34 @@ class SystemcConan(ConanFile):
             raise ConanInvalidConfiguration("Macos build not supported")
 
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("Building SystemC as a shared library on Windows is currently not supported")
+            raise ConanInvalidConfiguration(
+                "Building SystemC as a shared library on Windows is currently not supported"
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     @functools.lru_cache(1)
     def _configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["DISABLE_ASYNC_UPDATES"] = \
-            self.options.disable_async_updates
-        cmake.definitions["DISABLE_COPYRIGHT_MESSAGE"] = \
-            self.options.disable_copyright_msg
-        cmake.definitions["DISABLE_VIRTUAL_BIND"] = \
-            self.options.disable_virtual_bind
-        cmake.definitions["ENABLE_ASSERTIONS"] = \
-            self.options.enable_assertions
-        cmake.definitions["ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"] = \
-            self.options.enable_immediate_self_notifications
-        cmake.definitions["ENABLE_PTHREADS"] = \
-            self.options.get_safe("enable_pthreads", False)
-        cmake.definitions["ENABLE_PHASE_CALLBACKS"] = \
-            self.options.get_safe("enable_phase_callbacks", False)
-        cmake.definitions["ENABLE_PHASE_CALLBACKS_TRACING"] = \
-            self.options.get_safe("enable_phase_callbacks_tracing", False)
+        cmake.definitions["DISABLE_ASYNC_UPDATES"] = self.options.disable_async_updates
+        cmake.definitions["DISABLE_COPYRIGHT_MESSAGE"] = self.options.disable_copyright_msg
+        cmake.definitions["DISABLE_VIRTUAL_BIND"] = self.options.disable_virtual_bind
+        cmake.definitions["ENABLE_ASSERTIONS"] = self.options.enable_assertions
+        cmake.definitions[
+            "ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"
+        ] = self.options.enable_immediate_self_notifications
+        cmake.definitions["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
+        cmake.definitions["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe(
+            "enable_phase_callbacks", False
+        )
+        cmake.definitions["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe(
+            "enable_phase_callbacks_tracing", False
+        )
         cmake.configure()
         return cmake
 

@@ -4,6 +4,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.29.1"
 
+
 class LibmnlConan(ConanFile):
     name = "libmnl"
     license = "LGPL-2.1-or-later"
@@ -12,13 +13,15 @@ class LibmnlConan(ConanFile):
     description = "Minimalistic Netlink communication library"
     topics = ("libmnl", "netlink")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

@@ -77,15 +77,28 @@ class WasmtimeConan(ConanFile):
         try:
             self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)]
         except KeyError:
-            raise ConanInvalidConfiguration("Binaries for this combination of architecture/version/os are not available")
+            raise ConanInvalidConfiguration(
+                "Binaries for this combination of architecture/version/os are not available"
+            )
 
     def build(self):
         # This is packaging binaries so the download needs to be in build
-        get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
-            destination=self.build_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version][self._sources_os_key][
+                str(self.settings.arch)
+            ],
+            destination=self.build_folder,
+            strip_root=True,
+        )
 
     def package(self):
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.build_folder, "include"))
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.build_folder, "include"),
+        )
 
         srclibdir = os.path.join(self.build_folder, "lib")
         dstlibdir = os.path.join(self.package_folder, "lib")
@@ -95,12 +108,17 @@ class WasmtimeConan(ConanFile):
             copy(self, "wasmtime.dll", dst=dstbindir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.dll.a", dst=dstlibdir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.so*", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.dylib",  dst=dstlibdir, src=srclibdir, keep_path=False)
+            copy(self, "libwasmtime.dylib", dst=dstlibdir, src=srclibdir, keep_path=False)
         else:
             copy(self, "wasmtime.lib", dst=dstlibdir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.a", dst=dstlibdir, src=srclibdir, keep_path=False)
 
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.build_folder)
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.build_folder,
+        )
 
     def package_info(self):
         if self.options.shared:
@@ -114,6 +132,14 @@ class WasmtimeConan(ConanFile):
             self.cpp_info.libs = ["wasmtime"]
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32", "bcrypt", "advapi32", "userenv", "ntdll", "shell32", "ole32"]
+            self.cpp_info.system_libs = [
+                "ws2_32",
+                "bcrypt",
+                "advapi32",
+                "userenv",
+                "ntdll",
+                "shell32",
+                "ole32",
+            ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "dl", "m", "rt"]

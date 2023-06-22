@@ -2,16 +2,8 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir
-)
-from conan.tools.microsoft import (
-    MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
 
 required_conan_version = ">=1.52.0"
 
@@ -22,8 +14,7 @@ class PackageConan(ConanFile):
     name = "lzham"
 
     description = (
-        "Compression algorithm similar compression ratio and faster "
-        "decompression than LZMA."
+        "Compression algorithm similar compression ratio and faster " "decompression than LZMA."
     )
 
     license = "LicenseRef-LICENSE"
@@ -62,7 +53,7 @@ class PackageConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             destination=self.source_folder,
-            strip_root=True
+            strip_root=True,
         )
 
     def generate(self):
@@ -85,12 +76,8 @@ class PackageConan(ConanFile):
         apply_conandata_patches(self)
         if is_msvc(self):
             msbuild = MSBuild(self)
-            msbuild.build_type = (
-                "Debug" if self.settings.build_type == "Debug" else "Release"
-            )
-            msbuild.platform = (
-                "Win32" if self.settings.arch == "x86" else msbuild.platform
-            )
+            msbuild.build_type = "Debug" if self.settings.build_type == "Debug" else "Release"
+            msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
             msbuild.build(sln="lzham.sln")
         else:
             cmake = CMake(self)
@@ -102,7 +89,7 @@ class PackageConan(ConanFile):
             self,
             pattern="LICENSE",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder
+            src=self.source_folder,
         )
 
         if is_msvc(self):
@@ -112,14 +99,14 @@ class PackageConan(ConanFile):
                 pattern=f"lzham_{suffix}.lib",
                 dst=os.path.join(self.package_folder, "lib"),
                 src=os.path.join(self.build_folder, "lib", "x64"),
-                keep_path=False
+                keep_path=False,
             )
             copy(
                 self,
                 pattern=f"lzham_{suffix}.dll",
                 dst=os.path.join(self.package_folder, "bin"),
                 src=os.path.join(self.build_folder, "bin"),
-                keep_path=False
+                keep_path=False,
             )
             copy(
                 self,

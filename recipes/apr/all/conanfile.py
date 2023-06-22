@@ -4,7 +4,15 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -44,9 +52,11 @@ class AprConan(ConanFile):
 
     @property
     def _should_call_autoreconf(self):
-        return self.settings.compiler == "apple-clang" and \
-               Version(self.settings.compiler.version) >= "12" and \
-               self.version == "1.7.0"
+        return (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) >= "12"
+            and self.version == "1.7.0"
+        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -69,7 +79,9 @@ class AprConan(ConanFile):
 
     def validate_build(self):
         if cross_building(self) and not is_msvc(self):
-            raise ConanInvalidConfiguration("apr recipe doesn't support cross-build yet due to runtime checks in autoconf")
+            raise ConanInvalidConfiguration(
+                "apr recipe doesn't support cross-build yet due to runtime checks in autoconf"
+            )
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -101,8 +113,9 @@ class AprConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if self.options.force_apr_uuid:
-            replace_in_file(self, os.path.join(self.source_folder, "include", "apr.h.in"),
-                                  "@osuuid@", "0")
+            replace_in_file(
+                self, os.path.join(self.source_folder, "include", "apr.h.in"), "@osuuid@", "0"
+            )
 
     def build(self):
         self._patch_sources()
@@ -118,7 +131,12 @@ class AprConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()
@@ -133,13 +151,18 @@ class AprConan(ConanFile):
             apr_rules_mk = os.path.join(self.package_folder, "res", "build-1", "apr_rules.mk")
             apr_rules_cnt = open(apr_rules_mk).read()
             for key in ("apr_builddir", "apr_builders", "top_builddir"):
-                apr_rules_cnt, nb = re.subn(f"^{key}=[^\n]*\n", f"{key}=$(_APR_BUILDDIR)\n", apr_rules_cnt, flags=re.MULTILINE)
+                apr_rules_cnt, nb = re.subn(
+                    f"^{key}=[^\n]*\n",
+                    f"{key}=$(_APR_BUILDDIR)\n",
+                    apr_rules_cnt,
+                    flags=re.MULTILINE,
+                )
                 if nb == 0:
                     raise ConanException(f"Could not find/replace {key} in {apr_rules_mk}")
             open(apr_rules_mk, "w").write(apr_rules_cnt)
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name",  "apr-1")
+        self.cpp_info.set_property("pkg_config_name", "apr-1")
         prefix = "lib" if is_msvc(self) and self.options.shared else ""
         self.cpp_info.libs = [f"{prefix}apr-1"]
         self.cpp_info.resdirs = ["res"]

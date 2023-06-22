@@ -13,11 +13,7 @@ class RangesnextConan(ConanFile):
     settings = "compiler"
     no_copy_source = True
 
-    _compilers_minimum_version = {
-        "gcc": "10",
-        "Visual Studio": "19",
-        "clang": "13"
-    }
+    _compilers_minimum_version = {"gcc": "10", "Visual Studio": "19", "clang": "13"}
     _source_subfolder = "source_subfolder"
 
     def validate(self):
@@ -26,10 +22,16 @@ class RangesnextConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version or tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("rangesnext requires C++20, which your compiler does not fully support.")
+            raise ConanInvalidConfiguration(
+                "rangesnext requires C++20, which your compiler does not fully support."
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     def package(self):
         include_folder = os.path.join(self._source_subfolder, "include")

@@ -8,7 +8,6 @@ class HexlTestConan(ConanFile):
     settings = "os", "build_type", "arch", "compiler"
     generators = "cmake", "cmake_find_package"
 
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()

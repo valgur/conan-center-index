@@ -26,10 +26,6 @@ class MpdecimalConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -46,8 +42,11 @@ class MpdecimalConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            destination=self._source_subfolder
+        )
 
     _shared_ext_mapping = {
         "Linux": ".so",
@@ -70,70 +69,92 @@ class MpdecimalConan(ConanFile):
             static_ext = ".a"
             main_version, _ = self.version.split(".", 1)
 
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
-                                  "libmpdec.a",
-                                  "libmpdec{}".format(static_ext))
-            tools.replace_in_file(os.path.join(self._source_subfolder, "configure"),
-                                  "libmpdec.so",
-                                  "libmpdec{}".format(shared_ext))
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "configure"),
+                "libmpdec.a",
+                "libmpdec{}".format(static_ext),
+            )
+            tools.replace_in_file(
+                os.path.join(self._source_subfolder, "configure"),
+                "libmpdec.so",
+                "libmpdec{}".format(shared_ext),
+            )
 
             makefile_in = os.path.join(self._source_subfolder, "Makefile.in")
             mpdec_makefile_in = os.path.join(self._source_subfolder, "libmpdec", "Makefile.in")
-            tools.replace_in_file(makefile_in,
-                                  "libdir = @libdir@",
-                                  "libdir = @libdir@\n"
-                                  "bindir = @bindir@")
+            tools.replace_in_file(
+                makefile_in, "libdir = @libdir@", "libdir = @libdir@\n" "bindir = @bindir@"
+            )
             if self.options.shared:
                 if self.settings.os == "Windows":
-                    tools.replace_in_file(makefile_in,
-                                          "LIBSHARED = @LIBSHARED@",
-                                          "LIBSHARED = libmpdec-{}{}".format(main_version, shared_ext))
-                    tools.replace_in_file(makefile_in,
-                                          "install: FORCE",
-                                          "install: FORCE\n"
-                                          "\t$(INSTALL) -d -m 755 $(DESTDIR)$(bindir)")
-                    tools.replace_in_file(makefile_in,
-                                          "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n",
-                                          "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(bindir)\n")
-                    tools.replace_in_file(makefile_in,
-                                          "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
-                                          "")
+                    tools.replace_in_file(
+                        makefile_in,
+                        "LIBSHARED = @LIBSHARED@",
+                        "LIBSHARED = libmpdec-{}{}".format(main_version, shared_ext),
+                    )
+                    tools.replace_in_file(
+                        makefile_in,
+                        "install: FORCE",
+                        "install: FORCE\n" "\t$(INSTALL) -d -m 755 $(DESTDIR)$(bindir)",
+                    )
+                    tools.replace_in_file(
+                        makefile_in,
+                        "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n",
+                        "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(bindir)\n",
+                    )
+                    tools.replace_in_file(
+                        makefile_in,
+                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
+                        "",
+                    )
                 else:
-                    tools.replace_in_file(makefile_in,
-                                          "\t$(INSTALL) -m 644 libmpdec/$(LIBSTATIC) $(DESTDIR)$(libdir)\n",
-                                          "")
-                    tools.replace_in_file(makefile_in,
-                                          "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so",
-                                          "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec{}".format(shared_ext))
+                    tools.replace_in_file(
+                        makefile_in,
+                        "\t$(INSTALL) -m 644 libmpdec/$(LIBSTATIC) $(DESTDIR)$(libdir)\n",
+                        "",
+                    )
+                    tools.replace_in_file(
+                        makefile_in,
+                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so",
+                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec{}".format(
+                            shared_ext
+                        ),
+                    )
             else:
-                tools.replace_in_file(makefile_in,
-                                      "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n",
-                                      "")
-                tools.replace_in_file(makefile_in,
-                                      "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
-                                      "")
+                tools.replace_in_file(
+                    makefile_in,
+                    "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n",
+                    "",
+                )
+                tools.replace_in_file(
+                    makefile_in,
+                    "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
+                    "",
+                )
 
-            tools.replace_in_file(mpdec_makefile_in,
-                                  "default: $(LIBSTATIC) $(LIBSHARED)",
-                                  "default: $({})".format("LIBSHARED" if self.options.shared else "LIBSTATIC"))
+            tools.replace_in_file(
+                mpdec_makefile_in,
+                "default: $(LIBSTATIC) $(LIBSHARED)",
+                "default: $({})".format("LIBSHARED" if self.options.shared else "LIBSTATIC"),
+            )
 
             if self.settings.os == "Windows":
-                tools.replace_in_file(mpdec_makefile_in,
-                                      "LIBSHARED = @LIBSHARED@",
-                                      "LIBSHARED = libmpdec-{}{}".format(main_version, shared_ext))
-                tools.replace_in_file(mpdec_makefile_in,
-                                      "\tln -sf $(LIBSHARED) libmpdec.so",
-                                      "")
-                tools.replace_in_file(mpdec_makefile_in,
-                                      "\tln -sf $(LIBSHARED) $(LIBSONAME)",
-                                      "")
-                tools.replace_in_file(mpdec_makefile_in,
-                                      "CONFIGURE_LDFLAGS =",
-                                      "CONFIGURE_LDFLAGS = -Wl,--out-implib,libmpdec{}".format(static_ext))
+                tools.replace_in_file(
+                    mpdec_makefile_in,
+                    "LIBSHARED = @LIBSHARED@",
+                    "LIBSHARED = libmpdec-{}{}".format(main_version, shared_ext),
+                )
+                tools.replace_in_file(mpdec_makefile_in, "\tln -sf $(LIBSHARED) libmpdec.so", "")
+                tools.replace_in_file(mpdec_makefile_in, "\tln -sf $(LIBSHARED) $(LIBSONAME)", "")
+                tools.replace_in_file(
+                    mpdec_makefile_in,
+                    "CONFIGURE_LDFLAGS =",
+                    "CONFIGURE_LDFLAGS = -Wl,--out-implib,libmpdec{}".format(static_ext),
+                )
             else:
-                tools.replace_in_file(mpdec_makefile_in,
-                                      "libmpdec.so",
-                                      "libmpdec{}".format(shared_ext))
+                tools.replace_in_file(
+                    mpdec_makefile_in, "libmpdec.so", "libmpdec{}".format(shared_ext)
+                )
 
     def _build_msvc(self):
         libmpdec_folder = os.path.join(self.build_folder, self._source_subfolder, "libmpdec")
@@ -142,24 +163,37 @@ class MpdecimalConan(ConanFile):
         dist_folder = os.path.join(vcbuild_folder, "dist{}".format(arch_ext))
         os.mkdir(dist_folder)
 
-        shutil.copy(os.path.join(libmpdec_folder, "Makefile.vc"), os.path.join(libmpdec_folder, "Makefile"))
+        shutil.copy(
+            os.path.join(libmpdec_folder, "Makefile.vc"), os.path.join(libmpdec_folder, "Makefile")
+        )
 
         autotools = AutoToolsBuildEnvironment(self)
 
         with tools.chdir(libmpdec_folder):
             with tools.vcvars(self.settings):
-                self.run("""nmake /nologo MACHINE={machine} DLL={dll} CONAN_CFLAGS="{cflags}" CONAN_LDFLAGS="{ldflags}" """.format(
-                    machine="ppro" if self.settings.arch == "x86" else "x64",
-                    dll="1" if self.options.shared else "0",
-                    cflags=" ".join(autotools.flags),
-                    ldflags=" ".join(autotools.link_flags),
-                ))
+                self.run(
+                    """nmake /nologo MACHINE={machine} DLL={dll} CONAN_CFLAGS="{cflags}" CONAN_LDFLAGS="{ldflags}" """.format(
+                        machine="ppro" if self.settings.arch == "x86" else "x64",
+                        dll="1" if self.options.shared else "0",
+                        cflags=" ".join(autotools.flags),
+                        ldflags=" ".join(autotools.link_flags),
+                    )
+                )
 
             shutil.copy("mpdecimal.h", dist_folder)
             if self.options.shared:
-                shutil.copy("libmpdec-{}.dll".format(self.version), os.path.join(dist_folder, "libmpdec-{}.dll".format(self.version)))
-                shutil.copy("libmpdec-{}.dll.exp".format(self.version), os.path.join(dist_folder, "libmpdec-{}.exp".format(self.version)))
-                shutil.copy("libmpdec-{}.dll.lib".format(self.version), os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)))
+                shutil.copy(
+                    "libmpdec-{}.dll".format(self.version),
+                    os.path.join(dist_folder, "libmpdec-{}.dll".format(self.version)),
+                )
+                shutil.copy(
+                    "libmpdec-{}.dll.exp".format(self.version),
+                    os.path.join(dist_folder, "libmpdec-{}.exp".format(self.version)),
+                )
+                shutil.copy(
+                    "libmpdec-{}.dll.lib".format(self.version),
+                    os.path.join(dist_folder, "libmpdec-{}.lib".format(self.version)),
+                )
             else:
                 shutil.copy("libmpdec-{}.lib".format(self.version), dist_folder)
 
@@ -169,7 +203,7 @@ class MpdecimalConan(ConanFile):
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             self._autotools.link_flags.append("-arch arm64")
-        self._autotools .configure()
+        self._autotools.configure()
         return self._autotools
 
     def build(self):
@@ -184,8 +218,17 @@ class MpdecimalConan(ConanFile):
     def package(self):
         self.copy("LICENSE.txt", src=self._source_subfolder, dst="licenses")
         if self._is_msvc:
-            distfolder = os.path.join(self.build_folder, self._source_subfolder, "vcbuild", "dist{}".format(32 if self.settings.arch == "x86" else 64))
-            self.copy("vc*.h", src=os.path.join(self.build_folder, self._source_subfolder, "libmpdec"), dst="include")
+            distfolder = os.path.join(
+                self.build_folder,
+                self._source_subfolder,
+                "vcbuild",
+                "dist{}".format(32 if self.settings.arch == "x86" else 64),
+            )
+            self.copy(
+                "vc*.h",
+                src=os.path.join(self.build_folder, self._source_subfolder, "libmpdec"),
+                dst="include",
+            )
             self.copy("*.h", src=distfolder, dst="include")
             self.copy("*.lib", src=distfolder, dst="lib")
             self.copy("*.dll", src=distfolder, dst="bin")

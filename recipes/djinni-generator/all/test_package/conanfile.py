@@ -1,12 +1,12 @@
-
 from io import StringIO
 from conans import ConanFile, tools
+
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch"
 
     def build(self):
-        pass # please no warning that we build nothing
+        pass  # please no warning that we build nothing
 
     def test(self):
         if not tools.cross_building(self.settings):
@@ -18,4 +18,4 @@ class TestPackageConan(ConanFile):
                 if "Usage: djinni [options]" in line:
                     found_usage = True
                     break
-            assert(found_usage)
+            assert found_usage

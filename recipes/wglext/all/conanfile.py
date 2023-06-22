@@ -5,6 +5,7 @@ from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.37.0"
 
+
 class WglextConan(ConanFile):
     name = "wglext"
     license = "MIT"
@@ -14,7 +15,7 @@ class WglextConan(ConanFile):
     topics = ("opengl", "gl", "wgl", "wglext")
     no_copy_source = True
     requires = "opengl/system"
-    settings = "os",
+    settings = ("os",)
 
     def validate(self):
         if self.settings.os != "Windows":

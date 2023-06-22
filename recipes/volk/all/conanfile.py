@@ -58,7 +58,9 @@ class VolkConan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(Vulkan QUIET)", "find_package(VulkanHeaders REQUIRED)")
+        replace_in_file(
+            self, cmakelists, "find_package(Vulkan QUIET)", "find_package(VulkanHeaders REQUIRED)"
+        )
         replace_in_file(self, cmakelists, "Vulkan::Vulkan", "Vulkan::Headers")
 
     def build(self):
@@ -68,7 +70,12 @@ class VolkConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -82,7 +89,9 @@ class VolkConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libvolk"].system_libs = ["dl"]
 
-        self.cpp_info.components["volk_headers"].set_property("cmake_target_name", "volk::volk_headers")
+        self.cpp_info.components["volk_headers"].set_property(
+            "cmake_target_name", "volk::volk_headers"
+        )
         self.cpp_info.components["volk_headers"].libs = []
         self.cpp_info.components["volk_headers"].requires = ["vulkan-headers::vulkan-headers"]
         if self.settings.os in ["Linux", "FreeBSD"]:

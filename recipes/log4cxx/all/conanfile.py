@@ -28,10 +28,6 @@ class Log4cxxConan(ConanFile):
     _cmake = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -70,21 +66,28 @@ class Log4cxxConan(ConanFile):
             tools.check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("log4cxx requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                "log4cxx requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("log4cxx requires a compiler that supports at least C++17")
+            raise ConanInvalidConfiguration(
+                "log4cxx requires a compiler that supports at least C++17"
+            )
 
     def build_requirements(self):
         if self.settings.os != "Windows":
             self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        #OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
+        # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
         #'source_subfolder\\src\\test\\resources\\output\\xyz\\:'
         pattern = "*[!:]"
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True,
-                  pattern=pattern)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True,
+            pattern=pattern
+        )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
@@ -114,19 +117,23 @@ class Log4cxxConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"log4cxx": "log4cxx::log4cxx"}
+            {"log4cxx": "log4cxx::log4cxx"},
         )
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         tools.save(module_file, content)
 
     @property

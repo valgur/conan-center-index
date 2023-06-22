@@ -47,14 +47,20 @@ class IttApiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True,
+        )
 
     def _patch_sources(self):
         # Don't force PIC
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS} -fPIC\")",
-            ""
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")',
+            "",
         )
 
     def generate(self):
@@ -70,16 +76,36 @@ class IttApiConan(ConanFile):
 
     def package(self):
         if self.settings.os == "Windows":
-            copy(self, "libittnotify.lib", src=f"bin/{self.settings.build_type}", dst=os.path.join(self.package_folder, "lib"))
+            copy(
+                self,
+                "libittnotify.lib",
+                src=f"bin/{self.settings.build_type}",
+                dst=os.path.join(self.package_folder, "lib"),
+            )
         else:
             copy(self, "libittnotify.a", src="bin", dst=os.path.join(self.package_folder, "lib"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "BSD-3-Clause.txt", src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "GPL-2.0-only.txt", src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "BSD-3-Clause.txt",
+            src=os.path.join(self.source_folder, "LICENSES"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "GPL-2.0-only.txt",
+            src=os.path.join(self.source_folder, "LICENSES"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         if self.settings.os == "Windows":
-            self.cpp_info.libs = ['libittnotify']
+            self.cpp_info.libs = ["libittnotify"]
         else:
-            self.cpp_info.libs = ['ittnotify']
-            self.cpp_info.system_libs = ['dl']
+            self.cpp_info.libs = ["ittnotify"]
+            self.cpp_info.system_libs = ["dl"]

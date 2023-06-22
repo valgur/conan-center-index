@@ -10,7 +10,7 @@ class CnCborStackConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "A constrained node implementation of CBOR in C"
     topics = "cbor", "nodes", "messaging"
-    exports_sources = ['CMakeLists.txt']
+    exports_sources = ["CMakeLists.txt"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -18,15 +18,11 @@ class CnCborStackConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
     generators = "cmake", "cmake_find_package"
 
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -58,7 +54,7 @@ class CnCborStackConan(ConanFile):
         self._cmake.definitions["coveralls"] = False
         self._cmake.definitions["build_tests"] = False
         self._cmake.definitions["build_docs"] = False
-        
+
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

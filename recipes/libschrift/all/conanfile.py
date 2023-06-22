@@ -9,10 +9,13 @@ required_conan_version = ">=1.46.0"
 class LibschriftConan(ConanFile):
     name = "libschrift"
     description = "A lightweight TrueType font rendering library "
-    topics = ("truetype", "suckless", )
+    topics = (
+        "truetype",
+        "suckless",
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tomolt/libschrift"
-    license = "ISC",
+    license = ("ISC",)
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -49,8 +52,12 @@ class LibschriftConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -63,7 +70,12 @@ class LibschriftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

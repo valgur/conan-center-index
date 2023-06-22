@@ -27,18 +27,27 @@ class ArchicadApidevkitConan(ConanFile):
             check_min_vs(self, "192")
         if not self.info.settings.os in ("Macos", "Windows"):
             raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported by the OS {self.info.settings.os}")
+                f"{self.ref} is not supported by the OS {self.info.settings.os}"
+            )
         if not str(self.settings.arch) in ("x86_64"):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported yet.")
-        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
-            raise ConanInvalidConfiguration(
-                "This recipe does not support this compiler version")
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported yet.")
+        if (
+            self.settings.compiler == "Visual Studio"
+            and Version(self.settings.compiler.version) < "16"
+        ):
+            raise ConanInvalidConfiguration("This recipe does not support this compiler version")
 
     def build(self):
-        devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)]
+        devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][
+            str(self.settings.arch)
+        ]
         get(self, **devkit, destination=os.path.join(self.package_folder, "bin"), strip_root=True)
-        get(self, **licenses, destination=os.path.join(self.package_folder, "licenses"), strip_root=True)
+        get(
+            self,
+            **licenses,
+            destination=os.path.join(self.package_folder, "licenses"),
+            strip_root=True,
+        )
 
     def package(self):
         copy(self, "bin", src=self.build_folder, dst=self.package_folder)
@@ -51,11 +60,18 @@ class ArchicadApidevkitConan(ConanFile):
         self.cpp_info.includedirs = []
 
         # These are dependencies of third party vendored libraries
-        self.cpp_info.system_libs = [
-            "WinMM", "MSImg32", "WS2_32", "USP10", "DNSApi"]
+        self.cpp_info.system_libs = ["WinMM", "MSImg32", "WS2_32", "USP10", "DNSApi"]
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks = ["CoreText", "CoreFoundation", "CoreServices",
-                                        "ApplicationServices", "Carbon", "CoreGraphics", "AppKit", "Foundation"]
+            self.cpp_info.frameworks = [
+                "CoreText",
+                "CoreFoundation",
+                "CoreServices",
+                "ApplicationServices",
+                "Carbon",
+                "CoreGraphics",
+                "AppKit",
+                "Foundation",
+            ]
         else:
             self.cpp_info.system_libs.extend(["gdiplus", "iphlpapi"])
 

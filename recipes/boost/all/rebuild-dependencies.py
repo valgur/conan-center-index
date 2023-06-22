@@ -104,7 +104,15 @@ class BoostDependencies(object):
 
 
 class BoostDependencyBuilder(object):
-    def __init__(self, boost_version: str, boostdep_version: str, tmppath: Path, git_url: str, outputdir: Path, unsafe: bool):
+    def __init__(
+        self,
+        boost_version: str,
+        boostdep_version: str,
+        tmppath: Path,
+        git_url: str,
+        outputdir: Path,
+        unsafe: bool,
+    ):
         self.boost_version = boost_version
         self.boostdep_version = boostdep_version
         self.git_url = git_url
@@ -158,7 +166,9 @@ class BoostDependencyBuilder(object):
     def do_install_boostdep(self):
         with tools.chdir(str(self.boost_path)):
             print("Installing boostdep/{}".format(self.boostdep_version))
-            subprocess.check_call(["conan", "install", "boostdep/{}@".format(self.boostdep_version), "-g", "json"])
+            subprocess.check_call(
+                ["conan", "install", "boostdep/{}@".format(self.boostdep_version), "-g", "json"]
+            )
 
     @property
     def _bin_paths(self):
@@ -166,7 +176,7 @@ class BoostDependencyBuilder(object):
             data = json.loads(open("conanbuildinfo.json").read())
             return data["dependencies"][0]["bin_paths"]
 
-    _GREP_IGNORE_PREFIX = ("#", "\"")
+    _GREP_IGNORE_PREFIX = ("#", '"')
     _GREP_IGNORE_PARTS = ("boost", "<", ">")
 
     @classmethod
@@ -205,7 +215,9 @@ class BoostDependencyBuilder(object):
         requirements = using + libs
         return requirements
 
-    def _sort_requirements(self, requirements: List[str]) -> Tuple[List[str], Dict[str, List[str]], List[str]]:
+    def _sort_requirements(
+        self, requirements: List[str]
+    ) -> Tuple[List[str], Dict[str, List[str]], List[str]]:
         conan_requirements = set()
         system_libs = {}
         unknown_libs = set()
@@ -240,8 +252,12 @@ class BoostDependencyBuilder(object):
                 dep_modules = buildables
 
                 dependency_tree = {}
-                buildable_dependencies = subprocess.check_output(["boostdep", "--list-buildable-dependencies"], text=True)
-                log.debug("boostdep --list-buildable-dependencies returns: %s", buildable_dependencies)
+                buildable_dependencies = subprocess.check_output(
+                    ["boostdep", "--list-buildable-dependencies"], text=True
+                )
+                log.debug(
+                    "boostdep --list-buildable-dependencies returns: %s", buildable_dependencies
+                )
                 for line in buildable_dependencies.splitlines():
                     if re.match(r"^[\s]*#.*", line):
                         continue
@@ -252,10 +268,16 @@ class BoostDependencyBuilder(object):
                     dependencies = re.split(r"\s+", match.group(2).strip())
                     dependency_tree[master] = dependencies
 
-                log.debug("Using `boostdep --track-sources`, the following dependency tree was calculated:")
+                log.debug(
+                    "Using `boostdep --track-sources`, the following dependency tree was calculated:"
+                )
                 log.debug(pprint.pformat(dependency_tree))
 
-        filtered_dependency_tree = {k: [d for d in v if d in buildables] for k, v in dependency_tree.items() if k in buildables}
+        filtered_dependency_tree = {
+            k: [d for d in v if d in buildables]
+            for k, v in dependency_tree.items()
+            if k in buildables
+        }
 
         configure_options = []
         for conf_option in CONFIGURE_OPTIONS:
@@ -271,9 +293,19 @@ class BoostDependencyBuilder(object):
             reqs = self._grep_requirements(conf_option)
             conan_requirements, system_libs, unknown_libs = self._sort_requirements(reqs)
             if system_libs:
-                log.warning("Module '%s' (%s) has system libraries: %s", conf_option, self.boost_version, system_libs)
+                log.warning(
+                    "Module '%s' (%s) has system libraries: %s",
+                    conf_option,
+                    self.boost_version,
+                    system_libs,
+                )
             if unknown_libs:
-                log.warning("Module '%s' (%s) has unknown libs: %s", conf_option, self.boost_version, unknown_libs)
+                log.warning(
+                    "Module '%s' (%s) has unknown libs: %s",
+                    conf_option,
+                    self.boost_version,
+                    unknown_libs,
+                )
             if conan_requirements:
                 requirements[conf_option] = conan_requirements
 
@@ -297,7 +329,9 @@ class BoostDependencyBuilder(object):
             nodeps = set(k for k, v in tree.items() if not v)
             if not nodeps:
                 return tree
-            tree = {k: [d for d in v if d not in nodeps] for k, v in tree.items() if k not in nodeps}
+            tree = {
+                k: [d for d in v if d not in nodeps] for k, v in tree.items() if k not in nodeps
+            }
         return {}
 
     def _fix_dependencies(self, deptree: Dict[str, List[str]]) -> Dict[str, List[str]]:
@@ -343,15 +377,29 @@ class BoostDependencyBuilder(object):
 
         #  Look for the names of libraries in Jam build files
         for buildable in boost_dependencies.buildables:
-            construct_jam = lambda jam_ext : self.boost_path / "libs" / buildable / "build" / "Jamfile{}".format(jam_ext)
+            construct_jam = (
+                lambda jam_ext: self.boost_path
+                / "libs"
+                / buildable
+                / "build"
+                / "Jamfile{}".format(jam_ext)
+            )
             try:
-                buildable_jam = next(construct_jam(jam_ext) for jam_ext in ("", ".v2") if construct_jam(jam_ext).is_file())
+                buildable_jam = next(
+                    construct_jam(jam_ext)
+                    for jam_ext in ("", ".v2")
+                    if construct_jam(jam_ext).is_file()
+                )
             except StopIteration:
                 raise Exception("Cannot find jam build file for {}".format(buildable))
             jam_text = buildable_jam.read_text()
             buildable_libs = re.findall("[ \n](boost-)?lib ([a-zA-Z0-9_]+)[ \n]", jam_text)
-            buildable_libs = set("boost_{}".format(lib) if lib_prefix else lib for lib_prefix, lib in buildable_libs)
-            buildable_libs = set(l[len("boost_"):] for l in buildable_libs if l.startswith("boost_"))  # list(filter(lambda l: l.startswith("boost"), buildable_libs))
+            buildable_libs = set(
+                "boost_{}".format(lib) if lib_prefix else lib for lib_prefix, lib in buildable_libs
+            )
+            buildable_libs = set(
+                l[len("boost_") :] for l in buildable_libs if l.startswith("boost_")
+            )  # list(filter(lambda l: l.startswith("boost"), buildable_libs))
 
             if not buildable_libs:
                 # Some boost releases support multiple python versions
@@ -371,8 +419,13 @@ class BoostDependencyBuilder(object):
                 libraries[buildable_dep] = ["boost_{}".format(buildable_dep)]
 
         # Boost.Test: unit_test_framework depends on all libraries of Boost.Test
-        if "unit_test_framework" in boost_dependencies.export.dependencies and "test" in module_provides_extra:
-            boost_dependencies.export.dependencies["unit_test_framework"].extend(module_provides_extra["test"].difference({"unit_test_framework"}))
+        if (
+            "unit_test_framework" in boost_dependencies.export.dependencies
+            and "test" in module_provides_extra
+        ):
+            boost_dependencies.export.dependencies["unit_test_framework"].extend(
+                module_provides_extra["test"].difference({"unit_test_framework"})
+            )
 
         # python and numpy have a version suffix. Add it here.
         if "python" in libraries:
@@ -419,7 +472,9 @@ class BoostDependencyBuilder(object):
 
         data = dataclasses.asdict(tree.export)
         if self.unsafe:
-            data["UNSAFE"] = "!DO NOT COMMIT! !THIS FILE IS GENERATED WITH THE UNSAFE OPTION ENABLED!"
+            data[
+                "UNSAFE"
+            ] = "!DO NOT COMMIT! !THIS FILE IS GENERATED WITH THE UNSAFE OPTION ENABLED!"
 
         data = self._sort_item(data)
 
@@ -431,16 +486,26 @@ class BoostDependencyBuilder(object):
 def main(args=None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", dest="verbose", action="store_true", help="verbose output")
-    parser.add_argument("-t", dest="tmppath", help="temporary folder where to clone boost (default is system temporary folder)")
-    parser.add_argument("-d", dest="boostdep_version", default="1.75.0", type=str, help="boostdep version")
+    parser.add_argument(
+        "-t",
+        dest="tmppath",
+        help="temporary folder where to clone boost (default is system temporary folder)",
+    )
+    parser.add_argument(
+        "-d", dest="boostdep_version", default="1.75.0", type=str, help="boostdep version"
+    )
     parser.add_argument("-u", dest="git_url", default=BOOST_GIT_URL, help="boost git url")
     parser.add_argument("-U", dest="git_update", action="store_true", help="update the git repo")
-    parser.add_argument("-o", dest="outputdir", default=None, type=Path, help="output dependency dir")
+    parser.add_argument(
+        "-o", dest="outputdir", default=None, type=Path, help="output dependency dir"
+    )
     parser.add_argument("-x", dest="unsafe", action="store_true", help="unsafe fast(er) operation")
 
     version_group = parser.add_mutually_exclusive_group(required=True)
     version_group.add_argument("-v", dest="boost_version", help="boost version")
-    version_group.add_argument("-A", dest="boost_version", action="store_const", const=None, help="All boost versions")
+    version_group.add_argument(
+        "-A", dest="boost_version", action="store_const", const=None, help="All boost versions"
+    )
     ns = parser.parse_args(args)
 
     logging.basicConfig(format="[%(levelname)s] %(message)s")
@@ -476,7 +541,9 @@ def main(args=None) -> int:
         )
 
         if not ns.git_update and not boost_collector.boost_path.exists():
-            log.error("Boost directory does not exist. Re-execute this script with -U to run 'git update'.")
+            log.error(
+                "Boost directory does not exist. Re-execute this script with -U to run 'git update'."
+            )
             return 1
 
         if ns.git_update and not git_update_done:
@@ -493,4 +560,5 @@ def main(args=None) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(main())

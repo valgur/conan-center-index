@@ -3,24 +3,26 @@ import glob
 from conans import ConanFile, tools, CMake
 from conans.errors import ConanInvalidConfiguration
 
+
 class libb2Conan(ConanFile):
     name = "libb2"
     license = ["CC0-1.0", "OpenSSL", "APSL-2.0"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/BLAKE2/BLAKE2"
-    description = ("libb2 is a library that implemets the BLAKE2 cryptographic hash function, which is faster than MD5, \
-                    SHA-1, SHA-2, and SHA-3, yet is at least as secure as the latest standard SHA-3")
+    description = "libb2 is a library that implemets the BLAKE2 cryptographic hash function, which is faster than MD5, \
+                    SHA-1, SHA-2, and SHA-3, yet is at least as secure as the latest standard SHA-3"
     settings = "os", "arch", "compiler", "build_type"
     topics = ("conan", "blake2", "hash")
     exports_sources = ["CMakeLists.txt"]
     generators = ["cmake"]
-    options = {"fPIC": [True, False], "shared": [True, False], "use_sse": [True, False], "use_neon": [True, False]}
+    options = {
+        "fPIC": [True, False],
+        "shared": [True, False],
+        "use_sse": [True, False],
+        "use_neon": [True, False],
+    }
     default_options = {"fPIC": True, "shared": False, "use_sse": False, "use_neon": False}
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -62,4 +64,4 @@ class libb2Conan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
-        self.cpp_info.includedirs = ["include", os.path.join("include","libb2")]
+        self.cpp_info.includedirs = ["include", os.path.join("include", "libb2")]

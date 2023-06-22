@@ -7,9 +7,11 @@ required_conan_version = ">=1.33.0"
 
 class EastlConan(ConanFile):
     name = "eastl"
-    description = "EASTL stands for Electronic Arts Standard Template Library. " \
-                  "It is an extensive and robust implementation that has an " \
-                  "emphasis on high performance."
+    description = (
+        "EASTL stands for Electronic Arts Standard Template Library. "
+        "It is an extensive and robust implementation that has an "
+        "emphasis on high performance."
+    )
     topics = ("eastl", "stl", "high-performance")
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
@@ -27,10 +29,6 @@ class EastlConan(ConanFile):
 
     generators = "cmake"
     _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _build_subfolder(self):
@@ -70,12 +68,20 @@ class EastlConan(ConanFile):
             tools.check_min_cppstd(self, self._minimum_cpp_standard)
 
         mininum_compiler_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if mininum_compiler_version and tools.Version(self.settings.compiler.version) < mininum_compiler_version:
-            raise ConanInvalidConfiguration("Compiler is too old for c++ {}".format(self._minimum_cpp_standard))
+        if (
+            mininum_compiler_version
+            and tools.Version(self.settings.compiler.version) < mininum_compiler_version
+        ):
+            raise ConanInvalidConfiguration(
+                "Compiler is too old for c++ {}".format(self._minimum_cpp_standard)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        tools.get(
+            **self.conan_data["sources"][self.version],
+            destination=self._source_subfolder,
+            strip_root=True
+        )
 
     def _configure_cmake(self):
         if self._cmake:
@@ -89,9 +95,9 @@ class EastlConan(ConanFile):
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        tools.replace_path_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                                   "include(CommonCppFlags)",
-                                   "")
+        tools.replace_path_in_file(
+            os.path.join(self._source_subfolder, "CMakeLists.txt"), "include(CommonCppFlags)", ""
+        )
 
     def build(self):
         self._patch_sources()

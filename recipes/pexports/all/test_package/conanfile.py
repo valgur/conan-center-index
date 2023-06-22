@@ -23,4 +23,6 @@ class TestPackageConan(ConanFile):
                 exports_def_contents = tools.load(exports_def_path)
                 self.output.info("{} contents:\n{}".format(exports_def_path, exports_def_contents))
                 if not "test_package_function" in exports_def_contents:
-                    raise ConanException("pexport could not detect `test_package_function` in the dll")
+                    raise ConanException(
+                        "pexport could not detect `test_package_function` in the dll"
+                    )

@@ -59,7 +59,9 @@ class FFTWConan(ConanFile):
             if self.options.openmp:
                 raise ConanInvalidConfiguration("Shared fftw with openmp can't be built on Windows")
             if self.options.threads and not self.options.combinedthreads:
-                raise ConanInvalidConfiguration("Shared fftw with threads and not combinedthreads can't be built on Windows")
+                raise ConanInvalidConfiguration(
+                    "Shared fftw with threads and not combinedthreads can't be built on Windows"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -85,7 +87,12 @@ class FFTWConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYRIGHT",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -121,13 +128,11 @@ class FFTWConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = cmake_namespace
         self.cpp_info.components["fftwlib"].names["cmake_find_package"] = cmake_target_name
         self.cpp_info.components["fftwlib"].names["cmake_find_package_multi"] = cmake_target_name
-        self.cpp_info.components["fftwlib"].set_property("cmake_target_name", f"{cmake_namespace}::{cmake_target_name}")
+        self.cpp_info.components["fftwlib"].set_property(
+            "cmake_target_name", f"{cmake_namespace}::{cmake_target_name}"
+        )
         self.cpp_info.components["fftwlib"].set_property("pkg_config_name", pkgconfig_name)
 
     @property
     def _prec_suffix(self):
-        return {
-            "double": "",
-            "single": "f",
-            "longdouble": "l"
-        }
+        return {"double": "", "single": "f", "longdouble": "l"}

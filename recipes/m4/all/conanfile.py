@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -55,18 +62,22 @@ class M4Conan(ConanFile):
             # https://docs.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions
             # Because the %n format is inherently insecure, it is disabled by default. If %n is encountered in a format string,
             # the invalid parameter handler is invoked, as described in Parameter Validation. To enable %n support, see _set_printf_count_output.
-            tc.configure_args.extend([
-                "gl_cv_func_printf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-            ])
+            tc.configure_args.extend(
+                [
+                    "gl_cv_func_printf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                ]
+            )
             if self.settings.build_type in ("Debug", "RelWithDebInfo"):
                 tc.extra_ldflags.append("-PDB")
         elif self.settings.compiler == "clang" and Version(self.version) < "1.4.19":
-            tc.extra_cflags.extend([
-                "-rtlib=compiler-rt",
-                "-Wno-unused-command-line-argument",
-            ])
+            tc.extra_cflags.extend(
+                [
+                    "-rtlib=compiler-rt",
+                    "-Wno-unused-command-line-argument",
+                ]
+            )
         if self.settings.os == "Windows":
             tc.configure_args.append("ac_cv_func__set_invalid_parameter_handler=yes")
         env = tc.environment()
@@ -101,7 +112,12 @@ class M4Conan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

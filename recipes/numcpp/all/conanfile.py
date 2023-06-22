@@ -20,12 +20,12 @@ class NumCppConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "with_boost" : [True, False],
-        "threads" : [True, False],
+        "with_boost": [True, False],
+        "threads": [True, False],
     }
     default_options = {
-        "with_boost" : True,
-        "threads" : False,
+        "with_boost": True,
+        "threads": False,
     }
 
     no_copy_source = True
@@ -77,9 +77,12 @@ class NumCppConan(ConanFile):
             )
 
         # since 2.10.0, numcpp requires filesystem
-        if Version(self.version) >= "2.10.0" and \
-            self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "12" and \
-            self.settings.compiler.libcxx == "libstdc++11":
+        if (
+            Version(self.version) >= "2.10.0"
+            and self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "12"
+            and self.settings.compiler.libcxx == "libstdc++11"
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} doesn't support clang<12 with libstdc++11 due to filesystem library.",
             )
@@ -91,8 +94,18 @@ class NumCppConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "NumCpp")
@@ -111,9 +124,15 @@ class NumCppConan(ConanFile):
         self.cpp_info.libdirs = []
 
         if Version(self.version) >= "2.10.0":
-            if self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
+            if (
+                self.settings.compiler == "gcc"
+                and Version(self.settings.compiler.version).major == "8"
+            ):
                 self.cpp_info.system_libs.append("stdc++fs")
-            if self.settings.compiler == "clang" and Version(self.settings.compiler.version).major == "7":
+            if (
+                self.settings.compiler == "clang"
+                and Version(self.settings.compiler.version).major == "7"
+            ):
                 self.cpp_info.system_libs.append("c++fs")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

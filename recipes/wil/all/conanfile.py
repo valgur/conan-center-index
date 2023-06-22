@@ -23,8 +23,8 @@ class WilConan(ConanFile):
     topics = ("win", "wil", "header-only")
     package_type = "header-library"
     # only arch is aplicable, windows library
-    settings = "os", "arch", "compiler", "build_type" 
-    
+    settings = "os", "arch", "compiler", "build_type"
+
     no_copy_source = True
 
     @property
@@ -33,11 +33,8 @@ class WilConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592 
-        return {
-            "Visual Studio": "15",
-            "msvc": "191"
-        }
+        # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592
+        return {"Visual Studio": "15", "msvc": "191"}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -46,7 +43,7 @@ class WilConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
-        self.info.clear() # same package ID for any package
+        self.info.clear()  # same package ID for any package
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -68,7 +65,12 @@ class WilConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.h",

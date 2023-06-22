@@ -6,9 +6,7 @@ required_conan_version = ">=1.33.0"
 
 class ProCxxBoostExSimdConan(ConanFile):
     name = "procxx-boost-ext-simd"
-    description = ("Portable SIMD computation library - was proposed as a "
-                   "Boost library"
-                   )
+    description = "Portable SIMD computation library - was proposed as a " "Boost library"
     homepage = "https://github.com/procxx/boost.simd"
     topics = ("conan", "boost", "simd")
     license = "BSL-1.0"
@@ -16,10 +14,6 @@ class ProCxxBoostExSimdConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "cmake", "cmake_find_package"
     no_copy_source = True
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _min_cppstd(self):
@@ -41,8 +35,7 @@ class ProCxxBoostExSimdConan(ConanFile):
         os.rename(extracted_folder, self._source_subfolder)
 
     def package(self):
-        self.copy(pattern="*", dst="include",
-                  src=os.path.join(self._source_subfolder, "include"))
+        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_info(self):
@@ -56,6 +49,5 @@ class ProCxxBoostExSimdConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package"] = "Boost.SIMD"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Boost.SIMD"
         self.cpp_info.components["SIMD"].names["cmake_find_package"] = "SIMD"
-        self.cpp_info.components["SIMD"].names["cmake_find_package_multi"] = \
-            "SIMD"
+        self.cpp_info.components["SIMD"].names["cmake_find_package_multi"] = "SIMD"
         self.cpp_info.components["SIMD"].requires = ["boost::headers"]

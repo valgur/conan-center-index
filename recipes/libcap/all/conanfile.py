@@ -3,7 +3,14 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.files import apply_conandata_patches, copy, chdir, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    chdir,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
@@ -15,9 +22,11 @@ class LibcapConan(ConanFile):
     license = ("GPL-2.0-only", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
-    description = "This is a library for getting and setting POSIX.1e" \
-                  " (formerly POSIX 6) draft 15 capabilities"
-    topics = ("capabilities")
+    description = (
+        "This is a library for getting and setting POSIX.1e"
+        " (formerly POSIX 6) draft 15 capabilities"
+    )
+    topics = "capabilities"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -80,14 +89,12 @@ class LibcapConan(ConanFile):
         autotools = Autotools(self)
         with chdir(self, os.path.join(self.source_folder, "libcap")):
             autotools.make(target="install-common-cap")
-            install_cap = ("install-shared-cap" if self.options.shared
-                           else "install-static-cap")
+            install_cap = "install-shared-cap" if self.options.shared else "install-static-cap"
             autotools.make(target=install_cap)
 
             if self.options.psx_syscals:
                 autotools.make(target="install-common-psx")
-                install_psx = ("install-shared-psx" if self.options.shared
-                               else "install-static-psx")
+                install_psx = "install-shared-psx" if self.options.shared else "install-static-psx"
                 autotools.make(target=install_psx)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

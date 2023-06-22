@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -61,10 +69,14 @@ class SdlttfConan(ConanFile):
 
         if Version(self.version) >= "2.20.0":
             if self.options.shared != self.dependencies["sdl"].options.shared:
-                raise ConanInvalidConfiguration("sdl & sdl_ttf must be built with the same 'shared' option value")
+                raise ConanInvalidConfiguration(
+                    "sdl & sdl_ttf must be built with the same 'shared' option value"
+                )
         else:
             if is_msvc(self) and self.options.shared:
-                raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} shared is not supported with Visual Studio"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -88,9 +100,12 @@ class SdlttfConan(ConanFile):
         save(self, os.path.join(self.source_folder, "SDL2_ttfConfig.cmake"), "")
 
         # workaround for a side effect of CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(Freetype REQUIRED)",
-                        "find_package(Freetype REQUIRED MODULE)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "find_package(Freetype REQUIRED)",
+            "find_package(Freetype REQUIRED MODULE)",
+        )
 
     def build(self):
         self._patch_sources()
@@ -99,8 +114,18 @@ class SdlttfConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -115,7 +140,9 @@ class SdlttfConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SDL2_ttf")
         self.cpp_info.set_property("pkg_config_name", "SDL2_ttf")
 
-        self.cpp_info.components["_sdl2_ttf"].set_property("cmake_target_name",f"SDL2_ttf::SDL2_ttf{suffix}")
+        self.cpp_info.components["_sdl2_ttf"].set_property(
+            "cmake_target_name", f"SDL2_ttf::SDL2_ttf{suffix}"
+        )
         self.cpp_info.components["_sdl2_ttf"].includedirs.append(os.path.join("include", "SDL2"))
         self.cpp_info.components["_sdl2_ttf"].libs = [f"SDL2_ttf"]
         self.cpp_info.components["_sdl2_ttf"].requires = ["freetype::freetype", "sdl::libsdl2"]
@@ -126,4 +153,6 @@ class SdlttfConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "SDL2_ttf"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2_ttf"
         self.cpp_info.components["_sdl2_ttf"].names["cmake_find_package"] = f"SDL2_ttf{suffix}"
-        self.cpp_info.components["_sdl2_ttf"].names["cmake_find_package_multi"] = f"SDL2_ttf{suffix}"
+        self.cpp_info.components["_sdl2_ttf"].names[
+            "cmake_find_package_multi"
+        ] = f"SDL2_ttf{suffix}"

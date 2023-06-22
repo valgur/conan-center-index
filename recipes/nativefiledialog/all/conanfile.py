@@ -11,8 +11,8 @@ class NativefiledialogConan(ConanFile):
     description = "A tiny, neat C library that portably invokes native file open and save dialogs."
     topics = ("conan", "dialog", "gui")
     settings = "os", "compiler", "build_type", "arch"
-    generators = "pkg_config",
-    
+    generators = ("pkg_config",)
+
     @property
     def _source_subfolder(self):
         return "source_subfolder"
@@ -38,14 +38,16 @@ class NativefiledialogConan(ConanFile):
 
     def build(self):
         if self.settings.compiler == "Visual Studio":
-            generator = "vs" + {"16": "2019",
-                                "15": "2017",
-                                "14": "2015",
-                                "12": "2013",
-                                "11": "2012",
-                                "10": "2010",
-                                "9": "2008",
-                                "8": "2005"}.get(str(self.settings.compiler.version))
+            generator = "vs" + {
+                "16": "2019",
+                "15": "2017",
+                "14": "2015",
+                "12": "2013",
+                "11": "2012",
+                "10": "2010",
+                "9": "2008",
+                "8": "2005",
+            }.get(str(self.settings.compiler.version))
         else:
             generator = "gmake2"
         subdir = os.path.join(self._source_subfolder, "build", "subdir")
@@ -53,7 +55,7 @@ class NativefiledialogConan(ConanFile):
         with tools.chdir(subdir):
             os.rename(os.path.join("..", "premake5.lua"), "premake5.lua")
             self.run("premake5 %s" % generator)
-            
+
             if self.settings.compiler == "Visual Studio":
                 msbuild = MSBuild(self)
                 msbuild.build("NativeFileDialog.sln")

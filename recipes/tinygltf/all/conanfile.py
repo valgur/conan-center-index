@@ -11,7 +11,7 @@ class TinygltfConan(ConanFile):
     name = "tinygltf"
     description = "Header only C++11 tiny glTF 2.0 library."
     license = "MIT"
-    topics = ("gltf")
+    topics = "gltf"
     homepage = "https://github.com/syoyo/tinygltf"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -45,17 +45,34 @@ class TinygltfConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            destination=self.source_folder,
+            strip_root=True
+        )
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "tiny_gltf.h"),
-                              "#include \"json.hpp\"",
-                              "#include <nlohmann/json.hpp>")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "tiny_gltf.h"),
+            '#include "json.hpp"',
+            "#include <nlohmann/json.hpp>",
+        )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "tiny_gltf.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "tiny_gltf.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "TinyGLTF")

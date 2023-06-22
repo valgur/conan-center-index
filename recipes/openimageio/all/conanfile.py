@@ -69,10 +69,6 @@ class OpenImageIOConan(ConanFile):
     generators = "cmake", "cmake_find_package"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -181,9 +177,7 @@ class OpenImageIOConan(ConanFile):
         cmake.definitions["USE_EXTERNAL_PUGIXML"] = True
 
         # OIIO CMake files are patched to check USE_* flags to require or not use dependencies
-        cmake.definitions["USE_JPEGTURBO"] = (
-            self.options.with_libjpeg == "libjpeg-turbo"
-        )
+        cmake.definitions["USE_JPEGTURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
         cmake.definitions[
             "USE_JPEG"
         ] = True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
@@ -247,9 +241,7 @@ class OpenImageIOConan(ConanFile):
             "openexr::openexr",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["openimageio_util"].system_libs.extend(
-                ["dl", "m", "pthread"]
-            )
+            self.cpp_info.components["openimageio_util"].system_libs.extend(["dl", "m", "pthread"])
 
         self.cpp_info.components["main"].set_property(
             "cmake_target_name", "OpenImageIO::OpenImageIO"
@@ -273,9 +265,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.cpp_info.components["main"].requires.append("libjpeg::libjpeg")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.cpp_info.components["main"].requires.append(
-                "libjpeg-turbo::libjpeg-turbo"
-            )
+            self.cpp_info.components["main"].requires.append("libjpeg-turbo::libjpeg-turbo")
         if self.options.with_libpng:
             self.cpp_info.components["main"].requires.append("libpng::libpng")
         if self.options.with_freetype:

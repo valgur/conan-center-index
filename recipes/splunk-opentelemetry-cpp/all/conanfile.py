@@ -39,10 +39,6 @@ class SplunkOpentelemetryConan(ConanFile):
             del self.options.fPIC
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _build_subfolder(self):
         return "build_subfolder"
 
@@ -61,9 +57,7 @@ class SplunkOpentelemetryConan(ConanFile):
             return self._cmake
 
         self._cmake = CMake(self)
-        defs = {
-          "SPLUNK_CPP_EXAMPLES": False
-        }
+        defs = {"SPLUNK_CPP_EXAMPLES": False}
         self._cmake.configure(defs=defs, build_folder=self._build_subfolder)
         return self._cmake
 
