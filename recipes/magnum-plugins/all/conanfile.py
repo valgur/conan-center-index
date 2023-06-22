@@ -1,5 +1,83 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration, ConanException
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 import textwrap
 
@@ -84,8 +162,6 @@ class MagnumConan(ConanFile):
     }
     generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
     exports_sources = ["CMakeLists.txt", "cmake/*", "patches/*"]
-
-    _cmake = None
     short_paths = True
 
     def source(self):
@@ -167,50 +243,49 @@ class MagnumConan(ConanFile):
 
         # TODO: There are lot of things to check here: 'magnum::audio' required for audio plugins...
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def generate(self):
 
-        self._cmake = CMake(self)
-        self._cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        self._cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
-        self._cmake.definitions["BUILD_PLUGINS_STATIC"] = not self.options.shared_plugins
-        self._cmake.definitions["LIB_SUFFIX"] = ""
-        self._cmake.definitions["BUILD_TESTS"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
+        tc.variables["BUILD_PLUGINS_STATIC"] = not self.options.shared_plugins
+        tc.variables["LIB_SUFFIX"] = ""
+        tc.variables["BUILD_TESTS"] = False
 
-        self._cmake.definitions["WITH_ASSIMPIMPORTER"] = self.options.assimp_importer
-        self._cmake.definitions["WITH_BASISIMAGECONVERTER"] = self.options.basis_imageconverter
-        self._cmake.definitions["WITH_BASISIMPORTER"] = self.options.basis_importer
-        self._cmake.definitions["WITH_DDSIMPORTER"] = self.options.dds_importer
-        self._cmake.definitions["WITH_DEVILIMAGEIMPORTER"] = self.options.devil_imageimporter
-        self._cmake.definitions["WITH_DRFLACAUDIOIMPORTER"] = self.options.drflac_audioimporter
-        self._cmake.definitions["WITH_DRMP3AUDIOIMPORTER"] = self.options.drmp3_audioimporter
-        self._cmake.definitions["WITH_DRWAVAUDIOIMPORTER"] = self.options.drwav_audioimporter
-        self._cmake.definitions["WITH_FAAD2AUDIOIMPORTER"] = self.options.faad2_audioimporter
-        self._cmake.definitions["WITH_FREETYPEFONT"] = self.options.freetype_font
-        self._cmake.definitions["WITH_HARFBUZZFONT"] = self.options.harfbuzz_font
-        self._cmake.definitions["WITH_ICOIMPORTER"] = self.options.ico_importer
-        self._cmake.definitions["WITH_JPEGIMAGECONVERTER"] = self.options.jpeg_imageconverter
-        self._cmake.definitions["WITH_JPEGIMPORTER"] = self.options.jpeg_importer
-        self._cmake.definitions[
+        tc.variables["WITH_ASSIMPIMPORTER"] = self.options.assimp_importer
+        tc.variables["WITH_BASISIMAGECONVERTER"] = self.options.basis_imageconverter
+        tc.variables["WITH_BASISIMPORTER"] = self.options.basis_importer
+        tc.variables["WITH_DDSIMPORTER"] = self.options.dds_importer
+        tc.variables["WITH_DEVILIMAGEIMPORTER"] = self.options.devil_imageimporter
+        tc.variables["WITH_DRFLACAUDIOIMPORTER"] = self.options.drflac_audioimporter
+        tc.variables["WITH_DRMP3AUDIOIMPORTER"] = self.options.drmp3_audioimporter
+        tc.variables["WITH_DRWAVAUDIOIMPORTER"] = self.options.drwav_audioimporter
+        tc.variables["WITH_FAAD2AUDIOIMPORTER"] = self.options.faad2_audioimporter
+        tc.variables["WITH_FREETYPEFONT"] = self.options.freetype_font
+        tc.variables["WITH_HARFBUZZFONT"] = self.options.harfbuzz_font
+        tc.variables["WITH_ICOIMPORTER"] = self.options.ico_importer
+        tc.variables["WITH_JPEGIMAGECONVERTER"] = self.options.jpeg_imageconverter
+        tc.variables["WITH_JPEGIMPORTER"] = self.options.jpeg_importer
+        tc.variables[
             "WITH_MESHOPTIMIZERSCENECONVERTER"
         ] = self.options.meshoptimizer_sceneconverter
-        self._cmake.definitions["WITH_MINIEXRIMAGECONVERTER"] = self.options.miniexr_imageconverter
-        self._cmake.definitions["WITH_OPENGEXIMPORTER"] = self.options.opengex_importer
-        self._cmake.definitions["WITH_PNGIMAGECONVERTER"] = self.options.png_imageconverter
-        self._cmake.definitions["WITH_PNGIMPORTER"] = self.options.png_importer
-        self._cmake.definitions["WITH_PRIMITIVEIMPORTER"] = self.options.primitive_importer
-        self._cmake.definitions["WITH_STANFORDIMPORTER"] = self.options.stanford_importer
-        self._cmake.definitions["WITH_STANFORDSCENECONVERTER"] = self.options.stanford_sceneconverter
-        self._cmake.definitions["WITH_STBIMAGECONVERTER"] = self.options.stb_imageconverter
-        self._cmake.definitions["WITH_STBIMAGEIMPORTER"] = self.options.stb_imageimporter
-        self._cmake.definitions["WITH_STBTRUETYPEFONT"] = self.options.stbtruetype_font
-        self._cmake.definitions["WITH_STBVORBISAUDIOIMPORTER"] = self.options.stbvorbis_audioimporter
-        self._cmake.definitions["WITH_STLIMPORTER"] = self.options.stl_importer
-        self._cmake.definitions["WITH_TINYGLTFIMPORTER"] = self.options.tinygltf_importer
+        tc.variables["WITH_MINIEXRIMAGECONVERTER"] = self.options.miniexr_imageconverter
+        tc.variables["WITH_OPENGEXIMPORTER"] = self.options.opengex_importer
+        tc.variables["WITH_PNGIMAGECONVERTER"] = self.options.png_imageconverter
+        tc.variables["WITH_PNGIMPORTER"] = self.options.png_importer
+        tc.variables["WITH_PRIMITIVEIMPORTER"] = self.options.primitive_importer
+        tc.variables["WITH_STANFORDIMPORTER"] = self.options.stanford_importer
+        tc.variables["WITH_STANFORDSCENECONVERTER"] = self.options.stanford_sceneconverter
+        tc.variables["WITH_STBIMAGECONVERTER"] = self.options.stb_imageconverter
+        tc.variables["WITH_STBIMAGEIMPORTER"] = self.options.stb_imageimporter
+        tc.variables["WITH_STBTRUETYPEFONT"] = self.options.stbtruetype_font
+        tc.variables["WITH_STBVORBISAUDIOIMPORTER"] = self.options.stbvorbis_audioimporter
+        tc.variables["WITH_STLIMPORTER"] = self.options.stl_importer
+        tc.variables["WITH_TINYGLTFIMPORTER"] = self.options.tinygltf_importer
+        tc.generate()
 
-        self._cmake.configure()
-        return self._cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):

@@ -1,5 +1,89 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 import os
 
 required_conan_version = ">=1.33.0"
@@ -88,8 +172,6 @@ class JerryScriptStackConan(ConanFile):
     }
     generators = "cmake"
     short_paths = True
-
-    _cmake = None
     _predefined_profiles = ["es.next", "es5.1", "minimal"]
 
     @property
@@ -172,46 +254,44 @@ class JerryScriptStackConan(ConanFile):
         for patch in self.conan_data["patches"][self.version]:
             tools.patch(**patch)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
         amalgamation_definition = "ENABLE_AMALGAM"
         libmath_definition = "JERRY_MATH"
         if tools.Version(self.version) < tools.Version("2.4.0"):
             amalgamation_definition = "ENABLE_ALL_IN_ONE"
             libmath_definition = "JERRY_LIBM"
-        self._cmake.definitions["JERRY_CMDLINE"] = self.options.tool_cmdline
-        self._cmake.definitions["JERRY_CMDLINE_TEST"] = self.options.tool_cmdline_test
-        self._cmake.definitions["JERRY_CMDLINE_SNAPSHOT"] = self.options.tool_cmdline_snapshot
-        self._cmake.definitions["JERRY_PORT_DEFAULT"] = self.options.default_port_implementation
-        self._cmake.definitions["JERRY_EXT"] = self.options.jerry_ext
-        self._cmake.definitions[libmath_definition] = self._jerry_math
-        self._cmake.definitions["ENABLE_STRIP"] = self.options.get_safe("jerry_strip", False)
-        self._cmake.definitions["ENABLE_LTO"] = self.options.get_safe("link_time_optimization", False)
-        self._cmake.definitions[amalgamation_definition] = self.options.amalgamated
-        self._cmake.definitions["JERRY_DEBUGGER"] = self.options.debugger
-        self._cmake.definitions["JERRY_LINE_INFO"] = self.options.get_safe("keep_line_info", False)
-        self._cmake.definitions["JERRY_PROFILE"] = self.options.profile
-        self._cmake.definitions["JERRY_EXTERNAL_CONTEXT"] = self.options.external_context
-        self._cmake.definitions["JERRY_SNAPSHOT_EXEC"] = self.options.snapshot_execution
-        self._cmake.definitions["JERRY_SNAPSHOT_SAVE"] = self.options.snapshot_saving
-        self._cmake.definitions["JERRY_PARSER"] = self.options.parser
-        self._cmake.definitions["JERRY_PARSER_DUMP_BYTE_CODE"] = self.options.enable_dump_bytecode
-        self._cmake.definitions["JERRY_REGEXP_DUMP_BYTE_CODE"] = self.options.enable_dump_regexp_bytecode
-        self._cmake.definitions["JERRY_REGEXP_STRICT_MODE"] = self.options.strict_regexp
-        self._cmake.definitions["JERRY_ERROR_MESSAGES"] = self.options.error_messages
-        self._cmake.definitions["JERRY_LOGGING"] = self.options.logging
-        self._cmake.definitions["JERRY_MEM_STATS"] = self.options.memory_statistics
-        self._cmake.definitions["JERRY_GLOBAL_HEAP_SIZE"] = "(%s)" % self.options.heap_size
-        self._cmake.definitions["JERRY_GC_LIMIT"] = "(%s)" % self.options.gc_limit
-        self._cmake.definitions["JERRY_GC_MARK_LIMIT"] = "(%s)" % self.options.gc_mark_limit
-        self._cmake.definitions["JERRY_STACK_LIMIT"] = "(%s)" % self.options.stack_limit
-        self._cmake.definitions["JERRY_CPOINTER_32_BIT"] = self.options.cpointer_32_bit
-        self._cmake.definitions["JERRY_SYSTEM_ALLOCATOR"] = self.options.system_allocator
-        self._cmake.definitions["JERRY_VALGRIND"] = self.options.valgrind
-        self._cmake.definitions["JERRY_MEM_GC_BEFORE_EACH_ALLOC"] = self.options.gc_before_each_alloc
-        self._cmake.definitions["JERRY_VM_EXEC_STOP"] = self.options.vm_exec_stop
+        tc.variables["JERRY_CMDLINE"] = self.options.tool_cmdline
+        tc.variables["JERRY_CMDLINE_TEST"] = self.options.tool_cmdline_test
+        tc.variables["JERRY_CMDLINE_SNAPSHOT"] = self.options.tool_cmdline_snapshot
+        tc.variables["JERRY_PORT_DEFAULT"] = self.options.default_port_implementation
+        tc.variables["JERRY_EXT"] = self.options.jerry_ext
+        tc.variables[libmath_definition] = self._jerry_math
+        tc.variables["ENABLE_STRIP"] = self.options.get_safe("jerry_strip", False)
+        tc.variables["ENABLE_LTO"] = self.options.get_safe("link_time_optimization", False)
+        tc.variables[amalgamation_definition] = self.options.amalgamated
+        tc.variables["JERRY_DEBUGGER"] = self.options.debugger
+        tc.variables["JERRY_LINE_INFO"] = self.options.get_safe("keep_line_info", False)
+        tc.variables["JERRY_PROFILE"] = self.options.profile
+        tc.variables["JERRY_EXTERNAL_CONTEXT"] = self.options.external_context
+        tc.variables["JERRY_SNAPSHOT_EXEC"] = self.options.snapshot_execution
+        tc.variables["JERRY_SNAPSHOT_SAVE"] = self.options.snapshot_saving
+        tc.variables["JERRY_PARSER"] = self.options.parser
+        tc.variables["JERRY_PARSER_DUMP_BYTE_CODE"] = self.options.enable_dump_bytecode
+        tc.variables["JERRY_REGEXP_DUMP_BYTE_CODE"] = self.options.enable_dump_regexp_bytecode
+        tc.variables["JERRY_REGEXP_STRICT_MODE"] = self.options.strict_regexp
+        tc.variables["JERRY_ERROR_MESSAGES"] = self.options.error_messages
+        tc.variables["JERRY_LOGGING"] = self.options.logging
+        tc.variables["JERRY_MEM_STATS"] = self.options.memory_statistics
+        tc.variables["JERRY_GLOBAL_HEAP_SIZE"] = "(%s)" % self.options.heap_size
+        tc.variables["JERRY_GC_LIMIT"] = "(%s)" % self.options.gc_limit
+        tc.variables["JERRY_GC_MARK_LIMIT"] = "(%s)" % self.options.gc_mark_limit
+        tc.variables["JERRY_STACK_LIMIT"] = "(%s)" % self.options.stack_limit
+        tc.variables["JERRY_CPOINTER_32_BIT"] = self.options.cpointer_32_bit
+        tc.variables["JERRY_SYSTEM_ALLOCATOR"] = self.options.system_allocator
+        tc.variables["JERRY_VALGRIND"] = self.options.valgrind
+        tc.variables["JERRY_MEM_GC_BEFORE_EACH_ALLOC"] = self.options.gc_before_each_alloc
+        tc.variables["JERRY_VM_EXEC_STOP"] = self.options.vm_exec_stop
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

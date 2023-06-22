@@ -27,8 +27,6 @@ class CubicInterpolationConan(ConanFile):
         "fPIC": True,
     }
 
-    _cmake = None
-
     def export_sources(self):
         export_conandata_patches(self)
 

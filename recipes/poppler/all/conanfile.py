@@ -1,5 +1,83 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 
 required_conan_version = ">=1.33.0"
@@ -166,72 +244,70 @@ class PopplerConan(ConanFile):
         else:
             return 14
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
 
-        self._cmake.definitions["CMAKE_CXX_STANDARD"] = self._cppstd_required
+        tc.variables["CMAKE_CXX_STANDARD"] = self._cppstd_required
 
-        self._cmake.definitions["ENABLE_UNSTABLE_API_ABI_HEADERS"] = True
-        self._cmake.definitions["BUILD_GTK_TESTS"] = False
-        self._cmake.definitions["BUILD_QT5_TESTS"] = False
-        self._cmake.definitions["BUILD_QT6_TESTS"] = False
-        self._cmake.definitions["BUILD_CPP_TESTS"] = False
-        self._cmake.definitions["BUILD_MANUAL_TESTS"] = False
+        tc.variables["ENABLE_UNSTABLE_API_ABI_HEADERS"] = True
+        tc.variables["BUILD_GTK_TESTS"] = False
+        tc.variables["BUILD_QT5_TESTS"] = False
+        tc.variables["BUILD_QT6_TESTS"] = False
+        tc.variables["BUILD_CPP_TESTS"] = False
+        tc.variables["BUILD_MANUAL_TESTS"] = False
 
-        self._cmake.definitions["ENABLE_UTILS"] = False
-        self._cmake.definitions["ENABLE_CPP"] = self.options.cpp
+        tc.variables["ENABLE_UTILS"] = False
+        tc.variables["ENABLE_CPP"] = self.options.cpp
 
-        self._cmake.definitions["ENABLE_SPLASH"] = self.options.splash
-        self._cmake.definitions["FONT_CONFIGURATION"] = self.options.fontconfiguration
-        self._cmake.definitions["ENABLE_JPEG"] = self.options.with_libjpeg
-        self._cmake.definitions["WITH_PNG"] = self.options.with_png
-        self._cmake.definitions["WITH_TIFF"] = self.options.with_tiff
-        self._cmake.definitions["WITH_NSS3"] = self.options.with_nss
-        self._cmake.definitions["WITH_Cairo"] = self.options.with_cairo
-        self._cmake.definitions["ENABLE_GLIB"] = self.options.get_safe("with_glib", False)
-        self._cmake.definitions["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe(
+        tc.variables["ENABLE_SPLASH"] = self.options.splash
+        tc.variables["FONT_CONFIGURATION"] = self.options.fontconfiguration
+        tc.variables["ENABLE_JPEG"] = self.options.with_libjpeg
+        tc.variables["WITH_PNG"] = self.options.with_png
+        tc.variables["WITH_TIFF"] = self.options.with_tiff
+        tc.variables["WITH_NSS3"] = self.options.with_nss
+        tc.variables["WITH_Cairo"] = self.options.with_cairo
+        tc.variables["ENABLE_GLIB"] = self.options.get_safe("with_glib", False)
+        tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe(
             "with_gobject_introspection", False
         )
-        self._cmake.definitions["WITH_GTK"] = self.options.get_safe("with_gtk", False)
-        self._cmake.definitions["WITH_Iconv"] = self.options.get_safe("with_libiconv")
-        self._cmake.definitions["ENABLE_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["ENABLE_LIBOPENJPEG"] = "openjpeg2" if self.options.with_openjpeg else "none"
+        tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
+        tc.variables["WITH_Iconv"] = self.options.get_safe("with_libiconv")
+        tc.variables["ENABLE_ZLIB"] = self.options.with_zlib
+        tc.variables["ENABLE_LIBOPENJPEG"] = "openjpeg2" if self.options.with_openjpeg else "none"
         if self.options.with_openjpeg:
             # FIXME: openjpeg's cmake_find_package should provide these variables
-            self._cmake.definitions["OPENJPEG_MAJOR_VERSION"] = tools.Version(
+            tc.variables["OPENJPEG_MAJOR_VERSION"] = tools.Version(
                 self.requires["openjpeg"].ref.version
             ).major
-        self._cmake.definitions["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
-        self._cmake.definitions["ENABLE_LIBCURL"] = self.options.with_libcurl
+        tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
+        tc.variables["ENABLE_LIBCURL"] = self.options.with_libcurl
 
-        self._cmake.definitions["POPPLER_DATADIR"] = self.deps_user_info["poppler-data"].datadir.replace(
+        tc.variables["POPPLER_DATADIR"] = self.deps_user_info["poppler-data"].datadir.replace(
             "\\", "/"
         )
-        self._cmake.definitions["FONT_CONFIGURATION"] = self.options.fontconfiguration
-        self._cmake.definitions["BUILD_CPP_TESTS"] = False
-        self._cmake.definitions["ENABLE_GTK_DOC"] = False
-        self._cmake.definitions["ENABLE_QT5"] = (
+        tc.variables["FONT_CONFIGURATION"] = self.options.fontconfiguration
+        tc.variables["BUILD_CPP_TESTS"] = False
+        tc.variables["ENABLE_GTK_DOC"] = False
+        tc.variables["ENABLE_QT5"] = (
             self.options.with_qt and tools.Version(self.deps_cpp_info["qt"].version).major == "5"
         )
-        self._cmake.definitions["ENABLE_QT6"] = (
+        tc.variables["ENABLE_QT6"] = (
             self.options.with_qt and tools.Version(self.deps_cpp_info["qt"].version).major == "6"
         )
 
-        self._cmake.definitions["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
-        self._cmake.definitions["ENABLE_DCTDECODER"] = self._dct_decoder
-        self._cmake.definitions["USE_FLOAT"] = self.options.float
-        self._cmake.definitions["RUN_GPERF_IF_PRESENT"] = False
+        tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
+        tc.variables["ENABLE_DCTDECODER"] = self._dct_decoder
+        tc.variables["USE_FLOAT"] = self.options.float
+        tc.variables["RUN_GPERF_IF_PRESENT"] = False
         if self.settings.os == "Windows":
-            self._cmake.definitions["ENABLE_RELOCATABLE"] = self.options.shared
-        self._cmake.definitions["EXTRA_WARN"] = False
+            tc.variables["ENABLE_RELOCATABLE"] = self.options.shared
+        tc.variables["EXTRA_WARN"] = False
 
         # Workaround for cross-build to at least iOS/tvOS/watchOS,
         # when dependencies are found with find_path() and find_library()
         if tools.cross_building(self):
-            self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_INCLUDE"] = "BOTH"
-            self._cmake.definitions["CMAKE_FIND_ROOT_PATH_MODE_LIBRARY"] = "BOTH"
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_INCLUDE"] = "BOTH"
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_LIBRARY"] = "BOTH"
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

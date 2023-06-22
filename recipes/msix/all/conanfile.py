@@ -1,6 +1,83 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 
 required_conan_version = ">=1.33.0"
 
@@ -38,35 +115,31 @@ class MsixConan(ConanFile):
     generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
 
-    _cmake = None
-
     @property
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "15",
         }
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
         if self.settings.os == "Android":
-            self._cmake.definitions["AOSP"] = True
+            tc.variables["AOSP"] = True
         if self.settings.os == "Linux":
-            self._cmake.definitions["LINUX"] = True
+            tc.variables["LINUX"] = True
         if self.settings.os == "Macos":
-            self._cmake.definitions["MACOS"] = True
-        self._cmake.definitions["CRYPTO_LIB"] = self.options.crypto_lib
-        self._cmake.definitions["MSIX_PACK"] = self.options.pack
-        self._cmake.definitions["MSIX_SAMPLES"] = False
-        self._cmake.definitions["MSIX_TESTS"] = False
-        self._cmake.definitions["SKIP_BUNDLES"] = self.options.skip_bundles
-        self._cmake.definitions["USE_MSIX_SDK_ZLIB"] = self.options.use_external_zlib
-        self._cmake.definitions["USE_SHARED_ZLIB"] = self.options["zlib"].shared
-        self._cmake.definitions["USE_VALIDATION_PARSER"] = self.options.use_validation_parser
-        self._cmake.definitions["XML_PARSER"] = self.options.xml_parser
-        self._cmake.definitions["CALCULATE_VERSION"] = False
-        self._cmake.definitions["ENABLE_NUGET_PACKAGING"] = False
+            tc.variables["MACOS"] = True
+        tc.variables["CRYPTO_LIB"] = self.options.crypto_lib
+        tc.variables["MSIX_PACK"] = self.options.pack
+        tc.variables["MSIX_SAMPLES"] = False
+        tc.variables["MSIX_TESTS"] = False
+        tc.variables["SKIP_BUNDLES"] = self.options.skip_bundles
+        tc.variables["USE_MSIX_SDK_ZLIB"] = self.options.use_external_zlib
+        tc.variables["USE_SHARED_ZLIB"] = self.options["zlib"].shared
+        tc.variables["USE_VALIDATION_PARSER"] = self.options.use_validation_parser
+        tc.variables["XML_PARSER"] = self.options.xml_parser
+        tc.variables["CALCULATE_VERSION"] = False
+        tc.variables["ENABLE_NUGET_PACKAGING"] = False
         self._cmake.configure()
         return self._cmake
 

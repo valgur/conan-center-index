@@ -1,6 +1,89 @@
-from conans import ConanFile, CMake, tools, errors
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 
 required_conan_version = ">=1.43.0"
 
@@ -114,22 +197,20 @@ class DaggyConan(ConanFile):
             self.requires("libssh2/1.10.0")
 
     def _configure(self):
-        if self._cmake:
-            return self._cmake
 
-        self._cmake = CMake(self)
-        self._cmake.definitions["SSH2_SUPPORT"] = self.options.with_ssh2
-        self._cmake.definitions["YAML_SUPPORT"] = self.options.with_yaml
-        self._cmake.definitions["CONSOLE"] = self.options.with_console
-        self._cmake.definitions["PACKAGE_DEPS"] = False
-        self._cmake.definitions["VERSION"] = self.version
-        self._cmake.definitions["CONAN_BUILD"] = True
-        self._cmake.definitions["BUILD_TESTING"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["SSH2_SUPPORT"] = self.options.with_ssh2
+        tc.variables["YAML_SUPPORT"] = self.options.with_yaml
+        tc.variables["CONSOLE"] = self.options.with_console
+        tc.variables["PACKAGE_DEPS"] = False
+        tc.variables["VERSION"] = self.version
+        tc.variables["CONAN_BUILD"] = True
+        tc.variables["BUILD_TESTING"] = False
 
         if self.options.shared:
-            self._cmake.definitions["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
-            self._cmake.definitions["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
-            self._cmake.definitions["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
+            tc.variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
+            tc.variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
+            tc.variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
         self._cmake.configure()
         return self._cmake
 

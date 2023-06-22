@@ -1,7 +1,84 @@
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import CMake
-from conan.tools import files
-from conan import ConanFile
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+
 
 
 required_conan_version = ">=1.33.0"
@@ -51,23 +128,23 @@ class EasyloggingppConan(ConanFile):
     def _build_subfolder(self):
         return "build_subfolder"
 
-    def _configure_cmake(self):
+    def generate(self):
         if self._cmake is not None:
             return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["build_static_lib"] = True
-        self._cmake.definitions["enable_crash_log"] = self.options.enable_crash_log
-        self._cmake.definitions["enable_thread_safe"] = self.options.enable_thread_safe
-        self._cmake.definitions["enable_debug_errors"] = self.options.enable_debug_errors
-        self._cmake.definitions["enable_default_logfile"] = self.options.enable_default_logfile
-        self._cmake.definitions["disable_logs"] = self.options.disable_logs
-        self._cmake.definitions["disable_debug_logs"] = self.options.disable_debug_logs
-        self._cmake.definitions["disable_info_logs"] = self.options.disable_info_logs
-        self._cmake.definitions["disable_warning_logs"] = self.options.disable_warning_logs
-        self._cmake.definitions["disable_error_logs"] = self.options.disable_error_logs
-        self._cmake.definitions["disable_fatal_logs"] = self.options.disable_fatal_logs
-        self._cmake.definitions["disable_verbose_logs"] = self.options.disable_verbose_logs
-        self._cmake.definitions["disable_trace_logs"] = self.options.disable_trace_logs
+        tc = CMakeToolchain(self)
+        tc.variables["build_static_lib"] = True
+        tc.variables["enable_crash_log"] = self.options.enable_crash_log
+        tc.variables["enable_thread_safe"] = self.options.enable_thread_safe
+        tc.variables["enable_debug_errors"] = self.options.enable_debug_errors
+        tc.variables["enable_default_logfile"] = self.options.enable_default_logfile
+        tc.variables["disable_logs"] = self.options.disable_logs
+        tc.variables["disable_debug_logs"] = self.options.disable_debug_logs
+        tc.variables["disable_info_logs"] = self.options.disable_info_logs
+        tc.variables["disable_warning_logs"] = self.options.disable_warning_logs
+        tc.variables["disable_error_logs"] = self.options.disable_error_logs
+        tc.variables["disable_fatal_logs"] = self.options.disable_fatal_logs
+        tc.variables["disable_verbose_logs"] = self.options.disable_verbose_logs
+        tc.variables["disable_trace_logs"] = self.options.disable_trace_logs
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

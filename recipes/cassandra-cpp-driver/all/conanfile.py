@@ -1,6 +1,90 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+import os
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 
 required_conan_version = ">=1.33.0"
 
@@ -38,8 +122,6 @@ class CassandraCppDriverConan(ConanFile):
     short_paths = True
     generators = "cmake"
     exports_sources = ["CMakeLists.txt", "patches/*"]
-
-    _cmake = None
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -88,46 +170,45 @@ class CassandraCppDriverConan(ConanFile):
             '"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"',
         )
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def generate(self):
 
-        self._cmake = CMake(self)
-        self._cmake.definitions["VERSION"] = self.version
-        self._cmake.definitions["CASS_BUILD_EXAMPLES"] = False
-        self._cmake.definitions["CASS_BUILD_INTEGRATION_TESTS"] = False
-        self._cmake.definitions["CASS_BUILD_SHARED"] = self.options.shared
-        self._cmake.definitions["CASS_BUILD_STATIC"] = not self.options.shared
-        self._cmake.definitions["CASS_BUILD_TESTS"] = False
-        self._cmake.definitions["CASS_BUILD_UNIT_TESTS"] = False
-        self._cmake.definitions["CASS_DEBUG_CUSTOM_ALLOC"] = False
-        self._cmake.definitions["CASS_INSTALL_HEADER_IN_SUBDIR"] = self.options.install_header_in_subdir
-        self._cmake.definitions["CASS_INSTALL_PKG_CONFIG"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["VERSION"] = self.version
+        tc.variables["CASS_BUILD_EXAMPLES"] = False
+        tc.variables["CASS_BUILD_INTEGRATION_TESTS"] = False
+        tc.variables["CASS_BUILD_SHARED"] = self.options.shared
+        tc.variables["CASS_BUILD_STATIC"] = not self.options.shared
+        tc.variables["CASS_BUILD_TESTS"] = False
+        tc.variables["CASS_BUILD_UNIT_TESTS"] = False
+        tc.variables["CASS_DEBUG_CUSTOM_ALLOC"] = False
+        tc.variables["CASS_INSTALL_HEADER_IN_SUBDIR"] = self.options.install_header_in_subdir
+        tc.variables["CASS_INSTALL_PKG_CONFIG"] = False
 
         if self.options.use_atomic == "boost":
-            self._cmake.definitions["CASS_USE_BOOST_ATOMIC"] = True
-            self._cmake.definitions["CASS_USE_STD_ATOMIC"] = False
+            tc.variables["CASS_USE_BOOST_ATOMIC"] = True
+            tc.variables["CASS_USE_STD_ATOMIC"] = False
 
         elif self.options.use_atomic == "std":
-            self._cmake.definitions["CASS_USE_BOOST_ATOMIC"] = False
-            self._cmake.definitions["CASS_USE_STD_ATOMIC"] = True
+            tc.variables["CASS_USE_BOOST_ATOMIC"] = False
+            tc.variables["CASS_USE_STD_ATOMIC"] = True
         else:
-            self._cmake.definitions["CASS_USE_BOOST_ATOMIC"] = False
-            self._cmake.definitions["CASS_USE_STD_ATOMIC"] = False
+            tc.variables["CASS_USE_BOOST_ATOMIC"] = False
+            tc.variables["CASS_USE_STD_ATOMIC"] = False
 
-        self._cmake.definitions["CASS_USE_OPENSSL"] = self.options.with_openssl
-        self._cmake.definitions["CASS_USE_STATIC_LIBS"] = False
-        self._cmake.definitions["CASS_USE_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["CASS_USE_LIBSSH2"] = False
+        tc.variables["CASS_USE_OPENSSL"] = self.options.with_openssl
+        tc.variables["CASS_USE_STATIC_LIBS"] = False
+        tc.variables["CASS_USE_ZLIB"] = self.options.with_zlib
+        tc.variables["CASS_USE_LIBSSH2"] = False
 
         # FIXME: To use kerberos, its conan package is needed. Uncomment this when kerberos conan package is ready.
-        # self._cmake.definitions["CASS_USE_KERBEROS"] = self.options.with_kerberos
+        # tc.variables["CASS_USE_KERBEROS"] = self.options.with_kerberos
 
         if self.settings.os == "Linux":
-            self._cmake.definitions["CASS_USE_TIMERFD"] = self.options.use_timerfd
+            tc.variables["CASS_USE_TIMERFD"] = self.options.use_timerfd
+        tc.generate()
 
-        self._cmake.configure()
-        return self._cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()

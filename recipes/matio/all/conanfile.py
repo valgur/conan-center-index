@@ -1,5 +1,83 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 
 required_conan_version = ">=1.33.0"
@@ -32,8 +110,6 @@ class MatioConan(ConanFile):
         "with_zlib": True,
     }
 
-    _cmake = None
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -63,18 +139,16 @@ class MatioConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def generate(self):
 
-        self._cmake = CMake(self)
-        self._cmake.definitions["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
-        self._cmake.definitions["MATIO_PIC"] = self.options.get_safe("fPIC", True)
-        self._cmake.definitions["MATIO_SHARED"] = self.options.shared
-        self._cmake.definitions["MATIO_MAT73"] = self.options.mat73
-        self._cmake.definitions["MATIO_WITH_HDF5"] = self.options.with_hdf5
-        self._cmake.definitions["MATIO_WITH_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["HDF5_USE_STATIC_LIBRARIES"] = (
+        tc = CMakeToolchain(self)
+        tc.variables["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
+        tc.variables["MATIO_PIC"] = self.options.get_safe("fPIC", True)
+        tc.variables["MATIO_SHARED"] = self.options.shared
+        tc.variables["MATIO_MAT73"] = self.options.mat73
+        tc.variables["MATIO_WITH_HDF5"] = self.options.with_hdf5
+        tc.variables["MATIO_WITH_ZLIB"] = self.options.with_zlib
+        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = (
             self.options.with_hdf5 and not self.options["hdf5"].shared
         )
         self._cmake.configure()

@@ -1,6 +1,83 @@
-from conan.tools.microsoft import msvc_runtime_flag
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 import glob
 import shutil
@@ -138,50 +215,50 @@ class RocksDB(ConanFile):
             **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
-    def _configure_cmake(self):
+    def generate(self):
         if not self._cmake:
-            self._cmake = CMake(self)
+            tc = CMakeToolchain(self)
 
-        self._cmake.definitions["FAIL_ON_WARNINGS"] = False
-        self._cmake.definitions["WITH_TESTS"] = False
-        self._cmake.definitions["WITH_TOOLS"] = False
-        self._cmake.definitions["WITH_CORE_TOOLS"] = False
-        self._cmake.definitions["WITH_BENCHMARK_TOOLS"] = False
-        self._cmake.definitions["WITH_FOLLY_DISTRIBUTED_MUTEX"] = False
+        tc.variables["FAIL_ON_WARNINGS"] = False
+        tc.variables["WITH_TESTS"] = False
+        tc.variables["WITH_TOOLS"] = False
+        tc.variables["WITH_CORE_TOOLS"] = False
+        tc.variables["WITH_BENCHMARK_TOOLS"] = False
+        tc.variables["WITH_FOLLY_DISTRIBUTED_MUTEX"] = False
         if self._is_msvc:
-            self._cmake.definitions["WITH_MD_LIBRARY"] = "MD" in msvc_runtime_flag(self)
-        self._cmake.definitions["ROCKSDB_INSTALL_ON_WINDOWS"] = self.settings.os == "Windows"
-        self._cmake.definitions["ROCKSDB_LITE"] = self.options.lite
-        self._cmake.definitions["WITH_GFLAGS"] = self.options.with_gflags
-        self._cmake.definitions["WITH_SNAPPY"] = self.options.with_snappy
-        self._cmake.definitions["WITH_LZ4"] = self.options.with_lz4
-        self._cmake.definitions["WITH_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["WITH_ZSTD"] = self.options.with_zstd
-        self._cmake.definitions["WITH_TBB"] = self.options.get_safe("with_tbb", False)
-        self._cmake.definitions["WITH_JEMALLOC"] = self.options.with_jemalloc
-        self._cmake.definitions["ROCKSDB_BUILD_SHARED"] = self.options.shared
-        self._cmake.definitions["ROCKSDB_LIBRARY_EXPORTS"] = (
+            tc.variables["WITH_MD_LIBRARY"] = "MD" in msvc_runtime_flag(self)
+        tc.variables["ROCKSDB_INSTALL_ON_WINDOWS"] = self.settings.os == "Windows"
+        tc.variables["ROCKSDB_LITE"] = self.options.lite
+        tc.variables["WITH_GFLAGS"] = self.options.with_gflags
+        tc.variables["WITH_SNAPPY"] = self.options.with_snappy
+        tc.variables["WITH_LZ4"] = self.options.with_lz4
+        tc.variables["WITH_ZLIB"] = self.options.with_zlib
+        tc.variables["WITH_ZSTD"] = self.options.with_zstd
+        tc.variables["WITH_TBB"] = self.options.get_safe("with_tbb", False)
+        tc.variables["WITH_JEMALLOC"] = self.options.with_jemalloc
+        tc.variables["ROCKSDB_BUILD_SHARED"] = self.options.shared
+        tc.variables["ROCKSDB_LIBRARY_EXPORTS"] = (
             self.settings.os == "Windows" and self.options.shared
         )
-        self._cmake.definitions["ROCKSDB_DLL"] = self.settings.os == "Windows" and self.options.shared
+        tc.variables["ROCKSDB_DLL"] = self.settings.os == "Windows" and self.options.shared
 
-        self._cmake.definitions["USE_RTTI"] = self.options.use_rtti
+        tc.variables["USE_RTTI"] = self.options.use_rtti
         if self.options.enable_sse == "False":
-            self._cmake.definitions["PORTABLE"] = True
-            self._cmake.definitions["FORCE_SSE42"] = False
+            tc.variables["PORTABLE"] = True
+            tc.variables["FORCE_SSE42"] = False
         elif self.options.enable_sse == "sse42":
-            self._cmake.definitions["PORTABLE"] = True
-            self._cmake.definitions["FORCE_SSE42"] = True
+            tc.variables["PORTABLE"] = True
+            tc.variables["FORCE_SSE42"] = True
         elif self.options.enable_sse == "avx2":
-            self._cmake.definitions["PORTABLE"] = False
-            self._cmake.definitions["FORCE_SSE42"] = False
+            tc.variables["PORTABLE"] = False
+            tc.variables["FORCE_SSE42"] = False
 
         # not available yet in CCI
 
-        self._cmake.definitions["WITH_NUMA"] = False
+        tc.variables["WITH_NUMA"] = False
 
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            self._cmake.definitions["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
+            tc.variables["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

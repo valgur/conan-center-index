@@ -1,5 +1,83 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 
 
@@ -26,8 +104,6 @@ class MysqlConnectorCConan(ConanFile):
 
     deprecated = "libmysqlclient"
 
-    _cmake = None
-
     def requirements(self):
         if self.options.with_ssl:
             self.requires("openssl/1.0.2u")
@@ -46,27 +122,25 @@ class MysqlConnectorCConan(ConanFile):
             **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
 
-        self._cmake.definitions["DISABLE_SHARED"] = not self.options.shared
-        self._cmake.definitions["DISABLE_STATIC"] = self.options.shared
-        self._cmake.definitions[
+        tc.variables["DISABLE_SHARED"] = not self.options.shared
+        tc.variables["DISABLE_STATIC"] = self.options.shared
+        tc.variables[
             "STACK_DIRECTION"
         ] = "-1"  # stack grows downwards, on very few platforms stack grows upwards
-        self._cmake.definitions["REQUIRE_STDCPP"] = tools.stdcpp_library(self)
+        tc.variables["REQUIRE_STDCPP"] = tools.stdcpp_library(self)
 
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.runtime == "MD" or self.settings.compiler.runtime == "MDd":
-                self._cmake.definitions["WINDOWS_RUNTIME_MD"] = True
+                tc.variables["WINDOWS_RUNTIME_MD"] = True
 
         if self.options.with_ssl:
-            self._cmake.definitions["WITH_SSL"] = "system"
+            tc.variables["WITH_SSL"] = "system"
 
         if self.options.with_zlib:
-            self._cmake.definitions["WITH_ZLIB"] = "system"
+            tc.variables["WITH_ZLIB"] = "system"
 
         self._cmake.configure(source_dir=self._source_subfolder)
         return self._cmake

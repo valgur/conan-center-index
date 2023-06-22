@@ -1,5 +1,90 @@
-from conans import ConanFile, CMake, tools
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+import os
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 
 required_conan_version = ">=1.33.0"
 
@@ -70,36 +155,34 @@ class Hdf4Conan(ConanFile):
         cmake = self._configure_cmake()
         cmake.build()
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["HDF4_EXTERNALLY_CONFIGURED"] = True
-        self._cmake.definitions["HDF4_EXTERNAL_LIB_PREFIX"] = ""
-        self._cmake.definitions["HDF4_NO_PACKAGES"] = True
-        self._cmake.definitions["ONLY_SHARED_LIBS"] = self.options.shared
-        self._cmake.definitions["HDF4_ENABLE_COVERAGE"] = False
-        self._cmake.definitions["HDF4_ENABLE_DEPRECATED_SYMBOLS"] = True
-        self._cmake.definitions[
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["HDF4_EXTERNALLY_CONFIGURED"] = True
+        tc.variables["HDF4_EXTERNAL_LIB_PREFIX"] = ""
+        tc.variables["HDF4_NO_PACKAGES"] = True
+        tc.variables["ONLY_SHARED_LIBS"] = self.options.shared
+        tc.variables["HDF4_ENABLE_COVERAGE"] = False
+        tc.variables["HDF4_ENABLE_DEPRECATED_SYMBOLS"] = True
+        tc.variables[
             "HDF4_ENABLE_JPEG_LIB_SUPPORT"
         ] = True  # HDF can't compile without libjpeg or libjpeg-turbo
-        self._cmake.definitions["HDF4_ENABLE_Z_LIB_SUPPORT"] = True  # HDF can't compile without zlib
-        self._cmake.definitions["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
-        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
-        self._cmake.definitions["HDF4_PACKAGE_EXTLIBS"] = False
-        self._cmake.definitions["HDF4_BUILD_XDR_LIB"] = True
-        self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.definitions["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(
+        tc.variables["HDF4_ENABLE_Z_LIB_SUPPORT"] = True  # HDF can't compile without zlib
+        tc.variables["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
+        tc.variables["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
+        tc.variables["HDF4_PACKAGE_EXTLIBS"] = False
+        tc.variables["HDF4_BUILD_XDR_LIB"] = True
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(
             self.package_folder, "include", "hdf4"
         )
-        self._cmake.definitions["HDF4_BUILD_FORTRAN"] = False
-        self._cmake.definitions["HDF4_BUILD_UTILS"] = False
-        self._cmake.definitions["HDF4_BUILD_TOOLS"] = False
-        self._cmake.definitions["HDF4_BUILD_EXAMPLES"] = False
-        self._cmake.definitions["HDF4_BUILD_JAVA"] = False
+        tc.variables["HDF4_BUILD_FORTRAN"] = False
+        tc.variables["HDF4_BUILD_UTILS"] = False
+        tc.variables["HDF4_BUILD_TOOLS"] = False
+        tc.variables["HDF4_BUILD_EXAMPLES"] = False
+        tc.variables["HDF4_BUILD_JAVA"] = False
         if tools.cross_building(self):
-            self._cmake.definitions["H4_PRINTF_LL_TEST_RUN"] = "0"
-            self._cmake.definitions["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
+            tc.variables["H4_PRINTF_LL_TEST_RUN"] = "0"
+            tc.variables["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

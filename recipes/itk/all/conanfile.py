@@ -1,5 +1,89 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.microsoft.visual import vs_ide_version
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 import glob
 import os
 import textwrap
@@ -115,137 +199,135 @@ class ITKConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def generate(self):
 
-        self._cmake = CMake(self)
-        self._cmake.definitions["BUILD_EXAMPLES"] = False
-        self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.definitions["BUILD_DOCUMENTATION"] = False
-        self._cmake.definitions["ITK_SKIP_PATH_LENGTH_CHECKS"] = True
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_EXAMPLES"] = False
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["BUILD_DOCUMENTATION"] = False
+        tc.variables["ITK_SKIP_PATH_LENGTH_CHECKS"] = True
 
-        self._cmake.definitions["ITK_USE_SYSTEM_LIBRARIES"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_DCMTK"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_DOUBLECONVERSION"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_EIGEN"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_FFTW"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_GDCM"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_HDF5"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_ICU"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_JPEG"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_PNG"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_TIFF"] = True
-        self._cmake.definitions["ITK_USE_SYSTEM_ZLIB"] = True
+        tc.variables["ITK_USE_SYSTEM_LIBRARIES"] = True
+        tc.variables["ITK_USE_SYSTEM_DCMTK"] = True
+        tc.variables["ITK_USE_SYSTEM_DOUBLECONVERSION"] = True
+        tc.variables["ITK_USE_SYSTEM_EIGEN"] = True
+        tc.variables["ITK_USE_SYSTEM_FFTW"] = True
+        tc.variables["ITK_USE_SYSTEM_GDCM"] = True
+        tc.variables["ITK_USE_SYSTEM_HDF5"] = True
+        tc.variables["ITK_USE_SYSTEM_ICU"] = True
+        tc.variables["ITK_USE_SYSTEM_JPEG"] = True
+        tc.variables["ITK_USE_SYSTEM_PNG"] = True
+        tc.variables["ITK_USE_SYSTEM_TIFF"] = True
+        tc.variables["ITK_USE_SYSTEM_ZLIB"] = True
 
         # FIXME: Missing Kwiml recipe
-        self._cmake.definitions["ITK_USE_SYSTEM_KWIML"] = False
+        tc.variables["ITK_USE_SYSTEM_KWIML"] = False
         # FIXME: Missing VXL recipe
-        self._cmake.definitions["ITK_USE_SYSTEM_VXL"] = False
-        self._cmake.definitions["GDCM_USE_SYSTEM_OPENJPEG"] = True
+        tc.variables["ITK_USE_SYSTEM_VXL"] = False
+        tc.variables["GDCM_USE_SYSTEM_OPENJPEG"] = True
 
-        self._cmake.definitions["ITK_BUILD_DEFAULT_MODULES"] = False
-        self._cmake.definitions["Module_ITKDeprecated"] = False
-        self._cmake.definitions["Module_ITKMINC"] = False
-        self._cmake.definitions["Module_ITKIOMINC"] = False
+        tc.variables["ITK_BUILD_DEFAULT_MODULES"] = False
+        tc.variables["Module_ITKDeprecated"] = False
+        tc.variables["Module_ITKMINC"] = False
+        tc.variables["Module_ITKIOMINC"] = False
 
-        self._cmake.definitions["Module_ITKVideoBridgeOpenCV"] = False
+        tc.variables["Module_ITKVideoBridgeOpenCV"] = False
 
-        self._cmake.definitions["Module_ITKDCMTK"] = True
-        self._cmake.definitions["Module_ITKIODCMTK"] = True
-        self._cmake.definitions["Module_ITKIOHDF5"] = True
-        self._cmake.definitions["Module_ITKIOTransformHDF5"] = False
-        self._cmake.definitions["Module_ITKAnisotropicSmoothing"] = True
-        self._cmake.definitions["Module_ITKAntiAlias"] = True
-        self._cmake.definitions["Module_ITKBiasCorrection"] = True
-        self._cmake.definitions["Module_ITKBinaryMathematicalMorphology"] = True
-        self._cmake.definitions["Module_ITKBioCell"] = True
-        self._cmake.definitions["Module_ITKClassifiers"] = True
-        self._cmake.definitions["Module_ITKColormap"] = True
-        self._cmake.definitions["Module_ITKConnectedComponents"] = True
-        self._cmake.definitions["Module_ITKConvolution"] = True
-        self._cmake.definitions["Module_ITKCurvatureFlow"] = True
-        self._cmake.definitions["Module_ITKDeconvolution"] = True
-        self._cmake.definitions["Module_ITKDeformableMesh"] = True
-        self._cmake.definitions["Module_ITKDenoising"] = True
-        self._cmake.definitions["Module_ITKDiffusionTensorImage"] = True
-        self._cmake.definitions["Module_ITKDisplacementField"] = True
-        self._cmake.definitions["Module_ITKDistanceMap"] = True
-        self._cmake.definitions["Module_ITKEigen"] = True
-        self._cmake.definitions["Module_ITKFEM"] = True
-        self._cmake.definitions["Module_ITKFEMRegistration"] = True
-        self._cmake.definitions["Module_ITKFFT"] = True
-        self._cmake.definitions["Module_ITKFastMarching"] = True
-        self._cmake.definitions["Module_ITKGIFTI"] = True
-        self._cmake.definitions["Module_ITKGPUAnisotropicSmoothing"] = True
-        self._cmake.definitions["Module_ITKGPUImageFilterBase"] = True
-        self._cmake.definitions["Module_ITKGPUPDEDeformableRegistration"] = True
-        self._cmake.definitions["Module_ITKGPURegistrationCommon"] = True
-        self._cmake.definitions["Module_ITKGPUSmoothing"] = True
-        self._cmake.definitions["Module_ITKGPUThresholding"] = True
-        self._cmake.definitions["Module_ITKIOCSV"] = True
-        self._cmake.definitions["Module_ITKIOGE"] = True
-        self._cmake.definitions["Module_ITKIOIPL"] = True
-        self._cmake.definitions["Module_ITKIOMesh"] = True
-        self._cmake.definitions["Module_ITKIOPhilipsREC"] = True
-        self._cmake.definitions["Module_ITKIORAW"] = True
-        self._cmake.definitions["Module_ITKIOSiemens"] = True
-        self._cmake.definitions["Module_ITKIOSpatialObjects"] = True
-        self._cmake.definitions["Module_ITKIOTransformBase"] = True
-        self._cmake.definitions["Module_ITKIOTransformInsightLegacy"] = True
-        self._cmake.definitions["Module_ITKIOTransformMatlab"] = True
-        self._cmake.definitions["Module_ITKIOXML"] = True
-        self._cmake.definitions["Module_ITKImageCompare"] = True
-        self._cmake.definitions["Module_ITKImageCompose"] = True
-        self._cmake.definitions["Module_ITKImageFeature"] = True
-        self._cmake.definitions["Module_ITKImageFusion"] = True
-        self._cmake.definitions["Module_ITKImageGradient"] = True
-        self._cmake.definitions["Module_ITKImageGrid"] = True
-        self._cmake.definitions["Module_ITKImageIntensity"] = True
-        self._cmake.definitions["Module_ITKImageLabel"] = True
-        self._cmake.definitions["Module_ITKImageSources"] = True
-        self._cmake.definitions["Module_ITKImageStatistics"] = True
-        self._cmake.definitions["Module_ITKIntegratedTest"] = True
-        self._cmake.definitions["Module_ITKKLMRegionGrowing"] = True
-        self._cmake.definitions["Module_ITKLabelMap"] = True
-        self._cmake.definitions["Module_ITKLabelVoting"] = True
-        self._cmake.definitions["Module_ITKLevelSets"] = True
-        self._cmake.definitions["Module_ITKLevelSetsv4"] = True
-        self._cmake.definitions["Module_ITKMarkovRandomFieldsClassifiers"] = True
-        self._cmake.definitions["Module_ITKMathematicalMorphology"] = True
-        self._cmake.definitions["Module_ITKMetricsv4"] = True
-        self._cmake.definitions["Module_ITKNarrowBand"] = True
-        self._cmake.definitions["Module_ITKNeuralNetworks"] = True
-        self._cmake.definitions["Module_ITKOptimizers"] = True
-        self._cmake.definitions["Module_ITKOptimizersv4"] = True
-        self._cmake.definitions["Module_ITKPDEDeformableRegistration"] = True
-        self._cmake.definitions["Module_ITKPath"] = True
-        self._cmake.definitions["Module_ITKPolynomials"] = True
-        self._cmake.definitions["Module_ITKQuadEdgeMeshFiltering"] = True
-        self._cmake.definitions["Module_ITKRegionGrowing"] = True
-        self._cmake.definitions["Module_ITKRegistrationCommon"] = True
-        self._cmake.definitions["Module_ITKRegistrationMethodsv4"] = True
-        self._cmake.definitions["Module_ITKReview"] = True
-        self._cmake.definitions["Module_ITKSignedDistanceFunction"] = True
-        self._cmake.definitions["Module_ITKSmoothing"] = True
-        self._cmake.definitions["Module_ITKSpatialFunction"] = True
-        self._cmake.definitions["Module_ITKTBB"] = True
-        self._cmake.definitions["Module_ITKThresholding"] = True
-        self._cmake.definitions["Module_ITKVideoCore"] = True
-        self._cmake.definitions["Module_ITKVideoFiltering"] = True
-        self._cmake.definitions["Module_ITKVideoIO"] = False
-        self._cmake.definitions["Module_ITKVoronoi"] = True
-        self._cmake.definitions["Module_ITKWatersheds"] = True
-        self._cmake.definitions["Module_ITKDICOMParser"] = True
+        tc.variables["Module_ITKDCMTK"] = True
+        tc.variables["Module_ITKIODCMTK"] = True
+        tc.variables["Module_ITKIOHDF5"] = True
+        tc.variables["Module_ITKIOTransformHDF5"] = False
+        tc.variables["Module_ITKAnisotropicSmoothing"] = True
+        tc.variables["Module_ITKAntiAlias"] = True
+        tc.variables["Module_ITKBiasCorrection"] = True
+        tc.variables["Module_ITKBinaryMathematicalMorphology"] = True
+        tc.variables["Module_ITKBioCell"] = True
+        tc.variables["Module_ITKClassifiers"] = True
+        tc.variables["Module_ITKColormap"] = True
+        tc.variables["Module_ITKConnectedComponents"] = True
+        tc.variables["Module_ITKConvolution"] = True
+        tc.variables["Module_ITKCurvatureFlow"] = True
+        tc.variables["Module_ITKDeconvolution"] = True
+        tc.variables["Module_ITKDeformableMesh"] = True
+        tc.variables["Module_ITKDenoising"] = True
+        tc.variables["Module_ITKDiffusionTensorImage"] = True
+        tc.variables["Module_ITKDisplacementField"] = True
+        tc.variables["Module_ITKDistanceMap"] = True
+        tc.variables["Module_ITKEigen"] = True
+        tc.variables["Module_ITKFEM"] = True
+        tc.variables["Module_ITKFEMRegistration"] = True
+        tc.variables["Module_ITKFFT"] = True
+        tc.variables["Module_ITKFastMarching"] = True
+        tc.variables["Module_ITKGIFTI"] = True
+        tc.variables["Module_ITKGPUAnisotropicSmoothing"] = True
+        tc.variables["Module_ITKGPUImageFilterBase"] = True
+        tc.variables["Module_ITKGPUPDEDeformableRegistration"] = True
+        tc.variables["Module_ITKGPURegistrationCommon"] = True
+        tc.variables["Module_ITKGPUSmoothing"] = True
+        tc.variables["Module_ITKGPUThresholding"] = True
+        tc.variables["Module_ITKIOCSV"] = True
+        tc.variables["Module_ITKIOGE"] = True
+        tc.variables["Module_ITKIOIPL"] = True
+        tc.variables["Module_ITKIOMesh"] = True
+        tc.variables["Module_ITKIOPhilipsREC"] = True
+        tc.variables["Module_ITKIORAW"] = True
+        tc.variables["Module_ITKIOSiemens"] = True
+        tc.variables["Module_ITKIOSpatialObjects"] = True
+        tc.variables["Module_ITKIOTransformBase"] = True
+        tc.variables["Module_ITKIOTransformInsightLegacy"] = True
+        tc.variables["Module_ITKIOTransformMatlab"] = True
+        tc.variables["Module_ITKIOXML"] = True
+        tc.variables["Module_ITKImageCompare"] = True
+        tc.variables["Module_ITKImageCompose"] = True
+        tc.variables["Module_ITKImageFeature"] = True
+        tc.variables["Module_ITKImageFusion"] = True
+        tc.variables["Module_ITKImageGradient"] = True
+        tc.variables["Module_ITKImageGrid"] = True
+        tc.variables["Module_ITKImageIntensity"] = True
+        tc.variables["Module_ITKImageLabel"] = True
+        tc.variables["Module_ITKImageSources"] = True
+        tc.variables["Module_ITKImageStatistics"] = True
+        tc.variables["Module_ITKIntegratedTest"] = True
+        tc.variables["Module_ITKKLMRegionGrowing"] = True
+        tc.variables["Module_ITKLabelMap"] = True
+        tc.variables["Module_ITKLabelVoting"] = True
+        tc.variables["Module_ITKLevelSets"] = True
+        tc.variables["Module_ITKLevelSetsv4"] = True
+        tc.variables["Module_ITKMarkovRandomFieldsClassifiers"] = True
+        tc.variables["Module_ITKMathematicalMorphology"] = True
+        tc.variables["Module_ITKMetricsv4"] = True
+        tc.variables["Module_ITKNarrowBand"] = True
+        tc.variables["Module_ITKNeuralNetworks"] = True
+        tc.variables["Module_ITKOptimizers"] = True
+        tc.variables["Module_ITKOptimizersv4"] = True
+        tc.variables["Module_ITKPDEDeformableRegistration"] = True
+        tc.variables["Module_ITKPath"] = True
+        tc.variables["Module_ITKPolynomials"] = True
+        tc.variables["Module_ITKQuadEdgeMeshFiltering"] = True
+        tc.variables["Module_ITKRegionGrowing"] = True
+        tc.variables["Module_ITKRegistrationCommon"] = True
+        tc.variables["Module_ITKRegistrationMethodsv4"] = True
+        tc.variables["Module_ITKReview"] = True
+        tc.variables["Module_ITKSignedDistanceFunction"] = True
+        tc.variables["Module_ITKSmoothing"] = True
+        tc.variables["Module_ITKSpatialFunction"] = True
+        tc.variables["Module_ITKTBB"] = True
+        tc.variables["Module_ITKThresholding"] = True
+        tc.variables["Module_ITKVideoCore"] = True
+        tc.variables["Module_ITKVideoFiltering"] = True
+        tc.variables["Module_ITKVideoIO"] = False
+        tc.variables["Module_ITKVoronoi"] = True
+        tc.variables["Module_ITKWatersheds"] = True
+        tc.variables["Module_ITKDICOMParser"] = True
 
-        self._cmake.definitions["Module_ITKVTK"] = False
-        self._cmake.definitions["Module_ITKVtkGlue"] = False
+        tc.variables["Module_ITKVTK"] = False
+        tc.variables["Module_ITKVtkGlue"] = False
 
         # Disabled on Linux (link errors)
-        self._cmake.definitions["Module_ITKLevelSetsv4Visualization"] = False
+        tc.variables["Module_ITKLevelSetsv4Visualization"] = False
 
         # Disabled because Vxl vidl is not built anymore
-        self._cmake.definitions["Module_ITKVideoBridgeVXL"] = False
+        tc.variables["Module_ITKVideoBridgeVXL"] = False
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
