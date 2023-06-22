@@ -106,6 +106,7 @@ class NetSnmpConan(ConanFile):
         "fPIC": True,
         "with_ipv6": True,
     }
+
     def requirements(self):
         self.requires("openssl/1.1.1m")
 

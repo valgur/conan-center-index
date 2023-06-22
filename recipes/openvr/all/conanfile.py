@@ -83,7 +83,7 @@ from conan.tools.system import package_manager
 class OpenvrConan(ConanFile):
     name = "openvr"
     description = "API and runtime that allows access to VR hardware from applications have specific knowledge of the hardware they are targeting."
-    topics = ("conan", "openvr", "vr")
+    topics = ("openvr", "vr")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ValveSoftware/openvr"
     license = "BSD-3-Clause"

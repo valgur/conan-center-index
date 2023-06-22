@@ -87,12 +87,11 @@ class YandexOzoConan(ConanFile):
     name = "yandex-ozo"
     description = "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
     topics = ("ozo", "yandex", "postgres", "postgresql", "cpp17", "database", "db", "asio")
+    package_type = "header-library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yandex/ozo"
     license = "PostgreSQL"
-
     settings = "os", "compiler"
-    requires = ("boost/1.76.0", "resource_pool/cci.20210322", "libpq/13.2")
     no_copy_source = True
 
     @property
@@ -103,6 +102,11 @@ class YandexOzoConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def requirements(self):
+        self.requires("boost/1.76.0")
+        self.requires("resource_pool/cci.20210322")
+        self.requires("libpq/13.2")
 
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
@@ -132,9 +136,6 @@ class YandexOzoConan(ConanFile):
             src=os.path.join(self.source_folder, "include", "ozo"),
         )
         copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-
-    def package_id(self):
-        self.info.header_only()
 
     def package_info(self):
         main_comp = self.cpp_info.components["_ozo"]

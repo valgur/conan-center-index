@@ -31,7 +31,6 @@ class MPUnitsConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    tool_requires = "cmake/[>=3.19 <4]"
     package_type = "header-library"
     no_copy_source = True
 
@@ -61,6 +60,9 @@ class MPUnitsConan(ConanFile):
         version = Version(self.settings.compiler.version)
         return "clang" in compiler and compiler.libcxx == "libc++" and version < 14
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("gsl-lite/0.40.0")
         if self._use_libfmt:
@@ -85,8 +87,8 @@ class MPUnitsConan(ConanFile):
                 f"{self.ref} requires at least {compiler} {min_version} ({compiler.version} in use)"
             )
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.19 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -102,9 +104,6 @@ class MPUnitsConan(ConanFile):
         cmake = CMake(self)
         cmake.configure(build_script_folder="src")
         cmake.build()
-
-    def package_id(self):
-        self.info.clear()
 
     def package(self):
         copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))

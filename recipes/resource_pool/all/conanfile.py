@@ -85,17 +85,14 @@ import glob
 class ResourcePool(ConanFile):
     name = "resource_pool"
     description = (
-        "C++ header only library purposed to create pool of some resources like keepalive connections"
+        "C++ header only library purposed to create pool of some " "resources like keepalive connections"
     )
     topics = ("resource pool", "asio", "elsid", "c++17", "cpp17")
+    package_type = "header-library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://github.com/elsid/resource_pool"
     license = "MIT"
-
     settings = "os", "arch", "compiler", "build_type"
-    def requirements(self):
-        self.requires("boost/1.75.0")
-    generators = "cmake_find_package"
     no_copy_source = True
 
     @property
@@ -106,6 +103,9 @@ class ResourcePool(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def requirements(self):
+        self.requires("boost/1.75.0")
 
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
@@ -136,9 +136,6 @@ class ResourcePool(ConanFile):
             src=os.path.join(self.source_folder, "include", "yamail"),
         )
         copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-
-    def package_id(self):
-        self.info.header_only()
 
     def package_info(self):
         main_comp = self.cpp_info.components["_resource_pool"]

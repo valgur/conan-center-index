@@ -61,9 +61,7 @@ class GoogleGuetzliConan(ConanFile):
         if is_msvc(self):
             copy(
                 self,
-                os.path.join(
-                    self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"
-                ),
+                os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
                 dst="bin",
                 keep_path=False,
             )

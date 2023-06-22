@@ -102,6 +102,7 @@ class LibiglConan(ConanFile):
         "header_only": True,
         "fPIC": True,
     }
+
     def requirements(self):
         self.requires("eigen/3.3.9")
 

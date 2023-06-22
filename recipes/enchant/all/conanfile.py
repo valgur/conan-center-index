@@ -100,6 +100,7 @@ class EnchantConan(ConanFile):
     topics = ("enchant", "spell", "spell-check")
     license = "LGPL-2.1-or-later"
     settings = "os", "arch", "compiler", "build_type"
+
     def requirements(self):
         self.requires("glib/2.71.3", "hunspell/1.7.0")
 

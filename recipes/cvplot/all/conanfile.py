@@ -90,9 +90,10 @@ class CvPlotConan(ConanFile):
     topics = ("plot", "opencv", "diagram", "plotting")
     homepage = "https://github.com/Profactor/cv-plot"
     url = "https://github.com/conan-io/conan-center-index"
+    no_copy_source = True
+
     def requirements(self):
         self.requires("opencv/4.5.3")
-    no_copy_source = True
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

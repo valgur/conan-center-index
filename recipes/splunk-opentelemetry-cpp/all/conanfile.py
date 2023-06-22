@@ -98,8 +98,6 @@ class SplunkOpentelemetryConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    def requirements(self):
-        self.requires("opentelemetry-cpp/1.0.1")
 
     def validate(self):
         if self.settings.arch != "x86_64":
@@ -113,8 +111,8 @@ class SplunkOpentelemetryConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def _remove_unnecessary_package_files(self):
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+    def requirements(self):
+        self.requires("opentelemetry-cpp/1.0.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -130,6 +128,9 @@ class SplunkOpentelemetryConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def _remove_unnecessary_package_files(self):
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package(self):
         copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)

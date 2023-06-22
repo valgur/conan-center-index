@@ -99,13 +99,16 @@ class LibisalConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    build_requires = ("libtool/2.4.6", "nasm/2.15.05")
 
     def validate(self):
         if self.settings.arch not in ["x86", "x86_64", "armv8"]:
             raise ConanInvalidConfiguration("CPU Architecture not supported")
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Only Linux and FreeBSD builds are supported")
+
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.6")
+        self.tool_requires("nasm/2.15.05")
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

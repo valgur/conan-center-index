@@ -67,9 +67,7 @@ class SamariumConan(ConanFile):
 
         version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++20"
-            )
+            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++20")
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)

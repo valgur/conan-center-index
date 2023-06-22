@@ -83,7 +83,7 @@ from conan.tools.system import package_manager
 class Rvo2Conan(ConanFile):
     name = "rvo2"
     description = "Optimal Reciprocal Collision Avoidance"
-    topics = ("conan", "collision", "avoidance")
+    topics = ("collision", "avoidance")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/snape/RVO2"
     license = "Apache-2.0"

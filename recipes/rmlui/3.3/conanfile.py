@@ -105,8 +105,6 @@ class RmluiConan(ConanFile):
         "with_lua_bindings": False,
         "with_thirdparty_containers": True,
     }
-    build_requires = ["cmake/3.23.2"]
-    generators = ["cmake", "cmake_find_package"]
 
     @property
     def _minimum_compilers_version(self):
@@ -132,24 +130,19 @@ class RmluiConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self._minimum_cpp_standard,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
-                    )
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. "
+                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def requirements(self):
@@ -158,6 +151,9 @@ class RmluiConan(ConanFile):
 
         if self.options.with_lua_bindings:
             self.requires("lua/5.3.5")
+
+    def build_requirements(self):
+        self.tool_requires("cmake/3.23.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

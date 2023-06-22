@@ -85,10 +85,9 @@ class YojimboConan(ConanFile):
     name = "yojimbo"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/networkprotocol/yojimbo"
-    topics = ("conan", "yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
+    topics = ("yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
     description = "A network library for client/server games written in C++"
     license = "BSD-3-Clause"
-    build_requires = "premake/5.0.0-alpha15"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -111,6 +110,9 @@ class YojimboConan(ConanFile):
     def requirements(self):
         self.requires("libsodium/1.0.18")
         self.requires("mbedtls/2.25.0")
+
+    def build_requirements(self):
+        self.tool_requires("premake/5.0.0-alpha15")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

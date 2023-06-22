@@ -180,19 +180,21 @@ class UserspaceRCUConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    build_requires = ("libtool/2.4.6",)
 
     generators = "PkgConfigDeps"
-
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
-            raise ConanInvalidConfiguration("Building for {} unsupported".format(self.settings.os))
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def validate(self):
+        if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
+            raise ConanInvalidConfiguration("Building for {} unsupported".format(self.settings.os))
+
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.6")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

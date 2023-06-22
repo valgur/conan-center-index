@@ -154,10 +154,6 @@ class LLVMCoreConan(ConanFile):
         "use_llvm_cmake_files": False,
     }
 
-    # Older cmake versions may have issues generating the graphviz output used
-    # to model the components
-    build_requires = ["cmake/3.20.5"]
-
     no_copy_source = True
 
     @property
@@ -197,9 +193,6 @@ class LLVMCoreConan(ConanFile):
         if self.options.get_safe("with_xml2", False):
             self.requires("libxml2/2.9.10")
 
-    def package_id(self):
-        del self.info.options.use_llvm_cmake_files
-
     def validate(self):
         if self.options.shared:  # Shared builds disabled just due to the CI
             message = "Shared builds not currently supported"
@@ -214,6 +207,14 @@ class LLVMCoreConan(ConanFile):
         self._supports_compiler()
         if cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
+
+    def build_requirements(self):
+        # Older cmake versions may have issues generating the graphviz output used
+        # to model the components
+        self.tool_requires("cmake/3.20.5")
+
+    def package_id(self):
+        del self.info.options.use_llvm_cmake_files
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -8,7 +8,8 @@ from conan.tools.files import (
     rename,
     rm,
     rmdir,
-    get, copy,
+    get,
+    copy,
 )
 from conan.errors import ConanInvalidConfiguration
 import glob

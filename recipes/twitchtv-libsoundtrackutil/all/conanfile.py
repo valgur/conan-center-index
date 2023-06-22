@@ -90,12 +90,13 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     topics = ("twitch", "soundtrack")
     settings = "os", "compiler", "build_type", "arch"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
-    requires = ("twitch-native-ipc/3.1.1", "ms-gsl/2.0.0")
 
     @property
     def _compilers_min_version(self):
@@ -113,31 +114,32 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def configure(self):
+    def requirements(self):
+        self.requires("twitch-native-ipc/3.1.1")
+        self.requires("ms-gsl/2.0.0")
+
+    def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:
             if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++17".format(self.name))
+                raise ConanInvalidConfiguration(f"{self.name} requires C++17")
         else:
             self.output.warn("unknown compiler, assuming C++17 support")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("{}-{}".format("libsoundtrackutil", self.version), self.source_folder)
+        os.rename(f"libsoundtrackutil-{self.version}", self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_CODE_FORMATTING"] = False
         tc.variables["BUILD_TESTING"] = False
-
         if self.settings.compiler == "Visual Studio":
             tc.variables["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
-
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

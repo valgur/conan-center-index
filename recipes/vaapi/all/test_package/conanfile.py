@@ -8,10 +8,10 @@ from conan.tools.cmake import CMake, cmake_layout
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
-    requires = ("xorg/system",)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        self.requires("xorg/system")
 
     def layout(self):
         cmake_layout(self)

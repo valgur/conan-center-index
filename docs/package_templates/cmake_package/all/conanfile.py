@@ -1,6 +1,10 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches,
     export_conandata_patches,
@@ -10,12 +14,8 @@ from conan.tools.files import (
     rmdir,
     replace_in_file,
 )
-from conan.tools.build import check_min_cppstd
+from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
-import os
-
 
 required_conan_version = ">=1.53.0"
 
@@ -74,7 +74,9 @@ class PackageConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(
+                str(self.settings.compiler), False
+            )
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."

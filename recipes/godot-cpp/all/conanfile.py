@@ -89,7 +89,6 @@ class GodotCppConan(ConanFile):
     homepage = "https://github.com/godotengine/godot-cpp"
     topics = ("game-engine", "game-development", "c++")
     settings = "os", "arch", "compiler", "build_type"
-    build_requires = ["scons/3.1.2"]
 
     @property
     def _bits(self):
@@ -141,8 +140,8 @@ class GodotCppConan(ConanFile):
     def requirements(self):
         self.requires("godot_headers/{}".format(self.version))
 
-    def configure(self):
-        minimal_cpp_standard = "14"
+    def validate(self):
+        minimal_cpp_standard = 14
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, minimal_cpp_standard)
 
@@ -156,12 +155,10 @@ class GodotCppConan(ConanFile):
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler standard version support".format(
-                    self.name, compiler
-                )
+                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
             )
             self.output.warn(
-                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
             return
 
@@ -169,11 +166,14 @@ class GodotCppConan(ConanFile):
         if version < minimal_version[compiler]:
             if compiler in ["apple-clang", "clang"]:
                 raise ConanInvalidConfiguration(
-                    "{} requires a clang version that supports the '-Og' flag".format(self.name)
+                    f"{self.name} requires a clang version that supports the '-Og' flag"
                 )
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
+
+    def build_requirements(self):
+        self.tool_requires("scons/3.1.2")
 
     def build(self):
         self.run("python  --version")
@@ -184,17 +184,17 @@ class GodotCppConan(ConanFile):
             " ".join(
                 [
                     "scons",
-                    "-C{}".format(self.source_folder),
-                    "-j{}".format(cpu_count(self)),
+                    f"-C{self.source_folder}",
+                    f"-j{cpu_count(self)}",
                     "generate_bindings=yes",
                     "use_custom_api_file=yes",
-                    "bits={}".format(self._bits),
-                    "custom_api_file={}".format(self._custom_api_file),
-                    "headers_dir={}".format(self._headers_dir),
-                    "platform={}".format(self._platform),
-                    "target={}".format(self._target),
-                    "use_llvm={}".format(self._use_llvm),
-                    "use_mingw={}".format(self._use_mingw),
+                    f"bits={self._bits}",
+                    f"custom_api_file={self._custom_api_file}",
+                    f"headers_dir={self._headers_dir}",
+                    f"platform={self._platform}",
+                    f"target={self._target}",
+                    f"use_llvm={self._use_llvm}",
+                    f"use_mingw={self._use_mingw}",
                 ]
             )
         )
@@ -207,7 +207,7 @@ class GodotCppConan(ConanFile):
 
     def package_info(self):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
-            self.cpp_info.libs = ["lib{}".format(self._libname)]
+            self.cpp_info.libs = [f"lib{self._libname}"]
         else:
             self.cpp_info.libs = [self._libname]
 

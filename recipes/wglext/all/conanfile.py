@@ -89,10 +89,13 @@ class WglextConan(ConanFile):
     homepage = "https://www.khronos.org/registry/OpenGL/index_gl.php"
     description = "WGL extension interfaces"
     topics = ("opengl", "gl", "wgl", "wglext")
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    settings = ("os",)
+
     def requirements(self):
         self.requires("opengl/system")
-    settings = ("os",)
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -110,6 +113,3 @@ class WglextConan(ConanFile):
         license_data = license_data.replace("**", "")
         save(self, "LICENSE", license_data)
         copy(self, "LICENSE", dst="licenses")
-
-    def package_id(self):
-        self.info.header_only()

@@ -97,8 +97,6 @@ class TwitchNativeIpcConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    def requirements(self):
-        self.requires("libuv/1.40.0")
 
     @property
     def _compilers_min_version(self):
@@ -129,6 +127,9 @@ class TwitchNativeIpcConan(ConanFile):
 
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def requirements(self):
+        self.requires("libuv/1.40.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

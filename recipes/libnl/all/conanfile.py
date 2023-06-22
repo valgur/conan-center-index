@@ -101,12 +101,8 @@ class LibNlConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    build_requires = ("flex/2.6.4", "bison/3.7.6")
 
     _autotools = None
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def configure(self):
         if self.options.shared:
@@ -117,6 +113,13 @@ class LibNlConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("Libnl is only supported on Linux")
+
+    def build_requirements(self):
+        self.tool_requires("flex/2.6.4")
+        self.tool_requires("bison/3.7.6")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
