@@ -26,7 +26,7 @@ class TestPackageConan(ConanFile):
     def build(self):
         if can_run(self):
             cmake = CMake(self)
-            cmake.definitions["BUILD_SYSTEMC"] = self._with_systemc_example
+            tc.variables["BUILD_SYSTEMC"] = self._with_systemc_example
             cmake.configure()
             cmake.build()
 

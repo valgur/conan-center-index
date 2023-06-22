@@ -106,11 +106,6 @@ class LibFtdi(ConanFile):
         "fPIC": True,
         "enable_cpp_wrapper": True,
     }
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -118,14 +113,14 @@ class LibFtdi(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.enable_cpp_wrapper:
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("libftdi-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("libftdi-{}".format(self.version), self.source_folder)
 
     def requirements(self):
         self.requires("libusb-compat/0.1.7")
@@ -138,35 +133,38 @@ class LibFtdi(ConanFile):
         tc.variables["PYTHON_BINDINGS"] = False
         tc.variables["EXAMPLES"] = False
         tc.variables["DOCUMENTATION"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR"
+        apply_conandata_patches(self)
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR"
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR"
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR"
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "ftdipp", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "ftdipp", "CMakeLists.txt"),
             "CMAKE_SOURCE_DIR",
             "PROJECT_SOURCE_DIR",
         )
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING*", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, pattern="COPYING*", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         if self.options.enable_cpp_wrapper:

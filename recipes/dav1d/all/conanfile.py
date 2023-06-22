@@ -46,7 +46,7 @@ class Dav1dConan(ConanFile):
             # debug builds with assembly often causes linker hangs or LNK1000
             self.options.assembly = False
         if Version(self.version) < "1.0.0":
-            del self.options.with_avx512
+            self.options.rm_safe("with_avx512")
 
     def configure(self):
         if self.options.shared:

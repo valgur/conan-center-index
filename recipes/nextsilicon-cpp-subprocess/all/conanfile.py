@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class CppSubprocess(ConanFile):
     name = "nextsilicon-cpp-subprocess"
     license = "MIT"
@@ -96,13 +97,11 @@ class CppSubprocess(ConanFile):
     _source_subfolder = "cpp-subprocess"
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("subprocess.hpp", dst="include/cpp-subprocess", src=self._source_subfolder)
-        self.copy("LICENSE.MIT", dst="licenses", src=self._source_subfolder)
+        copy(self, "subprocess.hpp", dst="include/cpp-subprocess", src=self.source_folder)
+        copy(self, "LICENSE.MIT", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

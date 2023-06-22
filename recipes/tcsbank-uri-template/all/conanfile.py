@@ -91,7 +91,6 @@ class TCSBankUriTemplateConan(ConanFile):
     homepage = "https://github.com/TinkoffCreditSystems/uri-template"
     license = "Apache-2.0"
 
-    generators = "cmake", "cmake_find_package_multi"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -103,15 +102,13 @@ class TCSBankUriTemplateConan(ConanFile):
     }
     exports_sources = ["CMakeLists.txt", "patches/*"]
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["URITEMPLATE_BUILD_TESTING"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,16 +116,16 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         compiler_name = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         # Exclude compiler.cppstd < 17
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
                 "%s recipe lacks information about the %s compiler"
@@ -160,23 +157,22 @@ class TCSBankUriTemplateConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "uri-template"
         self.cpp_info.names["cmake_find_package"] = "uri-template"
         self.cpp_info.names["cmake_find_package_multi"] = "uri-template"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

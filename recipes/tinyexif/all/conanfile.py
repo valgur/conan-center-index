@@ -68,7 +68,7 @@ class TinyEXIFConan(ConanFile):
         cmake.build()
 
     def package(self):
-        filename = os.path.join(self.source_folder, self.source_folder, "TinyEXIF.h")
+        filename = os.path.join(self.source_folder, "TinyEXIF.h")
         file_content = load(save, filename)
         license_start = "/*"
         license_end = "*/"

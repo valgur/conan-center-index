@@ -115,16 +115,16 @@ class LibRHashConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
         if self.options.with_openssl:
             self.requires("openssl/1.1.1q")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
@@ -132,9 +132,7 @@ class LibRHashConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -151,9 +149,9 @@ class LibRHashConan(ConanFile):
             "--enable-openssl" if self.options.with_openssl else "--disable-openssl",
             "--disable-gettext",
             # librhash's configure script is custom and does not understand "--bindir=${prefix}/bin" arguments
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
-            "--bindir={}".format(tools.unix_path(os.path.join(self.package_folder, "bin"))),
-            "--libdir={}".format(tools.unix_path(os.path.join(self.package_folder, "lib"))),
+            "--prefix={}".format(unix_path(self.package_folder)),
+            "--bindir={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),
+            "--libdir={}".format(unix_path(self, os.path.join(self.package_folder, "lib"))),
             # the configure script does not use CPPFLAGS, so add it to CFLAGS/CXXFLAGS
             "--extra-cflags={}".format("{} {}".format(vars["CFLAGS"], vars["CPPFLAGS"])),
             "--extra-ldflags={}".format(vars["LDFLAGS"]),
@@ -163,35 +161,35 @@ class LibRHashConan(ConanFile):
         else:
             conf_args.extend(["--disable-lib-shared", "--enable-lib-static"])
 
-        with tools.environment_append(
+        with environment_append(
+            self,
             {
-                "BUILD_TARGET": tools.get_gnu_triplet(
-                    str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
+                "BUILD_TARGET": get_gnu_triplet(
+                    self, str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
                 )
-            }
+            },
         ):
             self._autotools.configure(args=conf_args, use_default_install_dirs=False, build=False, host=False)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+        apply_conandata_patches(self)
+        with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        with tools.chdir(self._source_subfolder):
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.install()
             autotools.make(target="install-lib-headers")
-            with tools.chdir("librhash"):
+            with chdir(self, "librhash"):
                 if self.options.shared:
                     autotools.make(target="install-so-link")
-        tools.rmdir(os.path.join(self.package_folder, "bin"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "bin"))
+        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "LibRHash"

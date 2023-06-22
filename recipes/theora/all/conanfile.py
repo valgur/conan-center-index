@@ -36,15 +36,15 @@ class TheoraConan(ConanFile):
     def configure(self):
         if self.options.shared:
             try:
-                del self.options.fPIC
+                self.options.rm_safe("fPIC")
             except ConanException:
                 pass
         try:
-            del self.settings.compiler.libcxx
+            self.settings.rm_safe("compiler.libcxx")
         except ConanException:
             pass
         try:
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.cppstd")
         except ConanException:
             pass
 
@@ -55,7 +55,7 @@ class TheoraConan(ConanFile):
         self.requires("ogg/1.3.5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

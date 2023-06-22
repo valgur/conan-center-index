@@ -49,7 +49,7 @@ class LibPcapConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.enable_libusb
+            self.options.rm_safe("enable_libusb")
 
     def configure(self):
         if self.options.shared:

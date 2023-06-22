@@ -39,12 +39,9 @@ class DacapClipConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_png
+            self.options.rm_safe("with_png")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -62,7 +59,7 @@ class DacapClipConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC debug shared build (now).")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         toolchain = CMakeToolchain(self)

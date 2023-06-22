@@ -63,9 +63,9 @@ class PCRE2Conan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.build_pcre2grep:
-            del self.options.with_zlib
-            del self.options.with_bzip2
-            del self.options.grep_support_callout_fork
+            self.options.rm_safe("with_zlib")
+            self.options.rm_safe("with_bzip2")
+            self.options.rm_safe("grep_support_callout_fork")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -89,7 +89,7 @@ class PCRE2Conan(ConanFile):
             raise ConanInvalidConfiguration("build_pcre2_8 must be enabled for the pcre2grep program")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

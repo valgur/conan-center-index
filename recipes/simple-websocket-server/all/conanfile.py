@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class SimpleWebSocketServerConan(ConanFile):
     name = "simple-websocket-server"
     homepage = "https://gitlab.com/eidheim/Simple-WebSocket-Server"
@@ -98,7 +99,7 @@ class SimpleWebSocketServerConan(ConanFile):
     def requirements(self):
         self.requires("openssl/1.1.1q")
         # only version 2.0.2 upwards is able to build against asio 1.18.0 or higher
-        if tools.Version(self.version) <= "2.0.1":
+        if Version(self.version) <= "2.0.1":
             if self.options.use_asio_standalone:
                 self.requires("asio/1.16.1")
             else:
@@ -111,33 +112,34 @@ class SimpleWebSocketServerConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def build(self):
         if (
-            tools.Version(self.version) <= "2.0.1"
+            Version(self.version) <= "2.0.1"
             and "asio" in self.deps_cpp_info.deps
-            and tools.Version(self.deps_cpp_info["asio"].version) >= "1.18.0"
+            and Version(self.deps_cpp_info["asio"].version) >= "1.18.0"
         ):
             raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require asio < 1.18.0")
         elif (
-            tools.Version(self.version) <= "2.0.1"
+            Version(self.version) <= "2.0.1"
             and "boost" in self.deps_cpp_info.deps
-            and tools.Version(self.deps_cpp_info["boost"].version) >= "1.74.0"
+            and Version(self.deps_cpp_info["boost"].version) >= "1.74.0"
         ):
             raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require boost < 1.74.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "Simple-WebSocket-Server-v" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
             pattern="*.hpp",
             dst=os.path.join("include", "simple-websocket-server"),
-            src=self._source_subfolder,
+            src=self.source_folder,
         )
 
     def package_info(self):

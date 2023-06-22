@@ -55,7 +55,7 @@ class HighwayConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "0.16.0":
-            del self.options.shared
+            self.options.rm_safe("shared")
         elif self.options.shared:
             self.options.rm_safe("fPIC")
 

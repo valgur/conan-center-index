@@ -114,12 +114,10 @@ class LLVMOpenMpConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -136,7 +134,7 @@ class LLVMOpenMpConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self._supports_compiler():
             raise ConanInvalidConfiguration(
                 "llvm-openmp doesn't support compiler: {} on OS: {}.".format(
@@ -146,42 +144,43 @@ class LLVMOpenMpConan(ConanFile):
 
     def validate(self):
         if (
-            tools.Version(self.version) <= "10.0.0"
+            Version(self.version) <= "10.0.0"
             and self.settings.os == "Macos"
             and self.settings.arch == "armv8"
         ):
             raise ConanInvalidConfiguration("ARM v8 not supported")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "openmp-{}.src".format(self.version)
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["OPENMP_STANDALONE_BUILD"] = True
-        cmake.definitions["LIBOMP_ENABLE_SHARED"] = self.options.shared
+        tc = CMakeToolchain(self)
+        tc.variables["OPENMP_STANDALONE_BUILD"] = True
+        tc.variables["LIBOMP_ENABLE_SHARED"] = self.options.shared
         if self.settings.os == "Linux":
-            cmake.definitions["OPENMP_ENABLE_LIBOMPTARGET"] = self.options.shared
-        cmake.configure()
-        return cmake
+            tc.variables["OPENMP_ENABLE_LIBOMPTARGET"] = self.options.shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "runtime/CMakeLists.txt"), "add_subdirectory(test)", ""
+        replace_in_file(
+            self, os.path.join(self.source_folder, "runtime/CMakeLists.txt"), "add_subdirectory(test)", ""
         )
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE.txt", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
@@ -207,7 +206,7 @@ class LLVMOpenMpConan(ConanFile):
                     alias=alias, aliased=aliased
                 )
             )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -231,6 +230,6 @@ class LLVMOpenMpConan(ConanFile):
             self.cpp_info.cxxflags = ["-fopenmp"]
         elif self.settings.compiler == "intel":
             self.cpp_info.cxxflags = ["/Qopenmp"] if self.settings.os == "Windows" else ["-Qopenmp"]
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["dl", "m", "pthread", "rt"]

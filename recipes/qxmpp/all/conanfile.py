@@ -106,12 +106,9 @@ class QxmppConan(ConanFile):
         "with_gstreamer": False,
     }
 
-    generators = "cmake", "cmake_find_package_multi"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,7 +116,7 @@ class QxmppConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("qt/6.2.4")
@@ -128,40 +125,36 @@ class QxmppConan(ConanFile):
             self.requires("glib/2.70.1")
 
     def source(self):
-        files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_DOCUMENTATION"] = "OFF"
-        cmake.definitions["BUILD_TESTS"] = "OFF"
-        cmake.definitions["BUILD_EXAMPLES"] = "OFF"
-        cmake.definitions["WITH_GSTREAMER"] = self.options.with_gstreamer
-        cmake.definitions["BUILD_SHARED"] = self.options.shared
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_DOCUMENTATION"] = "OFF"
+        tc.variables["BUILD_TESTS"] = "OFF"
+        tc.variables["BUILD_EXAMPLES"] = "OFF"
+        tc.variables["WITH_GSTREAMER"] = self.options.with_gstreamer
+        tc.variables["BUILD_SHARED"] = self.options.shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            files.patch(self, **patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.LGPL", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.LGPL", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared and self.settings.os == "Windows":
-            files.mkdir(self, os.path.join(self.package_folder, "bin"))
-            files.rename(
+            mkdir(self, os.path.join(self.package_folder, "bin"))
+            rename(
                 self,
                 os.path.join(self.package_folder, "lib", "qxmpp.dll"),
                 os.path.join(self.package_folder, "bin", "qxmpp.dll"),

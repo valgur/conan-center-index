@@ -80,6 +80,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -103,11 +104,11 @@ class PranavCSV2Conan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
         minimum_version = self._compiler_required_cpp11.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++11, which your compiler does not support.".format(self.name)
                 )
@@ -117,15 +118,7 @@ class PranavCSV2Conan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-
-    @functools.lru_cache(1)
-    def generate(self):
-        cmake = CMake(self)
-        cmake.configure(source_folder=self._source_subfolder)
-        return cmake
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _module_subfolder(self):
@@ -149,15 +142,26 @@ class PranavCSV2Conan(ConanFile):
                     alias=alias, aliased=aliased
                 )
             )
-        tools.save(module_file, content)
+        save(self, module_file, content)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE*", "licenses", self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE*", "licenses", self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),

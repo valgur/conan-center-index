@@ -20,7 +20,7 @@ class TestPackageConan(ConanFile):
 
             shutil.copy(os.path.join(self.source_folder, "conanfile.py"), "conanfile.py")
 
-            sha256_original = tools.sha256sum("conanfile.py")
+            sha256_original = sha256sum(self, "conanfile.py")
             self.run(f"{lzip} conanfile.py")
             if not os.path.exists("conanfile.py.lz"):
                 raise ConanException("conanfile.py.lz does not exist")
@@ -28,5 +28,5 @@ class TestPackageConan(ConanFile):
                 raise ConanException("copied conanfile.py should not exist anymore")
 
             self.run(f"{lzip} -d conanfile.py.lz")
-            if tools.sha256sum("conanfile.py") != sha256_original:
+            if sha256sum(self, "conanfile.py") != sha256_original:
                 raise ConanException("sha256 from extracted conanfile.py does not match original")

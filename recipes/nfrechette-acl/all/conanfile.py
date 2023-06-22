@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class AclConan(ConanFile):
     name = "nfrechette-acl"
     description = "Animation Compression Library"
@@ -95,9 +96,9 @@ class AclConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "11"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "acl can't be compiled by {0} {1}".format(
                     self.settings.compiler, self.settings.compiler.version
@@ -105,13 +106,13 @@ class AclConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "acl-" + self.version
-        rename(self, extracted_dir, self._source_subfolder)
+        rename(self, extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "includes"))
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "includes"))
 
     def package_id(self):
         self.info.header_only()

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class QuaternionsConan(ConanFile):
     name = "quaternions"
     description = "A blazingly fast C++ library to work with quaternions."
@@ -91,22 +92,23 @@ class QuaternionsConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         url = self.conan_data["sources"][self.version]["url"]
         extracted_dir = self.name + "-" + os.path.splitext(os.path.basename(url))[0]
-        os.rename(extracted_dir, self._source_subfolder)
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "include", "quaternion.h"),
+        os.rename(extracted_dir, self.source_folder)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "include", "quaternion.h"),
             "#include <boost/mpl/bool.hpp>",
             "",
         )
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))

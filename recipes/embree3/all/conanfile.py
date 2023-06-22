@@ -119,19 +119,19 @@ class EmbreeConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_sse_avx:
-            del self.options.sse2
-            del self.options.sse42
-            del self.options.avx
-            del self.options.avx2
-            del self.options.avx512
+            self.options.rm_safe("sse2")
+            self.options.rm_safe("sse42")
+            self.options.rm_safe("avx")
+            self.options.rm_safe("avx2")
+            self.options.rm_safe("avx512")
         if not self._has_neon:
-            del self.options.neon
-            del self.options.neon2x
+            self.options.rm_safe("neon")
+            self.options.rm_safe("neon2x")
         else:
             if not self._embree_has_neon_support:
-                del self.options.neon
+                self.options.rm_safe("neon")
             if not self._embree_has_neon2x_support:
-                del self.options.neon2x
+                self.options.rm_safe("neon2x")
 
     def configure(self):
         if self.options.shared:

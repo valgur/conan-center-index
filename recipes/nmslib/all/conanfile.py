@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class Nmslib(ConanFile):
     name = "nmslib"
     url = "https://github.com/conan-io/conan-center-index"
@@ -96,7 +97,6 @@ class Nmslib(ConanFile):
         "fPIC": True,
     }
     exports_sources = "CMakeLists.txt", "patches/**"
-    generators = "cmake"
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
@@ -111,34 +111,31 @@ class Nmslib(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if self._cmake is None:
-            cmake = CMake(self)
-            cmake.definitions["WITHOUT_TESTS"] = True
-            cmake.configure()
-            self._cmake = cmake
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["WITHOUT_TESTS"] = True
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

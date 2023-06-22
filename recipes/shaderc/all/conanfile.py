@@ -103,27 +103,19 @@ class ShadercConan(ConanFile):
         "spvc": False,
     }
 
-    generators = "cmake"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) >= "2020.4":
-            del self.options.spvc
+        if Version(self.version) >= "2020.4":
+            self.options.rm_safe("spvc")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     @property
     def _get_compatible_spirv_tools_version(self):
@@ -147,18 +139,10 @@ class ShadercConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-
-    def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
-        cmake.build()
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -170,28 +154,34 @@ class ShadercConan(ConanFile):
         tc.variables["SHADERC_SPVC_DISABLE_CONTEXT_LOGGING"] = False
         tc.variables["SHADERC_ENABLE_WERROR_COMPILE"] = False
         if self.settings.compiler == "Visual Studio":
-            tc.variables["SHADERC_ENABLE_SHARED_CRT"] = str(
-                self.settings.compiler.runtime
-            ).startswith("MD")
+            tc.variables["SHADERC_ENABLE_SHARED_CRT"] = str(self.settings.compiler.runtime).startswith("MD")
         tc.variables["ENABLE_CODE_COVERAGE"] = False
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             tc.variables["CMAKE_MACOSX_BUNDLE"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def build(self):
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "shaderc" if self.options.shared else "shaderc_static")
         self.cpp_info.libs = self._get_ordered_libs()
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-        if not self.options.shared and tools.stdcpp_library(self):
-            self.cpp_info.system_libs.append(tools.stdcpp_library(self))
+        if not self.options.shared and stdcpp_library(self):
+            self.cpp_info.system_libs.append(stdcpp_library(self))
         if self.options.shared:
             self.cpp_info.defines.append("SHADERC_SHAREDLIB")
 

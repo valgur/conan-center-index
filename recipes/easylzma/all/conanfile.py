@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class EazylzmaConan(ConanFile):
     name = "easylzma"
     license = "Unlicense"
@@ -87,7 +88,6 @@ class EazylzmaConan(ConanFile):
     description = "An easy to use, tiny, public domain, C wrapper library around \
                     Igor Pavlov's work that can be used to compress and extract lzma files"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake"
     topics = ("eazylzma", "lzma")
     exports_sources = ["CMakeLists.txt", "patches/*"]
     options = {
@@ -102,7 +102,7 @@ class EazylzmaConan(ConanFile):
     @property
     def _license_text(self):
         # Extract the License/s from the README to a file
-        tmp = tools.load(os.path.join("source_subfolder", "README"))
+        tmp = load(self, os.path.join("source_subfolder", "README"))
         return tmp[tmp.find("License", 1) : tmp.find("work.", 1) + 5]
 
     @property
@@ -115,32 +115,31 @@ class EazylzmaConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build(target=self._libname)
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
-        self.copy(pattern="*.dylib*", dst="lib", src="lib", keep_path=False, symlinks=True)
-        self.copy(pattern="*.so*", dst="lib", src="lib", keep_path=False, symlinks=True)
-        self.copy(pattern="*.dll", dst="bin", src="bin", keep_path=False)
-        self.copy(pattern="*.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="*.lib", dst="lib", src="lib", keep_path=False)
+        copy(self, pattern="*.dylib*", dst="lib", src="lib", keep_path=False, symlinks=True)
+        copy(self, pattern="*.so*", dst="lib", src="lib", keep_path=False, symlinks=True)
+        copy(self, pattern="*.dll", dst="bin", src="bin", keep_path=False)
+        copy(self, pattern="*.a", dst="lib", src="lib", keep_path=False)
+        copy(self, pattern="*.lib", dst="lib", src="lib", keep_path=False)
 
-        self.copy("easylzma/*", dst="include", src=os.path.join(self._source_subfolder, "src"))
+        copy(self, "easylzma/*", dst="include", src=os.path.join(self.source_folder, "src"))
 
     def package_info(self):
         self.cpp_info.libs = [self._libname]

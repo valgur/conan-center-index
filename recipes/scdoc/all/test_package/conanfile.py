@@ -12,5 +12,5 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     def test(self):
-        scd_path = os.path.join(self.source_folder,'test_package.1.scd')
+        scd_path = os.path.join(self.source_folder, "test_package.1.scd")
         self.run(f"scdoc < {scd_path}")

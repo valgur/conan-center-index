@@ -35,7 +35,7 @@ class OpenclIcdLoaderConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.disable_openclon12
+            self.options.rm_safe("disable_openclon12")
 
     def configure(self):
         if self.options.shared:

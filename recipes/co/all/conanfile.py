@@ -99,7 +99,6 @@ class CoConan(ConanFile):
     deprecated = "cocoyaxi"
 
     exports_sources = "CMakeLists.txt", "patches/*"
-    generators = "cmake", "cmake_find_package"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -115,17 +114,13 @@ class CoConan(ConanFile):
         "with_openssl": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_libcurl:
@@ -139,14 +134,12 @@ class CoConan(ConanFile):
             self.build_requires("cmake/3.20.1")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def generate(self):
@@ -158,12 +151,14 @@ class CoConan(ConanFile):
             tc.variables["STATIC_VS_CRT"] = "MT" in runtime
         tc.variables["WITH_LIBCURL"] = self.options.with_libcurl
         tc.variables["WITH_OPENSSL"] = self.options.with_openssl
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def package(self):
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

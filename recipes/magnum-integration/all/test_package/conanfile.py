@@ -16,13 +16,13 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["WITH_BULLET"] = self.options["magnum-integration"].with_bullet
-        cmake.definitions["WITH_DART"] = self.options["magnum-integration"].with_dart
-        cmake.definitions["WITH_EIGEN"] = self.options["magnum-integration"].with_eigen
-        cmake.definitions["WITH_GLM"] = self.options["magnum-integration"].with_glm
-        cmake.definitions["WITH_IMGUI"] = self.options["magnum-integration"].with_imgui
-        cmake.definitions["WITH_OVR"] = self.options["magnum-integration"].with_ovr
+        tc = CMakeToolchain(self)
+        tc.variables["WITH_BULLET"] = self.options["magnum-integration"].with_bullet
+        tc.variables["WITH_DART"] = self.options["magnum-integration"].with_dart
+        tc.variables["WITH_EIGEN"] = self.options["magnum-integration"].with_eigen
+        tc.variables["WITH_GLM"] = self.options["magnum-integration"].with_glm
+        tc.variables["WITH_IMGUI"] = self.options["magnum-integration"].with_imgui
+        tc.variables["WITH_OVR"] = self.options["magnum-integration"].with_ovr
         cmake.configure()
         cmake.build()
 

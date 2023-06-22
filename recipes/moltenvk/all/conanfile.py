@@ -72,11 +72,11 @@ class MoltenVKConan(ConanFile):
 
     def config_options(self):
         if not self._has_hide_vulkan_symbols_option:
-            del self.options.hide_vulkan_symbols
+            self.options.rm_safe("hide_vulkan_symbols")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         elif self._has_hide_vulkan_symbols_option:
             self.options.rm_safe("hide_vulkan_symbols")
 

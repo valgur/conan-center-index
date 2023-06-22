@@ -112,7 +112,7 @@ class YandexOzoConan(ConanFile):
 
         if not minimum_version:
             self.output.warn("ozo requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("ozo requires a compiler that supports at least C++17")
 
     def validate(self):
@@ -122,17 +122,16 @@ class YandexOzoConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(
+        copy(
+            self,
             pattern="*",
             dst=os.path.join("include", "ozo"),
-            src=os.path.join(self._source_subfolder, "include", "ozo"),
+            src=os.path.join(self.source_folder, "include", "ozo"),
         )
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

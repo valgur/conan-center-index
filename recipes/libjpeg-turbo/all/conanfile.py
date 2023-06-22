@@ -57,19 +57,19 @@ class LibjpegTurboConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
         if self.options.enable12bit:
-            del self.options.java
-            del self.options.turbojpeg
+            self.options.rm_safe("java")
+            self.options.rm_safe("turbojpeg")
         if self.options.enable12bit or self.settings.os == "Emscripten":
-            del self.options.SIMD
+            self.options.rm_safe("SIMD")
         if (
             self.options.enable12bit
             or self.options.libjpeg7_compatibility
             or self.options.libjpeg8_compatibility
         ):
-            del self.options.arithmetic_encoder
-            del self.options.arithmetic_decoder
+            self.options.rm_safe("arithmetic_encoder")
+            self.options.rm_safe("arithmetic_decoder")
         if self.options.libjpeg8_compatibility:
-            del self.options.mem_src_dst
+            self.options.rm_safe("mem_src_dst")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -62,8 +62,8 @@ class SpirvCrossConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
             # these options don't contribute to shared binary
-            del self.options.c_api
-            del self.options.util
+            self.options.rm_safe("c_api")
+            self.options.rm_safe("util")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

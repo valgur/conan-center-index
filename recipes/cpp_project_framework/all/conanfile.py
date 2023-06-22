@@ -134,12 +134,14 @@ class CppProjectFrameworkConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            "*.h", dst=os.path.join("include", self.name), src=os.path.join(self._source_subfolder, self.name)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join("include", self.name),
+            src=os.path.join(self.source_folder, self.name),
         )

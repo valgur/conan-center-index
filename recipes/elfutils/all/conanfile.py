@@ -119,23 +119,22 @@ class ElfutilsConan(ConanFile):
     _source_subfolder = "source_subfolder"
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "0.186":
-            del self.options.libdebuginfod
+        if Version(self.version) < "0.186":
+            self.options.rm_safe("libdebuginfod")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
-        if tools.Version(self.version) >= "0.186":
+        if Version(self.version) >= "0.186":
             if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
                 raise ConanInvalidConfiguration(
                     "Compiler %s not supported. "
@@ -173,13 +172,11 @@ class ElfutilsConan(ConanFile):
         self.build_requires("flex/2.6.4")
         self.build_requires("bison/3.7.6")
         self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -193,36 +190,35 @@ class ElfutilsConan(ConanFile):
                 "--with-lzma" if self.options.with_lzma else "--without-lzma",
                 "--enable-debuginfod" if self.options.debuginfod else "--disable-debuginfod",
             ]
-            if tools.Version(self.version) >= "0.186":
+            if Version(self.version) >= "0.186":
                 args.append(
                     "--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod"
                 )
             args.append("BUILD_STATIC={}".format("0" if self.options.shared else "1"))
 
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(configure_dir=self._source_subfolder, args=args)
+            self._autotools.configure(configure_dir=self.source_folder, args=args)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+        apply_conandata_patches(self)
+        with chdir(self.source_folder):
             self.run("autoreconf -fiv")
         autotools = self._configure_autotools()
         autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="COPYING*", dst="licenses", src=self.source_folder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+            rm(self, "*.a", os.path.join(self.package_folder, "lib"), recursive=True)
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so.1")
+            rm(self, "*.so", os.path.join(self.package_folder, "lib"), recursive=True)
+            rm(self, "*.so.1", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         # library components
@@ -251,72 +247,72 @@ class ElfutilsConan(ConanFile):
 
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
 
-        addr2line = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
+        addr2line = unix_path(self, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
         self.output.info("Setting ADDR2LINE to {}".format(addr2line))
         self.env_info.ADDR2LINE = addr2line
 
-        ar = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-ar" + bin_ext))
+        ar = unix_path(self, os.path.join(self.package_folder, "bin", "eu-ar" + bin_ext))
         self.output.info("Setting AR to {}".format(ar))
         self.env_info.AR = ar
 
-        elfclassify = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
+        elfclassify = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
         self.output.info("Setting ELFCLASSIFY to {}".format(elfclassify))
         self.env_info.ELFCLASSIFY = elfclassify
 
-        elfcmp = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcmp" + bin_ext))
+        elfcmp = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfcmp" + bin_ext))
         self.output.info("Setting ELFCMP to {}".format(elfcmp))
         self.env_info.ELFCMP = elfcmp
 
-        elfcompress = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
+        elfcompress = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
         self.output.info("Setting ELFCOMPRESS to {}".format(elfcompress))
         self.env_info.ELFCOMPRESS = elfcompress
 
-        elflint = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elflint" + bin_ext))
+        elflint = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elflint" + bin_ext))
         self.output.info("Setting ELFLINT to {}".format(elflint))
         self.env_info.ELFLINT = elflint
 
-        findtextrel = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
+        findtextrel = unix_path(self, os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
         self.output.info("Setting FINDTEXTREL to {}".format(findtextrel))
         self.env_info.FINDTEXTREL = findtextrel
 
-        make_debug_archive = tools.unix_path(
-            os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext)
+        make_debug_archive = unix_path(
+            self, os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext)
         )
         self.output.info("Setting MAKE_DEBUG_ARCHIVE to {}".format(make_debug_archive))
         self.env_info.MAKE_DEBUG_ARCHIVE = make_debug_archive
 
-        nm = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-nm" + bin_ext))
+        nm = unix_path(self, os.path.join(self.package_folder, "bin", "eu-nm" + bin_ext))
         self.output.info("Setting NM to {}".format(nm))
         self.env_info.NM = nm
 
-        objdump = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-objdump" + bin_ext))
+        objdump = unix_path(self, os.path.join(self.package_folder, "bin", "eu-objdump" + bin_ext))
         self.output.info("Setting OBJDUMP to {}".format(objdump))
         self.env_info.OBJDUMP = objdump
 
-        ranlib = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-ranlib" + bin_ext))
+        ranlib = unix_path(self, os.path.join(self.package_folder, "bin", "eu-ranlib" + bin_ext))
         self.output.info("Setting RANLIB to {}".format(ranlib))
         self.env_info.RANLIB = ranlib
 
-        readelf = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-readelf" + bin_ext))
+        readelf = unix_path(self, os.path.join(self.package_folder, "bin", "eu-readelf" + bin_ext))
         self.output.info("Setting READELF to {}".format(readelf))
         self.env_info.READELF = readelf
 
-        size = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-size" + bin_ext))
+        size = unix_path(self, os.path.join(self.package_folder, "bin", "eu-size" + bin_ext))
         self.output.info("Setting SIZE to {}".format(size))
         self.env_info.SIZE = size
 
-        stack = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-stack" + bin_ext))
+        stack = unix_path(self, os.path.join(self.package_folder, "bin", "eu-stack" + bin_ext))
         self.output.info("Setting STACK to {}".format(stack))
         self.env_info.STACK = stack
 
-        strings = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-strings" + bin_ext))
+        strings = unix_path(self, os.path.join(self.package_folder, "bin", "eu-strings" + bin_ext))
         self.output.info("Setting STRINGS to {}".format(strings))
         self.env_info.STRINGS = strings
 
-        strip = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-strip" + bin_ext))
+        strip = unix_path(self, os.path.join(self.package_folder, "bin", "eu-strip" + bin_ext))
         self.output.info("Setting STRIP to {}".format(strip))
         self.env_info.STRIP = strip
 
-        unstrip = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-unstrip" + bin_ext))
+        unstrip = unix_path(self, os.path.join(self.package_folder, "bin", "eu-unstrip" + bin_ext))
         self.output.info("Setting UNSTRIP to {}".format(unstrip))
         self.env_info.UNSTRIP = unstrip

@@ -16,8 +16,8 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["ROCKSDB_SHARED"] = self.options["rocksdb"].shared
+        tc = CMakeToolchain(self)
+        tc.variables["ROCKSDB_SHARED"] = self.options["rocksdb"].shared
         cmake.configure()
         cmake.build()
 

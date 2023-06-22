@@ -86,7 +86,7 @@ class ArmadilloConan(ConanFile):
         # If any of MINGW, MSYS, CYGWIN or MSVC are True in during cmake configure, the ARMA_USE_EXTERN_RNG option will be set to false.
         # Therefore, in these cases we remove the `use_extern_rng` option in conan
         if self.settings.os == "Windows":
-            del self.options.use_extern_rng
+            self.options.rm_safe("use_extern_rng")
 
     def configure(self):
         if self.options.shared:

@@ -159,8 +159,6 @@ class Open62541Conan(ConanFile):
 
     exports = "submoduledata.yml"
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -169,7 +167,7 @@ class Open62541Conan(ConanFile):
             del self.options.fPIC
 
         if Version(self.version) >= "1.3.1":
-            del self.options.embedded_profile
+            self.options.rm_safe("embedded_profile")
 
     def configure(self):
         if self.options.shared:
@@ -256,7 +254,7 @@ class Open62541Conan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
         submodule_filename = os.path.join(self.recipe_folder, "submoduledata.yml")
         with open(submodule_filename, "r") as submodule_stream:
@@ -410,8 +408,8 @@ class Open62541Conan(ConanFile):
         return os.path.join(self._module_subfolder, "open62541Macros.cmake")
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self.source_folder)
-        self.copy("LICENSE-CC0", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE-CC0", dst="licenses", src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -425,8 +423,8 @@ class Open62541Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        self.copy("generate_*.py", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
-        self.copy("nodeset_compiler/*", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
+        copy(self, "generate_*.py", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
+        copy(self, "nodeset_compiler/*", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
 
     @staticmethod
     def _chmod_plus_x(filename):

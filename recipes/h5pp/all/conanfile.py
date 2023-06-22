@@ -22,7 +22,6 @@ class H5ppConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    short_paths = True
     options = {
         "with_eigen": [True, False],
         "with_spdlog": [True, False],
@@ -58,9 +57,9 @@ class H5ppConan(ConanFile):
             #     build and /link steps non-deterministic.
             #   * h5pp >= 1.10.0 fixes the issue with H5PP_USE_<LIB> preprocessor flags, to make sure
             #     that including the headers is intentional.
-            del self.options.with_eigen
-            del self.options.with_spdlog
-            del self.options.with_zlib
+            self.options.rm_safe("with_eigen")
+            self.options.rm_safe("with_spdlog")
+            self.options.rm_safe("with_zlib")
         else:
             self.options["hdf5"].with_zlib = self.options.with_zlib
 
@@ -90,7 +89,7 @@ class H5ppConan(ConanFile):
             self.output.warning("h5pp requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def package(self):

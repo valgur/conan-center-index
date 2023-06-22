@@ -92,12 +92,12 @@ class KainjowMustacheConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("Mustache-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("Mustache-{}".format(self.version), self.source_folder)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("mustache.hpp", dst=os.path.join("include", "kainjow"), src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "mustache.hpp", dst=os.path.join("include", "kainjow"), src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

@@ -40,7 +40,6 @@ class OnnxRuntimeConan(ConanFile):
         "fPIC": True,
         "with_xnnpack": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

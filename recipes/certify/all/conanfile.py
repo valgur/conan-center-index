@@ -112,7 +112,7 @@ class CertifyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -134,13 +134,11 @@ class CertifyConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, pattern="LICENSE_1_0.txt", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "certify")

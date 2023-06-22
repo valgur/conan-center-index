@@ -96,7 +96,6 @@ class EnkiTSConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     exports_sources = "CMakeLists.txt", "patches/*"
-    generators = "cmake"
 
     options = {
         "shared": [True, False],
@@ -113,31 +112,32 @@ class EnkiTSConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "enkiTS-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            tc.variables["ENKITS_INSTALL"] = True
-            tc.variables["ENKITS_BUILD_EXAMPLES"] = False
-            tc.variables["ENKITS_BUILD_SHARED"] = self.options.shared
-            self._cmake.configure()
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["ENKITS_INSTALL"] = True
+        tc.variables["ENKITS_BUILD_EXAMPLES"] = False
+        tc.variables["ENKITS_BUILD_SHARED"] = self.options.shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="License.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="License.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

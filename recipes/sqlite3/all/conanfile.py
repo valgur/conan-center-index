@@ -88,7 +88,7 @@ class Sqlite3Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_enable_math_function_option:
-            del self.options.enable_math_functions
+            self.options.rm_safe("enable_math_functions")
 
     def configure(self):
         if self.options.shared:

@@ -99,7 +99,7 @@ class So5extraConan(ConanFile):
     def validate(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "7",
             "clang": "6",
@@ -117,7 +117,7 @@ class So5extraConan(ConanFile):
             )
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
@@ -127,15 +127,13 @@ class So5extraConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(
-            "*.hpp", dst="include/so_5_extra", src=os.path.join(self._source_subfolder, "dev", "so_5_extra")
+        copy(
+            self, "*.hpp", dst="include/so_5_extra", src=os.path.join(self.source_folder, "dev", "so_5_extra")
         )
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "so5extra")

@@ -106,36 +106,33 @@ class TinyAlsaConan(ConanFile):
             raise ConanInvalidConfiguration("{} only works for Linux.".format(self.name))
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+        apply_conandata_patches(self)
+        with chdir(self.source_folder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build.make()
 
     def package(self):
-        self.copy("NOTICE", dst="licenses", src=self._source_subfolder)
+        copy(self, "NOTICE", dst="licenses", src=self.source_folder)
 
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build_vars = env_build.vars
             env_build_vars["PREFIX"] = self.package_folder
             env_build.install(vars=env_build_vars)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         if not self.options.with_utils:
-            tools.rmdir(os.path.join(self.package_folder, "bin"))
+            rmdir(self, os.path.join(self.package_folder, "bin"))
 
-        with tools.chdir(os.path.join(self.package_folder, "lib")):
+        with chdir(self, os.path.join(self.package_folder, "lib")):
             files = os.listdir()
             for f in files:
                 if (self.options.shared and f.endswith(".a")) or (
@@ -145,7 +142,7 @@ class TinyAlsaConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["tinyalsa"]
-        if tools.Version(self.version) >= "2.0.0":
+        if Version(self.version) >= "2.0.0":
             self.cpp_info.system_libs.append("dl")
         if self.options.with_utils:
             bin_path = os.path.join(self.package_folder, "bin")

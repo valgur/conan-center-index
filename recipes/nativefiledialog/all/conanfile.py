@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class NativefiledialogConan(ConanFile):
     name = "nativefiledialog"
     license = "Zlib"
@@ -101,16 +102,16 @@ class NativefiledialogConan(ConanFile):
         self.build_requires("premake/5.0.0-alpha15")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
         if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("architecture %s is not supported" % self.settings.arch)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-release_" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
         if self.settings.compiler == "Visual Studio":
@@ -126,9 +127,9 @@ class NativefiledialogConan(ConanFile):
             }.get(str(self.settings.compiler.version))
         else:
             generator = "gmake2"
-        subdir = os.path.join(self._source_subfolder, "build", "subdir")
+        subdir = os.path.join(self.source_folder, "build", "subdir")
         os.makedirs(subdir)
-        with tools.chdir(subdir):
+        with chdir(self, subdir):
             os.rename(os.path.join("..", "premake5.lua"), "premake5.lua")
             self.run("premake5 %s" % generator)
 
@@ -144,11 +145,11 @@ class NativefiledialogConan(ConanFile):
     def package(self):
         libname = "nfd_d" if self.settings.build_type == "Debug" else "nfd"
         if self.settings.compiler == "Visual Studio":
-            self.copy("*%s.lib" % libname, dst="lib", src=self._source_subfolder, keep_path=False)
+            copy(self, "*%s.lib" % libname, dst="lib", src=self.source_folder, keep_path=False)
         else:
-            self.copy("*%s.a" % libname, dst="lib", src=self._source_subfolder, keep_path=False)
-        self.copy("*nfd.h", dst="include", src=self._source_subfolder, keep_path=False)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+            copy(self, "*%s.a" % libname, dst="lib", src=self.source_folder, keep_path=False)
+        copy(self, "*nfd.h", dst="include", src=self.source_folder, keep_path=False)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["nfd_d" if self.settings.build_type == "Debug" else "nfd"]

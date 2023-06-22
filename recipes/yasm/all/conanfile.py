@@ -50,7 +50,6 @@ class YASMConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][0],
-            destination=self.source_folder,
             strip_root=True,
         )
 

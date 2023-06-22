@@ -34,7 +34,6 @@ class DbusConan(ConanFile):
     topics = ("bus", "interprocess", "message")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
     options = {
         "system_socket": [None, "ANY"],
         "system_pid_file": [None, "ANY"],
@@ -63,9 +62,9 @@ class DbusConan(ConanFile):
 
     def config_options(self):
         if self.settings.os not in ("Linux", "FreeBSD") or Version(self.version) < "1.14.0":
-            del self.options.with_systemd
+            self.options.rm_safe("with_systemd")
         if self.settings.os not in ("Linux", "FreeBSD"):
-            del self.options.with_x11
+            self.options.rm_safe("with_x11")
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")

@@ -21,7 +21,6 @@ class SymengineConan(ConanFile):
         "fPIC": True,
         "integer_class": "gmp",
     }
-    short_paths = True
 
     def requirements(self):
         if self.options.integer_class == "boostmp":
@@ -30,7 +29,7 @@ class SymengineConan(ConanFile):
             self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":

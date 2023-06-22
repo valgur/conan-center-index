@@ -108,15 +108,15 @@ class UPXConan(ConanFile):
             )
 
     def build(self):
-        tools.get(**self._conan_data_sources(), destination=self._source_subfolder, strip_root=True)
+        get(self, **self._conan_data_sources(), strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         if self.settings.os == "Windows":
-            self.copy("upx.exe", src=self._source_subfolder, dst="bin")
+            copy(self, "upx.exe", src=self.source_folder, dst="bin")
         else:
-            self.copy("upx", src=self._source_subfolder, dst="bin")
+            copy(self, "upx", src=self.source_folder, dst="bin")
 
     def package_info(self):
         self.cpp_info.libdirs = []

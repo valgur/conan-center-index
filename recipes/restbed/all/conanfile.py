@@ -53,7 +53,7 @@ class RestbedConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.ipc
+            self.options.rm_safe("ipc")
 
     def configure(self):
         if self.options.shared:

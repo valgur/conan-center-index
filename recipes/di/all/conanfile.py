@@ -97,7 +97,7 @@ class DiConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "5",
             "clang": "3.4",
@@ -114,29 +114,31 @@ class DiConan(ConanFile):
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
             return
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "di-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("BSL-1.0.txt", src="", dst="licenses")
+        copy(self, "BSL-1.0.txt", src="", dst="licenses")
         if self.options.with_extensions:
-            self.copy(
+            copy(
+                self,
                 "*.hpp",
-                src=os.path.join(self._source_subfolder, "extension", "include", "boost", "di", "extension"),
+                src=os.path.join(self.source_folder, "extension", "include", "boost", "di", "extension"),
                 dst=os.path.join("include", "boost", "di", "extension"),
                 keep_path=True,
             )
-        self.copy(
+        copy(
+            self,
             "di.hpp",
-            src=os.path.join(self._source_subfolder, "include", "boost"),
+            src=os.path.join(self.source_folder, "include", "boost"),
             dst=os.path.join("include", "boost"),
         )
 

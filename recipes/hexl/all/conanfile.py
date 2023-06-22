@@ -105,7 +105,6 @@ class HexlConan(ConanFile):
     topics = ("homomorphic", "encryption", "privacy")
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake", "cmake_find_package"
 
     options = {
         "shared": [True, False],
@@ -123,17 +122,8 @@ class HexlConan(ConanFile):
         "fpga_compatibility_keyswitch": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build_requirements(self):
         self.build_requires("cmake/3.22.0")
@@ -155,7 +145,7 @@ class HexlConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
@@ -196,23 +186,25 @@ class HexlConan(ConanFile):
         tc.variables["HEXL_SHARED_LIB"] = self.options.shared
         tc.variables["HEXL_CROSS_COMPILED"] = cross_building(self)
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 

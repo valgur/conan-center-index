@@ -94,24 +94,20 @@ class UaNodeSetConan(ConanFile):
     no_copy_source = True
 
     def _extract_license(self):
-        content = tools.load(
-            os.path.join(self.source_folder, self._source_subfolder, "AnsiC", "opcua_clientapi.c")
-        )
+        content = load(self, os.path.join(self.source_folder, "AnsiC", "opcua_clientapi.c"))
         license_contents = content[2 : content.find("*/", 1)]
-        tools.save("LICENSE", license_contents)
+        save(self, "LICENSE", license_contents)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         self._extract_license()
-        self.copy("*", dst="res", src=self._source_subfolder)
-        self.copy("LICENSE", dst="licenses")
+        copy(self, "*", dst="res", src=self.source_folder)
+        copy(self, "LICENSE", dst="licenses")
 
     def package_info(self):
         self.cpp_info.libdirs = []

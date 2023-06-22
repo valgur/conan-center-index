@@ -72,7 +72,6 @@ class OpenTelemetryCppConan(ConanFile):
         "with_async_export_preview": False,
         "with_metrics_exemplar_preview": False,
     }
-    short_paths = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -83,7 +82,7 @@ class OpenTelemetryCppConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:

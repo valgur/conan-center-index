@@ -70,10 +70,10 @@ class MinizipNgConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_iconv
-            del self.options.with_libbsd
+            self.options.rm_safe("with_iconv")
+            self.options.rm_safe("with_libbsd")
         if not is_apple_os(self):
-            del self.options.with_libcomp
+            self.options.rm_safe("with_libcomp")
 
     def configure(self):
         if self.options.shared:
@@ -83,7 +83,7 @@ class MinizipNgConan(ConanFile):
         if self.options.mz_compatibility:
             self.provides = "minizip"
         if self.options.get_safe("with_libcomp"):
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

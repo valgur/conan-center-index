@@ -32,8 +32,6 @@ class SpirvtoolsConan(ConanFile):
         "build_executables": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "11" if Version(self.version) < "1.3.243" else "17"

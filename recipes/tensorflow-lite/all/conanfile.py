@@ -40,8 +40,6 @@ class TensorflowLiteConan(ConanFile):
         "with_xnnpack": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "17"
@@ -62,10 +60,10 @@ class TensorflowLiteConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_nnapi
-            del self.options.with_mmap
+            self.options.rm_safe("with_nnapi")
+            self.options.rm_safe("with_mmap")
         if self.settings.os == "Macos":
-            del self.options.with_nnapi
+            self.options.rm_safe("with_nnapi")
 
     def configure(self):
         if self.options.shared:

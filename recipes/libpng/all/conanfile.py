@@ -84,13 +84,13 @@ class LibpngConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_neon_support:
-            del self.options.neon
+            self.options.rm_safe("neon")
         if not self._has_msa_support:
-            del self.options.msa
+            self.options.rm_safe("msa")
         if not self._has_sse_support:
-            del self.options.sse
+            self.options.rm_safe("sse")
         if not self._has_vsx_support:
-            del self.options.vsx
+            self.options.rm_safe("vsx")
 
     def configure(self):
         if self.options.shared:

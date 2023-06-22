@@ -107,7 +107,6 @@ class CmakePython3Abi(object):
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
 
     @property
     def _py_version(self):
@@ -119,7 +118,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _cmake_abi(self):
-        if self._py_version < tools.Version("3.8"):
+        if self._py_version < Version(self, "3.8"):
             return CmakePython3Abi(
                 debug=self.settings.build_type == "Debug", pymalloc=self._pymalloc, unicode=False
             )
@@ -137,7 +136,7 @@ class TestPackageConan(ConanFile):
         return self.settings.compiler != "Visual Studio" or self.options["cpython"].shared
 
     def build(self):
-        if not tools.cross_building(self, skip_x64_x86=True):
+        if not cross_building(self, skip_x64_x86=True):
             command = "{} --version".format(self.deps_user_info["cpython"].python)
             buffer = StringIO()
             self.run(command, output=buffer, ignore_errors=True, run_environment=True)
@@ -146,39 +145,39 @@ class TestPackageConan(ConanFile):
 
         cmake = CMake(self)
         py_major = self.deps_cpp_info["cpython"].version.split(".")[0]
-        cmake.definitions["BUILD_MODULE"] = self._supports_modules
-        cmake.definitions["PY_VERSION_MAJOR"] = py_major
-        cmake.definitions["PY_VERSION_MAJOR_MINOR"] = ".".join(self._py_version.split(".")[:2])
-        cmake.definitions["PY_FULL_VERSION"] = self.deps_cpp_info["cpython"].version
-        cmake.definitions["PY_VERSION"] = self._py_version
-        cmake.definitions["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
-        cmake.definitions["PYTHON_EXECUTABLE"] = self.deps_user_info["cpython"].python
-        cmake.definitions["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
-        cmake.definitions["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info["cpython"].python
-        cmake.definitions["Python{}_ROOT_DIR".format(py_major)] = self.deps_cpp_info["cpython"].rootpath
-        cmake.definitions["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
-        cmake.definitions["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
-        cmake.definitions["Python{}_FIND_REGISTRY".format(py_major)] = "NEVER"
-        cmake.definitions["Python{}_FIND_IMPLEMENTATIONS".format(py_major)] = "CPython"
-        cmake.definitions["Python{}_FIND_STRATEGY".format(py_major)] = "LOCATION"
+        tc.variables["BUILD_MODULE"] = self._supports_modules
+        tc.variables["PY_VERSION_MAJOR"] = py_major
+        tc.variables["PY_VERSION_MAJOR_MINOR"] = ".".join(self._py_version.split(".")[:2])
+        tc.variables["PY_FULL_VERSION"] = self.deps_cpp_info["cpython"].version
+        tc.variables["PY_VERSION"] = self._py_version
+        tc.variables["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
+        tc.variables["PYTHON_EXECUTABLE"] = self.deps_user_info["cpython"].python
+        tc.variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
+        tc.variables["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info["cpython"].python
+        tc.variables["Python{}_ROOT_DIR".format(py_major)] = self.deps_cpp_info["cpython"].rootpath
+        tc.variables["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
+        tc.variables["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
+        tc.variables["Python{}_FIND_REGISTRY".format(py_major)] = "NEVER"
+        tc.variables["Python{}_FIND_IMPLEMENTATIONS".format(py_major)] = "CPython"
+        tc.variables["Python{}_FIND_STRATEGY".format(py_major)] = "LOCATION"
 
         if self.settings.compiler != "Visual Studio":
-            if tools.Version(self._py_version) < tools.Version("3.8"):
-                cmake.definitions["Python{}_FIND_ABI".format(py_major)] = self._cmake_abi.cmake_arg
+            if Version(self._py_version) < Version(self, "3.8"):
+                tc.variables["Python{}_FIND_ABI".format(py_major)] = self._cmake_abi.cmake_arg
 
-        with tools.environment_append(RunEnvironment(self).vars):
+        with environment_append(self, RunEnvironment(self).vars):
             cmake.configure()
         cmake.build()
 
-        if not tools.cross_building(self, skip_x64_x86=True):
+        if not cross_building(self, skip_x64_x86=True):
             if self._supports_modules:
-                with tools.vcvars(
-                    self.settings
-                ) if self.settings.compiler == "Visual Studio" else tools.no_op():
+                with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
+                    self,
+                ):
                     modsrcfolder = (
-                        "py2" if tools.Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
+                        "py2" if Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
                     )
-                    tools.mkdir(os.path.join(self.build_folder, modsrcfolder))
+                    mkdir(self, os.path.join(self.build_folder, modsrcfolder))
                     for fn in os.listdir(os.path.join(self.source_folder, modsrcfolder)):
                         shutil.copy(
                             os.path.join(self.source_folder, modsrcfolder, fn),
@@ -193,7 +192,7 @@ class TestPackageConan(ConanFile):
                         "MSSdk": "1",
                     }
                     env.update(**AutoToolsBuildEnvironment(self).vars)
-                    with tools.environment_append(env):
+                    with environment_append(self, env):
                         setup_args = [
                             "{}/setup.py".format(self.source_folder),
                             # "conan",
@@ -242,7 +241,7 @@ class TestPackageConan(ConanFile):
             return False
 
     def test(self):
-        if not tools.cross_building(self, skip_x64_x86=True):
+        if not cross_building(self, skip_x64_x86=True):
             self.run(
                 "{} -c \"print('hello world')\"".format(self.deps_user_info["cpython"].python),
                 run_environment=True,
@@ -271,10 +270,11 @@ class TestPackageConan(ConanFile):
                 self._test_module("bsddb", self._cpython_option("with_bsddb"))
                 self._test_module("lzma", self._cpython_option("with_lzma"))
                 self._test_module("tkinter", self._cpython_option("with_tkinter"))
-                with tools.environment_append(
+                with environment_append(
+                    self,
                     {
                         "TERM": "ansi",
-                    }
+                    },
                 ):
                     self._test_module("curses", self._cpython_option("with_curses"))
 
@@ -283,25 +283,27 @@ class TestPackageConan(ConanFile):
                 self._test_module("decimal", True)
                 self._test_module("ctypes", True)
 
-            if tools.is_apple_os(self.settings.os) and not self.options["cpython"].shared:
+            if is_apple_os(self.settings.os) and not self.options["cpython"].shared:
                 self.output.info(
                     "Not testing the module, because these seem not to work on apple when cpython is built as a static library"
                 )
                 # FIXME: find out why cpython on apple does not allow to use modules linked against a static python
             else:
                 if self._supports_modules:
-                    with tools.environment_append({"PYTHONPATH": [os.path.join(self.build_folder, "lib")]}):
+                    with environment_append(self, {"PYTHONPATH": [os.path.join(self.build_folder, "lib")]}):
                         self.output.info("Testing module (spam) using cmake built module")
                         self._test_module("spam", True)
 
-                    with tools.environment_append(
-                        {"PYTHONPATH": [os.path.join(self.build_folder, "lib_setuptools")]}
+                    with environment_append(
+                        self, {"PYTHONPATH": [os.path.join(self.build_folder, "lib_setuptools")]}
                     ):
                         self.output.info("Testing module (spam) using setup.py built module")
                         self._test_module("spam", True)
 
             # MSVC builds need PYTHONHOME set.
-            with tools.environment_append(
-                {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome}
-            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else tools.no_op():
+            with environment_append(
+                self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome}
+            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else no_op(
+                self,
+            ):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

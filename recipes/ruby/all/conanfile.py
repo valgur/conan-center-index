@@ -80,6 +80,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.43.0"
 
 
@@ -102,7 +103,6 @@ class RubyConan(ConanFile):
         "fPIC": True,
         "with_openssl": True,
     }
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -114,7 +114,7 @@ class RubyConan(ConanFile):
 
     @property
     def _msvc_optflag(self):
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "14":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "14":
             return "-O2b2xg-"
         else:
             return "-O2sy-"
@@ -136,14 +136,12 @@ class RubyConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         td = AutotoolsDeps(self)
@@ -189,7 +187,7 @@ class RubyConan(ConanFile):
 
         at = Autotools(self)
 
-        build_script_folder = self._source_subfolder
+        build_script_folder = self.source_folder
         if is_msvc(self):
             self.conf["tools.gnu:make_program"] = "nmake"
             build_script_folder = os.path.join(build_script_folder, "win32")
@@ -197,32 +195,32 @@ class RubyConan(ConanFile):
             if "TMP" in os.environ:  # workaround for TMP in CCI containing both forward and back slashes
                 os.environ["TMP"] = os.environ["TMP"].replace("/", "\\")
 
-        with tools.vcvars(self):
+        with vcvars(self):
             at.configure(build_script_folder=build_script_folder)
             at.make()
 
     def package(self):
         for file in ["COPYING", "BSDL"]:
-            self.copy(file, dst="licenses", src=self._source_subfolder)
+            copy(self, file, dst="licenses", src=self.source_folder)
 
         at = Autotools(self)
-        with tools.vcvars(self):
+        with vcvars(self):
             if cross_building(self):
                 at.make(target="install-local")
                 at.make(target="install-arch")
             else:
                 at.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         binpath = os.path.join(self.package_folder, "bin")
         self.output.info(f"Adding to PATH: {binpath}")
         self.env_info.PATH.append(binpath)
 
-        version = tools.Version(self.version)
+        version = Version(self.version)
         rubylib = self.cpp_info.components["rubylib"]
         config_file = glob.glob(
             os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True
@@ -231,7 +229,7 @@ class RubyConan(ConanFile):
             os.path.join(self.package_folder, "include", f"ruby-{version}"),
             os.path.dirname(os.path.dirname(config_file)),
         ]
-        rubylib.libs = tools.collect_libs(self)
+        rubylib.libs = collect_libs(self)
         if is_msvc(self):
             if self.options.shared:
                 rubylib.libs = list(filter(lambda l: not l.endswith("-static"), rubylib.libs))
@@ -247,7 +245,7 @@ class RubyConan(ConanFile):
         if str(self.settings.compiler) in ("clang", "apple-clang"):
             rubylib.cflags = ["-fdeclspec"]
             rubylib.cxxflags = ["-fdeclspec"]
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             rubylib.frameworks = ["CoreFoundation"]
 
         self.cpp_info.filenames["cmake_find_package"] = "Ruby"

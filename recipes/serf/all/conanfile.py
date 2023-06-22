@@ -108,9 +108,9 @@ class SerfConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
         self.requires("apr-util/1.6.1")
@@ -121,20 +121,19 @@ class SerfConan(ConanFile):
         self.build_requires("scons/4.3.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(glob.glob("serf-*")[0], self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(glob.glob("serf-*")[0], self.source_folder)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        pc_in = os.path.join(self._source_subfolder, "build", "serf.pc.in")
-        tools.save(pc_in, tools.load(pc_in))
+        apply_conandata_patches(self)
+        pc_in = os.path.join(self.source_folder, "build", "serf.pc.in")
+        save(self, pc_in, load(self, pc_in))
 
     @property
     def _cc(self):
-        if tools.get_env("CC"):
-            return tools.get_env("CC")
-        if tools.is_apple_os(self.settings.os):
+        if get_env(self, "CC"):
+            return get_env(self, "CC")
+        if is_apple_os(self.settings.os):
             return "clang"
         return {
             "Visual Studio": "cl",
@@ -151,14 +150,16 @@ class SerfConan(ConanFile):
             extra_env["OPENSSL_LIBS"] = ";".join(
                 "{}.lib".format(lib) for lib in self.deps_cpp_info["openssl"].libs
             )
-        with tools.environment_append(extra_env):
-            with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
+        with environment_append(self, extra_env):
+            with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
+                self,
+            ):
                 yield
 
     def build(self):
         self._patch_sources()
         autotools = AutoToolsBuildEnvironment(self)
-        args = ["-Y", os.path.join(self.source_folder, self._source_subfolder)]
+        args = ["-Y", self.source_folder]
         kwargs = {
             "APR": self.deps_cpp_info["apr"].rootpath.replace("\\", "/"),
             "APU": self.deps_cpp_info["apr-util"].rootpath.replace("\\", "/"),
@@ -187,14 +188,12 @@ class SerfConan(ConanFile):
             kwargs.update(
                 {
                     "TARGET_ARCH": str(self.settings.arch),
-                    "MSVC_VERSION": "{:.1f}".format(
-                        float(tools.msvs_toolset(self.settings).lstrip("v")) / 10
-                    ),
+                    "MSVC_VERSION": "{:.1f}".format(float(msvs_toolset(self.settings).lstrip("v")) / 10),
                 }
             )
 
         escape_str = lambda x: '"{}"'.format(x)
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             with self._build_context():
                 self.run(
                     "scons {} {}".format(
@@ -210,22 +209,22 @@ class SerfConan(ConanFile):
 
     @property
     def _shared_ext(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             return "dylib"
         return {
             "Windows": "dll",
         }.get(str(self.settings.os), "so")
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        with tools.chdir(self._source_subfolder):
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        with chdir(self.source_folder):
             with self._build_context():
                 self.run(
-                    'scons install -Y "{}"'.format(os.path.join(self.source_folder, self._source_subfolder)),
+                    'scons install -Y "{}"'.format(self.source_folder),
                     run_environment=True,
                 )
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
             for file in glob.glob(os.path.join(self.package_folder, "lib", "*.exp")):
                 os.unlink(file)
@@ -236,7 +235,7 @@ class SerfConan(ConanFile):
                     os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))
                 ):
                     os.unlink(file)
-                tools.mkdir(os.path.join(self.package_folder, "bin"))
+                mkdir(self, os.path.join(self.package_folder, "bin"))
                 os.rename(
                     os.path.join(self.package_folder, "lib", "libserf-{}.dll".format(self._version_major)),
                     os.path.join(self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)),

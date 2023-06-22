@@ -98,11 +98,8 @@ class SplunkOpentelemetryConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    generators = "cmake", "cmake_find_package_multi"
     requires = "opentelemetry-cpp/1.0.1"
     exports_sources = "CMakeLists.txt"
-    short_paths = True
-    _cmake = None
 
     def validate(self):
         if self.settings.arch != "x86_64":
@@ -110,40 +107,33 @@ class SplunkOpentelemetryConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def _remove_unnecessary_package_files(self):
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
-        defs = {
-            "SPLUNK_CPP_EXAMPLES": False,
-        }
-        self._cmake.configure(defs=defs, build_folder=self._build_subfolder)
-        return self._cmake
+        tc.variables["SPLUNK_CPP_EXAMPLES"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
         self._remove_unnecessary_package_files()
 

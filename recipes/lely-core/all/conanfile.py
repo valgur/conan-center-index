@@ -106,7 +106,7 @@ class LelyConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -119,7 +119,7 @@ class LelyConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} can only be compiled with GCC currently")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")

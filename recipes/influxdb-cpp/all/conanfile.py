@@ -94,13 +94,13 @@ class InfluxDBCppConan(ConanFile):
     _source_subfolder = "source_subfolder"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("influxdb-cpp-*")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("influxdb.hpp", dst="include", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "influxdb.hpp", dst="include", src=self.source_folder)
 
     def package_info(self):
         if self.settings.os == "Windows":

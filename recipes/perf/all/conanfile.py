@@ -102,24 +102,21 @@ class Perf(ConanFile):
         self.build_requires("bison/3.5.3")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         autotools = AutoToolsBuildEnvironment(self)
-        with tools.chdir(os.path.join(self.build_folder, self._source_subfolder, "tools", "perf")):
+        with chdir(self, os.path.join(self.build_folder, self.source_folder, "tools", "perf")):
             vars = autotools.vars
             vars["NO_LIBPYTHON"] = "1"
             autotools.make(vars=vars)
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        self.copy("LICENSES/**", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSES/**", src=self.source_folder, dst="licenses")
 
-        self.copy("perf", src=os.path.join(self._source_subfolder, "tools", "perf"), dst="bin")
+        copy(self, "perf", src=os.path.join(self.source_folder, "tools", "perf"), dst="bin")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

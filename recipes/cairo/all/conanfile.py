@@ -52,7 +52,6 @@ class CairoConan(ConanFile):
         "with_xcb": True,
         "with_glib": True,
     }
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -64,14 +63,14 @@ class CairoConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_fontconfig
+            self.options.rm_safe("with_fontconfig")
         if is_msvc(self):
-            del self.options.with_freetype
-            del self.options.with_glib
+            self.options.rm_safe("with_freetype")
+            self.options.rm_safe("with_glib")
         if self.settings.os != "Linux":
-            del self.options.with_xlib
-            del self.options.with_xlib_xrender
-            del self.options.with_xcb
+            self.options.rm_safe("with_xlib")
+            self.options.rm_safe("with_xlib_xrender")
+            self.options.rm_safe("with_xcb")
 
     def configure(self):
         if self.options.shared:

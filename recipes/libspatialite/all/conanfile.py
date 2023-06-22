@@ -84,8 +84,8 @@ class LibspatialiteConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_geos:
-            del self.options.with_rttopo
-            del self.options.gcp
+            self.options.rm_safe("with_rttopo")
+            self.options.rm_safe("gcp")
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -61,14 +61,11 @@ class RedisPlusPlusConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "1.3.0":
-            del self.options.build_async
+            self.options.rm_safe("build_async")
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -92,7 +89,7 @@ class RedisPlusPlusConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name}:with_tls=True requires hiredis:with_ssl=True")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

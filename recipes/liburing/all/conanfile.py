@@ -118,14 +118,14 @@ class LiburingConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.2":
-            del self.options.with_libc
+            self.options.rm_safe("with_libc")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("linux-headers-generic/5.13.9")
@@ -137,12 +137,7 @@ class LiburingConan(ConanFile):
             raise ConanInvalidConfiguration("liburing is supported only on linux")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -156,21 +151,17 @@ class LiburingConan(ConanFile):
         self._autotools.flags.append("-std=gnu99")
         return self._autotools
 
-    def _patch_sources(self):
-        for data in self.conan_data.get("patches", {}).get(self.version, []):
-            patch(self, **data)
-
     def build(self):
-        self._patch_sources()
-        with chdir(self, self._source_subfolder):
+        apply_conandata_patches(self)
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             install_args = ["ENABLE_SHARED={}".format(1 if self.options.shared else 0)]
             autotools.install(args=install_args)

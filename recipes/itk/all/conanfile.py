@@ -109,23 +109,14 @@ class ITKConan(ConanFile):
         "fPIC": True,
     }
 
-    short_paths = True
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     # TODO: Some packages can be added as optional, but they are not in CCI:
     # - mkl
     # - vtk
     # - opencv
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -133,7 +124,7 @@ class ITKConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("dcmtk/3.6.6")
@@ -171,7 +162,7 @@ class ITKConan(ConanFile):
                 "This is because H5::DataSpace::ALL might get initialized twice, which will cause a H5::DataSpaceIException to be thrown)."
             )
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -180,7 +171,7 @@ class ITKConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -191,16 +182,9 @@ class ITKConan(ConanFile):
                 )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-
-    def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_TESTING"] = False
@@ -329,21 +313,24 @@ class ITKConan(ConanFile):
         # Disabled because Vxl vidl is not built anymore
         tc.variables["Module_ITKVideoBridgeVXL"] = False
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, self._cmake_module_dir, "Modules"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, self._cmake_module_dir, "Modules"))
         # Do not remove UseITK.cmake and *.h.in files
         for cmake_file in glob.glob(os.path.join(self.package_folder, self._cmake_module_dir, "*.cmake")):
             if os.path.basename(cmake_file) != "UseITK.cmake":
@@ -368,7 +355,7 @@ class ITKConan(ConanFile):
                     alias=alias, aliased=aliased
                 )
             )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -380,7 +367,7 @@ class ITKConan(ConanFile):
 
     @property
     def _itk_subdir(self):
-        v = tools.Version(self.version)
+        v = Version(self.version)
         return "ITK-{}.{}".format(v.major, v.minor)
 
     @property
@@ -644,7 +631,7 @@ class ITKConan(ConanFile):
             "cmake_build_modules", [os.path.join(self._cmake_module_dir, "UseITK.cmake")]
         )
 
-        itk_version = tools.Version(self.version)
+        itk_version = Version(self.version)
         lib_suffix = "-{}.{}".format(itk_version.major, itk_version.minor)
 
         for name, values in self._itk_components.items():

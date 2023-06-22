@@ -95,9 +95,7 @@ class WilzegersAutotestConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
         if self.settings.compiler != "clang":
@@ -107,5 +105,5 @@ class WilzegersAutotestConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        self.copy("*.hpp", src=os.path.join(self._source_subfolder, "autotest/include"), dst="include")
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "*.hpp", src=os.path.join(self.source_folder, "autotest/include"), dst="include")
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)

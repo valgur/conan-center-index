@@ -62,8 +62,6 @@ class GrpcConan(ConanFile):
         "secure": False,
     }
 
-    short_paths = True
-
     @property
     def _grpc_plugin_template(self):
         return "grpc_plugin_template.cmake.in"
@@ -158,7 +156,7 @@ class GrpcConan(ConanFile):
         #
         #   enable_mobile=False # Enables iOS and Android support
         #
-        # cmake.definitions["CONAN_ENABLE_MOBILE"] = "ON" if self.options.csharp_ext else "OFF"
+        # tc.variables["CONAN_ENABLE_MOBILE"] = "ON" if self.options.csharp_ext else "OFF"
         tc = CMakeToolchain(self)
 
         tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(

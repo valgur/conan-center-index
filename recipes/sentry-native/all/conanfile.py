@@ -69,14 +69,14 @@ class SentryNativeConan(ConanFile):
             del self.options.fPIC
 
         if self.settings.os != "Windows" or Version(self.version) < "0.6.0":
-            del self.options.wer
+            self.options.rm_safe("wer")
 
         # Configure default transport
         if self.settings.os == "Windows":
             self.options.transport = "winhttp"
         elif (
             self.settings.os in ("FreeBSD", "Linux") or self.settings.os == "Macos"
-        ):  # Don't use tools.is_apple_os(os) here
+        ):  # Don't use is_apple_os(self, os) here
             self.options.transport = "curl"
         else:
             self.options.transport = "none"
@@ -84,7 +84,7 @@ class SentryNativeConan(ConanFile):
         # Configure default backend
         if (
             self.settings.os == "Windows" or self.settings.os == "Macos"
-        ):  # Don't use tools.is_apple_os(os) here
+        ):  # Don't use is_apple_os(self, os) here
             # FIXME: for self.version < 0.4: default backend is "breakpad" when building with MSVC for Windows xp; else: backend=none
             self.options.backend = "crashpad"
         elif self.settings.os in ("FreeBSD", "Linux"):
@@ -156,7 +156,7 @@ class SentryNativeConan(ConanFile):
                 self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         VirtualBuildEnv(self).generate()

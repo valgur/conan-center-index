@@ -53,13 +53,13 @@ class GmpConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.enable_fat
+            self.options.rm_safe("enable_fat")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.get_safe("enable_fat"):
-            del self.options.disable_assembly
+            self.options.rm_safe("disable_assembly")
         if not self.options.enable_cxx:
             self.settings.rm_safe("compiler.libcxx")
             self.settings.rm_safe("compiler.cppstd")

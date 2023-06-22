@@ -60,9 +60,9 @@ class Nghttp2Conan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_app:
-            del self.options.with_jemalloc
+            self.options.rm_safe("with_jemalloc")
         if Version(self.version) >= "1.52.0":
-            del self.options.with_asio
+            self.options.rm_safe("with_asio")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

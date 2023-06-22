@@ -105,7 +105,7 @@ class LzipConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
@@ -116,10 +116,11 @@ class LzipConan(ConanFile):
         del self.info.settings.compiler
 
     def _detect_compilers(self):
-        tools.rmdir("detectdir")
-        tools.mkdir("detectdir")
-        with tools.chdir("detectdir"):
-            tools.save(
+        rmdir(self, "detectdir")
+        mkdir(self, "detectdir")
+        with chdir(self, "detectdir"):
+            save(
+                self,
                 "CMakeLists.txt",
                 textwrap.dedent(
                     """\
@@ -133,24 +134,22 @@ class LzipConan(ConanFile):
                 ),
             )
             CMake(self).configure(source_folder="detectdir", build_folder="detectdir")
-            cc = tools.load("cc.txt").strip()
-            cxx = tools.load("cxx.txt").strip()
+            cc = load(self, "cc.txt").strip()
+            cxx = load(self, "cxx.txt").strip()
         return cc, cxx
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextlib.contextmanager
     def _build_context(self):
         env = {}
         cc, cxx = self._detect_compilers()
-        if not tools.get_env("CC"):
+        if not get_env(self, "CC"):
             env["CC"] = cc
-        if not tools.get_env("CXX"):
+        if not get_env(self, "CXX"):
             env["CXX"] = cxx
-        with tools.environment_append(env):
+        with environment_append(self, env):
             yield
 
     def _configure_autotools(self):
@@ -158,28 +157,28 @@ class LzipConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         conf_args = []
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
-            with tools.environment_append(
+            with environment_append(
+                self,
                 {
                     "CONAN_CPU_COUNT": "1",
-                }
+                },
             ):
                 autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

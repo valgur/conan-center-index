@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -89,7 +90,6 @@ class CotilaConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
     no_copy_source = True
 
     @property
@@ -107,7 +107,7 @@ class CotilaConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -131,13 +131,11 @@ class CotilaConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="include/*", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="include/*", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "cotila"

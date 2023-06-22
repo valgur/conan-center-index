@@ -105,14 +105,9 @@ class ZyreConan(ConanFile):
         "drafts": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,7 +115,7 @@ class ZyreConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("czmq/4.2.0")
@@ -129,40 +124,38 @@ class ZyreConan(ConanFile):
             self.requires("libsystemd/249.7")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["ENABLE_DRAFTS"] = self.options.drafts
-        if tools.Version(self.version) >= "2.0.1":
-            cmake.definitions["ZYRE_BUILD_SHARED"] = self.options.shared
-            cmake.definitions["ZYRE_BUILD_STATIC"] = not self.options.shared
-        cmake.configure(build_dir=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["ENABLE_DRAFTS"] = self.options.drafts
+        if Version(self.version) >= "2.0.1":
+            tc.variables["ZYRE_BUILD_SHARED"] = self.options.shared
+            tc.variables["ZYRE_BUILD_STATIC"] = not self.options.shared
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libzyre"
 
         libname = (
             "libzyre"
-            if tools.Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared
+            if Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared
             else "zyre"
         )
         self.cpp_info.libs = [libname]

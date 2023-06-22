@@ -18,12 +18,13 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if self.settings.os != "Windows":
-            with tools.environment_append(
+            with environment_append(
+                self,
                 {
                     "PKG_CONFIG_PATH": ".",
-                }
+                },
             ):
-                pkg_config = tools.PkgConfig("gobject-introspection-1.0")
+                pkg_config = PkgConfig(self, "gobject-introspection-1.0")
                 for tool in ["g_ir_compiler", "g_ir_generate", "g_ir_scanner"]:
                     self.run("%s --version" % pkg_config.variables[tool], env="conanrun")
                 self.run("g-ir-annotation-tool --version", env="conanrun")

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class FernandoVelcicHexdumpConan(ConanFile):
     name = "fernandovelcic-hexdump"
     description = "A header-only hexdump library."
@@ -89,13 +90,11 @@ class FernandoVelcicHexdumpConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="hexdump.hpp", dst="include", src=self._source_subfolder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        copy(self, pattern="hexdump.hpp", dst="include", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

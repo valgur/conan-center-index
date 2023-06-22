@@ -43,25 +43,14 @@ class CMinpackConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
         # cminpack is a c library
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        files.get(
-            self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         cmake = CMake(self)
@@ -72,14 +61,14 @@ class CMinpackConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        files.copy(
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        copy(
             self,
             "CopyrightMINPACK.txt",
             dst=os.path.join(self.package_folder, "licenses"),
             src=self.source_folder,
         )
-        files.rmdir(self, os.path.join(self.package_folder, "share"))  # contains cmake config files
+        rmdir(self, os.path.join(self.package_folder, "share"))  # contains cmake config files
 
     def _library_postfix(self):
         postfix = ""

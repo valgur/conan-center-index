@@ -45,8 +45,6 @@ class VulkanValidationLayersConan(ConanFile):
         "with_wsi_wayland": True,
     }
 
-    short_paths = True
-
     @property
     def _dependencies_filename(self):
         return f"dependencies-{self.version}.yml"
@@ -98,9 +96,9 @@ class VulkanValidationLayersConan(ConanFile):
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_wsi_xcb
-            del self.options.with_wsi_xlib
-            del self.options.with_wsi_wayland
+            self.options.rm_safe("with_wsi_xcb")
+            self.options.rm_safe("with_wsi_xlib")
+            self.options.rm_safe("with_wsi_wayland")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

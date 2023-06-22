@@ -2,83 +2,18 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
-    collect_libs,
     copy,
-    download,
-    export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
     MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
     is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
 )
-from conan.tools.microsoft.visual import vs_ide_version
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
 
 class GoogleGuetzliConan(ConanFile):
@@ -93,65 +28,56 @@ class GoogleGuetzliConan(ConanFile):
     generators = "pkg_config"
     requires = ["libpng/1.6.37"]
 
-    @property
-    def _is_msvc(self):
-        return self.settings.compiler == "Visual Studio"
-
     def configure(self):
         if self.settings.os not in ["Linux", "Windows"]:
             raise ConanInvalidConfiguration(
-                "conan recipe for guetzli v{0} is not \
-                available in {1}.".format(
-                    self.version, self.settings.os
-                )
+                f"conan recipe for guetzli v{self.version} is not available in {self.settings.os}."
             )
 
         if self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(
-                "conan recipe for guetzli v{0} cannot be\
-                built with libc++".format(
-                    self.version
-                )
+                f"conan recipe for guetzli v{self.version} cannot be built with libc++"
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "guetzli-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        if self._is_msvc:
+        if is_msvc(self):
             msbuild = MSBuild(self)
-            with tools.chdir(self._source_subfolder):
+            with chdir(self.source_folder):
                 msbuild.build("guetzli.sln", build_type="Release")
         else:
             autotools = AutoToolsBuildEnvironment(self)
-            with tools.chdir(self._source_subfolder):
+            with chdir(self.source_folder):
                 env_vars = {"PKG_CONFIG_PATH": self.build_folder}
                 env_vars.update(autotools.vars)
-                with tools.environment_append(env_vars):
+                with environment_append(self, env_vars):
                     make_args = ["config=release", "verbose=1',"]
                     autotools.make(args=make_args)
 
     def package(self):
-        if self._is_msvc:
-            self.copy(
-                os.path.join(
-                    self._source_subfolder, "bin", str(self.settings.arch), "Release", "guetzli.exe"
-                ),
+        if is_msvc(self):
+            copy(
+                self,
+                os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
                 dst="bin",
                 keep_path=False,
             )
         else:
-            self.copy(
-                os.path.join(self._source_subfolder, "bin", "Release", "guetzli"), dst="bin", keep_path=False
+            copy(
+                self,
+                os.path.join(self.source_folder, "bin", "Release", "guetzli"),
+                dst="bin",
+                keep_path=False,
             )
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
 
     def package_id(self):
         del self.info.settings.compiler

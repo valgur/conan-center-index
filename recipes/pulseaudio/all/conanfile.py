@@ -53,7 +53,7 @@ class PulseAudioConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if not self.options.with_dbus:
-            del self.options.with_fftw
+            self.options.rm_safe("with_fftw")
 
     def layout(self):
         basic_layout(self, src_folder="src")

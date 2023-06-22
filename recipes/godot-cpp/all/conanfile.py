@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class GodotCppConan(ConanFile):
     name = "godot-cpp"
     description = "C++ bindings for the Godot script API"
@@ -134,8 +135,8 @@ class GodotCppConan(ConanFile):
         return self.deps_cpp_info["godot_headers"]
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        tools.rename(glob.glob("godot-cpp-*")[0], self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rename(self, glob.glob("godot-cpp-*")[0], self.source_folder)
 
     def requirements(self):
         self.requires("godot_headers/{}".format(self.version))
@@ -143,7 +144,7 @@ class GodotCppConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "5",
@@ -164,7 +165,7 @@ class GodotCppConan(ConanFile):
             )
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             if compiler in ["apple-clang", "clang"]:
                 raise ConanInvalidConfiguration(
@@ -183,8 +184,12 @@ class GodotCppConan(ConanFile):
             " ".join(
                 [
                     "scons",
-                    "-C{}".format(self._source_subfolder),
-                    "-j{}".format(tools.cpu_count()),
+                    "-C{}".format(self.source_folder),
+                    "-j{}".format(
+                        cpu_count(
+                            self,
+                        )
+                    ),
                     "generate_bindings=yes",
                     "use_custom_api_file=yes",
                     "bits={}".format(self._bits),
@@ -199,10 +204,10 @@ class GodotCppConan(ConanFile):
         )
 
     def package(self):
-        self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy("*.hpp", dst="include/godot-cpp", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.a", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
-        self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
+        copy(self, "LICENSE*", dst="licenses", src=self.source_folder)
+        copy(self, "*.hpp", dst="include/godot-cpp", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.a", dst="lib", src=os.path.join(self.source_folder, "bin"))
+        copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "bin"))
 
     def package_info(self):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":

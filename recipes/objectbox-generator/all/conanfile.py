@@ -101,17 +101,19 @@ class PackageConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version][str(self.settings.os)], destination=self.source_folder
+        get(
+            self,
+            **self.conan_data["sources"][self.version][str(self.settings.os)],
+            destination=self.source_folder
         )
-        tools.download(**self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
+        download(self, **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
 
     def package(self):
         if self.settings.os != "Windows":
             bin_path = os.path.join(self.source_folder, "objectbox-generator")
             os.chmod(bin_path, os.stat(bin_path).st_mode | 0o111)
-        self.copy("objectbox-generator*", src=self.source_folder, dst="bin", keep_path=False)
-        self.copy("LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(self, "objectbox-generator*", src=self.source_folder, dst="bin", keep_path=False)
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         binpath = os.path.join(self.package_folder, "bin")

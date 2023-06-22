@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 yield
         else:
             compiler_defaults = {}
@@ -42,15 +42,15 @@ class TestPackageConan(ConanFile):
                 }
             env = {}
             for k in ("CC", "CXX", "AR", "LD"):
-                v = tools.get_env(k, compiler_defaults.get(k, None))
+                v = get_env(self, k, compiler_defaults.get(k, None))
                 if v:
                     env[k] = v
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @property
     def _target_os(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             return "mac"
         # Assume gn knows about the os
         return {
@@ -64,8 +64,8 @@ class TestPackageConan(ConanFile):
         }.get(str(self.settings.arch), str(self.settings.arch))
 
     def build(self):
-        if not tools.cross_building(self.settings):
-            with tools.chdir(self.source_folder):
+        if not cross_building(self.settings):
+            with chdir(self.source_folder):
                 gn_args = [
                     os.path.relpath(os.path.join(self.build_folder, "bin"), os.getcwd()).replace("\\", "/"),
                     '--args="target_os=\\"{os_}\\" target_cpu=\\"{cpu}\\""'.format(
@@ -74,7 +74,14 @@ class TestPackageConan(ConanFile):
                 ]
                 self.run("gn gen {}".format(" ".join(gn_args)), env="conanrun")
             with self._build_context():
-                self.run("ninja -v -j{} -C bin".format(tools.cpu_count()), env="conanrun")
+                self.run(
+                    "ninja -v -j{} -C bin".format(
+                        cpu_count(
+                            self,
+                        )
+                    ),
+                    env="conanrun",
+                )
 
     def test(self):
         if can_run(self):

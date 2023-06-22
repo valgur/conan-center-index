@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -94,7 +95,7 @@ class PlatformDelegatesConan(ConanFile):
 
     @property
     def _internal_cpp_subfolder(self):
-        return os.path.join(self._source_subfolder, "cpp", "Platform.Delegates")
+        return os.path.join(self.source_folder, "cpp", "Platform.Delegates")
 
     @property
     def _compilers_minimum_version(self):
@@ -119,7 +120,7 @@ class PlatformDelegatesConan(ConanFile):
                 )
             )
 
-        if tools.Version(self.settings.compiler.version) < minimum_version:
+        if Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "platform.delegates/{} "
                 "requires C++{} with {}, "
@@ -134,16 +135,14 @@ class PlatformDelegatesConan(ConanFile):
             )
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("*.h", dst="include", src=self._internal_cpp_subfolder)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "*.h", dst="include", src=self._internal_cpp_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

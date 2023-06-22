@@ -97,7 +97,6 @@ class ImGuizmoConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
 
     options = {
         "shared": [True, False],
@@ -114,29 +113,29 @@ class ImGuizmoConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
         self.requires("imgui/1.87")
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

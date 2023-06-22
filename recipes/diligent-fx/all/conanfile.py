@@ -100,26 +100,15 @@ class DiligentFxConan(ConanFile):
         "fPIC": True,
     }
     generators = "cmake_find_package", "cmake"
-    _cmake = None
-    short_paths = True
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def export_sources(self):
         export_conandata_patches(self)
-        self.copy("CMakeLists.txt")
-        self.copy("BuildUtils.cmake")
-        self.copy("script.py")
+        copy(self, "CMakeLists.txt")
+        copy(self, "BuildUtils.cmake")
+        copy(self, "script.py")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
         if self.options.shared:
@@ -131,10 +120,7 @@ class DiligentFxConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.version == "cci.20220219" or self.version == "cci.20211112":
@@ -165,18 +151,21 @@ class DiligentFxConan(ConanFile):
         tc.variables["DILIGENT_BUILD_TESTS"] = False
 
         tc.variables[self._diligent_platform] = True
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("License.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, "License.txt", dst="licenses", src=self.source_folder)
         rename(
             self,
             src=os.path.join(self.package_folder, "include", "source_subfolder"),
@@ -186,10 +175,10 @@ class DiligentFxConan(ConanFile):
             os.path.join(self.package_folder, "Shaders"), os.path.join(self.package_folder, "res", "Shaders")
         )
 
-        self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
-        self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.a", src=self._build_subfolder, dst="lib", keep_path=False)
+        copy(self, pattern="*.dll", src=self.build_folder, dst="bin", keep_path=False)
+        copy(self, pattern="*.dylib", src=self.build_folder, dst="lib", keep_path=False)
+        copy(self, pattern="*.lib", src=self.build_folder, dst="lib", keep_path=False)
+        copy(self, pattern="*.a", src=self.build_folder, dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

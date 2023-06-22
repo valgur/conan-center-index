@@ -51,7 +51,7 @@ class GetTextConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
         self.options.threads = {
             "Solaris": "solaris",

@@ -39,7 +39,7 @@ class UlfiusConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.enable_websockets = False
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.options.with_gnutls:
@@ -51,18 +51,9 @@ class UlfiusConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("orcania/2.3.1")
@@ -75,7 +66,7 @@ class UlfiusConan(ConanFile):
             self.requires("libcurl/7.85.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)

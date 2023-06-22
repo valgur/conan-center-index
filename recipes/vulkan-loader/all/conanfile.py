@@ -65,10 +65,10 @@ class VulkanLoaderConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_wsi_xcb
-            del self.options.with_wsi_xlib
-            del self.options.with_wsi_wayland
-            del self.options.with_wsi_directfb
+            self.options.rm_safe("with_wsi_xcb")
+            self.options.rm_safe("with_wsi_xlib")
+            self.options.rm_safe("with_wsi_wayland")
+            self.options.rm_safe("with_wsi_directfb")
 
     def configure(self):
         if not is_apple_os(self):

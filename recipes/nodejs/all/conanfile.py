@@ -18,7 +18,6 @@ class NodejsConan(ConanFile):
     license = "MIT"
     settings = "os", "arch", "compiler"
     no_copy_source = True
-    short_paths = True
 
     @property
     def _source_subfolder(self):
@@ -61,7 +60,6 @@ class NodejsConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(self.settings.os)][self._nodejs_arch],
-            destination=self._source_subfolder,
             strip_root=True
         )
 
@@ -70,25 +68,23 @@ class NodejsConan(ConanFile):
             self,
             pattern="LICENSE",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self._source_subfolder,
+            src=self.source_folder,
         )
         copy(
             self,
             pattern="*",
             dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self._source_subfolder, "bin"),
+            src=os.path.join(self.source_folder, "bin"),
         )
         copy(
             self,
             pattern="*",
             dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self._source_subfolder, "lib"),
+            src=os.path.join(self.source_folder, "lib"),
         )
-        copy(
-            self, pattern="node.exe", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder
-        )
-        copy(self, pattern="npm", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder)
-        copy(self, pattern="npx", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder)
+        copy(self, pattern="node.exe", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+        copy(self, pattern="npm", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+        copy(self, pattern="npx", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.includedirs = []

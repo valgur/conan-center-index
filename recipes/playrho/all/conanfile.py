@@ -100,12 +100,10 @@ class PlayrhoConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -113,7 +111,7 @@ class PlayrhoConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     @property
     def _compilers_minimum_versions(self):
@@ -126,12 +124,12 @@ class PlayrhoConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         compilers_minimum_version = self._compilers_minimum_versions
         minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++17, which your compiler does not support.".format(self.name)
                 )
@@ -141,31 +139,30 @@ class PlayrhoConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["PLAYRHO_BUILD_SHARED"] = self.options.shared
-        cmake.definitions["PLAYRHO_BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["PLAYRHO_INSTALL"] = True
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["PLAYRHO_BUILD_SHARED"] = self.options.shared
+        tc.variables["PLAYRHO_BUILD_STATIC"] = not self.options.shared
+        tc.variables["PLAYRHO_INSTALL"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "PlayRho"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "PlayRho"))
 
     def package_info(self):
         self.cpp_info.libs = ["PlayRho"]

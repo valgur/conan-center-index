@@ -89,7 +89,6 @@ class MysqlConnectorCConan(ConanFile):
     homepage = "https://dev.mysql.com/downloads/connector/c/"
     license = "GPL-2.0"
     exports_sources = ["CMakeLists.txt", "patches/*.patch"]
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -112,76 +111,69 @@ class MysqlConnectorCConan(ConanFile):
             self.requires("zlib/1.2.11")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration(
                 "Cross compilation not yet supported by the recipe. contributions are welcome."
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-
         tc.variables["DISABLE_SHARED"] = not self.options.shared
         tc.variables["DISABLE_STATIC"] = self.options.shared
-        tc.variables[
-            "STACK_DIRECTION"
-        ] = "-1"  # stack grows downwards, on very few platforms stack grows upwards
-        tc.variables["REQUIRE_STDCPP"] = tools.stdcpp_library(self)
-
+        # stack grows downwards, on very few platforms stack grows upwards
+        tc.variables["STACK_DIRECTION"] = "-1"
+        tc.variables["REQUIRE_STDCPP"] = stdcpp_library(self)
         if self.settings.compiler == "Visual Studio":
             if self.settings.compiler.runtime == "MD" or self.settings.compiler.runtime == "MDd":
                 tc.variables["WINDOWS_RUNTIME_MD"] = True
-
         if self.options.with_ssl:
             tc.variables["WITH_SSL"] = "system"
-
         if self.options.with_zlib:
             tc.variables["WITH_ZLIB"] = "system"
-
-        self._cmake.configure(source_dir=self._source_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        sources_cmake = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        sources_cmake_orig = os.path.join(self._source_subfolder, "CMakeListsOriginal.txt")
-
-        tools.rename(sources_cmake, sources_cmake_orig)
-        tools.rename("CMakeLists.txt", sources_cmake)
-
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        sources_cmake = os.path.join(self.source_folder, "CMakeLists.txt")
+        sources_cmake_orig = os.path.join(self.source_folder, "CMakeListsOriginal.txt")
+        rename(self, sources_cmake, sources_cmake_orig)
+        rename(self, "CMakeLists.txt", sources_cmake)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        tools.mkdir(os.path.join(self.package_folder, "licenses"))
-        tools.rename(
+        mkdir(self, os.path.join(self.package_folder, "licenses"))
+        rename(
+            self,
             os.path.join(self.package_folder, "COPYING"),
             os.path.join(self.package_folder, "licenses", "COPYING"),
         )
-        tools.rename(
+        rename(
+            self,
             os.path.join(self.package_folder, "COPYING-debug"),
             os.path.join(self.package_folder, "licenses", "COPYING-debug"),
         )
-        tools.remove_files_by_mask(self.package_folder, "README*")
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
-        tools.rmdir(os.path.join(self.package_folder, "docs"))
+        rm("README*", self.package_folder, recursive=True)
+        rm(self, "*.pdb", self.package_folder, recursive=True)
+        rmdir(self, os.path.join(self.package_folder, "docs"))
 
     def package_info(self):
         self.cpp_info.libs = [
             "libmysql" if self.options.shared and self.settings.os == "Windows" else "mysqlclient"
         ]
         if not self.options.shared:
-            stdcpp_library = tools.stdcpp_library(self)
+            stdcpp_library = stdcpp_library(self)
             if stdcpp_library:
                 self.cpp_info.system_libs.append(stdcpp_library)
             if self.settings.os in ["Linux", "FreeBSD"]:

@@ -43,7 +43,6 @@ class GlibmmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
 
     @property
     def _abi_version(self):

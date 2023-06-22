@@ -119,25 +119,18 @@ class SystemcConan(ConanFile):
         "enable_phase_callbacks_tracing": False,
     }
 
-    generators = "cmake"
-
-    @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.enable_pthreads
+            self.options.rm_safe("enable_pthreads")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Macos":
@@ -149,41 +142,38 @@ class SystemcConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["DISABLE_ASYNC_UPDATES"] = self.options.disable_async_updates
-        cmake.definitions["DISABLE_COPYRIGHT_MESSAGE"] = self.options.disable_copyright_msg
-        cmake.definitions["DISABLE_VIRTUAL_BIND"] = self.options.disable_virtual_bind
-        cmake.definitions["ENABLE_ASSERTIONS"] = self.options.enable_assertions
-        cmake.definitions[
-            "ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"
-        ] = self.options.enable_immediate_self_notifications
-        cmake.definitions["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
-        cmake.definitions["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
-        cmake.definitions["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe(
+        tc = CMakeToolchain(self)
+        tc.variables["DISABLE_ASYNC_UPDATES"] = self.options.disable_async_updates
+        tc.variables["DISABLE_COPYRIGHT_MESSAGE"] = self.options.disable_copyright_msg
+        tc.variables["DISABLE_VIRTUAL_BIND"] = self.options.disable_virtual_bind
+        tc.variables["ENABLE_ASSERTIONS"] = self.options.enable_assertions
+        tc.variables["ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"] = self.options.enable_immediate_self_notifications
+        tc.variables["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
+        tc.variables["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
+        tc.variables["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe(
             "enable_phase_callbacks_tracing", False
         )
-        cmake.configure()
-        return cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("NOTICE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "NOTICE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SystemCLanguage")
@@ -192,7 +182,7 @@ class SystemcConan(ConanFile):
         self.cpp_info.components["_systemc"].libs = ["systemc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_systemc"].system_libs = ["pthread"]
-        if self._is_msvc:
+        if is_msvc(self):
             self.cpp_info.components["_systemc"].cxxflags.append("/vmg")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

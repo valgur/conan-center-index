@@ -54,7 +54,7 @@ class SdbusCppConan(ConanFile):
             self.license = "LGPL-2.1-or-later"
 
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("libsystemd/253.3")

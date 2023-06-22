@@ -105,14 +105,11 @@ class FuseppConan(ConanFile):
     }
     exports_sources = "CMakeLists.txt"
 
-    generators = "cmake"
-    _cmake = None
-
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
         if self.settings.compiler == "gcc":
-            if tools.Version(self.settings.compiler.version) < "6":
+            if Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")
 
     def config_options(self):
@@ -121,30 +118,30 @@ class FuseppConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
         self.requires("libfuse/3.10.5")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

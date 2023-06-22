@@ -159,35 +159,32 @@ class MagnumConan(ConanFile):
         "stbvorbis_audioimporter": True,
         "stl_importer": True,
         "tinygltf_importer": True,
-    }
-    generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
+    }, "cmake_find_package_multi"
     exports_sources = ["CMakeLists.txt", "cmake/*", "patches/*"]
-    short_paths = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
             "",
         )
         assimp_importer_cmake_file = os.path.join(
-            self._source_subfolder, "src", "MagnumPlugins", "AssimpImporter", "CMakeLists.txt"
+            self.source_folder, "src", "MagnumPlugins", "AssimpImporter", "CMakeLists.txt"
         )
-        tools.replace_in_file(
-            assimp_importer_cmake_file, "find_package(Assimp REQUIRED)", "find_package(assimp REQUIRED)"
+        replace_in_file(
+            self, assimp_importer_cmake_file, "find_package(Assimp REQUIRED)", "find_package(assimp REQUIRED)"
         )
-        tools.replace_in_file(assimp_importer_cmake_file, "Assimp::Assimp", "assimp::assimp")
+        replace_in_file(self, assimp_importer_cmake_file, "Assimp::Assimp", "assimp::assimp")
 
         harfbuzz_cmake_file = os.path.join(
-            self._source_subfolder, "src", "MagnumPlugins", "HarfBuzzFont", "CMakeLists.txt"
+            self.source_folder, "src", "MagnumPlugins", "HarfBuzzFont", "CMakeLists.txt"
         )
-        tools.replace_in_file(
-            harfbuzz_cmake_file, "find_package(HarfBuzz REQUIRED)", "find_package(harfbuzz REQUIRED)"
+        replace_in_file(
+            self, harfbuzz_cmake_file, "find_package(HarfBuzz REQUIRED)", "find_package(harfbuzz REQUIRED)"
         )
-        tools.replace_in_file(harfbuzz_cmake_file, "HarfBuzz::HarfBuzz", "harfbuzz::harfbuzz")
+        replace_in_file(self, harfbuzz_cmake_file, "HarfBuzz::HarfBuzz", "harfbuzz::harfbuzz")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -208,7 +205,7 @@ class MagnumConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("magnum/{}".format(self.version))
@@ -236,7 +233,7 @@ class MagnumConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
         if not self.options["magnum"].trade:
             raise ConanInvalidConfiguration("Magnum Trade is required")
@@ -244,7 +241,6 @@ class MagnumConan(ConanFile):
         # TODO: There are lot of things to check here: 'magnum::audio' required for audio plugins...
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
@@ -266,9 +262,7 @@ class MagnumConan(ConanFile):
         tc.variables["WITH_ICOIMPORTER"] = self.options.ico_importer
         tc.variables["WITH_JPEGIMAGECONVERTER"] = self.options.jpeg_imageconverter
         tc.variables["WITH_JPEGIMPORTER"] = self.options.jpeg_importer
-        tc.variables[
-            "WITH_MESHOPTIMIZERSCENECONVERTER"
-        ] = self.options.meshoptimizer_sceneconverter
+        tc.variables["WITH_MESHOPTIMIZERSCENECONVERTER"] = self.options.meshoptimizer_sceneconverter
         tc.variables["WITH_MINIEXRIMAGECONVERTER"] = self.options.miniexr_imageconverter
         tc.variables["WITH_OPENGEXIMPORTER"] = self.options.opengex_importer
         tc.variables["WITH_PNGIMAGECONVERTER"] = self.options.png_imageconverter
@@ -287,19 +281,15 @@ class MagnumConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
     def build(self):
-        self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
+        cmake = CMake(self)
+        cmake.install()
 
         if not self.options.shared_plugins:
             build_modules_folder = os.path.join(self.package_folder, "lib", "cmake")
@@ -324,9 +314,9 @@ class MagnumConan(ConanFile):
                         )
                     )
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "MagnumPlugins"

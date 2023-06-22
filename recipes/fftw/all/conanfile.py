@@ -51,7 +51,7 @@ class FFTWConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.threads:
-            del self.options.combinedthreads
+            self.options.rm_safe("combinedthreads")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

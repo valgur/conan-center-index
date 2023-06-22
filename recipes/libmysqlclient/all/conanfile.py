@@ -42,7 +42,6 @@ class LibMysqlClientCConan(ConanFile):
     }
 
     package_type = "library"
-    short_paths = True
 
     @property
     def _min_cppstd(self):

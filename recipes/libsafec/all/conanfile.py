@@ -116,7 +116,7 @@ class LibSafeCConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.6")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.tool_requires("msys2/cci.latest")
 
     @property
@@ -146,7 +146,6 @@ class LibSafeCConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
@@ -164,13 +163,13 @@ class LibSafeCConan(ConanFile):
             "--enable-strmax={}".format(self.options.strmax),
             "--enable-memmax={}".format(self.options.memmax),
         ]
-        self._autotools.configure(args=args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             self.run(
-                "{} -fiv".format(tools.get_env("AUTORECONF")),
+                "{} -fiv".format(get_env(self, "AUTORECONF")),
                 win_bash=tools.os_info.is_windows,
                 run_environment=True,
             )
@@ -178,7 +177,7 @@ class LibSafeCConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

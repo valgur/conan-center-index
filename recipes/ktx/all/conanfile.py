@@ -40,7 +40,7 @@ class KtxConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_sse_support:
-            del self.options.sse
+            self.options.rm_safe("sse")
         if self.settings.os in ["iOS", "Android", "Emscripten"]:
             # tools are not build by default if iOS, Android or Emscripten
             self.options.tools = False

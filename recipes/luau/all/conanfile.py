@@ -61,7 +61,7 @@ class LuauConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if Version(self.version) < "0.549":
-            del self.options.native_code_gen
+            self.options.rm_safe("native_code_gen")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

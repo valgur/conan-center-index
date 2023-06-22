@@ -80,7 +80,6 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
 
-
 required_conan_version = ">=1.33.0"
 
 
@@ -92,7 +91,6 @@ class EasyloggingppConan(ConanFile):
     description = "Single header C++ logging library."
     topics = ("logging", "stacktrace", "efficient-logging")
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
     exports_sources = ("CMakeLists.txt",)
     options = {
         "enable_crash_log": [True, False],
@@ -122,15 +120,11 @@ class EasyloggingppConan(ConanFile):
         "disable_verbose_logs": False,
         "disable_trace_logs": False,
     }
-    _cmake = None
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if self._cmake is not None:
-            return self._cmake
         tc = CMakeToolchain(self)
         tc.variables["build_static_lib"] = True
         tc.variables["enable_crash_log"] = self.options.enable_crash_log
@@ -145,26 +139,20 @@ class EasyloggingppConan(ConanFile):
         tc.variables["disable_fatal_logs"] = self.options.disable_fatal_logs
         tc.variables["disable_verbose_logs"] = self.options.disable_verbose_logs
         tc.variables["disable_trace_logs"] = self.options.disable_trace_logs
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
-
-    def source(self):
-        files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        files.rmdir(self, os.path.join(self.package_folder, "share"))
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "easyloggingpp"

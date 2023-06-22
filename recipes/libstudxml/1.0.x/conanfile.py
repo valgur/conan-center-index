@@ -139,14 +139,13 @@ class LibStudXmlConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
             self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
@@ -159,7 +158,7 @@ class LibStudXmlConan(ConanFile):
                 args.extend(["--disable-shared", "--enable-static"])
 
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(configure_dir=self._source_subfolder, args=args)
+            self._autotools.configure(configure_dir=self.source_folder, args=args)
         return self._autotools
 
     @property
@@ -182,16 +181,14 @@ class LibStudXmlConan(ConanFile):
         sln_path = None
 
         def get_sln_path():
-            return os.path.join(self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln")
+            return os.path.join(self.source_folder, f"libstudxml-vc{vc_ver}.sln")
 
         sln_path = get_sln_path()
         while not os.path.exists(sln_path):
             vc_ver -= 1
             sln_path = get_sln_path()
 
-        proj_path = os.path.join(
-            self.source_folder, self._source_subfolder, "xml", f"libstudxml-vc{vc_ver}.vcxproj"
-        )
+        proj_path = os.path.join(self.source_folder, "xml", f"libstudxml-vc{vc_ver}.vcxproj")
 
         if not self.options.shared:
             replace_in_file(self, proj_path, "DynamicLibrary", "StaticLibrary")
@@ -215,16 +212,16 @@ class LibStudXmlConan(ConanFile):
                     self,
                     os.path.basename(gnu_config),
                     src=os.path.dirname(gnu_config),
-                    dst=os.path.join(self.source_folder, self._source_subfolder, "config"),
+                    dst=os.path.join(self.source_folder, "config"),
                 )
 
         if self.settings.compiler.get_safe("libcxx") == "libc++":
             # libc++ includes a file called 'version', and since libstudxml adds source_subfolder as an
             # include dir, libc++ ends up including their 'version' file instead, causing a compile error
-            rm(self, "version", os.path.join(self.source_folder, self._source_subfolder))
+            rm(self, "version", self.source_folder)
 
-        with chdir(self, os.path.join(self.source_folder, self._source_subfolder)):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+        with chdir(self, self.source_folder):
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
 
         autotools = self._configure_autotools()
         autotools.make()
@@ -240,30 +237,30 @@ class LibStudXmlConan(ConanFile):
         copy(
             self,
             "LICENSE",
-            src=os.path.join(self.source_folder, self._source_subfolder),
+            src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
         if is_msvc(self):
-            self.copy("xml/value-traits", dst="include", src=self._source_subfolder)
-            self.copy("xml/serializer", dst="include", src=self._source_subfolder)
-            self.copy("xml/qname", dst="include", src=self._source_subfolder)
-            self.copy("xml/parser", dst="include", src=self._source_subfolder)
-            self.copy("xml/forward", dst="include", src=self._source_subfolder)
-            self.copy("xml/exception", dst="include", src=self._source_subfolder)
-            self.copy("xml/content", dst="include", src=self._source_subfolder)
-            self.copy("xml/*.ixx", dst="include", src=self._source_subfolder)
-            self.copy("xml/*.txx", dst="include", src=self._source_subfolder)
-            self.copy("xml/*.hxx", dst="include", src=self._source_subfolder)
-            self.copy("xml/*.h", dst="include", src=self._source_subfolder)
+            copy(self, "xml/value-traits", dst="include", src=self.source_folder)
+            copy(self, "xml/serializer", dst="include", src=self.source_folder)
+            copy(self, "xml/qname", dst="include", src=self.source_folder)
+            copy(self, "xml/parser", dst="include", src=self.source_folder)
+            copy(self, "xml/forward", dst="include", src=self.source_folder)
+            copy(self, "xml/exception", dst="include", src=self.source_folder)
+            copy(self, "xml/content", dst="include", src=self.source_folder)
+            copy(self, "xml/*.ixx", dst="include", src=self.source_folder)
+            copy(self, "xml/*.txx", dst="include", src=self.source_folder)
+            copy(self, "xml/*.hxx", dst="include", src=self.source_folder)
+            copy(self, "xml/*.h", dst="include", src=self.source_folder)
 
             suffix = ""
             if self.settings.arch == "x86_64":
                 suffix = "64"
             if self.options.shared:
-                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "lib" + suffix))
-                self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "bin" + suffix))
+                copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "lib" + suffix))
+                copy(self, "*.dll", dst="bin", src=os.path.join(self.source_folder, "bin" + suffix))
             else:
-                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin" + suffix))
+                copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "bin" + suffix))
         else:
             autotools = self._configure_autotools()
             autotools.install()

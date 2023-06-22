@@ -92,16 +92,17 @@ class HippomocksConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("%s-*" % (self.name))[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
             "*.h",
             dst=os.path.join("include", self._libname),
-            src=os.path.join(self._source_subfolder, self._libname),
+            src=os.path.join(self.source_folder, self._libname),
         )
 
     def package_id(self):

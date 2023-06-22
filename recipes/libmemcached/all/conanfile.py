@@ -38,7 +38,7 @@ class LibmemcachedConan(ConanFile):
     }
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)

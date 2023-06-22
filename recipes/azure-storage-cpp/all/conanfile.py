@@ -96,7 +96,6 @@ class AzureStorageCppConan(ConanFile):
     description = "Microsoft Azure Storage Client Library for C++"
     topics = ("azure", "cpp", "cross-platform", "microsoft", "cloud")
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
     exports_sources = ["CMakeLists.txt", "patches/**"]
     options = {
         "shared": [True, False],
@@ -106,12 +105,6 @@ class AzureStorageCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _minimum_cpp_standard(self):
@@ -136,24 +129,7 @@ class AzureStorageCppConan(ConanFile):
             self.requires("libgettext/0.20.1")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-
-        tc.variables["CMAKE_FIND_FRAMEWORK"] = "LAST"
-        tc.variables["BUILD_TESTS"] = False
-        tc.variables["BUILD_SAMPLES"] = False
-        if not self.settings.compiler.cppstd:
-            tc.variables["CMAKE_CXX_STANDARD"] = self._minimum_cpp_standard
-
-        if self.settings.os == "Macos":
-            tc.variables["GETTEXT_LIB_DIR"] = self.deps_cpp_info["libgettext"].lib_paths[0]
-
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -161,11 +137,11 @@ class AzureStorageCppConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compiler_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -174,7 +150,7 @@ class AzureStorageCppConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -186,7 +162,7 @@ class AzureStorageCppConan(ConanFile):
 
         # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
         # https://github.com/conan-io/conan-center-index/issues/4195
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if (
             self.settings.compiler == "Visual Studio"
@@ -197,19 +173,33 @@ class AzureStorageCppConan(ConanFile):
                 "Visual Studio build for shared library with MT runtime is not supported"
             )
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_FRAMEWORK"] = "LAST"
+        tc.variables["BUILD_TESTS"] = False
+        tc.variables["BUILD_SAMPLES"] = False
+        if not self.settings.compiler.cppstd:
+            tc.variables["CMAKE_CXX_STANDARD"] = self._minimum_cpp_standard
+        if self.settings.os == "Macos":
+            tc.variables["GETTEXT_LIB_DIR"] = self.deps_cpp_info["libgettext"].lib_paths[0]
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32", "rpcrt4", "xmllite", "bcrypt"]
             if not self.options.shared:

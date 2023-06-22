@@ -16,9 +16,9 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["MSGPACK_C_API"] = self.options["msgpack"].c_api
-        cmake.definitions["MSGPACK_CPP_API"] = self.options["msgpack"].cpp_api
+        tc = CMakeToolchain(self)
+        tc.variables["MSGPACK_C_API"] = self.options["msgpack"].c_api
+        tc.variables["MSGPACK_CPP_API"] = self.options["msgpack"].cpp_api
         cmake.configure()
         cmake.build()
 

@@ -23,7 +23,7 @@ class TestPackageConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -33,14 +33,13 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         env_build = RunEnvironment(self)
-        with tools.environment_append(env_build.vars):
+        with environment_append(self, env_build.vars):
             cmake = CMake(self)
             cmake.configure(defs={"CMAKE_CXX_STANDARD": self._cmake_cxx_standard})
             cmake.build()
 
-
     def test(self):
-        if not tools.cross_building(self):
+        if not cross_building(self):
             self._check_binaries_are_found()
             self._check_root_dictionaries()
 

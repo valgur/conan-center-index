@@ -110,7 +110,7 @@ class SwigConan(ConanFile):
             self.requires("pcre/8.45")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.build_requires("winflexbison/2.5.24")
@@ -122,12 +122,7 @@ class SwigConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _user_info_build(self):
@@ -143,23 +138,19 @@ class SwigConan(ConanFile):
         if self.settings.compiler != "Visual Studio":
             env["YACC"] = self._user_info_build["bison"].YACC
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env.update(
                     {
-                        "CC": "{} cl -nologo".format(
-                            tools.unix_path(self._user_info_build["automake"].compile)
-                        ),
-                        "CXX": "{} cl -nologo".format(
-                            tools.unix_path(self._user_info_build["automake"].compile)
-                        ),
+                        "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
                         "AR": "{} link".format(self._user_info_build["automake"].ar_lib),
                         "LD": "link",
                     }
                 )
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @functools.lru_cache(1)
@@ -206,25 +197,24 @@ class SwigConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
             autotools.libs.extend(["mingwex", "ssp"])
 
-        autotools.configure(args=args, configure_dir=self._source_subfolder, host=host, build=build)
+        autotools.configure(args=args, configure_dir=self.source_folder, host=host, build=build)
         return autotools
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="COPYRIGHT", dst="licenses", src=self._source_subfolder)
-        self.copy("*", src="cmake", dst=self._module_subfolder)
+        copy(self, pattern="LICENSE*", dst="licenses", src=self.source_folder)
+        copy(self, pattern="COPYRIGHT", dst="licenses", src=self.source_folder)
+        copy(self, "*", src="cmake", dst=self._module_subfolder)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()

@@ -180,7 +180,7 @@ class MingwConan(ConanFile):
         # add binutils to path. Required for gcc build
         env = {"PATH": os.environ["PATH"] + ":" + os.path.join(self.package_folder, "bin")}
 
-        with tools.environment_append(env):
+        with environment_append(self, env):
             with_gmp_mpfc_mpc = [
                 "--with-gmp={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
                 "--with-mpfr={}".format(self.deps_cpp_info["mpfr"].rootpath.replace("\\", "/")),
@@ -316,7 +316,7 @@ class MingwConan(ConanFile):
             # configure: Please check if the mingw-w64 header set and the build/host option are set properly.
             env_compiler["CC"] = target_tag + "-gcc"
             env_compiler["CXX"] = target_tag + "-g++"
-            with tools.environment_append(env_compiler):
+            with environment_append(self, env_compiler):
                 self.output.info("Building mingw-w64-crt ...")
                 mkdir(self, os.path.join(self.build_folder, "mingw-w64-crt"))
                 with chdir(self, os.path.join(self.build_folder, "mingw-w64-crt")):
@@ -375,7 +375,7 @@ class MingwConan(ConanFile):
         self.output.info("Building done!")
 
     def package(self):
-        self.copy("COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses")
+        copy(self, "COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses")
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))

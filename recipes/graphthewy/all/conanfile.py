@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class GraphthewyConan(ConanFile):
     name = "graphthewy"
     license = "EUPL-1.2"
@@ -92,8 +93,8 @@ class GraphthewyConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     @property
     def _compilers_minimum_version(self):
@@ -106,7 +107,7 @@ class GraphthewyConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -125,9 +126,9 @@ class GraphthewyConan(ConanFile):
             )
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            "*.hpp", dst=os.path.join("include", "graphthewy"), src=self._source_subfolder, keep_path=False
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self, "*.hpp", dst=os.path.join("include", "graphthewy"), src=self.source_folder, keep_path=False
         )
 
     def package_id(self):

@@ -52,7 +52,7 @@ class MariadbConnectorcConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_iconv
+            self.options.rm_safe("with_iconv")
             self.options.with_ssl = "schannel"
 
     def configure(self):

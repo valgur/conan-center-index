@@ -43,8 +43,6 @@ class SundialsConan(ConanFile):
         "build_kinsol": True,
     }
 
-    short_paths = True
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC

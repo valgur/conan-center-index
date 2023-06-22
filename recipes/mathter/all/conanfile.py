@@ -97,11 +97,11 @@ class MathterConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "mathter requires C++17, which your compiler does not support."
                 )
@@ -109,21 +109,23 @@ class MathterConan(ConanFile):
             self.output.warn("mathter requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("Mathter-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("Mathter-" + self.version, self.source_folder)
 
     def package(self):
-        self.copy(
+        copy(
+            self,
             "*.hpp",
             dst=os.path.join("include", "Mathter"),
-            src=os.path.join(self._source_subfolder, "Mathter"),
+            src=os.path.join(self.source_folder, "Mathter"),
         )
-        self.copy(
+        copy(
+            self,
             "*.natvis",
             dst=os.path.join("include", "Mathter"),
-            src=os.path.join(self._source_subfolder, "Mathter"),
+            src=os.path.join(self.source_folder, "Mathter"),
         )
-        self.copy("LICENCE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENCE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

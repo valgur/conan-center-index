@@ -38,7 +38,6 @@ class DiligentCoreConan(ConanFile):
         "fPIC": True,
         "with_glslang": True,
     }
-    short_paths = True
 
     @property
     def _minimum_compilers_version(self):
@@ -119,14 +118,14 @@ class DiligentCoreConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def _patch_sources(self):
-        patches.apply_conandata_patches(self)
+        apply_conandata_patches(self)
 
     def build_requirements(self):
         self.tool_requires("cmake/3.24.2")

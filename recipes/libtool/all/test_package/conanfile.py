@@ -16,7 +16,6 @@ import shutil
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     test_type = "explicit"
-    short_paths = True
     win_bash = True  # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 
     @property

@@ -59,8 +59,6 @@ class OpenCVConan(ConanFile):
         "nonfree": False,
     }
 
-    short_paths = True
-
     @property
     def _contrib_folder(self):
         return os.path.join(self.source_folder, "contrib")
@@ -72,7 +70,7 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_gtk
+            self.options.rm_safe("with_gtk")
 
     def configure(self):
         if self.options.shared:

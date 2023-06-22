@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -93,16 +94,14 @@ class DawHeaderLibrariesConan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE*", "licenses", self._source_subfolder)
-        self.copy("stringtoolbox.hpp", "include", self._source_subfolder)
+        copy(self, "LICENSE*", "licenses", self.source_folder)
+        copy(self, "stringtoolbox.hpp", "include", self.source_folder)

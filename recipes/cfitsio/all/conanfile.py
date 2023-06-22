@@ -44,9 +44,9 @@ class CfitsioConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_curl
+            self.options.rm_safe("with_curl")
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
 
     def configure(self):
         if self.options.shared:

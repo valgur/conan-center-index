@@ -98,46 +98,40 @@ class FlatcConan(ConanFile):
     description = "Memory Efficient Serialization Library"
     settings = "os", "arch"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "flatbuffers-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["FLATBUFFERS_BUILD_TESTS"] = False
-        cmake.definitions["FLATBUFFERS_BUILD_SHAREDLIB"] = False
-        cmake.definitions["FLATBUFFERS_BUILD_FLATLIB"] = True
-        cmake.definitions["FLATBUFFERS_BUILD_FLATC"] = True
-        cmake.definitions["FLATBUFFERS_BUILD_FLATHASH"] = True
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["FLATBUFFERS_BUILD_TESTS"] = False
+        tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = False
+        tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = True
+        tc.variables["FLATBUFFERS_BUILD_FLATC"] = True
+        tc.variables["FLATBUFFERS_BUILD_FLATHASH"] = True
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
         extension = ".exe" if self.settings.os == "Windows" else ""
-        bin_dir = os.path.join(self._build_subfolder, "bin")
-        self.copy(pattern="flatc" + extension, dst="bin", src=bin_dir)
-        self.copy(pattern="flathash" + extension, dst="bin", src=bin_dir)
-        self.copy(
+        bin_dir = os.path.join(self.build_folder, "bin")
+        copy(self, pattern="flatc" + extension, dst="bin", src=bin_dir)
+        copy(self, pattern="flathash" + extension, dst="bin", src=bin_dir)
+        copy(
+            self,
             pattern="BuildFlatBuffers.cmake",
             dst="bin/cmake",
-            src=os.path.join(self._source_subfolder, "CMake"),
+            src=os.path.join(self.source_folder, "CMake"),
         )
 
     def package_info(self):

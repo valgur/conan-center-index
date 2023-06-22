@@ -34,12 +34,12 @@ class PackioConan(ConanFile):
 
     def config_options(self):
         if scm.Version(self.version) < "1.2.0":
-            del self.options.standalone_asio
+            self.options.rm_safe("standalone_asio")
         if scm.Version(self.version) < "2.0.0":
-            del self.options.msgpack
-            del self.options.nlohmann_json
+            self.options.rm_safe("msgpack")
+            self.options.rm_safe("nlohmann_json")
         if scm.Version(self.version) < "2.1.0":
-            del self.options.boost_json
+            self.options.rm_safe("boost_json")
 
     def requirements(self):
         if self.options.get_safe("msgpack") or scm.Version(self.version) < "2.0.0":
@@ -61,7 +61,7 @@ class PackioConan(ConanFile):
     def source(self):
         files.get(conanfile=self, **self.conan_data["sources"][self.version])
         extracted_dir = "packio-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -77,8 +77,8 @@ class PackioConan(ConanFile):
             self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def package(self):
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_id(self):
         self.info.header_only()

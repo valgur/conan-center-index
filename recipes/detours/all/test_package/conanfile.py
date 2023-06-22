@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not tools.cross_building(self, skip_x64_x86=True):
+        if not cross_building(self, skip_x64_x86=True):
             bin_path = os.path.join("bin", "test_package")
             self.run(
                 f"{bin_path} \"{os.path.join(self.build_folder, 'bin')}\"",

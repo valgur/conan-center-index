@@ -100,7 +100,7 @@ class ConanXqilla(ConanFile):
 
     @property
     def _doc_folder(self):
-        return os.path.join(self._source_subfolder, "xsd", "doc")
+        return os.path.join(self.source_folder, "xsd", "doc")
 
     @property
     def _make_cmd(self):
@@ -108,7 +108,7 @@ class ConanXqilla(ConanFile):
 
     @property
     def _make_program(self):
-        return tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make"))
+        return get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make"))
 
     @property
     def _gnumake_cmd(self):
@@ -132,39 +132,36 @@ class ConanXqilla(ConanFile):
         if self.settings.compiler == "gcc":
             flags.append("-std=c++11")
         make_ccpflags = "CPPFLAGS='{}'".format(" ".join(flags))
-        make_cmd = f"{make_ldflags} {make_ccpflags} {self._make_program} -j{tools.cpu_count()}"
+        make_cmd = f"{make_ldflags} {make_ccpflags} {self._make_program} -j{cpu_count(self, )}"
         return make_cmd
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The xsd recipe currently only supports Linux.")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             self.run(self._make_cmd)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
-        self.copy("GPLv2", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
-        self.copy("FLOSSE", dst="licenses", src=os.path.join(self._source_subfolder, "xsd"))
+        copy(self, "LICENSE", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
+        copy(self, "GPLv2", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
+        copy(self, "FLOSSE", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
 
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             self.run(self._make_install_cmd)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

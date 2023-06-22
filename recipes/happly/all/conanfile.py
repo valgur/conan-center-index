@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class HapplyConan(ConanFile):
     name = "happly"
     url = "https://github.com/conan-io/conan-center-index"
@@ -91,16 +92,14 @@ class HapplyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("happly.h", src=self._source_subfolder, dst="include")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "happly.h", src=self.source_folder, dst="include")
 
     def package_id(self):
         self.info.header_only()

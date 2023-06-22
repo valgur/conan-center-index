@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class LibEstConan(ConanFile):
     name = "libest"
     license = "BSD-3-Clause"
@@ -99,10 +100,6 @@ class LibEstConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -111,17 +108,17 @@ class LibEstConan(ConanFile):
         if self.settings.os in ("Windows", "Macos"):
             raise ConanInvalidConfiguration("Platform is currently not supported by this recipe")
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("openssl/1.1.1q")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-r" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -138,15 +135,14 @@ class LibEstConan(ConanFile):
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
+        apply_conandata_patches(self)
+        with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("*LICENSE", src=self._source_subfolder, dst="licenses")
-        with tools.chdir(self._source_subfolder):
+        copy(self, "*LICENSE", src=self.source_folder, dst="licenses")
+        with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.install()
         os.unlink(os.path.join(self.package_folder, "lib", "libest.la"))

@@ -108,13 +108,7 @@ class ImaglConan(ConanFile):
         "with_png": True,
         "with_jpeg": True,
     }
-    generators = "cmake"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -125,24 +119,24 @@ class ImaglConan(ConanFile):
             "clang": "10",
             "apple-clang": "11",
         }
-        if tools.Version(self.version) <= "0.1.1" or tools.Version(self.version) == "0.2.0":
+        if Version(self.version) <= "0.1.1" or Version(self.version) == "0.2.0":
             minimum_versions["Visual Studio"] = "16.5"
             minimum_versions["msvc"] = "19.25"
         return minimum_versions
 
     @property
     def _supports_jpeg(self):
-        return tools.Version(self.version) >= "0.2.0"
+        return Version(self.version) >= "0.2.0"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._supports_jpeg:
-            del self.options.with_jpeg
+            self.options.rm_safe("with_jpeg")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_png:
@@ -152,7 +146,7 @@ class ImaglConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 20)
+            check_min_cppstd(self, 20)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -173,42 +167,33 @@ class ImaglConan(ConanFile):
             self.output.warn("imaGL requires C++20. Your compiler is unknown. Assuming it supports C++20.")
         elif lazy_lt_semver(compiler_version, minimum_version):
             raise ConanInvalidConfiguration(
-                "imaGL requires some C++20 features, which your {} {} compiler does not support.".format(
-                    str(self.settings.compiler), compiler_version
-                )
+                "imaGL requires some C++20 features, which your"
+                f" {str(self.settings.compiler)} {compiler_version} compiler does not support."
             )
         else:
-            print(
-                "Your compiler is {} {} and is compatible.".format(
-                    str(self.settings.compiler), compiler_version
-                )
-            )
+            print(f"Your compiler is {str(self.settings.compiler)} {compiler_version} and is compatible.")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
-
         tc.variables["STATIC_LIB"] = not self.options.shared
         tc.variables["SUPPORT_PNG"] = self.options.with_png
-        if self._supports_jpeg:
-            tc.variables["SUPPORT_JPEG"] = self.options.with_jpeg
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.variables["SUPPORT_JPEG"] = self._supports_jpeg and self.options.with_jpeg
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

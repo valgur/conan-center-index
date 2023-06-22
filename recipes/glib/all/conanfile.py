@@ -49,7 +49,6 @@ class GLibConan(ConanFile):
         "with_mount": True,
         "with_selinux": True,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -58,10 +57,10 @@ class GLibConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_mount
-            del self.options.with_selinux
+            self.options.rm_safe("with_mount")
+            self.options.rm_safe("with_selinux")
         if is_msvc(self):
-            del self.options.with_elf
+            self.options.rm_safe("with_elf")
 
     def configure(self):
         if self.options.shared:

@@ -96,11 +96,6 @@ class BoostDepConan(ConanFile):
     license = "BSL-1.0"
     topics = ("dependency", "tree")
     exports_sources = "CMakeLists.txt"
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def requirements(self):
         self.requires("boost/1.75.0")
@@ -109,24 +104,27 @@ class BoostDepConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version][0])
-        os.rename("boostdep-boost-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version][0])
+        os.rename("boostdep-boost-{}".format(self.version), self.source_folder)
         license_info = self.conan_data["sources"][self.version][1]
-        tools.download(filename=os.path.basename(license_info["url"]), **license_info)
+        download(self, filename=os.path.basename(license_info["url"]), **license_info)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["Boost_USE_STATIC_LIBS"] = not self.options["boost"].shared
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE*", dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE*", dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

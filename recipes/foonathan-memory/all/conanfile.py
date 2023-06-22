@@ -42,8 +42,6 @@ class FoonathanMemoryConan(ConanFile):
         "with_sizecheck": True,
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 

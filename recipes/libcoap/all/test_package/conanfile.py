@@ -20,9 +20,9 @@ class TestPackageConan(ConanFile):
 
         version = self.deps_cpp_info["libcoap"].version
         if version == "cci.20200424":
-            cmake.definitions["LIB_VERSION"] = 2
+            tc.variables["LIB_VERSION"] = 2
         else:
-            cmake.definitions["LIB_VERSION"] = 3
+            tc.variables["LIB_VERSION"] = 3
 
         cmake.configure()
         cmake.build()

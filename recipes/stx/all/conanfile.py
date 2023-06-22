@@ -108,11 +108,6 @@ class STXConan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt", "patches/*"]
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,7 +115,7 @@ class STXConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.backtrace:
@@ -131,10 +126,10 @@ class STXConan(ConanFile):
             raise ConanInvalidConfiguration("panic_handler=backtrace requires backtrace=True")
 
         compiler = self.settings.compiler
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         if compiler == "Visual Studio" and compiler_version < 16:
             raise ConanInvalidConfiguration(
@@ -169,43 +164,45 @@ class STXConan(ConanFile):
                 "which apple-clang < 12 with libc++ lacks"
             )
 
-        if compiler == "Visual Studio" and self.options.shared and tools.Version(self.version) <= "1.0.1":
+        if compiler == "Visual Studio" and self.options.shared and Version(self.version) <= "1.0.1":
             raise ConanInvalidConfiguration(
                 "shared library build does not work on windows with " "STX version <= 1.0.1"
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["STX_BUILD_SHARED"] = self.options.shared
+        tc.variables["STX_ENABLE_BACKTRACE"] = self.options.backtrace
+        tc.variables["STX_ENABLE_PANIC_BACKTRACE"] = self.options.panic_handler == "backtrace"
+        tc.variables["STX_OVERRIDE_PANIC_HANDLER"] = self.options.panic_handler == None
+        tc.variables["STX_VISIBLE_PANIC_HOOK"] = self.options.visible_panic_hook
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
+        apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.definitions["STX_BUILD_SHARED"] = self.options.shared
-        cmake.definitions["STX_ENABLE_BACKTRACE"] = self.options.backtrace
-        cmake.definitions["STX_ENABLE_PANIC_BACKTRACE"] = self.options.panic_handler == "backtrace"
-        cmake.definitions["STX_OVERRIDE_PANIC_HANDLER"] = self.options.panic_handler == None
-        cmake.definitions["STX_VISIBLE_PANIC_HOOK"] = self.options.visible_panic_hook
-
-        cmake.configure(build_folder=self._build_subfolder)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
 
-        self.copy("*.lib", dst="lib", keep_path=False)
-        self.copy("*.dll", dst="bin", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.dylib", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
+        copy(self, "*.lib", dst="lib", keep_path=False)
+        copy(self, "*.dll", dst="bin", keep_path=False)
+        copy(self, "*.so", dst="lib", keep_path=False)
+        copy(self, "*.dylib", dst="lib", keep_path=False)
+        copy(self, "*.a", dst="lib", keep_path=False)
 
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
 
         if self.options.backtrace:
             self.cpp_info.requires = ["abseil::absl_stacktrace", "abseil::absl_symbolize"]

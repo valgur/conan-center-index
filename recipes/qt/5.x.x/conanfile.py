@@ -168,7 +168,6 @@ class QtConan(ConanFile):
     }
 
     no_copy_source = True
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -223,11 +222,11 @@ class QtConan(ConanFile):
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_icu
-            del self.options.with_fontconfig
-            del self.options.with_libalsa
-            del self.options.with_x11
-            del self.options.qtx11extras
+            self.options.rm_safe("with_icu")
+            self.options.rm_safe("with_fontconfig")
+            self.options.rm_safe("with_libalsa")
+            self.options.rm_safe("with_x11")
+            self.options.rm_safe("qtx11extras")
         if self.settings.compiler == "apple-clang":
             if Version(self.settings.compiler.version) < "10.0":
                 raise ConanInvalidConfiguration(
@@ -237,55 +236,55 @@ class QtConan(ConanFile):
             if Version(self.settings.compiler.version) < "5.0":
                 raise ConanInvalidConfiguration("qt 5.15.X does not support GCC or clang before 5.0")
         if self.settings.compiler in ["gcc", "clang"] and Version(self.settings.compiler.version) < "5.3":
-            del self.options.with_mysql
+            self.options.rm_safe("with_mysql")
         if self.settings.os == "Windows":
             self.options.with_mysql = False
             self.options.opengl = "dynamic"
-            del self.options.with_gssapi
+            self.options.rm_safe("with_gssapi")
         if self.settings.os != "Linux":
             self.options.qtwayland = False
             self.options.with_atspi = False
 
         if self.settings.os != "Windows":
-            del self.options.qtwinextras
-            del self.options.qtactiveqt
+            self.options.rm_safe("qtwinextras")
+            self.options.rm_safe("qtactiveqt")
 
         if self.settings.os != "Macos":
-            del self.options.qtmacextras
+            self.options.rm_safe("qtmacextras")
 
         if self.settings.os != "Android":
-            del self.options.android_sdk
+            self.options.rm_safe("android_sdk")
 
     def configure(self):
         # if self.settings.os != "Linux":
         #         self.options.with_libiconv = False # QTBUG-84708
 
         if not self.options.gui:
-            del self.options.opengl
-            del self.options.with_vulkan
-            del self.options.with_freetype
-            del self.options.with_fontconfig
-            del self.options.with_harfbuzz
-            del self.options.with_libjpeg
-            del self.options.with_libpng
-            del self.options.with_md4c
-            del self.options.with_x11
+            self.options.rm_safe("opengl")
+            self.options.rm_safe("with_vulkan")
+            self.options.rm_safe("with_freetype")
+            self.options.rm_safe("with_fontconfig")
+            self.options.rm_safe("with_harfbuzz")
+            self.options.rm_safe("with_libjpeg")
+            self.options.rm_safe("with_libpng")
+            self.options.rm_safe("with_md4c")
+            self.options.rm_safe("with_x11")
 
         if not self.options.with_dbus:
-            del self.options.with_atspi
+            self.options.rm_safe("with_atspi")
 
         if not self.options.qtmultimedia:
             self.options.rm_safe("with_libalsa")
-            del self.options.with_openal
-            del self.options.with_gstreamer
-            del self.options.with_pulseaudio
+            self.options.rm_safe("with_openal")
+            self.options.rm_safe("with_gstreamer")
+            self.options.rm_safe("with_pulseaudio")
 
         if self.settings.os in ("FreeBSD", "Linux"):
             if self.options.qtwebengine:
                 self.options.with_fontconfig = True
 
         if self.options.multiconfiguration:
-            del self.settings.build_type
+            self.settings.rm_safe("build_type")
 
         config = configparser.ConfigParser()
         config.read(os.path.join(self.recipe_folder, f"qtmodules{self.version}.conf"))

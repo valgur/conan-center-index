@@ -38,10 +38,10 @@ class CcclConan(ConanFile):
             raise ConanInvalidConfiguration("This recipe only supports msvc/Visual Studio.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        cccl_path = os.path.join(self.source_folder, self.source_folder, "cccl")
+        cccl_path = os.path.join(self.source_folder, "cccl")
         replace_in_file(
             self,
             cccl_path,
@@ -57,13 +57,11 @@ class CcclConan(ConanFile):
         )
 
     def package(self):
-        copy(
-            self, pattern="cccl", src=os.path.join(self.source_folder, self.source_folder), dst=self._cccl_dir
-        )
+        copy(self, pattern="cccl", src=self.source_folder, dst=self._cccl_dir)
         copy(
             self,
             pattern="COPYING",
-            src=os.path.join(self.source_folder, self.source_folder),
+            src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
 

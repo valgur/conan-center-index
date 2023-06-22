@@ -109,8 +109,6 @@ class OpenCVConan(ConanFile):
         "nonfree": False,
     }
 
-    short_paths = True
-
     @property
     def _contrib_folder(self):
         return os.path.join(self.source_folder, "contrib")
@@ -138,11 +136,11 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_gtk
-            del self.options.with_v4l
+            self.options.rm_safe("with_gtk")
+            self.options.rm_safe("with_v4l")
         if self.settings.os != "Windows":
-            del self.options.with_msmf
-            del self.options.with_msmf_dxva
+            self.options.rm_safe("with_msmf")
+            self.options.rm_safe("with_msmf_dxva")
 
         if self._has_with_ffmpeg_option:
             # Following the packager choice, ffmpeg is enabled by default when
@@ -150,29 +148,29 @@ class OpenCVConan(ConanFile):
             # https://github.com/opencv/opencv/blob/39c3334147ec02761b117f180c9c4518be18d1fa/CMakeLists.txt#L266-L268
             self.options.with_ffmpeg = self.settings.os != "Android"
         else:
-            del self.options.with_ffmpeg
+            self.options.rm_safe("with_ffmpeg")
 
         if "arm" not in self.settings.arch:
-            del self.options.neon
+            self.options.rm_safe("neon")
         if not self._has_with_jpeg2000_option:
-            del self.options.with_jpeg2000
+            self.options.rm_safe("with_jpeg2000")
         if not self._has_with_tiff_option:
-            del self.options.with_tiff
+            self.options.rm_safe("with_tiff")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.contrib:
-            del self.options.contrib_freetype
-            del self.options.contrib_sfm
+            self.options.rm_safe("contrib_freetype")
+            self.options.rm_safe("contrib_sfm")
         if not self.options.dnn:
-            del self.options.dnn_cuda
+            self.options.rm_safe("dnn_cuda")
         if not self.options.with_cuda:
-            del self.options.with_cublas
-            del self.options.with_cudnn
-            del self.options.with_cufft
-            del self.options.dnn_cuda
-            del self.options.cuda_arch_bin
+            self.options.rm_safe("with_cublas")
+            self.options.rm_safe("with_cudnn")
+            self.options.rm_safe("with_cufft")
+            self.options.rm_safe("dnn_cuda")
+            self.options.rm_safe("cuda_arch_bin")
         if bool(self.options.with_jpeg):
             if self.options.get_safe("with_jpeg2000") == "jasper":
                 self.options["jasper"].with_libjpeg = self.options.with_jpeg

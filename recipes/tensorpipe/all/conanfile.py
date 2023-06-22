@@ -46,15 +46,15 @@ class TensorpipeConan(ConanFile):
 
     def config_options(self):
         if self.settings.os != "Linux":
-            del self.options.ibv
-            del self.options.shm
-            del self.options.cma
+            self.options.rm_safe("ibv")
+            self.options.rm_safe("shm")
+            self.options.rm_safe("cma")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.cuda:
-            del self.options.cuda_ipc
+            self.options.rm_safe("cuda_ipc")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

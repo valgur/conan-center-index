@@ -96,20 +96,20 @@ class GladConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
         if self.options.spec != "gl":
-            del self.options.gl_profile
-            del self.options.gl_version
-            del self.options.gles1_version
-            del self.options.gles2_version
-            del self.options.glsc2_version
+            self.options.rm_safe("gl_profile")
+            self.options.rm_safe("gl_version")
+            self.options.rm_safe("gles1_version")
+            self.options.rm_safe("gles2_version")
+            self.options.rm_safe("glsc2_version")
 
         if self.options.spec != "egl":
-            del self.options.egl_version
+            self.options.rm_safe("egl_version")
 
         if self.options.spec != "glx":
-            del self.options.glx_version
+            self.options.rm_safe("glx_version")
 
         if self.options.spec != "wgl":
-            del self.options.wgl_version
+            self.options.rm_safe("wgl_version")
 
     def validate(self):
         if self.options.spec == "wgl" and self.settings.os != "Windows":

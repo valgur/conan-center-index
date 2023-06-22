@@ -109,24 +109,12 @@ class QuickfastConan(ConanFile):
         "shared": False,
     }
     requires = ["boost/1.75.0", "xerces-c/3.2.3"]
-    generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
-    def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("quickfast-*")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -134,23 +122,27 @@ class QuickfastConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        patches = self.conan_data["patches"][self.version]
-        for patch in patches:
-            tools.patch(**patch)
-
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build(target="quickfast")
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("license.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, "license.txt", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "quickfast"))
 
         if not self.options.shared:

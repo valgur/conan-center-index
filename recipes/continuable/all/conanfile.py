@@ -116,7 +116,7 @@ class ContinuableConan(ConanFile):
     def validate(self):
         minimal_cpp_standard = "14"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "5",
             "clang": "3.4",
@@ -133,23 +133,24 @@ class ContinuableConan(ConanFile):
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
             return
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "continuable-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(
+            self,
             pattern="*",
             dst=os.path.join("include", "continuable"),
-            src=os.path.join(self._source_subfolder, "include", "continuable"),
+            src=os.path.join(self.source_folder, "include", "continuable"),
         )
 
     def package_info(self):

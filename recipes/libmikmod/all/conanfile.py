@@ -52,17 +52,17 @@ class LibmikmodConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.with_dsound
-            del self.options.with_mmsound
+            self.options.rm_safe("with_dsound")
+            self.options.rm_safe("with_mmsound")
         if self.settings.os != "Linux":
-            del self.options.with_alsa
+            self.options.rm_safe("with_alsa")
         # Non-Apple Unices
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_oss
-            del self.options.with_pulse
+            self.options.rm_safe("with_oss")
+            self.options.rm_safe("with_pulse")
         # Apple
         if is_apple_os(self):
-            del self.options.with_coreaudio
+            self.options.rm_safe("with_coreaudio")
 
     def configure(self):
         if self.options.shared:

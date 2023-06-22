@@ -55,8 +55,6 @@ class ThriftConan(ConanFile):
         "with_haskell": False,
     }
 
-    short_paths = True
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)

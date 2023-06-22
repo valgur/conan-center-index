@@ -107,11 +107,6 @@ class LibCoapConan(ConanFile):
         "with_epoll": False,
         "dtls_backend": "openssl",
     }
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def requirements(self):
         if self.options.dtls_backend == "openssl":
@@ -131,14 +126,12 @@ class LibCoapConan(ConanFile):
         if self.settings.os in ("Windows", "Macos"):
             raise ConanInvalidConfiguration("Platform is currently not supported")
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -150,18 +143,21 @@ class LibCoapConan(ConanFile):
             tc.variables["ENABLE_DOCS"] = False
             tc.variables["ENABLE_EXAMPLES"] = False
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         library_name = ""

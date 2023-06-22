@@ -104,12 +104,7 @@ class DetoolsConan(ConanFile):
         "fPIC": True,
     }
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
     requires = ["heatshrink/0.4.1", "lz4/1.9.3", "xz_utils/5.2.5"]
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -117,28 +112,24 @@ class DetoolsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

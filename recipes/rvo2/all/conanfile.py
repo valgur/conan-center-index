@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class Rvo2Conan(ConanFile):
     name = "rvo2"
     description = "Optimal Reciprocal Collision Avoidance"
@@ -98,7 +99,6 @@ class Rvo2Conan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -106,42 +106,47 @@ class Rvo2Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "RVO2-{}".format(self.version)
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"), "add_subdirectory(examples)", ""
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(examples)", ""
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
             "DESTINATION include",
             "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
             "RVO DESTINATION lib",
             "RVO RUNTIME LIBRARY ARCHIVE",
         )
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

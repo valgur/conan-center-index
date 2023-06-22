@@ -102,14 +102,13 @@ class LibsolaceConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
 
     @property
     def _supported_cppstd(self):
         return ["17", "gnu17", "20", "gnu20"]
 
     def configure(self):
-        compiler_version = tools.Version(str(self.settings.compiler.version))
+        compiler_version = Version(self, str(self.settings.compiler.version))
 
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("This library is not yet compatible with Windows")
@@ -132,25 +131,27 @@ class LibsolaceConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        cmake = CMake(self, parallel=True)
-        cmake.definitions["PKG_CONFIG"] = "OFF"
-        cmake.definitions["SOLACE_GTEST_SUPPORT"] = "OFF"
-        cmake.configure(source_folder=self._source_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["PKG_CONFIG"] = "OFF"
+        tc.variables["SOLACE_GTEST_SUPPORT"] = "OFF"
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["solace"]

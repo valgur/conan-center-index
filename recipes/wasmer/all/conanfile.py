@@ -37,7 +37,7 @@ class WasmerConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if is_msvc(self) and self.options.shared:
-            del self.settings.compiler.runtime
+            self.settings.rm_safe("compiler.runtime")
 
     def layout(self):
         basic_layout(self, src_folder="src")

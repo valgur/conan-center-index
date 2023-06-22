@@ -95,23 +95,22 @@ class CrowConan(ConanFile):
         self.requires("boost/1.69.0")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "crow-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
-        if tools.Version(self.deps_cpp_info["boost"].version) >= "1.70.0":
+        if Version(self.deps_cpp_info["boost"].version) >= "1.70.0":
             raise ConanInvalidConfiguration("Crow requires Boost <1.70.0")
 
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(source_folder=self._source_subfolder)
+        cmake.configure(source_folder=self.source_folder)
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst=os.path.join("include", "crow"), src="amalgamate")
+        copy(self, pattern="LICENSE*", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst=os.path.join("include", "crow"), src="amalgamate")
 
     def package_id(self):
         self.info.header_only()

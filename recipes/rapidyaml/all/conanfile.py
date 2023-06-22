@@ -41,7 +41,7 @@ class RapidYAMLConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "0.4.0":
-            del self.options.with_tab_tokens
+            self.options.rm_safe("with_tab_tokens")
 
     def configure(self):
         if self.options.shared:
@@ -59,7 +59,7 @@ class RapidYAMLConan(ConanFile):
         check_min_vs(self, 190)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

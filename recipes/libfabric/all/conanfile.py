@@ -115,9 +115,9 @@ class LibfabricConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
@@ -133,9 +133,7 @@ class LibfabricConan(ConanFile):
             raise ConanInvalidConfiguration("Value of with_libnl must be an existing directory")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -150,7 +148,7 @@ class LibfabricConan(ConanFile):
             args.append("--with-bgq-progress={}".format(self.options.with_bgq_progress))
         if self.options.with_bgq_mr:
             args.append("--with-bgq-mr={}".format(self.options.with_bgq_mr))
-        self._autotools.configure(args=args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
@@ -158,16 +156,16 @@ class LibfabricConan(ConanFile):
         autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libfabric"
-        self.cpp_info.libs = self.collect_libs()
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]

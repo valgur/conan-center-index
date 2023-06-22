@@ -116,13 +116,13 @@ class SubunitConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("cppunit/1.15.1")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.build_requires("automake/1.16.3")
@@ -130,7 +130,7 @@ class SubunitConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Cannot build shared subunit libraries on Windows")
-        if self.settings.compiler == "apple-clang" and tools.Version(self.settings.compiler.version) < "10":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "10":
             # Complete error is:
             # make[2]: *** No rule to make target `/Applications/Xcode-9.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/config.h', needed by `Makefile'.  Stop.
             raise ConanInvalidConfiguration(
@@ -138,24 +138,22 @@ class SubunitConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
                     "STRIP": ":",
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -181,18 +179,17 @@ class SubunitConan(ConanFile):
             ),
             "CPPUNIT_LIBS='{}'".format(" ".join(self.deps_cpp_info["cppunit"].libs)),
         ]
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
             # Avoid installing i18n + perl things in arch-dependent folders or in a `local` subfolder
@@ -211,15 +208,15 @@ class SubunitConan(ConanFile):
             ]
             autotools.install(args=install_args)
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pod")
+        rm(self, "*.la", self.package_folder, recursive=True)
+        rm(self, "*.pod", os.path.join(self.package_folder, "lib"), recursive=True)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "python*")):
-            tools.rmdir(d)
+            rmdir(self, d)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "*")):
             if os.path.isdir(d):
-                tools.rmdir(d)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "Library"))
+                rmdir(self, d)
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "Library"))
 
     def package_info(self):
         self.cpp_info.components["libsubunit"].libs = ["subunit"]

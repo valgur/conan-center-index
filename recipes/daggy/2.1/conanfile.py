@@ -123,22 +123,17 @@ class DaggyConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
 
     @property
     def _minimum_cpp_standard(self):
         return 17
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build_requirements(self):
         self.build_requires("cmake/3.21.3")
@@ -151,7 +146,7 @@ class DaggyConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     @property
     def _minimum_compilers_version(self):
@@ -164,7 +159,7 @@ class DaggyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -173,7 +168,7 @@ class DaggyConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -196,8 +191,7 @@ class DaggyConan(ConanFile):
         if self.options.with_ssh2:
             self.requires("libssh2/1.10.0")
 
-    def _configure(self):
-
+    def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["SSH2_SUPPORT"] = self.options.with_ssh2
         tc.variables["YAML_SUPPORT"] = self.options.with_yaml
@@ -211,21 +205,22 @@ class DaggyConan(ConanFile):
             tc.variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
-        cmake = self._configure()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure()
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses", keep_path=False)
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["DaggyCore"]

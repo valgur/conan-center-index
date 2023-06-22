@@ -104,7 +104,7 @@ class GnConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
         else:
             if self._minimum_compiler_version_supporting_cxx17:
                 if (
@@ -121,7 +121,7 @@ class GnConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools_files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        tools_files.get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
 
     def build_requirements(self):
         # FIXME: add cpython build requirements for `build/gen.py`.
@@ -130,7 +130,7 @@ class GnConan(ConanFile):
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 yield
         else:
             compiler_defaults = {}
@@ -150,15 +150,15 @@ class GnConan(ConanFile):
                 }
             env = {}
             for k in ("CC", "CXX", "AR", "LD"):
-                v = tools.get_env(k, compiler_defaults.get(k, None))
+                v = get_env(self, k, compiler_defaults.get(k, None))
                 if v:
                     env[k] = v
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @staticmethod
     def _to_gn_platform(os_, compiler):
-        if tools.is_apple_os(os_):
+        if is_apple_os(self, os_):
             return "darwin"
         if compiler == "Visual Studio":
             return "msvc"
@@ -166,10 +166,11 @@ class GnConan(ConanFile):
         return str(os_).lower()
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             with self._build_context():
                 # Generate dummy header to be able to run `build/ben.py` with `--no-last-commit-position`. This allows running the script without the tree having to be a git checkout.
-                tools.save(
+                save(
+                    self,
                     os.path.join("src", "gn", "last_commit_position.h"),
                     textwrap.dedent(
                         """\
@@ -190,13 +191,21 @@ class GnConan(ConanFile):
                 )
                 # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
                 time.sleep(1)
-                build_args = ["-C", "out", "-j{}".format(tools.cpu_count())]
+                build_args = [
+                    "-C",
+                    "out",
+                    "-j{}".format(
+                        cpu_count(
+                            self,
+                        )
+                    ),
+                ]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("gn", src=os.path.join(self._source_subfolder, "out"), dst="bin")
-        self.copy("gn.exe", src=os.path.join(self._source_subfolder, "out"), dst="bin")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "gn", src=os.path.join(self.source_folder, "out"), dst="bin")
+        copy(self, "gn.exe", src=os.path.join(self.source_folder, "out"), dst="bin")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

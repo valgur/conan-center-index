@@ -95,7 +95,7 @@ class Sqlpp11Conan(ConanFile):
 
     @property
     def _min_stdcpp_version(self):
-        return 11 if tools.Version(self.version) < "0.61" else 14
+        return 11 if Version(self.version) < "0.61" else 14
 
     @property
     def _compilers_minimum_version(self):
@@ -111,12 +111,12 @@ class Sqlpp11Conan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._min_stdcpp_version)
+            check_min_cppstd(self, self._min_stdcpp_version)
 
         if self._min_stdcpp_version > 11:
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version:
-                if tools.Version(self.settings.compiler.version) < minimum_version:
+                if Version(self.settings.compiler.version) < minimum_version:
                     raise ConanInvalidConfiguration(
                         f"{self.name} requires C++14, which your compiler does not support."
                     )
@@ -129,14 +129,12 @@ class Sqlpp11Conan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*", dst="bin", src=os.path.join(self._source_subfolder, "scripts"))
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*", dst="bin", src=os.path.join(self.source_folder, "scripts"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "Sqlpp11"

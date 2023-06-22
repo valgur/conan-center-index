@@ -104,20 +104,15 @@ class AstroInformaticsSO3(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake", "cmake_find_package"
     exports_sources = ["CMakeLists.txt"]
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
         self.requires("fftw/3.3.9")
@@ -130,24 +125,21 @@ class AstroInformaticsSO3(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def cmake(self):
-        if not hasattr(self, "_cmake"):
-            tc = CMakeToolchain(self)
-            tc.variables["conan_deps"] = False
-            tc.variables["BUILD_TESTING"] = False
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["conan_deps"] = False
+        tc.variables["BUILD_TESTING"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self.cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
         self.cmake.install()
 
     def package_info(self):

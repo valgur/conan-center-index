@@ -56,7 +56,7 @@ class MpppConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if Version(self.version) < "0.27":
-            del self.options.with_fmt
+            self.options.rm_safe("with_fmt")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

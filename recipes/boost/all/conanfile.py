@@ -160,7 +160,6 @@ class BoostConan(ConanFile):
     default_options.update({f"without_{_name}": False for _name in CONFIGURE_OPTIONS})
     default_options.update({f"without_{_name}": True for _name in ("graph_parallel", "mpi", "python")})
 
-    short_paths = True
     no_copy_source = True
     _cached_dependencies = None
 
@@ -273,7 +272,7 @@ class BoostConan(ConanFile):
 
         # stacktrace_backtrace not supported on Windows
         if self.settings.os == "Windows":
-            del self.options.with_stacktrace_backtrace
+            self.options.rm_safe("with_stacktrace_backtrace")
 
         # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
         # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
@@ -608,7 +607,7 @@ class BoostConan(ConanFile):
             self.tool_requires("b2/4.9.6")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):

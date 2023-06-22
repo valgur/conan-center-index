@@ -105,7 +105,6 @@ class HunspellConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     # FIXME: Remove once the pending upstream PR for CMake support is merged
     exports_sources = "CMakeLists.txt"
     no_copy_source = True
@@ -116,30 +115,33 @@ class HunspellConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # NOTE: The source contains a pre-configured hunvisapi.h and it would
         #       prevent no_copy_source and building without patches.
         h = os.path.join(self.source_folder, "src", "hunspell", "hunvisapi.h")
         os.remove(h)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["CONAN_hunspell_VERSION"] = self.version
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["CONAN_hunspell_VERSION"] = self.version
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._configure_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self._configure_cmake().install()
-        self.copy("COPYING", "licenses")
-        self.copy("COPYING.LESSER", "licenses")
-        self.copy("license.hunspell", "licenses")
+        cmake = CMake(self)
+        cmake.install()
+        copy(self, "COPYING", "licenses")
+        copy(self, "COPYING.LESSER", "licenses")
+        copy(self, "license.hunspell", "licenses")
 
     def package_info(self):
         self.cpp_info.libs = ["hunspell"]

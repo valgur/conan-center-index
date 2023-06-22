@@ -63,7 +63,7 @@ class SDLImageConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not is_apple_os(self):
-            del self.options.imageio
+            self.options.rm_safe("imageio")
 
     def configure(self):
         if self.options.shared:

@@ -76,9 +76,9 @@ class Hdf5Conan(ConanFile):
         if (not self.options.enable_unsupported and (self.options.enable_cxx or self.options.hl)) or (
             self.settings.os == "Windows" and not self.options.shared
         ):
-            del self.options.threadsafe
+            self.options.rm_safe("threadsafe")
         if not bool(self.options.szip_support):
-            del self.options.szip_encoding
+            self.options.rm_safe("szip_encoding")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

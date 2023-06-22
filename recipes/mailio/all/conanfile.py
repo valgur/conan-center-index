@@ -27,7 +27,6 @@ class MailioConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

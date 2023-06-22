@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class Rtmonan(ConanFile):
     name = "rtm"
     description = "Realtime Math"
@@ -89,13 +90,13 @@ class Rtmonan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "includes"))
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "includes"))
 
     def package_id(self):
         self.info.header_only()

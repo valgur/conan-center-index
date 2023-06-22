@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.28.0"
 
 
@@ -94,11 +95,11 @@ class CppTaskflowConan(ConanFile):
 
     def configure(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
-        min_req_cppstd = "17" if tools.Version(self.version) <= "2.2.0" else "14"
+        compiler_version = Version(self.settings.compiler.version)
+        min_req_cppstd = "17" if Version(self.version) <= "2.2.0" else "14"
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
                 "%s recipe lacks information about the %s compiler"
@@ -132,16 +133,16 @@ class CppTaskflowConan(ConanFile):
                 "%s requires a compiler that supports"
                 " at least C++%s. %s %s is not"
                 " supported."
-                % (self.name, min_req_cppstd, compiler, tools.Version(self.settings.compiler.version.value))
+                % (self.name, min_req_cppstd, compiler, Version(self.settings.compiler.version.value))
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("taskflow-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("taskflow-" + self.version, self.source_folder)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include/taskflow", src=os.path.join(self._source_subfolder, "taskflow"))
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include/taskflow", src=os.path.join(self.source_folder, "taskflow"))
 
     def package_id(self):
         self.info.header_only()

@@ -104,7 +104,6 @@ class BtyaccConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    generators = "cmake"
     exports_sources = "CMakeLists.txt"
     no_copy_source = True
 
@@ -113,32 +112,35 @@ class BtyaccConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        root = self._source_subfolder
+        root = self.source_folder
         get_args = self.conan_data["sources"][self.version]
-        tools.get(**get_args, destination=root, strip_root=True)
+        get(self, **get_args, destination=root, strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._configure_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     @property
     def _variables(self):
         return os.path.join("bin", "conan-official-btyacc-variables.cmake")
 
     def package(self):
-        self.copy("README", "licenses", self._source_subfolder)
-        self.copy("README.BYACC", "licenses", self._source_subfolder)
-        self._configure_cmake().install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        copy(self, "README", "licenses", self.source_folder)
+        copy(self, "README.BYACC", "licenses", self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "share"))
         variables = os.path.join(self.package_folder, self._variables)
         content = textwrap.dedent(
             """\
@@ -148,7 +150,7 @@ class BtyaccConan(ConanFile):
             endif()
         """
         )
-        tools.save(variables, content)
+        save(self, variables, content)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

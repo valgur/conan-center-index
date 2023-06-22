@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class DepotToolsConan(ConanFile):
     name = "depot_tools"
     url = "https://github.com/conan-io/conan-center-index"
@@ -87,7 +88,6 @@ class DepotToolsConan(ConanFile):
     description = "Tools for working with Chromium development."
     topics = "chromium"
     license = "BSD-3-Clause"
-    short_paths = True
     no_copy_source = True
     settings = "os", "arch", "build_type", "compiler"
     exports_sources = ["patches/**"]
@@ -106,7 +106,7 @@ class DepotToolsConan(ConanFile):
         if self.settings.os != "Windows":
             return
 
-        for root, dirs, files in os.walk(self._source_subfolder):
+        for root, dirs, files in os.walk(self.source_folder):
             symlinks = [os.path.join(root, f) for f in files if os.path.islink(os.path.join(root, f))]
             for symlink in symlinks:
                 dest = os.readlink(symlink)
@@ -115,15 +115,14 @@ class DepotToolsConan(ConanFile):
                 self.output.info("Replaced symlink '%s' with its destination file '%s'" % (symlink, dest))
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
         self._dereference_symlinks()
 
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="bin", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="bin", src=self.source_folder)
         self._fix_permissions()
 
     def _fix_permissions(self):

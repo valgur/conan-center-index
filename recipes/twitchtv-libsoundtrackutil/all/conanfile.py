@@ -95,13 +95,8 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    generators = "cmake"
     exports = ["CMakeLists.txt", "patches/**"]
     requires = ("twitch-native-ipc/3.1.1", "ms-gsl/2.0.0")
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _compilers_min_version(self):
@@ -118,21 +113,20 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("{} requires C++17".format(self.name))
         else:
             self.output.warn("unknown compiler, assuming C++17 support")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{}-{}".format("libsoundtrackutil", self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{}-{}".format("libsoundtrackutil", self.version), self.source_folder)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_CODE_FORMATTING"] = False
         tc.variables["BUILD_TESTING"] = False
@@ -140,23 +134,25 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             tc.variables["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["libsoundtrackutil"]
 
-        if tools.stdcpp_library(self):
-            self.cpp_info.system_libs.append(tools.stdcpp_library(self))
+        if stdcpp_library(self):
+            self.cpp_info.system_libs.append(stdcpp_library(self))

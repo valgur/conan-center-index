@@ -27,8 +27,6 @@ class EasyhttpcppConan(ConanFile):
         "fPIC": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "11"

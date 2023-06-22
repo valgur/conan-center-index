@@ -98,10 +98,6 @@ class ResourcePool(ConanFile):
     no_copy_source = True
 
     @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
-    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
@@ -120,24 +116,25 @@ class ResourcePool(ConanFile):
             self.output.warn(
                 "resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
 
     def validate(self):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob(self.name + "-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy(
+        copy(
+            self,
             pattern="*",
             dst=os.path.join("include", "yamail"),
-            src=os.path.join(self._source_subfolder, "include", "yamail"),
+            src=os.path.join(self.source_folder, "include", "yamail"),
         )
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

@@ -96,8 +96,8 @@ class Cc65Conan(ConanFile):
     _source_subfolder = "source_subfolder"
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.settings.compiler == "Visual Studio":
             if self.settings.arch not in ("x86", "x86_64"):
                 raise ConanInvalidConfiguration("Invalid arch")
@@ -105,13 +105,13 @@ class Cc65Conan(ConanFile):
                 self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
 
     def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not tools.which("make"):
+        if self.settings.compiler == "Visual Studio" and not which(self, "make"):
             self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     @property
     def _datadir(self):
@@ -132,13 +132,13 @@ class Cc65Conan(ConanFile):
             arch = "x86"
 
         msbuild.build(
-            os.path.join(self._source_subfolder, "src", "cc65.sln"),
+            os.path.join(self.source_folder, "src", "cc65.sln"),
             build_type="Debug" if self.settings.build_type == "Debug" else "Release",
             arch=arch,
             platforms=msvc_platforms,
         )
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self._source_subfolder, "libsrc")):
+        with chdir(self, os.path.join(self.source_folder, "libsrc")):
             autotools.make()
 
     def _configure_autotools(self):
@@ -153,9 +153,9 @@ class Cc65Conan(ConanFile):
         prefix = self.package_folder
         samplesdir = self._samplesdir
         if tools.os_info.is_windows:
-            datadir = tools.unix_path(datadir)
-            prefix = tools.unix_path(prefix)
-            samplesdir = tools.unix_path(samplesdir)
+            datadir = unix_path(self, datadir)
+            prefix = unix_path(self, prefix)
+            samplesdir = unix_path(self, samplesdir)
         args = ["PREFIX={}".format(prefix), "datadir={}".format(datadir), "samplesdir={}".format(samplesdir)]
         if self.settings.os == "Windows":
             args.append("EXE_SUFFIX=.exe")
@@ -163,20 +163,22 @@ class Cc65Conan(ConanFile):
 
     def _build_autotools(self):
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             autotools.make(args=self._make_args)
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self._source_subfolder, "src")):
+            with chdir(self, os.path.join(self.source_folder, "src")):
                 for fn in os.listdir("."):
                     if not fn.endswith(".vcxproj"):
                         continue
-                    tools.replace_in_file(fn, "v141", tools.msvs_toolset(self))
-                    tools.replace_in_file(
-                        fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", ""
+                    replace_in_file(self, fn, "v141", msvs_toolset(self))
+                    replace_in_file(
+                        self,
+                        fn,
+                        "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>",
+                        "",
                     )
         if self.settings.os == "Windows":
             # Add ".exe" suffix to calls from cl65 to other utilities
@@ -188,8 +190,9 @@ class Cc65Conan(ConanFile):
                 ("grc65", "GRC"),
             ):
                 v = "{},".format(var).ljust(5)
-                tools.replace_in_file(
-                    os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "src", "cl65", "main.c"),
                     'CmdInit (&{v} CmdPath, "{n}");'.format(v=v, n=fn),
                     'CmdInit (&{v} CmdPath, "{n}.exe");'.format(v=v, n=fn),
                 )
@@ -202,27 +205,26 @@ class Cc65Conan(ConanFile):
             self._build_autotools()
 
     def _package_msvc(self):
-        self.copy(
+        copy(
+            self,
             "*.exe",
-            src=os.path.join(self._source_subfolder, "bin"),
+            src=os.path.join(self.source_folder, "bin"),
             dst=os.path.join(self.package_folder, "bin"),
             keep_path=False,
         )
         for dir in ("asminc", "cfg", "include", "lib", "target"):
-            self.copy(
-                "*", src=os.path.join(self._source_subfolder, dir), dst=os.path.join(self._datadir, dir)
-            )
+            copy(self, "*", src=os.path.join(self.source_folder, dir), dst=os.path.join(self._datadir, dir))
 
     def _package_autotools(self):
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self.build_folder, self._source_subfolder)):
+        with chdir(self, os.path.join(self.build_folder, self.source_folder)):
             autotools.install(args=self._make_args)
 
-        tools.rmdir(self._samplesdir)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self._samplesdir)
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
         if self.settings.compiler == "Visual Studio":
             self._package_msvc()
         else:

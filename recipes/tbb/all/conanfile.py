@@ -118,10 +118,6 @@ class TBBConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
-    @property
     def _is_clanglc(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
@@ -138,19 +134,16 @@ class TBBConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Macos":
-            if hasattr(self, "settings_build") and tools.cross_building(self):
+            if hasattr(self, "settings_build") and cross_building(self):
                 # See logs from https://github.com/conan-io/conan-center-index/pull/8454
                 raise ConanInvalidConfiguration(
                     "Cross building on Macos is not yet supported. Contributions are welcome"
                 )
-            if (
-                self.settings.compiler == "apple-clang"
-                and tools.Version(self.settings.compiler.version) < "8.0"
-            ):
+            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(
                     "%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version)
                 )
@@ -165,13 +158,11 @@ class TBBConan(ConanFile):
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
-            if "CONAN_MAKE_PROGRAM" not in os.environ and not tools.which("make"):
+            if "CONAN_MAKE_PROGRAM" not in os.environ and not which(self, "make"):
                 self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         def add_flag(name, value):
@@ -181,16 +172,17 @@ class TBBConan(ConanFile):
                 os.environ[name] = value
 
         # Get the version of the current compiler instead of gcc
-        linux_include = os.path.join(self._source_subfolder, "build", "linux.inc")
-        tools.replace_in_file(linux_include, "shell gcc", "shell $(CC)")
-        tools.replace_in_file(linux_include, "= gcc", "= $(CC)")
+        linux_include = os.path.join(self.source_folder, "build", "linux.inc")
+        replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
+        replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            tools.save(
-                os.path.join(self._source_subfolder, "build", "big_iron_msvc.inc"),
+            save(
+                self,
+                os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
                 textwrap.dedent(
                     """\
@@ -282,44 +274,46 @@ class TBBConan(ConanFile):
             else:
                 extra += " compiler=cl"
 
-        make = tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make"))
+        make = get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make") or which(self, "mingw32-make"))
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")
                 add_flag("CXXFLAGS", "-mrtm")
 
             targets = ["tbb", "tbbmalloc", "tbbproxy"]
-            context = tools.no_op()
+            context = no_op(
+                self,
+            )
             if self.settings.compiler == "intel":
-                context = tools.intel_compilervars(self)
-            elif self._is_msvc:
+                context = intel_compilervars(self)
+            elif is_msvc(self):
                 # intentionally not using vcvars for clang-cl yet
-                context = tools.vcvars(self)
+                context = vcvars(self)
             with context:
                 self.run("%s %s %s" % (make, extra, " ".join(targets)))
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*.h", dst="include", src="%s/include" % self._source_subfolder)
-        self.copy(pattern="*", dst="include/tbb/compat", src="%s/include/tbb/compat" % self._source_subfolder)
-        build_folder = "%s/build/" % self._source_subfolder
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*.h", dst="include", src="%s/include" % self.source_folder)
+        copy(self, pattern="*", dst="include/tbb/compat", src="%s/include/tbb/compat" % self.source_folder)
+        build_folder = "%s/build/" % self.source_folder
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
-        self.copy(pattern="*%s*.lib" % build_type, dst="lib", src=build_folder, keep_path=False)
-        self.copy(pattern="*%s*.a" % build_type, dst="lib", src=build_folder, keep_path=False)
-        self.copy(pattern="*%s*.dll" % build_type, dst="bin", src=build_folder, keep_path=False)
-        self.copy(pattern="*%s*.dylib" % build_type, dst="lib", src=build_folder, keep_path=False)
+        copy(self, pattern="*%s*.lib" % build_type, dst="lib", src=build_folder, keep_path=False)
+        copy(self, pattern="*%s*.a" % build_type, dst="lib", src=build_folder, keep_path=False)
+        copy(self, pattern="*%s*.dll" % build_type, dst="bin", src=build_folder, keep_path=False)
+        copy(self, pattern="*%s*.dylib" % build_type, dst="lib", src=build_folder, keep_path=False)
         # Copy also .dlls to lib folder so consumers can link against them directly when using MinGW
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            self.copy("*%s*.dll" % build_type, dst="lib", src=build_folder, keep_path=False)
+            copy(self, "*%s*.dll" % build_type, dst="lib", src=build_folder, keep_path=False)
 
         if self.settings.os == "Linux":
             extension = "so"
             if self.options.shared:
-                self.copy("*%s*.%s.*" % (build_type, extension), "lib", build_folder, keep_path=False)
+                copy(self, "*%s*.%s.*" % (build_type, extension), "lib", build_folder, keep_path=False)
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 os.chdir(outputlibdir)
                 for fpath in os.listdir(outputlibdir):

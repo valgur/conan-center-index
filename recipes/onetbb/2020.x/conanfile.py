@@ -158,7 +158,7 @@ class OneTBBConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     def build(self):
@@ -169,17 +169,17 @@ class OneTBBConan(ConanFile):
                 os.environ[name] = value
 
         # Get the version of the current compiler instead of gcc
-        linux_include = os.path.join(self._source_subfolder, "build", "linux.inc")
+        linux_include = os.path.join(self.source_folder, "build", "linux.inc")
         replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
         replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
             save(
                 self,
-                os.path.join(self._source_subfolder, "build", "big_iron_msvc.inc"),
+                os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
                 textwrap.dedent(
                     """\
@@ -291,7 +291,7 @@ class OneTBBConan(ConanFile):
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")
@@ -308,20 +308,20 @@ class OneTBBConan(ConanFile):
                 self.run("%s %s %s" % (make, extra, " ".join(targets)))
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_subfolder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             pattern="*.h",
             dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self._source_subfolder, "include"),
+            src=os.path.join(self.source_folder, "include"),
         )
         copy(
             self,
             pattern="*",
             dst=os.path.join(self.package_folder, "include", "tbb", "compat"),
-            src=os.path.join(self._source_subfolder, "include", "tbb", "compat"),
+            src=os.path.join(self.source_folder, "include", "tbb", "compat"),
         )
-        build_folder = os.path.join(self._source_subfolder, "build")
+        build_folder = os.path.join(self.source_folder, "build")
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
         copy(
             self,

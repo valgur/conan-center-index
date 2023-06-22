@@ -91,7 +91,6 @@ class MatioConan(ConanFile):
     description = "Matio is a C library for reading and writing binary MATLAB MAT files."
     topics = ("matlab", "mat-file", "file-format", "hdf5")
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
     exports_sources = "CMakeLists.txt", "patches/*"
     options = {
         "shared": [True, False],
@@ -116,9 +115,9 @@ class MatioConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.options.with_hdf5:
@@ -131,16 +130,12 @@ class MatioConan(ConanFile):
             raise ConanInvalidConfiguration("Support of version 7.3 MAT files requires HDF5")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
         tc.variables["MATIO_PIC"] = self.options.get_safe("fPIC", True)
@@ -148,20 +143,21 @@ class MatioConan(ConanFile):
         tc.variables["MATIO_MAT73"] = self.options.mat73
         tc.variables["MATIO_WITH_HDF5"] = self.options.with_hdf5
         tc.variables["MATIO_WITH_ZLIB"] = self.options.with_zlib
-        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = (
-            self.options.with_hdf5 and not self.options["hdf5"].shared
-        )
-        self._cmake.configure()
-        return self._cmake
+        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = self.options.with_hdf5 and not self.options["hdf5"].shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

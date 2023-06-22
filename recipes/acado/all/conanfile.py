@@ -86,6 +86,7 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
+
 class AcadoConan(ConanFile):
     name = "acado"
     description = "ACADO Toolkit is a software environment and algorithm collection for automatic control and dynamic optimization."
@@ -94,7 +95,6 @@ class AcadoConan(ConanFile):
     homepage = "https://github.com/acado/acado"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "cmake/qpoases.cmake", "patches/**"]
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -113,12 +113,12 @@ class AcadoConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("acado-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -141,12 +141,12 @@ class AcadoConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     @property
@@ -154,19 +154,19 @@ class AcadoConan(ConanFile):
         return os.path.join("lib", "cmake", "qpoases")
 
     def package(self):
-        self.copy("LICENSE.txt", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy("*", src="lib", dst="lib")
-        self.copy("qpoases.cmake", src="cmake", dst="lib/cmake")
+        copy(self, "*", src="lib", dst="lib")
+        copy(self, "qpoases.cmake", src="cmake", dst="lib/cmake")
         qpoases_sources_from = os.path.join(
             self.package_folder, "share", "acado", "external_packages", "qpoases"
         )
-        self.copy("*", src=qpoases_sources_from, dst=self._qpoases_sources)
+        copy(self, "*", src=qpoases_sources_from, dst=self._qpoases_sources)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         acado_template_paths = os.path.join(

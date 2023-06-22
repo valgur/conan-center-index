@@ -100,28 +100,27 @@ class CroncppConan(ConanFile):
     generators = ("cmake",)
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
 
     def package_id(self):
         self.info.header_only()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def package(self):
-        self.copy("LICENSE*", "licenses", self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE*", "licenses", self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

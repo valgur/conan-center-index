@@ -109,11 +109,6 @@ class LightPcapNgConan(ConanFile):
     }
     generators = "cmake", "cmake_paths", "cmake_find_package"
     exports_sources = "CMakeLists.txt"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -122,34 +117,34 @@ class LightPcapNgConan(ConanFile):
     def configure(self):
         if self.options.with_zstd:
             self.options["zstd"].shared = self.options.shared
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_zstd:
             self.requires("zstd/1.4.5")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
-
-    def build(self):
-        cmake = self._configure_cmake()
-        cmake.build()
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIGHT_USE_ZSTD"] = self.options.with_zstd
         tc.variables["BUILD_TESTING"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

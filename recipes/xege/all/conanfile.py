@@ -91,7 +91,6 @@ class XegeConan(ConanFile):
     description = "Easy Graphics Engine, a lite graphics library in Windows"
     topics = ("ege", "graphics", "gui")
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
     exports_sources = ["CMakeLists.txt"]
 
     def configure(self):
@@ -99,9 +98,7 @@ class XegeConan(ConanFile):
             raise ConanInvalidConfiguration("This library is only compatible for Windows")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         cmake = CMake(self)
@@ -109,12 +106,12 @@ class XegeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("*.h", dst="include", src=self._source_subfolder + "/src")
-        self.copy("*.lib", dst="lib", keep_path=False)
-        self.copy("*.dll", dst="bin", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "*.h", dst="include", src=self.source_folder + "/src")
+        copy(self, "*.lib", dst="lib", keep_path=False)
+        copy(self, "*.dll", dst="bin", keep_path=False)
+        copy(self, "*.so", dst="lib", keep_path=False)
+        copy(self, "*.a", dst="lib", keep_path=False)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         if self.settings.arch == "x86_64":

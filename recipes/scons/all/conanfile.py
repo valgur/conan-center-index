@@ -16,13 +16,12 @@ class SConsConan(ConanFile):
     settings = "os"
     package_type = "application"
     no_copy_source = True
-    short_paths = True
 
     def layout(self):
         self.folders.source = "src"
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _chmod_x(self, path):
         if os.name == "posix":

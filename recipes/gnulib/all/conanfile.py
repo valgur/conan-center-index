@@ -102,20 +102,15 @@ class GnuLibConanFile(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
-            filename="gnulib.tar.gz"
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, filename="gnulib.tar.gz")
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
         # The following line did not work, so do it the long way...
-        # shutil.copy(os.path.join(self.source_folder, self._source_subfolder), os.path.join(self.package_folder, "bin"))
+        # shutil.copy(self.source_folder, os.path.join(self.package_folder, "bin"))
 
-        gnulib_dir = os.path.join(self.source_folder, self._source_subfolder)
+        gnulib_dir = self.source_folder
         for root, _, files in os.walk(gnulib_dir):
             relpath = os.path.relpath(root, gnulib_dir)
             dstdir = os.path.join(self.package_folder, "bin", relpath)

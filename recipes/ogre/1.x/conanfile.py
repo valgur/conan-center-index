@@ -93,7 +93,6 @@ class ogrecmakeconan(ConanFile):
 
     settings = "os", "compiler", "build_type", "arch"
 
-    generators = "cmake", "cmake_find_package"
     exports_sources = "CMakeLists.txt", "patches/**"
 
     options = {
@@ -180,7 +179,6 @@ class ogrecmakeconan(ConanFile):
         "glsupport_use_egl": True,
     }
     exports_sources = "CMakeLists.txt", "patches/**"
-    short_paths = True
 
     def requirements(self):
         self.requires("cppunit/1.15.1")
@@ -206,9 +204,9 @@ class ogrecmakeconan(ConanFile):
         OGRE 1.x is very old and will not work with latest gcc, clang and msvc compilers.
         TODO: determine incompatible msvc compilers
         """
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) >= 11:
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) >= 11:
             raise ConanInvalidConfiguration("OGRE 1.x not supported with gcc version greater than 11")
-        if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) >= 11:
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= 11:
             raise ConanInvalidConfiguration("OGRE 1.x not supported with clang version greater than 11")
 
         miss_boost_required_comp = any(
@@ -227,7 +225,7 @@ class ogrecmakeconan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self._strict_options_requirements()
 
     def _strict_options_requirements(self):
@@ -239,66 +237,60 @@ class ogrecmakeconan(ConanFile):
     def _required_boost_components(self):
         return ["date_time", "thread"]
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["OGRE_STATIC"] = not self.options.shared
-        cmake.definitions["OGRE_CONFIG_DOUBLE"] = self.options.set_double
-        cmake.definitions["OGRE_CONFIG_NODE_INHERIT_TRANSFORM"] = False
-        cmake.definitions["OGRE_GLSUPPORT_USE_EGL"] = self.options.glsupport_use_egl
+        tc = CMakeToolchain(self)
+        tc.variables["OGRE_STATIC"] = not self.options.shared
+        tc.variables["OGRE_CONFIG_DOUBLE"] = self.options.set_double
+        tc.variables["OGRE_CONFIG_NODE_INHERIT_TRANSFORM"] = False
+        tc.variables["OGRE_GLSUPPORT_USE_EGL"] = self.options.glsupport_use_egl
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         else:
             # INFO: OpenEXR requires C++11
-            cmake.definitions["CMAKE_CXX_STANDARD"] = 11
-        cmake.definitions["OGRE_BUILD_TESTS"] = self.options.build_tests
-        cmake.definitions["OGRE_ASSERT_MODE"] = self.options.assert_mode
-        cmake.definitions["OGRE_BUILD_COMPONENT_BITES"] = self.options.build_component_bites
-        cmake.definitions["OGRE_BUILD_COMPONENT_HLMS"] = self.options.build_component_hlms
-        cmake.definitions[
-            "OGRE_BUILD_COMPONENT_MESHLODGENERATOR"
-        ] = self.options.build_component_meshlodgenerator
-        cmake.definitions["OGRE_BUILD_COMPONENT_OVERLAY"] = self.options.build_component_overlay
-        cmake.definitions["OGRE_BUILD_COMPONENT_PAGING"] = self.options.build_component_paging
-        cmake.definitions["OGRE_BUILD_COMPONENT_PROPERTY"] = self.options.build_component_property
-        cmake.definitions["OGRE_BUILD_COMPONENT_PYTHON"] = self.options.build_component_python
-        cmake.definitions["OGRE_BUILD_COMPONENT_RTSHADERSYSTEM"] = self.options.build_component_rtshadersystem
-        cmake.definitions["OGRE_BUILD_COMPONENT_TERRAIN"] = self.options.build_component_terrain
-        cmake.definitions["OGRE_BUILD_COMPONENT_VOLUME"] = self.options.build_component_volume
-        cmake.definitions["OGRE_BUILD_DEPENDENCIES"] = self.options.build_dependencies
-        cmake.definitions["OGRE_BUILD_PLUGIN_BSP"] = self.options.build_plugin_bsp
-        cmake.definitions["OGRE_BUILD_PLUGIN_OCTREE"] = self.options.build_plugin_octree
-        cmake.definitions["OGRE_BUILD_PLUGIN_PCZ"] = self.options.build_plugin_pcz
-        cmake.definitions["OGRE_BUILD_PLUGIN_PFX"] = self.options.build_plugin_pfx
-        cmake.definitions["OGRE_BUILD_RENDERSYSTEM_D3D11"] = self.options.build_rendersystem_d3d11
-        cmake.definitions["OGRE_BUILD_RENDERSYSTEM_GL"] = self.options.build_rendersystem_gl
-        cmake.definitions["OGRE_BUILD_RENDERSYSTEM_GL3PLUS"] = self.options.build_rendersystem_gl3plus
-        cmake.definitions["OGRE_BUILD_SAMPLES"] = self.options.build_samples
-        cmake.definitions["OGRE_BUILD_TOOLS"] = self.options.build_tools
-        cmake.definitions[
-            "OGRE_CONFIG_ENABLE_QUAD_BUFFER_STEREO"
-        ] = self.options.config_enable_quad_buffer_stereo
-        cmake.definitions["OGRE_CONFIG_FILESYSTEM_UNICODE"] = self.options.config_filesystem_unicode
-        cmake.definitions["OGRE_CONFIG_THREADS"] = self.options.config_threads
-        cmake.definitions["OGRE_CONFIG_THREAD_PROVIDER"] = self.options.config_thread_provider
-        cmake.definitions["OGRE_CONFIG_ENABLE_FREEIMAGE"] = self.options.config_enable_freeimage
-        cmake.definitions["OGRE_INSTALL_PDB"] = self.options.install_pdb
-        cmake.definitions["OGRE_INSTALL_SAMPLES"] = self.options.install_samples
-        cmake.definitions["OGRE_INSTALL_TOOLS"] = self.options.install_tools
-        cmake.definitions["OGRE_RESOURCEMANAGER_STRICT"] = self.options.resourcemanager_strict
+            tc.variables["CMAKE_CXX_STANDARD"] = 11
+        tc.variables["OGRE_BUILD_TESTS"] = self.options.build_tests
+        tc.variables["OGRE_ASSERT_MODE"] = self.options.assert_mode
+        tc.variables["OGRE_BUILD_COMPONENT_BITES"] = self.options.build_component_bites
+        tc.variables["OGRE_BUILD_COMPONENT_HLMS"] = self.options.build_component_hlms
+        tc.variables["OGRE_BUILD_COMPONENT_MESHLODGENERATOR"] = self.options.build_component_meshlodgenerator
+        tc.variables["OGRE_BUILD_COMPONENT_OVERLAY"] = self.options.build_component_overlay
+        tc.variables["OGRE_BUILD_COMPONENT_PAGING"] = self.options.build_component_paging
+        tc.variables["OGRE_BUILD_COMPONENT_PROPERTY"] = self.options.build_component_property
+        tc.variables["OGRE_BUILD_COMPONENT_PYTHON"] = self.options.build_component_python
+        tc.variables["OGRE_BUILD_COMPONENT_RTSHADERSYSTEM"] = self.options.build_component_rtshadersystem
+        tc.variables["OGRE_BUILD_COMPONENT_TERRAIN"] = self.options.build_component_terrain
+        tc.variables["OGRE_BUILD_COMPONENT_VOLUME"] = self.options.build_component_volume
+        tc.variables["OGRE_BUILD_DEPENDENCIES"] = self.options.build_dependencies
+        tc.variables["OGRE_BUILD_PLUGIN_BSP"] = self.options.build_plugin_bsp
+        tc.variables["OGRE_BUILD_PLUGIN_OCTREE"] = self.options.build_plugin_octree
+        tc.variables["OGRE_BUILD_PLUGIN_PCZ"] = self.options.build_plugin_pcz
+        tc.variables["OGRE_BUILD_PLUGIN_PFX"] = self.options.build_plugin_pfx
+        tc.variables["OGRE_BUILD_RENDERSYSTEM_D3D11"] = self.options.build_rendersystem_d3d11
+        tc.variables["OGRE_BUILD_RENDERSYSTEM_GL"] = self.options.build_rendersystem_gl
+        tc.variables["OGRE_BUILD_RENDERSYSTEM_GL3PLUS"] = self.options.build_rendersystem_gl3plus
+        tc.variables["OGRE_BUILD_SAMPLES"] = self.options.build_samples
+        tc.variables["OGRE_BUILD_TOOLS"] = self.options.build_tools
+        tc.variables["OGRE_CONFIG_ENABLE_QUAD_BUFFER_STEREO"] = self.options.config_enable_quad_buffer_stereo
+        tc.variables["OGRE_CONFIG_FILESYSTEM_UNICODE"] = self.options.config_filesystem_unicode
+        tc.variables["OGRE_CONFIG_THREADS"] = self.options.config_threads
+        tc.variables["OGRE_CONFIG_THREAD_PROVIDER"] = self.options.config_thread_provider
+        tc.variables["OGRE_CONFIG_ENABLE_FREEIMAGE"] = self.options.config_enable_freeimage
+        tc.variables["OGRE_INSTALL_PDB"] = self.options.install_pdb
+        tc.variables["OGRE_INSTALL_SAMPLES"] = self.options.install_samples
+        tc.variables["OGRE_INSTALL_TOOLS"] = self.options.install_tools
+        tc.variables["OGRE_RESOURCEMANAGER_STRICT"] = self.options.resourcemanager_strict
         if self.settings.os == "Windows":
-            cmake.definitions["OGRE_INSTALL_VSPROPS"] = self.options.install_vsprops
-        cmake.configure()
-        return cmake
+            tc.variables["OGRE_INSTALL_VSPROPS"] = self.options.install_vsprops
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # the pkgs below are not available as conan recipes yet
         # TODO: delte line 200-208 once the conan recipes are available
         ogre_pkg_modules = [
@@ -313,7 +305,7 @@ class ogrecmakeconan(ConanFile):
             "Softimage",
             "Wix",
         ]
-        ogre_pkg_module_path = os.path.join(self.build_folder, self._source_subfolder, "CMake", "Packages")
+        ogre_pkg_module_path = os.path.join(self.build_folder, self.source_folder, "CMake", "Packages")
         for pkg_module in ogre_pkg_modules:
             pkg_path = os.path.join(ogre_pkg_module_path, f"Find{pkg_module}.cmake")
             if os.path.isfile(pkg_path):
@@ -325,19 +317,20 @@ class ogrecmakeconan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy(pattern="License.md", dst="licenses", src=os.path.join(self._source_subfolder, "Docs"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        copy(self, pattern="License.md", dst="licenses", src=os.path.join(self.source_folder, "Docs"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path), tools.Version(self.version)
+            os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
         )
 
     @staticmethod
@@ -357,7 +350,7 @@ class ogrecmakeconan(ConanFile):
                 major=version.major, minor=version.minor, patch=version.patch
             )
         )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _components(self):

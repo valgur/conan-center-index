@@ -50,7 +50,7 @@ class Re2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "20230201":
-            del self.options.with_icu
+            self.options.rm_safe("with_icu")
 
     def configure(self):
         if self.options.shared:

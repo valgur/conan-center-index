@@ -102,12 +102,12 @@ class PExportsConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def configure(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def build_requirements(self):
         self.build_requires("automake/1.16.3")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def package_id(self):
@@ -115,12 +115,7 @@ class PExportsConan(ConanFile):
 
     def source(self):
         filename = "pexports.tar.xz"
-        tools.get(
-            **self.conan_data["sources"][self.version],
-            filename=filename,
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
 
     @property
     def _user_info_build(self):
@@ -129,14 +124,12 @@ class PExportsConan(ConanFile):
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(
-                        tools.unix_path(self._user_info_build["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(unix_path(self._user_info_build["automake"].compile)),
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -149,20 +142,19 @@ class PExportsConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._autotools.defines.append("YY_NO_UNISTD_H")
             host = build = False
-        self._autotools.configure(configure_dir=self._source_subfolder, host=host, build=build)
+        self._autotools.configure(configure_dir=self.source_folder, host=host, build=build)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+        apply_conandata_patches(self)
+        with chdir(self.source_folder):
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()

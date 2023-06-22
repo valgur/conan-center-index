@@ -70,7 +70,7 @@ class FaacConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_mp4_option:
-            del self.options.with_mp4
+            self.options.rm_safe("with_mp4")
 
     def configure(self):
         if self.options.shared:

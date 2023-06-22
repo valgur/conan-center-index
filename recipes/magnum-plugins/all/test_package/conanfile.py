@@ -16,14 +16,14 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
+        tc = CMakeToolchain(self)
+        tc.variables["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
             self.deps_user_info["magnum-plugins"].plugins_basepath, "importers"
         ).replace("\\", "/")
         # STL file taken from https://www.thingiverse.com/thing:2798332
-        cmake.definitions["CONAN_STL_FILE"] = os.path.join(self.source_folder, "conan.stl").replace("\\", "/")
-        cmake.definitions["SHARED_PLUGINS"] = self.options["magnum-plugins"].shared_plugins
-        cmake.definitions["TARGET_EMSCRIPTEN"] = bool(self.settings.os == "Emscripten")
+        tc.variables["CONAN_STL_FILE"] = os.path.join(self.source_folder, "conan.stl").replace("\\", "/")
+        tc.variables["SHARED_PLUGINS"] = self.options["magnum-plugins"].shared_plugins
+        tc.variables["TARGET_EMSCRIPTEN"] = bool(self.settings.os == "Emscripten")
         cmake.configure()
         cmake.build()
 

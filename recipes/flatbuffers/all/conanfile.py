@@ -56,7 +56,7 @@ class FlatbuffersConan(ConanFile):
         if self.options.shared or self.options.header_only:
             self.options.rm_safe("fPIC")
         if self.options.header_only:
-            del self.options.shared
+            self.options.rm_safe("shared")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

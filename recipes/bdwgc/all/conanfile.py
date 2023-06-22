@@ -67,7 +67,7 @@ class BdwGcConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if Version(self.version) < "8.2.0":
-            del self.options.throw_bad_alloc_library
+            self.options.rm_safe("throw_bad_alloc_library")
         if not self.options.cplusplus:
             self.settings.rm_safe("compiler.libcxx")
             self.settings.rm_safe("compiler.cppstd")
@@ -80,7 +80,7 @@ class BdwGcConan(ConanFile):
             self.requires("libatomic_ops/7.8.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

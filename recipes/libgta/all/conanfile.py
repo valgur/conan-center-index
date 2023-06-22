@@ -94,7 +94,6 @@ class LibgtaConan(ConanFile):
     homepage = "https://marlam.de/gta"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -105,29 +104,27 @@ class LibgtaConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "${CMAKE_SOURCE_DIR}",
             "${CMAKE_CURRENT_SOURCE_DIR}",
         )
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def generate(self):
@@ -135,20 +132,22 @@ class LibgtaConan(ConanFile):
         tc.variables["GTA_BUILD_STATIC_LIB"] = not self.options.shared
         tc.variables["GTA_BUILD_SHARED_LIB"] = self.options.shared
         tc.variables["GTA_BUILD_DOCUMENTATION"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "GTA"
         self.cpp_info.names["cmake_find_package_multi"] = "GTA"
         self.cpp_info.names["pkg_config"] = "gta"
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.compiler == "Visual Studio" and not self.options.shared:
             self.cpp_info.defines.append("GTA_STATIC")

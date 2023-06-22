@@ -103,9 +103,9 @@ class I2cConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("linux-headers-generic/5.14.9")
@@ -115,13 +115,12 @@ class I2cConan(ConanFile):
             raise ConanInvalidConfiguration("i2c-tools only support Linux")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "Makefile"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile"),
             "SRCDIRS	:= include lib eeprom stub tools $(EXTRA)",
             "SRCDIRS	:= include lib $(EXTRA)",
         )
@@ -139,17 +138,17 @@ class I2cConan(ConanFile):
         self._patch_sources()
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             autotools.make(args=self._make_args)
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        self.copy("COPYING.LGPL", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING.LGPL", src=self.source_folder, dst="licenses")
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             autotools.install(args=self._make_args)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libs = ["i2c"]

@@ -33,7 +33,7 @@ class JomInstallerConan(ConanFile):
         pass
 
     def build(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         download(
             self,
             f"https://code.qt.io/cgit/qt-labs/jom.git/plain/LICENSE.GPL?h=v{self.version}",

@@ -32,8 +32,6 @@ class IXWebSocketConan(ConanFile):
         "with_zlib": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         # After version 11.0.8, IXWebSocket is fully compatible with C++ 11.
@@ -45,7 +43,7 @@ class IXWebSocketConan(ConanFile):
             del self.options.fPIC
         if Version(self.version) < "10.1.5":
             # zlib is always required before 10.1.5
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:

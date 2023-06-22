@@ -60,11 +60,11 @@ class HanaConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(**self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
-        self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
+        copy(self, "*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
         self._create_cmake_module_alias_targets(
             self,
             os.path.join(self.package_folder, self._module_file_rel_path),

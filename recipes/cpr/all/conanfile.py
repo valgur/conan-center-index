@@ -115,7 +115,7 @@ class CprConan(ConanFile):
                 self.options.with_ssl = CprConan._NO_SSL
 
         if Version(self.version) < "1.10.0":
-            del self.options.verbose_logging
+            self.options.rm_safe("verbose_logging")
 
     def configure(self):
         if self.options.shared:

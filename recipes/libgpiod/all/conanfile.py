@@ -112,10 +112,10 @@ class LibgpiodConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.enable_bindings_cxx:
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def build_requirements(self):
         self.build_requires("libtool/2.4.6")
@@ -124,9 +124,7 @@ class LibgpiodConan(ConanFile):
         self.build_requires("linux-headers-generic/5.13.9")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -139,21 +137,21 @@ class LibgpiodConan(ConanFile):
             "--enable-bindings-cxx={}".format(yes_no(self.options.enable_bindings_cxx)),
             "--enable-tools={}".format(yes_no(self.options.enable_tools)),
         ]
-        self._autotools.configure(args=args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
-        with tools.chdir(os.path.join(self._source_subfolder)):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
+        with chdir(self, os.path.join(self.source_folder)):
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), run_environment=True)
         autotools = self._configure_autotools()
         autotools.make()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
         autotools = self._configure_autotools()
         autotools.install()
-        tools.remove_files_by_mask(self.package_folder, "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "*.la", self.package_folder, recursive=True)
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["gpiod"].libs = ["gpiod"]

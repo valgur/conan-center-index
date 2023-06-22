@@ -112,7 +112,6 @@ class MsixConan(ConanFile):
         "xml_parser": "msxml6",
     }
 
-    generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
@@ -140,13 +139,15 @@ class MsixConan(ConanFile):
         tc.variables["XML_PARSER"] = self.options.xml_parser
         tc.variables["CALCULATE_VERSION"] = False
         tc.variables["ENABLE_NUGET_PACKAGING"] = False
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
@@ -155,7 +156,7 @@ class MsixConan(ConanFile):
                     self.name, self.settings.compiler
                 )
             )
-        elif tools.Version(self.settings.compiler.version) < min_version:
+        elif Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
                 "{} requires C++17 support. The current compiler {} {} does not support it.".format(
                     self.name, self.settings.compiler, self.settings.compiler.version
@@ -169,7 +170,7 @@ class MsixConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.settings.os == "Linux" and not self.options.skip_bundles:
@@ -208,23 +209,21 @@ class MsixConan(ConanFile):
         self._validate_compiler_settings()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["runtimeobject"]
             if self.settings.compiler == "Visual Studio":

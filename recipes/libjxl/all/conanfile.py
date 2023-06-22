@@ -110,8 +110,6 @@ class LibjxlConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt", "patches/**"
-    generators = "cmake"
-    _cmake = None
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,7 +117,7 @@ class LibjxlConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("brotli/1.0.9")
@@ -127,13 +125,10 @@ class LibjxlConan(ConanFile):
         self.requires("lcms/2.11")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -146,37 +141,40 @@ class LibjxlConan(ConanFile):
         tc.variables["JPEGXL_ENABLE_OPENEXR"] = False
         tc.variables["JPEGXL_ENABLE_SKCMS"] = False
         tc.variables["JPEGXL_ENABLE_TCMALLOC"] = False
-        if tools.cross_building(self):
+        if cross_building(self):
             tc.variables["CMAKE_SYSTEM_PROCESSOR"] = str(self.settings.arch)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
             libs_dir = os.path.join(self.package_folder, "lib")
-            tools.remove_files_by_mask(libs_dir, "*.a")
-            tools.remove_files_by_mask(libs_dir, "*-static.lib")
+            rm(self, "*.a", libs_dir, recursive=True)
+            rm(self, "*-static.lib", libs_dir, recursive=True)
 
             if self.settings.os == "Windows":
-                self.copy("jxl_dec.dll", src="bin", dst="bin")
-                self.copy("jxl_dec.lib", src="lib", dst="lib")
+                copy(self, "jxl_dec.dll", src="bin", dst="bin")
+                copy(self, "jxl_dec.lib", src="lib", dst="lib")
                 for dll_path in glob.glob(os.path.join(libs_dir, "*.dll")):
                     shutil.move(
                         dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path))
                     )
             else:
-                self.copy("libjxl_dec.*", src="lib", dst="lib")
+                copy(self, "libjxl_dec.*", src="lib", dst="lib")
 
     def _lib_name(self, name):
         if not self.options.shared and self.settings.os == "Windows":
@@ -198,7 +196,7 @@ class LibjxlConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.components["jxl_threads"].system_libs = ["pthread"]
 
-        if not self.options.shared and tools.stdcpp_library(self):
-            self.cpp_info.components["jxl"].system_libs.append(tools.stdcpp_library(self))
-            self.cpp_info.components["jxl_dec"].system_libs.append(tools.stdcpp_library(self))
-            self.cpp_info.components["jxl_threads"].system_libs.append(tools.stdcpp_library(self))
+        if not self.options.shared and stdcpp_library(self):
+            self.cpp_info.components["jxl"].system_libs.append(stdcpp_library(self))
+            self.cpp_info.components["jxl_dec"].system_libs.append(stdcpp_library(self))
+            self.cpp_info.components["jxl_threads"].system_libs.append(stdcpp_library(self))

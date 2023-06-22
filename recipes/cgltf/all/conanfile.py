@@ -106,8 +106,6 @@ class CgltfConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
-    _cmake = None
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -115,33 +113,35 @@ class CgltfConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def _create_source_files(self):
         cgltf_c = "#define CGLTF_IMPLEMENTATION\n" '#include "cgltf.h"\n'
         cgltf_write_c = "#define CGLTF_WRITE_IMPLEMENTATION\n" '#include "cgltf_write.h"\n'
-        tools.save(os.path.join(self.build_folder, self._source_subfolder, "cgltf.c"), cgltf_c)
-        tools.save(os.path.join(self.build_folder, self._source_subfolder, "cgltf_write.c"), cgltf_write_c)
+        save(self, os.path.join(self.build_folder, self.source_folder, "cgltf.c"), cgltf_c)
+        save(self, os.path.join(self.build_folder, self.source_folder, "cgltf_write.c"), cgltf_write_c)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._create_source_files()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
         for header_file in ["cgltf.h", "cgltf_write.h"]:
             header_fullpath = os.path.join(self.package_folder, "include", header_file)
@@ -149,11 +149,12 @@ class CgltfConan(ConanFile):
 
     @staticmethod
     def _remove_implementation(header_fullpath):
-        header_content = tools.load(header_fullpath)
+        header_content = load(self, header_fullpath)
         begin = header_content.find("/*\n *\n * Stop now, if you are only interested in the API.")
         end = header_content.find("/* cgltf is distributed under MIT license:", begin)
         implementation = header_content[begin:end]
-        tools.replace_in_file(
+        replace_in_file(
+            self,
             header_fullpath,
             implementation,
             (

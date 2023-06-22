@@ -108,10 +108,6 @@ class NsprConan(ConanFile):
     }
 
     @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -119,13 +115,13 @@ class NsprConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.win32_target
+            self.options.rm_safe("win32_target")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def validate(self):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1658671
@@ -136,24 +132,25 @@ class NsprConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows":
             self.build_requires("mozilla-build/3.3")
-            if not tools.get_env("CONAN_BASH_PATH"):
+            if not get_env(self, "CONAN_BASH_PATH"):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination="tmp", strip_root=True)
-        rename(self, os.path.join("tmp", "nspr"), self._source_subfolder)
+        rename(self, os.path.join("tmp", "nspr"), self.source_folder)
         rmdir(self, "tmp")
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self._is_msvc:
-            with tools.vcvars(self):
-                with tools.environment_append(
+        if is_msvc(self):
+            with vcvars(self):
+                with environment_append(
+                    self,
                     {
                         "CC": "cl",
                         "CXX": "cl",
                         "LD": "link",
-                    }
+                    },
                 ):
                     yield
         else:
@@ -170,10 +167,10 @@ class NsprConan(ConanFile):
             ),
             "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(unix_path(self, os.path.join(self.package_folder, "res"))),
             "--disable-cplus",
         ]
-        if self._is_msvc:
+        if is_msvc(self):
             conf_args.extend(
                 [
                     "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
@@ -184,10 +181,10 @@ class NsprConan(ConanFile):
         elif self.settings.os == "Android":
             conf_args.extend(
                 [
-                    "--with-android-ndk={}".format(tools.get_env(["NDK_ROOT"])),
+                    "--with-android-ndk={}".format(get_env(self, ["NDK_ROOT"])),
                     "--with-android-version={}".format(self.settings.os.api_level),
-                    "--with-android-platform={}".format(tools.get_env("ANDROID_PLATFORM")),
-                    "--with-android-toolchain={}".format(tools.get_env("ANDROID_TOOLCHAIN")),
+                    "--with-android-platform={}".format(get_env(self, "ANDROID_PLATFORM")),
+                    "--with-android-toolchain={}".format(get_env(self, "ANDROID_TOOLCHAIN")),
                 ]
             )
         elif self.settings.os == "Windows":
@@ -203,7 +200,7 @@ class NsprConan(ConanFile):
         return autotools
 
     def build(self):
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             # relocatable shared libs on macOS
             replace_in_file(self, "configure", "-install_name @executable_path/", "-install_name @rpath/")
             with self._build_context():
@@ -211,8 +208,8 @@ class NsprConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        with chdir(self, self._source_subfolder):
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        with chdir(self, self.source_folder):
             with self._build_context():
                 autotools = self._configure_autotools()
                 autotools.install()
@@ -223,8 +220,8 @@ class NsprConan(ConanFile):
             if self.options.shared:
                 os.mkdir(os.path.join(self.package_folder, "bin"))
             for lib in self._library_names:
-                libsuffix = "lib" if self._is_msvc else "a"
-                libprefix = "" if self._is_msvc else "lib"
+                libsuffix = "lib" if is_msvc(self) else "a"
+                libprefix = "" if is_msvc(self) else "lib"
                 if self.options.shared:
                     os.unlink(os.path.join(self.package_folder, "lib", f"{libprefix}{lib}_s.{libsuffix}"))
                     rename(
@@ -256,7 +253,7 @@ class NsprConan(ConanFile):
                 else:
                     os.unlink(os.path.join(self.package_folder, "lib", f"lib{lib}.{shared_ext}"))
 
-        if self._is_msvc:
+        if is_msvc(self):
             if self.settings.build_type == "Debug":
                 for lib in self._library_names:
                     os.unlink(os.path.join(self.package_folder, "lib", f"{lib}.pdb"))
@@ -286,7 +283,7 @@ class NsprConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["winmm", "ws2_32"])
 
-        aclocal = tools.unix_path(os.path.join(self.package_folder, "res", "aclocal"))
+        aclocal = unix_path(self, os.path.join(self.package_folder, "res", "aclocal"))
         self.output.info(f"Appending AUTOMAKE_CONAN_INCLUDES environment variable: {aclocal}")
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal)
 

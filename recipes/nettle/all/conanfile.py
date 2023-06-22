@@ -43,10 +43,10 @@ class NettleConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch != "x86_64":
-            del self.options.x86_aesni
-            del self.options.x86_shani
+            self.options.rm_safe("x86_aesni")
+            self.options.rm_safe("x86_shani")
         if self.settings.arch != "x86_64" and not str(self.settings.arch).startswith("arm"):
-            del self.options.fat
+            self.options.rm_safe("fat")
 
     def configure(self):
         if self.options.shared:

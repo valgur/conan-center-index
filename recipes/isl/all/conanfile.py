@@ -107,9 +107,9 @@ class IslConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -123,7 +123,7 @@ class IslConan(ConanFile):
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
         if (
             self.settings.compiler == "Visual Studio"
-            and tools.Version(self.settings.compiler.version) < 16
+            and Version(self.settings.compiler.version) < 16
             and self.settings.compiler.runtime == "MDd"
         ):
             # gmp.lib(bdiv_dbm1c.obj) : fatal error LNK1318: Unexpected PDB error; OK (0)
@@ -140,28 +140,26 @@ class IslConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.build_requires("automake/1.16.4")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 env = {
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
                     "CC": "{} cl -nologo -{}".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile),
+                        unix_path(self.deps_user_info["automake"].compile),
                         self.settings.compiler.runtime,
                     ),
                     "CXX": "{} cl -nologo -{}".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile),
+                        unix_path(self.deps_user_info["automake"].compile),
                         self.settings.compiler.runtime,
                     ),
                     "NM": "dumpbin -symbols",
@@ -169,7 +167,7 @@ class IslConan(ConanFile):
                     "RANLIB": ":",
                     "STRIP": ":",
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -194,11 +192,11 @@ class IslConan(ConanFile):
                 ]
             )
         if self.settings.compiler == "Visual Studio":
-            if tools.Version(self.settings.compiler.version) >= 15:
+            if Version(self.settings.compiler.version) >= 15:
                 self._autotools.flags.append("-Zf")
-            if tools.Version(self.settings.compiler.version) >= 12:
+            if Version(self.settings.compiler.version) >= 12:
                 self._autotools.flags.append("-FS")
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
@@ -207,13 +205,13 @@ class IslConan(ConanFile):
             autotools.make()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libisl.la")))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "isl"

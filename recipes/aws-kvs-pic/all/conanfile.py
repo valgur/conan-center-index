@@ -103,17 +103,8 @@ class awskvspicConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     topics = ("aws", "kvs", "kinesis", "video", "stream")
     exports_sources = ["CMakeLists.txt", "patches/*"]
-    _cmake = None
-
-    def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            tc.variables["BUILD_DEPENDENCIES"] = False
-            self._cmake.configure()
-        return self._cmake
 
     def validate(self):
         if self.settings.os != "Linux" and self.options.shared:
@@ -125,26 +116,31 @@ class awskvspicConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_DEPENDENCIES"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["kvspic"].libs = ["kvspic"]

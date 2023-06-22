@@ -78,7 +78,7 @@ class GTestConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "1.12.0" or self.settings.build_type != "Debug":
-            del self.options.debug_postfix
+            self.options.rm_safe("debug_postfix")
 
     def configure(self):
         if self.options.shared:

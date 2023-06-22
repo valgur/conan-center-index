@@ -131,11 +131,6 @@ class CernRootConan(ConanFile):
     }
 
     exports_sources = "patches/*"
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _minimum_cpp_standard(self):
@@ -181,7 +176,7 @@ class CernRootConan(ConanFile):
 
     def _enforce_minimum_compiler_version(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -190,7 +185,7 @@ class CernRootConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++{} support. The current compiler {} {} does not support it.".format(
                         self.name,
@@ -209,13 +204,11 @@ class CernRootConan(ConanFile):
             raise ConanInvalidConfiguration('{} is incompatible with libc++".'.format(self.name))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_source_cmake(self):
         try:
-            os.remove(os.path.join(self._source_subfolder, "cmake", "modules", "FindTBB.cmake"))
+            os.remove(os.path.join(self.source_folder, "cmake", "modules", "FindTBB.cmake"))
         except OSError:
             pass
         # Conan generated cmake_find_packages names differ from
@@ -223,8 +216,9 @@ class CernRootConan(ConanFile):
         # There is currently no way to change these names
         # see: https://github.com/conan-io/conan/issues/4430
         # Patch ROOT CMake to use Conan dependencies
-        tools.replace_in_file(
-            os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "project(ROOT)",
             textwrap.dedent(
                 """\
@@ -243,8 +237,9 @@ class CernRootConan(ConanFile):
             """
             ).format(install_folder=self.install_folder.replace("\\", "/")),
         )
-        tools.replace_in_file(
-            os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
             "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)",
         )
@@ -265,8 +260,7 @@ class CernRootConan(ConanFile):
             self._make_file_executable(s)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         self._patch_source_cmake()
         self._fix_source_permissions()
 
@@ -342,14 +336,16 @@ class CernRootConan(ConanFile):
                 ),
             }
         )
-        self._cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _move_findcmake_conan_to_root_dir(self):
         for f in ["opengl_system", "GLEW", "glu", "TBB", "LibXml2", "ZLIB", "SQLite3"]:
             shutil.copy(
                 "Find{}.cmake".format(f),
-                os.path.join(self.source_folder, self._source_subfolder, "cmake", "modules"),
+                os.path.join(self.source_folder, "cmake", "modules"),
             )
 
     @property
@@ -365,19 +361,20 @@ class CernRootConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib", "cmake"), "*Config*.cmake")
-        tools.rmdir(os.path.join(self.package_folder, "res", "README"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "man"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "tutorials"))
+        rm(self, "*Config*.cmake", os.path.join(self.package_folder, "lib", "cmake"), recursive=True)
+        rmdir(self, os.path.join(self.package_folder, "res", "README"))
+        rmdir(self, os.path.join(self.package_folder, "res", "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "res", "tutorials"))
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files

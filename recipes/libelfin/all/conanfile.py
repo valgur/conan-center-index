@@ -105,7 +105,6 @@ class LibelfinConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt", "patches/*"
-    generators = "cmake"
     _source_subfolder = "source_subfolder"
 
     def config_options(self):
@@ -120,28 +119,30 @@ class LibelfinConan(ConanFile):
                 )
             )
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

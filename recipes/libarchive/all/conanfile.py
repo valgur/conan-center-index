@@ -75,7 +75,7 @@ class LibarchiveConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "3.4.2":
-            del self.options.with_mbedtls
+            self.options.rm_safe("with_mbedtls")
 
     def configure(self):
         if self.options.shared:

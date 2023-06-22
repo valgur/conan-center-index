@@ -105,7 +105,6 @@ class IgnitionMathConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake", "cmake_find_package_multi"
     exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
@@ -127,9 +126,9 @@ class IgnitionMathConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -138,7 +137,7 @@ class IgnitionMathConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name, self.settings.compiler, self.settings.compiler.version
@@ -151,42 +150,42 @@ class IgnitionMathConan(ConanFile):
         self.requires("swig/4.0.2")
 
     def build_requirements(self):
-        if int(tools.Version(self.version).minor) <= 8:
+        if int(Version(self.version).minor) <= 8:
             self.build_requires("ignition-cmake/2.5.0")
         else:
             self.build_requires("ignition-cmake/2.10.0")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path), tools.Version(self.version)
+            os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
         )
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"), recursive=True)
 
     @staticmethod
     def _create_cmake_module_variables(module_file, version):
@@ -201,10 +200,10 @@ class IgnitionMathConan(ConanFile):
                 major=version.major, minor=version.minor, patch=version.patch
             )
         )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     def package_info(self):
-        version_major = tools.Version(self.version).major
+        version_major = Version(self.version).major
         lib_name = f"ignition-math{version_major}"
 
         self.cpp_info.names["cmake_find_package"] = lib_name

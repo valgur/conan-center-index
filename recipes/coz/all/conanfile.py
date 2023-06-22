@@ -101,13 +101,12 @@ class CozConan(ConanFile):
 
     requires = "libelfin/0.3"
     exports_sources = "CMakeLists.txt"
-    generators = "cmake", "cmake_find_package"
 
     _source_subfolder = "source_subfolder"
 
     def validate(self):
         compiler = self.settings.compiler
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
         if (
             self.settings.os == "Macos"
             or compiler == "Visual Studio"
@@ -117,26 +116,27 @@ class CozConan(ConanFile):
                 "coz doesn't support compiler: {} on OS: {}.".format(self.settings.compiler, self.settings.os)
             )
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"

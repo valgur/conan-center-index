@@ -38,7 +38,7 @@ class MiniaudioConan(ConanFile):
         if self.options.header_only or self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.header_only:
-            del self.options.shared
+            self.options.rm_safe("shared")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 

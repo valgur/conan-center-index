@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.43.0"
 
 
@@ -95,13 +96,11 @@ class MdnsConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*.h", dst="include", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*.h", dst="include", src=self.source_folder)
 
     def package_info(self):
         if self.settings.os == "Windows":

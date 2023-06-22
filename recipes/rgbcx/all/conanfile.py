@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class RgbcxConan(ConanFile):
     name = "rgbcx"
     description = "High-performance scalar BC1-5 encoders."
@@ -89,21 +90,22 @@ class RgbcxConan(ConanFile):
     license = "MIT", "Unlicense"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("bc7enc-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "rgbcx.h"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "rgbcx.h"),
             "#include <stdlib.h>",
             "#include <stdlib.h>\n#include <string.h>",
         )
 
     def package(self):
-        self.copy("rgbcx.h", dst="include", src=self._source_subfolder)
-        self.copy("rgbcx_table4.h", dst="include", src=self._source_subfolder)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "rgbcx.h", dst="include", src=self.source_folder)
+        copy(self, "rgbcx_table4.h", dst="include", src=self.source_folder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

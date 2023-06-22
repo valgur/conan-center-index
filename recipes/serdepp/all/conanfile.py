@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.43.0"
 
 
@@ -107,9 +108,7 @@ class SerdeppConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package_id(self):
         self.info.header_only()
@@ -126,36 +125,36 @@ class SerdeppConan(ConanFile):
     def validate(self):
         compiler = self.settings.compiler
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
 
         if not minimum_version:
             self.output.warn(
                 f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++17")
 
     def package(self):
-        s = lambda x: os.path.join(self._source_subfolder, x)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        s = lambda x: os.path.join(self.source_folder, x)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
         include = os.path.join("include", "serdepp")
-        self.copy("*.hpp", dst=include, src=s(include))
+        copy(self, "*.hpp", dst=include, src=s(include))
         attribute = os.path.join(include, "attribute")
-        self.copy("*.hpp", dst=attribute, src=s(attribute))
+        copy(self, "*.hpp", dst=attribute, src=s(attribute))
         adaptor = os.path.join(include, "adaptor")
-        self.copy("reflection.hpp", dst=adaptor, src=s(adaptor))
-        self.copy("sstream.hpp", dst=adaptor, src=s(adaptor))
+        copy(self, "reflection.hpp", dst=adaptor, src=s(adaptor))
+        copy(self, "sstream.hpp", dst=adaptor, src=s(adaptor))
         if self.options.with_toml11:
-            self.copy("toml11.hpp", dst=adaptor, src=s(adaptor))
+            copy(self, "toml11.hpp", dst=adaptor, src=s(adaptor))
         if self.options.with_yamlcpp:
-            self.copy("yaml-cpp.hpp", dst=adaptor, src=s(adaptor))
+            copy(self, "yaml-cpp.hpp", dst=adaptor, src=s(adaptor))
         if self.options.with_rapidjson:
-            self.copy("rapidjson.hpp", dst=adaptor, src=s(adaptor))
+            copy(self, "rapidjson.hpp", dst=adaptor, src=s(adaptor))
         if self.options.with_fmt:
-            self.copy("fmt.hpp", dst=adaptor, src=s(adaptor))
+            copy(self, "fmt.hpp", dst=adaptor, src=s(adaptor))
         if self.options.with_nlohmann_json:
-            self.copy("nlohmann_json.hpp", dst=adaptor, src=s(adaptor))
+            copy(self, "nlohmann_json.hpp", dst=adaptor, src=s(adaptor))
 
     def requirements(self):
         self.requires("nameof/0.10.1")

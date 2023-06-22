@@ -93,45 +93,47 @@ class ExtracmakemodulesConan(ConanFile):
     homepage = "https://api.kde.org/ecm/"
     topics = ("cmake", "toolchain", "build-settings")
     description = "KDE's CMake modules"
-    generators = "cmake"
     no_copy_source = False
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("extra-cmake-modules-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("extra-cmake-modules-{}".format(self.version), self.source_folder)
 
     def generate(self):
-
-        # KB-H016: do not install Find*.cmake
-        tools.replace_path_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
-            "install(FILES ${installFindModuleFiles} DESTINATION ${FIND_MODULES_INSTALL_DIR})",
-            "",
-        )
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_HTML_DOCS"] = False
         tc.variables["BUILD_QTHELP_DOCS"] = False
         tc.variables["BUILD_MAN_DOCS"] = False
         tc.variables["SHARE_INSTALL_DIR"] = os.path.join(self.package_folder, "res")
-        self._cmake.configure(source_folder=os.path.join(self.source_folder, self._source_subfolder))
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def _patch_sources(self):
+        # KB-H016: do not install Find*.cmake
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "install(FILES ${installFindModuleFiles} DESTINATION ${FIND_MODULES_INSTALL_DIR})",
+            "",
+        )
 
     def build(self):
-        cmake = self._configure_cmake()
+        self._patch_sources()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy(
+        copy(
+            self,
             "testhelper.h",
-            src=os.path.join(self.source_folder, self._source_subfolder, "tests/ECMAddTests"),
+            src=os.path.join(self.source_folder, "tests/ECMAddTests"),
             dst="res/tests",
         )
-        self.copy(
-            "*", src=os.path.join(self.source_folder, self._source_subfolder, "LICENSES"), dst="licenses"
-        )
+        copy(self, "*", src=os.path.join(self.source_folder, "LICENSES"), dst="licenses")
 
     def package_info(self):
         self.cpp_info.resdirs = ["res"]

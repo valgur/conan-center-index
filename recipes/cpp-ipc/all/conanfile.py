@@ -106,8 +106,6 @@ class CppIPCConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake"
-
     _compiler_required_cpp17 = {
         "Visual Studio": "17",
         "gcc": "8",
@@ -120,18 +118,18 @@ class CppIPCConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("{} does not support Apple platform".format(self.name))
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++17, which your compiler does not support.".format(self.name)
                 )
@@ -144,23 +142,24 @@ class CppIPCConan(ConanFile):
             raise ConanInvalidConfiguration("{} doesn't support clang with libc++".format(self.name))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBIPC_BUILD_SHARED_LIBS"] = self.options.shared
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

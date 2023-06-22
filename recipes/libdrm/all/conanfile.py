@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class LibdrmConan(ConanFile):
     name = "libdrm"
     description = "User space library for accessing the Direct Rendering Manager, on operating systems that support the ioctl interface"
@@ -129,10 +130,6 @@ class LibdrmConan(ConanFile):
         "udev": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def build_requirements(self):
         self.build_requires("meson/0.64.1")
 
@@ -140,13 +137,13 @@ class LibdrmConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "2.4.111":
-            del self.options.libkms
+            self.options.rm_safe("libkms")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.intel:
@@ -159,12 +156,7 @@ class LibdrmConan(ConanFile):
             raise ConanInvalidConfiguration("libdrm supports only Linux or FreeBSD")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_meson(self):
         meson = Meson(self)
@@ -201,7 +193,7 @@ class LibdrmConan(ConanFile):
         defs["datadir"] = os.path.join(self.package_folder, "res")
         defs["mandir"] = os.path.join(self.package_folder, "res", "man")
 
-        meson.configure(defs=defs, source_folder=self._source_subfolder, build_folder=self._build_subfolder)
+        meson.configure(defs=defs, source_folder=self.source_folder, build_folder=self._build_subfolder)
         return meson
 
     def build(self):
@@ -214,7 +206,7 @@ class LibdrmConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         mkdir(self, os.path.join(self.package_folder, "licenses"))
         # Extract the License/s from the header to a file
-        tmp = load(self, os.path.join(self._source_subfolder, "include", "drm", "drm.h"))
+        tmp = load(self, os.path.join(self.source_folder, "include", "drm", "drm.h"))
         license_contents = re.search("\*\/.*(\/\*(\*(?!\/)|[^*])*\*\/)", tmp, re.DOTALL)[1]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 

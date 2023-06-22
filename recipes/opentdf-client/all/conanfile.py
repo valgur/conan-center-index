@@ -97,7 +97,6 @@ class OpenTDFConan(ConanFile):
     topics = ("opentdf", "tdf", "virtru")
     description = "openTDF core c++ client library for creating and accessing TDF protected data"
     license = "BSD-3-Clause-Clear"
-    generators = "cmake", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -105,10 +104,6 @@ class OpenTDFConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _minimum_cpp_standard(self):
@@ -125,9 +120,9 @@ class OpenTDFConan(ConanFile):
         }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
         for data in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(data["patch_file"])
+            copy(self, data["patch_file"])
 
     def validate(self):
         # check minimum cpp standard supported by compiler
@@ -169,47 +164,43 @@ class OpenTDFConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
-    def _patch_sources(self):
-        for data in self.conan_data.get("patches", {}).get(self.version, []):
-            patch(self, **data)
-
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
         copy(
             self,
             "*",
             dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(os.path.join(self._source_subfolder, "tdf-lib-cpp"), "lib"),
+            src=os.path.join(os.path.join(self.source_folder, "tdf-lib-cpp"), "lib"),
             keep_path=False,
         )
         copy(
             self,
             "*",
             dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(os.path.join(self._source_subfolder, "tdf-lib-cpp"), "include"),
+            src=os.path.join(os.path.join(self.source_folder, "tdf-lib-cpp"), "include"),
             keep_path=False,
         )
         copy(
             self,
             "LICENSE",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self._source_subfolder,
+            src=self.source_folder,
             ignore_case=True,
             keep_path=False,
         )

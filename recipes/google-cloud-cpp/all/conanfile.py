@@ -104,8 +104,7 @@ class GoogleCloudCppConan(ConanFile):
         "google-cloud-bigtable",
     )
     homepage = "https://github.com/googleapis/google-cloud-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
-    generators = "cmake", "cmake_find_package_multi", "cmake_find_package"
+    url = "https://github.com/conan-io/conan-center-index", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -116,13 +115,9 @@ class GoogleCloudCppConan(ConanFile):
         "fPIC": True,
     }
 
-    short_paths = True
-    _cmake = None
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -130,33 +125,31 @@ class GoogleCloudCppConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Fails to compile for Windows as a DLL")
 
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
-        if tools.Version(self.version) >= "1.30.0":
-            if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) < "6.0":
+        if Version(self.version) >= "1.30.0":
+            if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "6.0":
                 raise ConanInvalidConfiguration("Clang version must be at least 6.0.")
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5.4":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5.4":
             raise ConanInvalidConfiguration("Building requires GCC >= 5.4")
-        if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) < "3.8":
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "3.8":
             raise ConanInvalidConfiguration("Building requires clang >= 3.8")
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Building requires VS >= 2019")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
         self.requires("protobuf/3.20.0")
@@ -168,7 +161,6 @@ class GoogleCloudCppConan(ConanFile):
         self.requires("openssl/1.1.1n")
         # TODO: Add googleapis once it is available in CCI (now it is embedded)
 
-    @functools.lru_cache(1)
     def generate(self):
         # Do not build in parallel for certain configurations, it fails writting/reading files at the same time
         parallel = not (
@@ -176,32 +168,31 @@ class GoogleCloudCppConan(ConanFile):
             and self.settings.compiler.version == "16"
             and self.version in ["1.31.1", "1.30.1"]
         )
-        cmake = CMake(self, parallel=parallel)
-        cmake.definitions["BUILD_TESTING"] = 0
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTING"] = 0
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_MACOS_OPENSSL_CHECK"] = False
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_BIGTABLE"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_BIGQUERY"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_SPANNER"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_STORAGE"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_FIRESTORE"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_PUBSUB"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_IAM"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_LOGGING"] = True
+        tc.variables["GOOGLE_CLOUD_CPP_ENABLE_GENERATOR"] = True
+        tc.generate()
 
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_MACOS_OPENSSL_CHECK"] = False
-
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_BIGTABLE"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_BIGQUERY"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_SPANNER"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_STORAGE"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_FIRESTORE"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_PUBSUB"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_IAM"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_LOGGING"] = True
-        cmake.definitions["GOOGLE_CLOUD_CPP_ENABLE_GENERATOR"] = True
-
-        cmake.configure()
-        return cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        if tools.Version(self.version) < "1.33.0":
+        if Version(self.version) < "1.33.0":
             # Do not override CMAKE_CXX_STANDARD if provided
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "CMakeLists.txt"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
                 textwrap.dedent(
                     """\
                     set(CMAKE_CXX_STANDARD
@@ -219,15 +210,16 @@ class GoogleCloudCppConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["common"].requires = [
@@ -260,7 +252,7 @@ class GoogleCloudCppConan(ConanFile):
         self.cpp_info.components["bigtable"].libs = ["google_cloud_cpp_bigtable"]
         self.cpp_info.components["bigtable"].names["pkg_config"] = "google_cloud_cpp_bigtable"
 
-        if tools.Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
+        if Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
             self.cpp_info.components["experimental-firestore"].requires = ["common"]
             self.cpp_info.components["experimental-firestore"].libs = ["google_cloud_cpp_firestore"]
             self.cpp_info.components["experimental-firestore"].names[
@@ -552,7 +544,7 @@ class GoogleCloudCppConan(ConanFile):
         ] = "google_cloud_cpp_devtools_cloudtrace_v2_tracing_protos"
 
         cmp_logging_type_type_protos = None
-        if tools.Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
+        if Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
             cmp_logging_type_type_protos = "logging_type_protos"
             self.cpp_info.components[cmp_logging_type_type_protos].requires = [
                 "grpc::grpc++",
@@ -866,7 +858,7 @@ class GoogleCloudCppConan(ConanFile):
             "pkg_config"
         ] = "google_cloud_cpp_cloud_dialogflow_v2_protos"
 
-        if tools.Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
+        if Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
             self.cpp_info.components["cloud_dialogflow_v2beta1_protos"].requires = [
                 "grpc::grpc++",
                 "grpc::grpc",

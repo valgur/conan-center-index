@@ -98,13 +98,11 @@ class TllistConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio compiler is not supported")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("*.h", src=self._source_subfolder, dst="include")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "*.h", src=self.source_folder, dst="include")
 
     def package_id(self):
         self.info.header_only()

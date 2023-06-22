@@ -124,9 +124,9 @@ class Stlab(ConanFile):
             self.requires("libdispatch/5.3.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "libraries-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def _fix_boost_components(self):
         if self.settings.os != "Macos":
@@ -226,7 +226,7 @@ class Stlab(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "9":
             raise ConanInvalidConfiguration("Need GCC >= 9")
@@ -250,8 +250,8 @@ class Stlab(ConanFile):
         self.output.info("Stlab Task System: {}.".format(self.options.task_system))
 
     def package(self):
-        self.copy("*LICENSE", dst="licenses", keep_path=False)
-        self.copy("stlab/*", src=self._source_subfolder, dst="include/")
+        copy(self, "*LICENSE", dst="licenses", keep_path=False)
+        copy(self, "stlab/*", src=self.source_folder, dst="include/")
 
     def package_id(self):
         self.info.header_only()

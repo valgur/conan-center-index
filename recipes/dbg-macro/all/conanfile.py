@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class DbgMacroConan(ConanFile):
     name = "dbg-macro"
     url = "https://github.com/conan-io/conan-center-index"
@@ -90,16 +91,16 @@ class DbgMacroConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def configure(self):
         minimal_cpp_standard = "11"
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 "dbg-mcro can't be used by {0} {1}".format(
                     self.settings.compiler, self.settings.compiler.version
@@ -107,8 +108,8 @@ class DbgMacroConan(ConanFile):
             )
 
     def package(self):
-        self.copy("dbg.h", dst="include", src=self._source_subfolder)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "dbg.h", dst="include", src=self.source_folder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

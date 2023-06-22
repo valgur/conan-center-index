@@ -31,7 +31,7 @@ class CpphttplibConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) < "0.7.2":
-            del self.options.with_brotli
+            self.options.rm_safe("with_brotli")
 
     def requirements(self):
         if self.options.with_openssl:

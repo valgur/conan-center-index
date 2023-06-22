@@ -20,7 +20,6 @@ class DawJsonLinkConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    short_paths = True
 
     @property
     def _minimum_cpp_standard(self):

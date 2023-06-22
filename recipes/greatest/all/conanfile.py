@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class GreatestConan(ConanFile):
     name = "greatest"
     description = "A C testing library in 1 file. No dependencies, no dynamic allocation."
@@ -89,13 +90,11 @@ class GreatestConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("greatest.h", dst="include", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "greatest.h", dst="include", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

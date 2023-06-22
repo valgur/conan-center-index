@@ -106,12 +106,6 @@ class SobjectizerConan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,12 +113,12 @@ class SobjectizerConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "7",
             "clang": "6",
@@ -142,43 +136,41 @@ class SobjectizerConan(ConanFile):
             )
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["SOBJECTIZER_BUILD_SHARED"] = self.options.shared
         tc.variables["SOBJECTIZER_BUILD_STATIC"] = not self.options.shared
         tc.variables["SOBJECTIZER_INSTALL"] = True
-
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("license*", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        copy(self, "license*", src=self.source_folder, dst="licenses", ignore_case=True, keep_path=False)
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         cmake_target = "SharedLib" if self.options.shared else "StaticLib"
         self.cpp_info.set_property("cmake_file_name", "sobjectizer")
         self.cpp_info.set_property("cmake_target_name", "sobjectizer::{}".format(cmake_target))
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_sobjectizer"].libs = tools.collect_libs(self)
+        self.cpp_info.components["_sobjectizer"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_sobjectizer"].system_libs = ["pthread", "m"]
         if not self.options.shared:

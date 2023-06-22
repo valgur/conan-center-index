@@ -26,12 +26,14 @@ class TestPackageConan(ConanFile):
         for src in self.exports_sources:
             shutil.copy(os.path.join(self.source_folder, src), self.build_folder)
 
-        waf_path = tools.which("waf")
+        waf_path = which(self, "waf")
         if waf_path:
             waf_path = waf_path.replace("\\", "/")
             assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
 
-        with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
+        with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
+            self,
+        ):
             self.run("waf -h")
             self.run("waf configure")
             self.run("waf")
@@ -43,7 +45,7 @@ class TestPackageConan(ConanFile):
             env["LD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
         elif self.settings.os == "Macos":
             env["DYLD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
-        with tools.environment_append(env):
+        with environment_append(self, env):
             yield
 
     def test(self):

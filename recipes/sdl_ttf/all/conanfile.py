@@ -44,7 +44,7 @@ class SdlttfConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.20.0":
-            del self.options.with_harfbuzz
+            self.options.rm_safe("with_harfbuzz")
 
     def configure(self):
         if self.options.shared:

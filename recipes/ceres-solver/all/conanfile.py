@@ -75,9 +75,9 @@ class CeressolverConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "2.0":
-            del self.options.use_TBB
-            del self.options.use_CXX11_threads
-            del self.options.use_CXX11
+            self.options.rm_safe("use_TBB")
+            self.options.rm_safe("use_CXX11_threads")
+            self.options.rm_safe("use_CXX11")
 
     def configure(self):
         if self.options.shared:

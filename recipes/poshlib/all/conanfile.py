@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class PoshlibConan(ConanFile):
     name = "poshlib"
     description = "Posh is a software framework used in cross-platform software development."
@@ -88,7 +89,6 @@ class PoshlibConan(ConanFile):
     topics = ("posh", "framework", "cross-platform")
     license = "BSD-2-Clause"
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -100,9 +100,9 @@ class PoshlibConan(ConanFile):
     }
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("poshlib-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -110,28 +110,34 @@ class PoshlibConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "posh.h"), "defined _ARM", "defined _ARM || defined __arm64"
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "posh.h"),
+            "defined _ARM",
+            "defined _ARM || defined __arm64",
         )
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("POSH_DLL")

@@ -91,7 +91,6 @@ class TweetnaclConan(ConanFile):
     description = "TweetNaCl is the world's first auditable high-security cryptographic library"
     topics = ("nacl", "encryption", "signature", "hashing")
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -107,10 +106,10 @@ class TweetnaclConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os in ("Windows", "Macos"):
@@ -121,21 +120,24 @@ class TweetnaclConan(ConanFile):
 
     def source(self):
         for url_sha in self.conan_data["sources"][self.version]:
-            tools.download(url_sha["url"], os.path.basename(url_sha["url"]))
-            tools.check_sha256(os.path.basename(url_sha["url"]), url_sha["sha256"])
+            download(self, url_sha["url"], os.path.basename(url_sha["url"]))
+            check_sha256(self, os.path.basename(url_sha["url"]), url_sha["sha256"])
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
-        cmake = self._configure_cmake()
+        copy(self, "UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

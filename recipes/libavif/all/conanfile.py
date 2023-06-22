@@ -57,7 +57,7 @@ class LibAVIFConan(ConanFile):
             self.requires("dav1d/1.0.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

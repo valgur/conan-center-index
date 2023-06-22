@@ -104,7 +104,7 @@ class KeychainConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,26 +119,29 @@ class KeychainConan(ConanFile):
             self.build_requires("pkgconf/1.7.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_TESTS"] = False
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTS"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
 
         if self.settings.os == "Macos":
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]

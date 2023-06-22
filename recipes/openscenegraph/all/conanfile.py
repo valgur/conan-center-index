@@ -151,36 +151,34 @@ class OpenSceneGraphConanFile(ConanFile):
         "opengl_profile": "gl2",
     }
 
-    short_paths = True
     exports_sources = "CMakeLists.txt", "patches/*.patch"
-    generators = "cmake", "cmake_find_package"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_asio
+            self.options.rm_safe("with_asio")
 
             # Default to false with fontconfig until it is supported on Windows
             self.options.use_fontconfig = False
 
         if is_apple_os(self):
             # osg uses imageio on Apple platforms
-            del self.options.with_gif
-            del self.options.with_jpeg
-            del self.options.with_png
+            self.options.rm_safe("with_gif")
+            self.options.rm_safe("with_jpeg")
+            self.options.rm_safe("with_png")
 
             # imageio supports tiff files so the tiff plugin isn't needed on Apple platforms
             self.options.with_tiff = False
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if not self.options.with_zlib:
             # These require zlib support
-            del self.options.with_openexr
-            del self.options.with_png
-            del self.options.with_dcmtk
+            self.options.rm_safe("with_openexr")
+            self.options.rm_safe("with_png")
+            self.options.rm_safe("with_dcmtk")
 
     def validate(self):
         if self.options.get_safe("with_asio", False):
@@ -230,96 +228,91 @@ class OpenSceneGraphConanFile(ConanFile):
             self.requires("zlib/1.2.13")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
 
         for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
             # Prefer conan's find package scripts over osg's
-            os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
+            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
 
-    @functools.lru_cache(1)
-    def _configured_cmake(self):
-        cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["USE_3RDPARTY_BIN"] = False
 
-        cmake.definitions["USE_3RDPARTY_BIN"] = False
+        tc.variables["DYNAMIC_OPENSCENEGRAPH"] = self.options.shared
+        tc.variables["DYNAMIC_OPENTHREADS"] = self.options.shared
 
-        cmake.definitions["DYNAMIC_OPENSCENEGRAPH"] = self.options.shared
-        cmake.definitions["DYNAMIC_OPENTHREADS"] = self.options.shared
+        tc.variables["BUILD_OSG_APPLICATIONS"] = self.options.build_applications
+        tc.variables["BUILD_OSG_EXAMPLES"] = False
 
-        cmake.definitions["BUILD_OSG_APPLICATIONS"] = self.options.build_applications
-        cmake.definitions["BUILD_OSG_EXAMPLES"] = False
-
-        cmake.definitions["OSG_NOTIFY_DISABLED"] = not self.options.enable_notify
-        cmake.definitions["OSG_USE_DEPRECATED_API"] = self.options.enable_deprecated_api
-        cmake.definitions["OSG_PROVIDE_READFILE"] = self.options.enable_readfile
-        cmake.definitions[
+        tc.variables["OSG_NOTIFY_DISABLED"] = not self.options.enable_notify
+        tc.variables["OSG_USE_DEPRECATED_API"] = self.options.enable_deprecated_api
+        tc.variables["OSG_PROVIDE_READFILE"] = self.options.enable_readfile
+        tc.variables[
             "OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"
         ] = self.options.enable_ref_ptr_implicit_output_conversion
-        cmake.definitions["OSG_USE_REF_PTR_SAFE_DEREFERENCE"] = self.options.enable_ref_ptr_safe_dereference
-        cmake.definitions["OSG_ENVVAR_SUPPORTED"] = self.options.enable_envvar_support
+        tc.variables["OSG_USE_REF_PTR_SAFE_DEREFERENCE"] = self.options.enable_ref_ptr_safe_dereference
+        tc.variables["OSG_ENVVAR_SUPPORTED"] = self.options.enable_envvar_support
 
         if not self.options.enable_windowing_system:
-            cmake.definitions["OSG_WINDOWING_SYSTEM"] = None
+            tc.variables["OSG_WINDOWING_SYSTEM"] = None
 
-        cmake.definitions["BUILD_OSG_DEPRECATED_SERIALIZERS"] = self.options.enable_deprecated_serializers
+        tc.variables["BUILD_OSG_DEPRECATED_SERIALIZERS"] = self.options.enable_deprecated_serializers
 
-        cmake.definitions["OSG_TEXT_USE_FONTCONFIG"] = self.options.use_fontconfig
+        tc.variables["OSG_TEXT_USE_FONTCONFIG"] = self.options.use_fontconfig
 
-        cmake.definitions["OPENGL_PROFILE"] = str(self.options.opengl_profile).upper()
+        tc.variables["OPENGL_PROFILE"] = str(self.options.opengl_profile).upper()
 
         # Disable option dependencies unless we have a package for them
-        cmake.definitions["OSG_WITH_FREETYPE"] = self.options.with_freetype
-        cmake.definitions["OSG_WITH_OPENEXR"] = self.options.get_safe("with_openexr", False)
-        cmake.definitions["OSG_WITH_INVENTOR"] = False
-        cmake.definitions["OSG_WITH_JASPER"] = self.options.with_jasper
-        cmake.definitions["OSG_WITH_OPENCASCADE"] = False
-        cmake.definitions["OSG_WITH_FBX"] = False
-        cmake.definitions["OSG_WITH_ZLIB"] = self.options.with_zlib
-        cmake.definitions["OSG_WITH_GDAL"] = self.options.with_gdal
-        cmake.definitions["OSG_WITH_GTA"] = self.options.with_gta
-        cmake.definitions["OSG_WITH_CURL"] = self.options.with_curl
-        cmake.definitions["OSG_WITH_LIBVNCSERVER"] = False
-        cmake.definitions["OSG_WITH_DCMTK"] = self.options.get_safe("with_dcmtk", False)
-        cmake.definitions["OSG_WITH_FFMPEG"] = False
-        cmake.definitions["OSG_WITH_DIRECTSHOW"] = False
-        cmake.definitions["OSG_WITH_SDL"] = False
-        cmake.definitions["OSG_WITH_POPPLER"] = False
-        cmake.definitions["OSG_WITH_RSVG"] = False
-        cmake.definitions["OSG_WITH_NVTT"] = False
-        cmake.definitions["OSG_WITH_ASIO"] = self.options.get_safe("with_asio", False)
-        cmake.definitions["OSG_WITH_ZEROCONF"] = False
-        cmake.definitions["OSG_WITH_LIBLAS"] = False
-        cmake.definitions["OSG_WITH_GIF"] = self.options.get_safe("with_gif", False)
-        cmake.definitions["OSG_WITH_JPEG"] = self.options.get_safe("with_jpeg", False)
-        cmake.definitions["OSG_WITH_PNG"] = self.options.get_safe("with_png", False)
-        cmake.definitions["OSG_WITH_TIFF"] = self.options.with_tiff
+        tc.variables["OSG_WITH_FREETYPE"] = self.options.with_freetype
+        tc.variables["OSG_WITH_OPENEXR"] = self.options.get_safe("with_openexr", False)
+        tc.variables["OSG_WITH_INVENTOR"] = False
+        tc.variables["OSG_WITH_JASPER"] = self.options.with_jasper
+        tc.variables["OSG_WITH_OPENCASCADE"] = False
+        tc.variables["OSG_WITH_FBX"] = False
+        tc.variables["OSG_WITH_ZLIB"] = self.options.with_zlib
+        tc.variables["OSG_WITH_GDAL"] = self.options.with_gdal
+        tc.variables["OSG_WITH_GTA"] = self.options.with_gta
+        tc.variables["OSG_WITH_CURL"] = self.options.with_curl
+        tc.variables["OSG_WITH_LIBVNCSERVER"] = False
+        tc.variables["OSG_WITH_DCMTK"] = self.options.get_safe("with_dcmtk", False)
+        tc.variables["OSG_WITH_FFMPEG"] = False
+        tc.variables["OSG_WITH_DIRECTSHOW"] = False
+        tc.variables["OSG_WITH_SDL"] = False
+        tc.variables["OSG_WITH_POPPLER"] = False
+        tc.variables["OSG_WITH_RSVG"] = False
+        tc.variables["OSG_WITH_NVTT"] = False
+        tc.variables["OSG_WITH_ASIO"] = self.options.get_safe("with_asio", False)
+        tc.variables["OSG_WITH_ZEROCONF"] = False
+        tc.variables["OSG_WITH_LIBLAS"] = False
+        tc.variables["OSG_WITH_GIF"] = self.options.get_safe("with_gif", False)
+        tc.variables["OSG_WITH_JPEG"] = self.options.get_safe("with_jpeg", False)
+        tc.variables["OSG_WITH_PNG"] = self.options.get_safe("with_png", False)
+        tc.variables["OSG_WITH_TIFF"] = self.options.with_tiff
 
         if self.settings.os == "Windows":
             # osg has optional quicktime support on Windows
-            cmake.definitions["CMAKE_DISABLE_FIND_PACKAGE_QuickTime"] = True
+            tc.variables["CMAKE_DISABLE_FIND_PACKAGE_QuickTime"] = True
 
-        cmake.definitions["OSG_MSVC_VERSIONED_DLL"] = False
+        tc.variables["OSG_MSVC_VERSIONED_DLL"] = False
+        tc.generate()
 
-        cmake.configure()
-
-        return cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-
-        self._configured_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self._configured_cmake().install()
+        cmake = CMake(self)
+        cmake.install()
 
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, True)

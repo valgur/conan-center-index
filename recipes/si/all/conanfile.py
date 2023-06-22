@@ -94,11 +94,6 @@ class SiConan(ConanFile):
     exports_sources = "CMakeLists.txt"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -111,11 +106,11 @@ class SiConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "'si' requires C++17, which your compiler ({} {}) does not support.".format(
                         self.settings.compiler, self.settings.compiler.version
@@ -128,19 +123,17 @@ class SiConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = CMake(self)
-        cmake.definitions["SI_BUILD_TESTING"] = False
-        cmake.definitions["SI_BUILD_DOC"] = False
-        cmake.definitions["SI_INSTALL_LIBRARY"] = True
-        cmake.configure(build_folder=self._build_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        tc = CMakeToolchain(self)
+        tc.variables["SI_BUILD_TESTING"] = False
+        tc.variables["SI_BUILD_DOC"] = False
+        tc.variables["SI_INSTALL_LIBRARY"] = True
+        tc.generate()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "SI::SI")

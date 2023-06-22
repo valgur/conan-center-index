@@ -46,9 +46,9 @@ class LibsquishConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in self._sse2_compliant_archs:
-            del self.options.sse2_intrinsics
+            self.options.rm_safe("sse2_intrinsics")
         if self.settings.arch not in self._altivec_compliant_archs:
-            del self.options.altivec_intrinsics
+            self.options.rm_safe("altivec_intrinsics")
 
     def configure(self):
         if self.options.shared:
@@ -58,7 +58,7 @@ class LibsquishConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

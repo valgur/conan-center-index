@@ -45,9 +45,9 @@ class LibsndfileConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_alsa
+            self.options.rm_safe("with_alsa")
         if Version(self.version) < "1.1.0":
-            del self.options.with_mpeg
+            self.options.rm_safe("with_mpeg")
 
     def configure(self):
         if self.options.shared:

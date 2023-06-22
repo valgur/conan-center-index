@@ -93,26 +93,26 @@ class PprintConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         min_compiler_version = {"gcc": 7, "clang": 7, "apple-clang": 10, "Visual Studio": 15}.get(
             str(self.settings.compiler), None
         )
 
         if min_compiler_version:
-            if tools.Version(self.settings.compiler.version) < min_compiler_version:
+            if Version(self.settings.compiler.version) < min_compiler_version:
                 raise ConanInvalidConfiguration("The compiler does not support c++17")
         else:
             self.output.warn("pprint needs a c++17 capable compiler")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{}-{}".format(self.name, self.version), self.source_folder)
 
     def package(self):
-        self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy(pattern="*.h", src=os.path.join(self._source_subfolder, "include"), dst="include")
-        self.copy(pattern="*.hpp", src=os.path.join(self._source_subfolder, "include"), dst="include")
+        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, pattern="*.h", src=os.path.join(self.source_folder, "include"), dst="include")
+        copy(self, pattern="*.hpp", src=os.path.join(self.source_folder, "include"), dst="include")
 
     def package_id(self):
         self.info.header_only()

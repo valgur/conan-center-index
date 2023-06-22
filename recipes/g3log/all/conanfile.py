@@ -76,8 +76,8 @@ class G3logConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not is_msvc(self):
-            del self.options.enable_vectored_exception_handling
-            del self.options.debug_break_at_fatal_signal
+            self.options.rm_safe("enable_vectored_exception_handling")
+            self.options.rm_safe("debug_break_at_fatal_signal")
 
     def configure(self):
         if self.options.shared:

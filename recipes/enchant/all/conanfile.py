@@ -100,36 +100,36 @@ class EnchantConan(ConanFile):
     topics = ("enchant", "spell", "spell-check")
     license = "LGPL-2.1-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake", "cmake_find_package_multi"
     requires = "glib/2.71.3", "hunspell/1.7.0"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        self.copy("configmake.h")
-        self.copy("configure.cmake")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        copy(self, "configmake.h")
+        copy(self, "configure.cmake")
+        export_conandata_patches(self)
 
     def source(self):
-        root = self._source_subfolder
+        root = self.source_folder
         get_args = self.conan_data["sources"][self.version]
-        tools.get(**get_args, destination=root, strip_root=True)
+        get(self, **get_args, destination=root, strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["CONAN_enchant_VERSION"] = self.version
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["CONAN_enchant_VERSION"] = self.version
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        self._configure_cmake().build()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("COPYING.LIB", "licenses", self._source_subfolder)
-        self._configure_cmake().install()
+        copy(self, "COPYING.LIB", "licenses", self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["enchant"]

@@ -103,11 +103,11 @@ class PocoConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.enable_fork
+            self.options.rm_safe("enable_fork")
         else:
-            del self.options.enable_netssl_win
+            self.options.rm_safe("enable_netssl_win")
         if Version(self.version) < "1.12.0":
-            del self.options.enable_prometheus
+            self.options.rm_safe("enable_prometheus")
 
     def configure(self):
         if self.options.enable_active_record != "deprecated":

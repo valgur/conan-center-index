@@ -115,8 +115,6 @@ class MagnumIntegrationConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt"
-    generators = "cmake", "cmake_find_package"
-    short_paths = True
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -124,7 +122,7 @@ class MagnumIntegrationConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("magnum/{}".format(self.version))
@@ -146,76 +144,79 @@ class MagnumIntegrationConan(ConanFile):
             raise ConanInvalidConfiguration("OVR library is not available in ConanCenter (yet)")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", True)
-        cmake.definitions["BUILD_TESTS"] = False
-        cmake.definitions["BUILD_GL_TESTS"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", True)
+        tc.variables["BUILD_TESTS"] = False
+        tc.variables["BUILD_GL_TESTS"] = False
 
-        cmake.definitions["WITH_BULLET"] = self.options.with_bullet
-        cmake.definitions["WITH_DART"] = self.options.with_dart
-        cmake.definitions["WITH_EIGEN"] = self.options.with_eigen
-        cmake.definitions["WITH_GLM"] = self.options.with_glm
-        cmake.definitions["WITH_IMGUI"] = self.options.with_imgui
-        cmake.definitions["WITH_OVR"] = self.options.with_ovr
+        tc.variables["WITH_BULLET"] = self.options.with_bullet
+        tc.variables["WITH_DART"] = self.options.with_dart
+        tc.variables["WITH_EIGEN"] = self.options.with_eigen
+        tc.variables["WITH_GLM"] = self.options.with_glm
+        tc.variables["WITH_IMGUI"] = self.options.with_imgui
+        tc.variables["WITH_OVR"] = self.options.with_ovr
 
-        cmake.configure()
-        return cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
             "",
         )
         # Casing
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "GlmIntegration", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "GlmIntegration", "CMakeLists.txt"),
             "find_package(GLM REQUIRED)",
             "find_package(glm REQUIRED)",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "GlmIntegration", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "GlmIntegration", "CMakeLists.txt"),
             "GLM::GLM",
             "glm::glm",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
             "find_package(ImGui REQUIRED Sources)",
             "find_package(imgui REQUIRED Sources)",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
             "ImGui::ImGui",
             "imgui::imgui",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "ImGuiIntegration", "CMakeLists.txt"),
             "ImGui::Sources",
             "",
         )
 
     def build(self):
         self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
-
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "MagnumIntegration")

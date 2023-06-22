@@ -24,23 +24,17 @@ class Box2dConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="Box2D")
 
     def source(self):
-        tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -57,47 +51,47 @@ class Box2dConan(ConanFile):
         cmake.build()
 
     def package(self):
-        tools.files.copy(
+        copy(
             self,
             "License.txt",
             src=os.path.join(self.source_folder, "Box2D"),
             dst=os.path.join(self.package_folder, "licenses"),
         )
-        tools.files.copy(
+        copy(
             self,
             os.path.join("Box2D", "*.h"),
             src=os.path.join(self.source_folder, "Box2D"),
             dst=os.path.join(self.package_folder, "include"),
         )
-        tools.files.copy(
+        copy(
             self,
             "*.lib",
             src=self.build_folder,
             dst=os.path.join(self.package_folder, "lib"),
             keep_path=False,
         )
-        tools.files.copy(
+        copy(
             self,
             "*.dll",
             src=self.build_folder,
             dst=os.path.join(self.package_folder, "bin"),
             keep_path=False,
         )
-        tools.files.copy(
+        copy(
             self,
             "*.so*",
             src=self.build_folder,
             dst=os.path.join(self.package_folder, "lib"),
             keep_path=False,
         )
-        tools.files.copy(
+        copy(
             self,
             "*.dylib",
             src=self.build_folder,
             dst=os.path.join(self.package_folder, "lib"),
             keep_path=False,
         )
-        tools.files.copy(
+        copy(
             self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False
         )
 

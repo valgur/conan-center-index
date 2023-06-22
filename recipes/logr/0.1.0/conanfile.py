@@ -94,7 +94,6 @@ class LogrConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
-    generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = ["CMakeLists.txt"]
 
@@ -102,10 +101,6 @@ class LogrConan(ConanFile):
     default_options = {
         "backend": "spdlog",
     }
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def requirements(self):
         self.requires("fmt/7.1.2")
@@ -122,7 +117,7 @@ class LogrConan(ConanFile):
     def configure(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "7",
             "clang": "7",
@@ -140,14 +135,13 @@ class LogrConan(ConanFile):
             )
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = self.options.backend == "spdlog"
         tc.variables["LOGR_WITH_GLOG_BACKEND"] = self.options.backend == "glog"
@@ -158,13 +152,15 @@ class LogrConan(ConanFile):
 
         tc.variables["LOGR_INSTALL"] = True
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
         if self.options.backend == "log4cplus" and self.options["log4cplus"].unicode:
@@ -173,11 +169,11 @@ class LogrConan(ConanFile):
             raise ConanInvalidConfiguration("backend='log4cplus-unicode' requires log4cplus:unicode=True")
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

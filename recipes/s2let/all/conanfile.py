@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -97,20 +98,15 @@ class S2let(ConanFile):
         "fPIC": True,
         "with_cfitsio": False,
     }
-    generators = "cmake", "cmake_find_package"
     exports_sources = ["CMakeLists.txt"]
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
         self.requires("astro-informatics-so3/1.3.4")
@@ -122,25 +118,26 @@ class S2let(ConanFile):
             raise ConanInvalidConfiguration("S2LET requires C99 support for complex numbers.")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _cmake(self):
-        if not hasattr(self, "_cmake_instance"):
-            self._cmake_instance = CMake(self)
-            self._cmake_instance.definitions["BUILD_TESTING"] = False
-            self._cmake_instance.definitions["cfitsio"] = self.options.with_cfitsio
-            self._cmake_instance.configure(build_folder=self._build_subfolder)
-        return self._cmake_instance
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["cfitsio"] = self.options.with_cfitsio
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._cmake.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self._cmake.install()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "s2let"

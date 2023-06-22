@@ -647,4 +647,4 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
         self.assertEqual(gnuobj_ref, gnuobj)
         self.assertEqual(triplet_ref, gnuobj.triplet)
         self.assertEqual(gnuobj_ref, _GNUTriplet.from_text(triplet_ref))
-        # self.assertEqual(triplet_ref, tools.get_gnu_triplet(archos.os, archos.arch, compiler="gcc"))
+        # self.assertEqual(triplet_ref, get_gnu_triplet(self, archos.os, archos.arch, compiler="gcc"))

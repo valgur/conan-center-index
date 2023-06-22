@@ -117,31 +117,31 @@ class SDLConan(ConanFile):
         self.options.iconv = self.settings.os != "Macos"
 
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
             if is_msvc(self):
-                del self.options.iconv
+                self.options.rm_safe("iconv")
         if self.settings.os != "Linux":
-            del self.options.alsa
-            del self.options.jack
-            del self.options.pulse
-            del self.options.sndio
-            del self.options.nas
-            del self.options.esd
-            del self.options.arts
-            del self.options.x11
-            del self.options.xcursor
-            del self.options.xinerama
-            del self.options.xinput
-            del self.options.xrandr
-            del self.options.xscrnsaver
-            del self.options.xshape
-            del self.options.xvm
-            del self.options.wayland
-            del self.options.directfb
-            del self.options.video_rpi
-            del self.options.libunwind
+            self.options.rm_safe("alsa")
+            self.options.rm_safe("jack")
+            self.options.rm_safe("pulse")
+            self.options.rm_safe("sndio")
+            self.options.rm_safe("nas")
+            self.options.rm_safe("esd")
+            self.options.rm_safe("arts")
+            self.options.rm_safe("x11")
+            self.options.rm_safe("xcursor")
+            self.options.rm_safe("xinerama")
+            self.options.rm_safe("xinput")
+            self.options.rm_safe("xrandr")
+            self.options.rm_safe("xscrnsaver")
+            self.options.rm_safe("xshape")
+            self.options.rm_safe("xvm")
+            self.options.rm_safe("wayland")
+            self.options.rm_safe("directfb")
+            self.options.rm_safe("video_rpi")
+            self.options.rm_safe("libunwind")
         if self.settings.os != "Windows":
-            del self.options.directx
+            self.options.rm_safe("directx")
 
     def configure(self):
         if self.options.shared:
@@ -207,7 +207,7 @@ class SDLConan(ConanFile):
             self.build_requires("wayland/1.21.0")  # Provides wayland-scanner
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
         apply_conandata_patches(self)

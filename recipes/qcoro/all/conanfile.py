@@ -101,13 +101,7 @@ class QCoroConan(ConanFile):
         "fPIC": True,
         "asan": False,
     }
-    generators = "cmake", "cmake_find_package_multi"
     exports_sources = ["CMakeLists.txt"]
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _compilers_minimum_version(self):
@@ -126,7 +120,7 @@ class QCoroConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def build_requirements(self):
         self.build_requires("cmake/3.23.2")
@@ -136,7 +130,7 @@ class QCoroConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 20)
+            check_min_cppstd(self, 20)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -169,34 +163,31 @@ class QCoroConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
-
         tc.variables["QCORO_BUILD_EXAMPLES"] = False
         tc.variables["QCORO_ENABLE_ASAN"] = self.options.asan
         tc.variables["BUILD_TESTING"] = False
         tc.variables["QCORO_WITH_QTDBUS"] = self.options["qt"].with_dbus
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("*", dst="licenses", src=os.path.join(self._source_subfolder, "LICENSES"))
-        cmake = self._configure_cmake()
+        copy(self, "*", dst="licenses", src=os.path.join(self.source_folder, "LICENSES"))
+        cmake = CMake(self)
         cmake.install()
 
         for mask in ["Find*.cmake", "*Config*.cmake", "*-config.cmake", "*Targets*.cmake"]:
-            tools.remove_files_by_mask(self.package_folder, mask)
+            remove_files_by_mask(self.package_folder, mask)
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "QCoro6"

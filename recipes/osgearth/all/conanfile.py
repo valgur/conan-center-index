@@ -75,6 +75,7 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -217,17 +218,11 @@ class OsgearthConan(ConanFile):
         "enable_wininet_for_http": False,
     }
 
-    short_paths = True
     exports_sources = "CMakeLists.txt", "patches/*.patch"
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         elif self.settings.compiler == "apple-clang":
             raise ConanInvalidConfiguration(
                 "With apple-clang cppstd needs to be set, since default is not at least c++11."
@@ -235,14 +230,14 @@ class OsgearthConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os != "Windows":
             self.options.enable_wininet_for_http = False
 
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if self.settings.compiler == "Visual Studio":
             self.options.build_procedural_nodekit = False
@@ -290,59 +285,58 @@ class OsgearthConan(ConanFile):
             self.requires("libwebp/1.2.0")
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
         for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
             # Prefer conan's find package scripts over osgEarth's
-            os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
+            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
         self._patch_sources()
 
-    @functools.lru_cache(1)
-    def _configured_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions["OSGEARTH_BUILD_SHARED_LIBS"] = self.options.shared
-        cmake.definitions["OSGEARTH_BUILD_TOOLS"] = False
-        cmake.definitions["OSGEARTH_BUILD_EXAMPLES"] = False
-        cmake.definitions["OSGEARTH_BUILD_TESTS"] = False
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["OSGEARTH_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.variables["OSGEARTH_BUILD_TOOLS"] = False
+        tc.variables["OSGEARTH_BUILD_EXAMPLES"] = False
+        tc.variables["OSGEARTH_BUILD_TESTS"] = False
 
-        cmake.definitions["OSGEARTH_BUILD_PROCEDURAL_NODEKIT"] = self.options.build_procedural_nodekit
-        # cmake.definitions["OSGEARTH_BUILD_TRITON_NODEKIT"] = self.options.build_triton_nodekit
-        # cmake.definitions["OSGEARTH_BUILD_SILVERLINING_NODEKIT"] = self.options.build_silverlining_nodekit
-        cmake.definitions["OSGEARTH_BUILD_LEVELDB_CACHE"] = self.options.build_leveldb_cache
-        cmake.definitions["OSGEARTH_BUILD_ROCKSDB_CACHE"] = self.options.build_rocksdb_cache
-        cmake.definitions["OSGEARTH_BUILD_ZIP_PLUGIN"] = self.options.build_zip_plugin
-        cmake.definitions["OSGEARTH_ENABLE_GEOCODER"] = self.options.enable_geocoder
+        tc.variables["OSGEARTH_BUILD_PROCEDURAL_NODEKIT"] = self.options.build_procedural_nodekit
+        # tc.variables["OSGEARTH_BUILD_TRITON_NODEKIT"] = self.options.build_triton_nodekit
+        # tc.variables["OSGEARTH_BUILD_SILVERLINING_NODEKIT"] = self.options.build_silverlining_nodekit
+        tc.variables["OSGEARTH_BUILD_LEVELDB_CACHE"] = self.options.build_leveldb_cache
+        tc.variables["OSGEARTH_BUILD_ROCKSDB_CACHE"] = self.options.build_rocksdb_cache
+        tc.variables["OSGEARTH_BUILD_ZIP_PLUGIN"] = self.options.build_zip_plugin
+        tc.variables["OSGEARTH_ENABLE_GEOCODER"] = self.options.enable_geocoder
 
-        cmake.definitions["WITH_EXTERNAL_DUKTAPE"] = False
-        cmake.definitions["WITH_EXTERNAL_TINYXML"] = False
-        cmake.definitions["CURL_IS_STATIC"] = not self.options["libcurl"].shared
-        cmake.definitions["CURL_INCLUDE_DIR"] = self.deps_cpp_info["libcurl"].include_paths[0]
-        cmake.definitions["OSGEARTH_INSTALL_SHADERS"] = self.options.install_shaders
-        cmake.definitions["OSGEARTH_ENABLE_NVTT_CPU_MIPMAPS"] = self.options.enable_nvtt_cpu_mipmaps
-        cmake.definitions["OSGEARTH_ENABLE_WININET_FOR_HTTP"] = self.options.enable_wininet_for_http
+        tc.variables["WITH_EXTERNAL_DUKTAPE"] = False
+        tc.variables["WITH_EXTERNAL_TINYXML"] = False
+        tc.variables["CURL_IS_STATIC"] = not self.options["libcurl"].shared
+        tc.variables["CURL_INCLUDE_DIR"] = self.deps_cpp_info["libcurl"].include_paths[0]
+        tc.variables["OSGEARTH_INSTALL_SHADERS"] = self.options.install_shaders
+        tc.variables["OSGEARTH_ENABLE_NVTT_CPU_MIPMAPS"] = self.options.enable_nvtt_cpu_mipmaps
+        tc.variables["OSGEARTH_ENABLE_WININET_FOR_HTTP"] = self.options.enable_wininet_for_http
 
         # our own defines for using in our top-level CMakeLists.txt
-        cmake.definitions["OSGEARTH_WITH_GEOS"] = self.options.with_geos
-        cmake.definitions["OSGEARTH_WITH_SQLITE3"] = self.options.with_sqlite3
-        cmake.definitions["OSGEARTH_WITH_WEBP"] = self.options.with_webp
+        tc.variables["OSGEARTH_WITH_GEOS"] = self.options.with_geos
+        tc.variables["OSGEARTH_WITH_SQLITE3"] = self.options.with_sqlite3
+        tc.variables["OSGEARTH_WITH_WEBP"] = self.options.with_webp
+        tc.generate()
 
-        cmake.configure()
-
-        return cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._configured_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self._configured_cmake().install()
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
+        cmake = CMake(self)
+        cmake.install()
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
 
         if self.options.install_shaders:
             rename(
@@ -352,7 +346,7 @@ class OsgearthConan(ConanFile):
         if os_info.is_linux:
             rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         if self.settings.build_type == "Debug":

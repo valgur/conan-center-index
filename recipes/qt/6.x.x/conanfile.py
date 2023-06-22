@@ -158,8 +158,6 @@ class QtConan(ConanFile):
     }
     default_options.update({module: False for module in _submodules})
 
-    short_paths = True
-
     _submodules_tree = None
 
     @property
@@ -206,15 +204,15 @@ class QtConan(ConanFile):
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_icu
-            del self.options.with_fontconfig
+            self.options.rm_safe("with_icu")
+            self.options.rm_safe("with_fontconfig")
             self.options.with_glib = False
-            del self.options.with_libalsa
-            del self.options.with_x11
+            self.options.rm_safe("with_libalsa")
+            self.options.rm_safe("with_x11")
 
         if self.settings.os == "Windows":
             self.options.opengl = "dynamic"
-            del self.options.with_gssapi
+            self.options.rm_safe("with_gssapi")
         if self.settings.os != "Linux":
             self.options.qtwayland = False
 
@@ -234,28 +232,28 @@ class QtConan(ConanFile):
 
     def configure(self):
         if not self.options.gui:
-            del self.options.opengl
-            del self.options.with_vulkan
-            del self.options.with_freetype
+            self.options.rm_safe("opengl")
+            self.options.rm_safe("with_vulkan")
+            self.options.rm_safe("with_freetype")
             self.options.rm_safe("with_fontconfig")
-            del self.options.with_harfbuzz
-            del self.options.with_libjpeg
-            del self.options.with_libpng
-            del self.options.with_md4c
+            self.options.rm_safe("with_harfbuzz")
+            self.options.rm_safe("with_libjpeg")
+            self.options.rm_safe("with_libpng")
+            self.options.rm_safe("with_md4c")
             self.options.rm_safe("with_x11")
 
         if not self.options.get_safe("qtmultimedia"):
             self.options.rm_safe("with_libalsa")
-            del self.options.with_openal
-            del self.options.with_gstreamer
-            del self.options.with_pulseaudio
+            self.options.rm_safe("with_openal")
+            self.options.rm_safe("with_gstreamer")
+            self.options.rm_safe("with_pulseaudio")
 
         if self.settings.os in ("FreeBSD", "Linux"):
             if self.options.get_safe("qtwebengine"):
                 self.options.with_fontconfig = True
 
         if self.options.multiconfiguration:
-            del self.settings.build_type
+            self.settings.rm_safe("build_type")
 
         def _enablemodule(mod):
             if mod != "qtbase":

@@ -107,26 +107,28 @@ class JsonformoderncppConan(ConanFile):
     }
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "json-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["JSON_BuildTests"] = False
-        cmake.definitions["JSON_MultipleHeaders"] = self.options.multiple_headers
-        cmake.configure(source_folder=self._source_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["JSON_BuildTests"] = False
+        tc.variables["JSON_MultipleHeaders"] = self.options.multiple_headers
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE*", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
         try:
             os.remove(os.path.join(self.package_folder, "nlohmann_json.natvis"))
         except FileNotFoundError:

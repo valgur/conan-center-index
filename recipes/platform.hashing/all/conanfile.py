@@ -100,7 +100,7 @@ class PlatformInterfacesConan(ConanFile):
 
     @property
     def _internal_cpp_subfolder(self):
-        return os.path.join(self._source_subfolder, "cpp", "Platform.Hashing")
+        return os.path.join(self.source_folder, "cpp", "Platform.Hashing")
 
     @property
     def _compilers_minimum_version(self):
@@ -149,16 +149,11 @@ class PlatformInterfacesConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("*.h", dst="include", src=self._internal_cpp_subfolder)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "*.h", dst="include", src=self._internal_cpp_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libdirs = []

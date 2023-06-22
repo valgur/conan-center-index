@@ -55,7 +55,7 @@ class Libx265Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_numa
+            self.options.rm_safe("with_numa")
         # FIXME: Disable assembly by default if host is arm and compiler apple-clang for the moment.
         # Indeed, apple-clang is not able to understand some asm instructions of libx265
         if self.settings.compiler == "apple-clang" and "arm" in self.settings.arch:

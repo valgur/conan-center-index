@@ -133,7 +133,7 @@ class IosCMakeConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def configure(self):
-        if not tools.is_apple_os(self.settings.os):
+        if not is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("This package only supports Apple operating systems")
 
     def _guess_toolchain_target(self, os, arch):
@@ -158,25 +158,26 @@ class IosCMakeConan(ConanFile):
         )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("ios-cmake-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("ios-cmake-{}".format(self.version), self.source_folder)
 
     def build(self):
         pass  # there is nothing to build
 
     def package(self):
-        self.copy("cmake-wrapper", dst="bin")
-        self.copy(
+        copy(self, "cmake-wrapper", dst="bin")
+        copy(
+            self,
             "ios.toolchain.cmake",
-            src=self._source_subfolder,
+            src=self.source_folder,
             dst=os.path.join("lib", "cmake", "ios-cmake"),
             keep_path=False,
         )
         self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
 
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder, keep_path=False)
+        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder, keep_path=False)
         # satisfy KB-H014 (header_only recipes require headers)
-        tools.save(os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
+        save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
         if self.settings.os == "Macos":

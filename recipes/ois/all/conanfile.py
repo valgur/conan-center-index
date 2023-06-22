@@ -80,6 +80,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class OisConan(ConanFile):
     name = "ois"
     description = "Object oriented Input System."
@@ -88,7 +89,6 @@ class OisConan(ConanFile):
     homepage = "https://github.com/wgois/OIS"
     license = "Zlib"
     exports_sources = ["CMakeLists.txt", "patches/*"]
-    generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -98,10 +98,6 @@ class OisConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def requirements(self):
         if self.settings.os == "Linux":
@@ -113,37 +109,37 @@ class OisConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "OIS-{}".format(self.version)
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["OIS_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["OIS_BUILD_DEMOS"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.md", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.md", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.unlink(pdb_file)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
 
         self.cpp_info.names["pkg_config"] = "OIS"
         self.cpp_info.names["cmake_find_package"] = "OIS"

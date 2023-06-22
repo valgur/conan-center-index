@@ -91,13 +91,13 @@ class TclapConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        self.copy(
-            pattern="*", src=os.path.join(self._source_subfolder, "include"), dst="include", keep_path=True
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="*", src=os.path.join(self.source_folder, "include"), dst="include", keep_path=True
         )
 
     def package_info(self):

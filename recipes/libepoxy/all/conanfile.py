@@ -44,9 +44,9 @@ class EpoxyConan(ConanFile):
             del self.options.fPIC
             self.options.shared = True
         if self.settings.os != "Linux":
-            del self.options.glx
-            del self.options.egl
-            del self.options.x11
+            self.options.rm_safe("glx")
+            self.options.rm_safe("egl")
+            self.options.rm_safe("x11")
 
     def configure(self):
         if self.options.shared:

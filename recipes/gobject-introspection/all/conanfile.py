@@ -105,15 +105,11 @@ class GobjectIntrospectionConan(ConanFile):
     _build_subfolder = "build_subfolder"
     generators = "pkg_config"
 
-    @property
-    def _is_msvc(self):
-        return self.settings.compiler == "Visual Studio"
-
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -124,7 +120,7 @@ class GobjectIntrospectionConan(ConanFile):
             )
 
     def build_requirements(self):
-        if tools.Version(self.version) >= "1.71.0":
+        if Version(self.version) >= "1.71.0":
             self.build_requires("meson/0.62.2")
         else:
             # https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/414
@@ -140,9 +136,7 @@ class GobjectIntrospectionConan(ConanFile):
         self.requires("glib/2.73.0")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_meson(self):
         meson = Meson(self)
@@ -151,7 +145,7 @@ class GobjectIntrospectionConan(ConanFile):
         defs["datadir"] = os.path.join(self.package_folder, "res")
 
         meson.configure(
-            source_folder=self._source_subfolder,
+            source_folder=self.source_folder,
             args=["--wrap-mode=nofallback"],
             build_folder=self._build_subfolder,
             defs=defs,
@@ -159,32 +153,34 @@ class GobjectIntrospectionConan(ConanFile):
         return meson
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "meson.build"), "subdir('tests')", "#subdir('tests')"
+        replace_in_file(
+            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "meson.build"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "meson.build"),
             "if meson.version().version_compare('>=0.54.0')",
             "if false",
         )
 
-        with tools.environment_append(
+        with environment_append(
+            self,
             VisualStudioBuildEnvironment(self).vars
-            if self._is_msvc
-            else {"PKG_CONFIG_PATH": self.build_folder}
+            if is_msvc(self)
+            else {"PKG_CONFIG_PATH": self.build_folder},
         ):
             meson = self._configure_meson()
             meson.build()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.environment_append(
-            VisualStudioBuildEnvironment(self).vars
-        ) if self._is_msvc else tools.no_op():
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
+            self,
+        ):
             meson = self._configure_meson()
             meson.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
         for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.unlink(pdb_file)
 

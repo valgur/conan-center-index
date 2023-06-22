@@ -52,7 +52,7 @@ class OnnxConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.version < "1.9.0":
-            del self.options.disable_static_registration
+            self.options.rm_safe("disable_static_registration")
 
     def configure(self):
         if self.options.shared:

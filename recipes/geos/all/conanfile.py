@@ -38,7 +38,7 @@ class GeosConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_inline_option:
-            del self.options.inline
+            self.options.rm_safe("inline")
 
     def configure(self):
         if self.options.shared:

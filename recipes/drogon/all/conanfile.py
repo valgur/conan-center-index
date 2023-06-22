@@ -58,13 +58,13 @@ class DrogonConan(ConanFile):
             self.options.rm_safe("fPIC")
             self.options["trantor"].shared = True
         if not self.options.with_orm:
-            del self.options.with_postgres
-            del self.options.with_postgres_batch
-            del self.options.with_mysql
-            del self.options.with_sqlite
-            del self.options.with_redis
+            self.options.rm_safe("with_postgres")
+            self.options.rm_safe("with_postgres_batch")
+            self.options.rm_safe("with_mysql")
+            self.options.rm_safe("with_sqlite")
+            self.options.rm_safe("with_redis")
         elif not self.options.with_postgres:
-            del self.options.with_postgres_batch
+            self.options.rm_safe("with_postgres_batch")
 
     @property
     def _min_cppstd(self):
@@ -127,7 +127,7 @@ class DrogonConan(ConanFile):
             self.requires("hiredis/1.1.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

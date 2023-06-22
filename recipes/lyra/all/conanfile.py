@@ -39,13 +39,11 @@ class LyraConan(ConanFile):
         conan.tools.layout.basic_layout(self, src_folder="root")
 
     def source(self):
-        conan.tools.files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        conan.tools.files.copy(
-            self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        conan.tools.files.copy(
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
             self,
             "*.h*",
             dst=os.path.join(self.package_folder, "include"),

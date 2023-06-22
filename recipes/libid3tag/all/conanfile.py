@@ -110,21 +110,15 @@ class LibId3TagConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("zlib/1.2.11")
 
-    @property
-    def _is_msvc(self):
-        return self.settings.compiler == "Visual Studio" or (
-            self.settings.compiler == "clang" and self.settings.os == "Windows"
-        )
-
     def validate(self):
-        if self._is_msvc and self.options.shared:
+        if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("libid3tag does not support shared library for MSVC")
 
     @property
@@ -132,34 +126,32 @@ class LibId3TagConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
-        if not self._is_msvc:
+        if not is_msvc(self):
             self.build_requires("gnu-config/cci.20201022")
-            if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        if self._is_msvc:
+        if is_msvc(self):
             self._build_msvc()
         else:
             self._build_autotools()
 
     def _build_msvc(self):
         kwargs = {}
-        with tools.chdir(os.path.join(self._source_subfolder, "msvc++")):
+        with chdir(self, os.path.join(self.source_folder, "msvc++")):
             # cl : Command line error D8016: '/ZI' and '/Gy-' command-line options are incompatible
-            tools.replace_in_file("libid3tag.dsp", "/ZI ", "")
+            replace_in_file(self, "libid3tag.dsp", "/ZI ", "")
             if self.settings.compiler == "clang":
-                tools.replace_in_file("libid3tag.dsp", "CPP=cl.exe", "CPP=clang-cl.exe")
-                tools.replace_in_file("libid3tag.dsp", "RSC=rc.exe", "RSC=llvm-rc.exe")
+                replace_in_file(self, "libid3tag.dsp", "CPP=cl.exe", "CPP=clang-cl.exe")
+                replace_in_file(self, "libid3tag.dsp", "RSC=rc.exe", "RSC=llvm-rc.exe")
                 kwargs["toolset"] = "ClangCl"
             if self.settings.arch == "x86_64":
-                tools.replace_in_file("libid3tag.dsp", "Win32", "x64")
-            with tools.vcvars(self.settings):
+                replace_in_file(self, "libid3tag.dsp", "Win32", "x64")
+            with vcvars(self.settings):
                 self.run("devenv /Upgrade libid3tag.dsp")
             msbuild = MSBuild(self)
             msbuild.build(project_file="libid3tag.vcxproj", **kwargs)
@@ -171,7 +163,7 @@ class LibId3TagConan(ConanFile):
             else:
                 args = ["--disable-shared", "--enable-static"]
             self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(args=args, configure_dir=self._source_subfolder)
+            self._autotools.configure(args=args, configure_dir=self.source_folder)
         return self._autotools
 
     @property
@@ -180,11 +172,11 @@ class LibId3TagConan(ConanFile):
 
     def _build_autotools(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
-            os.path.join(self._source_subfolder, "config.guess"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         autotools = self._configure_autotools()
         autotools.make()
@@ -192,17 +184,17 @@ class LibId3TagConan(ConanFile):
     def _install_autotools(self):
         autotools = self._configure_autotools()
         autotools.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package(self):
-        self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy("CREDITS", dst="licenses", src=self._source_subfolder)
-        if self._is_msvc:
-            self.copy(pattern="*.lib", dst="lib", src=self._source_subfolder, keep_path=False)
-            self.copy(pattern="id3tag.h", dst="include", src=self._source_subfolder)
+        copy(self, "COPYRIGHT", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "CREDITS", dst="licenses", src=self.source_folder)
+        if is_msvc(self):
+            copy(self, pattern="*.lib", dst="lib", src=self.source_folder, keep_path=False)
+            copy(self, pattern="id3tag.h", dst="include", src=self.source_folder)
         else:
             self._install_autotools()
 
     def package_info(self):
-        self.cpp_info.libs = ["libid3tag" if self._is_msvc else "id3tag"]
+        self.cpp_info.libs = ["libid3tag" if is_msvc(self) else "id3tag"]

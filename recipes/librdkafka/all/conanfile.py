@@ -53,7 +53,7 @@ class LibrdkafkaConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "1.9.0":
-            del self.options.curl
+            self.options.rm_safe("curl")
 
     def configure(self):
         if self.options.shared:

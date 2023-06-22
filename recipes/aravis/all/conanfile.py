@@ -58,7 +58,7 @@ class AravisConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.packet_socket
+            self.options.rm_safe("packet_socket")
 
     def configure(self):
         if self.options.shared:

@@ -106,15 +106,13 @@ class LibNlConan(ConanFile):
     _autotools = None
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -124,13 +122,13 @@ class LibNlConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self)
-        config_args = ["--prefix={}".format(tools.unix_path(self.package_folder))]
+        config_args = ["--prefix={}".format(unix_path(self.package_folder))]
         if self.options.shared:
             config_args.extend(["--enable-shared=yes", "--enable-static=no"])
         else:
             config_args.extend(["--enable-shared=no", "--enable-static=yes"])
 
-        self._autotools.configure(configure_dir=self._source_subfolder, args=config_args)
+        self._autotools.configure(configure_dir=self.source_folder, args=config_args)
         return self._autotools
 
     def build(self):
@@ -140,11 +138,11 @@ class LibNlConan(ConanFile):
     def package(self):
         autotools = self._configure_autotools()
         autotools.install()
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        rm(self, "*.la", self.package_folder, recursive=True)
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     @property
     def _settings_build(self):

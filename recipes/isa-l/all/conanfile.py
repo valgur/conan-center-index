@@ -108,18 +108,16 @@ class LibisalConan(ConanFile):
             raise ConanInvalidConfiguration("Only Linux and FreeBSD builds are supported")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             self.run("./autogen.sh")
             env_build = AutoToolsBuildEnvironment(self)
             extra_args = list()
@@ -131,15 +129,15 @@ class LibisalConan(ConanFile):
             env_build.make()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("*/isa-l.h", dst="include/isa-l", keep_path=False)
-        self.copy("*.h", dst="include/isa-l", src="%s/include" % (self._source_subfolder), keep_path=False)
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "*/isa-l.h", dst="include/isa-l", keep_path=False)
+        copy(self, "*.h", dst="include/isa-l", src="%s/include" % (self.source_folder), keep_path=False)
         if self.options.shared:
-            self.copy("*.dll", dst="bin", keep_path=False)
-            self.copy("*.so*", dst="lib", keep_path=False, symlinks=True)
-            self.copy("*.dylib", dst="lib", keep_path=False)
+            copy(self, "*.dll", dst="bin", keep_path=False)
+            copy(self, "*.so*", dst="lib", keep_path=False, symlinks=True)
+            copy(self, "*.dylib", dst="lib", keep_path=False)
         else:
-            self.copy("*.a", dst="lib", keep_path=False)
+            copy(self, "*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

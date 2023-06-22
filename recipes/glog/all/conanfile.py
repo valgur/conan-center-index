@@ -47,7 +47,7 @@ class GlogConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"] or Version(self.version) < "0.5.0":
-            del self.options.with_unwind
+            self.options.rm_safe("with_unwind")
 
     def configure(self):
         if self.options.shared:

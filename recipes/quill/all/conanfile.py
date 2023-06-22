@@ -62,7 +62,7 @@ class QuillConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "2.8.0":
-            del self.options.with_bounded_blocking_queue
+            self.options.rm_safe("with_bounded_blocking_queue")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

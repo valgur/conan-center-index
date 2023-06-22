@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class SbpConan(ConanFile):
     name = "sbp"
     license = "MIT"
@@ -95,7 +96,6 @@ class SbpConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     exports_sources = "CMakeLists.txt", "c"
 
     def config_options(self):
@@ -104,7 +104,7 @@ class SbpConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -115,28 +115,31 @@ class SbpConan(ConanFile):
     def source(self):
         data = self.conan_data["sources"][self.version]
 
-        tools.get(**data["source"], strip_root=True, destination=self._source_subfolder)
-        tools.get(
+        get(self, **data["source"], strip_root=True)
+        get(
+            self,
             **data["cmake"],
             strip_root=True,
-            destination=os.path.join(self._source_subfolder, "c", "cmake", "common")
+            destination=os.path.join(self.source_folder, "c", "cmake", "common")
         )
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["libsbp_ENABLE_TESTS"] = False
         tc.variables["libsbp_ENABLE_DOCS"] = False
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses", ignore_case=True, keep_path=False)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

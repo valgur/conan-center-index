@@ -16,8 +16,8 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["SHADERC_WITH_SPVC"] = (
+        tc = CMakeToolchain(self)
+        tc.variables["SHADERC_WITH_SPVC"] = (
             self.options["shaderc"].spvc if "spvc" in self.options["shaderc"] else False
         )
         cmake.configure()

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class LestConan(ConanFile):
     name = "lest"
     description = (
@@ -91,12 +92,12 @@ class LestConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_id(self):
         self.info.header_only()

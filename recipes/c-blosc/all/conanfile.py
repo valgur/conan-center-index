@@ -43,7 +43,7 @@ class CbloscConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
 
     def configure(self):
         if self.options.shared:

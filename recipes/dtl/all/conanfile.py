@@ -96,10 +96,8 @@ class DtlConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(os.path.join("dtl", "*.hpp"), dst="include", src=self._source_subfolder)
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, os.path.join("dtl", "*.hpp"), dst="include", src=self.source_folder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)

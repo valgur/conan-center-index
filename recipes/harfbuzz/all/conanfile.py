@@ -55,8 +55,6 @@ class HarfbuzzConan(ConanFile):
         "with_subset": False,
     }
 
-    short_paths = True
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -68,9 +66,9 @@ class HarfbuzzConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.with_gdi
-            del self.options.with_uniscribe
-            del self.options.with_directwrite
+            self.options.rm_safe("with_gdi")
+            self.options.rm_safe("with_uniscribe")
+            self.options.rm_safe("with_directwrite")
 
     def configure(self):
         if self.options.shared:

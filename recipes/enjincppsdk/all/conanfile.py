@@ -97,8 +97,7 @@ class EnjinCppSdk(ConanFile):
     homepage = "https://github.com/enjin/enjin-cpp-sdk"
     url = "https://github.com/conan-io/conan-center-index"
 
-    settings = "os", "compiler", "arch", "build_type"
-    generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
+    settings = "os", "compiler", "arch", "build_type", "cmake_find_package_multi"
 
     options = {
         "shared": [True, False],
@@ -112,11 +111,6 @@ class EnjinCppSdk(ConanFile):
         "with_default_http_client": False,
         "with_default_ws_client": False,
     }
-    short_paths = True
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _minimum_compilers_version(self):
@@ -127,7 +121,7 @@ class EnjinCppSdk(ConanFile):
         }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -135,7 +129,7 @@ class EnjinCppSdk(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if self.options.with_default_http_client:
             self.options["cpp-httplib"].with_openssl = True
@@ -166,14 +160,14 @@ class EnjinCppSdk(ConanFile):
         compiler = self.settings.compiler
 
         if compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         minimum_version = self._minimum_compilers_version.get(str(compiler), False)
         if not minimum_version:
             self.output.warn(
                 "C++17 support is required. Your compiler is unknown. Assuming it supports C++17."
             )
-        elif tools.Version(compiler.version) < minimum_version:
+        elif Version(self, compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "C++17 support is required, which your compiler does not support."
             )
@@ -192,28 +186,28 @@ class EnjinCppSdk(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["ENJINSDK_BUILD_SHARED"] = self.options.shared
         tc.variables["ENJINSDK_BUILD_TESTS"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE*", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "enjinsdk"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "enjinsdk"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "enjinsdk::enjinsdk")

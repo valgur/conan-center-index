@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -91,22 +92,24 @@ class STTreeConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def build(self):
         cmake = CMake(self)
-        cmake.configure(source_folder=self._source_subfolder)
-        return cmake
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", "licenses", self._source_subfolder)
-
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", "licenses", self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-
-        tools.rmdir(os.path.join(self.package_folder, "lib"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_id(self):
         self.info.header_only()

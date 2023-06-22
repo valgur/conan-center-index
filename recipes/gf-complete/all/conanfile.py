@@ -119,16 +119,16 @@ class GfCompleteConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.sse
-            del self.options.avx
+            self.options.rm_safe("sse")
+            self.options.rm_safe("avx")
         if "arm" not in self.settings.arch:
-            del self.options.neon
+            self.options.rm_safe("neon")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.settings.compiler == "Visual Studio":
@@ -143,42 +143,40 @@ class GfCompleteConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires("libtool/2.4.6")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # Don't build tests and examples (and also tools if Visual Studio)
         to_build = ["src"]
         if self.settings.compiler != "Visual Studio":
             to_build.append("tools")
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "Makefile.am"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
             "SUBDIRS = src tools test examples",
             "SUBDIRS = {}".format(" ".join(to_build)),
         )
         # Honor build type settings and fPIC option
         for subdir in ["src", "tools"]:
             for flag in ["-O3", "-fPIC"]:
-                tools.replace_in_file(os.path.join(self._source_subfolder, subdir, "Makefile.am"), flag, "")
+                replace_in_file(self, os.path.join(self.source_folder, subdir, "Makefile.am"), flag, "")
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "LD": "{} link -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -211,24 +209,24 @@ class GfCompleteConan(ConanFile):
             if self.options.avx != "auto":
                 conf_args.append("--enable-avx={}".format(yes_no(self.options.avx)))
 
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
 
         return self._autotools
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+        with chdir(self.source_folder):
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["gf_complete"]

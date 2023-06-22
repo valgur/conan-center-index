@@ -57,8 +57,6 @@ class MSYS2Conan(ConanFile):
         "no_kill": False,
     }
 
-    short_paths = True
-
     def layout(self):
         basic_layout(self, src_folder="src")
 

@@ -100,19 +100,17 @@ class LinuxHeadersGenericConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("linux-headers-generic supports only Linux")
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("linux-headers-generic can not be cross-compiled")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.make(target="headers")
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy("include/*.h", src=os.path.join(self._source_subfolder, "usr"))
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "include/*.h", src=os.path.join(self.source_folder, "usr"))

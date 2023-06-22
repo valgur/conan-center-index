@@ -89,7 +89,6 @@ class MsgpackConan(ConanFile):
     topics = ("message-pack", "serialization")
     license = "BSL-1.0"
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
     settings = "os", "arch", "build_type", "compiler"
     options = {
         "fPIC": [True, False],
@@ -109,10 +108,6 @@ class MsgpackConan(ConanFile):
     }
     deprecated = "msgpack-c or msgpack-cxx"
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -123,20 +118,20 @@ class MsgpackConan(ConanFile):
             self.options.c_api = False
             self.options.cpp_api = True
             self.output.warn("header_only option is deprecated, prefer c_api=False and cpp_api=True")
-        del self.options.header_only
+        self.options.rm_safe("header_only")
 
         if not self.options.c_api and not self.options.cpp_api:
             raise ConanInvalidConfiguration("You must enable at least c_api or cpp_api.")
         if self.options.c_api:
             if self.options.shared:
-                del self.options.fPIC
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+                self.options.rm_safe("fPIC")
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
         else:
-            del self.options.shared
-            del self.options.fPIC
+            self.options.rm_safe("shared")
+            self.options.rm_safe("fPIC")
         if not self.options.cpp_api:
-            del self.options.with_boost
+            self.options.rm_safe("with_boost")
         if self.options.get_safe("with_boost"):
             self.options["boost"].header_only = False
             self.options["boost"].without_chrono = False
@@ -154,9 +149,9 @@ class MsgpackConan(ConanFile):
             self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "msgpack-c-cpp-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -167,8 +162,9 @@ class MsgpackConan(ConanFile):
         tc.variables["MSGPACK_32BIT"] = self.settings.arch == "x86"
         tc.variables["MSGPACK_BUILD_EXAMPLES"] = False
         tc.variables["MSGPACK_BUILD_TESTS"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         if self.options.get_safe("with_boost") and (
@@ -182,26 +178,27 @@ class MsgpackConan(ConanFile):
                 "msgpack with boost requires the following boost components: chrono, context, system and timer."
             )
         if self.options.c_api:
-            cmake = self._configure_cmake()
+            cmake = CMake(self)
+            cmake.configure()
             cmake.build()
 
     def package(self):
-        self.copy("LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE_1_0.txt", dst="licenses", src=self.source_folder)
         if self.options.c_api:
-            cmake = self._configure_cmake()
+            cmake = CMake(self)
             cmake.install()
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         else:
-            self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-            self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+            copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+            copy(self, "*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         # TODO: CMake imported targets shouldn't be namespaced (waiting implementation of https://github.com/conan-io/conan/issues/7615)
         if self.options.c_api:
             self.cpp_info.components["msgpackc"].names["cmake_find_package"] = "msgpackc"
             self.cpp_info.components["msgpackc"].names["cmake_find_package_multi"] = "msgpackc"
-            self.cpp_info.components["msgpackc"].libs = tools.collect_libs(self)
+            self.cpp_info.components["msgpackc"].libs = collect_libs(self)
         if self.options.cpp_api:
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package"] = "msgpackc-cxx"
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package_multi"] = "msgpackc-cxx"

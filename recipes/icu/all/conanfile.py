@@ -77,7 +77,7 @@ class ICUConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.data_packaging
+            self.options.rm_safe("data_packaging")
 
     def configure(self):
         if self.options.shared:

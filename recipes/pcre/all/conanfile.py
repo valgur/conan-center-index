@@ -70,8 +70,8 @@ class PCREConan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.build_pcregrep:
-            del self.options.with_bzip2
-            del self.options.with_zlib
+            self.options.rm_safe("with_bzip2")
+            self.options.rm_safe("with_zlib")
         if self.options.with_unicode_properties:
             self.options.with_utf = True
 

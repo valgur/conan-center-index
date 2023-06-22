@@ -107,12 +107,11 @@ class DjinniSuppotLib(ConanFile):
         "system_java": False,
     }
     exports_sources = ["patches/**", "CMakeLists.txt"]
-    generators = "cmake", "cmake_find_package"
 
     @property
     def objc_support(self):
         if self.options.target == "auto":
-            return tools.is_apple_os(self.settings.os)
+            return is_apple_os(self.settings.os)
         else:
             return self.options.target == "objc"
 
@@ -133,12 +132,10 @@ class DjinniSuppotLib(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -149,22 +146,24 @@ class DjinniSuppotLib(ConanFile):
         if self.jni_support:
             tc.variables["JAVA_AWT_LIBRARY"] = "NotNeeded"
             tc.variables["JAVA_AWT_INCLUDE_PATH"] = "NotNeeded"
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         # these should not be here, but to support old generated files ....
         if self.objc_support:
             self.cpp_info.includedirs.append(os.path.join("include", "djinni", "objc"))

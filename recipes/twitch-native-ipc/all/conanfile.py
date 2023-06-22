@@ -97,13 +97,8 @@ class TwitchNativeIpcConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     exports = ["CMakeLists.txt", "patches/**"]
     requires = "libuv/1.40.0"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _compilers_min_version(self):
@@ -120,21 +115,21 @@ class TwitchNativeIpcConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration("twitch-native-ipc requires C++17")
         else:
             self.output.warn("unknown compiler, assuming C++17 support")
 
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{}-{}".format(self.name, self.version), self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -144,20 +139,22 @@ class TwitchNativeIpcConan(ConanFile):
         if self.settings.os == "Windows":
             tc.variables["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
 
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["nativeipc"]
@@ -167,5 +164,5 @@ class TwitchNativeIpcConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]
 
-        if tools.stdcpp_library(self):
-            self.cpp_info.system_libs.append(tools.stdcpp_library(self))
+        if stdcpp_library(self):
+            self.cpp_info.system_libs.append(stdcpp_library(self))

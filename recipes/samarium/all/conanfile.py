@@ -43,7 +43,7 @@ class SamariumConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -66,13 +66,10 @@ class SamariumConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def build(self):
-        for patch_ in self.conan_data.get("patches", {}).get(self.version, []):
-            patch(self, **patch_)
-
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder="src")
         cmake.build()

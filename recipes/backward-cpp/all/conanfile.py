@@ -51,7 +51,7 @@ class BackwardCppConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.stack_details
+            self.options.rm_safe("stack_details")
         # default option
         if self.settings.os == "Macos":
             self.options.stack_details = "backtrace_symbol"

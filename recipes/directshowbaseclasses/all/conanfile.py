@@ -98,28 +98,26 @@ class DirectShowBaseClassesConan(ConanFile):
     topics = ("directshow", "dshow")
     license = "MIT"
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
     settings = {"os": ["Windows"], "arch": ["x86", "x86_64"], "compiler": None, "build_type": None}
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
-    short_paths = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("Windows-classic-samples-%s" % self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("Windows-classic-samples-%s" % self.version, self.source_folder)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

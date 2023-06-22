@@ -94,13 +94,13 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Android":
-            del self.options.androidcamera
+            self.options.rm_safe("androidcamera")
         if self.settings.os == "iOS":
-            del self.options.gpu
-            del self.options.superres
-            del self.options.ts
+            self.options.rm_safe("gpu")
+            self.options.rm_safe("superres")
+            self.options.rm_safe("ts")
         if self.settings.os != "Linux":
-            del self.options.with_gtk
+            self.options.rm_safe("with_gtk")
 
     @property
     def _opencv_modules(self):

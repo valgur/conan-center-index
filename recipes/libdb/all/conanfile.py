@@ -129,7 +129,7 @@ class LibdbConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.compiler == "Visual Studio":
-            del self.options.with_cxx
+            self.options.rm_safe("with_cxx")
 
     def configure(self):
         if self.options.shared:
@@ -170,7 +170,6 @@ class LibdbConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
@@ -193,10 +192,10 @@ class LibdbConan(ConanFile):
                             self,
                             os.path.basename(gnu_config),
                             src=os.path.dirname(gnu_config),
-                            dst=os.path.join(self._source_subfolder, subdir),
+                            dst=os.path.join(self.source_folder, subdir),
                         )
 
-        for file in glob.glob(os.path.join(self._source_subfolder, "build_windows", "VS10", "*.vcxproj")):
+        for file in glob.glob(os.path.join(self.source_folder, "build_windows", "VS10", "*.vcxproj")):
             replace_in_file(
                 self,
                 file,
@@ -204,7 +203,7 @@ class LibdbConan(ConanFile):
                 '<PropertyGroup Label="Globals"><WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>',
             )
 
-        dist_configure = os.path.join(self._source_subfolder, "dist", "configure")
+        dist_configure = os.path.join(self.source_folder, "dist", "configure")
         replace_in_file(self, dist_configure, "../$sqlite_dir", "$sqlite_dir")
         replace_in_file(
             self,
@@ -243,9 +242,7 @@ class LibdbConan(ConanFile):
                     unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))
                 )
             )
-        self._autotools.configure(
-            configure_dir=os.path.join(self.source_folder, self._source_subfolder, "dist"), args=conf_args
-        )
+        self._autotools.configure(configure_dir=os.path.join(self.source_folder, "dist"), args=conf_args)
         if self.settings.os == "Windows" and self.options.shared:
             replace_in_file(
                 self,
@@ -279,7 +276,7 @@ class LibdbConan(ConanFile):
         upgraded = False
         for project in projects:
             msbuild.build(
-                os.path.join(self._source_subfolder, "build_windows", "VS10", "{}.vcxproj".format(project)),
+                os.path.join(self.source_folder, "build_windows", "VS10", "{}.vcxproj".format(project)),
                 build_type=self._msvc_build_type,
                 platforms=self._msvc_platforms,
                 upgrade_project=not upgraded,
@@ -295,13 +292,13 @@ class LibdbConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         bindir = os.path.join(self.package_folder, "bin")
         libdir = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
-            build_windows = os.path.join(self._source_subfolder, "build_windows")
+            build_windows = os.path.join(self.source_folder, "build_windows")
             build_dir = os.path.join(
-                self._source_subfolder, "build_windows", self._msvc_arch, self._msvc_build_type
+                self.source_folder, "build_windows", self._msvc_arch, self._msvc_build_type
             )
             copy(self, "*.lib", src=build_dir, dst=libdir)
             copy(self, "*.dll", src=build_dir, dst=bindir)

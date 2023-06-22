@@ -42,7 +42,7 @@ class CalcephConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if is_msvc(self):
-            del self.options.threadsafe
+            self.options.rm_safe("threadsafe")
 
     def configure(self):
         if self.options.shared:

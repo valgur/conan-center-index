@@ -207,7 +207,7 @@ class MdnsResponderConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if self.options.with_opt_patches:
-            for patchfile in self.conan_data.get("patches", {}).get("{}-opt".format(self.version), []):
+            for patchfile in self.conan_data.get("patches", {}).get(f"{self.version}-opt", []):
                 patch(self, **patchfile)
         if self.settings.os == "Linux":
             self._build_make()

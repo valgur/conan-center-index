@@ -87,7 +87,7 @@ class Libxml2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "2.10.3":
-            del self.options.docbook
+            self.options.rm_safe("docbook")
         if Version(self.version) >= "2.11.0":
             self.options.rm_safe("run-debug")
 

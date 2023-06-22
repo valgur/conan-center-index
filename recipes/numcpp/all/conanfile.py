@@ -54,7 +54,7 @@ class NumCppConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) < "2.5.0":
-            del self.options.with_boost
+            self.options.rm_safe("with_boost")
             self.options.threads = True
 
     def layout(self):

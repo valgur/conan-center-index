@@ -112,7 +112,7 @@ class UvmSystemC(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Macos":
@@ -129,7 +129,7 @@ class UvmSystemC(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     def build(self):
@@ -139,26 +139,26 @@ class UvmSystemC(ConanFile):
             args.extend(["--enable-shared", "--disable-static"])
         else:
             args.extend(["--enable-static", "--disable-shared"])
-        autotools.configure(configure_dir=self._source_subfolder, args=args)
+        autotools.configure(configure_dir=self.source_folder, args=args)
         autotools.make()
 
     def package(self):
         copy(
             self,
             "LICENSE",
-            src=os.path.join(self.build_folder, self._source_subfolder),
+            src=os.path.join(self.build_folder, self.source_folder),
             dst=os.path.join(self.package_folder, "licenses"),
         )
         copy(
             self,
             "NOTICE",
-            src=os.path.join(self.build_folder, self._source_subfolder),
+            src=os.path.join(self.build_folder, self.source_folder),
             dst=os.path.join(self.package_folder, "licenses"),
         )
         copy(
             self,
             "COPYING",
-            src=os.path.join(self.build_folder, self._source_subfolder),
+            src=os.path.join(self.build_folder, self.source_folder),
             dst=os.path.join(self.package_folder, "licenses"),
         )
         autotools = AutoToolsBuildEnvironment(self)

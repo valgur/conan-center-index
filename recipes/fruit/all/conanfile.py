@@ -38,7 +38,7 @@ class FruitConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def package_id(self):
         del self.info.options.use_boost

@@ -15,7 +15,6 @@ class GFortranConan(ConanFile):
     license = "GPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    short_paths = True
 
     deprecated = "gcc"
 

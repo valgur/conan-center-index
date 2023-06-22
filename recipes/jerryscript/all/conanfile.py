@@ -170,13 +170,7 @@ class JerryScriptStackConan(ConanFile):
         "gc_before_each_alloc": False,
         "vm_exec_stop": False,
     }
-    generators = "cmake"
-    short_paths = True
     _predefined_profiles = ["es.next", "es5.1", "minimal"]
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _jerry_math(self):
@@ -186,28 +180,28 @@ class JerryScriptStackConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         # profile and jerry_match default option value depend on version
-        if tools.Version(self.version) < "2.4.0":
+        if Version(self.version) < "2.4.0":
             self.options.profile = "es5.1"
             self.options.jerry_math = True
             if self.settings.compiler == "Visual Studio":
-                del self.options.jerry_math  # forced to False
+                self.options.rm_safe("jerry_math")  # forced to False
         else:
             self.options.profile = "es.next"
             self.options.jerry_math = False
 
         if self.settings.os == "Macos":
-            del self.options.jerry_math  # forced to False
-            del self.options.link_time_optimization  # forced to False
-            del self.options.strip  # forced to False
+            self.options.rm_safe("jerry_math")  # forced to False
+            self.options.rm_safe("link_time_optimization")  # forced to False
+            self.options.rm_safe("strip")  # forced to False
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if not self.options.debugger:
-            del self.options.keep_line_info
+            self.options.rm_safe("keep_line_info")
 
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("jerryscript shared lib is not yet supported under windows")
@@ -243,22 +237,19 @@ class JerryScriptStackConan(ConanFile):
 
     def package_id(self):
         if self.options.profile not in self._predefined_profiles:
-            self.info.options.profile = tools.load(str(self.options.profile))
+            self.info.options.profile = load(self, str(self.options.profile))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         amalgamation_definition = "ENABLE_AMALGAM"
         libmath_definition = "JERRY_MATH"
-        if tools.Version(self.version) < tools.Version("2.4.0"):
+        if Version(self.version) < Version(self, "2.4.0"):
             amalgamation_definition = "ENABLE_ALL_IN_ONE"
             libmath_definition = "JERRY_LIBM"
         tc.variables["JERRY_CMDLINE"] = self.options.tool_cmdline
@@ -292,32 +283,35 @@ class JerryScriptStackConan(ConanFile):
         tc.variables["JERRY_VALGRIND"] = self.options.valgrind
         tc.variables["JERRY_MEM_GC_BEFORE_EACH_ALLOC"] = self.options.gc_before_each_alloc
         tc.variables["JERRY_VM_EXEC_STOP"] = self.options.vm_exec_stop
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.components["libjerry-port-default"].names["pkg_config"] = ["libjerry-port-default"]
         self.cpp_info.components["libjerry-port-default"].libs = ["jerry-port-default"]
 
         if self._jerry_math:
-            mathlibname = "jerry-libm" if tools.Version(self.version) < "2.4.0" else "jerry-math"
+            mathlibname = "jerry-libm" if Version(self.version) < "2.4.0" else "jerry-math"
             self.cpp_info.components["libjerry-math"].names["pkg_config"] = "lib{}".format(mathlibname)
             self.cpp_info.components["libjerry-math"].libs = [mathlibname]
             self.cpp_info.components["libjerry-math"].requires = ["libjerry-port-default"]
             self.cpp_info.components["libjerry-core"].requires.append("libjerry-math")
 
-        if tools.Version(self.version) < "2.4.0":
+        if Version(self.version) < "2.4.0":
             self.cpp_info.components["libjerry-port-default-minimal"].names["pkg_config"] = [
                 "libjerry-port-default-minimal"
             ]

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class MPCGeneratorConan(ConanFile):
     name = "makefile-project-workspace-creator"
     description = "The Makefile, Project and Workspace Creator"
@@ -96,12 +97,12 @@ class MPCGeneratorConan(ConanFile):
         pass
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("MPC-MPC_" + self.version.replace(".", "_"), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("MPC-MPC_" + self.version.replace(".", "_"), self.source_folder)
 
     def package(self):
-        self.copy(pattern="*", src=self._source_subfolder, dst="bin")
-        self.copy(pattern="LICENSE", src=os.path.join(self._source_subfolder, "docs"), dst="licenses")
+        copy(self, pattern="*", src=self.source_folder, dst="bin")
+        copy(self, pattern="LICENSE", src=os.path.join(self.source_folder, "docs"), dst="licenses")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

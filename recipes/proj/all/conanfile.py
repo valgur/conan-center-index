@@ -55,8 +55,8 @@ class ProjConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "7.0.0":
-            del self.options.with_tiff
-            del self.options.with_curl
+            self.options.rm_safe("with_tiff")
+            self.options.rm_safe("with_curl")
 
     def configure(self):
         if self.options.shared:
@@ -78,7 +78,7 @@ class ProjConan(ConanFile):
             self.tool_requires("sqlite3/3.41.1")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)

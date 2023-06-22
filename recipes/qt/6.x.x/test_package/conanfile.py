@@ -72,7 +72,9 @@ Examples = {folder}/datadir/examples""",
         with chdir(self, "qmake_folder"):
             self.output.info("Building with qmake")
 
-            with tools.vcvars(self.settings) if is_msvc(self) else tools.no_op():
+            with vcvars(self.settings) if is_msvc(self) else no_op(
+                self,
+            ):
                 args = [self.source_folder, "DESTDIR=bin"]
 
                 def _getenvpath(var):
@@ -110,7 +112,7 @@ Examples = {folder}/datadir/examples""",
         if self._meson_supported():
             self.output.info("Building with Meson")
             mkdir(self, "meson_folder")
-            with tools.environment_append(RunEnvironment(self).vars):
+            with environment_append(self, RunEnvironment(self).vars):
                 meson = Meson(self)
                 try:
                     meson.configure(
@@ -127,10 +129,10 @@ Examples = {folder}/datadir/examples""",
     def _build_with_cmake_find_package_multi(self):
         self.output.info("Building with cmake_find_package_multi")
         env_build = RunEnvironment(self)
-        with tools.environment_append(env_build.vars):
+        with environment_append(self, env_build.vars):
             cmake = CMake(self, set_cmake_flags=True)
             if self.settings.os == "Macos":
-                cmake.definitions["CMAKE_OSX_DEPLOYMENT_TARGET"] = (
+                tc.variables["CMAKE_OSX_DEPLOYMENT_TARGET"] = (
                     "10.15" if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
                 )
 

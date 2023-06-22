@@ -44,7 +44,7 @@ class ZlibNgConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.1.0":
-            del self.options.with_reduced_mem
+            self.options.rm_safe("with_reduced_mem")
 
     def configure(self):
         if self.options.shared:

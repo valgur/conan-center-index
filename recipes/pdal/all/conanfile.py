@@ -117,26 +117,19 @@ class PdalConan(ConanFile):
         "with_zstd": True,
     }
 
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_unwind
+            self.options.rm_safe("with_unwind")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         # TODO package improvements:
@@ -169,10 +162,10 @@ class PdalConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < 5:
+            check_min_cppstd(self, 11)
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < 5:
             raise ConanInvalidConfiguration("This compiler version is unsupported")
-        if self.options.shared and self._is_msvc and "MT" in msvc_runtime_flag(self):
+        if self.options.shared and is_msvc(self) and "MT" in msvc_runtime_flag(self):
             raise ConanInvalidConfiguration("pdal shared doesn't support MT runtime with Visual Studio")
         miss_boost_required_comp = any(
             getattr(self.options["boost"], "without_{}".format(boost_comp), True)
@@ -184,84 +177,86 @@ class PdalConan(ConanFile):
                     self.name, ", ".join(self._required_boost_components)
                 )
             )
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("pdal doesn't support cross-build yet")
         if self.options.with_lazperf:
             raise ConanInvalidConfiguration("lazperf recipe not yet available in CCI")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["PDAL_BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["WITH_TESTS"] = False
-        cmake.definitions["WITH_LAZPERF"] = self.options.with_lazperf
-        cmake.definitions["WITH_LASZIP"] = self.options.with_laszip
-        cmake.definitions[
+        tc = CMakeToolchain(self)
+        tc.variables["PDAL_BUILD_STATIC"] = not self.options.shared
+        tc.variables["WITH_TESTS"] = False
+        tc.variables["WITH_LAZPERF"] = self.options.with_lazperf
+        tc.variables["WITH_LASZIP"] = self.options.with_laszip
+        tc.variables[
             "WITH_STATIC_LASZIP"
         ] = True  # doesn't really matter but avoids to inject useless definition
-        cmake.definitions["WITH_ZSTD"] = self.options.with_zstd
-        cmake.definitions["WITH_ZLIB"] = self.options.with_zlib
-        cmake.definitions["WITH_LZMA"] = self.options.with_lzma
+        tc.variables["WITH_ZSTD"] = self.options.with_zstd
+        tc.variables["WITH_ZLIB"] = self.options.with_zlib
+        tc.variables["WITH_LZMA"] = self.options.with_lzma
         # disable plugin that requires postgresql
-        cmake.definitions["BUILD_PLUGIN_PGPOINTCLOUD"] = False
-        cmake.configure()
-        return cmake
+        tc.variables["BUILD_PLUGIN_PGPOINTCLOUD"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # drop conflicting CMake files
         # LASzip works fine
         for module in ("ZSTD", "ICONV", "GeoTIFF", "Curl"):
-            os.remove(os.path.join(self._source_subfolder, "cmake", "modules", "Find" + module + ".cmake"))
+            os.remove(os.path.join(self.source_folder, "cmake", "modules", "Find" + module + ".cmake"))
 
-        top_cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        util_cmakelists = os.path.join(self._source_subfolder, "pdal", "util", "CMakeLists.txt")
+        top_cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
+        util_cmakelists = os.path.join(self.source_folder, "pdal", "util", "CMakeLists.txt")
 
         # disabling libxml2 support is only done via patching
         if not self.options.with_xml:
-            tools.replace_in_file(top_cmakelists, "include(${PDAL_CMAKE_DIR}/libxml2.cmake)", "")
+            replace_in_file(self, top_cmakelists, "include(${PDAL_CMAKE_DIR}/libxml2.cmake)", "")
         # disabling libunwind support is only done via patching
         if not self.options.get_safe("with_unwind", False):
-            tools.replace_in_file(util_cmakelists, "include(${PDAL_CMAKE_DIR}/unwind.cmake)", "")
+            replace_in_file(self, util_cmakelists, "include(${PDAL_CMAKE_DIR}/unwind.cmake)", "")
         # remove vendored eigen
-        tools.rmdir(os.path.join(self._source_subfolder, "vendor", "eigen"))
+        rmdir(self, os.path.join(self.source_folder, "vendor", "eigen"))
         # remove vendored nanoflann. include path is patched
-        tools.rmdir(os.path.join(self._source_subfolder, "vendor", "nanoflann"))
+        rmdir(self, os.path.join(self.source_folder, "vendor", "nanoflann"))
         # remove vendored boost
-        tools.rmdir(os.path.join(self._source_subfolder, "vendor", "pdalboost"))
-        tools.replace_in_file(top_cmakelists, "add_subdirectory(vendor/pdalboost)", "")
-        tools.replace_in_file(util_cmakelists, "${PDAL_BOOST_LIB_NAME}", "Boost::filesystem")
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "pdal", "util", "FileUtils.cpp"), "pdalboost::", "boost::"
+        rmdir(self, os.path.join(self.source_folder, "vendor", "pdalboost"))
+        replace_in_file(self, top_cmakelists, "add_subdirectory(vendor/pdalboost)", "")
+        replace_in_file(self, util_cmakelists, "${PDAL_BOOST_LIB_NAME}", "Boost::filesystem")
+        replace_in_file(
+            self, os.path.join(self.source_folder, "pdal", "util", "FileUtils.cpp"), "pdalboost::", "boost::"
         )
         # No rpath manipulation
-        tools.replace_in_file(top_cmakelists, "include(${PDAL_CMAKE_DIR}/rpath.cmake)", "")
+        replace_in_file(self, top_cmakelists, "include(${PDAL_CMAKE_DIR}/rpath.cmake)", "")
         # No reexport
-        tools.replace_in_file(
+        replace_in_file(
+            self,
             top_cmakelists,
             'set(PDAL_REEXPORT "-Wl,-reexport_library,$<TARGET_FILE:${PDAL_UTIL_LIB_NAME}>")',
             "",
         )
         # fix static build
         if not self.options.shared:
-            tools.replace_in_file(top_cmakelists, 'add_definitions("-DPDAL_DLL_EXPORT=1")', "")
-            tools.replace_in_file(
+            replace_in_file(self, top_cmakelists, 'add_definitions("-DPDAL_DLL_EXPORT=1")', "")
+            replace_in_file(
+                self,
                 top_cmakelists,
                 "${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME}",
                 "${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME} ${PDAL_ARBITER_LIB_NAME} ${PDAL_KAZHDAN_LIB_NAME}",
             )
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "cmake", "macros.cmake"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "cmake", "macros.cmake"),
                 "        install(TARGETS ${_name}",
                 '    endif()\n    if (PDAL_LIB_TYPE STREQUAL "STATIC" OR NOT ${_library_type} STREQUAL "STATIC")\n         install(TARGETS ${_name}',
             )
-            tools.replace_in_file(
+            replace_in_file(
+                self,
                 util_cmakelists,
                 "PDAL_ADD_FREE_LIBRARY(${PDAL_UTIL_LIB_NAME} SHARED ${PDAL_UTIL_SOURCES})",
                 "PDAL_ADD_FREE_LIBRARY(${PDAL_UTIL_LIB_NAME} ${PDAL_LIB_TYPE} ${PDAL_UTIL_SOURCES})",
@@ -269,18 +264,17 @@ class PdalConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE.txt", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False
-        )
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", src=self.source_folder, dst="licenses", ignore_case=True, keep_path=False)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "pdal-config*")
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "pdal-config*", os.path.join(self.package_folder, "bin"), recursive=True)
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_file))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
@@ -293,7 +287,7 @@ class PdalConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        pdal_version = tools.Version(self.version)
+        pdal_version = Version(self.version)
         content = textwrap.dedent(
             f"""\
             set(PDAL_LIBRARIES {self._pdal_base_name} pdal_util)
@@ -302,7 +296,7 @@ class PdalConan(ConanFile):
             set(PDAL_VERSION_PATCH {pdal_version.patch})
         """
         )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _module_vars_file(self):
@@ -322,7 +316,7 @@ class PdalConan(ConanFile):
                     alias=alias, aliased=aliased
                 )
             )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _module_target_file(self):
@@ -330,9 +324,7 @@ class PdalConan(ConanFile):
 
     @property
     def _pdal_base_name(self):
-        return (
-            "pdalcpp" if self.settings.os == "Windows" or tools.is_apple_os(self.settings.os) else "pdal_base"
-        )
+        return "pdalcpp" if self.settings.os == "Windows" or is_apple_os(self.settings.os) else "pdal_base"
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PDAL")

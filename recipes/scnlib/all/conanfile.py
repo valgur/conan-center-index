@@ -46,7 +46,7 @@ class ScnlibConan(ConanFile):
         if self.options.header_only or self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.header_only:
-            del self.options.shared
+            self.options.rm_safe("shared")
 
     def layout(self):
         if self.options.header_only:

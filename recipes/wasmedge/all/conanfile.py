@@ -29,8 +29,8 @@ class WasmedgeConan(ConanFile):
         }.get(str(self.settings.compiler), "gcc")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         try:
@@ -53,7 +53,6 @@ class WasmedgeConan(ConanFile):
             **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
                 self._compiler_alias
             ][0],
-            destination=self.source_folder,
             strip_root=True
         )
         download(

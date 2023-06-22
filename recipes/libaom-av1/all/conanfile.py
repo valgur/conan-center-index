@@ -40,7 +40,7 @@ class LibaomAv1Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ("x86", "x86_64"):
-            del self.options.assembly
+            self.options.rm_safe("assembly")
 
     def configure(self):
         if self.options.shared:

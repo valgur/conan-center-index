@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class FlatbushConan(ConanFile):
     name = "flatbush"
     license = "MIT"
@@ -90,15 +91,15 @@ class FlatbushConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses")
-        self.copy(pattern="flatbush.h", dst="include")
+        copy(self, pattern="LICENSE", dst="licenses")
+        copy(self, pattern="flatbush.h", dst="include")
 
     def package_id(self):
         self.info.header_only()
 
     def package_info(self):
-        if not tools.valid_min_cppstd(self, "20"):
+        if not valid_min_cppstd(self, "20"):
             self.cpp_info.defines = ["FLATBUSH_SPAN"]

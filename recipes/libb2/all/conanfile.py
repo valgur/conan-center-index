@@ -110,15 +110,10 @@ class libb2Conan(ConanFile):
         "use_sse": False,
         "use_neon": False,
     }
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.use_neon and not "arm" in self.settings.arch:
             raise ConanInvalidConfiguration("Neon sources only supported on arm-based CPUs")
         if self.options.use_neon and self.options.use_sse:
@@ -129,27 +124,28 @@ class libb2Conan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("BLAKE2-*")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            tc.variables["USE_SSE"] = self.options.use_sse
-            tc.variables["USE_NEON"] = self.options.use_neon
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["USE_SSE"] = self.options.use_sse
+        tc.variables["USE_NEON"] = self.options.use_neon
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs = ["include", os.path.join("include", "libb2")]

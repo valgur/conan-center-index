@@ -226,54 +226,52 @@ class MagnumConan(ConanFile):
         "wav_audio_importer": True,
     }
 
-    short_paths = True
-    generators = "cmake", "cmake_find_package"
     exports_sources = ["CMakeLists.txt", "cmake/*"]
 
     def config_options(self):
         # Doc says that 'distance_field_converter' is only available with "desktop GL" (the same is said for 'font_converter', but it builds)
         # TODO: Here we probably have a CHOICE OPTION
         if self.options.target_gl in ["gles2", "gles3"]:
-            del self.options.distance_field_converter
+            self.options.rm_safe("distance_field_converter")
 
         if self.settings.os == "Windows":
-            del self.options.fPIC
-            del self.options.egl_context
-            del self.options.xegl_application
-            del self.options.windowless_egl_application
-            del self.options.windowless_ios_application
-            del self.options.windowless_glx_application
-            del self.options.windowless_windows_egl_application  # requires ANGLE
-            del self.options.target_headless  # Requires EGL (when used gl_info)
-            del self.options.glx_application
-            del self.options.cgl_context
-            del self.options.windowless_cgl_application
+            self.options.rm_safe("fPIC")
+            self.options.rm_safe("egl_context")
+            self.options.rm_safe("xegl_application")
+            self.options.rm_safe("windowless_egl_application")
+            self.options.rm_safe("windowless_ios_application")
+            self.options.rm_safe("windowless_glx_application")
+            self.options.rm_safe("windowless_windows_egl_application")  # requires ANGLE
+            self.options.rm_safe("target_headless")  # Requires EGL (when used gl_info)
+            self.options.rm_safe("glx_application")
+            self.options.rm_safe("cgl_context")
+            self.options.rm_safe("windowless_cgl_application")
 
         if self.settings.os == "Linux":
-            del self.options.cgl_context
-            del self.options.windowless_cgl_application
-            del self.options.wgl_context
-            del self.options.windowless_wgl_application
-            del self.options.windowless_windows_egl_application
+            self.options.rm_safe("cgl_context")
+            self.options.rm_safe("windowless_cgl_application")
+            self.options.rm_safe("wgl_context")
+            self.options.rm_safe("windowless_wgl_application")
+            self.options.rm_safe("windowless_windows_egl_application")
 
         if self.settings.os == "Macos":
-            del self.options.egl_context
-            del self.options.glx_application  # Requires GL/glx.h (maybe XQuartz project)
-            del self.options.xegl_application
-            del self.options.windowless_egl_application
-            del self.options.windowless_glx_application  # Requires GL/glx.h (maybe XQuartz project)
-            del self.options.windowless_wgl_application
-            del self.options.windowless_windows_egl_application
-            del self.options.target_headless  # Requires EGL (when used gl_info)
+            self.options.rm_safe("egl_context")
+            self.options.rm_safe("glx_application")  # Requires GL/glx.h (maybe XQuartz project)
+            self.options.rm_safe("xegl_application")
+            self.options.rm_safe("windowless_egl_application")
+            self.options.rm_safe("windowless_glx_application")  # Requires GL/glx.h (maybe XQuartz project)
+            self.options.rm_safe("windowless_wgl_application")
+            self.options.rm_safe("windowless_windows_egl_application")
+            self.options.rm_safe("target_headless")  # Requires EGL (when used gl_info)
 
         if self.settings.os != "Android":
-            del self.options.android_application
+            self.options.rm_safe("android_application")
 
         if self.settings.os != "Emscripten":
-            del self.options.emscripten_application
+            self.options.rm_safe("emscripten_application")
 
         if self.settings.os != "iOS":
-            del self.options.windowless_ios_application
+            self.options.rm_safe("windowless_ios_application")
 
     @property
     def _executables(self):
@@ -290,7 +288,7 @@ class MagnumConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("corrade/{}".format(self.version))
@@ -319,9 +317,9 @@ class MagnumConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "5.0":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5.0":
             raise ConanInvalidConfiguration("GCC older than 5 is not supported (missing C++11 features)")
 
         if self.options.shared and not self.options["corrade"].shared:
@@ -358,114 +356,109 @@ class MagnumConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_DEPRECATED"] = False
-        cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
-        # cmake.definitions["BUILD_STATIC_UNIQUE_GLOBALS"]
-        cmake.definitions["BUILD_PLUGINS_STATIC"] = not self.options.shared_plugins
-        cmake.definitions["LIB_SUFFIX"] = ""
-        cmake.definitions["BUILD_TESTS"] = False
-        cmake.definitions["BUILD_GL_TESTS"] = False
-        cmake.definitions["BUILD_AL_TESTS"] = False
-        cmake.definitions["WITH_OPENGLTESTER"] = False
-        cmake.definitions["WITH_VULKANTESTER"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_DEPRECATED"] = False
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
+        # tc.variables["BUILD_STATIC_UNIQUE_GLOBALS"]
+        tc.variables["BUILD_PLUGINS_STATIC"] = not self.options.shared_plugins
+        tc.variables["LIB_SUFFIX"] = ""
+        tc.variables["BUILD_TESTS"] = False
+        tc.variables["BUILD_GL_TESTS"] = False
+        tc.variables["BUILD_AL_TESTS"] = False
+        tc.variables["WITH_OPENGLTESTER"] = False
+        tc.variables["WITH_VULKANTESTER"] = False
 
-        cmake.definitions["TARGET_GL"] = bool(self.options.target_gl)
-        cmake.definitions["TARGET_GLES"] = self.options.target_gl == "gles3"
-        cmake.definitions["TARGET_GLES2"] = self.options.target_gl == "gles2"
-        cmake.definitions["TARGET_DESKTOP_GLES"] = self.options.target_gl == "desktop_gl"
-        cmake.definitions["TARGET_HEADLESS"] = self.options.get_safe("target_headless", False)
-        cmake.definitions["TARGET_VK"] = self.options.target_vk
+        tc.variables["TARGET_GL"] = bool(self.options.target_gl)
+        tc.variables["TARGET_GLES"] = self.options.target_gl == "gles3"
+        tc.variables["TARGET_GLES2"] = self.options.target_gl == "gles2"
+        tc.variables["TARGET_DESKTOP_GLES"] = self.options.target_gl == "desktop_gl"
+        tc.variables["TARGET_HEADLESS"] = self.options.get_safe("target_headless", False)
+        tc.variables["TARGET_VK"] = self.options.target_vk
 
-        cmake.definitions["WITH_AUDIO"] = self.options.audio
-        cmake.definitions["WITH_DEBUGTOOLS"] = self.options.debug_tools
-        cmake.definitions["WITH_GL"] = self.options.gl
-        cmake.definitions["WITH_MESHTOOLS"] = self.options.mesh_tools
-        cmake.definitions["WITH_PRIMITIVES"] = self.options.primitives
-        cmake.definitions["WITH_SCENEGRAPH"] = self.options.scene_graph
-        cmake.definitions["WITH_SHADERS"] = self.options.shaders
-        cmake.definitions["WITH_TEXT"] = self.options.text
-        cmake.definitions["WITH_TEXTURETOOLS"] = self.options.texture_tools
-        cmake.definitions["WITH_TRADE"] = self.options.trade
-        cmake.definitions["WITH_VK"] = self.options.vk
+        tc.variables["WITH_AUDIO"] = self.options.audio
+        tc.variables["WITH_DEBUGTOOLS"] = self.options.debug_tools
+        tc.variables["WITH_GL"] = self.options.gl
+        tc.variables["WITH_MESHTOOLS"] = self.options.mesh_tools
+        tc.variables["WITH_PRIMITIVES"] = self.options.primitives
+        tc.variables["WITH_SCENEGRAPH"] = self.options.scene_graph
+        tc.variables["WITH_SHADERS"] = self.options.shaders
+        tc.variables["WITH_TEXT"] = self.options.text
+        tc.variables["WITH_TEXTURETOOLS"] = self.options.texture_tools
+        tc.variables["WITH_TRADE"] = self.options.trade
+        tc.variables["WITH_VK"] = self.options.vk
 
-        cmake.definitions["WITH_ANDROIDAPPLICATION"] = self.options.get_safe("android_application", False)
-        cmake.definitions["WITH_EMSCRIPTENAPPLICATION"] = self.options.get_safe(
-            "emscripten_application", False
-        )
-        cmake.definitions["WITH_GLFWAPPLICATION"] = self.options.glfw_application
-        cmake.definitions["WITH_GLXAPPLICATION"] = self.options.get_safe("glx_application", False)
-        cmake.definitions["WITH_SDL2APPLICATION"] = self.options.sdl2_application
-        cmake.definitions["WITH_XEGLAPPLICATION"] = self.options.get_safe("xegl_application", False)
-        cmake.definitions["WITH_WINDOWLESSCGLAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_ANDROIDAPPLICATION"] = self.options.get_safe("android_application", False)
+        tc.variables["WITH_EMSCRIPTENAPPLICATION"] = self.options.get_safe("emscripten_application", False)
+        tc.variables["WITH_GLFWAPPLICATION"] = self.options.glfw_application
+        tc.variables["WITH_GLXAPPLICATION"] = self.options.get_safe("glx_application", False)
+        tc.variables["WITH_SDL2APPLICATION"] = self.options.sdl2_application
+        tc.variables["WITH_XEGLAPPLICATION"] = self.options.get_safe("xegl_application", False)
+        tc.variables["WITH_WINDOWLESSCGLAPPLICATION"] = self.options.get_safe(
             "windowless_cgl_application", False
         )
-        cmake.definitions["WITH_WINDOWLESSEGLAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_WINDOWLESSEGLAPPLICATION"] = self.options.get_safe(
             "windowless_egl_application", False
         )
-        cmake.definitions["WITH_WINDOWLESSGLXAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_WINDOWLESSGLXAPPLICATION"] = self.options.get_safe(
             "windowless_glx_application", False
         )
-        cmake.definitions["WITH_WINDOWLESSIOSAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_WINDOWLESSIOSAPPLICATION"] = self.options.get_safe(
             "windowless_ios_application", False
         )
-        cmake.definitions["WITH_WINDOWLESSWGLAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_WINDOWLESSWGLAPPLICATION"] = self.options.get_safe(
             "windowless_wgl_application", False
         )
-        cmake.definitions["WITH_WINDOWLESSWINDOWSEGLAPPLICATION"] = self.options.get_safe(
+        tc.variables["WITH_WINDOWLESSWINDOWSEGLAPPLICATION"] = self.options.get_safe(
             "windowless_windows_egl_application", False
         )
 
-        cmake.definitions["WITH_CGLCONTEXT"] = self.options.get_safe("cgl_context", False)
-        cmake.definitions["WITH_EGLCONTEXT"] = self.options.get_safe("egl_context", False)
-        cmake.definitions["WITH_GLXCONTEXT"] = self.options.glx_context
-        cmake.definitions["WITH_WGLCONTEXT"] = self.options.get_safe("wgl_context", False)
+        tc.variables["WITH_CGLCONTEXT"] = self.options.get_safe("cgl_context", False)
+        tc.variables["WITH_EGLCONTEXT"] = self.options.get_safe("egl_context", False)
+        tc.variables["WITH_GLXCONTEXT"] = self.options.glx_context
+        tc.variables["WITH_WGLCONTEXT"] = self.options.get_safe("wgl_context", False)
 
         ##### Plugins related #####
-        cmake.definitions["WITH_ANYAUDIOIMPORTER"] = self.options.any_audio_importer
-        cmake.definitions["WITH_ANYIMAGECONVERTER"] = self.options.any_image_converter
-        cmake.definitions["WITH_ANYIMAGEIMPORTER"] = self.options.any_image_importer
-        cmake.definitions["WITH_ANYSCENECONVERTER"] = self.options.any_scene_converter
-        cmake.definitions["WITH_ANYSCENEIMPORTER"] = self.options.any_scene_importer
-        cmake.definitions["WITH_MAGNUMFONT"] = self.options.magnum_font
-        cmake.definitions["WITH_MAGNUMFONTCONVERTER"] = self.options.magnum_font_converter
-        cmake.definitions["WITH_OBJIMPORTER"] = self.options.obj_importer
-        cmake.definitions["WITH_TGAIMPORTER"] = self.options.tga_importer
-        cmake.definitions["WITH_TGAIMAGECONVERTER"] = self.options.tga_image_converter
-        cmake.definitions["WITH_WAVAUDIOIMPORTER"] = self.options.wav_audio_importer
+        tc.variables["WITH_ANYAUDIOIMPORTER"] = self.options.any_audio_importer
+        tc.variables["WITH_ANYIMAGECONVERTER"] = self.options.any_image_converter
+        tc.variables["WITH_ANYIMAGEIMPORTER"] = self.options.any_image_importer
+        tc.variables["WITH_ANYSCENECONVERTER"] = self.options.any_scene_converter
+        tc.variables["WITH_ANYSCENEIMPORTER"] = self.options.any_scene_importer
+        tc.variables["WITH_MAGNUMFONT"] = self.options.magnum_font
+        tc.variables["WITH_MAGNUMFONTCONVERTER"] = self.options.magnum_font_converter
+        tc.variables["WITH_OBJIMPORTER"] = self.options.obj_importer
+        tc.variables["WITH_TGAIMPORTER"] = self.options.tga_importer
+        tc.variables["WITH_TGAIMAGECONVERTER"] = self.options.tga_image_converter
+        tc.variables["WITH_WAVAUDIOIMPORTER"] = self.options.wav_audio_importer
 
         #### Command line utilities ####
-        cmake.definitions["WITH_GL_INFO"] = self.options.gl_info
-        cmake.definitions["WITH_AL_INFO"] = self.options.al_info
-        cmake.definitions["WITH_DISTANCEFIELDCONVERTER"] = self.options.get_safe(
-            "distance_field_converter", False
-        )
-        cmake.definitions["WITH_FONTCONVERTER"] = self.options.font_converter
-        cmake.definitions["WITH_IMAGECONVERTER"] = self.options.image_converter
-        cmake.definitions["WITH_SCENECONVERTER"] = self.options.scene_converter
+        tc.variables["WITH_GL_INFO"] = self.options.gl_info
+        tc.variables["WITH_AL_INFO"] = self.options.al_info
+        tc.variables["WITH_DISTANCEFIELDCONVERTER"] = self.options.get_safe("distance_field_converter", False)
+        tc.variables["WITH_FONTCONVERTER"] = self.options.font_converter
+        tc.variables["WITH_IMAGECONVERTER"] = self.options.image_converter
+        tc.variables["WITH_SCENECONVERTER"] = self.options.scene_converter
 
-        cmake.configure()
-        return cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
             "",
         )
         # Get rid of cmake_dependent_option, it can activate features when we try to disable them,
         #   let the Conan user decide what to use and what not.
-        with open(os.path.join(self._source_subfolder, "CMakeLists.txt"), "r+", encoding="utf-8") as f:
+        with open(os.path.join(self.source_folder, "CMakeLists.txt"), "r+", encoding="utf-8") as f:
             text = f.read()
             text = re.sub(
                 r"cmake_dependent_option(([0-9A-Z_]+) .*)",
@@ -477,48 +470,54 @@ class MagnumConan(ConanFile):
             f.truncate()
 
         # GLFW naming
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "find_package(GLFW)",
             "find_package(glfw3)",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "GLFW_FOUND",
             "glfw3_FOUND",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "GLFW::GLFW",
             "glfw",
         )
 
         # EGL naming
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "find_package(EGL)",
             "find_package(egl_system)",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "EGL_FOUND",
             "egl_system_FOUND",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "src", "Magnum", "Platform", "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
             "EGL::EGL",
             "egl::egl",
         )
 
     def build(self):
         self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
+        cmake = CMake(self)
+        cmake.install()
 
         build_modules_folder = os.path.join(self.package_folder, "lib", "cmake")
         os.makedirs(build_modules_folder)
@@ -566,9 +565,9 @@ class MagnumConan(ConanFile):
                         )
                     )
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Magnum")

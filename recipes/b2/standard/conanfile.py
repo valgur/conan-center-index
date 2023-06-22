@@ -77,7 +77,7 @@ from conan.tools.microsoft import (
 )
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
-from conan.tools.system import package_managerimport os
+from conan.tools.system import package_manager
 
 
 class B2Conan(ConanFile):
@@ -156,7 +156,7 @@ class B2Conan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination="source")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination="source")
 
     def build(self):
         use_windows_commands = os.name == "nt"
@@ -166,17 +166,18 @@ class B2Conan(ConanFile):
         build_dir = os.path.join(self.source_folder, "source")
         engine_dir = os.path.join(build_dir, "src", "engine")
         os.chdir(engine_dir)
-        with tools.environment_append({"VSCMD_START_DIR": os.curdir}):
+        with environment_append(self, {"VSCMD_START_DIR": os.curdir}):
             if self.options.use_cxx_env:
                 # Allow use of CXX env vars.
                 self.run(command)
             else:
                 # To avoid using the CXX env vars we clear them out for the build.
-                with tools.environment_append(
+                with environment_append(
+                    self,
                     {
                         "CXX": "",
                         "CXXFLAGS": "",
-                    }
+                    },
                 ):
                     self.run(command)
         os.chdir(build_dir)
@@ -193,10 +194,10 @@ class B2Conan(ConanFile):
         self.run(full_command)
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src="source")
-        self.copy(pattern="*b2", dst="bin", src="output/bin")
-        self.copy(pattern="*b2.exe", dst="bin", src="output/bin")
-        self.copy(pattern="*.jam", dst="bin/b2_src", src="output/share/boost-build")
+        copy(self, "LICENSE.txt", dst="licenses", src="source")
+        copy(self, pattern="*b2", dst="bin", src="output/bin")
+        copy(self, pattern="*b2.exe", dst="bin", src="output/bin")
+        copy(self, pattern="*.jam", dst="bin/b2_src", src="output/share/boost-build")
 
     def package_info(self):
         self.cpp_info.bindirs = ["bin"]

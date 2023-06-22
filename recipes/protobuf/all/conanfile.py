@@ -47,8 +47,6 @@ class ProtobufConan(ConanFile):
         "debug_suffix": True,
     }
 
-    short_paths = True
-
     @property
     def _is_clang_cl(self):
         return self.settings.compiler == "clang" and self.settings.os == "Windows"
@@ -68,7 +66,7 @@ class ProtobufConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._can_disable_rtti:
-            del self.options.with_rtti
+            self.options.rm_safe("with_rtti")
 
     def configure(self):
         if self.options.shared:

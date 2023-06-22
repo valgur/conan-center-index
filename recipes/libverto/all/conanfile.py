@@ -62,7 +62,7 @@ class LibVertoConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.pthread
+            self.options.rm_safe("pthread")
 
     def configure(self):
         if self.options.shared:

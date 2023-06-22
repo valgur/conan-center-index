@@ -10,8 +10,8 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires(self.tested_reference_str)

@@ -92,9 +92,7 @@ class MsdfAtlasGenConan(ConanFile):
     topics = ("msdf", "font", "atlas")
     settings = "os", "arch", "compiler", "build_type"
 
-    generators = "cmake", "cmake_find_package_multi"
     exports_sources = ["CMakeLists.txt"]
-    _cmake = None
 
     def requirements(self):
         self.requires("artery-font-format/1.0")
@@ -102,36 +100,35 @@ class MsdfAtlasGenConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
-
-    def _patch_sources(self):
-        cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
-
-        tools.replace_in_file(cmakelists, "add_subdirectory(msdfgen)", "")
-        tools.save_append(cmakelists, "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["MSDF_ATLAS_GEN_BUILD_STANDALONE"] = True
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def _patch_sources(self):
+        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
+        replace_in_file(self, cmakelists, "add_subdirectory(msdfgen)", "")
+        save_append(self, cmakelists, "install(TARGETS msdf-atlas-gen-standalone DESTINATION bin)")
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

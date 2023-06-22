@@ -97,13 +97,11 @@ class Jpcre2Conan(ConanFile):
         self.requires("pcre2/10.37")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy("jpcre2.hpp", dst="include", src=os.path.join(self._source_subfolder, "src"))
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "jpcre2.hpp", dst="include", src=os.path.join(self.source_folder, "src"))
 
     def package_id(self):
         self.info.header_only()

@@ -21,13 +21,13 @@ class TestPackageConan(ConanFile):
             return
 
         env_build = RunEnvironment(self)
-        with tools.environment_append(env_build.vars):
+        with environment_append(self, env_build.vars):
             cmake = CMake(self)
             if tools.os_info.is_macos and self.options["flatcc"].shared:
                 # Because of MacOS System Integraty Protection it is currently not possible to run the flatcc
                 # executable from cmake if it is linked shared. As a temporary work-around run flatcc here in
                 # the build function.
-                tools.mkdir(os.path.join(self.build_folder, "generated"))
+                mkdir(self, os.path.join(self.build_folder, "generated"))
                 self.run(
                     "flatcc -a -o "
                     + os.path.join(self.build_folder, "generated")
@@ -35,7 +35,7 @@ class TestPackageConan(ConanFile):
                     + os.path.join(self.source_folder, "monster.fbs"),
                     run_environment=True,
                 )
-                cmake.definitions["MACOS_SIP_WORKAROUND"] = True
+                tc.variables["MACOS_SIP_WORKAROUND"] = True
             cmake.configure()
             cmake.build()
 

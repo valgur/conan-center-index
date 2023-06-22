@@ -95,20 +95,19 @@ class MaddyConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package_id(self):
         self.info.header_only()
 
     def package(self):
-        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
-        self.copy(
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(
+            self,
             pattern="maddy/*.h",
-            src=os.path.join(self.source_folder, self._source_subfolder, "include"),
+            src=os.path.join(self.source_folder, "include"),
             dst="include",
         )

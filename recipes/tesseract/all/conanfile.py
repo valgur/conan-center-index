@@ -70,8 +70,8 @@ class TesseractConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "5.0.0":
-            del self.options.with_libcurl
-            del self.options.with_libarchive
+            self.options.rm_safe("with_libcurl")
+            self.options.rm_safe("with_libarchive")
 
     def configure(self):
         if self.options.shared:

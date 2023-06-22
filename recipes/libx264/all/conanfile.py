@@ -31,7 +31,6 @@ class LibX264Conan(ConanFile):
     }
 
     # otherwise build fails with: ln: failed to create symbolic link './Makefile' -> '../../../../../../../../../../../../../j/w/prod/buildsinglereference@2/.conan/data/libx264/cci.20220602/_/_/build/622692a7dbc145becf87f01b017e2a0d93cc644e/src/Makefile': File name too long
-    short_paths = True
 
     @property
     def _settings_build(self):

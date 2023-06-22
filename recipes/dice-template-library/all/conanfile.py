@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -104,7 +105,7 @@ class DiceTemplateLibrary(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "apple-clang":
             raise ConanInvalidConfiguration(
                 "apple-clang is not supported because a full concept implementation is needed"
@@ -133,14 +134,12 @@ class DiceTemplateLibrary(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
     def package_id(self):
         self.info.header_only()

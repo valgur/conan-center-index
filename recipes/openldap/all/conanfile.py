@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.43.0"
 
 
@@ -105,12 +106,10 @@ class OpenldapConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
         self.requires("openssl/1.1.1q")
@@ -147,13 +146,12 @@ class OpenldapConan(ConanFile):
         self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace("-lpthread", "-pthread")
 
         self._autotools.configure(
-            args=configure_args, configure_dir=self._source_subfolder, vars=self._configure_vars
+            args=configure_args, configure_dir=self.source_folder, vars=self._configure_vars
         )
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         autotools = self._configure_autotools()
 
         autotools.make(vars=self._configure_vars)
@@ -161,11 +159,11 @@ class OpenldapConan(ConanFile):
     def package(self):
         autotools = self._configure_autotools()
         autotools.install(vars=self._configure_vars)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy("COPYRIGHT", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "COPYRIGHT", dst="licenses", src=self.source_folder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
-            tools.rmdir(os.path.join(self.package_folder, folder))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+            rmdir(self, os.path.join(self.package_folder, folder))
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

@@ -118,10 +118,6 @@ class MoldConan(ConanFile):
         if self.settings.compiler == "apple-clang" and "armv8" == self.settings.arch:
             raise ConanInvalidConfiguration(f"{self.name} is still not supported by Mac M1.")
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def _get_include_path(self, dependency):
         include_path = self.deps_cpp_info[dependency].rootpath
         include_path = os.path.join(include_path, "include")
@@ -131,9 +127,9 @@ class MoldConan(ConanFile):
         if self.settings.compiler == "apple-clang" or (
             self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "11"
         ):
-            files.replace_in_file(self, "source_subfolder/Makefile", "-std=c++20", "-std=c++2a")
+            replace_in_file(self, "source_subfolder/Makefile", "-std=c++20", "-std=c++2a")
 
-        files.replace_in_file(
+        replace_in_file(
             self,
             "source_subfolder/Makefile",
             "-Ithird-party/xxhash ",
@@ -146,14 +142,14 @@ class MoldConan(ConanFile):
             ),
         )
 
-        files.replace_in_file(
+        replace_in_file(
             self,
             "source_subfolder/Makefile",
             "MOLD_LDFLAGS += -ltbb",
             "MOLD_LDFLAGS += -L{} -ltbb".format(self.deps_cpp_info["onetbb"].lib_paths[0]),
         )
 
-        files.replace_in_file(
+        replace_in_file(
             self,
             "source_subfolder/Makefile",
             "MOLD_LDFLAGS += -lmimalloc",
@@ -168,26 +164,25 @@ class MoldConan(ConanFile):
         self.requires("mimalloc/2.0.6")
 
     def source(self):
-        files.get(
+        get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
     def build(self):
         self._patch_sources()
-        with files.chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.make(target="mold", args=["SYSTEM_TBB=1", "SYSTEM_MIMALLOC=1"])
 
     def package(self):
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "mold", src="bin", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
         copy(
             self,
             "mold",
-            src=self._source_subfolder,
+            src=self.source_folder,
             dst=os.path.join(self.package_folder, "bin"),
             keep_path=False,
         )

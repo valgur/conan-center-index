@@ -47,9 +47,9 @@ class XkbcommonConan(ConanFile):
 
     def config_options(self):
         if not self._has_xkbregistry_option:
-            del self.options.xkbregistry
+            self.options.rm_safe("xkbregistry")
         if self.settings.os != "Linux":
-            del self.options.with_wayland
+            self.options.rm_safe("with_wayland")
 
     def configure(self):
         if self.options.shared:

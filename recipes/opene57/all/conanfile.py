@@ -75,6 +75,7 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -178,12 +179,6 @@ class Opene57Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _minimum_compilers_version(self):
@@ -195,13 +190,12 @@ class Opene57Conan(ConanFile):
         }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if self.options.with_tools:
             self.options["boost"].multithreading = True
@@ -215,27 +209,25 @@ class Opene57Conan(ConanFile):
             raise ConanInvalidConfiguration("OpenE57 cannot be built as shared library yet")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 
     def requirements(self):
         if self.options.with_tools:
             self.requires("boost/1.78.0")
 
-        if self.settings.os == "Linux" or tools.is_apple_os(self.settings.os):
+        if self.settings.os == "Linux" or is_apple_os(self.settings.os):
             self.requires("icu/70.1")
 
         self.requires("xerces-c/3.2.3")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -247,20 +239,23 @@ class Opene57Conan(ConanFile):
             tc.variables["BUILD_WITH_MT"] = "MT" in msvc_runtime_flag(self)
         else:
             tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="LICENSE.libE57", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="LICENSE.libE57", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
         os.remove(os.path.join(self.package_folder, "CHANGELOG.md"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.dll")
+        rm(self, "*.dll", os.path.join(self.package_folder, "bin"), recursive=True)
 
     def package_info(self):
         if self.options.with_tools:

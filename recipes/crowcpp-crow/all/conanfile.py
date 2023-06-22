@@ -36,8 +36,8 @@ class CrowConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "1.0":
-            del self.options.with_ssl
-            del self.options.with_compression
+            self.options.rm_safe("with_ssl")
+            self.options.rm_safe("with_compression")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

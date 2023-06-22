@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class PanziPortableEndian(ConanFile):
     name = "panzi-portable-endian"
     url = "https://github.com/conan-io/conan-center-index"
@@ -90,19 +91,17 @@ class PanziPortableEndian(ConanFile):
     license = "Unlicense"
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _extract_license(self):
-        header = tools.load(os.path.join(self._source_subfolder, "portable_endian.h"))
+        header = load(self, os.path.join(self.source_folder, "portable_endian.h"))
         license_contents = header[0 : (header.find("#ifndef", 1))]
-        tools.save("LICENSE", license_contents)
+        save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()
-        self.copy("LICENSE", dst="licenses")
-        self.copy(pattern="*.h", dst="include", src=self._source_subfolder, keep_path=False)
+        copy(self, "LICENSE", dst="licenses")
+        copy(self, pattern="*.h", dst="include", src=self.source_folder, keep_path=False)
 
     def package_id(self):
         self.info.header_only()

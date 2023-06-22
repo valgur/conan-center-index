@@ -112,10 +112,6 @@ class LibUSBCompatConan(ConanFile):
         "fPIC": True,
         "enable_logging": False,
     }
-    generators = "cmake", "pkg_config"
-
-    _autotools = None
-    _cmake = None
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -123,9 +119,9 @@ class LibUSBCompatConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("libusb/1.0.24")
@@ -140,13 +136,11 @@ class LibUSBCompatConan(ConanFile):
         self.build_requires("gnu-config/cci.20201022")
         self.build_requires("libtool/2.4.6")
         self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _iterate_lib_paths_win(self, lib):
         """Return all possible library paths for lib"""
@@ -170,9 +164,12 @@ class LibUSBCompatConan(ConanFile):
         return absolute_libs
 
     def generate(self):
-        tc = CMakeToolchain(self)
-        self._cmake.configure(source_dir=os.path.join(self._source_subfolder, "libusb"))
-        return self._cmake
+        tc = CMakeToolchain(self, source_dir=os.path.join(self.source_folder, "libusb"))
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_autotools(self):
         if self._autotools:
@@ -183,7 +180,7 @@ class LibUSBCompatConan(ConanFile):
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
             self._autotools.libs = (
-                list(tools.unix_path(l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
+                list(unix_path(self, l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
             )
         conf_args = [
             "--disable-examples-build",
@@ -193,33 +190,33 @@ class LibUSBCompatConan(ConanFile):
             conf_args.extend(["--enable-shared", "--disable-static"])
         else:
             conf_args.extend(["--disable-shared", "--enable-static"])
-        pkg_config_paths = [tools.unix_path(os.path.abspath(self.install_folder))]
+        pkg_config_paths = [unix_path(self, os.path.abspath(self.install_folder))]
         self._autotools.configure(
-            args=conf_args, configure_dir=self._source_subfolder, pkg_config_paths=pkg_config_paths
+            args=conf_args, configure_dir=self.source_folder, pkg_config_paths=pkg_config_paths
         )
         return self._autotools
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
                     "LD": "link -nologo",
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
                     "DLLTOOL": ":",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
                     "STRIP": ":",
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
 
     def _extract_makefile_variable(self, makefile, variable):
-        makefile_contents = tools.load(makefile)
+        makefile_contents = load(self, makefile)
         match = re.search(
             '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\"))*)*)\n'.format(
                 variable
@@ -232,32 +229,33 @@ class LibUSBCompatConan(ConanFile):
         return [item for line in lines for item in shlex.split(line) if item]
 
     def _extract_autotools_variables(self):
-        makefile = os.path.join(self._source_subfolder, "libusb", "Makefile.am")
+        makefile = os.path.join(self.source_folder, "libusb", "Makefile.am")
         sources = self._extract_makefile_variable(makefile, "libusb_la_SOURCES")
         headers = self._extract_makefile_variable(makefile, "include_HEADERS")
         return sources, headers
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
-            os.path.join(self._source_subfolder, "config.guess"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "configure.ac"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "configure.ac"),
                 "\nAC_DEFINE([API_EXPORTED]",
                 "\nAC_DEFINE([API_EXPORTED], [{}], [API])\n#".format(api),
             )
             # libtool disallows building shared libraries that link to static libraries
             # This will override this and add the dependency
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "ltmain.sh"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "ltmain.sh"),
                 "droppeddeps=yes",
                 'droppeddeps=no && func_append newdeplibs " $a_deplib"',
             )
@@ -271,23 +269,25 @@ class LibUSBCompatConan(ConanFile):
         with self._build_context():
             autotools = self._configure_autotools()
         if self.settings.os == "Windows":
-            cmakelists_in = tools.load("CMakeLists.txt.in")
+            cmakelists_in = load(self, "CMakeLists.txt.in")
             sources, headers = self._extract_autotools_variables()
-            tools.save(
-                os.path.join(self._source_subfolder, "libusb", "CMakeLists.txt"),
+            save(
+                self,
+                os.path.join(self.source_folder, "libusb", "CMakeLists.txt"),
                 cmakelists_in.format(libusb_sources=" ".join(sources), libusb_headers=" ".join(headers)),
             )
-            tools.replace_in_file("config.h", "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
-            cmake = self._configure_cmake()
+            replace_in_file(self, "config.h", "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
+            cmake = CMake(self)
+            cmake.configure()
             cmake.build()
         else:
             with self._build_context():
                 autotools.make()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
         if self.settings.os == "Windows":
-            cmake = self._configure_cmake()
+            cmake = CMake(self)
             cmake.install()
         else:
             with self._build_context():
@@ -296,7 +296,7 @@ class LibUSBCompatConan(ConanFile):
 
             os.unlink(os.path.join(self.package_folder, "bin", "libusb-config"))
             os.unlink(os.path.join(self.package_folder, "lib", "libusb.la"))
-            tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libusb"

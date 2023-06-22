@@ -117,7 +117,7 @@ class ResiprocateConan(ConanFile):
                 "reSIProcate recipe does not currently support {}.".format(self.settings.os)
             )
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_ssl:
@@ -128,8 +128,8 @@ class ResiprocateConan(ConanFile):
             self.requires("libmysqlclient/8.0.29")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{}-{}".format(self.name, self.version), self.source_folder)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -150,7 +150,7 @@ class ResiprocateConan(ConanFile):
         if self.options.with_postgresql:
             configure_args.append("--with-postgresql")
 
-        self._autotools.configure(configure_dir=self._source_subfolder, args=configure_args)
+        self._autotools.configure(configure_dir=self.source_folder, args=configure_args)
         return self._autotools
 
     def build(self):
@@ -158,11 +158,11 @@ class ResiprocateConan(ConanFile):
         autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(os.path.join(self.package_folder, "share")))
-        tools.remove_files_by_mask(os.path.join(self.package_folder), "*.la")
+        rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))
+        rm(self, "*.la", os.path.join(self.package_folder), recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]

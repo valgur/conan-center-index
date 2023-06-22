@@ -59,7 +59,7 @@ class FreetypeConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_with_brotli_option:
-            del self.options.with_brotli
+            self.options.rm_safe("with_brotli")
 
     def configure(self):
         if self.options.shared:

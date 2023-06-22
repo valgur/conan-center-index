@@ -29,8 +29,6 @@ class PerfettoConan(ConanFile):
         "disable_logging": False,
     }
 
-    short_paths = True
-
     @property
     def _minimum_cpp_standard(self):
         return 11 if Version(self.version) < "31.0" else 17
@@ -78,7 +76,7 @@ class PerfettoConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

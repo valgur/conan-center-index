@@ -103,13 +103,9 @@ class Pagmo2Conan(ConanFile):
         "with_ipopt": False,
     }
 
-    generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
-    _cmake = None
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("boost/1.78.0")
@@ -125,7 +121,7 @@ class Pagmo2Conan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         # TODO: add ipopt support
         if self.options.with_ipopt:
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
@@ -145,9 +141,7 @@ class Pagmo2Conan(ConanFile):
         self.info.settings.clear()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -156,18 +150,21 @@ class Pagmo2Conan(ConanFile):
         tc.variables["PAGMO_WITH_EIGEN3"] = self.options.with_eigen
         tc.variables["PAGMO_WITH_NLOPT"] = self.options.with_nlopt
         tc.variables["PAGMO_WITH_IPOPT"] = self.options.with_ipopt
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING.*", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="COPYING.*", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "pagmo")

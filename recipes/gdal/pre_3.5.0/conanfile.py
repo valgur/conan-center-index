@@ -215,21 +215,21 @@ class GdalConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         # if Version(self.version) < "3.0.0":
-        #     del self.options.with_tiledb
+        #     self.options.rm_safe("with_tiledb")
         if not self._has_with_exr_option:
-            del self.options.with_exr
+            self.options.rm_safe("with_exr")
         if not self._has_with_libdeflate_option:
-            del self.options.with_libdeflate
+            self.options.rm_safe("with_libdeflate")
         if not self._has_with_heif_option:
-            del self.options.with_heif
+            self.options.rm_safe("with_heif")
         if not self._has_with_blosc_option:
-            del self.options.with_blosc
+            self.options.rm_safe("with_blosc")
         if not self._has_with_lz4_option:
-            del self.options.with_lz4
+            self.options.rm_safe("with_lz4")
         if not self._has_with_brunsli_option:
-            del self.options.with_brunsli
+            self.options.rm_safe("with_brunsli")
         if not self._has_with_pcre2_option:
-            del self.options.with_pcre2
+            self.options.rm_safe("with_pcre2")
 
     def configure(self):
         if self.options.shared:

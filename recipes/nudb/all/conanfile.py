@@ -96,14 +96,12 @@ class NudbConan(ConanFile):
         self.requires("boost/1.78.0")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE*", "licenses", self._source_subfolder)
-        self.copy("*.hpp", "include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.ipp", "include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE*", "licenses", self.source_folder)
+        copy(self, "*.hpp", "include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.ipp", "include", src=os.path.join(self.source_folder, "include"))
 
     def package_id(self):
         self.info.header_only()

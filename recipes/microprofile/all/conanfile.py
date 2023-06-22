@@ -91,7 +91,6 @@ class MicroprofileConan(ConanFile):
     description = "Microprofile is a embeddable profiler in a few files, written in C++"
     topics = ("profiler", "embedded", "timer")
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -140,10 +139,6 @@ class MicroprofileConan(ConanFile):
         "enable_timer": None,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -175,7 +170,7 @@ class MicroprofileConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         if self.settings.os != "Windows" and self.options.enable_timer in ["d3d11", "d3d12"]:
             raise ConanInvalidConfiguration("DirectX timers can only be used in Windows.")
         if self.options.enable_timer and self.options.enable_gpu_timer_callbacks:
@@ -190,7 +185,7 @@ class MicroprofileConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_miniz:
@@ -201,28 +196,33 @@ class MicroprofileConan(ConanFile):
             self.requires("vulkan-loader/1.2.182")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder
+        get(
+            self,
+            **self.conan_data["sources"][self.version][0],
+            strip_root=True,
+            destination=self.source_folder
         )
-        tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
-        self._create_defines_file(os.path.join(self._source_subfolder, "microprofile.config.h"))
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        self._create_defines_file(os.path.join(self.source_folder, "microprofile.config.h"))
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["MP_MINIZ"] = self.options.with_miniz
         tc.variables["MP_GPU_TIMERS_VULKAN"] = self.options.enable_timer == "vulkan"
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def _create_defines(self):
@@ -262,10 +262,10 @@ class MicroprofileConan(ConanFile):
                 defines_list.append("#define {} {}\n".format(define[0], define[1]))
             else:
                 defines_list.append("#define {}\n".format(define))
-        tools.save(filename, "".join(defines_list))
+        save(self, filename, "".join(defines_list))
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         self.cpp_info.names["cmake_find_package"] = self.name
         self.cpp_info.names["cmake_find_package_multi"] = self.name
         if self.settings.os == "Windows":

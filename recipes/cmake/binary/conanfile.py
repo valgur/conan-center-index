@@ -35,7 +35,6 @@ class CMakeConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(self.settings.os)][arch],
-            destination=self.source_folder,
             strip_root=True,
         )
 

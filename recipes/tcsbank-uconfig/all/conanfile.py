@@ -91,7 +91,6 @@ class TCSBankUconfigConan(ConanFile):
     homepage = "https://github.com/TinkoffCreditSystems/uconfig"
     license = "Apache-2.0"
 
-    generators = "cmake", "cmake_find_package_multi"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_rapidjson": [True, False],
@@ -100,21 +99,17 @@ class TCSBankUconfigConan(ConanFile):
         "with_rapidjson": True,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def requirements(self):
         if self.options.with_rapidjson:
             self.requires("rapidjson/1.1.0")
 
     def validate(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
                 "%s recipe lacks information about the %s compiler"
@@ -140,14 +135,12 @@ class TCSBankUconfigConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.ipp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.ipp", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "uconfig"

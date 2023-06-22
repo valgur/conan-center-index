@@ -47,7 +47,7 @@ class MicrosoftGslConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) >= "3.0.0":
-            del self.options.on_contract_violation
+            self.options.rm_safe("on_contract_violation")
 
     def package_id(self):
         self.info.clear()
@@ -75,7 +75,7 @@ class MicrosoftGslConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         pass

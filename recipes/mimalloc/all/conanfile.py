@@ -72,8 +72,8 @@ class MimallocConan(ConanFile):
         # single_object and inject are options
         # only when overriding on Unix-like platforms:
         if is_msvc(self):
-            del self.options.single_object
-            del self.options.inject
+            self.options.rm_safe("single_object")
+            self.options.rm_safe("inject")
 
     def configure(self):
         if self.options.shared:

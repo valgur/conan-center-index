@@ -98,41 +98,33 @@ class KcovConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "CMakeLists.txt", "patches/**"
     requires = ["zlib/1.2.12", "libiberty/9.1.0", "libcurl/7.83.1", "elfutils/0.180"]
-    generators = "cmake"
-    _cmake = None
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
 
     def configure(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("kcov can not be built on windows.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
-
-    def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
-        if self._cmake is not None:
-            return self._cmake
         tc = CMakeToolchain(self)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("COPYING*", dst="licenses", src=self._source_subfolder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "COPYING*", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

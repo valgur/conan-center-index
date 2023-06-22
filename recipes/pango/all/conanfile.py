@@ -117,10 +117,6 @@ class PangoConan(ConanFile):
     generators = "pkg_config"
     _autotools = None
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def validate(self):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
@@ -147,10 +143,10 @@ class PangoConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
         if self.options.with_xft == "auto":
             self.options.with_xft = self.settings.os in ["Linux", "FreeBSD"]
@@ -189,7 +185,7 @@ class PangoConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     def _configure_meson(self):
@@ -205,29 +201,29 @@ class PangoConan(ConanFile):
         meson = Meson(self)
         meson.configure(
             build_folder=self._build_subfolder,
-            source_folder=self._source_subfolder,
+            source_folder=self.source_folder,
             defs=defs,
             args=["--wrap-mode=nofallback"],
         )
         return meson
 
     def build(self):
-        meson_build = os.path.join(self._source_subfolder, "meson.build")
+        meson_build = os.path.join(self.source_folder, "meson.build")
         replace_in_file(self, meson_build, "subdir('tests')", "")
         replace_in_file(self, meson_build, "subdir('tools')", "")
         replace_in_file(self, meson_build, "subdir('utils')", "")
         replace_in_file(self, meson_build, "subdir('examples')", "")
-        with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if is_msvc(
-            self
-        ) else tools.no_op():
+        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
+            self,
+        ):
             meson = self._configure_meson()
             meson.build()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        with tools.environment_append(VisualStudioBuildEnvironment(self).vars) if is_msvc(
-            self
-        ) else tools.no_op():
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
+            self,
+        ):
             meson = self._configure_meson()
             meson.install()
         if is_msvc(self):

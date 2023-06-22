@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -106,40 +107,38 @@ class LibdivideConan(ConanFile):
     }
 
     def config_options(self):
-        if tools.Version(self.version) < "4.0.0":
-            del self.options.sse2
-            del self.options.avx2
-            del self.options.avx512
-            del self.options.neon
+        if Version(self.version) < "4.0.0":
+            self.options.rm_safe("sse2")
+            self.options.rm_safe("avx2")
+            self.options.rm_safe("avx512")
+            self.options.rm_safe("neon")
             if self.settings.arch not in ["x86", "x86_64"]:
-                del self.options.simd_intrinsics
+                self.options.rm_safe("simd_intrinsics")
         else:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
             if self.settings.arch not in ["x86", "x86_64"]:
-                del self.options.sse2
-                del self.options.avx2
-                del self.options.avx512
+                self.options.rm_safe("sse2")
+                self.options.rm_safe("avx2")
+                self.options.rm_safe("avx512")
             if not str(self.settings.arch).startswith("arm"):
-                del self.options.neon
+                self.options.rm_safe("neon")
 
     def configure(self):
-        if tools.Version(self.version) < "4.0.0" and self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+        if Version(self.version) < "4.0.0" and self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy("libdivide.h", dst="include", src=self._source_subfolder)
-        self.copy("constant_fast_div.h", dst="include", src=self._source_subfolder)
-        self.copy("s16_ldparams.h", dst="include", src=self._source_subfolder)
-        self.copy("u16_ldparams.h", dst="include", src=self._source_subfolder)
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(self, "libdivide.h", dst="include", src=self.source_folder)
+        copy(self, "constant_fast_div.h", dst="include", src=self.source_folder)
+        copy(self, "s16_ldparams.h", dst="include", src=self.source_folder)
+        copy(self, "u16_ldparams.h", dst="include", src=self.source_folder)
 
     def package_info(self):
         simd = self.options.get_safe("simd_intrinsics", False)

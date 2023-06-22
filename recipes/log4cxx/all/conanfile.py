@@ -108,17 +108,9 @@ class Log4cxxConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake", "cmake_find_package", "pkg_config"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -126,7 +118,7 @@ class Log4cxxConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("apr/1.7.0")
@@ -147,11 +139,11 @@ class Log4cxxConan(ConanFile):
     def validate(self):
         # TODO: if compiler doesn't support C++17, boost can be used instead
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("log4cxx requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("log4cxx requires a compiler that supports at least C++17")
 
     def build_requirements(self):
@@ -162,37 +154,31 @@ class Log4cxxConan(ConanFile):
         # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
         #'source_subfolder\\src\\test\\resources\\output\\xyz\\:'
         pattern = "*[!:]"
-        tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
-            pattern=pattern
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, pattern=pattern)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            tc.variables["BUILD_TESTING"] = False
-            if self.settings.os == "Windows":
-                tc.variables["LOG4CXX_INSTALL_PDB"] = False
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["LOG4CXX_INSTALL_PDB"] = self.settings.os == "Windows"
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("NOTICE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "NOTICE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
@@ -216,7 +202,7 @@ class Log4cxxConan(ConanFile):
                     alias=alias, aliased=aliased
                 )
             )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

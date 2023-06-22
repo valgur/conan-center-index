@@ -30,7 +30,6 @@ class LibavrocppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

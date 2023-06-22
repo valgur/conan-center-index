@@ -39,8 +39,6 @@ class LibrealsenseConan(ConanFile):
         "rsusb_backend": True,  # TODO: change to False when CI gets MSVC ATL support
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -48,7 +46,7 @@ class LibrealsenseConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.rsusb_backend
+            self.options.rm_safe("rsusb_backend")
 
     def configure(self):
         if self.options.shared:

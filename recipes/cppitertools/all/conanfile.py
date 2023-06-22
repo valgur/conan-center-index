@@ -26,9 +26,9 @@ class CppItertoolsConan(ConanFile):
     }
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        rename(self, extracted_dir, self._source_subfolder)
+        rename(self, extracted_dir, self.source_folder)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -64,14 +64,14 @@ class CppItertoolsConan(ConanFile):
         copy(
             self,
             "*.hpp",
-            src=os.path.join(self.source_folder, self._source_subfolder),
+            src=self.source_folder,
             dst=os.path.join(self.package_folder, "include", "cppitertools"),
             excludes=("examples/**", "test/**"),
         )
         copy(
             self,
             "LICENSE.md",
-            src=os.path.join(self.source_folder, self._source_subfolder),
+            src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
 

@@ -75,6 +75,7 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -156,6 +157,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class ZugConan(ConanFile):
     name = "zug"
     license = "BSL-1.0"
@@ -168,7 +170,7 @@ class ZugConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _compilers_minimum_version(self):
@@ -181,14 +183,14 @@ class ZugConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "14")
+            check_min_cppstd(self, "14")
 
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
             self.output.warn("Unknown compiler, assuming it supports at least C++14")
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++14")
 
@@ -196,9 +198,12 @@ class ZugConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self.source_folder)
-        self.copy(
-            pattern="*.hpp", dst=os.path.join("include", "zug"), src=os.path.join(self.source_folder, "zug")
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join("include", "zug"),
+            src=os.path.join(self.source_folder, "zug"),
         )
 
     def package_info(self):

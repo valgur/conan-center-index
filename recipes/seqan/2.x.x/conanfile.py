@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class SeqanConan(ConanFile):
     name = "seqan"
     url = "https://github.com/conan-io/conan-center-index"
@@ -114,10 +115,10 @@ SeqAn is easy to use and simplifies the development of new software tools with a
 
     def configure(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "seqan requires C++14, which your compiler does not fully support."
                 )
@@ -125,13 +126,13 @@ SeqAn is easy to use and simplifies the development of new software tools with a
             self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "seqan-seqan-v" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "*", dst="include", src=os.path.join(self.source_folder, "include"), keep_path=True)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

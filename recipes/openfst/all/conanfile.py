@@ -137,7 +137,7 @@ class OpenFstConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -149,10 +149,10 @@ class OpenFstConan(ConanFile):
         }
 
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
-            if tools.Version(self.settings.compiler.version) < minimum_compiler:
+            if Version(self.settings.compiler.version) < minimum_compiler:
                 raise ConanInvalidConfiguration(
                     f"{self.name} requires c++17, which your compiler does not support."
                 )
@@ -176,9 +176,7 @@ class OpenFstConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -202,16 +200,14 @@ class OpenFstConan(ConanFile):
             "--enable-special={}".format(yes_no(self.options.enable_special)),
             "LIBS=-lpthread",
         ]
-        autotools.configure(args=args, configure_dir=self._source_subfolder)
+        autotools.configure(args=args, configure_dir=self.source_folder)
         return autotools
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
@@ -219,7 +215,7 @@ class OpenFstConan(ConanFile):
         autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
         autotools = self._configure_autotools()
         autotools.install()
 
@@ -227,11 +223,11 @@ class OpenFstConan(ConanFile):
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
         if os.path.exists(lib_subdir):
             for fn in os.listdir(lib_subdir):
-                tools.rename(os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
-            tools.rmdir(lib_subdir)
+                rename(self, os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
+            rmdir(self, lib_subdir)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(lib_dir, "*.la")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rm(self, "*.la", lib_dir, recursive=True)
 
     @property
     def _get_const_fsts_libs(self):

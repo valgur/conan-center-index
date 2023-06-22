@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.50.0"
 
 
@@ -100,12 +101,10 @@ class JungleConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake", "cmake_find_package"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
         for patch_file in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch_file["patch_file"])
+            copy(self, patch_file["patch_file"])
 
     def requirements(self):
         self.requires("forestdb/cci.20220727")
@@ -116,15 +115,10 @@ class JungleConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
@@ -133,7 +127,7 @@ class JungleConan(ConanFile):
         cmake.build()
 
     def package(self):
-        src_dir = os.path.join(self.source_folder, self._source_subfolder)
+        src_dir = self.source_folder
         copy(self, "LICENSE*", src_dir, os.path.join(self.package_folder, "licenses"))
 
         hdr_src = os.path.join(src_dir, "include")

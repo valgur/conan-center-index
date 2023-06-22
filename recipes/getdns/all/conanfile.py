@@ -141,9 +141,9 @@ class GetDnsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("openssl/1.1.1j")
@@ -167,8 +167,8 @@ class GetDnsConan(ConanFile):
         self.build_requires("pkgconf/1.7.3")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("getdns-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("getdns-{}".format(self.version), self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -188,24 +188,24 @@ class GetDnsConan(ConanFile):
         tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # Use FindOpenSSL.cmake to let check_function_exists succeed
         # Remove other cmake modules as they use FindPkgConfig
         for fn in glob.glob("Find*cmake"):
             if "OpenSSL" not in fn:
                 os.unlink(fn)
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_id(self):
         self.info.options.stub_only = self._stub_only

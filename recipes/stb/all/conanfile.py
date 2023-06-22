@@ -33,7 +33,7 @@ class StbConan(ConanFile):
 
     def config_options(self):
         if Version(self._version) < "20210713":
-            del self.options.with_deprecated
+            self.options.rm_safe("with_deprecated")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -42,7 +42,7 @@ class StbConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass

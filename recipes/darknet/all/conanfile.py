@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class DarknetConan(ConanFile):
     name = "darknet"
     license = "YOLO"
@@ -115,24 +116,25 @@ class DarknetConan(ConanFile):
             return ".so"
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"].get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "Makefile"),
+        apply_conandata_patches(self)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile"),
             "SLIB=libdarknet.so",
             "SLIB=libdarknet" + self._shared_lib_extension,
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "Makefile"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile"),
             "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
             "all: obj backup results " + self._lib_to_compile,
         )
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -143,29 +145,27 @@ class DarknetConan(ConanFile):
             self.requires("opencv/2.4.13.7")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
-            with tools.environment_append({"PKG_CONFIG_PATH": self.build_folder}):
+        with chdir(self.source_folder):
+            with environment_append(self, {"PKG_CONFIG_PATH": self.build_folder}):
                 args = ["OPENCV={}".format("1" if self.options.with_opencv else "0")]
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.fpic = self.options.get_safe("fPIC", True)
                 env_build.make(args=args)
 
     def package(self):
-        self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.dylib", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
+        copy(self, "LICENSE*", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.so", dst="lib", keep_path=False)
+        copy(self, "*.dylib", dst="lib", keep_path=False)
+        copy(self, "*.a", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["darknet"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m", "pthread"]
-        if tools.stdcpp_library(self):
-            self.cpp_info.system_libs.append(tools.stdcpp_library(self))
+        if stdcpp_library(self):
+            self.cpp_info.system_libs.append(stdcpp_library(self))

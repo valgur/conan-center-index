@@ -26,17 +26,15 @@ class NmosCppConan(ConanFile):
         "with_dnssd": "mdnsresponder",
     }
 
-    short_paths = True
-
     def export_sources(self):
-        files.export_conandata_patches(self)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
         if self.settings.os == "Macos":
-            del self.options.with_dnssd
+            self.options.rm_safe("with_dnssd")
         elif self.settings.os == "Linux":
             self.options.with_dnssd = "avahi"
         elif self.settings.os == "Windows":
@@ -81,10 +79,8 @@ class NmosCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        files.get(
-            self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True
-        )
-        files.rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -107,13 +103,13 @@ class NmosCppConan(ConanFile):
         deps.generate()
 
     def build(self):
-        files.apply_conandata_patches(self)
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder="Development")
         cmake.build()
 
     def package(self):
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         cmake_folder = os.path.join(self.package_folder, "lib", "cmake")
@@ -121,12 +117,12 @@ class NmosCppConan(ConanFile):
             os.path.join(cmake_folder, "nmos-cpp", "nmos-cpp-targets.cmake")
         )
         # remove the project's own generated config-file package
-        files.rmdir(self, cmake_folder)
+        rmdir(self, cmake_folder)
 
     def _create_components_file_from_cmake_target_file(self, target_file_path):
         components = {}
 
-        target_content = files.load(self, target_file_path)
+        target_content = load(self, target_file_path)
 
         cmake_functions = re.findall(
             r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", target_content
@@ -244,7 +240,7 @@ class NmosCppConan(ConanFile):
         self.cpp_info.libdirs = [libdir]
 
         def _register_components():
-            components_json_file = files.load(self, self._components_helper_filepath)
+            components_json_file = load(self, self._components_helper_filepath)
             components = json.loads(components_json_file)
             for component_name, values in components.items():
                 cmake_target = values["cmake_target"]

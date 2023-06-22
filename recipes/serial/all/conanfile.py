@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class ConanRecipe(ConanFile):
     name = "serial"
     description = "Cross-platform library for interfacing with rs-232 serial like ports"
@@ -87,7 +88,6 @@ class ConanRecipe(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     exports_sources = ["CMakeLists.txt", "Findcatkin.cmake"]
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -104,24 +104,27 @@ class ConanRecipe(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{}-{}".format(self.name, self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{}-{}".format(self.name, self.version), self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("README.md", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "README.md", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
@@ -131,5 +134,5 @@ class ConanRecipe(ConanFile):
             self.cpp_info.system_libs = ["rt", "pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["setupapi"]
-        elif tools.is_apple_os(self.settings.os):
+        elif is_apple_os(self.settings.os):
             self.cpp_info.frameworks = ["IOKit", "Foundation"]

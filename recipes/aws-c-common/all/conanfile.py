@@ -42,7 +42,7 @@ class AwsCCommon(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "0.6.11":
-            del self.options.cpu_extensions
+            self.options.rm_safe("cpu_extensions")
 
     def configure(self):
         if self.options.shared:

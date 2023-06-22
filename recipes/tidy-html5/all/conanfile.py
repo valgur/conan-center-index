@@ -104,12 +104,6 @@ class TidyHtml5Conan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,46 +111,42 @@ class TidyHtml5Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_TAB2SPACE"] = False
-        cmake.definitions["BUILD_SAMPLE_CODE"] = False
-        cmake.definitions["TIDY_COMPAT_HEADERS"] = False
-        cmake.definitions["SUPPORT_CONSOLE_APP"] = False
-        cmake.definitions["SUPPORT_LOCALIZATIONS"] = self.options.support_localizations
-        cmake.definitions["ENABLE_DEBUG_LOG"] = False
-        cmake.definitions["ENABLE_ALLOC_DEBUG"] = False
-        cmake.definitions["ENABLE_MEMORY_DEBUG"] = False
-        cmake.definitions["BUILD_SHARED_LIB"] = self.options.shared
-        cmake.configure(build_folder=self._build_subfolder)
-        self._cmake = cmake
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TAB2SPACE"] = False
+        tc.variables["BUILD_SAMPLE_CODE"] = False
+        tc.variables["TIDY_COMPAT_HEADERS"] = False
+        tc.variables["SUPPORT_CONSOLE_APP"] = False
+        tc.variables["SUPPORT_LOCALIZATIONS"] = self.options.support_localizations
+        tc.variables["ENABLE_DEBUG_LOG"] = False
+        tc.variables["ENABLE_ALLOC_DEBUG"] = False
+        tc.variables["ENABLE_MEMORY_DEBUG"] = False
+        tc.variables["BUILD_SHARED_LIB"] = self.options.shared
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        self.copy("LICENSE.md", dst="licenses", src=os.path.join(self._source_subfolder, "README"))
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE.md", dst="licenses", src=os.path.join(self.source_folder, "README"))
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.pdb")
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
         if self.options.shared:
             to_remove = "*tidy_static*" if self.settings.os == "Windows" else "*.a"
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), to_remove)
+            rm(self, to_remove, os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "tidy"

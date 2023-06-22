@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class FpgenConan(ConanFile):
     name = "fpgen"
     description = " Functional programming in C++ using C++20 coroutines."
@@ -104,9 +105,7 @@ class FpgenConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
         if self.settings.compiler == "clang" and "clang" not in str(self.version):
@@ -116,7 +115,7 @@ class FpgenConan(ConanFile):
             raise ConanInvalidConfiguration(f"Use 'compiler.libcxx=libc++' for {self.name} on Clang.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -133,9 +132,13 @@ class FpgenConan(ConanFile):
             )
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            pattern="*.hpp", dst=os.path.join("include", "fpgen"), src=self._source_subfolder, keep_path=False
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join("include", "fpgen"),
+            src=self.source_folder,
+            keep_path=False,
         )
 
     def package_info(self):

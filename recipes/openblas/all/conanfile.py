@@ -106,15 +106,9 @@ class OpenblasConan(ConanFile):
         "use_thread": True,
         "dynamic_arch": False,
     }
-    generators = "cmake"
-    short_paths = True
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -122,44 +116,38 @@ class OpenblasConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
+        tc = CMakeToolchain(self)
 
         if self.options.build_lapack:
             self.output.warn("Building with lapack support requires a Fortran compiler.")
-        cmake.definitions["NOFORTRAN"] = not self.options.build_lapack
-        cmake.definitions["BUILD_WITHOUT_LAPACK"] = not self.options.build_lapack
-        cmake.definitions["DYNAMIC_ARCH"] = self.options.dynamic_arch
-        cmake.definitions["USE_THREAD"] = self.options.use_thread
+        tc.variables["NOFORTRAN"] = not self.options.build_lapack
+        tc.variables["BUILD_WITHOUT_LAPACK"] = not self.options.build_lapack
+        tc.variables["DYNAMIC_ARCH"] = self.options.dynamic_arch
+        tc.variables["USE_THREAD"] = self.options.use_thread
 
         # Required for safe concurrent calls to OpenBLAS routines
-        cmake.definitions["USE_LOCKING"] = not self.options.use_thread
+        tc.variables["USE_LOCKING"] = not self.options.use_thread
 
-        cmake.definitions[
-            "MSVC_STATIC_CRT"
-        ] = False  # don't, may lie to consumer, /MD or /MT is managed by conan
+        tc.variables["MSVC_STATIC_CRT"] = False  # don't, may lie to consumer, /MD or /MT is managed by conan
 
         # This is a workaround to add the libm dependency on linux,
         # which is required to successfully compile on older gcc versions.
-        cmake.definitions["ANDROID"] = self.settings.os in ["Linux", "Android"]
+        tc.variables["ANDROID"] = self.settings.os in ["Linux", "Android"]
 
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc.generate()
 
     def build(self):
-        if tools.Version(self.version) >= "0.3.12":
+        if Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
             replace = """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
         else:
@@ -174,16 +162,17 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "f_check.cmake"), search, replace)
-        cmake = self._configure_cmake()
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "f_check.cmake"), search, replace)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         # CMake config file:
@@ -198,7 +187,7 @@ endif()"""
         )  # TODO: ow to model this in CMakeDeps?
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", "openblas")
         self.cpp_info.components["openblas_component"].includedirs.append(os.path.join("include", "openblas"))
-        self.cpp_info.components["openblas_component"].libs = tools.collect_libs(self)
+        self.cpp_info.components["openblas_component"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
             if self.options.use_thread:

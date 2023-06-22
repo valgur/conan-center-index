@@ -96,22 +96,22 @@ class MattiasgustavssonLibsConan(ConanFile):
         return os.path.join(self.source_folder, "source_subfolder")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("libs-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def _extract_licenses(self):
-        header = tools.load(os.path.join(self._source_subfolder, "thread.h"))
+        header = load(self, os.path.join(self.source_folder, "thread.h"))
         mit_content = header[header.find("ALTERNATIVE A - ") : header.find("ALTERNATIVE B -")]
-        tools.save("LICENSE_MIT", mit_content)
+        save(self, "LICENSE_MIT", mit_content)
         unlicense_content = header[header.find("ALTERNATIVE B - ") : header.rfind("*/", 1)]
-        tools.save("LICENSE_UNLICENSE", unlicense_content)
+        save(self, "LICENSE_UNLICENSE", unlicense_content)
 
     def package(self):
-        self.copy(pattern="*.h", dst="include", src=self._source_subfolder)
+        copy(self, pattern="*.h", dst="include", src=self.source_folder)
         self._extract_licenses()
-        self.copy("LICENSE_MIT", dst="licenses")
-        self.copy("LICENSE_UNLICENSE", dst="licenses")
+        copy(self, "LICENSE_MIT", dst="licenses")
+        copy(self, "LICENSE_UNLICENSE", dst="licenses")
 
     def package_id(self):
         self.info.header_only()

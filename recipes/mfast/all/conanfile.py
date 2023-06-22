@@ -51,8 +51,6 @@ class mFASTConan(ConanFile):
         "with_sqlite3": False,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "14" if Version(self.version) >= "1.2.2" else "98"

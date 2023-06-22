@@ -36,7 +36,6 @@ class GsoapConan(ConanFile):
     }
 
     exports_sources = "CMakeLists.txt", "cmake/*.cmake"
-    short_paths = True
 
     @property
     def _settings_build(self):

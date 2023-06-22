@@ -177,25 +177,17 @@ class UsocketsConan(ConanFile):
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{}, which your compiler does not support.".format(self.name, cppstd)
+                    f"{self.name} requires C++{cppstd}, which your compiler does not support."
                 )
         else:
             self.output.warn(
-                "{0} requires C++{1}. Your compiler is unknown. Assuming it supports C++{1}.".format(
-                    self.name, cppstd
-                )
+                f"{self.name} requires C++{cppstd}. Your compiler is unknown. Assuming it supports C++{cppstd}."
             )
 
     def configure(self):
-        if bool(self._minimum_cpp_standard) == False:
-            try:
-                del self.settings.compiler.libcxx
-            except Exception:
-                pass
-            try:
-                del self.settings.compiler.cppstd
-            except Exception:
-                pass
+        if not self._minimum_cpp_standard:
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.options.with_ssl == "openssl":
@@ -220,7 +212,6 @@ class UsocketsConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
@@ -228,7 +219,7 @@ class UsocketsConan(ConanFile):
         apply_conandata_patches(self)
 
     def _build_msvc(self):
-        with chdir(self, os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             msbuild = MSBuild(self)
             msbuild.build(
                 project_file="uSockets.vcxproj",
@@ -263,7 +254,7 @@ class UsocketsConan(ConanFile):
     def _build_configure(self):
         autotools = AutoToolsBuildEnvironment(self)
         autotools.fpic = self.options.get_safe("fPIC", False)
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             args = ["WITH_LTO=0"]
             if self.options.with_ssl == "openssl":
                 args.append("WITH_OPENSSL=1")
@@ -293,13 +284,13 @@ class UsocketsConan(ConanFile):
             self,
             pattern="LICENSE",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self._source_subfolder,
+            src=self.source_folder,
         )
         copy(
             self,
             pattern="*.h",
             dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self._source_subfolder, "src"),
+            src=os.path.join(self.source_folder, "src"),
             keep_path=True,
         )
         copy(

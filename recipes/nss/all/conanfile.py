@@ -106,7 +106,7 @@ class NSSConan(ConanFile):
             del self.options.fPIC
 
     def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not tools.get_env("CONAN_BASH_PATH"):
+        if self.settings.compiler == "Visual Studio" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
             self.build_requires("mozilla-build/3.3")
@@ -118,9 +118,9 @@ class NSSConan(ConanFile):
         self.options["sqlite3"].shared = True
 
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("nspr/4.35")
@@ -157,7 +157,7 @@ class NSSConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     @property
@@ -251,22 +251,24 @@ class NSSConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self, os.path.join(self._source_subfolder, "nss")):
-            with tools.vcvars(self) if self.settings.compiler == "Visual Studio" else tools.no_op():
+        with chdir(self, os.path.join(self.source_folder, "nss")):
+            with vcvars(self) if self.settings.compiler == "Visual Studio" else no_op(
+                self,
+            ):
                 self.run("make %s" % " ".join(self._make_args), run_environment=True)
 
     def package(self):
-        self.copy("COPYING", src=os.path.join(self._source_subfolder, "nss"), dst="licenses")
-        with chdir(self, os.path.join(self._source_subfolder, "nss")):
+        copy(self, "COPYING", src=os.path.join(self.source_folder, "nss"), dst="licenses")
+        with chdir(self, os.path.join(self.source_folder, "nss")):
             self.run("make install %s" % " ".join(self._make_args))
-        self.copy("*", src=os.path.join(self._source_subfolder, "dist", "public", "nss"), dst="include")
-        for d in os.listdir(os.path.join(self._source_subfolder, "dist")):
+        copy(self, "*", src=os.path.join(self.source_folder, "dist", "public", "nss"), dst="include")
+        for d in os.listdir(os.path.join(self.source_folder, "dist")):
             if d in ["private", "public"]:
                 continue
-            f = os.path.join(self._source_subfolder, "dist", d)
+            f = os.path.join(self.source_folder, "dist", d)
             if not os.path.isdir(f):
                 continue
-            self.copy("*", src=f)
+            copy(self, "*", src=f)
 
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
             rename(self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))

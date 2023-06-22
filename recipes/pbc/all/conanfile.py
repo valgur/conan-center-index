@@ -109,9 +109,9 @@ class PbcConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("gmp/6.2.1")
@@ -125,7 +125,7 @@ class PbcConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -141,9 +141,9 @@ class PbcConan(ConanFile):
 
         # No idea why this is necessary, but if you don't set CC this way, then
         # configure complains that it can't find gmp.
-        if tools.cross_building(self.settings) and self.settings.compiler == "apple-clang":
-            xcr = tools.XCRun(self.settings)
-            target = tools.to_apple_arch(self.settings.arch) + "-apple-darwin"
+        if cross_building(self.settings) and self.settings.compiler == "apple-clang":
+            xcr = XCRun(self.settings)
+            target = to_apple_arch(self.settings.arch) + "-apple-darwin"
 
             min_ios = ""
             if self.settings.os == "iOS":
@@ -155,17 +155,16 @@ class PbcConan(ConanFile):
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         autotools = self._configure_autotools()
         autotools.make()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses")
+        copy(self, pattern="COPYING", dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["pbc"]

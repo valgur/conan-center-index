@@ -100,14 +100,9 @@ class TinkerforgeBindingsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -115,9 +110,9 @@ class TinkerforgeBindingsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if (
@@ -128,22 +123,25 @@ class TinkerforgeBindingsConan(ConanFile):
             raise ConanInvalidConfiguration("Static runtime + shared is failing to link")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=False
+        get(
+            self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=False
         )
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("license.txt", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "license.txt", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

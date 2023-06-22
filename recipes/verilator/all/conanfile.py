@@ -103,8 +103,7 @@ class VerilatorConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     @property
     def _needs_old_bison(self):
@@ -140,12 +139,7 @@ class VerilatorConan(ConanFile):
             self.requires("dirent/1.23.2", private=True)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
@@ -165,12 +159,12 @@ class VerilatorConan(ConanFile):
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             build_env = {
-                "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
             }
-            with tools.vcvars(self.settings):
-                with tools.environment_append(build_env):
+            with vcvars(self.settings):
+                with environment_append(self, build_env):
                     yield
         else:
             yield
@@ -187,17 +181,17 @@ class VerilatorConan(ConanFile):
             self._autotools.cxx_flags.append("-EHsc")
             self._autotools.defines.append("YY_NO_UNISTD_H")
             self._autotools.flags.append("-FS")
-        conf_args = ["--datarootdir={}/bin/share".format(tools.unix_path(self.package_folder))]
-        yacc = tools.get_env("YACC")
+        conf_args = ["--datarootdir={}/bin/share".format(unix_path(self.package_folder))]
+        yacc = get_env(self, "YACC")
         if yacc:
             if yacc.endswith(" -y"):
                 yacc = yacc[:-3]
-        with tools.environment_append({"YACC": yacc}):
+        with environment_append(self, {"YACC": yacc}):
             if Version(self.version) >= "4.224":
-                with tools.chdir(self._source_subfolder):
+                with chdir(self.source_folder):
                     self.run("autoconf", win_bash=tools.os_info.is_windows, run_environment=True)
             self._autotools.configure(
-                args=conf_args, configure_dir=os.path.join(self.build_folder, self._source_subfolder)
+                args=conf_args, configure_dir=os.path.join(self.build_folder, self.source_folder)
             )
 
         return self._autotools
@@ -213,23 +207,22 @@ class VerilatorConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             args.append(
                 "PROGLINK={}".format(
-                    tools.unix_path(os.path.join(self.build_folder, self._source_subfolder, "msvc_link.sh"))
+                    unix_path(self, os.path.join(self.build_folder, self.source_folder, "msvc_link.sh"))
                 )
             )
         return args
 
     def _patch_sources(self):
         if Version(self.version) < "4.200":
-            for patch_file in self.conan_data.get("patches", {}).get(self.version, []):
-                patch(self, **patch_file)
+            apply_conandata_patches(self)
         try:
-            os.unlink(os.path.join(self._source_subfolder, "src", "config_build.h"))
+            os.unlink(os.path.join(self.source_folder, "src", "config_build.h"))
         except FileNotFoundError:
             pass
 
         if self.settings.compiler == "Visual Studio":
             replace_in_file(
-                self, os.path.join(self._source_subfolder, "src", "Makefile_obj.in"), "${LINK}", "${PROGLINK}"
+                self, os.path.join(self.source_folder, "src", "Makefile_obj.in"), "${LINK}", "${PROGLINK}"
             )
 
     def build(self):
@@ -239,7 +232,7 @@ class VerilatorConan(ConanFile):
             autotools.make(args=self._make_args)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install(args=self._make_args)

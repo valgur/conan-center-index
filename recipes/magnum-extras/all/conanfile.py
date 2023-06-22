@@ -116,13 +116,9 @@ class MagnumExtrasConan(ConanFile):
         "application": "sdl2",
     }
 
-    short_paths = True
-    generators = "cmake", "cmake_find_package"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -139,7 +135,7 @@ class MagnumExtrasConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("magnum/{}".format(self.version))
@@ -158,31 +154,30 @@ class MagnumExtrasConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
-        cmake.definitions["BUILD_TESTS"] = False
-        cmake.definitions["BUILD_GL_TESTS"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
+        tc.variables["BUILD_TESTS"] = False
+        tc.variables["BUILD_GL_TESTS"] = False
 
-        cmake.definitions["WITH_PLAYER"] = self.options.player
-        cmake.definitions["WITH_UI"] = self.options.ui
-        cmake.definitions["WITH_UI_GALLERY"] = self.options.ui_gallery
+        tc.variables["WITH_PLAYER"] = self.options.player
+        tc.variables["WITH_UI"] = self.options.ui
+        tc.variables["WITH_UI_GALLERY"] = self.options.ui_gallery
 
-        cmake.configure()
-        return cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
             "",
         )
@@ -195,24 +190,24 @@ class MagnumExtrasConan(ConanFile):
             "XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize()
         )
         for cmakelist in cmakelists:
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, cmakelist),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, cmakelist),
                 "Magnum::Application",
                 "Magnum::{}".format(app_name),
             )
 
     def build(self):
         self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
-
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "MagnumExtras")

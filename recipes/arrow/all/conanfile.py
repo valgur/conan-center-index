@@ -127,7 +127,6 @@ class ArrowConan(ConanFile):
         "with_zlib": False,
         "with_zstd": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -157,18 +156,18 @@ class ArrowConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.0.0":
-            del self.options.simd_level
-            del self.options.runtime_simd_level
+            self.options.rm_safe("simd_level")
+            self.options.rm_safe("runtime_simd_level")
         elif Version(self.version) < "6.0.0":
             self.options.simd_level = "sse4_2"
         if Version(self.version) < "6.0.0":
-            del self.options.with_gcs
+            self.options.rm_safe("with_gcs")
         if Version(self.version) < "7.0.0":
-            del self.options.skyhook
-            del self.options.with_flight_sql
-            del self.options.with_opentelemetry
+            self.options.rm_safe("skyhook")
+            self.options.rm_safe("with_flight_sql")
+            self.options.rm_safe("with_opentelemetry")
         if Version(self.version) < "8.0.0":
-            del self.options.substrait
+            self.options.rm_safe("substrait")
 
     def configure(self):
         if self.options.shared:
@@ -622,7 +621,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow_substrait"].requires = ["libparquet", "dataset"]
 
         # Plasma was deprecated in Arrow 12.0.0
-        del self.options.plasma
+        self.options.rm_safe("plasma")
 
         if self.options.acero:
             self.cpp_info.components["libacero"].libs = [f"acero{suffix}"]

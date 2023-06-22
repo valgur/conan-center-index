@@ -91,7 +91,6 @@ class MqttCPPConan(ConanFile):
     homepage = "https://github.com/redboltz/mqtt_cpp"
     topics = ("mqtt", "boost", "asio")
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake"
     no_copy_source = True
 
     def requirements(self):
@@ -111,11 +110,11 @@ class MqttCPPConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "{} requires C++14, which your compiler does not support.".format(self.name)
                 )
@@ -125,13 +124,11 @@ class MqttCPPConan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, pattern="LICENSE_1_0.txt", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "mqtt_cpp")

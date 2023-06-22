@@ -54,7 +54,7 @@ class LibZipConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_zstd_support:
-            del self.options.with_zstd
+            self.options.rm_safe("with_zstd")
         # Default crypto backend on windows
         if self.settings.os == "Windows":
             self.options.crypto = "win32"

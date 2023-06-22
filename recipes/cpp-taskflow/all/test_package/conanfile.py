@@ -16,8 +16,8 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["CPPTASKFLOW_VERSION"] = self.deps_cpp_info["cpp-taskflow"].version
+        tc = CMakeToolchain(self)
+        tc.variables["CPPTASKFLOW_VERSION"] = self.deps_cpp_info["cpp-taskflow"].version
         cmake.configure()
         cmake.build()
 

@@ -37,9 +37,9 @@ class RoaringConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ("x86", "x86_64"):
-            del self.options.with_avx
+            self.options.rm_safe("with_avx")
         if not str(self.settings.arch).startswith("arm"):
-            del self.options.with_neon
+            self.options.rm_safe("with_neon")
 
     def configure(self):
         if self.options.shared:

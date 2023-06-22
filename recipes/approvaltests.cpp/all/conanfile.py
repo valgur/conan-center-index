@@ -43,9 +43,9 @@ class ApprovalTestsCppConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) < "8.6.0":
-            del self.options.with_boosttest
+            self.options.rm_safe("with_boosttest")
         if Version(self.version) < "10.4.0":
-            del self.options.with_cpputest
+            self.options.rm_safe("with_cpputest")
 
     def layout(self):
         basic_layout(self, src_folder="src")

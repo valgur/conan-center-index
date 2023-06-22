@@ -107,10 +107,10 @@ class Seqan3Conan(ConanFile):
             raise ConanInvalidConfiguration("SeqAn3 only supports GCC.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 20)
+            check_min_cppstd(self, 20)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
-            if tools.Version(self.settings.compiler.version) < minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     "SeqAn3 requires C++20, which your compiler does not fully support."
                 )
@@ -123,20 +123,19 @@ class Seqan3Conan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
+        copy(self, "*", dst="include", src=os.path.join(self.source_folder, "include"), keep_path=True)
         for submodule in ["range-v3", "cereal", "sdsl-lite"]:
-            self.copy(
+            copy(
+                self,
                 "*.hpp",
                 dst="include",
-                src=os.path.join(self._source_subfolder, "submodules", submodule, "include"),
+                src=os.path.join(self.source_folder, "submodules", submodule, "include"),
                 keep_path=True,
             )
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "seqan3")

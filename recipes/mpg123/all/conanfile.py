@@ -67,7 +67,7 @@ class Mpg123Conan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

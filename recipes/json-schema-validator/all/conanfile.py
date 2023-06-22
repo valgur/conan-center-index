@@ -29,8 +29,6 @@ class JsonSchemaValidatorConan(ConanFile):
         "fPIC": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "17" if is_msvc(self) and Version(self.version) < "2.1.0" else "11"

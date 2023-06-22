@@ -23,16 +23,16 @@ class TestPackageConan(ConanFile):
     def build(self):
         for f in ("header.h", "main.c", "source.c", "Jamfile"):
             shutil.copy(os.path.join(self.source_folder, f), os.path.join(self.build_folder, f))
-        if not tools.cross_building(self):
-            assert os.path.isfile(tools.get_env("JAM"))
+        if not cross_building(self):
+            assert os.path.isfile(get_env(self, "JAM"))
 
             vars = AutoToolsBuildEnvironment(self).vars
             vars["CCFLAGS"] = vars["CFLAGS"]
             vars["C++FLAGS"] = vars["CXXFLAGS"]
             vars["LINKFLAGS"] = vars["LDFLAGS"]
             vars["LINKLIBS"] = vars["LIBS"]
-            with tools.environment_append(vars):
-                self.run("{} -d7".format(tools.get_env("JAM")), run_environment=True)
+            with environment_append(self, vars):
+                self.run("{} -d7".format(get_env(self, "JAM")), run_environment=True)
 
     def test(self):
         if can_run(self):

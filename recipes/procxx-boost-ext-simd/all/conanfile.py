@@ -91,7 +91,6 @@ class ProCxxBoostExSimdConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake", "cmake_find_package"
     no_copy_source = True
 
     @property
@@ -103,19 +102,19 @@ class ProCxxBoostExSimdConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_folder = "boost.simd-" + self.version
-        os.rename(extracted_folder, self._source_subfolder)
+        os.rename(extracted_folder, self.source_folder)
 
     def package(self):
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         # this technique was inspired by conan-center's "boost-ex-ut" recipe,

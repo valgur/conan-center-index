@@ -19,8 +19,8 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         version = Version(self.deps_cpp_info["openimageio"].version)
-        cmake = CMake(self)
-        cmake.definitions["CMAKE_CXX_STANDARD"] = 14 if version >= "2.3.0.0" else 11
+        tc = CMakeToolchain(self)
+        tc.variables["CMAKE_CXX_STANDARD"] = 14 if version >= "2.3.0.0" else 11
         cmake.configure()
         cmake.build()
 

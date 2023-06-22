@@ -46,8 +46,6 @@ class Openmvgconan(ConanFile):
         "programs": True,
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -55,7 +53,7 @@ class Openmvgconan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.with_avx
+            self.options.rm_safe("with_avx")
 
     def configure(self):
         if self.options.shared:

@@ -107,24 +107,18 @@ class DiligentToolsConan(ConanFile):
     }
 
     generators = "cmake_find_package", "cmake_find_package_multi", "cmake"
-    _cmake = None
-    short_paths = True
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def export_sources(self):
         export_conandata_patches(self)
-        self.copy("CMakeLists.txt")
-        self.copy("BuildUtils.cmake")
+        copy(self, "CMakeLists.txt")
+        copy(self, "BuildUtils.cmake")
 
     def source(self):
         get(
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     def package_id(self):
@@ -140,10 +134,7 @@ class DiligentToolsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-
-    def _patch_sources(self):
-        patches.apply_conandata_patches(self)
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -190,18 +181,14 @@ class DiligentToolsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-
         tc.variables["DILIGENT_INSTALL_TOOLS"] = False
         tc.variables["DILIGENT_BUILD_SAMPLES"] = False
         tc.variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
         tc.variables["DILIGENT_BUILD_TESTS"] = False
         tc.variables["DILIGENT_BUILD_TOOLS_TESTS"] = False
         tc.variables["DILIGENT_BUILD_TOOLS_INCLUDE_TEST"] = False
-        tc.variables[
-            "DILIGENT_NO_RENDER_STATE_PACKAGER"
-        ] = not self.options.with_render_state_packager
+        tc.variables["DILIGENT_NO_RENDER_STATE_PACKAGER"] = not self.options.with_render_state_packager
         tc.variables["ARCHIVER_SUPPORTED"] = not self.options.with_archiver
-
         if (
             self.version != "cci.20211009"
             and (self.version.startswith("api") and self.version >= "api.252005")
@@ -211,26 +198,28 @@ class DiligentToolsConan(ConanFile):
             tc.variables["GLES_SUPPORTED"] = True
             tc.variables["VULKAN_SUPPORTED"] = True
             tc.variables["METAL_SUPPORTED"] = True
-
         tc.variables[self._diligent_platform] = True
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("*.hpp", src=self._source_subfolder, dst="include/DiligentTools", keep_path=True)
-        self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
-        self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.a", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy("*", src=os.path.join(self._build_subfolder, "bin"), dst="bin", keep_path=False)
+        copy(self, "*.hpp", src=self.source_folder, dst="include/DiligentTools", keep_path=True)
+        copy(self, pattern="*.dll", src=self.build_folder, dst="bin", keep_path=False)
+        copy(self, pattern="*.dylib", src=self.build_folder, dst="lib", keep_path=False)
+        copy(self, pattern="*.lib", src=self.build_folder, dst="lib", keep_path=False)
+        copy(self, pattern="*.a", src=self.build_folder, dst="lib", keep_path=False)
+        copy(self, "*", src=os.path.join(self.build_folder, "bin"), dst="bin", keep_path=False)
         rmdir(self, os.path.join(self.package_folder, "Licenses"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        self.copy("License.txt", dst="licenses", src=self._source_subfolder)
+        copy(self, "License.txt", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

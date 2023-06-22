@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -95,10 +96,8 @@ class TinydirConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("tinydir.h", dst="include", src=self._source_subfolder)
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, "tinydir.h", dst="include", src=self.source_folder)
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)

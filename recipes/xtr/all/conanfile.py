@@ -109,18 +109,18 @@ class XtrConan(ConanFile):
     generators = "make"
 
     def config_options(self):
-        if tools.Version(self.version) < "1.0.1":
-            del self.options.sink_capacity_kb
-        if tools.Version(self.version) < "2.0.0":
-            del self.options.enable_io_uring
-            del self.options.enable_io_uring_sqpoll
+        if Version(self.version) < "1.0.1":
+            self.options.rm_safe("sink_capacity_kb")
+        if Version(self.version) < "2.0.0":
+            self.options.rm_safe("enable_io_uring")
+            self.options.rm_safe("enable_io_uring_sqpoll")
 
     def requirements(self):
         self.requires("fmt/7.1.3")
         # Require liburing on any Linux system as a run-time check will be
         # done to detect if the host kernel supports io_uring.
         if (
-            tools.Version(self.version) >= "2.0.0"
+            Version(self.version) >= "2.0.0"
             and self.settings.os == "Linux"
             and self.options.get_safe("enable_io_uring")
         ):
@@ -134,7 +134,7 @@ class XtrConan(ConanFile):
         if self.settings.arch not in ("x86_64",):
             raise ConanInvalidConfiguration(f"Unsupported arch={self.settings.arch}")
         if (
-            tools.Version(self.version) < "2.0.0"
+            Version(self.version) < "2.0.0"
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libc++"
         ):
@@ -149,11 +149,11 @@ class XtrConan(ConanFile):
 
         minimal_cpp_standard = 20
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
+            check_min_cppstd(self, minimal_cpp_standard)
 
         minimum_version = {"gcc": 10, "clang": 12}
         compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
 
         if version < minimum_version[compiler]:
             raise ConanInvalidConfiguration(
@@ -161,7 +161,7 @@ class XtrConan(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def get_defines(self):
         defines = []
@@ -177,9 +177,9 @@ class XtrConan(ConanFile):
 
     def build(self):
         # FIXME: should be done in validate (but version is not yet available there)
-        if tools.Version(self.deps_cpp_info["fmt"].version) < 6:
+        if Version(self.deps_cpp_info["fmt"].version) < 6:
             raise ConanInvalidConfiguration("The version of fmt must >= 6.0.0")
-        if tools.Version(self.deps_cpp_info["fmt"].version) == "8.0.0" and self.settings.compiler == "clang":
+        if Version(self.deps_cpp_info["fmt"].version) == "8.0.0" and self.settings.compiler == "clang":
             raise ConanInvalidConfiguration(
                 "fmt/8.0.0 is known to not work with clang (https://github.com/fmtlib/fmt/issues/2377)"
             )
@@ -198,12 +198,12 @@ class XtrConan(ConanFile):
         autotools.make(vars=env_build_vars, target="xtrctl")
 
     def package(self):
-        self.copy("LICENSE", dst="licenses")
-        self.copy("*.hpp", src="include", dst="include")
-        self.copy("*/libxtr.a", src="build", dst="lib", keep_path=False)
-        self.copy("*/xtrctl", src="build", dst="bin", keep_path=False)
+        copy(self, "LICENSE", dst="licenses")
+        copy(self, "*.hpp", src="include", dst="include")
+        copy(self, "*/libxtr.a", src="build", dst="lib", keep_path=False)
+        copy(self, "*/xtrctl", src="build", dst="bin", keep_path=False)
 
-        tools.rmdir(os.path.join(self.package_folder, "man"))
+        rmdir(self, os.path.join(self.package_folder, "man"))
 
     def package_info(self):
         self.cpp_info.libs = ["xtr"]

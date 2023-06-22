@@ -28,7 +28,7 @@ class GccConan(ConanFile):
     def configure(self):
         if self.settings.compiler in ["clang", "apple-clang"]:
             # Can't remove this from cxxflags with autotools - so get rid of it
-            del self.settings.compiler.libcxx
+            self.settings.rm_safe("compiler.libcxx")
 
     def build_requirements(self):
         if self.settings.os == "Linux":

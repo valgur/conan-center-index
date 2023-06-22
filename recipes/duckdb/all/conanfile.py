@@ -65,7 +65,6 @@ class DuckdbConan(ConanFile):
         "with_threads": True,
         "with_rdtsc": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -97,7 +96,7 @@ class DuckdbConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -49,7 +49,7 @@ class LzmaSdkConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         rm(self, "7zr.exe", self.source_folder)
         rm(self, "lzma.exe", self.source_folder)
 

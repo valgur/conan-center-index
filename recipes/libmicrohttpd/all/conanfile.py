@@ -60,13 +60,13 @@ class LibmicrohttpdConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.epoll
+            self.options.rm_safe("epoll")
         if is_msvc(self):
-            del self.options.with_https
-            del self.options.with_error_messages
-            del self.options.with_postprocessor
-            del self.options.with_digest_authentification
-            del self.options.with_zlib
+            self.options.rm_safe("with_https")
+            self.options.rm_safe("with_error_messages")
+            self.options.rm_safe("with_postprocessor")
+            self.options.rm_safe("with_digest_authentification")
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:

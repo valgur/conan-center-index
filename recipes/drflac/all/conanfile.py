@@ -42,7 +42,7 @@ class DrflacConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "0.12.39":
-            del self.options.no_wchar
+            self.options.rm_safe("no_wchar")
 
     def configure(self):
         if self.options.shared:

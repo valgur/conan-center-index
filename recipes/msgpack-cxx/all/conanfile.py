@@ -28,7 +28,7 @@ class MsgpackCXXConan(ConanFile):
     def configure_options(self):
         # No boost was added since 4.1.0
         if Version(self.version) < "4.1.0":
-            del self.options.use_boost
+            self.options.rm_safe("use_boost")
 
     def layout(self):
         basic_layout(self, src_folder="src")

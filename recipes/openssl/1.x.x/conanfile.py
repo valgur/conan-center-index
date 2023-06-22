@@ -187,39 +187,39 @@ class OpenSSLConan(ConanFile):
 
     def config_options(self):
         if self._full_version >= "1.1.0":
-            del self.options.no_md2
-            del self.options.no_rc4
-            del self.options.no_rc5
-            del self.options.no_zlib
+            self.options.rm_safe("no_md2")
+            self.options.rm_safe("no_rc4")
+            self.options.rm_safe("no_rc5")
+            self.options.rm_safe("no_zlib")
 
         if self._full_version < "1.1.0":
-            del self.options.no_camellia
-            del self.options.no_cast
-            del self.options.no_cms
-            del self.options.no_comp
-            del self.options.no_dgram
-            del self.options.no_engine
-            del self.options.no_idea
-            del self.options.no_md4
-            del self.options.no_ocsp
-            del self.options.no_seed
-            del self.options.no_sock
-            del self.options.no_srp
-            del self.options.no_ts
-            del self.options.no_whirlpool
+            self.options.rm_safe("no_camellia")
+            self.options.rm_safe("no_cast")
+            self.options.rm_safe("no_cms")
+            self.options.rm_safe("no_comp")
+            self.options.rm_safe("no_dgram")
+            self.options.rm_safe("no_engine")
+            self.options.rm_safe("no_idea")
+            self.options.rm_safe("no_md4")
+            self.options.rm_safe("no_ocsp")
+            self.options.rm_safe("no_seed")
+            self.options.rm_safe("no_sock")
+            self.options.rm_safe("no_srp")
+            self.options.rm_safe("no_ts")
+            self.options.rm_safe("no_whirlpool")
 
         if self._full_version < "1.1.1":
-            del self.options.no_aria
-            del self.options.no_pinshared
-            del self.options.no_sm2
-            del self.options.no_sm3
-            del self.options.no_sm4
+            self.options.rm_safe("no_aria")
+            self.options.rm_safe("no_pinshared")
+            self.options.rm_safe("no_sm2")
+            self.options.rm_safe("no_sm3")
+            self.options.rm_safe("no_sm4")
 
         if self.settings.os != "Windows":
-            del self.options.capieng_dialog
-            del self.options.enable_capieng
+            self.options.rm_safe("capieng_dialog")
+            self.options.rm_safe("enable_capieng")
         else:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
         if self.settings.os == "Emscripten":
             self.options.no_asm = True
@@ -261,7 +261,7 @@ class OpenSSLConan(ConanFile):
                     self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         VirtualBuildEnv(self).generate()

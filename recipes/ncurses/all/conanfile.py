@@ -146,12 +146,12 @@ class NCursesConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.with_cxx:
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
         if not self.options.with_widec:
-            del self.options.with_extended_colors
+            self.options.rm_safe("with_extended_colors")
 
     def requirements(self):
         if self.options.with_pcre2:
@@ -163,13 +163,13 @@ class NCursesConan(ConanFile):
                 self.requires("naive-tsearch/0.1.1")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
-        if any(
-            "arm" in arch for arch in (self.settings.arch, self._settings_build.arch)
-        ) and tools.cross_building(self):
+        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and cross_building(
+            self
+        ):
             # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
             # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
             raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
@@ -190,9 +190,7 @@ class NCursesConan(ConanFile):
                 )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -219,7 +217,7 @@ class NCursesConan(ConanFile):
             "--without-profile",
             "--with-sp-funcs",
             "--disable-rpath",
-            "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
+            "--datarootdir={}".format(unix_path(self, os.path.join(self.package_folder, "res"))),
             "--disable-pc-files",
         ]
         build = None
@@ -239,7 +237,7 @@ class NCursesConan(ConanFile):
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
             conf_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
             autotools.cxx_flags.append("-EHsc")
-            if tools.Version(self.settings.compiler.version) >= 12:
+            if Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
         if (self.settings.os, self.settings.compiler) == ("Windows", "gcc"):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
@@ -249,17 +247,16 @@ class NCursesConan(ConanFile):
         if host:
             conf_args.append(f"ac_cv_host={host}")
             conf_args.append(f"ac_cv_target={host}")
-        autotools.configure(args=conf_args, configure_dir=self._source_subfolder, host=host, build=build)
+        autotools.configure(args=conf_args, configure_dir=self.source_folder, host=host, build=build)
         return autotools
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
                     "CC": "cl -nologo",
                     "CXX": "cl -nologo",
@@ -270,7 +267,7 @@ class NCursesConan(ConanFile):
                     "AR": "lib -nologo",
                     "RANLIB": ":",
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -283,11 +280,12 @@ class NCursesConan(ConanFile):
 
     @property
     def _major_version(self):
-        return tools.Version(self.version).major
+        return Version(self.version).major
 
     @staticmethod
     def _create_cmake_module_alias_targets(module_file):
-        tools.save(
+        save(
+            self,
             module_file,
             textwrap.dedent(
                 """\
@@ -311,7 +309,7 @@ class NCursesConan(ConanFile):
 
     def package(self):
         # return
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autotools.install()

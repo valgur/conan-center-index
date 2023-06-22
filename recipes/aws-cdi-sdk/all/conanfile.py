@@ -98,10 +98,6 @@ class AwsCdiSdkConan(ConanFile):
     license = "BSD-2-Clause"
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake", "cmake_find_package"
-
-    _autotools = None
-    _cmake = None
 
     def requirements(self):
         self.requires("aws-libfabric/1.9.1amzncdi1.0")
@@ -121,12 +117,10 @@ class AwsCdiSdkConan(ConanFile):
         if not getattr(self.options["aws-sdk-cpp"], "monitoring"):
             raise ConanInvalidConfiguration("This package requires the monitoring AWS SDK")
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -136,28 +130,30 @@ class AwsCdiSdkConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _detect_compilers(self):
-        cmake_cache = tools.load(os.path.join(self.build_folder, "CMakeCache.txt"))
+        cmake_cache = load(self, os.path.join(self.build_folder, "CMakeCache.txt"))
         cc = re.search("CMAKE_C_COMPILER:FILEPATH=(.*)", cmake_cache)[1]
         cxx = re.search("CMAKE_CXX_COMPILER:FILEPATH=(.*)", cmake_cache)[1]
         return cc, cxx
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
         # build aws-cpp-sdk-cdi
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
         autotools = self._configure_autotools()
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             # configure autotools to find aws-cpp-sdk-cdi
             autotools.include_paths.append(
-                os.path.join(self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include")
+                os.path.join(self.build_folder, self.source_folder, "aws-cpp-sdk-cdi", "include")
             )
             autotools.library_paths.append(os.path.join(self.build_folder, "lib"))
             autotools.libs.append("aws-cpp-sdk-cdi")
@@ -174,16 +170,16 @@ class AwsCdiSdkConan(ConanFile):
             autotools.make(target="libsdk", vars=vars, args=args)
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
         config = "debug" if self.settings.build_type == "Debug" else "release"
-        self.copy(pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib"))
+        copy(self, pattern="*", dst="lib", src=os.path.join(self.source_folder, "build", config, "lib"))
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-cdi-sdk")

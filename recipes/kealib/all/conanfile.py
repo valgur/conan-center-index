@@ -97,7 +97,6 @@ class KealibConan(ConanFile):
     homepage = "https://github.com/ubarsc/kealib"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -108,17 +107,13 @@ class KealibConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self.options["hdf5"].enable_cxx = True
         self.options["hdf5"].hl = True
 
@@ -130,8 +125,8 @@ class KealibConan(ConanFile):
             raise ConanInvalidConfiguration("kealib requires hdf5 with cxx and hl enabled.")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("{0}-{0}-{1}".format(self.name, self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("{0}-{0}-{1}".format(self.name, self.version), self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -140,19 +135,21 @@ class KealibConan(ConanFile):
             "HDF5_PREFER_PARALLEL"
         ] = False  # TODO: rely on self.options["hdf5"].parallel when implemented in hdf5 recipe
         tc.variables["LIBKEA_WITH_GDAL"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

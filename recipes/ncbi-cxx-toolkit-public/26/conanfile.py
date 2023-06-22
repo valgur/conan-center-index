@@ -103,8 +103,6 @@ class NcbiCxxToolkit(ConanFile):
         "c++",
     )
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
-    short_paths = True
 
     options = {
         "shared": [True, False],
@@ -157,27 +155,12 @@ class NcbiCxxToolkit(ConanFile):
         return None
 
     # ----------------------------------------------------------------------------
-    @property
-    def _source_subfolder(self):
-        return "src"
-
-    # ----------------------------------------------------------------------------
-    def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["NCBI_PTBCFG_PACKAGING"] = "TRUE"
-        if self.options.with_projects != "":
-            cmake.definitions["NCBI_PTBCFG_PROJECT_LIST"] = self.options.with_projects
-        if self.options.with_targets != "":
-            cmake.definitions["NCBI_PTBCFG_PROJECT_TARGETS"] = self.options.with_targets
-        return cmake
-
-    # ----------------------------------------------------------------------------
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
         if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
-        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
         if (
             self.settings.compiler == "Visual Studio"
@@ -185,9 +168,9 @@ class NcbiCxxToolkit(ConanFile):
             and "MT" in self.settings.compiler.runtime
         ):
             raise ConanInvalidConfiguration("This configuration is not supported")
-        if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "7":
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("This version of GCC is not supported")
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross compilation is not supported")
 
     def config_options(self):
@@ -196,7 +179,7 @@ class NcbiCxxToolkit(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     # ----------------------------------------------------------------------------
     def requirements(self):
@@ -208,12 +191,24 @@ class NcbiCxxToolkit(ConanFile):
 
     # ----------------------------------------------------------------------------
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    # ----------------------------------------------------------------------------
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["NCBI_PTBCFG_PACKAGING"] = "TRUE"
+        if self.options.with_projects != "":
+            tc.variables["NCBI_PTBCFG_PROJECT_LIST"] = self.options.with_projects
+        if self.options.with_targets != "":
+            tc.variables["NCBI_PTBCFG_PROJECT_TARGETS"] = self.options.with_targets
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     # ----------------------------------------------------------------------------
     def build(self):
-        cmake = self._configure_cmake()
-        cmake.configure(source_folder=self._source_subfolder)
+        cmake = CMake(self)
+        cmake.configure()
         # Visual Studio sometimes runs "out of heap space"
         if self.settings.compiler == "Visual Studio":
             cmake.parallel = False
@@ -221,7 +216,7 @@ class NcbiCxxToolkit(ConanFile):
 
     # ----------------------------------------------------------------------------
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
 
     # ----------------------------------------------------------------------------

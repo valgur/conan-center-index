@@ -19,7 +19,6 @@ class ArchicadApidevkitConan(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
     no_copy_source = True
     topics = ("api", "archicad", "development")
-    short_paths = True
 
     def validate(self):
         if self.settings.build_type == "Debug":

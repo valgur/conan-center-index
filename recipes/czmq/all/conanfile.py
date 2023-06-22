@@ -47,16 +47,16 @@ class CzmqConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
             # libuuid is not available on Windows
-            del self.options.with_libuuid
+            self.options.rm_safe("with_libuuid")
         if self.settings.os == "Linux":
-            del self.options.with_systemd
+            self.options.rm_safe("with_systemd")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.enable_drafts:
-            del self.options.with_libcurl
-            del self.options.with_libmicrohttpd
+            self.options.rm_safe("with_libcurl")
+            self.options.rm_safe("with_libmicrohttpd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

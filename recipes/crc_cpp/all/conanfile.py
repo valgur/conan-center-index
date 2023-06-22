@@ -48,16 +48,11 @@ class Crc_CppConan(ConanFile):
             )
 
     def source(self):
-        tools.files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
 
     def package_id(self):
         self.info.header_only()

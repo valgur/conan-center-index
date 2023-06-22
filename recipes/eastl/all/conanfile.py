@@ -111,13 +111,6 @@ class EastlConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     @property
     def _minimum_cpp_standard(self):
         return 14
@@ -132,9 +125,8 @@ class EastlConan(ConanFile):
         }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -142,52 +134,49 @@ class EastlConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("eabase/2.09.06")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
 
         mininum_compiler_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if (
-            mininum_compiler_version
-            and tools.Version(self.settings.compiler.version) < mininum_compiler_version
-        ):
+        if mininum_compiler_version and Version(self.settings.compiler.version) < mininum_compiler_version:
             raise ConanInvalidConfiguration(
                 "Compiler is too old for c++ {}".format(self._minimum_cpp_standard)
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["EASTL_BUILD_BENCHMARK"] = False
         tc.variables["EASTL_BUILD_TESTS"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_path_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"), "include(CommonCppFlags)", ""
+        apply_conandata_patches(self)
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(CommonCppFlags)", ""
         )
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("3RDPARTYLICENSES.TXT", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "3RDPARTYLICENSES.TXT", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

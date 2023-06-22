@@ -93,7 +93,6 @@ class RectangleBinPackConan(ConanFile):
     )
     topics = ("rectangle", "packing", "bin")
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -104,49 +103,48 @@ class RectangleBinPackConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder
+        get(
+            self,
+            **self.conan_data["sources"][self.version][0],
+            strip_root=True,
+            destination=self.source_folder
         )
-        tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses")
-        self.copy(
-            "*.h", dst=os.path.join("include", self.name), src=self._source_subfolder, excludes="old/**"
-        )
-        self.copy("*.dll", dst="bin", keep_path=False)
-        self.copy("*.lib", dst="lib", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.dylib", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
+        copy(self, "LICENSE", dst="licenses")
+        copy(self, "*.h", dst=os.path.join("include", self.name), src=self.source_folder, excludes="old/**")
+        copy(self, "*.dll", dst="bin", keep_path=False)
+        copy(self, "*.lib", dst="lib", keep_path=False)
+        copy(self, "*.so", dst="lib", keep_path=False)
+        copy(self, "*.dylib", dst="lib", keep_path=False)
+        copy(self, "*.a", dst="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["RectangleBinPack"]

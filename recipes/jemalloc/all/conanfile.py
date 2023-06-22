@@ -75,6 +75,7 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -212,10 +213,10 @@ class JemallocConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.enable_cxx:
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         if (
@@ -265,7 +266,7 @@ class JemallocConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _autotools_args(self):
@@ -377,23 +378,26 @@ class JemallocConan(ConanFile):
         return libname
 
     def package(self):
-        self.copy(pattern="COPYING", src=self.source_folder, dst="licenses")
+        copy(self, pattern="COPYING", src=self.source_folder, dst="licenses")
         if self.settings.compiler == "Visual Studio":
             arch_subdir = {
                 "x86_64": "x64",
                 "x86": "x86",
             }[str(self.settings.arch)]
-            self.copy(
+            copy(
+                self,
                 "*.lib",
                 src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
                 dst=os.path.join(self.package_folder, "lib"),
             )
-            self.copy(
+            copy(
+                self,
                 "*.dll",
                 src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
                 dst=os.path.join(self.package_folder, "bin"),
             )
-            self.copy(
+            copy(
+                self,
                 "jemalloc.h",
                 src=os.path.join(self.source_folder, "include", "jemalloc"),
                 dst=os.path.join(self.package_folder, "include", "jemalloc"),

@@ -100,16 +100,16 @@ class PremakeConan(ConanFile):
     }
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def config_options(self):
         if self.settings.os != "Windows" or self.settings.compiler == "Visual Studio":
-            del self.options.lto
+            self.options.rm_safe("lto")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
 
     @property
@@ -171,18 +171,17 @@ class PremakeConan(ConanFile):
         return config
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         if self.options.get_safe("lto", None) == False:
             for fn in glob.glob(
-                os.path.join(self._source_subfolder, "build", self._gmake_build_dirname, "*.make")
+                os.path.join(self.source_folder, "build", self._gmake_build_dirname, "*.make")
             ):
-                tools.replace_in_file(fn, "-flto", "", strict=False)
+                replace_in_file(self, fn, "-flto", "", strict=False)
 
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
+            with chdir(self, os.path.join(self.source_folder, "build", self._msvc_build_dirname)):
                 msbuild = MSBuild(self)
                 msbuild.build(
                     "Premake5.sln",
@@ -192,14 +191,14 @@ class PremakeConan(ConanFile):
                     },
                 )
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
+            with chdir(self, os.path.join(self.source_folder, "build", self._gmake_build_dirname)):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(target="Premake5", args=["verbose=1", "config={}".format(self._gmake_config)])
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*premake5.exe", dst="bin", keep_path=False)
-        self.copy(pattern="*premake5", dst="bin", keep_path=False)
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*premake5.exe", dst="bin", keep_path=False)
+        copy(self, pattern="*premake5", dst="bin", keep_path=False)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

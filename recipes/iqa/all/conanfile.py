@@ -104,11 +104,6 @@ class IqaConan(ConanFile):
         "fPIC": True,
     }
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -116,38 +111,41 @@ class IqaConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = glob.glob("iqa-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def _extract_license(self):
-        content_lines = open(os.path.join(self._source_subfolder, "include", "iqa.h")).readlines()
+        content_lines = open(os.path.join(self.source_folder, "include", "iqa.h")).readlines()
         license_content = []
         for i in range(1, 31):
             license_content.append(content_lines[i][3:-1])
-        tools.save("LICENSE", "\n".join(license_content))
+        save(self, "LICENSE", "\n".join(license_content))
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
         self._extract_license()
-        self.copy("LICENSE", dst="licenses")
+        copy(self, "LICENSE", dst="licenses")
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]

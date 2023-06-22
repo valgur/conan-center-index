@@ -92,13 +92,11 @@ class TypeSafe(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy("fff.h", dst="include", src=self._source_subfolder)
+        copy(self, "LICENSE*", dst="licenses", src=self.source_folder)
+        copy(self, "fff.h", dst="include", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

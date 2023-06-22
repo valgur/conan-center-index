@@ -111,18 +111,16 @@ class FltkConan(ConanFile):
         "with_threads": True,
         "with_gdiplus": True,
     }
-    generators = "cmake", "cmake_find_package_multi"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.with_gdiplus
+            self.options.rm_safe("with_gdiplus")
         if self.options.abi_version == None:
             _version_token = self.version.split(".")
             _version_major = int(_version_token[0])
@@ -138,7 +136,7 @@ class FltkConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -151,42 +149,39 @@ class FltkConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        tools.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["OPTION_BUILD_SHARED_LIBS"] = self.options.shared
-        cmake.definitions["FLTK_BUILD_TEST"] = False
-        cmake.definitions["FLTK_BUILD_EXAMPLES"] = False
-        cmake.definitions["OPTION_USE_GL"] = self.options.with_gl
-        cmake.definitions["OPTION_USE_THREADS"] = self.options.with_threads
-        cmake.definitions["OPTION_BUILD_HTML_DOCUMENTATION"] = False
-        cmake.definitions["OPTION_BUILD_PDF_DOCUMENTATION"] = False
+        tc = CMakeToolchain(self)
+        tc.variables["OPTION_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.variables["FLTK_BUILD_TEST"] = False
+        tc.variables["FLTK_BUILD_EXAMPLES"] = False
+        tc.variables["OPTION_USE_GL"] = self.options.with_gl
+        tc.variables["OPTION_USE_THREADS"] = self.options.with_threads
+        tc.variables["OPTION_BUILD_HTML_DOCUMENTATION"] = False
+        tc.variables["OPTION_BUILD_PDF_DOCUMENTATION"] = False
         if self.options.abi_version:
-            cmake.definitions["OPTION_ABI_VERSION"] = self.options.abi_version
-        cmake.configure()
-        return cmake
+            tc.variables["OPTION_ABI_VERSION"] = self.options.abi_version
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(self, **patch)
+        apply_conandata_patches(self)
 
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(self, os.path.join(self.package_folder, "share"))
-        tools.rmdir(self, os.path.join(self.package_folder, "FLTK.framework"))
-        tools.rmdir(self, os.path.join(self.package_folder, "CMake"))
-        tools.rm(self, "fltk-config*", os.path.join(self.package_folder, "bin"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "FLTK.framework"))
+        rmdir(self, os.path.join(self.package_folder, "CMake"))
+        rm(self, "fltk-config*", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fltk")
@@ -197,7 +192,7 @@ class FltkConan(ConanFile):
 
         if self.options.shared and self.settings.os == "Windows":
             self.cpp_info.defines.append("FL_DLL")
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ("Linux", "FreeBSD"):
             if self.options.with_threads:
                 self.cpp_info.system_libs.extend(["pthread", "dl"])

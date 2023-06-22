@@ -75,6 +75,7 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -155,6 +156,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.40.0"
 
 
@@ -170,7 +172,7 @@ class OfeliConan(ConanFile):
 
     @property
     def _doc_folder(self):
-        return os.path.join(self._source_subfolder, "doc")
+        return os.path.join(self.source_folder, "doc")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -178,14 +180,12 @@ class OfeliConan(ConanFile):
         if self.settings.compiler != "gcc":
             raise ConanInvalidConfiguration("Ofeli is just supported for GCC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         if self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration("Ofeli supports only libstdc++'s new ABI")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -197,15 +197,15 @@ class OfeliConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*libofeli.a", dst="lib", src=os.path.join(self._source_subfolder, "src"))
-        self.copy("*.md", dst="res", src=os.path.join(self._source_subfolder, "material"))
-        self.copy("COPYING", dst="licenses", src=self._doc_folder)
+        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "*libofeli.a", dst="lib", src=os.path.join(self.source_folder, "src"))
+        copy(self, "*.md", dst="res", src=os.path.join(self.source_folder, "material"))
+        copy(self, "COPYING", dst="licenses", src=self._doc_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["ofeli"]

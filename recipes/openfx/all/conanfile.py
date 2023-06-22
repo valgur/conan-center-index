@@ -101,15 +101,12 @@ class openfx(ConanFile):
     requires = ("opengl/system", "expat/2.4.8")
     exports_sources = "CMakeLists.txt", "cmake/*", "symbols/*"
 
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
-
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,11 +114,13 @@ class openfx(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     @property
@@ -129,17 +128,16 @@ class openfx(ConanFile):
         return [os.path.join("lib", "cmake", "OpenFX.cmake")]
 
     def package(self):
-        cmake = self._configure_cmake()
-
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy("*.symbols", src="symbols", dst="lib/symbols")
-        self.copy("*.cmake", src="cmake", dst="lib/cmake")
-        self.copy("LICENSE", src="source_subfolder/Support", dst="licenses")
-        self.copy("readme.md")
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+
+        copy(self, "*.symbols", src="symbols", dst="lib/symbols")
+        copy(self, "*.cmake", src="cmake", dst="lib/cmake")
+        copy(self, "LICENSE", src="source_subfolder/Support", dst="licenses")
+        copy(self, "readme.md")
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "openfx"

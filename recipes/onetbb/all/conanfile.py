@@ -44,16 +44,16 @@ class OneTBBConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2021.6.0" or self.settings.os == "Android":
-            del self.options.interprocedural_optimization
+            self.options.rm_safe("interprocedural_optimization")
         if Version(self.version) < "2021.2.0":
-            del self.options.shared
+            self.options.rm_safe("shared")
             self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.get_safe("shared", True):
             self.options.rm_safe("fPIC")
         else:
-            del self.options.tbbproxy
+            self.options.rm_safe("tbbproxy")
         if not self.options.tbbmalloc:
             self.options.rm_safe("tbbproxy")
 

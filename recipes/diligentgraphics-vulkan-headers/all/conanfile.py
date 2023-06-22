@@ -99,17 +99,16 @@ class VulkanHeadersConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy("*", dst="include", src=os.path.join(self.source_folder, self._source_subfolder, "include"))
-        self.copy(
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(self, "*", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
             "*",
             dst=os.path.join("res", "vulkan", "registry"),
-            src=os.path.join(self.source_folder, self._source_subfolder, "registry"),
+            src=os.path.join(self.source_folder, "registry"),
         )
 
     def package_info(self):

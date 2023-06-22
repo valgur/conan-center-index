@@ -39,7 +39,7 @@ class BZip3Conan(ConanFile):
         #  - MinGW with posix thread supports it out of the box
         #  - otherwise, add pthreads4w to requirements and link it in CMakeLists
         if self.settings.os == "Windows":
-            del self.options.with_thread
+            self.options.rm_safe("with_thread")
 
     def configure(self):
         if self.options.shared:

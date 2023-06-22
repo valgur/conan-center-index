@@ -104,32 +104,25 @@ class OpenColorIOConan(ConanFile):
         "use_sse": True,
     }
 
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.use_sse
+            self.options.rm_safe("use_sse")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("expat/2.4.8")
         self.requires("openexr/2.5.7")
         self.requires("yaml-cpp/0.7.0")
-        if tools.Version(self.version) < "2.0.0":
+        if Version(self.version) < "2.0.0":
             self.requires("tinyxml/2.6.2")
         else:
             self.requires("pystring/1.1.3")
@@ -139,82 +132,79 @@ class OpenColorIOConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
+        tc = CMakeToolchain(self)
 
-        if tools.Version(self.version) >= "2.1.0":
-            cmake.definitions["OCIO_BUILD_PYTHON"] = False
+        if Version(self.version) >= "2.1.0":
+            tc.variables["OCIO_BUILD_PYTHON"] = False
         else:
-            cmake.definitions["OCIO_BUILD_SHARED"] = self.options.shared
-            cmake.definitions["OCIO_BUILD_STATIC"] = not self.options.shared
-            cmake.definitions["OCIO_BUILD_PYGLUE"] = False
+            tc.variables["OCIO_BUILD_SHARED"] = self.options.shared
+            tc.variables["OCIO_BUILD_STATIC"] = not self.options.shared
+            tc.variables["OCIO_BUILD_PYGLUE"] = False
 
-            cmake.definitions["USE_EXTERNAL_YAML"] = True
-            cmake.definitions["USE_EXTERNAL_TINYXML"] = True
-            cmake.definitions["USE_EXTERNAL_LCMS"] = True
+            tc.variables["USE_EXTERNAL_YAML"] = True
+            tc.variables["USE_EXTERNAL_TINYXML"] = True
+            tc.variables["USE_EXTERNAL_LCMS"] = True
 
-        cmake.definitions["OCIO_USE_SSE"] = self.options.get_safe("use_sse", False)
+        tc.variables["OCIO_USE_SSE"] = self.options.get_safe("use_sse", False)
 
         # openexr 2.x provides Half library
-        cmake.definitions["OCIO_USE_OPENEXR_HALF"] = True
+        tc.variables["OCIO_USE_OPENEXR_HALF"] = True
 
-        cmake.definitions["OCIO_BUILD_APPS"] = True
-        cmake.definitions["OCIO_BUILD_DOCS"] = False
-        cmake.definitions["OCIO_BUILD_TESTS"] = False
-        cmake.definitions["OCIO_BUILD_GPU_TESTS"] = False
-        cmake.definitions["OCIO_USE_BOOST_PTR"] = False
+        tc.variables["OCIO_BUILD_APPS"] = True
+        tc.variables["OCIO_BUILD_DOCS"] = False
+        tc.variables["OCIO_BUILD_TESTS"] = False
+        tc.variables["OCIO_BUILD_GPU_TESTS"] = False
+        tc.variables["OCIO_USE_BOOST_PTR"] = False
 
         # avoid downloading dependencies
-        cmake.definitions["OCIO_INSTALL_EXT_PACKAGE"] = "NONE"
+        tc.variables["OCIO_INSTALL_EXT_PACKAGE"] = "NONE"
 
         if is_msvc(self) and not self.options.shared:
             # define any value because ifndef is used
-            cmake.definitions["OpenColorIO_SKIP_IMPORTS"] = True
+            tc.variables["OpenColorIO_SKIP_IMPORTS"] = True
 
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath"):
-            tools.remove_files_by_mask(
-                os.path.join(self._source_subfolder, "share", "cmake", "modules"), "Find" + module + ".cmake"
+            remove_files_by_mask(
+                self,
+                os.path.join(self.source_folder, "share", "cmake", "modules"),
+                "Find" + module + ".cmake",
             )
 
     def build(self):
         self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
+        cmake = CMake(self)
+        cmake.install()
 
         if not self.options.shared:
-            self.copy("*", src=os.path.join(self.package_folder, "lib", "static"), dst="lib")
-            tools.rmdir(os.path.join(self.package_folder, "lib", "static"))
+            copy(self, "*", src=os.path.join(self.package_folder, "lib", "static"), dst="lib")
+            rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
         # nop for 2.x
-        tools.remove_files_by_mask(self.package_folder, "OpenColorIOConfig*.cmake")
+        remove_files_by_mask(self.package_folder, "OpenColorIOConfig*.cmake")
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")
+        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
 
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenColorIO")
@@ -223,7 +213,7 @@ class OpenColorIOConan(ConanFile):
 
         self.cpp_info.libs = ["OpenColorIO"]
 
-        if tools.Version(self.version) < "2.1.0":
+        if Version(self.version) < "2.1.0":
             if not self.options.shared:
                 self.cpp_info.defines.append("OpenColorIO_STATIC")
 

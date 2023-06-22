@@ -46,32 +46,21 @@ class Tixi3Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
         # tixi is a c library
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            files.copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
+            copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
-        files.get(
-            self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        files.apply_conandata_patches(self)
+        apply_conandata_patches(self)
 
         cmake = CMake(self)
         cmake.configure()
@@ -88,15 +77,15 @@ class Tixi3Conan(ConanFile):
                 endif()
             """
             )
-        files.save(self, module_file, content)
+        save(self, module_file, content)
 
     def package(self):
         cmake = CMake(self)
         cmake.install()
 
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         # provide alias target tixi3 for v1 packages
         self._create_cmake_module_alias_targets(

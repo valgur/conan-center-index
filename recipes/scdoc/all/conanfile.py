@@ -97,16 +97,14 @@ class ScdocInstallerConan(ConanFile):
         self.build_requires("make/4.3")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @staticmethod
     def _chmod_plus_x(filename):
@@ -121,15 +119,15 @@ class ScdocInstallerConan(ConanFile):
 
     def build(self):
         autotools = self._configure_autotools()
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             autotools.make()
 
     def package(self):
         autotools = self._configure_autotools()
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             autotools.install(args=[f"PREFIX={self.package_folder}"])
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

@@ -66,7 +66,7 @@ class CivetwebConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_zlib_option:
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:
@@ -75,7 +75,7 @@ class CivetwebConan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_ssl:
-            del self.options.ssl_dynamic_loading
+            self.options.rm_safe("ssl_dynamic_loading")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

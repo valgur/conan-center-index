@@ -40,7 +40,7 @@ class PugiXmlConan(ConanFile):
         if self.options.shared or self.options.header_only:
             self.options.rm_safe("fPIC")
         if self.options.header_only:
-            del self.options.shared
+            self.options.rm_safe("shared")
 
     def layout(self):
         if self.options.header_only:

@@ -45,7 +45,7 @@ class OneDplConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         version_major = int(str(Version(self.version).major)[0:4])

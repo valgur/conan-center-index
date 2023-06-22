@@ -119,18 +119,16 @@ class CassandraCppDriverConan(ConanFile):
         "use_timerfd": True,
     }
 
-    short_paths = True
-    generators = "cmake"
     exports_sources = ["CMakeLists.txt", "patches/*"]
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.use_timerfd
+            self.options.rm_safe("use_timerfd")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("libuv/1.44.1")
@@ -157,21 +155,18 @@ class CassandraCppDriverConan(ConanFile):
             raise ConanInvalidConfiguration("Kerberos is not supported at the moment")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        apply_conandata_patches(self)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             '"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"',
             '"${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"',
         )
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["VERSION"] = self.version
         tc.variables["CASS_BUILD_EXAMPLES"] = False
@@ -212,16 +207,17 @@ class CassandraCppDriverConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
 
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(

@@ -77,7 +77,7 @@ class MingwConan(ConanFile):
 
     def package(self):
         target = "mingw64" if self.settings.arch == "x86_64" else "mingw32"
-        self.copy("*", dst="", src=target)
+        copy(self, "*", dst="", src=target)
         rmdir(self, target)
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "opt", "lib", "cmake"))

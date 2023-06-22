@@ -107,9 +107,7 @@ class IgnitionUitlsConan(ConanFile):
         "fPIC": True,
         "ign_utils_vendor_cli11": True,
     }
-    generators = "cmake", "cmake_find_package_multi"
     exports_sources = "CMakeLists.txt", "patches/**"
-    _cmake = None
 
     @property
     def _minimum_cpp_standard(self):
@@ -130,13 +128,13 @@ class IgnitionUitlsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -145,7 +143,7 @@ class IgnitionUitlsConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
                         self.name, self.settings.compiler, self.settings.compiler.version
@@ -161,46 +159,43 @@ class IgnitionUitlsConan(ConanFile):
         self.build_requires("ignition-cmake/2.10.0")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if self._cmake is not None:
-            return self._cmake
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["IGN_UTILS_VENDOR_CLI11"] = self.options.ign_utils_vendor_cli11
-        tc.variables["CMAKE_FIND_DEBUG_MODE"] = "1"
-        self._cmake.configure()
-        return self._cmake
+        tc.variables["CMAKE_FIND_DEBUG_MODE"] = True
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cli_header_src = os.path.join(self._source_subfolder, "cli", "include")
-        if int(tools.Version(self.version).minor) == 0:
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cli_header_src = os.path.join(self.source_folder, "cli", "include")
+        if int(Version(self.version).minor) == 0:
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")
         else:
             cli_header_src = os.path.join(cli_header_src, "external-cli", "ignition", "utils", "cli")
-        self.copy("*.hpp", src=cli_header_src, dst="include/ignition/utils1/ignition/utils/cli")
-        cmake = self._configure_cmake()
+        copy(self, "*.hpp", src=cli_header_src, dst="include/ignition/utils1/ignition/utils/cli")
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"), recursive=True)
 
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path), tools.Version(self.version)
+            os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
         )
 
     @staticmethod
@@ -215,10 +210,10 @@ class IgnitionUitlsConan(ConanFile):
                 major=version.major, minor=version.minor, patch=version.patch
             )
         )
-        tools.save(module_file, content)
+        save(self, module_file, content)
 
     def package_info(self):
-        version_major = tools.Version(self.version).major
+        version_major = Version(self.version).major
         lib_name = f"ignition-utils{version_major}"
         build_dirs = os.path.join(self.package_folder, "lib", "cmake")
         include_dir = os.path.join("include", "ignition", "utils" + version_major)

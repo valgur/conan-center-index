@@ -100,8 +100,7 @@ class ICCConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-    }
-    generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
+    }, "cmake_find_package_multi"
 
     @property
     def _minimum_cpp_standard(self):
@@ -116,16 +115,9 @@ class ICCConan(ConanFile):
             "gcc": "4.9.4",
         }
 
-    def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["ICC_BUILD_SHARED"] = self.options.shared
-        cmake.configure()
-        self._cmake = cmake
-        return self._cmake
-
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
 
         os = self.settings.os
         if os not in ("Windows", "Linux"):
@@ -135,7 +127,7 @@ class ICCConan(ConanFile):
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if tools.Version(compiler.version) < min_version:
+            if Version(self, compiler.version) < min_version:
                 msg = ("{} requires C++{} features which are not supported by compiler {} {} !!").format(
                     self.name, self._minimum_cpp_standard, compiler, compiler.version
                 )
@@ -153,24 +145,29 @@ class ICCConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["ICC_BUILD_SHARED"] = self.options.shared
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

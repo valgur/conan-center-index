@@ -93,21 +93,17 @@ class YasConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _extract_license(self):
-        header = tools.load(
-            os.path.join(self.source_folder, self._source_subfolder, "include", "yas", "binary_oarchive.hpp")
-        )
+        header = load(self, os.path.join(self.source_folder, "include", "yas", "binary_oarchive.hpp"))
         license_contents = header[: header.find("#")].replace("//", "").replace("\n ", "\n").lstrip()
-        tools.save("LICENSE", license_contents)
+        save(self, "LICENSE", license_contents)
 
     def package(self):
         self._extract_license()
-        self.copy("LICENSE", dst="licenses")
-        self.copy("*", src=os.path.join(self._source_subfolder, "include"), dst="include")
+        copy(self, "LICENSE", dst="licenses")
+        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst="include")
 
     def package_id(self):
         self.info.header_only()

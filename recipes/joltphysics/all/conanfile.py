@@ -86,7 +86,7 @@ class JoltPhysicsConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ("x86", "x86_64"):
-            del self.options.simd
+            self.options.rm_safe("simd")
 
     def configure(self):
         if self.options.shared:

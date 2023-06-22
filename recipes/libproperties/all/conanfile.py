@@ -103,7 +103,6 @@ class LibpropertiesConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
@@ -116,34 +115,36 @@ class LibpropertiesConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         source_dir = "{}-{}".format(self.name, self.version)
-        os.rename(source_dir, self._source_subfolder)
+        os.rename(source_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBPROPERTIES_INSTALL"] = True
         tc.variables["LIBPROPERTIES_TEST"] = False
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         if not self.options.shared:

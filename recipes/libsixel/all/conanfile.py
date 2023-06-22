@@ -118,12 +118,12 @@ class LibSixelConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
         if is_msvc(self):
             raise ConanInvalidConfiguration(
@@ -147,9 +147,7 @@ class LibSixelConan(ConanFile):
             self.requires("libpng/1.6.37")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @functools.lru_cache(1)
     def _configure_meson(self):
@@ -162,7 +160,7 @@ class LibSixelConan(ConanFile):
             "sixel2png": "disabled",
             "python2": "disabled",
         }
-        meson.configure(defs=defs, source_folder=self._source_subfolder)
+        meson.configure(defs=defs, source_folder=self.source_folder)
         return meson
 
     def build(self):
@@ -170,11 +168,11 @@ class LibSixelConan(ConanFile):
         meson.build()
 
     def package(self):
-        self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE*", dst="licenses", src=self.source_folder)
         meson = self._configure_meson()
         meson.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["sixel"]

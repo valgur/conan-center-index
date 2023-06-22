@@ -36,8 +36,6 @@ class CycloneDDSConan(ConanFile):
         "enable_security": False,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "14"

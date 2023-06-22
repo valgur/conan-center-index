@@ -61,10 +61,10 @@ class BitserializerConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows" or Version(self.version) < "0.50":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if Version(self.version) < "0.50":
-            del self.options.with_rapidyaml
-            del self.options.with_csv
+            self.options.rm_safe("with_rapidyaml")
+            self.options.rm_safe("with_csv")
 
     def configure(self):
         if self._is_header_only():

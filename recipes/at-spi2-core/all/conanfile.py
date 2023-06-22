@@ -103,10 +103,6 @@ class AtSpi2CoreConan(ConanFile):
         "with_x11": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     _meson = None
 
     def export_sources(self):
@@ -114,9 +110,9 @@ class AtSpi2CoreConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def build_requirements(self):
         self.build_requires("meson/1.1.1")
@@ -137,12 +133,7 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_meson(self):
         if self._meson:
@@ -159,7 +150,7 @@ class AtSpi2CoreConan(ConanFile):
         self._meson.configure(
             defs=defs,
             build_folder=self._build_subfolder,
-            source_folder=self._source_subfolder,
+            source_folder=self.source_folder,
             pkg_config_paths=".",
             args=args,
         )
@@ -170,7 +161,7 @@ class AtSpi2CoreConan(ConanFile):
         if Version(self.version) >= "2.42.0":
             replace_in_file(
                 self,
-                os.path.join(self._source_subfolder, "bus", "meson.build"),
+                os.path.join(self.source_folder, "bus", "meson.build"),
                 "if x11_dep.found()",
                 "if x11_option == 'yes'",
             )
@@ -178,7 +169,7 @@ class AtSpi2CoreConan(ConanFile):
         meson.build()
 
     def package(self):
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
         meson = self._configure_meson()
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

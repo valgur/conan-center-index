@@ -102,16 +102,11 @@ class SystemcComponentsConan(ConanFile):
         "enable_phase_callbacks": False,
         "enable_phase_callbacks_tracing": False,
     }
-    generators = "cmake"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     # no exports_sources attribute, but export_sources(self) method instead
     # this allows finer grain exportation of patches per version
     def export_sources(self):
-        self.copy("CMakeLists.txt")
+        copy(self, "CMakeLists.txt")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -119,7 +114,7 @@ class SystemcComponentsConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         if self.settings.os == "Macos":
             raise ConanInvalidConfiguration(f"{self.name} is not suppported on {self.settings.os}.")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
@@ -129,32 +124,27 @@ class SystemcComponentsConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
     def build_requirements(self):
         self.tool_requires("cmake/3.24.0")
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["SC_WITH_PHASE_CALLBACKS"] = self.options.enable_phase_callbacks
-        cmake.definitions["SC_WITH_PHASE_CALLBACK_TRACING"] = self.options.enable_phase_callbacks_tracing
-        cmake.definitions["BUILD_SCC_DOCUMENTATION"] = False
-        cmake.definitions["SCC_LIB_ONLY"] = True
+        tc = CMakeToolchain(self)
+        tc.variables["SC_WITH_PHASE_CALLBACKS"] = self.options.enable_phase_callbacks
+        tc.variables["SC_WITH_PHASE_CALLBACK_TRACING"] = self.options.enable_phase_callbacks_tracing
+        tc.variables["BUILD_SCC_DOCUMENTATION"] = False
+        tc.variables["SCC_LIB_ONLY"] = True
         if self.settings.os == "Windows":
-            cmake.definitions["SCC_LIMIT_TRACE_TYPE_LIST"] = True
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+            tc.variables["SCC_LIMIT_TRACE_TYPE_LIST"] = True
 
     def build(self):
-        cmake = self._configure_cmake()
-        cmake.build()
+        cmake = CMake(self)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

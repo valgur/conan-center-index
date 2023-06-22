@@ -49,10 +49,7 @@ class RuntimeQml(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self)
@@ -81,7 +78,6 @@ class RuntimeQml(ConanFile):
         get(
             self,
             **self.conan_data["sources"][str(self.version)],
-            destination=self.source_folder,
             strip_root=True,
         )
 

@@ -119,15 +119,14 @@ class libxftConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     @functools.lru_cache(1)
     def _configure_autotools(self):
@@ -142,14 +141,14 @@ class libxftConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="COPYING", dst="licenses", src=self._source_subfolder)
-        with chdir(self, self._source_subfolder):
+        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.install(args=["-j1"])
         rm(self, "*.la", f"{self.package_folder}/lib", recursive=True)

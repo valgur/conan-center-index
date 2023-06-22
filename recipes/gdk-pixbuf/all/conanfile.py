@@ -49,14 +49,13 @@ class GdkPixbufConan(ConanFile):
         "with_libjpeg": "libjpeg",
         "with_introspection": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:

@@ -101,8 +101,8 @@ class TarConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires("bzip2/1.0.8")
@@ -121,9 +121,7 @@ class TarConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -148,15 +146,15 @@ class TarConan(ConanFile):
             "--with-xz={}".format(xz_exe),
             # "--without-zstd",  # FIXME: this will use system zstd (current zstd recipe does not build programs)
         ]
-        self._autotools.configure(args=args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "gnu", "faccessat.c"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "gnu", "faccessat.c"),
                 "_GL_INCLUDING_UNISTD_H",
                 "_GL_INCLUDING_UNISTD_H_NOP",
             )
@@ -164,11 +162,11 @@ class TarConan(ConanFile):
         autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         autotools = self._configure_autotools()
         autotools.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

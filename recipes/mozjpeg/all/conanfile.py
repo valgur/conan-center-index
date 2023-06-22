@@ -59,7 +59,7 @@ class MozjpegConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_simd_support:
-            del self.options.SIMD
+            self.options.rm_safe("SIMD")
 
     def configure(self):
         if self.options.shared:
@@ -87,7 +87,7 @@ class MozjpegConan(ConanFile):
             self.tool_requires("nasm/2.15.05")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)

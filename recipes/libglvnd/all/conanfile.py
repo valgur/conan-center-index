@@ -55,8 +55,8 @@ class LibGlvndConan(ConanFile):
         return getattr(self, "user_info_build", self.deps_user_info)
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.options.x11:

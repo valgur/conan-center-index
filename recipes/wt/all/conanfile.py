@@ -70,20 +70,20 @@ class WtConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.connector_fcgi
+            self.options.rm_safe("connector_fcgi")
         else:
-            del self.options.connector_isapi
+            self.options.rm_safe("connector_isapi")
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_unwind
+            self.options.rm_safe("with_unwind")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.with_dbo:
-            del self.options.with_sqlite
-            del self.options.with_postgres
-            del self.options.with_mysql
-            del self.options.with_mssql
+            self.options.rm_safe("with_sqlite")
+            self.options.rm_safe("with_postgres")
+            self.options.rm_safe("with_mysql")
+            self.options.rm_safe("with_mssql")
         self._strict_options_requirements()
 
     def layout(self):

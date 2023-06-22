@@ -105,11 +105,6 @@ class UchardetConan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     @property
     def _settings_build(self):
@@ -117,62 +112,61 @@ class UchardetConan(ConanFile):
 
     def config_options(self):
         if self._settings_build not in ("x86", "x86_64"):
-            del self.options.check_sse2
+            self.options.rm_safe("check_sse2")
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
         # the following fixes that apply to uchardet version 0.0.7
         # fix broken cmake
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "${CMAKE_BINARY_DIR}",
             "${CMAKE_CURRENT_BINARY_DIR}",
         )
         # fix problem with mac os
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)",
             'string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)',
         )
         # disable building tests
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "add_subdirectory(test)",
             "#add_subdirectory(test)",
         )
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
-        cmake.definitions["BUILD_BINARY"] = False
-        cmake.definitions[
+        tc = CMakeToolchain(self)
+        tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
+        tc.variables["BUILD_BINARY"] = False
+        tc.variables[
             "BUILD_STATIC"
         ] = False  # disable building static libraries when self.options.shared is True
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "uchardet")

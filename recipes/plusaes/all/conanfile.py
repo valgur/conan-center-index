@@ -98,15 +98,13 @@ class PlusaesConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        root_dir = self._source_subfolder
+        root_dir = self.source_folder
         include_dir = os.path.join(root_dir, "include")
-        self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=root_dir)
-        self.copy(pattern="*plusaes.hpp", dst="include", src=include_dir)
+        copy(self, pattern="LICENSE_1_0.txt", dst="licenses", src=root_dir)
+        copy(self, pattern="*plusaes.hpp", dst="include", src=include_dir)

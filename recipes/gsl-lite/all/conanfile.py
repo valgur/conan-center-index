@@ -47,16 +47,11 @@ class GslLiteConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*gsl-lite.hpp", src=self._source_subfolder, dst=self.package_folder)
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*gsl-lite.hpp", src=self.source_folder, dst=self.package_folder)
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "gsl-lite")

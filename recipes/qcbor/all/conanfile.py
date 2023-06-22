@@ -36,7 +36,7 @@ class QCBORConan(ConanFile):
             del self.options.fPIC
 
         if Version(self.version) < "1.2":
-            del self.options.disable_float
+            self.options.rm_safe("disable_float")
 
     def configure(self):
         if self.options.shared:
@@ -48,7 +48,7 @@ class QCBORConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

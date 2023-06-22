@@ -20,7 +20,7 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        test_package = not tools.cross_building(self.settings)
+        test_package = not cross_building(self.settings)
         if "x86" not in str(self.settings.arch).lower():
             test_package = False
         elif str(self.options["llvm-core"].targets) not in ["all", "X86"]:

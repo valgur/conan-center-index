@@ -136,28 +136,23 @@ class LibxshmfenceConan(ConanFile):
     def build_requirements(self):
         self.build_requires("automake/1.16.5")
         self.build_requires("pkgconf/1.9.3")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def requirements(self):
         self.requires("xorg-proto/2022.2")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
                     "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace("\\", "/")
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -172,7 +167,7 @@ class LibxshmfenceConan(ConanFile):
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
-        self._autotools.configure(args=configure_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=configure_args, configure_dir=self.source_folder)
         return self._autotools
 
     def build(self):
@@ -182,7 +177,7 @@ class LibxshmfenceConan(ConanFile):
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()

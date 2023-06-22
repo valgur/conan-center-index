@@ -124,12 +124,7 @@ class FlatccConan(ConanFile):
         "fast_double": False,
         "ignore_const_condition": False,
     }
-    generators = "cmake"
     exports_sources = ["CMakeLists.txt"]
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -137,46 +132,42 @@ class FlatccConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Windows":
             if self.settings.compiler == "Visual Studio" and self.options.shared:
                 # Building flatcc shared libs with Visual Studio is broken
                 raise ConanInvalidConfiguration("Building flatcc libraries shared is not supported")
-            if tools.Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
+            if Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":
                 raise ConanInvalidConfiguration("Building flatcc with MinGW is not supported")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["FLATCC_PORTABLE"] = self.options.portable
-        cmake.definitions["FLATCC_GNU_POSIX_MEMALIGN"] = self.options.gnu_posix_memalign
-        cmake.definitions["FLATCC_RTONLY"] = self.options.runtime_lib_only
-        cmake.definitions["FLATCC_INSTALL"] = True
-        cmake.definitions["FLATCC_COVERAGE"] = False
-        cmake.definitions["FLATCC_DEBUG_VERIFY"] = self.options.verify_assert
-        cmake.definitions["FLATCC_TRACE_VERIFY"] = self.options.verify_trace
-        cmake.definitions["FLATCC_REFLECTION"] = self.options.reflection
-        cmake.definitions["FLATCC_NATIVE_OPTIM"] = self.options.native_optim
-        cmake.definitions["FLATCC_FAST_DOUBLE"] = self.options.fast_double
-        cmake.definitions["FLATCC_IGNORE_CONST_COND"] = self.options.ignore_const_condition
-        cmake.definitions["FLATCC_TEST"] = False
-        cmake.definitions["FLATCC_ALLOW_WERROR"] = False
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["FLATCC_PORTABLE"] = self.options.portable
+        tc.variables["FLATCC_GNU_POSIX_MEMALIGN"] = self.options.gnu_posix_memalign
+        tc.variables["FLATCC_RTONLY"] = self.options.runtime_lib_only
+        tc.variables["FLATCC_INSTALL"] = True
+        tc.variables["FLATCC_COVERAGE"] = False
+        tc.variables["FLATCC_DEBUG_VERIFY"] = self.options.verify_assert
+        tc.variables["FLATCC_TRACE_VERIFY"] = self.options.verify_trace
+        tc.variables["FLATCC_REFLECTION"] = self.options.reflection
+        tc.variables["FLATCC_NATIVE_OPTIM"] = self.options.native_optim
+        tc.variables["FLATCC_FAST_DOUBLE"] = self.options.fast_double
+        tc.variables["FLATCC_IGNORE_CONST_COND"] = self.options.ignore_const_condition
+        tc.variables["FLATCC_TEST"] = False
+        tc.variables["FLATCC_ALLOW_WERROR"] = False
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
         if self.settings.build_type == "Debug" and not tools.os_info.is_windows:
             debug_suffix = "_d" if self.settings.build_type == "Debug" else ""
@@ -185,7 +176,7 @@ class FlatccConan(ConanFile):
                 os.path.join(self.package_folder, "bin", "flatcc"),
             )
         # Copy license file
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

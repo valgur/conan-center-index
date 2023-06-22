@@ -70,11 +70,11 @@ class LibtiffConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_webp_option:
-            del self.options.webp
+            self.options.rm_safe("webp")
         if not self._has_zstd_option:
-            del self.options.zstd
+            self.options.rm_safe("zstd")
         if not self._has_libdeflate_option:
-            del self.options.libdeflate
+            self.options.rm_safe("libdeflate")
 
     def configure(self):
         if self.options.shared:

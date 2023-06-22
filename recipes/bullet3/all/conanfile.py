@@ -47,8 +47,6 @@ class Bullet3Conan(ConanFile):
         "extras": False,
     }
 
-    short_paths = True
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC

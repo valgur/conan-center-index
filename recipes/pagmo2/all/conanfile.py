@@ -108,8 +108,7 @@ class Pagmo2Conan(ConanFile):
         "with_ipopt": False,
     }
 
-    exports_sources = "CMakeLists.txt"
-    generators = "cmake", "cmake_find_package", "cmake_find_package_multi"
+    exports_sources = "CMakeLists.txt", "cmake_find_package_multi"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,7 +116,7 @@ class Pagmo2Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("boost/1.78.0")
@@ -142,7 +141,7 @@ class Pagmo2Conan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -178,49 +177,50 @@ class Pagmo2Conan(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
         # do not force MT runtime for static lib
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "if(YACMA_COMPILER_IS_MSVC AND PAGMO_BUILD_STATIC_LIBRARY)",
             "if(0)",
         )
         # No warnings as errors
         yacma_cmake = os.path.join(
-            self._source_subfolder, "cmake_modules", "yacma", "YACMACompilerLinkerSettings.cmake"
+            self.source_folder, "cmake_modules", "yacma", "YACMACompilerLinkerSettings.cmake"
         )
-        tools.replace_in_file(yacma_cmake, 'list(APPEND _YACMA_CXX_FLAGS_DEBUG "-Werror")', "")
-        tools.replace_in_file(yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/W4)", "")
-        tools.replace_in_file(yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/WX)", "")
+        replace_in_file(self, yacma_cmake, 'list(APPEND _YACMA_CXX_FLAGS_DEBUG "-Werror")', "")
+        replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/W4)", "")
+        replace_in_file(self, yacma_cmake, "_YACMA_CHECK_ENABLE_DEBUG_CXX_FLAG(/WX)", "")
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["PAGMO_BUILD_TESTS"] = False
-        cmake.definitions["PAGMO_BUILD_BENCHMARKS"] = False
-        cmake.definitions["PAGMO_BUILD_TUTORIALS"] = False
-        cmake.definitions["PAGMO_WITH_EIGEN3"] = self.options.with_eigen
-        cmake.definitions["PAGMO_WITH_NLOPT"] = self.options.with_nlopt
-        cmake.definitions["PAGMO_WITH_IPOPT"] = self.options.with_ipopt
-        cmake.definitions["PAGMO_ENABLE_IPO"] = False
-        cmake.definitions["PAGMO_BUILD_STATIC_LIBRARY"] = not self.options.shared
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["PAGMO_BUILD_TESTS"] = False
+        tc.variables["PAGMO_BUILD_BENCHMARKS"] = False
+        tc.variables["PAGMO_BUILD_TUTORIALS"] = False
+        tc.variables["PAGMO_WITH_EIGEN3"] = self.options.with_eigen
+        tc.variables["PAGMO_WITH_NLOPT"] = self.options.with_nlopt
+        tc.variables["PAGMO_WITH_IPOPT"] = self.options.with_ipopt
+        tc.variables["PAGMO_ENABLE_IPO"] = False
+        tc.variables["PAGMO_BUILD_STATIC_LIBRARY"] = not self.options.shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING.*", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, pattern="COPYING.*", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "pagmo")

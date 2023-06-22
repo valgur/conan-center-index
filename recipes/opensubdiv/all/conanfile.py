@@ -51,8 +51,6 @@ class OpenSubdivConan(ConanFile):
         "with_metal": False,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         if self.options.get_safe("with_metal"):
@@ -76,9 +74,9 @@ class OpenSubdivConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.with_dx
+            self.options.rm_safe("with_dx")
         if self.settings.os != "Macos":
-            del self.options.with_metal
+            self.options.rm_safe("with_metal")
 
     def configure(self):
         if self.options.shared:

@@ -101,25 +101,21 @@ class PDCursesConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ("FreeBSD", "Linux"):
-            del self.options.enable_widec
+            self.options.rm_safe("enable_widec")
 
     def configure(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("pdcurses does not support Apple")
         if self.options.with_sdl:
             raise ConanInvalidConfiguration("conan-center-index has no packages for sdl (yet)")
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
         if self.settings.os in ("FreeBSD", "Linux"):
@@ -130,8 +126,8 @@ class PDCursesConan(ConanFile):
             self.build_requires("make/4.2.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("PDCurses-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("PDCurses-{}".format(self.version), self.source_folder)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -145,31 +141,34 @@ class PDCursesConan(ConanFile):
         return self._autotools
 
     def _build_windows(self):
-        with tools.chdir(os.path.join(self._source_subfolder, "wincon")):
+        with chdir(self, os.path.join(self.source_folder, "wincon")):
             args = []
             if self.options.shared:
                 args.append("DLL=Y")
             args = " ".join(args)
             if self.settings.compiler == "Visual Studio":
-                with tools.vcvars(self):
+                with vcvars(self):
                     self.run("nmake -f Makefile.vc {}".format(args))
             else:
                 self.run("{} libs {}".format(os.environ["CONAN_MAKE_PROGRAM"], args))
 
     def _patch_sources(self):
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "wincon", "Makefile.vc"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "wincon", "Makefile.vc"),
                 "$(CFLAGS)",
                 "$(CFLAGS) -{}".format(self.settings.compiler.runtime),
             )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "x11", "Makefile.in"),
             "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
             "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
         )
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "x11", "Makefile.in"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "x11", "Makefile.in"),
             "\nall:\t",
             "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"),
         )
@@ -179,7 +178,7 @@ class PDCursesConan(ConanFile):
         if self.settings.os == "Windows":
             self._build_windows()
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "x11")):
+            with chdir(self, os.path.join(self.source_folder, "x11")):
                 autotools = self._configure_autotools()
                 autotools.make()
 
@@ -191,7 +190,7 @@ class PDCursesConan(ConanFile):
 
     @property
     def _license_text(self):
-        readme = tools.load(os.path.join(self._source_subfolder, self._subsystem_folder, "README.md"))
+        readme = load(self, os.path.join(self.source_folder, self._subsystem_folder, "README.md"))
         match = re.search(
             r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)",
             readme,
@@ -202,13 +201,13 @@ class PDCursesConan(ConanFile):
         return match.group(1).strip() + "\n"
 
     def package(self):
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         if self.settings.os == "Windows":
-            self.copy(pattern="curses.h", src=self._source_subfolder, dst="include")
-            self.copy(pattern="*.dll", dst="bin", keep_path=False)
-            self.copy(pattern="*.lib", dst="lib", keep_path=False)
-            self.copy(pattern="*.a", dst="lib", keep_path=False)
+            copy(self, pattern="curses.h", src=self.source_folder, dst="include")
+            copy(self, pattern="*.dll", dst="bin", keep_path=False)
+            copy(self, pattern="*.lib", dst="lib", keep_path=False)
+            copy(self, pattern="*.a", dst="lib", keep_path=False)
 
             if self.settings.compiler != "Visual Studio":
                 os.rename(
@@ -216,10 +215,10 @@ class PDCursesConan(ConanFile):
                     os.path.join(self.package_folder, "lib", "libpdcurses.a"),
                 )
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "x11")):
+            with chdir(self, os.path.join(self.source_folder, "x11")):
                 autotools = self._configure_autotools()
                 autotools.install()
-                tools.rmdir(os.path.join(self.package_folder, "bin"))
+                rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         if self.settings.os == "Windows":

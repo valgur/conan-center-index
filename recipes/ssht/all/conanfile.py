@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.50.0"
 
 
@@ -95,45 +96,37 @@ class SshtConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    requires = "fftw/3.3.9"
-    generators = "cmake", "cmake_find_package", "cmake_paths"
+    requires = "fftw/3.3.9", "cmake_paths"
     exports_sources = ["CMakeLists.txt"]
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("SSHT requires C99 support for complex numbers.")
 
     def source(self):
-        files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def cmake(self):
-        if not hasattr(self, "_cmake"):
-            tc = CMakeToolchain(self)
-            tc.variables["tests"] = False
-            tc.variables["python"] = False
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["tests"] = False
+        tc.variables["python"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self.cmake.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.cmake.install()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["ssht"]

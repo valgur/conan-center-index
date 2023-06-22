@@ -64,7 +64,6 @@ class CairoConan(ConanFile):
         "with_symbol_lookup": False,
         "tee": False,
     }
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -77,12 +76,12 @@ class CairoConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_xlib
-            del self.options.with_xlib_xrender
-            del self.options.with_xcb
-            del self.options.with_symbol_lookup
+            self.options.rm_safe("with_xlib")
+            self.options.rm_safe("with_xlib_xrender")
+            self.options.rm_safe("with_xcb")
+            self.options.rm_safe("with_symbol_lookup")
         if self.settings.os in ["Macos", "Windows"]:
-            del self.options.with_opengl
+            self.options.rm_safe("with_opengl")
 
     def configure(self):
         if self.options.shared:

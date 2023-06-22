@@ -19,8 +19,6 @@ class EmSDKConan(ConanFile):
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
 
-    short_paths = True
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -38,7 +36,7 @@ class EmSDKConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _relative_paths(self):

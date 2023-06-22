@@ -61,7 +61,6 @@ class QtXlsxWriterConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version]["source"],
-            destination=self.source_folder,
             strip_root=True,
         )
         download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")

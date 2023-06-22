@@ -105,7 +105,6 @@ class NanodbcConan(ConanFile):
         "unicode": False,
         "with_boost": False,
     }
-    generators = "cmake", "cmake_find_package"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,12 +119,12 @@ class NanodbcConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
         _minimum_compiler = self._compiler_cxx14.get(str(self.settings.compiler))
         if _minimum_compiler:
-            if tools.Version(self.settings.compiler.version) < _minimum_compiler:
+            if Version(self.settings.compiler.version) < _minimum_compiler:
                 raise ConanInvalidConfiguration(
                     "nanodbc requires c++14, which your compiler does not support"
                 )
@@ -141,37 +140,37 @@ class NanodbcConan(ConanFile):
             self.requires("odbc/2.3.9")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(glob.glob("nanodbc-*")[0], self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(glob.glob("nanodbc-*")[0], self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["NANODBC_DISABLE_ASYNC"] = not self.options.get_safe("async")
         tc.variables["NANODBC_ENABLE_UNICODE"] = self.options.unicode
         tc.variables["NANODBC_ENABLE_BOOST"] = self.options.with_boost
-        tc.variables["NANODBC_DISABLE_LIBCXX"] = (
-            self.settings.get_safe("compiler.libcxx") != "libc++"
-        )
+        tc.variables["NANODBC_DISABLE_LIBCXX"] = self.settings.get_safe("compiler.libcxx") != "libc++"
 
         tc.variables["NANODBC_DISABLE_INSTALL"] = False
         tc.variables["NANODBC_DISABLE_EXAMPLES"] = True
         tc.variables["NANODBC_DISABLE_TESTS"] = True
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.libs = ["nanodbc"]

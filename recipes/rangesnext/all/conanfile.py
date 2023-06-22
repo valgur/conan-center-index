@@ -100,20 +100,18 @@ class RangesnextConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, "20")
+            check_min_cppstd(self, "20")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version or tools.Version(self.settings.compiler.version) < minimum_version:
+        if not minimum_version or Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 "rangesnext requires C++20, which your compiler does not fully support."
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        include_folder = os.path.join(self._source_subfolder, "include")
-        self.copy(pattern="LICENSE.md", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=include_folder)
+        include_folder = os.path.join(self.source_folder, "include")
+        copy(self, pattern="LICENSE.md", dst="licenses", src=self.source_folder)
+        copy(self, pattern="*", dst="include", src=include_folder)

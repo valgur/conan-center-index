@@ -39,7 +39,7 @@ class MBedTLSConan(ConanFile):
             del self.options.fPIC
         if Version(self.version) >= "3.0.0":
             # ZLIB support has been ditched on version 3.0.0
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:

@@ -45,7 +45,7 @@ class UwebsocketsConan(ConanFile):
     def config_options(self):
         # libdeflate is not supported before 19.0.0
         if Version(self.version) < "19.0.0":
-            del self.options.with_libdeflate
+            self.options.rm_safe("with_libdeflate")
 
     def layout(self):
         basic_layout(self, src_folder="src")

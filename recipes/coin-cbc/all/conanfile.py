@@ -107,13 +107,8 @@ class CoinCbcConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -121,7 +116,7 @@ class CoinCbcConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("coin-utils/2.11.4")
@@ -142,7 +137,7 @@ class CoinCbcConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20201022")
         self.tool_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.tool_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.tool_requires("automake/1.16.5")
@@ -159,22 +154,20 @@ class CoinCbcConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(
-                        tools.unix_path(self._user_info_build["automake"].compile)
-                    ),
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "AR": "{} lib".format(unix_path(self._user_info_build["automake"].ar_lib)),
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -199,39 +192,38 @@ class CoinCbcConan(ConanFile):
             if self.options.parallel:
                 configure_args.append(
                     "--with-pthreadsw32-lib={}".format(
-                        tools.unix_path(
+                        unix_path(
+                            self,
                             os.path.join(
                                 self.deps_cpp_info["pthreads4w"].lib_paths[0],
                                 self.deps_cpp_info["pthreads4w"].libs[0] + ".lib",
-                            )
+                            ),
                         )
                     )
                 )
                 configure_args.append(
                     "--with-pthreadsw32-incdir={}".format(
-                        tools.unix_path(self.deps_cpp_info["pthreads4w"].include_paths[0])
+                        unix_path(self.deps_cpp_info["pthreads4w"].include_paths[0])
                     )
                 )
-        self._autotools.configure(
-            configure_dir=os.path.join(self.source_folder, self._source_subfolder), args=configure_args
-        )
+        self._autotools.configure(configure_dir=self.source_folder, args=configure_args)
         return self._autotools
 
     def build(self):
         apply_conandata_patches(self)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
-            os.path.join(self._source_subfolder, "config.guess"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with self._build_context():

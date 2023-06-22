@@ -117,12 +117,6 @@ class OpenVDBConan(ConanFile):
         "simd": None,
     }
 
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     @property
     def _compilers_min_version(self):
         return {
@@ -135,9 +129,8 @@ class OpenVDBConan(ConanFile):
         }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -145,7 +138,7 @@ class OpenVDBConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("boost/1.79.0")
@@ -163,7 +156,7 @@ class OpenVDBConan(ConanFile):
 
     def _check_compilier_version(self):
         compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         minimum_version = self._compilers_min_version.get(compiler, False)
         if minimum_version and version < minimum_version:
             raise ConanInvalidConfiguration(
@@ -172,22 +165,19 @@ class OpenVDBConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
         if self.settings.arch not in ("x86", "x86_64"):
             if self.options.simd:
                 raise ConanInvalidConfiguration("Only intel architectures support SSE4 or AVX.")
         self._check_compilier_version()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # Remove FindXXX files from OpenVDB. Let Conan do the job
-        tools.remove_files_by_mask(os.path.join(self._source_subfolder, "cmake"), "Find*")
+        rm(self, "Find*", os.path.join(self.source_folder, "cmake"), recursive=True)
         with open("FindBlosc.cmake", "w") as f:
             f.write(
                 """find_package(c-blosc)
@@ -223,55 +213,54 @@ if(OpenEXR_FOUND)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
+        tc = CMakeToolchain(self)
         # exposed options
-        cmake.definitions["USE_BLOSC"] = self.options.with_blosc
-        cmake.definitions["USE_ZLIB"] = self.options.with_zlib
-        cmake.definitions["USE_LOG4CPLUS"] = self.options.with_log4cplus
-        cmake.definitions["USE_EXR"] = self.options.with_exr
-        cmake.definitions["OPENVDB_SIMD"] = self.options.simd
+        tc.variables["USE_BLOSC"] = self.options.with_blosc
+        tc.variables["USE_ZLIB"] = self.options.with_zlib
+        tc.variables["USE_LOG4CPLUS"] = self.options.with_log4cplus
+        tc.variables["USE_EXR"] = self.options.with_exr
+        tc.variables["OPENVDB_SIMD"] = self.options.simd
 
-        cmake.definitions["OPENVDB_CORE_SHARED"] = self.options.shared
-        cmake.definitions["OPENVDB_CORE_STATIC"] = not self.options.shared
+        tc.variables["OPENVDB_CORE_SHARED"] = self.options.shared
+        tc.variables["OPENVDB_CORE_STATIC"] = not self.options.shared
 
         # All available options but not exposed yet. Set to default values
-        cmake.definitions["OPENVDB_BUILD_CORE"] = True
-        cmake.definitions["OPENVDB_BUILD_BINARIES"] = False
-        cmake.definitions["OPENVDB_BUILD_PYTHON_MODULE"] = False
-        cmake.definitions["OPENVDB_BUILD_UNITTESTS"] = False
-        cmake.definitions["OPENVDB_BUILD_DOCS"] = False
-        cmake.definitions["OPENVDB_BUILD_HOUDINI_PLUGIN"] = False
-        cmake.definitions["OPENVDB_BUILD_HOUDINI_ABITESTS"] = False
+        tc.variables["OPENVDB_BUILD_CORE"] = True
+        tc.variables["OPENVDB_BUILD_BINARIES"] = False
+        tc.variables["OPENVDB_BUILD_PYTHON_MODULE"] = False
+        tc.variables["OPENVDB_BUILD_UNITTESTS"] = False
+        tc.variables["OPENVDB_BUILD_DOCS"] = False
+        tc.variables["OPENVDB_BUILD_HOUDINI_PLUGIN"] = False
+        tc.variables["OPENVDB_BUILD_HOUDINI_ABITESTS"] = False
 
-        cmake.definitions["OPENVDB_BUILD_AX"] = False
-        cmake.definitions["OPENVDB_BUILD_AX_BINARIES"] = False
-        cmake.definitions["OPENVDB_BUILD_AX_UNITTESTS"] = False
+        tc.variables["OPENVDB_BUILD_AX"] = False
+        tc.variables["OPENVDB_BUILD_AX_BINARIES"] = False
+        tc.variables["OPENVDB_BUILD_AX_UNITTESTS"] = False
 
-        cmake.definitions["OPENVDB_BUILD_MAYA_PLUGIN"] = False
-        cmake.definitions["OPENVDB_ENABLE_RPATH"] = False
-        cmake.definitions["OPENVDB_CXX_STRICT"] = False
-        cmake.definitions["USE_HOUDINI"] = False
-        cmake.definitions["USE_MAYA"] = False
-        cmake.definitions["USE_STATIC_DEPENDENCIES"] = False
-        cmake.definitions["USE_PKGCONFIG"] = False
-        cmake.definitions["OPENVDB_INSTALL_CMAKE_MODULES"] = False
+        tc.variables["OPENVDB_BUILD_MAYA_PLUGIN"] = False
+        tc.variables["OPENVDB_ENABLE_RPATH"] = False
+        tc.variables["OPENVDB_CXX_STRICT"] = False
+        tc.variables["USE_HOUDINI"] = False
+        tc.variables["USE_MAYA"] = False
+        tc.variables["USE_STATIC_DEPENDENCIES"] = False
+        tc.variables["USE_PKGCONFIG"] = False
+        tc.variables["OPENVDB_INSTALL_CMAKE_MODULES"] = False
 
-        cmake.definitions["Boost_USE_STATIC_LIBS"] = not self.options["boost"].shared
-        cmake.definitions["OPENEXR_USE_STATIC_LIBS"] = not self.options["openexr"].shared
+        tc.variables["Boost_USE_STATIC_LIBS"] = not self.options["boost"].shared
+        tc.variables["OPENEXR_USE_STATIC_LIBS"] = not self.options["openexr"].shared
 
-        cmake.definitions["OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING"] = True
+        tc.variables["OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING"] = True
 
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+        tc.generate()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

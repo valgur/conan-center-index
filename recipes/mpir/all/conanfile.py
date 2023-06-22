@@ -123,12 +123,12 @@ class MpirConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if is_msvc(self) and self.options.shared:
-            del self.options.enable_cxx
+            self.options.rm_safe("enable_cxx")
         if not self.options.get_safe("enable_cxx", False):
-            del self.settings.compiler.libcxx
-            del self.settings.compiler.cppstd
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
         if self.options.enable_gmpcompat:
             self.provides.append("gmp")
 
@@ -140,7 +140,7 @@ class MpirConan(ConanFile):
         self.tool_requires("yasm/1.3.0")
         if not is_msvc(self):
             self.tool_requires("m4/1.4.19")
-            if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
@@ -149,7 +149,7 @@ class MpirConan(ConanFile):
             keep_permissions=True,
             **self.conan_data["sources"][self.version],
             strip_root=True,
-            destination=self._source_subfolder,
+            destination=self.source_folder,
         )
 
     @property
@@ -171,7 +171,7 @@ class MpirConan(ConanFile):
         build_subdir = "build.vc{}".format(compiler_version)
         vcxproj_paths = [
             os.path.join(
-                self._source_subfolder,
+                self.source_folder,
                 build_subdir,
                 "{}_mpir_gc".format(self._dll_or_lib),
                 "{}_mpir_gc.vcxproj".format(self._dll_or_lib),
@@ -179,16 +179,14 @@ class MpirConan(ConanFile):
         ]
         if self.options.get_safe("enable_cxx"):
             vcxproj_paths.append(
-                os.path.join(self._source_subfolder, build_subdir, "lib_mpir_cxx", "lib_mpir_cxx.vcxproj")
+                os.path.join(self.source_folder, build_subdir, "lib_mpir_cxx", "lib_mpir_cxx.vcxproj")
             )
         return vcxproj_paths
 
     def _build_visual_studio(self):
         if not self.options.shared:  # RuntimeLibrary only defined in lib props files
             build_type = "debug" if self.settings.build_type == "Debug" else "release"
-            props_path = os.path.join(
-                self._source_subfolder, "build.vc", "mpir_{}_lib.props".format(build_type)
-            )
+            props_path = os.path.join(self.source_folder, "build.vc", "mpir_{}_lib.props".format(build_type))
             old_runtime = "MultiThreaded{}".format("Debug" if build_type == "debug" else "")
             new_runtime = "MultiThreaded{}{}".format(
                 "Debug" if "d" in msvc_runtime_flag(self) else "",
@@ -202,16 +200,16 @@ class MpirConan(ConanFile):
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "apple-clang":
-            env_build = {"CC": tools.XCRun(self.settings).cc, "CXX": tools.XCRun(self.settings).cxx}
+            env_build = {"CC": XCRun(self.settings).cc, "CXX": XCRun(self.settings).cxx}
             if hasattr(self, "settings_build"):
                 # there is no CFLAGS_FOR_BUILD/CXXFLAGS_FOR_BUILD
-                xcrun = tools.XCRun(self.settings_build)
+                xcrun = XCRun(self.settings_build)
                 flags = " -Wno-implicit-function-declaration -isysroot {} -arch {}".format(
-                    xcrun.sdk_path, tools.to_apple_arch(self.settings_build.arch)
+                    xcrun.sdk_path, to_apple_arch(self.settings_build.arch)
                 )
                 env_build["CC_FOR_BUILD"] = xcrun.cc + flags
                 env_build["CXX_FOR_BUILD"] = xcrun.cxx + flags
-            with tools.environment_append(env_build):
+            with environment_append(self, env_build):
                 yield
         else:
             yield
@@ -236,8 +234,8 @@ class MpirConan(ConanFile):
         return self._autotools
 
     def _patch_new_msvc_version(self, ver, toolset):
-        new_dir = os.path.join(self._source_subfolder, f"build.vc{ver}")
-        copy(self, pattern="*", src=os.path.join(self._source_subfolder, "build.vc15"), dst=new_dir)
+        new_dir = os.path.join(self.source_folder, f"build.vc{ver}")
+        copy(self, pattern="*", src=os.path.join(self.source_folder, "build.vc15"), dst=new_dir)
 
         for root, _, files in os.walk(new_dir):
             for file in files:
@@ -298,7 +296,7 @@ class MpirConan(ConanFile):
         if is_msvc(self):
             self._build_visual_studio()
         else:
-            with chdir(self, self._source_subfolder), self._build_context():
+            with chdir(self, self.source_folder), self._build_context():
                 # relocatable shared lib on macOS
                 replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
                 autotools = self._configure_autotools()
@@ -309,12 +307,12 @@ class MpirConan(ConanFile):
             self,
             "COPYING*",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, self._source_subfolder),
+            src=self.source_folder,
         )
         if is_msvc(self):
             lib_folder = os.path.join(
                 self.build_folder,
-                self._source_subfolder,
+                self.source_folder,
                 self._dll_or_lib,
                 self._platforms.get(str(self.settings.arch)),
                 str(self.settings.build_type),
@@ -342,7 +340,7 @@ class MpirConan(ConanFile):
                 keep_path=False,
             )
         else:
-            with chdir(self, self._source_subfolder), self._build_context():
+            with chdir(self, self.source_folder), self._build_context():
                 autotools = self._configure_autotools()
                 autotools.install()
             rmdir(self, os.path.join(self.package_folder, "share"))

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class PortableFileDialogsConan(ConanFile):
     name = "portable-file-dialogs"
     license = "WTFPL"
@@ -91,16 +92,16 @@ class PortableFileDialogsConan(ConanFile):
 
     def configure(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        self.copy("portable-file-dialogs.h", dst="include", src=self._source_subfolder)
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, "portable-file-dialogs.h", dst="include", src=self.source_folder)
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

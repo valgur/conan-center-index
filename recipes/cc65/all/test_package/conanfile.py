@@ -19,12 +19,12 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        if not tools.cross_building(self.settings):
+        if not cross_building(self.settings):
             for src in self.exports_sources:
                 shutil.copy(os.path.join(self.source_folder, src), os.path.join(self.build_folder, src))
             for target in self._targets:
                 output = "hello_{}".format(target)
-                tools.mkdir(target)
+                mkdir(self, target)
                 try:
                     # Try removing the output file to give confidence it is created by cc65
                     os.unlink(output)

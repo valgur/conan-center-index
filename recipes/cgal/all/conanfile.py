@@ -23,7 +23,6 @@ class CgalConan(ConanFile):
     package_type = "header-library"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
-    short_paths = True
 
     @property
     def _min_cppstd(self):

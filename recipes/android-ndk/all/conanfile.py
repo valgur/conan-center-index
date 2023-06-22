@@ -20,7 +20,6 @@ class AndroidNDKConan(ConanFile):
 
     settings = "os", "arch", "build_type", "compiler"
 
-    short_paths = True
     exports_sources = "cmake-wrapper.cmd", "cmake-wrapper"
 
     def _is_universal2(self, info=False):

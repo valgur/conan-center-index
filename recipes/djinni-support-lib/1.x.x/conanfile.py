@@ -115,12 +115,11 @@ class DjinniSuppotLib(ConanFile):
         "system_java": False,
     }
     exports_sources = ["CMakeLists.txt"]
-    generators = "cmake", "cmake_find_package"
 
     @property
     def _objc_support(self):
         if self.options.with_objc == "auto" or self.options.target == "auto":
-            return tools.is_apple_os(self.settings.os)
+            return is_apple_os(self.settings.os)
         else:
             return self.options.with_objc == True or self.options.target == "objc"
 
@@ -144,7 +143,7 @@ class DjinniSuppotLib(ConanFile):
 
     def configure(self):
         if self.settings.compiler == "Visual Studio" or self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def build_requirements(self):
         if not self.options.system_java and self._jni_support:
@@ -193,10 +192,10 @@ class DjinniSuppotLib(ConanFile):
                     "Python on Windows is not fully yet supported, please see https://github.com/cross-language-cpp/djinni-support-lib/issues."
                 )
         if self.settings.get_safe("compiler.cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
         try:
             minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
-            if tools.Version(self.settings.compiler.version) < minimum_required_compiler_version:
+            if Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration(
                     "This package requires c++17 support. The current compiler does not support it."
                 )
@@ -206,9 +205,7 @@ class DjinniSuppotLib(ConanFile):
             )
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -220,17 +217,20 @@ class DjinniSuppotLib(ConanFile):
         if self._jni_support:
             tc.variables["JAVA_AWT_LIBRARY"] = "NotNeeded"
             tc.variables["JAVA_AWT_INCLUDE_PATH"] = "NotNeeded"
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

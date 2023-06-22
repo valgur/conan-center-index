@@ -42,7 +42,7 @@ class LibsecretConan(ConanFile):
             del self.options.fPIC
         if self.settings.os != "Linux":
             # libgcrypt recipe is currently only available on Linux
-            del self.options.with_libgcrypt
+            self.options.rm_safe("with_libgcrypt")
 
     def configure(self):
         if self.options.shared:

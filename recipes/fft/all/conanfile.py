@@ -47,8 +47,8 @@ class FftConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.threads:
-            del self.options.max_threads
-            del self.options.threads_begin_n
+            self.options.rm_safe("max_threads")
+            self.options.rm_safe("threads_begin_n")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

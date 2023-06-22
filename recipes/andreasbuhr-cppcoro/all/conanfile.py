@@ -99,7 +99,6 @@ class AndreasbuhrCppCoroConan(ConanFile):
     provides = "cppcoro"
 
     exports_sources = "CMakeLists.txt"
-    generators = "cmake"
 
     options = {
         "shared": [True, False],
@@ -133,7 +132,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires coroutine TS support. The current compiler {} {} does not support it.".format(
                         self.name, self.settings.compiler, self.settings.compiler.version
@@ -150,30 +149,30 @@ class AndreasbuhrCppCoroConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if not self._cmake:
-            tc = CMakeToolchain(self)
-            if self.settings.os == "Windows" and self.options.shared:
-                tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = "ON"
-            self._cmake.configure()
-        return self._cmake
+        tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = (
+            self.settings.os == "Windows" and self.options.shared
+        )
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "cppcoro"

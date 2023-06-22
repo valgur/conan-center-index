@@ -105,7 +105,6 @@ class LibXpmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
     exports_sources = "CMakeLists.txt", "windows/*"
     no_copy_source = True
 
@@ -114,7 +113,7 @@ class LibXpmConan(ConanFile):
             raise ConanInvalidConfiguration("libXpm is supported only on Windows, Linux and FreeBSD")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -122,27 +121,30 @@ class LibXpmConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.settings.os != "Windows":
             self.requires("xorg/system")
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["CONAN_libXpm_VERSION"] = self.version
-        cmake.configure()
-        return cmake
+        tc = CMakeToolchain(self)
+        tc.variables["CONAN_libXpm_VERSION"] = self.version
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self._configure_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("COPYING", "licenses")
-        self.copy("COPYRIGHT", "licenses")
+        copy(self, "COPYING", "licenses")
+        copy(self, "COPYRIGHT", "licenses")
         self._configure_cmake().install()
 
     def package_info(self):

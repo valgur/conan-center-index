@@ -91,16 +91,12 @@ class WafConan(ConanFile):
     settings = "os", "arch"
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("waf-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("waf-{}".format(self.version), self.source_folder)
 
     @property
     def _license_text(self):
-        [_, license, _] = (
-            open(os.path.join(self.source_folder, self._source_subfolder, "waf"), "rb")
-            .read()
-            .split(b'"""', 3)
-        )
+        [_, license, _] = open(os.path.join(self.source_folder, "waf"), "rb").read().split(b'"""', 3)
         return license.decode().lstrip()
 
     def build(self):
@@ -113,14 +109,14 @@ class WafConan(ConanFile):
         os.mkdir(binpath)
         os.mkdir(libpath)
 
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
-        self.copy("waf", src=self._source_subfolder, dst=binpath)
-        self.copy("waf-light", src=self._source_subfolder, dst=binpath)
-        self.copy("waflib/*", src=self._source_subfolder, dst=libpath)
+        copy(self, "waf", src=self.source_folder, dst=binpath)
+        copy(self, "waf-light", src=self.source_folder, dst=binpath)
+        copy(self, "waflib/*", src=self.source_folder, dst=libpath)
 
         if self.settings.os == "Windows":
-            self.copy("waf.bat", src=os.path.join(self._source_subfolder, "utils"), dst=binpath)
+            copy(self, "waf.bat", src=os.path.join(self.source_folder, "utils"), dst=binpath)
 
         os.chmod(os.path.join(binpath, "waf"), 0o755)
         os.chmod(os.path.join(binpath, "waf-light"), 0o755)

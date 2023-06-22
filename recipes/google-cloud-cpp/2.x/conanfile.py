@@ -59,8 +59,6 @@ class GoogleCloudCppConan(ConanFile):
     }
     exports = ["components_2_5_0.py", "components_2_12_0.py"]
 
-    short_paths = True
-
     _GA_COMPONENTS = {"2.5.0": components_2_5_0.COMPONENTS, "2.12.0": components_2_12_0.COMPONENTS}
     _PROTO_COMPONENTS = {
         "2.5.0": components_2_5_0.PROTO_COMPONENTS,
@@ -137,7 +135,7 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
         self.requires("protobuf/3.21.9", transitive_headers=True)

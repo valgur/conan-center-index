@@ -44,7 +44,7 @@ class Iir1Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "1.9.1":
-            del self.options.noexceptions
+            self.options.rm_safe("noexceptions")
 
     def configure(self):
         if self.options.shared:

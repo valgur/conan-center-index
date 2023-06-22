@@ -114,12 +114,6 @@ class Hdf4Conan(ConanFile):
     }
 
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -127,11 +121,11 @@ class Hdf4Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if not bool(self.options.szip_support):
-            del self.options.szip_encoding
+            self.options.rm_safe("szip_encoding")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -145,15 +139,7 @@ class Hdf4Conan(ConanFile):
             self.requires("szip/2.1.1")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
-
-    def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
-        cmake.build()
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -172,25 +158,31 @@ class Hdf4Conan(ConanFile):
         tc.variables["HDF4_PACKAGE_EXTLIBS"] = False
         tc.variables["HDF4_BUILD_XDR_LIB"] = True
         tc.variables["BUILD_TESTING"] = False
-        tc.variables["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(
-            self.package_folder, "include", "hdf4"
-        )
+        tc.variables["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(self.package_folder, "include", "hdf4")
         tc.variables["HDF4_BUILD_FORTRAN"] = False
         tc.variables["HDF4_BUILD_UTILS"] = False
         tc.variables["HDF4_BUILD_TOOLS"] = False
         tc.variables["HDF4_BUILD_EXAMPLES"] = False
         tc.variables["HDF4_BUILD_JAVA"] = False
-        if tools.cross_building(self):
+        if cross_building(self):
             tc.variables["H4_PRINTF_LL_TEST_RUN"] = "0"
             tc.variables["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def build(self):
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         os.remove(os.path.join(self.package_folder, "lib", "libhdf4.settings"))
 
     def package_info(self):

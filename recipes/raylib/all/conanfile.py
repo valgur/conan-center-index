@@ -32,7 +32,7 @@ class RaylibConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os == "Android":
-            del self.options.opengl_version
+            self.options.rm_safe("opengl_version")
 
     def configure(self):
         if self.options.shared:

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class SdbusCppTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = ("cmake", "pkg_config")

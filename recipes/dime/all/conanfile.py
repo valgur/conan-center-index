@@ -112,60 +112,53 @@ class DimeConan(ConanFile):
         "fixbig": False,
     }
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "11")
+            check_min_cppstd(self, "11")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["DIME_BUILD_SHARED_LIBS"] = self.options.shared
+        tc = CMakeToolchain(self)
+        tc.variables["DIME_BUILD_SHARED_LIBS"] = self.options.shared
         if self.options.fixbig:
-            cmake.definitions["CMAKE_CXX_FLAGS"] = "-DDIME_FIXBIG"
-        cmake.configure(build_folder=self._build_subfolder)
-        return cmake
+            tc.variables["CMAKE_CXX_FLAGS"] = "-DDIME_FIXBIG"
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)",
             "configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)",
         )
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows" and is_msvc(self):
-            tools.remove_files_by_mask(self.package_folder, "*.pdb")
+            rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         libname = "dime"
         if self.settings.os == "Windows" and is_msvc(self):
             libname = "{}{}{}{}".format(
                 libname,
-                tools.Version(self.version).major,
+                Version(self.version).major,
                 "" if self.options.shared else "s",
                 "d" if self.settings.build_type == "Debug" else "",
             )

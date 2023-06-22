@@ -42,7 +42,7 @@ class NormConan(ConanFile):
         self.requires("libxml2/2.10.4")  # dependency of protolib actually
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -384,14 +384,6 @@ class AwsSdkCppConan(ConanFile):
     default_options["transfer"] = True
     default_options["text-to-speech"] = True
 
-    generators = "cmake", "cmake_find_package"
-    short_paths = True
-    _cmake = None
-
-    @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
     @property
     def _internal_requirements(self):
         return {
@@ -405,22 +397,21 @@ class AwsSdkCppConan(ConanFile):
 
     @property
     def _use_aws_crt_cpp(self):
-        return tools.Version(self.version) >= "1.9"
+        return Version(self.version) >= "1.9"
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "1.9":
+        if Version(self.version) < "1.9":
             delattr(self.options, "s3-crt")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("aws-c-common/0.6.19")
@@ -442,16 +433,16 @@ class AwsSdkCppConan(ConanFile):
         if (
             self.options.shared
             and self.settings.compiler == "gcc"
-            and tools.Version(self.settings.compiler.version) < "6.0"
+            and Version(self.settings.compiler.version) < "6.0"
         ):
             raise ConanInvalidConfiguration(
                 "Doesn't support gcc5 / shared. "
                 "See https://github.com/conan-io/conan-center-index/pull/4401#issuecomment-802631744"
             )
         if (
-            tools.Version(self.version) < "1.9.234"
+            Version(self.version) < "1.9.234"
             and self.settings.compiler == "gcc"
-            and tools.Version(self.settings.compiler.version) >= "11.0"
+            and Version(self.settings.compiler.version) >= "11.0"
             and self.settings.build_type == "Release"
         ):
             raise ConanInvalidConfiguration(
@@ -459,7 +450,7 @@ class AwsSdkCppConan(ConanFile):
                 "See https://github.com/aws/aws-sdk-cpp/issues/1505"
             )
         if self._use_aws_crt_cpp:
-            if self._is_msvc and "MT" in msvc_runtime_flag(self):
+            if is_msvc(self) and "MT" in msvc_runtime_flag(self):
                 raise ConanInvalidConfiguration("Static runtime is not working for more recent releases")
         else:
             if self.settings.os == "Macos" and self.settings.arch == "armv8":
@@ -474,9 +465,7 @@ class AwsSdkCppConan(ConanFile):
                     setattr(self.info.options, internal_requirement, True)
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -491,25 +480,26 @@ class AwsSdkCppConan(ConanFile):
         tc.variables["ENABLE_TESTING"] = False
         tc.variables["AUTORUN_UNIT_TESTS"] = False
         tc.variables["BUILD_DEPS"] = False
-        if self.settings.os != "Windows":
-            tc.variables["ENABLE_OPENSSL_ENCRYPTION"] = True
+        tc.variables["ENABLE_OPENSSL_ENCRYPTION"] = self.settings.os != "Windows"
 
         tc.variables["MINIMIZE_SIZE"] = self.options.min_size
-        if self._is_msvc and not self._use_aws_crt_cpp:
+        if is_msvc(self) and not self._use_aws_crt_cpp:
             tc.variables["FORCE_SHARED_CRT"] = "MD" in msvc_runtime_flag(self)
 
-        if tools.cross_building(self):
+        if cross_building(self):
             tc.variables["CURL_HAS_H2_EXITCODE"] = "0"
             tc.variables["CURL_HAS_H2_EXITCODE__TRYRUN_OUTPUT"] = ""
             tc.variables["CURL_HAS_TLS_PROXY_EXITCODE"] = "0"
             tc.variables["CURL_HAS_TLS_PROXY_EXITCODE__TRYRUN_OUTPUT"] = ""
-        self._cmake.configure()
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     @property
@@ -527,8 +517,9 @@ class AwsSdkCppConan(ConanFile):
             "toolchains/pkg-config.pc.in",
             "aws-cpp-sdk-core/include/aws/core/VersionConfig.h",
         ]:
-            self.copy(file, src=self._source_subfolder, dst=self._res_folder)
-            tools.replace_in_file(
+            copy(self, file, src=self.source_folder, dst=self._res_folder)
+            replace_in_file(
+                self,
                 os.path.join(self.package_folder, self._res_folder, file),
                 "CMAKE_CURRENT_SOURCE_DIR",
                 "AWS_NATIVE_SDK_ROOT",
@@ -536,26 +527,29 @@ class AwsSdkCppConan(ConanFile):
             )
 
         # avoid getting error from hook
-        with tools.chdir(os.path.join(self.package_folder, self._res_folder)):
+        with chdir(self, os.path.join(self.package_folder, self._res_folder)):
             rename(
                 self,
                 os.path.join("toolchains", "cmakeProjectConfig.cmake"),
                 os.path.join("toolchains", "cmakeProjectConf.cmake"),
             )
-            tools.replace_in_file(
-                os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake"
+            replace_in_file(
+                self,
+                os.path.join("cmake", "utilities.cmake"),
+                "cmakeProjectConfig.cmake",
+                "cmakeProjectConf.cmake",
             )
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        if self._is_msvc:
-            self.copy(pattern="*.lib", dst="lib", keep_path=False)
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.lib")
+        if is_msvc(self):
+            copy(self, pattern="*.lib", dst="lib", keep_path=False)
+            rm(self, "*.lib", os.path.join(self.package_folder, "bin"), recursive=True)
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         self._create_project_cmake_module()
 
@@ -627,7 +621,7 @@ class AwsSdkCppConan(ConanFile):
             if self.options.get_safe("text-to-speech"):
                 self.cpp_info.components["text-to-speech"].frameworks.append("CoreAudio")
 
-        lib_stdcpp = tools.stdcpp_library(self)
+        lib_stdcpp = stdcpp_library(self)
         if lib_stdcpp:
             self.cpp_info.components["core"].system_libs.append(lib_stdcpp)
 

@@ -46,8 +46,6 @@ class PhysXConan(ConanFile):
         "enable_float_point_precise_math": False,
     }
 
-    short_paths = True
-
     generators = "CMakeDeps"
 
     def export_sources(self):
@@ -60,11 +58,11 @@ class PhysXConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.build_type != "Release":
-            del self.options.release_build_type
+            self.options.rm_safe("release_build_type")
         if self.settings.os != "Windows":
-            del self.options.enable_float_point_precise_math
+            self.options.rm_safe("enable_float_point_precise_math")
         if self.settings.os not in ["Windows", "Android"]:
-            del self.options.enable_simd
+            self.options.rm_safe("enable_simd")
 
     def configure(self):
         if self.options.shared:
@@ -100,7 +98,7 @@ class PhysXConan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -52,9 +52,9 @@ class CppRestSDKConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.pplx_impl
-            del self.options.http_client_impl
-            del self.options.http_listener_impl
+            self.options.rm_safe("pplx_impl")
+            self.options.rm_safe("http_client_impl")
+            self.options.rm_safe("http_listener_impl")
 
     def configure(self):
         if self.options.shared:

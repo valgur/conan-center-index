@@ -18,8 +18,8 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        cmake = CMake(self)
-        cmake.definitions["IGN_MATH_MAJOR_VER"] = Version(self.deps_cpp_info["ignition-math"].version).major
+        tc = CMakeToolchain(self)
+        tc.variables["IGN_MATH_MAJOR_VER"] = Version(self.deps_cpp_info["ignition-math"].version).major
         cmake.configure()
         cmake.build()
 

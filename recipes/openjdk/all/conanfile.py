@@ -39,7 +39,6 @@ class OpenJDK(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(key)],
-            destination=self.source_folder,
             strip_root=True,
         )
 

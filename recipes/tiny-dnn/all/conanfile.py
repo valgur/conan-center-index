@@ -103,7 +103,6 @@ class TinyDnnConan(ConanFile):
     # TODO: if you move this recipe to CMakeDeps, be aware that tiny-dnn
     #       relies on CMake variables which are not defined in CMakeDeps, only
     #       in cmake_find_package. So patch it before.
-    generators = "cmake", "cmake_find_package"
 
     @property
     def _min_cppstd(self):
@@ -126,10 +125,10 @@ class TinyDnnConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
         compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if compiler in self._min_compilers_version and version < self._min_compilers_version[compiler]:
             raise ConanInvalidConfiguration(
                 "{} requires a compiler that supports at least C++{}".format(self.name, self._min_cppstd)
@@ -139,23 +138,21 @@ class TinyDnnConan(ConanFile):
         self.info.header_only()
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "tiny_dnn", "util", "image.h"), "third_party/", ""
+        replace_in_file(
+            self, os.path.join(self.source_folder, "tiny_dnn", "util", "image.h"), "third_party/", ""
         )
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = CMake(self)
-        cmake.definitions["USE_TBB"] = self.options.with_tbb
-        cmake.definitions["USE_GEMMLOWP"] = False
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        tc = CMakeToolchain(self)
+        tc.variables["USE_TBB"] = self.options.with_tbb
+        tc.variables["USE_GEMMLOWP"] = False
         cmake.configure()
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinydnn")

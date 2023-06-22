@@ -120,18 +120,10 @@ class CorradeConan(ConanFile):
         "with_utility": True,
     }
 
-    generators = "cmake"
-    short_paths = True
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        self.copy("cmake/*")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt")
+        copy(self, "cmake/*")
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -139,10 +131,10 @@ class CorradeConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def validate(self):
-        if is_msvc(self) and tools.Version(vs_ide_version(self)) < 14:
+        if is_msvc(self) and Version(self, vs_ide_version(self)) < 14:
             raise ConanInvalidConfiguration("Corrade requires Visual Studio version 14 or greater")
 
         if not self.options.with_utility and (
@@ -153,60 +145,59 @@ class CorradeConan(ConanFile):
             )
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
     def generate(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
 
-        cmake.definitions["BUILD_DEPRECATED"] = self.options.build_deprecated
-        cmake.definitions["WITH_INTERCONNECT"] = self.options.with_interconnect
-        cmake.definitions["WITH_MAIN"] = self.options.with_main
-        cmake.definitions["WITH_PLUGINMANAGER"] = self.options.with_pluginmanager
-        cmake.definitions["WITH_TESTSUITE"] = self.options.with_testsuite
-        cmake.definitions["WITH_UTILITY"] = self.options.with_utility
-        cmake.definitions["WITH_RC"] = self.options.with_utility
+        tc.variables["BUILD_DEPRECATED"] = self.options.build_deprecated
+        tc.variables["WITH_INTERCONNECT"] = self.options.with_interconnect
+        tc.variables["WITH_MAIN"] = self.options.with_main
+        tc.variables["WITH_PLUGINMANAGER"] = self.options.with_pluginmanager
+        tc.variables["WITH_TESTSUITE"] = self.options.with_testsuite
+        tc.variables["WITH_UTILITY"] = self.options.with_utility
+        tc.variables["WITH_RC"] = self.options.with_utility
 
         # Corrade uses suffix on the resulting "lib"-folder when running cmake.install()
         # Set it explicitly to empty, else Corrade might set it implicitly (eg. to "64")
-        cmake.definitions["LIB_SUFFIX"] = ""
+        tc.variables["LIB_SUFFIX"] = ""
 
         if is_msvc(self):
-            cmake.definitions["MSVC2015_COMPATIBILITY"] = vs_ide_version(self) == "14"
-            cmake.definitions["MSVC2017_COMPATIBILITY"] = vs_ide_version(self) == "15"
-            cmake.definitions["MSVC2019_COMPATIBILITY"] = vs_ide_version(self) == "16"
+            tc.variables["MSVC2015_COMPATIBILITY"] = vs_ide_version(self) == "14"
+            tc.variables["MSVC2017_COMPATIBILITY"] = vs_ide_version(self) == "15"
+            tc.variables["MSVC2019_COMPATIBILITY"] = vs_ide_version(self) == "16"
 
-        cmake.configure(build_folder=self._build_subfolder)
-
-        return cmake
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
         share_cmake = os.path.join(self.package_folder, "share", "cmake", "Corrade")
-        self.copy("UseCorrade.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake"))
-        self.copy(
-            "CorradeLibSuffix.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake")
+        copy(self, "UseCorrade.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake"))
+        copy(
+            self,
+            "CorradeLibSuffix.cmake",
+            src=share_cmake,
+            dst=os.path.join(self.package_folder, "lib", "cmake"),
         )
-        self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

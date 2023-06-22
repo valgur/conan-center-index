@@ -80,6 +80,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.43.0"
 
 
@@ -113,11 +114,11 @@ class NetSnmpConan(ConanFile):
         return self.settings.compiler in ("Visual Studio", "msvc")
 
     def validate(self):
-        if self.settings.os == "Windows" and not self._is_msvc:
+        if self.settings.os == "Windows" and not is_msvc(self):
             raise ConanInvalidConfiguration("net-snmp is setup to build only with MSVC on Windows")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -125,12 +126,12 @@ class NetSnmpConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def build_requirements(self):
-        if self._is_msvc:
+        if is_msvc(self):
             self.build_requires("strawberryperl/5.30.0.1")
 
     @property
@@ -152,21 +153,21 @@ class NetSnmpConan(ConanFile):
         if self.options.with_ipv6:
             search_replace.append(("$b_ipv6 = false", "$b_ipv6 = true"))
         for search, replace in search_replace:
-            tools.replace_in_file("win32\\build.pl", search, replace)
+            replace_in_file(self, "win32\\build.pl", search, replace)
         runtime = self.settings.compiler.runtime
-        tools.replace_in_file("win32\\Configure", '"/runtime', f'"/{runtime}')
+        replace_in_file(self, "win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
             f'#    pragma comment(lib, "{lib}.lib")' for lib in ssl_info.libs + ssl_info.system_libs
         )
         config = r"win32\net-snmp\net-snmp-config.h.in"
-        tools.replace_in_file(config, "/* Conan: system_libs */", link_lines)
+        replace_in_file(self, config, "/* Conan: system_libs */", link_lines)
 
     def _build_msvc(self):
         if self.should_configure:
             self._patch_msvc()
             self.run("perl build.pl", cwd="win32")
         if self.should_build:
-            with tools.vcvars(self):
+            with vcvars(self):
                 self.run("nmake /nologo libsnmp", cwd="win32")
 
     @functools.lru_cache(1)
@@ -196,21 +197,23 @@ class NetSnmpConan(ConanFile):
         return autotools
 
     def _patch_unix(self):
-        tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
+        replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
         crypto_libs = self.deps_cpp_info["openssl"].system_libs
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
-            tools.replace_in_file(
-                "configure", 'LIBCRYPTO="-l${CRYPTO}"', 'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,)
+            replace_in_file(
+                self,
+                "configure",
+                'LIBCRYPTO="-l${CRYPTO}"',
+                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,),
             )
-            tools.replace_in_file(
-                "configure", 'LIBS="-lcrypto  $LIBS"', f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
+            replace_in_file(
+                self, "configure", 'LIBS="-lcrypto  $LIBS"', f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
             )
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        if self._is_msvc:
+        apply_conandata_patches(self)
+        if is_msvc(self):
             self._build_msvc()
         else:
             self._patch_unix()
@@ -219,31 +222,31 @@ class NetSnmpConan(ConanFile):
 
     def _package_msvc(self):
         cfg = "debug" if self._is_debug else "release"
-        self.copy("netsnmp.dll", "bin", rf"win32\bin\{cfg}")
-        self.copy("netsnmp.lib", "lib", rf"win32\lib\{cfg}")
-        self.copy("include/net-snmp/*.h")
+        copy(self, "netsnmp.dll", "bin", rf"win32\bin\{cfg}")
+        copy(self, "netsnmp.lib", "lib", rf"win32\lib\{cfg}")
+        copy(self, "include/net-snmp/*.h")
         for directory in ["", "agent/", "library/"]:
-            self.copy(f"net-snmp/{directory}*.h", "include", "win32")
-        self.copy("COPYING", "licenses")
+            copy(self, f"net-snmp/{directory}*.h", "include", "win32")
+        copy(self, "COPYING", "licenses")
 
     def _remove(self, path):
         if os.path.isdir(path):
-            tools.rmdir(path)
+            rmdir(self, path)
         else:
             os.remove(path)
 
     def _package_unix(self):
         self._configure_autotools().install(args=["NOAUTODEPS=1"])
-        tools.remove_files_by_mask(self.package_folder, "README")
-        tools.rmdir(os.path.join(self.package_folder, "bin"))
+        remove_files_by_mask(self.package_folder, "README")
+        rmdir(self, os.path.join(self.package_folder, "bin"))
         lib_dir = os.path.join(self.package_folder, "lib")
         for entry in os.listdir(lib_dir):
             if not entry.startswith("libnetsnmp.") or entry.endswith(".la"):
                 self._remove(os.path.join(lib_dir, entry))
-        self.copy("COPYING", "licenses")
+        copy(self, "COPYING", "licenses")
 
     def package(self):
-        if self._is_msvc:
+        if is_msvc(self):
             self._package_msvc()
         else:
             self._package_unix()

@@ -22,7 +22,6 @@ class TaskflowConan(ConanFile):
     topics = ("tasking", "parallelism", "header-only")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     @property
     def _min_cppstd(self):

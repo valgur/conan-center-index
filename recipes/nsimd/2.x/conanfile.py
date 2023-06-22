@@ -78,6 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+
 required_conan_version = ">=1.33.0"
 
 
@@ -103,7 +104,6 @@ class NsimdConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     exports_sources = ["CMakeLists.txt", "patches/*"]
-    generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -133,25 +133,19 @@ class NsimdConan(ConanFile):
     }
     default_options = {"shared": False, "fPIC": True, "simd": None}
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         # Most of the library is header only.
         # cpp files do not use STL.
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.libcxx")
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -160,26 +154,29 @@ class NsimdConan(ConanFile):
         if self.settings.arch == "armv7hf":
             tc.variables["NSIMD_ARM32_IS_ARMEL"] = False
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        cmakefile_path = os.path.join(self._source_subfolder, "CMakeLists.txt")
-        tools.replace_in_file(cmakefile_path, " SHARED ", " ")
-        tools.replace_in_file(cmakefile_path, "RUNTIME DESTINATION lib", "RUNTIME DESTINATION bin")
-        tools.replace_in_file(
-            cmakefile_path, "set_property(TARGET ${o} PROPERTY POSITION_INDEPENDENT_CODE ON)", ""
+        cmakefile_path = os.path.join(self.source_folder, "CMakeLists.txt")
+        replace_in_file(self, cmakefile_path, " SHARED ", " ")
+        replace_in_file(self, cmakefile_path, "RUNTIME DESTINATION lib", "RUNTIME DESTINATION bin")
+        replace_in_file(
+            self, cmakefile_path, "set_property(TARGET ${o} PROPERTY POSITION_INDEPENDENT_CODE ON)", ""
         )
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)

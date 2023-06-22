@@ -45,7 +45,7 @@ class FmtConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_with_os_api_option:
-            del self.options.with_os_api
+            self.options.rm_safe("with_os_api")
         elif str(self.settings.os) == "baremetal":
             self.options.with_os_api = False
 

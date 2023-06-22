@@ -96,8 +96,8 @@ class SasscConan(ConanFile):
     _autotools = None
 
     def config_options(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -119,14 +119,13 @@ class SasscConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
             strip_root=True,
         )
 
     def _patch_sources(self):
         replace_in_file(
             self,
-            os.path.join(self.build_folder, self._source_subfolder, "win", "sassc.vcxproj"),
+            os.path.join(self.build_folder, self.source_folder, "win", "sassc.vcxproj"),
             "$(LIBSASS_DIR)\\win\\libsass.targets",
             os.path.join(self.build_folder, "conanbuildinfo.props"),
         )
@@ -148,25 +147,23 @@ class SasscConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             if is_msvc(self):
                 self._build_msbuild()
             else:
-                self.run("{} -fiv".format(tools.get_env("AUTORECONF")), run_environment=True)
+                self.run("{} -fiv".format(get_env(self, "AUTORECONF")), run_environment=True)
                 save(self, path="VERSION", content=f"{self.version}")
                 autotools = self._configure_autotools()
                 autotools.make()
 
     def package(self):
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             if is_msvc(self):
-                self.copy(
-                    "*.exe", dst="bin", src=os.path.join(self._source_subfolder, "bin"), keep_path=False
-                )
+                copy(self, "*.exe", dst="bin", src=os.path.join(self.source_folder, "bin"), keep_path=False)
             else:
                 autotools = self._configure_autotools()
                 autotools.install()
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

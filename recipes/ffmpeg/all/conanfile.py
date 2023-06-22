@@ -247,20 +247,20 @@ class FFMpegConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self.settings.os in ["Linux", "FreeBSD"]:
-            del self.options.with_vaapi
-            del self.options.with_vdpau
-            del self.options.with_vulkan
-            del self.options.with_xcb
-            del self.options.with_libalsa
-            del self.options.with_pulse
+            self.options.rm_safe("with_vaapi")
+            self.options.rm_safe("with_vdpau")
+            self.options.rm_safe("with_vulkan")
+            self.options.rm_safe("with_xcb")
+            self.options.rm_safe("with_libalsa")
+            self.options.rm_safe("with_pulse")
         if self.settings.os != "Macos":
-            del self.options.with_appkit
+            self.options.rm_safe("with_appkit")
         if self.settings.os not in ["Macos", "iOS", "tvOS"]:
-            del self.options.with_coreimage
-            del self.options.with_audiotoolbox
-            del self.options.with_videotoolbox
+            self.options.rm_safe("with_coreimage")
+            self.options.rm_safe("with_audiotoolbox")
+            self.options.rm_safe("with_videotoolbox")
         if not is_apple_os(self):
-            del self.options.with_avfoundation
+            self.options.rm_safe("with_avfoundation")
         if not self._version_supports_vulkan:
             self.options.rm_safe("with_vulkan")
 

@@ -79,6 +79,7 @@ from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+
 class PciUtilsConan(ConanFile):
     name = "pciutils"
     license = "BSD-3-Clause"
@@ -107,9 +108,9 @@ class PciUtilsConan(ConanFile):
             )
 
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.options.with_zlib:
@@ -120,9 +121,9 @@ class PciUtilsConan(ConanFile):
             self.requires("systemd/system")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
-        tools.rename(extracted_dir, self._source_subfolder)
+        rename(self, extracted_dir, self.source_folder)
 
     def _make(self, targets):
         yes_no = lambda v: "yes" if v else "no"
@@ -140,25 +141,26 @@ class PciUtilsConan(ConanFile):
         )
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             self._make(["all"])
 
     def package(self):
-        with tools.chdir(self._source_subfolder):
+        with chdir(self.source_folder):
             self._make(["install", "install-pcilib"])
 
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
-        self.copy("*.h", src=self._source_subfolder, dst="include", keep_path=True)
+        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "*.h", src=self.source_folder, dst="include", keep_path=True)
 
         if self.options.shared:
-            tools.rename(
-                src=os.path.join(self._source_subfolder, "lib", "libpci.so.3.7.0"),
+            rename(
+                self,
+                src=os.path.join(self.source_folder, "lib", "libpci.so.3.7.0"),
                 dst=os.path.join(self.package_folder, "lib", "libpci.so"),
             )
 
-        tools.rmdir(os.path.join(self.package_folder, "sbin"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "man"))
+        rmdir(self, os.path.join(self.package_folder, "sbin"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "man"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libpci"
