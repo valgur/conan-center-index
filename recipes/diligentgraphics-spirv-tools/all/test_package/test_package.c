@@ -1,6 +1,6 @@
 #include "spirv-tools/libspirv.h"
 
-int main(int argc, char **argv) {
+int main() {
     const char input_text[] = "OpCapability Shader\n"
                               "OpCapability Linkage\n"
                               "OpMemoryModel Logical GLSL450";

@@ -5,7 +5,7 @@
 const std::string SERVER_ADDRESS{"tcp://localhost:1883"};
 const std::string CLIENT_ID{"consume"};
 
-int main(int argc, char *argv[]) {
+int main() {
     mqtt::connect_options connOpts;
     connOpts.set_keep_alive_interval(20);
     connOpts.set_clean_session(true);

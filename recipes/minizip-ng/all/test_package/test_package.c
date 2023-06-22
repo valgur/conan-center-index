@@ -2,7 +2,7 @@
 #include <mz_os.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main() {
     char output[256];
     memset(output, 'z', sizeof(output));
     int32_t err = mz_path_resolve("c:\\test\\.", output, sizeof(output));

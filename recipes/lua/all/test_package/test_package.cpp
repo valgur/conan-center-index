@@ -8,7 +8,7 @@
 #endif
 #include <string>
 
-int main(int argc, char *argv[]) {
+int main() {
     lua_State *L = luaL_newstate();
     luaL_dostring(L, "x = 47");
     lua_getglobal(L, "x");

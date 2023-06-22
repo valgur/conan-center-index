@@ -3,7 +3,7 @@
 
 #include <string>
 
-int main(int argc, char *argv[]) {
+int main() {
     lua_State *L = luaL_newstate();
     lua_close(L);
     return 0;

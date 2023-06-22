@@ -40,7 +40,7 @@ static hs_error_t scan(hs_database_t &db, hs_scratch_t &scratch, const char *dat
     return hs_scan(&db, data, len, 0, &scratch, match_handler, context);
 }
 
-int main(int argc, char **argv) {
+int main() {
     std::printf("%s\n", hs_version());
 
     int retval = 0;

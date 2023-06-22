@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char **argv) {
+int main() {
     const std::string s = "Hello, World!";
     AMQP::ByteBuffer buffer(s.data(), s.size());
     if (buffer.size() == 13)

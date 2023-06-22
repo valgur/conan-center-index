@@ -55,7 +55,7 @@ void check(io_context_t ctx, struct iocb *iocb, long res, long res2) {
     fflush(stdout);
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     size_t i;
     /* Create a file and fill it with random crap */
     FILE *file = fopen("crap.dat", "wb");

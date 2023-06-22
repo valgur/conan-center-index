@@ -15,7 +15,7 @@ bool callback(const MinidumpDescriptor &descriptor, void *context, bool succeede
 
 } // namespace
 
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << "Breakpad test_package\n";
 
     MinidumpDescriptor descriptor("path/to/cache");

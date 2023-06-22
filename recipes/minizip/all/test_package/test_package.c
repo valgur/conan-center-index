@@ -13,7 +13,7 @@
 const char text[] = "Conveying or northward offending admitting perfectly my.";
 const char *zip_fname = "test_minizip.zip";
 
-int main(int argc, char **argv) {
+int main() {
     zipFile zf = zipOpen64(zip_fname, APPEND_STATUS_CREATE);
     if (zf == NULL) {
         printf("Error in zipOpen64, fname: %s\n", zip_fname);

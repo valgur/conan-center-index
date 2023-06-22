@@ -171,7 +171,7 @@ arrow::Status ColumnarTableToVector(const std::shared_ptr<arrow::Table> &table,
         }                                                                                          \
     } while (0);
 
-int main(int argc, char **argv) {
+int main() {
     std::vector<data_row> rows = {{1, 1.0, {1.0}}, {2, 2.0, {1.0, 2.0}}, {3, 3.0, {1.0, 2.0, 3.0}}};
 
     std::shared_ptr<arrow::Table> table;

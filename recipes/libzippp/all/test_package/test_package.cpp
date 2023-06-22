@@ -37,7 +37,7 @@
 
 using namespace libzippp;
 
-int main(int argc, char *argv[]) {
+int main() {
     ZipArchive z1("test.zip");
     z1.open(ZipArchive::Write);
     z1.addData("test.txt", "hello world\n", 13);

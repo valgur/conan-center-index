@@ -69,7 +69,7 @@ static bool test_version(const char *gl_string, int gl_version, const char *glsl
     return true;
 }
 
-int main(int argc, char **argv) {
+int main() {
     epoxy_glGetString = override_glGetString;
 
     if (!test_version("3.0 Mesa 13.0.6", 30, "1.30", 130))

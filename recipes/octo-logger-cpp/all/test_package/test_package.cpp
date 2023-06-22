@@ -1,7 +1,7 @@
 #include "octo-logger-cpp/logger.hpp"
 #include "octo-logger-cpp/manager.hpp"
 
-int main(int argc, char **argv) {
+int main() {
     auto config = std::make_shared<octo::logger::ManagerConfig>();
     config->set_option(octo::logger::ManagerConfig::LoggerOption::DEFAULT_CHANNEL_LEVEL,
                        static_cast<int>(octo::logger::Log::LogLevel::TRACE));

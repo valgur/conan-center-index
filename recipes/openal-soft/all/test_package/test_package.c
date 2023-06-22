@@ -97,7 +97,7 @@ static void printDeviceList(const char *list) {
         } while (*list != '\0');
 }
 
-int main(int argc, char **argv) {
+int main() {
     printf("Available playback devices:\n");
     if (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") != AL_FALSE)
         printDeviceList(alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER));

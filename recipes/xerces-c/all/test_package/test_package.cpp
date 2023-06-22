@@ -1,6 +1,6 @@
 #include <xercesc/util/PlatformUtils.hpp>
 
-int main(int argc, char *argv[]) {
+int main() {
     try {
         xercesc::XMLPlatformUtils::Initialize();
     } catch (const xercesc::XMLException &toCatch) {

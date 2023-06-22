@@ -13,7 +13,7 @@ struct Person {
     int age;
 };
 
-int main(int argc, char **argv) {
+int main() {
     // register SQLite connector
     Poco::Data::SQLite::Connector::registerConnector();
 

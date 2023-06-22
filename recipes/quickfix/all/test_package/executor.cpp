@@ -47,7 +47,7 @@ class Application : public FIX::Application {
                FIX::UnsupportedMessageType) {}
 };
 
-int main(int argc, char **argv) {
+int main() {
     try {
         Node node;
         FIX::DataDictionaryProvider provider;

@@ -16,7 +16,7 @@ explicitly specify the same context you used for enumeration in the call to
 
 #include <stdio.h>
 
-int main(int argc, char **argv) {
+int main() {
     ma_result result;
     ma_context context;
     ma_device_info *pPlaybackDeviceInfos;

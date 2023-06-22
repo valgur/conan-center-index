@@ -1,7 +1,7 @@
 #include <google/cloud/functions/framework.h>
 #include <iostream>
 
-int main(int, char *[]) {
+int main() {
     std::cout << google::cloud::functions::VersionString() << "\n";
     return 0;
 }

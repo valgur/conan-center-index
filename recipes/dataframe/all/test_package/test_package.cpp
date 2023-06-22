@@ -55,7 +55,7 @@ static void test_haphazard() {
 
 // -----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int main() {
 
     test_haphazard();
 

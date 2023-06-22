@@ -8,7 +8,7 @@ namespace boost = BOOST_NAMESPACE;
 namespace p = boost::python;
 namespace np = boost::python::numpy;
 
-int main(int argc, char **argv) {
+int main() {
     Py_Initialize();
     np::initialize();
 

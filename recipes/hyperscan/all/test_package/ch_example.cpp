@@ -53,7 +53,7 @@ static ch_error_t scan(ch_database_t &db, ch_scratch_t &scratch, const char *dat
     return ch_scan(&db, data, len, 0, &scratch, match_handler, nullptr, context);
 }
 
-int main(int argc, char **argv) {
+int main() {
     printf("%s\n", ch_version());
 
     context_t ctx;

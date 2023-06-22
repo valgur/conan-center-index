@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char **argv) {
+int main() {
     entityx::EntityX ex;
     entityx::Entity entity = ex.entities.create();
     std::cout << "Entity = " << entity;

@@ -38,7 +38,7 @@ void renderThread() {
 
 //////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char *argv[]) {
+int main() {
 #ifndef SAMPLE_NETWORK_TEST
     EASY_PROFILER_ENABLE;
 #endif

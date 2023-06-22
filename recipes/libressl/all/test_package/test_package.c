@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     SSL_library_init();
     SSL_CTX *ctx = SSL_CTX_new(SSLv23_client_method());
     if (!ctx)

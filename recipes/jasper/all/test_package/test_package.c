@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int main(int argc, char **argv) {
+int main() {
     int i;
     jas_tmr_t tmr;
     jas_tmr_t dummytmr;

@@ -8,7 +8,7 @@
 #include "watcher/watcher.hpp"
 #endif
 
-int main(int argc, char **argv) {
+int main() {
     std::cout << R"({
   "water.watcher.stream":{
 )";

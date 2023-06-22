@@ -7,7 +7,7 @@ void constraint_handler(const char *msg, void *ptr, errno_t error) {
     exit(0);
 }
 
-int main(int argc, char **argv) {
+int main() {
     char dst[2];
 
     set_str_constraint_handler_s(constraint_handler);

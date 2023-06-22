@@ -9,7 +9,7 @@ using number_type = float;
 using number_type = double;
 #endif
 
-int main(int argc, char *argv[]) {
+int main() {
 #if XSIMD_VERSION_MAJOR < 8
     xs::batch<number_type, 4> a(1.5, 2.5, 3.5, 4.5);
     xs::batch<number_type, 4> b(2.5, 3.5, 4.5, 5.5);

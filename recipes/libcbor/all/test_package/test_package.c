@@ -1,7 +1,7 @@
 #include <cbor.h>
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     printf("Hello from libcbor %s\n", CBOR_VERSION);
 #ifndef LIBCBOR_DEPRECATE_CUSTOM_ALLOC
     printf("Custom allocation support: %s\n", CBOR_CUSTOM_ALLOC ? "yes" : "no");

@@ -7,7 +7,7 @@ void do_something(size_t i) {
     malloc(i * 100);
 }
 
-int main(int argc, char **argv) {
+int main() {
     for (size_t i = 0; i < 1000; i++) {
         do_something(i);
     }

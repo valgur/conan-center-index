@@ -16,7 +16,7 @@
 #include <event2/listener.h>
 #include <event2/util.h>
 
-int main(int argc, char **argv) {
+int main() {
     struct event_base *base;
     const char *version = event_get_version();
 

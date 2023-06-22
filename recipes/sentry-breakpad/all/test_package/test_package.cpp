@@ -42,7 +42,7 @@ bool callback(const google_breakpad::MinidumpDescriptor &descriptor, void *conte
 
 } // namespace
 
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << "Breakpad test_package\n";
 
 #ifdef _WIN32

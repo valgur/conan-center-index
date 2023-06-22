@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-int main(int argc, char **argv) {
+int main() {
     int vid = 0x0403;
     int pid = 0x6001;
 

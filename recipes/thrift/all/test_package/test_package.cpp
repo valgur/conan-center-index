@@ -32,7 +32,7 @@ class CalculatorHandler : virtual public CalculatorIf {
     int64_t add(const int32_t num1, const int32_t num2) { return 0; }
 };
 
-int main(int argc, char **argv) {
+int main() {
     int port = 9090;
     std::shared_ptr<CalculatorHandler> handler(new CalculatorHandler());
     std::shared_ptr<TProcessor> processor(new CalculatorProcessor(handler));

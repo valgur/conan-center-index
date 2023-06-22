@@ -35,7 +35,7 @@ class echo_state_machine : public nuraft::state_machine {
     nuraft::ulong last_commit_index() override { return last_commit_idx_; }
 };
 
-int main(int argc, char **argv) {
+int main() {
     // State machine.
     nuraft::ptr<nuraft::state_machine> smachine(nuraft::cs_new<echo_state_machine>());
 

@@ -10,7 +10,7 @@
         (DATUM).dsize = strlen(CSTR) + 1;                                                          \
     } while (0)
 
-int main(int argc, char *argv[]) {
+int main() {
     GDBM_FILE file;
     int res;
     gdbm_count_t count;

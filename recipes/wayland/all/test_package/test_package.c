@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <wayland-client.h>
 
-int main(int argc, char **argv) {
+int main() {
 
     struct wl_display *display = wl_display_connect(NULL);
     if (display == NULL) {

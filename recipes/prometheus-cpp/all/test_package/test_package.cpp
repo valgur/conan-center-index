@@ -12,7 +12,7 @@
 
 using namespace prometheus;
 
-int main(int argc, char **argv) {
+int main() {
     auto registry = std::make_shared<Registry>();
     auto &counter_family = BuildCounter()
                                .Name("time_running_seconds_total")

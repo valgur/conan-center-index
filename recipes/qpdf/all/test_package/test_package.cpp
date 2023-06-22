@@ -3,7 +3,7 @@
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFWriter.hh>
 
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << "QPDF_VERSION " << QPDF_VERSION << "\n";
 
     try {

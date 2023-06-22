@@ -47,7 +47,7 @@ static enum MHD_Result ahc_echo(void *cls, struct MHD_Connection *connection, co
     return ret;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     struct MHD_Daemon *daemon;
 
     // Don't open a port and do not block so CI isn't interrupted.

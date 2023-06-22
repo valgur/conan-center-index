@@ -1,6 +1,6 @@
 #include <enet/enet.h>
 
-int main(int argc, char **argv) {
+int main() {
     if (enet_initialize() != 0) {
         return 1;
     }

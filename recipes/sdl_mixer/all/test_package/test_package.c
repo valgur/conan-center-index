@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     int audio_rate = MIX_DEFAULT_FREQUENCY;
     int audio_format = MIX_DEFAULT_FORMAT;
     int audio_channels = 2;

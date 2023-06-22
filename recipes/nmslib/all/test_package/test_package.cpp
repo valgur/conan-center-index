@@ -5,7 +5,7 @@
 
 using namespace similarity;
 
-int main(int argc, char *argv[]) {
+int main() {
 
     std::vector<string> strs = {"xyz",  "beagcfa", "cea",    "cb",  "d",   "c",
                                 "bdaf", "ddcd",    "egbfa",  "a",   "fba", "bcccfe",

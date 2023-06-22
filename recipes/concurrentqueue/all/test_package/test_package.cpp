@@ -1,6 +1,6 @@
 #include <concurrentqueue.h>
 
-int main(int argc, char **argv) {
+int main() {
     moodycamel::ConcurrentQueue<int> q;
     return 0;
 }

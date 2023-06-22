@@ -9,7 +9,7 @@ using namespace arma;
 
 // NOTE: the C++11 "auto" keyword is not recommended for use with Armadillo objects and functions
 
-int main(int argc, char **argv) {
+int main() {
     cout << "Armadillo version: " << arma_version::as_string() << endl;
 
     // construct a matrix according to given size and form of element initialisation

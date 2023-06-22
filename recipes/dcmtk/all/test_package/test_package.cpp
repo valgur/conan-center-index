@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main() {
     char uid[100];
     unsigned char data[256];
     for (unsigned i = 0; i < sizeof(data); ++i) {

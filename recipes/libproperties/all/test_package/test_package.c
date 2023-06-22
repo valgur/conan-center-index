@@ -20,7 +20,7 @@ int check_handler(void *context, char *key, int key_len, char *val, int val_len)
     return 0;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     char str[] = "aaa=bbb";
     struct properties_source_string_t source = {str, str + strlen(str)};
     properties_parse(&source, properties_source_string_read, NULL, check_handler);

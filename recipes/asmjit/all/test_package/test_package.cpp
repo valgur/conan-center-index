@@ -4,7 +4,7 @@
 
 typedef int (*Func)(void);
 
-int main(int argc, char *argv[]) {
+int main() {
     asmjit::JitRuntime rt;
 
     asmjit::CodeHolder code;

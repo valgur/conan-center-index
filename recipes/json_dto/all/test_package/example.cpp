@@ -32,7 +32,7 @@ const std::string json_data{
   "text" : "Hello world!"
 })JSON"};
 
-int main(int, char *[]) {
+int main() {
     try {
         {
             auto msg = json_dto::from_json<message_t>(json_data);

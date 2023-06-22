@@ -1,7 +1,7 @@
 #include <iostream>
 #include <xtl/xvariant.hpp>
 
-int main(int argc, char *argv[]) {
+int main() {
     xtl::variant<int, float> v, w;
 
     v = 12;

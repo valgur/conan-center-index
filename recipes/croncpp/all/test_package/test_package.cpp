@@ -3,7 +3,7 @@
 
 #include "croncpp.h"
 
-int main(int argc, const char **argv) {
+int main() {
     try {
         auto cron = cron::make_cron("* 0/5 * * * ?");
 

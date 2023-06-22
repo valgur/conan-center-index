@@ -2,7 +2,7 @@
 /* Use "#include <dse.h>" when connecting to DataStax Enterpise */
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main() {
     CassUuid uuid;
     cass_uuid_from_string("550e8400-e29b-41d4-a716-446655440000", &uuid);
 

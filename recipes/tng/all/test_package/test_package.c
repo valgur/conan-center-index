@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main() {
     tng_trajectory_t traj;
     if (tng_trajectory_init(&traj) != TNG_SUCCESS) {
         tng_trajectory_destroy(&traj);

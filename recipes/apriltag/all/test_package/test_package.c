@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     apriltag_detector_t *td = apriltag_detector_create();
     apriltag_family_t *tf = tagStandard41h12_create();
     apriltag_detector_add_family(td, tf);

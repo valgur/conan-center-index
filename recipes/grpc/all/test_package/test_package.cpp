@@ -79,7 +79,7 @@ class GreeterServiceImpl final : public Greeter::Service {
     }
 };
 
-int main(int argc, char **argv) {
+int main() {
     std::string server_address("127.0.0.1:0");
     GreeterServiceImpl service;
 

@@ -2,7 +2,7 @@
 #include <ellipsoidalpoint.h>
 #include <sphericalpoint.h>
 
-int main(int argc, char **argv) {
+int main() {
     // Calculate great-circle distance between two points.
     erkir::spherical::Point p1{52.205, 0.119};
     erkir::spherical::Point p2{48.857, 2.351};

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <wchar.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     const char *text = "This is some text";
     if (u8_check(text, strlen(text)) != NULL) {
         printf("u8_check failed on input string\n");

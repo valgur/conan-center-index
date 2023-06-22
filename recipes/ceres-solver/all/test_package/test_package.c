@@ -101,7 +101,7 @@ int exponential_residual(void *user_data, double **parameters, double *residuals
     return 1;
 }
 
-int main(int argc, char **argv) {
+int main() {
     /* Note: Typically it is better to compact m and c into one block,
      * but in this case use separate blocks to illustrate the use of
      * multiple parameter blocks. */

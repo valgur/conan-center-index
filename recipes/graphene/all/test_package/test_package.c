@@ -1,6 +1,6 @@
 #include "graphene.h"
 
-int main(int argc, char **argv) {
+int main() {
     graphene_point_t *p = graphene_point_init(graphene_point_alloc(), 3, 4);
     ;
     graphene_vec2_t *vect = graphene_vec2_alloc();

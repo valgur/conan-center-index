@@ -24,7 +24,7 @@ constexpr ctpg::parser p(list, terms(',', number), nterms(list),
                              list(list, ',', number) >=
                                  [](int sum, char, const auto &n) { return sum + to_int(n); }));
 
-int main(int argc, char *argv[]) {
+int main() {
     auto res = p.parse(ctpg::buffers::string_buffer("10, 20, 30"), std::cerr);
     bool success = res.has_value();
     if (success)

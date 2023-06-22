@@ -22,7 +22,7 @@ static ldns_rr_list *rrset_from_str(const char *str) {
     return rrset;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     ldns_rr_list *data = rrset_from_str("nlnetlabs.nl. 240 IN AAAA 2a04:b900::1:0:0:10");
     ldns_rr_list *rrsigs = rrset_from_str(
         "nlnetlabs.nl. 240 IN RRSIG AAAA 8 2 240 20210316015010 20210216015010 42393 nlnetlabs.nl. "

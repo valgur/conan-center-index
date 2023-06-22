@@ -1,6 +1,6 @@
 #include "civetweb.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     mg_init_library(0);
     return 0;
 }

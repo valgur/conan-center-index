@@ -4,7 +4,7 @@
 #include <string>                  // for string, to_string
 #include <utility>                 // for move
 
-int main(int argc, char *argv[]) {
+int main() {
     using namespace ftxui;
     auto make_box = [](const std::string &title) {
         return window(text(title) | hcenter | bold, text("content") | hcenter | dim);

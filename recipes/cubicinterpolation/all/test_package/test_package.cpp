@@ -4,7 +4,7 @@
 
 double func(double x) { return x * x + x; }
 
-int main(int argc, char *argv[]) {
+int main() {
 
     auto def = cubic_splines::CubicSplines<double>::Definition();
     def.f = func;

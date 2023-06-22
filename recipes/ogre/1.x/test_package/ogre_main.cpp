@@ -3,7 +3,7 @@
 #include <OGRE/OgreRenderSystemCapabilities.h>
 #include <iostream>
 
-int main(int argc, char **argv) {
+int main() {
     Ogre::RenderSystemCapabilities rc;
     rc.setNumTextureUnits(10);
     std::cout << "Hello from OgreMain component\n";

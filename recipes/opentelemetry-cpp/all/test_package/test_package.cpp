@@ -3,7 +3,7 @@
 #include <opentelemetry/sdk/trace/tracer_provider.h>
 #include <opentelemetry/trace/provider.h>
 
-int main(int argc, char **argv) {
+int main() {
     auto exporter = std::unique_ptr<opentelemetry::sdk::trace::SpanExporter>(
         new opentelemetry::exporter::trace::OStreamSpanExporter);
     auto processor = std::unique_ptr<opentelemetry::sdk::trace::SpanProcessor>(

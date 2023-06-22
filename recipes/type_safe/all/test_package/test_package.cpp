@@ -42,7 +42,7 @@ struct distance
       ts::strong_typedef_op::equality_comparison<distance>,   // for operator==/operator!=
       ts::strong_typedef_op::relational_comparison<distance>, // for operator< etc.
       ts::strong_typedef_op::integer_arithmetic<distance>     // all arithmetic operators that make
-                                                          // sense for integers
+                                                              // sense for integers
 {
     using strong_typedef::strong_typedef;
 };

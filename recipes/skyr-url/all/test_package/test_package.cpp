@@ -1,7 +1,7 @@
 #include <iostream>
 #include <skyr/url.hpp>
 
-int main(int argc, char *argv[]) {
+int main() {
     using namespace skyr::literals;
 
     auto url = "http://sub.example:8090/paths/to/a/file"_url;

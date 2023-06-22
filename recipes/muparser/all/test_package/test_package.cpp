@@ -6,7 +6,7 @@
 double MySqr(double a_fVal) { return a_fVal * a_fVal; }
 
 // main program
-int main(int argc, char *argv[]) {
+int main() {
     using namespace mu;
 
     try {

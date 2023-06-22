@@ -13,7 +13,7 @@
 void connect_callback(struct mosquitto *mosq, void *obj, int result) {}
 void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message) {}
 
-int main(int argc, char *argv[]) {
+int main() {
     struct mosquitto *st_mosquitto = NULL;
 
 #ifdef WIN32

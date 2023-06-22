@@ -92,7 +92,7 @@ void thread(boost::fibers::detail::thread_barrier *b) {
 /*****************************************************************************
  *   main()
  *****************************************************************************/
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << "main thread started " << std::this_thread::get_id() << std::endl;
     //[main_ws
     boost::fibers::use_scheduling_algorithm<

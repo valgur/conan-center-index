@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main(int argc, char **argv) {
+int main() {
     auto r = cpr::Get(
         cpr::Url{"http://jsonplaceholder.typicode.com/todos/1"}, // https available after 1.5.0 (not
                                                                  // windows by default)

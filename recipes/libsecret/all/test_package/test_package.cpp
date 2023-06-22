@@ -1,7 +1,7 @@
 #include <iostream>
 #include <libsecret/secret.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     const SecretSchema schema = {
         "libsecret-conan",
         SECRET_SCHEMA_NONE,

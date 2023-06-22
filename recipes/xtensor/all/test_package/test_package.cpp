@@ -3,7 +3,7 @@
 #include "xtensor/xview.hpp"
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main() {
     xt::xarray<double> arr1{{1.0, 2.0, 3.0}, {2.0, 5.0, 7.0}, {2.0, 5.0, 7.0}};
 
     xt::xarray<double> arr2{5.0, 6.0, 7.0};

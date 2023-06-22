@@ -32,7 +32,7 @@ class TimerExample {
     Stopwatch _sw;
 };
 
-int main(int argc, char **argv) {
+int main() {
     TimerExample example;
 
     Timer timer(25, 50);

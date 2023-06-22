@@ -111,7 +111,7 @@ int print_speed_level(th_enc_ctx *ctx) {
     return ret;
 }
 
-int main(int argc, char **argv) {
+int main() {
     th_enc_ctx *ctx;
 
     /* print versioning */

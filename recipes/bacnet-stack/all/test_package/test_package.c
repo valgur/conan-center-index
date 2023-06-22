@@ -12,7 +12,7 @@ static void Init_Service_Handlers(void) {
     apdu_set_unconfirmed_handler(SERVICE_UNCONFIRMED_I_AM, handler_i_am_add);
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     address_init();
     Device_Set_Object_Instance_Number(BACNET_MAX_INSTANCE);
     Init_Service_Handlers();

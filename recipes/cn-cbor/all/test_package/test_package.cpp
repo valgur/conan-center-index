@@ -7,7 +7,7 @@
 #define CBOR_CONTEXT_PARAM
 #endif
 
-int main(int argc, char *argv[]) {
+int main() {
 
     struct cn_cbor_errback back;
     const char *buf = "asdf";

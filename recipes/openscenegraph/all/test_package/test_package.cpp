@@ -82,7 +82,7 @@ int check_plugin(char const *const ext, bool const expected) {
 }
 } // namespace
 
-int main(int argc, char **argv) {
+int main() {
     int res = 0;
 
     res |= check_plugin("bmp", WITH_BMP || WITH_IMAGEIO);

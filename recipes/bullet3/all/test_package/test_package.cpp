@@ -20,7 +20,7 @@ the original software.
 
 /// This is a Hello World program for running a basic Bullet physics simulation
 
-int main(int argc, char **argv) {
+int main() {
     ///-----includes_end-----
 
     int i;

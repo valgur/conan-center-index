@@ -10,7 +10,7 @@
 namespace asio = boost::asio;
 
 // adapted from examples/request.cpp
-int main(int argc, char **argv) {
+int main() {
     asio::io_context io;
     auto conn_info = ozo::connection_info("!!invalid_connection_string");
 

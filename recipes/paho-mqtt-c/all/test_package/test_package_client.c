@@ -27,7 +27,7 @@ void connlost(void *context, char *cause) {
     printf("     cause: %s\n", cause);
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     MQTTClient client;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     int rc;

@@ -26,7 +26,7 @@ static int handler(void *user, const char *section, const char *name, const char
     return 1;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     configuration config;
 
     if (ini_parse("test.ini", handler, &config) < 0) {

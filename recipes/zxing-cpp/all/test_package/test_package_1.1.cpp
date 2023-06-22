@@ -17,7 +17,7 @@
 
 using namespace ZXing;
 
-int main(int argc, char *argv[]) {
+int main() {
     int width = 100, height = 100;
     int margin = 10;
     int eccLevel = 8;

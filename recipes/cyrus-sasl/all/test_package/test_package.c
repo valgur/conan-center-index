@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     const char *implementation, *version;
     sasl_version_info(&implementation, &version, NULL, NULL, NULL, NULL);
     printf("--------------------------->Tests are done.<--------------------------\n");

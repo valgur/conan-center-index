@@ -83,7 +83,7 @@ constexpr auto TARGET_CERT = "-----BEGIN CERTIFICATE-----\n"
                              "LJOZq84H9k4ERbZD/tWZSFd3HqvfV++1o4C+7/GZMV4j1DgWKHMrQv/fvh2X\n"
                              "-----END CERTIFICATE-----";
 
-int main(int argc, char **argv) {
+int main() {
     octo::logger::Logger logger("PSKeygen");
     std::shared_ptr<octo::logger::ManagerConfig> config =
         std::make_shared<octo::logger::ManagerConfig>();

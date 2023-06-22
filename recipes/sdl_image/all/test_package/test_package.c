@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     SDL_version compile_version;
     const SDL_version *link_version = IMG_Linked_Version();
     SDL_IMAGE_VERSION(&compile_version);

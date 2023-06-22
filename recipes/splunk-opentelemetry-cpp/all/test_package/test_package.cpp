@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-int main(int argc, char **argv) {
+int main() {
     splunk::OpenTelemetryOptions otelOptions =
         splunk::OpenTelemetryOptions()
             .WithServiceName("my-service")

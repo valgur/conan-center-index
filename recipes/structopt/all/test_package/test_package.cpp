@@ -40,7 +40,7 @@ struct Options {
 };
 STRUCTOPT(Options, config_file, bind_address, verbose, log_level, user, files);
 
-int main(int argc, char *argv[]) {
+int main() {
 
     try {
         const auto args = std::vector<std::string>{

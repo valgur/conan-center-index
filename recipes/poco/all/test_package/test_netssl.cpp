@@ -21,7 +21,7 @@ class SSLInitializer {
     ~SSLInitializer() { Poco::Net::uninitializeSSL(); }
 };
 
-int main(int argc, char **argv) {
+int main() {
     SSLInitializer sslInitializer;
 
     SharedPtr<InvalidCertificateHandler> ptrCert = new AcceptCertificateHandler(false);

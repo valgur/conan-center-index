@@ -16,7 +16,7 @@ const char *recipient_public_key =
     "K4pt21P3DnZBJufh62/bNYhQkL3VQ9oM13FvcKpbIf6Hi83ry0O2vmE5mQ==\n"
     "-----END PUBLIC KEY-----";
 
-int main(int argc, char **argv) {
+int main() {
 
     NanoTDFClient nano_tdf_client("https://your-eas-url.here", "your@user.here");
 

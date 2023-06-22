@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main() {
     printf("Enumerating Aravis interfaces:\n");
     unsigned int if_count = arv_get_n_interfaces();
     for (unsigned int if_index = 0; if_index < if_count; if_index++) {

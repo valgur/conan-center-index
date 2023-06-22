@@ -4,7 +4,7 @@
 
 zbar_image_scanner_t *scanner = NULL;
 
-int main(int argc, char **argv) {
+int main() {
 
     /* create a reader */
     scanner = zbar_image_scanner_create();

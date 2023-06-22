@@ -10,7 +10,7 @@
 #include <ignition/math/Angle.hh>
 #include <iostream>
 
-int main(int argc, char **argv) {
+int main() {
     std::cout << "hello world from ignition-math test_package\n";
 
     ignition::math::Vector3d point1{1, 3, 5};

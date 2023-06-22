@@ -79,7 +79,7 @@ std::vector<Triangle> create_icosahedron_primitives() {
     return primitives;
 }
 
-int main(int argc, char **argv) {
+int main() {
     // Create initial Mesh
     IndexedMesh mesh;
     mesh.vertices = create_icosahedron_vertices();

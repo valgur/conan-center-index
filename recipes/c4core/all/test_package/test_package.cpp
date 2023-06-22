@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-auto main(int argc, char *argv[]) -> int {
+auto main() -> int {
     double value;
     c4::from_chars("52.4354", &value);
 

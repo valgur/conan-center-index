@@ -23,7 +23,7 @@ SC_MODULE(BlinkyTop) {
     }
 };
 
-int main(int argc, char **argv) {
+int main() {
     sc_clock clk("clk", sc_time(1, SC_NS), 0.5);
 
     BlinkyTop top("top");

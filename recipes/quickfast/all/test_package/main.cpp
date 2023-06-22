@@ -18,7 +18,7 @@ class MessageInterpreter : public Codecs::MessageConsumer {
     virtual void decodingStopped() {}
 };
 
-int main(int argc, char *argv[]) {
+int main() {
     Application::DecoderConfiguration configuration_;
     Application::DecoderConnection connection_;
 

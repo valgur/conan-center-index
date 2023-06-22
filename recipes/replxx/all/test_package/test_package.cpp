@@ -4,7 +4,7 @@
 
 #include "replxx.hxx"
 
-int main(int argc, char **argv) {
+int main() {
     using Replxx = replxx::Replxx;
     using namespace std::placeholders;
 

@@ -37,7 +37,7 @@
 
 #include "zip.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     zip_source_t *src;
     zip_t *za;
     zip_error_t error;

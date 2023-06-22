@@ -1,7 +1,7 @@
 #include <iostream>
 #include <util/ities.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << "scc loaded successfully. Mini test: util::ilog2(32) = " << util::ilog2(32)
               << std::endl;
     return 0;

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char **argv) {
+int main() {
     freenect_context *fn_ctx = NULL;
     int ret = freenect_init(&fn_ctx, NULL);
     if (ret < 0)

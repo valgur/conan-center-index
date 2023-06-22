@@ -17,7 +17,7 @@ struct debug_printer {
     }
 };
 
-int main(int argc, char *argv[]) {
+int main() {
     auto val = my_type{1, 2.0f, "three"};
 
     visit_struct::for_each(val, debug_printer{});

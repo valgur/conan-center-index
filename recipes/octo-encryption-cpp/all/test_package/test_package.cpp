@@ -2,7 +2,7 @@
 #include "octo-encryption-cpp/encryptors/materials/simple-material.hpp"
 #include "octo-encryption-cpp/encryptors/ssl/ssl-encryptor.hpp"
 
-int main(int argc, char **argv) {
+int main() {
     auto encryptor = std::make_shared<octo::encryption::ssl::SSLEncryptor>(
         std::make_shared<octo::encryption::ssl::SSLCipher>("AES256"));
     auto material = std::make_shared<octo::encryption::SimpleMaterial>(

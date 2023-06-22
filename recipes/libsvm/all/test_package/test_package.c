@@ -5,7 +5,7 @@
 
 struct svm_parameter param;
 
-int main(int argc, char **argv) {
+int main() {
     param.svm_type = C_SVC;
     param.kernel_type = PRECOMPUTED;
 

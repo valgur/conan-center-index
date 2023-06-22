@@ -37,7 +37,7 @@
 
 static GMainLoop *mainloop;
 
-int main(int argc, char *argv[]) {
+int main() {
     atk_bridge_adaptor_init(NULL, NULL);
 
     mainloop = g_main_loop_new(NULL, FALSE);

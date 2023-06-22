@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main(int argc, char *argv[]) {
+int main() {
     std::cout << GLI_VERSION << "\n";
     return EXIT_SUCCESS;
 }

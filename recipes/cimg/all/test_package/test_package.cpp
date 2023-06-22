@@ -52,7 +52,7 @@ using namespace cimg_library;
   Main procedure
 
   --------------------------*/
-int main(int argc, char **argv) {
+int main() {
     cimg_usage("A simple image to ASCII-art converter.\n\nUsage : image2ascii [options] image");
 
     // Read command line parameters

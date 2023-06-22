@@ -2,7 +2,7 @@
 #include <xlsxio_read.h>
 #include <xlsxio_write.h>
 
-int main(int argc, char **argv) {
+int main() {
     xlsxioreader xlsxioread;
     xlsxiowriter xlsxiowrite;
     xlsxioreadersheet sheet;

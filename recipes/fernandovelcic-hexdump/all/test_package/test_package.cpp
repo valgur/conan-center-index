@@ -10,7 +10,7 @@ template <typename T, T RowSize, T bufSize, bool showFlag> void testCustomHexdum
     std::cout << CustomHexdumpBase<T, RowSize, showFlag>(data, bufSize) << std::endl;
 }
 
-int main(int argc, char **argv) {
+int main() {
     unsigned char data[150];
     for (int i = 0; i < 150; ++i) {
         data[i] = i;

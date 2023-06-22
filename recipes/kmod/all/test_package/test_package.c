@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     struct kmod_ctx *ctx = kmod_new(NULL, NULL);
     if (ctx) {
         struct kmod_list *list, *mod;

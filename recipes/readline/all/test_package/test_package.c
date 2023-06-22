@@ -3,7 +3,7 @@
 
 #include "readline/readline.h"
 
-int main(int argc, char *argv[]) {
+int main() {
 
     if (!ISALPHA('a') || !ISDIGIT('1')) {
         return EXIT_FAILURE;

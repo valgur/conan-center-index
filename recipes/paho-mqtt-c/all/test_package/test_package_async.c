@@ -91,7 +91,7 @@ void onConnect(void *context, MQTTAsync_successData *response) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     MQTTAsync client;
     MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
     int rc;

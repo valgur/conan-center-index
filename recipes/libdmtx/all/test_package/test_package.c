@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     size_t width, height, bytesPerPixel;
     unsigned char str[] = "30Q324343430794<OQQ";
     unsigned char *pxl;
