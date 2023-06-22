@@ -22,9 +22,7 @@ class XegeConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -45,12 +43,4 @@ class XegeConan(ConanFile):
             self.cpp_info.libs = ["graphics64"]
         else:
             self.cpp_info.libs = ["graphics"]
-        self.cpp_info.system_libs = [
-            "gdiplus",
-            "uuid",
-            "msimg32",
-            "gdi32",
-            "imm32",
-            "ole32",
-            "oleaut32",
-        ]
+        self.cpp_info.system_libs = ["gdiplus", "uuid", "msimg32", "gdi32", "imm32", "ole32", "oleaut32"]

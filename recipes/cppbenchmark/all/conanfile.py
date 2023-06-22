@@ -33,13 +33,7 @@ class CppBenchmark(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "apple-clang": 10,
-            "clang": 6,
-            "gcc": 7,
-            "Visual Studio": 16,
-            "msvc": 192,
-        }
+        return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16, "msvc": 192}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -90,10 +84,7 @@ class CppBenchmark(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

@@ -86,9 +86,7 @@ class LibFDKAACConan(ConanFile):
             cmake.build()
         elif is_msvc(self):
             makefile_vc = os.path.join(self.source_folder, "Makefile.vc")
-            replace_in_file(
-                self, makefile_vc, "CFLAGS   = /nologo /W3 /Ox /MT", "CFLAGS   = /nologo"
-            )
+            replace_in_file(self, makefile_vc, "CFLAGS   = /nologo /W3 /Ox /MT", "CFLAGS   = /nologo")
             replace_in_file(self, makefile_vc, "MKDIR_FLAGS = -p", "MKDIR_FLAGS =")
             # Build either shared or static, and don't build utility (it always depends on static lib)
             replace_in_file(self, makefile_vc, "copy $(PROGS) $(bindir)", "")
@@ -127,12 +125,7 @@ class LibFDKAACConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "NOTICE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()

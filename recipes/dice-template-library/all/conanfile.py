@@ -53,16 +53,12 @@ class DiceTemplateLibrary(ConanFile):
             )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                "{} {} requires C++20, which your compiler does not support.".format(
-                    self.name, self.version
-                )
+                "{} {} requires C++20, which your compiler does not support.".format(self.name, self.version)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

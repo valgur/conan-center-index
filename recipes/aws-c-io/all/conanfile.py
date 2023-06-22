@@ -14,13 +14,7 @@ class AwsCIO(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-io"
-    topics = (
-        "aws",
-        "amazon",
-        "cloud",
-        "io",
-        "tls",
-    )
+    topics = ("aws", "amazon", "cloud", "io", "tls")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -76,10 +70,7 @@ class AwsCIO(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -88,7 +79,9 @@ class AwsCIO(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-io": "aws-c-io::aws-c-io"},
+            {
+                "AWS::aws-c-io": "aws-c-io::aws-c-io",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

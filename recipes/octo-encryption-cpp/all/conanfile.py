@@ -43,9 +43,7 @@ class OctoEncryptionCPPConan(ConanFile):
         if self.info.settings.compiler.cppstd:
             check_min_cppstd(self, "17")
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.info.settings.compiler), False
-        )
+        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.name} requires C++17, which your compiler does not support."
@@ -54,28 +52,17 @@ class OctoEncryptionCPPConan(ConanFile):
             self.output.warn(
                 f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
-        if (
-            self.settings.compiler == "clang"
-            and self.settings.compiler.get_safe("libcxx") == "libc++"
-        ):
+        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(
                 f"{self.name} does not support clang with libc++. Use libstdc++ instead."
             )
-        if self.settings.compiler == "Visual Studio" and self.settings.compiler.runtime in [
-            "MTd",
-            "MT",
-        ]:
+        if self.settings.compiler == "Visual Studio" and self.settings.compiler.runtime in ["MTd", "MT"]:
             raise ConanInvalidConfiguration(
                 f"{self.name} does not support MSVC MT/MTd configurations, only MD/MDd is supported"
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def requirements(self):
         self.requires("openssl/1.1.1q")
@@ -89,12 +76,7 @@ class OctoEncryptionCPPConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

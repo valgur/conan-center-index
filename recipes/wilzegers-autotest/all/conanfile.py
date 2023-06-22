@@ -18,9 +18,7 @@ class WilzegersAutotestConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def validate(self):
@@ -31,7 +29,5 @@ class WilzegersAutotestConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        self.copy(
-            "*.hpp", src=os.path.join(self._source_subfolder, "autotest/include"), dst="include"
-        )
+        self.copy("*.hpp", src=os.path.join(self._source_subfolder, "autotest/include"), dst="include")
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)

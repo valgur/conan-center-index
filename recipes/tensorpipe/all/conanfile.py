@@ -91,9 +91,7 @@ class TensorpipeConan(ConanFile):
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "tensorpipe", "CMakeLists.txt")
-        replace_in_file(
-            self, cmakelists, "find_package(uv REQUIRED)", "find_package(libuv REQUIRED CONFIG)"
-        )
+        replace_in_file(self, cmakelists, "find_package(uv REQUIRED)", "find_package(libuv REQUIRED CONFIG)")
         replace_in_file(
             self,
             cmakelists,
@@ -114,12 +112,7 @@ class TensorpipeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -127,7 +120,9 @@ class TensorpipeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"tensorpipe": "Tensorpipe::Tensorpipe"},
+            {
+                "tensorpipe": "Tensorpipe::Tensorpipe",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

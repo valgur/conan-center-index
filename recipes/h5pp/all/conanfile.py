@@ -85,21 +85,12 @@ class H5ppConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    "h5pp requires C++17, which your compiler does not support."
-                )
+                raise ConanInvalidConfiguration("h5pp requires C++17, which your compiler does not support.")
         else:
-            self.output.warning(
-                "h5pp requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warning("h5pp requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
         apply_conandata_patches(self)
 
     def package(self):
@@ -109,10 +100,7 @@ class H5ppConan(ConanFile):
             includedir = os.path.join(self.source_folder, "include")
         copy(self, pattern="*", src=includedir, dst=os.path.join(self.package_folder, "include"))
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
 
     def package_info(self):

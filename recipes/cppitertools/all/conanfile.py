@@ -21,7 +21,9 @@ class CppItertoolsConan(ConanFile):
     options = {
         "zip_longest": [True, False],
     }
-    default_options = {"zip_longest": False}
+    default_options = {
+        "zip_longest": False,
+    }
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
@@ -43,9 +45,7 @@ class CppItertoolsConan(ConanFile):
         compiler_version = Version(self.settings.compiler.version)
 
         if compiler not in minimal_version:
-            self.output.info(
-                "{} requires a compiler that supports at least C++17".format(self.name)
-            )
+            self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
             return
 
         # Exclude compilers not supported by cppitertools

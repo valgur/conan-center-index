@@ -14,8 +14,7 @@ class EffceeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/effcee/"
     description = (
-        "Effcee is a C++ library for stateful pattern matching"
-        " of strings, inspired by LLVM's FileCheck"
+        "Effcee is a C++ library for stateful pattern matching" " of strings, inspired by LLVM's FileCheck"
     )
     topics = ("strings", "algorithm", "matcher")
     license = "Apache-2.0"
@@ -51,9 +50,7 @@ class EffceeConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, "11")
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} shared with MT runtime not supported by msvc"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} shared with MT runtime not supported by msvc")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -81,12 +78,7 @@ class EffceeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

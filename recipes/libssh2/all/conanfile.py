@@ -57,9 +57,9 @@ class Libssh2Conan(ConanFile):
         tc.cache_variables["ENABLE_DEBUG_LOGGING"] = self.options.enable_debug_logging
         if self.options.crypto_backend == "openssl":
             tc.cache_variables["CRYPTO_BACKEND"] = "OpenSSL"
-            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies[
-                "openssl"
-            ].package_folder.replace("\\", "/")
+            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace(
+                "\\", "/"
+            )
         elif self.options.crypto_backend == "mbedtls":
             tc.cache_variables["CRYPTO_BACKEND"] = "mbedTLS"
         tc.cache_variables["BUILD_EXAMPLES"] = False
@@ -112,12 +112,7 @@ class Libssh2Conan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "share"))  # only docs and manpages
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

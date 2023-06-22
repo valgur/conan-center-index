@@ -79,9 +79,7 @@ class OpenTracingConan(ConanFile):
         target_suffix = "" if self.options.shared else "-static"
         lib_suffix = "" if self.options.shared or self.settings.os != "Windows" else "-static"
         # opentracing
-        self.cpp_info.components["opentracing"].names["cmake_find_package"] = (
-            "opentracing" + target_suffix
-        )
+        self.cpp_info.components["opentracing"].names["cmake_find_package"] = "opentracing" + target_suffix
         self.cpp_info.components["opentracing"].names["cmake_find_package_multi"] = (
             "opentracing" + target_suffix
         )
@@ -99,9 +97,7 @@ class OpenTracingConan(ConanFile):
             self.cpp_info.components["opentracing_mocktracer"].names["cmake_find_package_multi"] = (
                 "opentracing_mocktracer" + target_suffix
             )
-            self.cpp_info.components["opentracing_mocktracer"].libs = [
-                "opentracing_mocktracer" + lib_suffix
-            ]
+            self.cpp_info.components["opentracing_mocktracer"].libs = ["opentracing_mocktracer" + lib_suffix]
             self.cpp_info.components["opentracing_mocktracer"].requires = ["opentracing"]
             if not self.options.shared:
                 self.cpp_info.components["opentracing_mocktracer"].defines.append(

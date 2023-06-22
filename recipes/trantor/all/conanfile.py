@@ -75,9 +75,7 @@ class TrantorConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.info.settings.compiler), False
-        )
+        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version:
             if Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
@@ -90,9 +88,7 @@ class TrantorConan(ConanFile):
 
         # TODO: Compilation succeeds, but execution of test_package fails on Visual Studio with MDd
         if is_msvc(self) and self.options.shared and "MDd" in msvc_runtime_flag(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not support the MDd runtime on Visual Studio."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} does not support the MDd runtime on Visual Studio.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -117,10 +113,7 @@ class TrantorConan(ConanFile):
         replace_in_file(self, cmakelists, "c-ares_lib", "c-ares::cares")
         # Cleanup rpath in shared lib
         replace_in_file(
-            self,
-            cmakelists,
-            'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")',
-            "",
+            self, cmakelists, 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")', ""
         )
 
     def build(self):
@@ -131,10 +124,7 @@ class TrantorConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

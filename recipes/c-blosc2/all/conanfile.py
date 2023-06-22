@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    export_conandata_patches,
-    apply_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-)
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -120,9 +113,7 @@ class CBlosc2Conan(ConanFile):
         apply_conandata_patches(self)
 
         for filename in glob.glob(os.path.join(self.source_folder, "cmake", "Find*.cmake")):
-            if os.path.basename(filename) not in [
-                "FindSIMD.cmake",
-            ]:
+            if os.path.basename(filename) not in ["FindSIMD.cmake"]:
                 rm(self, os.path.basename(filename), os.path.join(self.source_folder, "cmake"))
 
     def build(self):
@@ -132,14 +123,7 @@ class CBlosc2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        licenses = [
-            "BLOSC.txt",
-            "BITSHUFFLE.txt",
-            "FASTLZ.txt",
-            "LZ4.txt",
-            "ZLIB.txt",
-            "STDINT.txt",
-        ]
+        licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt", "LZ4.txt", "ZLIB.txt", "STDINT.txt"]
         for license_file in licenses:
             copy(
                 self,

@@ -11,7 +11,9 @@ required_conan_version = ">=1.54.0"
 
 class libsvmConan(ConanFile):
     name = "libsvm"
-    description = "Libsvm is a simple, easy-to-use, and efficient software for SVM classification and regression"
+    description = (
+        "Libsvm is a simple, easy-to-use, and efficient software for SVM classification and regression"
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.csie.ntu.edu.tw/~cjlin/libsvm/"
     license = "BSD-3-Clause"
@@ -60,12 +62,7 @@ class libsvmConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

@@ -20,20 +20,14 @@ class MaddyConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package_id(self):
         self.info.header_only()
 
     def package(self):
-        self.copy(
-            "LICENSE",
-            src=os.path.join(self.source_folder, self._source_subfolder),
-            dst="licenses",
-        )
+        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
         self.copy(
             pattern="maddy/*.h",
             src=os.path.join(self.source_folder, self._source_subfolder, "include"),

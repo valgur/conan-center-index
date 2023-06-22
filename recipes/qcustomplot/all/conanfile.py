@@ -2,13 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    get,
-    export_conandata_patches,
-    replace_in_file,
-)
+from conan.tools.files import apply_conandata_patches, copy, get, export_conandata_patches, replace_in_file
 from conan.tools.scm import Version
 import os
 
@@ -64,20 +58,13 @@ class QCustomPlotConan(ConanFile):
         if not (self.dependencies["qt"].options.gui and self.dependencies["qt"].options.widgets):
             raise ConanInvalidConfiguration(f"{self.ref} requires qt gui and widgets")
         if self.info.options.with_opengl and self.dependencies["qt"].options.opengl == "no":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} with opengl requires Qt with opengl enabled"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} with opengl requires Qt with opengl enabled")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -108,12 +95,7 @@ class QCustomPlotConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "GPL.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "GPL.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

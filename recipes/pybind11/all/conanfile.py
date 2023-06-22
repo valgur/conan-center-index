@@ -22,12 +22,7 @@ class PyBind11Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -42,19 +37,10 @@ class PyBind11Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        for filename in [
-            "pybind11Targets.cmake",
-            "pybind11Config.cmake",
-            "pybind11ConfigVersion.cmake",
-        ]:
+        for filename in ["pybind11Targets.cmake", "pybind11Config.cmake", "pybind11ConfigVersion.cmake"]:
             rm(self, filename, os.path.join(self.package_folder, "lib", "cmake", "pybind11"))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -79,9 +65,7 @@ class PyBind11Conan(ConanFile):
         cmake_base_path = os.path.join("lib", "cmake", "pybind11")
         self.cpp_info.set_property("cmake_target_name", "pybind11_all_do_not_use")
         self.cpp_info.components["headers"].includedirs = ["include"]
-        self.cpp_info.components["pybind11_"].set_property(
-            "cmake_target_name", "pybind11::pybind11"
-        )
+        self.cpp_info.components["pybind11_"].set_property("cmake_target_name", "pybind11::pybind11")
         self.cpp_info.components["pybind11_"].set_property("cmake_module_file_name", "pybind11")
         self.cpp_info.components["pybind11_"].names["cmake_find_package"] = "pybind11"
         self.cpp_info.components["pybind11_"].builddirs = [cmake_base_path]

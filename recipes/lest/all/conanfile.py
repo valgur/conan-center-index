@@ -5,7 +5,9 @@ from conans import ConanFile, tools
 
 class LestConan(ConanFile):
     name = "lest"
-    description = "A modern, C++11-native, single-file header-only, tiny framework for unit-tests, TDD and BDD."
+    description = (
+        "A modern, C++11-native, single-file header-only, tiny framework for unit-tests, TDD and BDD."
+    )
     license = "BSL-1.0"
     topics = ("testing", "testing-framework", "unit-testing", "header-only")
     homepage = "https://github.com/martinmoene/lest"
@@ -18,9 +20,7 @@ class LestConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include")
-        )
+        self.copy(pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
 
     def package_id(self):
         self.info.header_only()

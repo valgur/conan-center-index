@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.microsoft import is_msvc, unix_path
@@ -79,12 +72,7 @@ class MpcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -94,12 +82,8 @@ class MpcConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append(
-            f'--with-gmp={unix_path(self, self.dependencies["gmp"].package_folder)}'
-        )
-        tc.configure_args.append(
-            f'--with-mpfr={unix_path(self, self.dependencies["mpfr"].package_folder)}'
-        )
+        tc.configure_args.append(f'--with-gmp={unix_path(self, self.dependencies["gmp"].package_folder)}')
+        tc.configure_args.append(f'--with-mpfr={unix_path(self, self.dependencies["mpfr"].package_folder)}')
         tc.generate()
 
         tc = AutotoolsDeps(self)

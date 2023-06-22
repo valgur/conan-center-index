@@ -43,9 +43,7 @@ class LibMbusConan(ConanFile):
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
         extracted_dir = (
-            self.name
-            + "-"
-            + os.path.basename(self.conan_data["sources"][self.version]["url"]).split(".")[0]
+            self.name + "-" + os.path.basename(self.conan_data["sources"][self.version]["url"]).split(".")[0]
         )
         os.rename(extracted_dir, self._source_subfolder)
 

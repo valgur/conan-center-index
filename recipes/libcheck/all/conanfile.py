@@ -56,9 +56,7 @@ class LibCheckConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -114,7 +112,5 @@ class LibCheckConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "check"
         self.cpp_info.components["liblibcheck"].names["cmake_find_package"] = target
         self.cpp_info.components["liblibcheck"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["liblibcheck"].set_property(
-            "cmake_target_name", "Check::{}".format(target)
-        )
+        self.cpp_info.components["liblibcheck"].set_property("cmake_target_name", "Check::{}".format(target))
         self.cpp_info.components["liblibcheck"].set_property("pkg_config_name", "check")

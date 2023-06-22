@@ -43,9 +43,7 @@ class LibjxlConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -92,8 +90,7 @@ class LibjxlConan(ConanFile):
                 self.copy("jxl_dec.lib", src="lib", dst="lib")
                 for dll_path in glob.glob(os.path.join(libs_dir, "*.dll")):
                     shutil.move(
-                        dll_path,
-                        os.path.join(self.package_folder, "bin", os.path.basename(dll_path)),
+                        dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path))
                     )
             else:
                 self.copy("libjxl_dec.*", src="lib", dst="lib")
@@ -107,19 +104,11 @@ class LibjxlConan(ConanFile):
         # jxl
         self.cpp_info.components["jxl"].names["pkg_config"] = "libjxl"
         self.cpp_info.components["jxl"].libs = [self._lib_name("jxl")]
-        self.cpp_info.components["jxl"].requires = [
-            "brotli::brotli",
-            "highway::highway",
-            "lcms::lcms",
-        ]
+        self.cpp_info.components["jxl"].requires = ["brotli::brotli", "highway::highway", "lcms::lcms"]
         # jxl_dec
         self.cpp_info.components["jxl_dec"].names["pkg_config"] = "libjxl_dec"
         self.cpp_info.components["jxl_dec"].libs = [self._lib_name("jxl_dec")]
-        self.cpp_info.components["jxl_dec"].requires = [
-            "brotli::brotli",
-            "highway::highway",
-            "lcms::lcms",
-        ]
+        self.cpp_info.components["jxl_dec"].requires = ["brotli::brotli", "highway::highway", "lcms::lcms"]
         # jxl_threads
         self.cpp_info.components["jxl_threads"].names["pkg_config"] = "libjxl_threads"
         self.cpp_info.components["jxl_threads"].libs = [self._lib_name("jxl_threads")]

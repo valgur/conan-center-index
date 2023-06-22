@@ -62,12 +62,8 @@ class XtrConan(ConanFile):
             and self.settings.compiler.libcxx == "libc++"
         ):
             raise ConanInvalidConfiguration(f"Use at least version 2.0.0 for libc++ compatibility")
-        if self.options.get_safe("enable_io_uring_sqpoll") and not self.options.get_safe(
-            "enable_io_uring"
-        ):
-            raise ConanInvalidConfiguration(
-                f"io_uring must be enabled if io_uring_sqpoll is enabled"
-            )
+        if self.options.get_safe("enable_io_uring_sqpoll") and not self.options.get_safe("enable_io_uring"):
+            raise ConanInvalidConfiguration(f"io_uring must be enabled if io_uring_sqpoll is enabled")
         if (
             self.options.get_safe("sink_capacity_kb")
             and not str(self.options.get_safe("sink_capacity_kb")).isdigit()
@@ -106,10 +102,7 @@ class XtrConan(ConanFile):
         # FIXME: should be done in validate (but version is not yet available there)
         if tools.Version(self.deps_cpp_info["fmt"].version) < 6:
             raise ConanInvalidConfiguration("The version of fmt must >= 6.0.0")
-        if (
-            tools.Version(self.deps_cpp_info["fmt"].version) == "8.0.0"
-            and self.settings.compiler == "clang"
-        ):
+        if tools.Version(self.deps_cpp_info["fmt"].version) == "8.0.0" and self.settings.compiler == "clang":
             raise ConanInvalidConfiguration(
                 "fmt/8.0.0 is known to not work with clang (https://github.com/fmtlib/fmt/issues/2377)"
             )

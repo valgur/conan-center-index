@@ -18,10 +18,7 @@ class Pthreads4WConan(ConanFile):
     license = "Apache-2.0"
     topics = ("pthreads", "windows", "posix")
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "exception_scheme": ["CPP", "SEH", "default"],
-    }
+    options = {"shared": [True, False], "exception_scheme": ["CPP", "SEH", "default"]}
     default_options = {
         "shared": False,
         "exception_scheme": "default",
@@ -51,12 +48,7 @@ class Pthreads4WConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -110,12 +102,7 @@ class Pthreads4WConan(ConanFile):
                 autotools.make(target=make_target, args=["-j1"])
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 self.run("nmake install DESTROOT={}".format(self.package_folder), env="conanbuild")

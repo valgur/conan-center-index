@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -81,20 +74,12 @@ class DracoConan(ConanFile):
 
         # use different cmake definitions based on package version
         if Version(self.version) < "1.4.0":
-            tc.variables[
-                "ENABLE_POINT_CLOUD_COMPRESSION"
-            ] = self.options.enable_point_cloud_compression
+            tc.variables["ENABLE_POINT_CLOUD_COMPRESSION"] = self.options.enable_point_cloud_compression
             tc.variables["ENABLE_MESH_COMPRESSION"] = self.options.enable_mesh_compression
             if self.options.enable_mesh_compression:
-                tc.variables[
-                    "ENABLE_STANDARD_EDGEBREAKER"
-                ] = self.options.enable_standard_edgebreaker
-                tc.variables[
-                    "ENABLE_PREDICTIVE_EDGEBREAKER"
-                ] = self.options.enable_predictive_edgebreaker
-            tc.variables[
-                "ENABLE_BACKWARDS_COMPATIBILITY"
-            ] = self.options.enable_backwards_compatibility
+                tc.variables["ENABLE_STANDARD_EDGEBREAKER"] = self.options.enable_standard_edgebreaker
+                tc.variables["ENABLE_PREDICTIVE_EDGEBREAKER"] = self.options.enable_predictive_edgebreaker
+            tc.variables["ENABLE_BACKWARDS_COMPATIBILITY"] = self.options.enable_backwards_compatibility
 
             # BUILD_FOR_GLTF is not needed, it is equivalent to:
             # - enable_point_cloud_compression=False
@@ -122,21 +107,13 @@ class DracoConan(ConanFile):
             tc.variables["IGNORE_EMPTY_BUILD_TYPE"] = False
             tc.variables["BUILD_ANIMATION_ENCODING"] = False
         else:
-            tc.variables[
-                "DRACO_POINT_CLOUD_COMPRESSION"
-            ] = self.options.enable_point_cloud_compression
+            tc.variables["DRACO_POINT_CLOUD_COMPRESSION"] = self.options.enable_point_cloud_compression
             tc.variables["DRACO_MESH_COMPRESSION"] = self.options.enable_mesh_compression
             if self.options.enable_mesh_compression:
-                tc.variables[
-                    "DRACO_STANDARD_EDGEBREAKER"
-                ] = self.options.enable_standard_edgebreaker
-                tc.variables[
-                    "DRACO_PREDICTIVE_EDGEBREAKER"
-                ] = self.options.enable_predictive_edgebreaker
+                tc.variables["DRACO_STANDARD_EDGEBREAKER"] = self.options.enable_standard_edgebreaker
+                tc.variables["DRACO_PREDICTIVE_EDGEBREAKER"] = self.options.enable_predictive_edgebreaker
             tc.variables["DRACO_ANIMATION_ENCODING"] = False
-            tc.variables[
-                "DRACO_BACKWARDS_COMPATIBILITY"
-            ] = self.options.enable_backwards_compatibility
+            tc.variables["DRACO_BACKWARDS_COMPATIBILITY"] = self.options.enable_backwards_compatibility
             tc.variables["DRACO_DECODER_ATTRIBUTE_DEDUPLICATION"] = False
             tc.variables["DRACO_FAST"] = False
             # DRACO_GLTF True overrides options by enabling
@@ -159,12 +136,7 @@ class DracoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

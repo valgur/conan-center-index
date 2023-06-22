@@ -22,7 +22,13 @@ class GfCompleteConan(ConanFile):
         "sse": [True, False, "auto"],
         "avx": [True, False, "auto"],
     }
-    default_options = {"shared": False, "fPIC": True, "neon": "auto", "sse": "auto", "avx": "auto"}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "neon": "auto",
+        "sse": "auto",
+        "avx": "auto",
+    }
 
     exports_sources = "patches/**"
     _autotools = None
@@ -53,9 +59,7 @@ class GfCompleteConan(ConanFile):
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             if self.options.shared:
-                raise ConanInvalidConfiguration(
-                    "gf-complete doesn't support shared with Visual Studio"
-                )
+                raise ConanInvalidConfiguration("gf-complete doesn't support shared with Visual Studio")
             if self.version == "1.03":
                 raise ConanInvalidConfiguration("gf-complete 1.03 doesn't support Visual Studio")
 
@@ -66,9 +70,7 @@ class GfCompleteConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -86,24 +88,16 @@ class GfCompleteConan(ConanFile):
         # Honor build type settings and fPIC option
         for subdir in ["src", "tools"]:
             for flag in ["-O3", "-fPIC"]:
-                tools.replace_in_file(
-                    os.path.join(self._source_subfolder, subdir, "Makefile.am"), flag, ""
-                )
+                tools.replace_in_file(os.path.join(self._source_subfolder, subdir, "Makefile.am"), flag, "")
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "LD": "{} link -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
@@ -146,9 +140,7 @@ class GfCompleteConan(ConanFile):
     def build(self):
         self._patch_sources()
         with tools.chdir(self._source_subfolder):
-            self.run(
-                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
-            )
+            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.make()

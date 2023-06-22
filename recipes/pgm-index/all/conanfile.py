@@ -17,14 +17,7 @@ class PgmIndexConan(ConanFile):
         "predecessor, range searches and updates in arrays"
     )
     license = "Apache-2.0"
-    topics = (
-        "data-structure",
-        "spatial-index",
-        "b-tree",
-        "compression",
-        "database",
-        "machine-learning",
-    )
+    topics = ("data-structure", "spatial-index", "b-tree", "compression", "database", "machine-learning")
     homepage = "https://pgm.di.unipi.it"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -59,7 +52,7 @@ class PgmIndexConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -69,12 +62,7 @@ class PgmIndexConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.hpp",

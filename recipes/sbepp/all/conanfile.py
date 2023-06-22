@@ -36,16 +36,21 @@ class PackageConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         if self.options.with_sbeppc:
-            return {"gcc": "9", "clang": "9", "apple-clang": "11"}
+            return {
+                "gcc": "9",
+                "clang": "9",
+                "apple-clang": "11",
+            }
         else:
-            return {"gcc": "4.8.1", "clang": "3.3", "apple-clang": "9.4"}
+            return {
+                "gcc": "4.8.1",
+                "clang": "3.3",
+                "apple-clang": "9.4",
+            }
 
     def export_sources(self):
         copy(
-            self,
-            os.path.join("cmake", "sbeppcTargets.cmake"),
-            self.recipe_folder,
-            self.export_sources_folder,
+            self, os.path.join("cmake", "sbeppcTargets.cmake"), self.recipe_folder, self.export_sources_folder
         )
         export_conandata_patches(self)
 
@@ -69,9 +74,7 @@ class PackageConan(ConanFile):
 
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."

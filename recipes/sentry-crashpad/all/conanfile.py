@@ -29,10 +29,7 @@ class SentryCrashpadConan(ConanFile):
     provides = "crashpad", "mini_chromium"
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "fPIC": [True, False],
-        "with_tls": ["openssl", False],
-    }
+    options = {"fPIC": [True, False], "with_tls": ["openssl", False]}
     default_options = {
         "fPIC": True,
         "with_tls": "openssl",
@@ -160,12 +157,8 @@ class SentryCrashpadConan(ConanFile):
                 )
 
         # compat
-        self.cpp_info.components["crashpad_compat"].set_property(
-            "cmake_target_name", "crashpad::compat"
-        )
-        self.cpp_info.components["crashpad_compat"].includedirs.append(
-            os.path.join("include", "crashpad")
-        )
+        self.cpp_info.components["crashpad_compat"].set_property("cmake_target_name", "crashpad::compat")
+        self.cpp_info.components["crashpad_compat"].includedirs.append(os.path.join("include", "crashpad"))
         # On Apple crashpad_compat is an interface library
         if not is_apple_os(self):
             self.cpp_info.components["crashpad_compat"].libs = ["crashpad_compat"]
@@ -173,9 +166,7 @@ class SentryCrashpadConan(ConanFile):
             self.cpp_info.components["crashpad_compat"].system_libs.append("dl")
 
         # util
-        self.cpp_info.components["crashpad_util"].set_property(
-            "cmake_target_name", "crashpad::util"
-        )
+        self.cpp_info.components["crashpad_util"].set_property("cmake_target_name", "crashpad::util")
         self.cpp_info.components["crashpad_util"].libs = ["crashpad_util"]
         self.cpp_info.components["crashpad_util"].requires = [
             "crashpad_compat",
@@ -197,19 +188,12 @@ class SentryCrashpadConan(ConanFile):
             self.cpp_info.components["crashpad_util"].requires.append("openssl::openssl")
 
         # client
-        self.cpp_info.components["crashpad_client"].set_property(
-            "cmake_target_name", "crashpad::client"
-        )
+        self.cpp_info.components["crashpad_client"].set_property("cmake_target_name", "crashpad::client")
         self.cpp_info.components["crashpad_client"].libs = ["crashpad_client"]
-        self.cpp_info.components["crashpad_client"].requires = [
-            "crashpad_util",
-            "crashpad_mini_chromium",
-        ]
+        self.cpp_info.components["crashpad_client"].requires = ["crashpad_util", "crashpad_mini_chromium"]
 
         # snapshot
-        self.cpp_info.components["crashpad_snapshot"].set_property(
-            "cmake_target_name", "crashpad::snapshot"
-        )
+        self.cpp_info.components["crashpad_snapshot"].set_property("cmake_target_name", "crashpad::snapshot")
         self.cpp_info.components["crashpad_snapshot"].libs = ["crashpad_snapshot"]
         self.cpp_info.components["crashpad_snapshot"].requires = [
             "crashpad_client",
@@ -221,9 +205,7 @@ class SentryCrashpadConan(ConanFile):
             self.cpp_info.components["snapshot"].system_libs.append("powrprof")
 
         # minidump
-        self.cpp_info.components["crashpad_minidump"].set_property(
-            "cmake_target_name", "crashpad::minidump"
-        )
+        self.cpp_info.components["crashpad_minidump"].set_property("cmake_target_name", "crashpad::minidump")
         self.cpp_info.components["crashpad_minidump"].libs = ["crashpad_minidump"]
         self.cpp_info.components["crashpad_minidump"].requires = [
             "crashpad_compat",
@@ -234,15 +216,11 @@ class SentryCrashpadConan(ConanFile):
 
         if self.settings.os == "Windows":
             # getopt
-            self.cpp_info.components["crashpad_getopt"].set_property(
-                "cmake_target_name", "crashpad::getopt"
-            )
+            self.cpp_info.components["crashpad_getopt"].set_property("cmake_target_name", "crashpad::getopt")
             self.cpp_info.components["crashpad_getopt"].libs = ["crashpad_getopt"]
 
         # handler
-        self.cpp_info.components["crashpad_handler"].set_property(
-            "cmake_target_name", "crashpad::handler"
-        )
+        self.cpp_info.components["crashpad_handler"].set_property("cmake_target_name", "crashpad::handler")
         self.cpp_info.components["crashpad_handler"].libs = ["crashpad_handler_lib"]
         self.cpp_info.components["crashpad_handler"].requires = [
             "crashpad_compat",
@@ -255,9 +233,7 @@ class SentryCrashpadConan(ConanFile):
             self.cpp_info.components["crashpad_handler"].requires.append("crashpad_getopt")
 
         # tools
-        self.cpp_info.components["crashpad_tools"].set_property(
-            "cmake_target_name", "crashpad::tools"
-        )
+        self.cpp_info.components["crashpad_tools"].set_property("cmake_target_name", "crashpad::tools")
         self.cpp_info.components["crashpad_tools"].libs = ["crashpad_tools"]
 
         bin_path = os.path.join(self.package_folder, "bin")
@@ -267,12 +243,8 @@ class SentryCrashpadConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "crashpad"
         self.cpp_info.names["cmake_find_package_multi"] = "crashpad"
-        self.cpp_info.components["crashpad_mini_chromium"].names[
-            "cmake_find_package"
-        ] = "mini_chromium"
-        self.cpp_info.components["crashpad_mini_chromium"].names[
-            "cmake_find_package_multi"
-        ] = "mini_chromium"
+        self.cpp_info.components["crashpad_mini_chromium"].names["cmake_find_package"] = "mini_chromium"
+        self.cpp_info.components["crashpad_mini_chromium"].names["cmake_find_package_multi"] = "mini_chromium"
         self.cpp_info.components["crashpad_compat"].names["cmake_find_package"] = "compat"
         self.cpp_info.components["crashpad_compat"].names["cmake_find_package_multi"] = "compat"
         self.cpp_info.components["crashpad_util"].names["cmake_find_package"] = "util"

@@ -60,17 +60,11 @@ class freeglutConan(ConanFile):
             # also, it seems to require `brew cask install xquartz`
             raise ConanInvalidConfiguration(f"{self.ref} does not support macos")
         if Version(self.version) < "3.2.2":
-            if (
-                self.settings.compiler == "gcc"
-                and Version(self.settings.compiler.version) >= "10.0"
-            ) or (
-                self.settings.compiler == "clang"
-                and Version(self.settings.compiler.version) >= "11.0"
+            if (self.settings.compiler == "gcc" and Version(self.settings.compiler.version) >= "10.0") or (
+                self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= "11.0"
             ):
                 # see https://github.com/dcnieho/FreeGLUT/issues/86
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} does not support gcc >= 10 and clang >= 11"
-                )
+                raise ConanInvalidConfiguration(f"{self.ref} does not support gcc >= 10 and clang >= 11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -95,12 +89,7 @@ class freeglutConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -125,9 +114,7 @@ class freeglutConan(ConanFile):
             if not self.options.shared:
                 self.cpp_info.components["freeglut_"].defines.append("FREEGLUT_STATIC=1")
             self.cpp_info.components["freeglut_"].defines.append("FREEGLUT_LIB_PRAGMAS=0")
-            self.cpp_info.components["freeglut_"].system_libs.extend(
-                ["glu32", "gdi32", "winmm", "user32"]
-            )
+            self.cpp_info.components["freeglut_"].system_libs.extend(["glu32", "gdi32", "winmm", "user32"])
 
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "GLUT"
@@ -136,9 +123,7 @@ class freeglutConan(ConanFile):
         self.cpp_info.components["freeglut_"].names["cmake_find_package"] = "GLUT"
         self.cpp_info.components["freeglut_"].set_property("cmake_module_target_name", "GLUT::GLUT")
         self.cpp_info.components["freeglut_"].names["cmake_find_package_multi"] = config_target
-        self.cpp_info.components["freeglut_"].set_property(
-            "cmake_target_name", f"FreeGLUT::{config_target}"
-        )
+        self.cpp_info.components["freeglut_"].set_property("cmake_target_name", f"FreeGLUT::{config_target}")
         self.cpp_info.components["freeglut_"].set_property("pkg_config_name", pkg_config)
         self.cpp_info.components["freeglut_"].requires.extend(["opengl::opengl", "glu::glu"])
         if self.settings.os == "Linux":

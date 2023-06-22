@@ -40,8 +40,7 @@ class LibBasisUniversalConan(ConanFile):
 
     def _use_custom_iterator_debug_level(self):
         return self.options.get_safe(
-            "custom_iterator_debug_level",
-            default=self.default_options["custom_iterator_debug_level"],
+            "custom_iterator_debug_level", default=self.default_options["custom_iterator_debug_level"]
         )
 
     def config_options(self):
@@ -51,7 +50,12 @@ class LibBasisUniversalConan(ConanFile):
             del self.options.custom_iterator_debug_level
 
     def _minimum_compiler_version(self) -> bool:
-        return {"Visual Studio": "15", "gcc": "5.4", "clang": "3.9", "apple-clang": "10"}
+        return {
+            "Visual Studio": "15",
+            "gcc": "5.4",
+            "clang": "3.9",
+            "apple-clang": "10",
+        }
 
     def validate(self):
         min_version = self._minimum_compiler_version().get(str(self.settings.compiler))
@@ -80,9 +84,7 @@ class LibBasisUniversalConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):
@@ -92,9 +94,7 @@ class LibBasisUniversalConan(ConanFile):
         self._cmake.definitions["SSE4"] = self.options.use_sse4
         self._cmake.definitions["ZSTD"] = self.options.with_zstd
         self._cmake.definitions["ENABLE_ENCODER"] = self.options.enable_encoder
-        self._cmake.definitions[
-            "NO_ITERATOR_DEBUG_LEVEL"
-        ] = not self._use_custom_iterator_debug_level()
+        self._cmake.definitions["NO_ITERATOR_DEBUG_LEVEL"] = not self._use_custom_iterator_debug_level()
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

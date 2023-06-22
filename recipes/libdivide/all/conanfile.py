@@ -6,11 +6,7 @@ required_conan_version = ">=1.33.0"
 class LibdivideConan(ConanFile):
     name = "libdivide"
     description = "Header-only C/C++ library for optimizing integer division."
-    topics = (
-        "libdivide",
-        "division",
-        "integer",
-    )
+    topics = ("libdivide", "division", "integer")
     license = ["Zlib", "BSL-1.0"]
     homepage = "http://libdivide.com/"
     url = "https://github.com/conan-io/conan-center-index"
@@ -57,9 +53,7 @@ class LibdivideConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):
@@ -73,9 +67,11 @@ class LibdivideConan(ConanFile):
         simd = self.options.get_safe("simd_intrinsics", False)
         if bool(simd):
             self.cpp_info.defines = [
-                {"sse2": "LIBDIVIDE_SSE2", "avx2": "LIBDIVIDE_AVX2", "avx512": "LIBDIVIDE_AVX512"}[
-                    str(simd)
-                ]
+                {
+                    "sse2": "LIBDIVIDE_SSE2",
+                    "avx2": "LIBDIVIDE_AVX2",
+                    "avx512": "LIBDIVIDE_AVX512",
+                }[str(simd)]
             ]
         if self.options.get_safe("sse2", False):
             self.cpp_info.defines.append("LIBDIVIDE_SSE2")

@@ -102,10 +102,9 @@ class XZUtilsConan(ConanFile):
 
     @property
     def _msvc_sln_folder(self):
-        if (
-            str(self.settings.compiler) == "Visual Studio"
-            and Version(self.settings.compiler) >= "15"
-        ) or (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
+            str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
+        ):
             return "vs2017"
         return "vs2013"
 
@@ -118,10 +117,9 @@ class XZUtilsConan(ConanFile):
             os.path.join(build_script_folder, "liblzma.vcxproj"),
             os.path.join(build_script_folder, "liblzma_dll.vcxproj"),
         ]
-        if (
-            str(self.settings.compiler) == "Visual Studio"
-            and Version(self.settings.compiler) >= "15"
-        ) or (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
+            str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
+        ):
             old_toolset = "v141"
         else:
             old_toolset = "v120"
@@ -145,9 +143,7 @@ class XZUtilsConan(ConanFile):
         msbuild = MSBuild(self)
         msbuild.build_type = self._effective_msbuild_type
         msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-        msbuild.build(
-            os.path.join(build_script_folder, "xz_win.sln"), targets=[self._msbuild_target]
-        )
+        msbuild.build(os.path.join(build_script_folder, "xz_win.sln"), targets=[self._msbuild_target])
 
     def build(self):
         apply_conandata_patches(self)
@@ -159,30 +155,13 @@ class XZUtilsConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             inc_dir = os.path.join(self.source_folder, "src", "liblzma", "api")
             copy(self, "*.h", src=inc_dir, dst=os.path.join(self.package_folder, "include"))
             output_dir = os.path.join(self.source_folder, "windows")
-            copy(
-                self,
-                "*.lib",
-                src=output_dir,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                src=output_dir,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
             rename(
                 self,
                 os.path.join(self.package_folder, "lib", "liblzma.lib"),
@@ -196,9 +175,7 @@ class XZUtilsConan(ConanFile):
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             fix_apple_shared_install_name(self)
 
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         # TODO: also add LIBLZMA_HAS_AUTO_DECODER, LIBLZMA_HAS_EASY_ENCODER & LIBLZMA_HAS_LZMA_PRESET

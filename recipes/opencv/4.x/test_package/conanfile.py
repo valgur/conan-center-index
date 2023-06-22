@@ -21,8 +21,7 @@ class TestPackageConan(ConanFile):
         tc.variables["built_with_ade"] = self.dependencies["opencv"].options.with_ade
         tc.variables["built_with_ffmpeg"] = self.dependencies["opencv"].options.with_ffmpeg
         tc.variables["built_contrib_sfm"] = (
-            self.dependencies["opencv"].options.contrib
-            and self.dependencies["opencv"].options.contrib_sfm
+            self.dependencies["opencv"].options.contrib and self.dependencies["opencv"].options.contrib_sfm
         )
         tc.generate()
 

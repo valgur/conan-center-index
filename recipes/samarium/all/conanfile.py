@@ -17,13 +17,7 @@ class SamariumConan(ConanFile):
     license = "MIT"
     topics = ("cpp20", "physics", "2d", "simulation")
     generators = "CMakeDeps", "CMakeToolchain"
-    requires = (
-        "fmt/9.0.0",
-        "sfml/2.5.1",
-        "range-v3/0.12.0",
-        "stb/cci.20210910",
-        "tl-expected/20190710",
-    )
+    requires = ("fmt/9.0.0", "sfml/2.5.1", "range-v3/0.12.0", "stb/cci.20210910", "tl-expected/20190710")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -66,9 +60,7 @@ class SamariumConan(ConanFile):
 
         version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++20"
-            )
+            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++20")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -87,10 +79,7 @@ class SamariumConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            "LICENSE.md",
-            src=self.folders.source_folder,
-            dst=path.join(self.package_folder, "licenses"),
+            self, "LICENSE.md", src=self.folders.source_folder, dst=path.join(self.package_folder, "licenses")
         )
 
         cmake = CMake(self)

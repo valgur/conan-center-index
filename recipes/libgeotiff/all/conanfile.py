@@ -74,23 +74,18 @@ class LibgeotiffConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "doc"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_file)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_file))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_target_file),
-            {"geotiff_library": "geotiff::geotiff"},
+            {
+                "geotiff_library": "geotiff::geotiff",
+            },
         )
 
     def _create_cmake_module_variables(self, module_file):

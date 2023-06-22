@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 import os
 
 required_conan_version = ">=1.53.0"
@@ -81,12 +74,7 @@ class NetcdfConan(ConanFile):
             self.requires("libcurl/7.88.1")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -119,12 +107,7 @@ class NetcdfConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

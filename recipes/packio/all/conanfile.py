@@ -29,18 +29,8 @@ class PackioConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         if scm.Version(self.version) < "2.4.0":
-            return {
-                "apple-clang": 10,
-                "clang": 6,
-                "gcc": 7,
-                "Visual Studio": 16,
-            }
-        return {
-            "apple-clang": 13,
-            "clang": 11,
-            "gcc": 9,
-            "Visual Studio": 16,
-        }
+            return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16}
+        return {"apple-clang": 13, "clang": 11, "gcc": 9, "Visual Studio": 16}
 
     def config_options(self):
         if scm.Version(self.version) < "1.2.0":
@@ -84,9 +74,7 @@ class PackioConan(ConanFile):
                     "packio requires C++17, which your compiler does not support."
                 )
         else:
-            self.output.warn(
-                "packio requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
@@ -104,9 +92,7 @@ class PackioConan(ConanFile):
             self.cpp_info.defines.append(
                 f"PACKIO_STANDALONE_ASIO={1 if self.options.get_safe('standalone_asio') else 0}"
             )
-            self.cpp_info.defines.append(
-                f"PACKIO_HAS_MSGPACK={1 if self.options.get_safe('msgpack') else 0}"
-            )
+            self.cpp_info.defines.append(f"PACKIO_HAS_MSGPACK={1 if self.options.get_safe('msgpack') else 0}")
             self.cpp_info.defines.append(
                 f"PACKIO_HAS_NLOHMANN_JSON={1 if self.options.get_safe('nlohmann_json') else 0}"
             )

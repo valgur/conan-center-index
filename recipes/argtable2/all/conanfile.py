@@ -21,7 +21,9 @@ required_conan_version = ">=1.55.0"
 
 class Argtable2Conan(ConanFile):
     name = "argtable2"
-    description = "Argtable is an ANSI C library for parsing GNU style command line options with a minimum of fuss."
+    description = (
+        "Argtable is an ANSI C library for parsing GNU style command line options with a minimum of fuss."
+    )
     topics = ("argument", "parsing", "getopt")
     license = "LGPL-2.0+"
     homepage = "http://argtable.sourceforge.net/"
@@ -100,12 +102,7 @@ class Argtable2Conan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_folder = os.path.join(self.source_folder, "src")
             copy(

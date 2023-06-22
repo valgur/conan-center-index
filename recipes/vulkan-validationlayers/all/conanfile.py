@@ -27,9 +27,7 @@ required_conan_version = ">=1.55.0"
 
 class VulkanValidationLayersConan(ConanFile):
     name = "vulkan-validationlayers"
-    description = (
-        "Khronos official Vulkan validation layers for Windows, Linux, Android, and MacOS."
-    )
+    description = "Khronos official Vulkan validation layers for Windows, Linux, Android, and MacOS."
     license = "Apache-2.0"
     topics = ("vulkan", "validation-layers")
     homepage = "https://github.com/KhronosGroup/Vulkan-ValidationLayers"
@@ -56,9 +54,7 @@ class VulkanValidationLayersConan(ConanFile):
     @property
     @functools.lru_cache(1)
     def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(
-            self.recipe_folder, "dependencies", self._dependencies_filename
-        )
+        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
         if not os.path.isfile(dependencies_filepath):
             raise ConanException(f"Cannot find {dependencies_filepath}")
         cached_dependencies = yaml.safe_load(open(dependencies_filepath))
@@ -91,16 +87,11 @@ class VulkanValidationLayersConan(ConanFile):
                 "gcc": "7",
                 "msvc": "191",
                 "Visual Studio": "15.7",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export(self):
-        copy(
-            self,
-            f"dependencies/{self._dependencies_filename}",
-            self.recipe_folder,
-            self.export_folder,
-        )
+        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -144,17 +135,13 @@ class VulkanValidationLayersConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
         if self.dependencies["spirv-tools"].options.shared:
-            raise ConanInvalidConfiguration(
-                "vulkan-validationlayers can't depend on shared spirv-tools"
-            )
+            raise ConanInvalidConfiguration("vulkan-validationlayers can't depend on shared spirv-tools")
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 is not supported")
@@ -225,12 +212,7 @@ class VulkanValidationLayersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -248,20 +230,14 @@ class VulkanValidationLayersConan(ConanFile):
         else:
             # Move json files to res, but keep in mind to preserve relative
             # path between module library and manifest json file
-            rename(
-                self,
-                os.path.join(self.package_folder, "share"),
-                os.path.join(self.package_folder, "res"),
-            )
+            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["VkLayer_utils"]
 
         manifest_subfolder = (
-            "bin"
-            if self.settings.os == "Windows"
-            else os.path.join("res", "vulkan", "explicit_layer.d")
+            "bin" if self.settings.os == "Windows" else os.path.join("res", "vulkan", "explicit_layer.d")
         )
         vk_layer_path = os.path.join(self.package_folder, manifest_subfolder)
         self.runenv_info.prepend_path("VK_LAYER_PATH", vk_layer_path)

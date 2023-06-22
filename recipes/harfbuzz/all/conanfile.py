@@ -91,11 +91,7 @@ class HarfbuzzConan(ConanFile):
             self.requires("glib/2.76.3", run=can_run(self))
 
     def validate(self):
-        if (
-            self.options.shared
-            and self.options.with_glib
-            and not self.dependencies["glib"].options.shared
-        ):
+        if self.options.shared and self.options.with_glib and not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
@@ -238,6 +234,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

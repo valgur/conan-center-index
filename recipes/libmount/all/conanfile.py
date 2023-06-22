@@ -48,13 +48,7 @@ class LibmountConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--disable-all-programs",
-                "--enable-libmount",
-                "--enable-libblkid",
-            ]
-        )
+        tc.configure_args.extend(["--disable-all-programs", "--enable-libmount", "--enable-libblkid"])
         tc.generate()
 
     def build(self):
@@ -63,12 +57,7 @@ class LibmountConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "sbin"))

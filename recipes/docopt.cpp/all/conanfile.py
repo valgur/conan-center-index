@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
@@ -139,9 +132,7 @@ class DocoptCppConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "docopt"
         self.cpp_info.components["docopt"].names["cmake_find_package"] = self._cmake_target
         self.cpp_info.components["docopt"].names["cmake_find_package_multi"] = self._cmake_target
-        self.cpp_info.components["docopt"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components["docopt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.components["docopt"].build_modules["cmake_find_package_multi"] = [
             self._module_file_rel_path
         ]

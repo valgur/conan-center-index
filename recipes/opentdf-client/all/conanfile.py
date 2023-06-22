@@ -67,9 +67,7 @@ class OpenTDFConan(ConanFile):
                 )
         # Disallow MT and MTd
         if is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                f"{self.name} can not be built with MT or MTd at this time"
-            )
+            raise ConanInvalidConfiguration(f"{self.name} can not be built with MT or MTd at this time")
 
     def requirements(self):
         self.requires("openssl/1.1.1q")

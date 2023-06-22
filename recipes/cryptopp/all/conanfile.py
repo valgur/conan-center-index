@@ -55,9 +55,7 @@ class CryptoPPConan(ConanFile):
 
     def validate(self):
         if self.options.shared and Version(self.version) >= "8.7.0":
-            raise ConanInvalidConfiguration(
-                "cryptopp 8.7.0 and higher do not support shared builds"
-            )
+            raise ConanInvalidConfiguration("cryptopp 8.7.0 and higher do not support shared builds")
 
     def build_requirements(self):
         if Version(self.version) >= "8.7.0":
@@ -70,21 +68,12 @@ class CryptoPPConan(ConanFile):
         if Version(self.version) < "8.7.0":
             # Get CMakeLists
             base_source_dir = os.path.join(self.source_folder, os.pardir)
-            get(
-                self,
-                **self.conan_data["sources"][self.version]["cmake"],
-                destination=base_source_dir,
-            )
+            get(self, **self.conan_data["sources"][self.version]["cmake"], destination=base_source_dir)
             src_folder = os.path.join(
-                base_source_dir,
-                f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}",
+                base_source_dir, f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}"
             )
             for file in ("CMakeLists.txt", "cryptopp-config.cmake"):
-                rename(
-                    self,
-                    src=os.path.join(src_folder, file),
-                    dst=os.path.join(self.source_folder, file),
-                )
+                rename(self, src=os.path.join(src_folder, file), dst=os.path.join(self.source_folder, file))
             rmdir(self, src_folder)
         else:
             # Get cryptopp-cmake sources
@@ -164,12 +153,7 @@ class CryptoPPConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "License.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "License.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if Version(self.version) < "8.7.0":
@@ -221,16 +205,12 @@ class CryptoPPConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["pkg_config"] = "libcryptopp"
         self.cpp_info.components["libcryptopp"].names["cmake_find_package"] = legacy_cmake_target
-        self.cpp_info.components["libcryptopp"].names[
-            "cmake_find_package_multi"
-        ] = legacy_cmake_target
+        self.cpp_info.components["libcryptopp"].names["cmake_find_package_multi"] = legacy_cmake_target
         self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]
         self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package_multi"] = [
             self._module_file_rel_path
         ]
-        self.cpp_info.components["libcryptopp"].set_property(
-            "cmake_target_name", "cryptopp::cryptopp"
-        )
+        self.cpp_info.components["libcryptopp"].set_property("cmake_target_name", "cryptopp::cryptopp")
         self.cpp_info.components["libcryptopp"].set_property("pkg_config_name", "libcryptopp")

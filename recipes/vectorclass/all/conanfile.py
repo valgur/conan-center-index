@@ -52,14 +52,11 @@ class VectorclassConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.os not in [
-            "Linux",
-            "Windows",
-            "Macos",
-        ] or self.info.settings.arch not in ["x86", "x86_64"]:
-            raise ConanInvalidConfiguration(
-                "vectorclass supports Linux/Windows/macOS and x86/x86_64 only."
-            )
+        if self.info.settings.os not in ["Linux", "Windows", "Macos"] or self.info.settings.arch not in [
+            "x86",
+            "x86_64",
+        ]:
+            raise ConanInvalidConfiguration("vectorclass supports Linux/Windows/macOS and x86/x86_64 only.")
 
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -70,23 +67,14 @@ class VectorclassConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.info.settings.compiler), False
-        )
-        if minimum_version and loose_lt_semver(
-            str(self.info.settings.compiler.version), minimum_version
-        ):
+        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
+        if minimum_version and loose_lt_semver(str(self.info.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -99,12 +87,7 @@ class VectorclassConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

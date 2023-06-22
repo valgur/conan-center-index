@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -82,12 +75,7 @@ class PoptConan(ConanFile):
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             tc.extra_cflags.append("-FS")
-        tc.configure_args.extend(
-            [
-                "--disable-dependency-tracking",
-                "--disable-nls",
-            ]
-        )
+        tc.configure_args.extend(["--disable-dependency-tracking", "--disable-nls"])
         tc.generate()
 
         if is_msvc(self):
@@ -96,9 +84,7 @@ class PoptConan(ConanFile):
             compile_wrapper = unix_path(
                 self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
             )
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
@@ -131,10 +117,7 @@ class PoptConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
 
         autotools = Autotools(self)

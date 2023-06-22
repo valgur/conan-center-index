@@ -10,7 +10,9 @@ required_conan_version = ">=1.50.0"
 class LyraConan(ConanFile):
     name = "lyra"
     homepage = "https://bfgroup.github.io/Lyra/"
-    description = "A simple to use, composing, header only, command line arguments parser for C++ 11 and beyond."
+    description = (
+        "A simple to use, composing, header only, command line arguments parser for C++ 11 and beyond."
+    )
     topics = (
         "cli",
         "cli-parser",
@@ -41,10 +43,7 @@ class LyraConan(ConanFile):
 
     def package(self):
         conan.tools.files.copy(
-            self,
-            "LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         conan.tools.files.copy(
             self,

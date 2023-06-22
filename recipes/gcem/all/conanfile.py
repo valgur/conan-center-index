@@ -16,12 +16,7 @@ class GcemConan(ConanFile):
     homepage = "https://github.com/kthohr/gcem"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    settings = ("os", "arch", "compiler", "build_type")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -34,23 +29,13 @@ class GcemConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*",
@@ -61,7 +46,9 @@ class GcemConan(ConanFile):
         # TODO: to remove in conan v2
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"gcem": "gcem::gcem"},
+            {
+                "gcem": "gcem::gcem",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

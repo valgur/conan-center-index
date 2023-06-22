@@ -180,9 +180,7 @@ class OpenCVConan(ConanFile):
                 self.options["libtiff"].jpeg = self.options.with_jpeg
 
         if self.settings.os == "Android":
-            self.options.with_openexr = (
-                False  # disabled because this forces linkage to libc++_shared.so
-            )
+            self.options.with_openexr = False  # disabled because this forces linkage to libc++_shared.so
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -242,9 +240,7 @@ class OpenCVConan(ConanFile):
                 "Visual Studio with static runtime is not supported for shared library."
             )
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "4":
-            raise ConanInvalidConfiguration(
-                "Clang 3.x can't build OpenCV 4.x due to an internal bug."
-            )
+            raise ConanInvalidConfiguration("Clang 3.x can't build OpenCV 4.x due to an internal bug.")
         if self.options.with_cuda and not self.options.contrib:
             raise ConanInvalidConfiguration("contrib must be enabled for cuda")
         if self.options.get_safe("dnn_cuda") and (
@@ -323,27 +319,20 @@ class OpenCVConan(ConanFile):
         if Version(self.version) < "4.1.2":
             install_layout_file = os.path.join(self.source_folder, "CMakeLists.txt")
         else:
-            install_layout_file = os.path.join(
-                self.source_folder, "cmake", "OpenCVInstallLayout.cmake"
-            )
+            install_layout_file = os.path.join(self.source_folder, "cmake", "OpenCVInstallLayout.cmake")
         replace_in_file(
             self,
             install_layout_file,
             'ocv_update(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}")',
             "",
         )
-        replace_in_file(
-            self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", ""
-        )
+        replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
         if self.options.dnn:
             find_protobuf = os.path.join(self.source_folder, "cmake", "OpenCVFindProtobuf.cmake")
             # OpenCV expects to find FindProtobuf.cmake, not the config file
             replace_in_file(
-                self,
-                find_protobuf,
-                "find_package(Protobuf QUIET)",
-                "find_package(Protobuf REQUIRED MODULE)",
+                self, find_protobuf, "find_package(Protobuf QUIET)", "find_package(Protobuf REQUIRED MODULE)"
             )
             # in 'if' block, get_target_property() produces an error
             if Version(self.version) >= "4.4.0":
@@ -355,9 +344,7 @@ class OpenCVConan(ConanFile):
                 )
 
         if self.options.get_safe("contrib_freetype"):
-            freetype_cmake = os.path.join(
-                self._contrib_folder, "modules", "freetype", "CMakeLists.txt"
-            )
+            freetype_cmake = os.path.join(self._contrib_folder, "modules", "freetype", "CMakeLists.txt")
             replace_in_file(
                 self,
                 freetype_cmake,
@@ -548,9 +535,9 @@ class OpenCVConan(ConanFile):
         tc.variables["OPENCV_DNN_CUDA"] = self.options.get_safe("dnn_cuda", False)
 
         if self.options.contrib:
-            tc.variables["OPENCV_EXTRA_MODULES_PATH"] = os.path.join(
-                self._contrib_folder, "modules"
-            ).replace("\\", "/")
+            tc.variables["OPENCV_EXTRA_MODULES_PATH"] = os.path.join(self._contrib_folder, "modules").replace(
+                "\\", "/"
+            )
         tc.variables["BUILD_opencv_freetype"] = self.options.get_safe("contrib_freetype", False)
         tc.variables["BUILD_opencv_sfm"] = self.options.get_safe("contrib_sfm", False)
 
@@ -594,12 +581,7 @@ class OpenCVConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -722,16 +704,8 @@ class OpenCVConan(ConanFile):
                 "lib": "core",
                 "requires": ["zlib::zlib"] + parallel() + eigen() + ipp(),
             },
-            {
-                "target": "opencv_flann",
-                "lib": "flann",
-                "requires": ["opencv_core"] + eigen() + ipp(),
-            },
-            {
-                "target": "opencv_imgproc",
-                "lib": "imgproc",
-                "requires": ["opencv_core"] + eigen() + ipp(),
-            },
+            {"target": "opencv_flann", "lib": "flann", "requires": ["opencv_core"] + eigen() + ipp()},
+            {"target": "opencv_imgproc", "lib": "imgproc", "requires": ["opencv_core"] + eigen() + ipp()},
             {"target": "opencv_ml", "lib": "ml", "requires": ["opencv_core"] + eigen() + ipp()},
             {
                 "target": "opencv_photo",
@@ -755,10 +729,7 @@ class OpenCVConan(ConanFile):
                 "target": "opencv_videoio",
                 "lib": "videoio",
                 "requires": (
-                    ["opencv_core", "opencv_imgproc", "opencv_imgcodecs"]
-                    + eigen()
-                    + ffmpeg()
-                    + ipp()
+                    ["opencv_core", "opencv_imgproc", "opencv_imgcodecs"] + eigen() + ffmpeg() + ipp()
                 ),
             },
             {
@@ -848,9 +819,7 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_quality",
                         "lib": "quality",
-                        "requires": ["opencv_core", "opencv_imgproc", "opencv_ml"]
-                        + eigen()
-                        + ipp(),
+                        "requires": ["opencv_core", "opencv_imgproc", "opencv_ml"] + eigen() + ipp(),
                     },
                     {
                         "target": "opencv_reg",
@@ -865,9 +834,7 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_xphoto",
                         "lib": "xphoto",
-                        "requires": ["opencv_core", "opencv_imgproc", "opencv_photo"]
-                        + eigen()
-                        + ipp(),
+                        "requires": ["opencv_core", "opencv_imgproc", "opencv_photo"] + eigen() + ipp(),
                     },
                     {
                         "target": "opencv_fuzzy",
@@ -887,24 +854,14 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_line_descriptor",
                         "lib": "line_descriptor",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                        ]
+                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
                         + eigen()
                         + ipp(),
                     },
                     {
                         "target": "opencv_saliency",
                         "lib": "saliency",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                        ]
+                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
                         + eigen()
                         + ipp(),
                     },
@@ -1234,7 +1191,7 @@ class OpenCVConan(ConanFile):
                             ]
                             + eigen()
                             + ipp(),
-                        },
+                        }
                     ]
                 )
 
@@ -1345,13 +1302,8 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_gapi",
                         "lib": "gapi",
-                        "requires": [
-                            "opencv_imgproc",
-                            "opencv_calib3d",
-                            "opencv_video",
-                            "ade::ade",
-                        ],
-                    },
+                        "requires": ["opencv_imgproc", "opencv_calib3d", "opencv_video", "ade::ade"],
+                    }
                 ]
             )
 
@@ -1379,9 +1331,7 @@ class OpenCVConan(ConanFile):
                 requires = component["requires"]
                 # TODO: we should also define COMPONENTS names of each target for find_package() but not possible yet in CMakeDeps
                 #       see https://github.com/conan-io/conan/issues/10258
-                self.cpp_info.components[conan_component].set_property(
-                    "cmake_target_name", cmake_target
-                )
+                self.cpp_info.components[conan_component].set_property("cmake_target_name", cmake_target)
                 self.cpp_info.components[conan_component].libs = [lib_name]
                 if lib_name.startswith("ippiw"):
                     self.cpp_info.components[conan_component].libs.append(
@@ -1393,12 +1343,7 @@ class OpenCVConan(ConanFile):
                     )
                 self.cpp_info.components[conan_component].requires = requires
                 if self.settings.os == "Linux":
-                    self.cpp_info.components[conan_component].system_libs = [
-                        "dl",
-                        "m",
-                        "pthread",
-                        "rt",
-                    ]
+                    self.cpp_info.components[conan_component].system_libs = ["dl", "m", "pthread", "rt"]
 
                 if self.settings.os == "Android":
                     self.cpp_info.components[conan_component].system_libs.append("log")
@@ -1407,22 +1352,18 @@ class OpenCVConan(ConanFile):
 
                 if conan_component == "opencv_core" and not self.options.shared:
                     lib_exclude_filter = "(opencv_|ippi|correspondence|multiview|numeric).*"
-                    libs = list(
-                        filter(lambda x: not re.match(lib_exclude_filter, x), collect_libs(self))
-                    )
+                    libs = list(filter(lambda x: not re.match(lib_exclude_filter, x), collect_libs(self)))
                     self.cpp_info.components[conan_component].libs += libs
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
                 self.cpp_info.components[conan_component].names["cmake_find_package"] = cmake_target
-                self.cpp_info.components[conan_component].names[
-                    "cmake_find_package_multi"
-                ] = cmake_target
+                self.cpp_info.components[conan_component].names["cmake_find_package_multi"] = cmake_target
                 self.cpp_info.components[conan_component].build_modules["cmake_find_package"] = [
                     self._module_file_rel_path
                 ]
-                self.cpp_info.components[conan_component].build_modules[
-                    "cmake_find_package_multi"
-                ] = [self._module_file_rel_path]
+                self.cpp_info.components[conan_component].build_modules["cmake_find_package_multi"] = [
+                    self._module_file_rel_path
+                ]
                 if cmake_component != cmake_target:
                     conan_component_alias = conan_component + "_alias"
                     self.cpp_info.components[conan_component_alias].names[

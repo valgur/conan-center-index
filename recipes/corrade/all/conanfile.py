@@ -64,9 +64,7 @@ class CorradeConan(ConanFile):
             raise ConanInvalidConfiguration("Corrade requires Visual Studio version 14 or greater")
 
         if not self.options.with_utility and (
-            self.options.with_testsuite
-            or self.options.with_interconnect
-            or self.options.with_pluginmanager
+            self.options.with_testsuite or self.options.with_interconnect or self.options.with_pluginmanager
         ):
             raise ConanInvalidConfiguration(
                 "Component 'utility' is required for 'test_suite', 'interconnect' and 'plugin_manager'"
@@ -78,9 +76,7 @@ class CorradeConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -123,21 +119,11 @@ class CorradeConan(ConanFile):
         cmake.install()
 
         share_cmake = os.path.join(self.package_folder, "share", "cmake", "Corrade")
+        self.copy("UseCorrade.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake"))
         self.copy(
-            "UseCorrade.cmake",
-            src=share_cmake,
-            dst=os.path.join(self.package_folder, "lib", "cmake"),
+            "CorradeLibSuffix.cmake", src=share_cmake, dst=os.path.join(self.package_folder, "lib", "cmake")
         )
-        self.copy(
-            "CorradeLibSuffix.cmake",
-            src=share_cmake,
-            dst=os.path.join(self.package_folder, "lib", "cmake"),
-        )
-        self.copy(
-            "*.cmake",
-            src=os.path.join(self.source_folder, "cmake"),
-            dst=os.path.join("lib", "cmake"),
-        )
+        self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
         tools.rmdir(os.path.join(self.package_folder, "share"))
 
     def package_info(self):
@@ -165,9 +151,7 @@ class CorradeConan(ConanFile):
             self.cpp_info.components["main"].requires = ["_corrade"]
 
         if self.options.with_utility:
-            self.cpp_info.components["utility"].set_property(
-                "cmake_target_name", "Corrade::Utility"
-            )
+            self.cpp_info.components["utility"].set_property("cmake_target_name", "Corrade::Utility")
             self.cpp_info.components["utility"].names["cmake_find_package"] = "Utility"
             self.cpp_info.components["utility"].names["cmake_find_package_multi"] = "Utility"
             self.cpp_info.components["utility"].libs = ["CorradeUtility" + suffix]
@@ -186,9 +170,7 @@ class CorradeConan(ConanFile):
                 "cmake_target_name", "Corrade::Interconnect"
             )
             self.cpp_info.components["interconnect"].names["cmake_find_package"] = "Interconnect"
-            self.cpp_info.components["interconnect"].names[
-                "cmake_find_package_multi"
-            ] = "Interconnect"
+            self.cpp_info.components["interconnect"].names["cmake_find_package_multi"] = "Interconnect"
             self.cpp_info.components["interconnect"].libs = ["CorradeInterconnect" + suffix]
             self.cpp_info.components["interconnect"].requires = ["utility"]
 
@@ -197,16 +179,12 @@ class CorradeConan(ConanFile):
                 "cmake_target_name", "Corrade::PluginManager"
             )
             self.cpp_info.components["plugin_manager"].names["cmake_find_package"] = "PluginManager"
-            self.cpp_info.components["plugin_manager"].names[
-                "cmake_find_package_multi"
-            ] = "PluginManager"
+            self.cpp_info.components["plugin_manager"].names["cmake_find_package_multi"] = "PluginManager"
             self.cpp_info.components["plugin_manager"].libs = ["CorradePluginManager" + suffix]
             self.cpp_info.components["plugin_manager"].requires = ["utility"]
 
         if self.options.with_testsuite:
-            self.cpp_info.components["test_suite"].set_property(
-                "cmake_target_name", "Corrade::TestSuite"
-            )
+            self.cpp_info.components["test_suite"].set_property("cmake_target_name", "Corrade::TestSuite")
             self.cpp_info.components["test_suite"].names["cmake_find_package"] = "TestSuite"
             self.cpp_info.components["test_suite"].names["cmake_find_package_multi"] = "TestSuite"
             self.cpp_info.components["test_suite"].libs = ["CorradeTestSuite" + suffix]

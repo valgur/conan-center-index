@@ -113,15 +113,7 @@ class AvahiConan(ConanFile):
         self.cpp_info.components["libevent"].requires = ["common", "libevent::libevent"]
         self.cpp_info.components["compat-libdns_sd"].requires = ["client"]
 
-        for app in (
-            "autoipd",
-            "browse",
-            "daemon",
-            "dnsconfd",
-            "publish",
-            "resolve",
-            "set-host-name",
-        ):
+        for app in ("autoipd", "browse", "daemon", "dnsconfd", "publish", "resolve", "set-host-name"):
             avahi_app = f"avahi-{app}"
             self.cpp_info.components[app].names["cmake_find_package"] = app
             self.cpp_info.components[app].names["cmake_find_package_multi"] = app
@@ -129,11 +121,7 @@ class AvahiConan(ConanFile):
 
         self.cpp_info.components["autoipd"].requires = ["libdaemon::libdaemon"]
         self.cpp_info.components["browse"].requires = ["client", "gdbm::gdbm"]
-        self.cpp_info.components["daemon"].requires = [
-            "core",
-            "expat::expat",
-            "libdaemon::libdaemon",
-        ]
+        self.cpp_info.components["daemon"].requires = ["core", "expat::expat", "libdaemon::libdaemon"]
         self.cpp_info.components["dnsconfd"].requires = ["common", "libdaemon::libdaemon"]
         self.cpp_info.components["publish"].requires = ["client"]
         self.cpp_info.components["resolve"].requires = ["client"]

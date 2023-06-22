@@ -18,9 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["PROJ_VERSION_GE_7"] = (
-            Version(self.dependencies["proj"].ref.version) >= "7.0.0"
-        )
+        tc.variables["PROJ_VERSION_GE_7"] = Version(self.dependencies["proj"].ref.version) >= "7.0.0"
         tc.generate()
 
     def build(self):

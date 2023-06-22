@@ -78,9 +78,7 @@ class GtkConan(ConanFile):
             )
         if str(self.settings.compiler) in ["Visual Studio", "msvc"]:
             if tools.Version(self.version) < "4.2":
-                raise ConanInvalidConfiguration(
-                    "MSVC support of this recipe requires at least gtk/4.2"
-                )
+                raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
             if not self.options["gdk-pixbuf"].shared:
                 raise ConanInvalidConfiguration("MSVC build requires shared gdk-pixbuf")
             if not self.options["cairo"].shared:
@@ -143,9 +141,7 @@ class GtkConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_meson(self):
@@ -191,9 +187,7 @@ class GtkConan(ConanFile):
             tools.patch(**patch)
         if self._gtk3:
             tools.replace_in_file(
-                os.path.join(self._source_subfolder, "meson.build"),
-                "\ntest(\n",
-                "\nfalse and test(\n",
+                os.path.join(self._source_subfolder, "meson.build"), "\ntest(\n", "\nfalse and test(\n"
             )
         if "4.2.0" <= tools.Version(self.version) < "4.6.1":
             tools.replace_in_file(
@@ -215,10 +209,7 @@ class GtkConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         meson = self._configure_meson()
         with tools.environment_append(
-            {
-                "PKG_CONFIG_PATH": self.install_folder,
-                "PATH": [os.path.join(self.package_folder, "bin")],
-            }
+            {"PKG_CONFIG_PATH": self.install_folder, "PATH": [os.path.join(self.package_folder, "bin")]}
         ):
             meson.install()
 
@@ -233,14 +224,10 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gdk-3.0"].includedirs = [os.path.join("include", "gtk-3.0")]
             self.cpp_info.components["gdk-3.0"].requires = []
             if self.options.with_pango:
-                self.cpp_info.components["gdk-3.0"].requires.extend(
-                    ["pango::pango_", "pango::pangocairo"]
-                )
+                self.cpp_info.components["gdk-3.0"].requires.extend(["pango::pango_", "pango::pangocairo"])
             self.cpp_info.components["gdk-3.0"].requires.append("gdk-pixbuf::gdk-pixbuf")
             if self.settings.compiler != "Visual Studio":
-                self.cpp_info.components["gdk-3.0"].requires.extend(
-                    ["cairo::cairo", "cairo::cairo-gobject"]
-                )
+                self.cpp_info.components["gdk-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
             if self.settings.os == "Linux":
                 self.cpp_info.components["gdk-3.0"].requires.extend(
                     ["glib::gio-unix-2.0", "cairo::cairo-xlib"]
@@ -253,12 +240,8 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gtk+-3.0"].libs = ["gtk-3"]
             self.cpp_info.components["gtk+-3.0"].requires = ["gdk-3.0", "atk::atk"]
             if self.settings.compiler != "Visual Studio":
-                self.cpp_info.components["gtk+-3.0"].requires.extend(
-                    ["cairo::cairo", "cairo::cairo-gobject"]
-                )
-            self.cpp_info.components["gtk+-3.0"].requires.extend(
-                ["gdk-pixbuf::gdk-pixbuf", "glib::gio-2.0"]
-            )
+                self.cpp_info.components["gtk+-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
+            self.cpp_info.components["gtk+-3.0"].requires.extend(["gdk-pixbuf::gdk-pixbuf", "glib::gio-2.0"])
             if self.settings.os == "Linux":
                 self.cpp_info.components["gtk+-3.0"].requires.append("at-spi2-atk::at-spi2-atk")
             self.cpp_info.components["gtk+-3.0"].requires.append("libepoxy::libepoxy")

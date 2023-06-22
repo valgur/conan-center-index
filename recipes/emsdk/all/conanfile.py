@@ -38,12 +38,7 @@ class EmSDKConan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _relative_paths(self):
@@ -95,13 +90,10 @@ class EmSDKConan(ConanFile):
             tools = data["tools"]
             if self.settings.os == "Windows":
                 python = next(
-                    (it for it in tools if (it["id"] == "python" and not it.get("is_old", False))),
-                    None,
+                    (it for it in tools if (it["id"] == "python" and not it.get("is_old", False))), None
                 )
                 ret["python"] = f"python-{python['version']}-64bit"
-            node = next(
-                (it for it in tools if (it["id"] == "node" and not it.get("is_old", False))), None
-            )
+            node = next((it for it in tools if (it["id"] == "node" and not it.get("is_old", False))), None)
             ret["nodejs"] = f"node-{node['version']}-64bit"
         return ret
 
@@ -118,12 +110,7 @@ class EmSDKConan(ConanFile):
                     self.run(f"{emsdk} activate {value}")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
         emscripten = os.path.join(self.package_folder, "bin", "upstream", "emscripten")
         toolchain = os.path.join(emscripten, "cmake", "Modules", "Platform", "Emscripten.cmake")
@@ -148,9 +135,7 @@ class EmSDKConan(ConanFile):
             "set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)",
         )
         if not cross_building(self):
-            self.run(
-                "embuilder build MINIMAL", env=["conanemsdk", "conanrun"]
-            )  # force cache population
+            self.run("embuilder build MINIMAL", env=["conanemsdk", "conanrun"])  # force cache population
             # the line below forces emscripten to accept the cache as-is, even after re-location
             # https://github.com/emscripten-core/emscripten/issues/15053#issuecomment-920950710
             os.remove(os.path.join(self._em_cache, "sanity.txt"))
@@ -195,10 +180,7 @@ class EmSDKConan(ConanFile):
         self.buildenv_info.define_path("EM_CONFIG", self._em_config)
         self.buildenv_info.define_path("EM_CACHE", self._em_cache)
 
-        compiler_executables = {
-            "c": self._define_tool_var("emcc"),
-            "cpp": self._define_tool_var("em++"),
-        }
+        compiler_executables = {"c": self._define_tool_var("emcc"), "cpp": self._define_tool_var("em++")}
         self.conf_info.update("tools.build:compiler_executables", compiler_executables)
         self.buildenv_info.define_path("CC", compiler_executables["c"])
         self.buildenv_info.define_path("CXX", compiler_executables["cpp"])
@@ -211,9 +193,7 @@ class EmSDKConan(ConanFile):
             os.path.join("bin", "releases", "src"),
             os.path.join("bin", "upstream", "emscripten", "cmake", "Modules"),
             os.path.join("bin", "upstream", "emscripten", "cmake", "Modules", "Platform"),
-            os.path.join(
-                "bin", "upstream", "emscripten", "system", "lib", "libunwind", "cmake", "Modules"
-            ),
+            os.path.join("bin", "upstream", "emscripten", "system", "lib", "libunwind", "cmake", "Modules"),
             os.path.join("bin", "upstream", "emscripten", "system", "lib", "libunwind", "cmake"),
             os.path.join("bin", "upstream", "emscripten", "tests", "cmake", "target_library"),
             os.path.join("bin", "upstream", "lib", "cmake", "llvm"),

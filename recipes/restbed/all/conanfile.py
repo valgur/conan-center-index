@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    load,
-    rm,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rm, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -22,7 +14,9 @@ required_conan_version = ">=1.53.0"
 class RestbedConan(ConanFile):
     name = "restbed"
     homepage = "https://github.com/Corvusoft/restbed"
-    description = "Corvusoft's Restbed framework brings asynchronous RESTful functionality to C++14 applications."
+    description = (
+        "Corvusoft's Restbed framework brings asynchronous RESTful functionality to C++14 applications."
+    )
     topics = ("restful", "server", "client", "json", "http", "ssl", "tls")
     url = "https://github.com/conan-io/conan-center-index"
     license = "AGPL-3.0-or-later", "LicenseRef-CPL"  # Corvusoft Permissive License (CPL)
@@ -77,9 +71,7 @@ class RestbedConan(ConanFile):
         if getattr(self.info.settings.compiler, "cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.info.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
@@ -116,12 +108,7 @@ class RestbedConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -132,10 +119,7 @@ class RestbedConan(ConanFile):
             libname += "-shared"
         self.cpp_info.libs = [libname]
 
-        if self.settings.os in (
-            "FreeBSD",
-            "Linux",
-        ):
+        if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs.extend(["dl", "m"])
         elif self.settings.os in ("Windows",):
             self.cpp_info.system_libs.append("mswsock")

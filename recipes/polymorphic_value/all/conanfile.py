@@ -13,9 +13,7 @@ required_conan_version = ">=1.50.0"
 class PolymorphictValueConan(ConanFile):
     name = "polymorphic_value"
     homepage = "https://github.com/jbcoe/polymorphic_value"
-    description = (
-        "Production-quality reference implementation of P0201r2: A polymorphic value-type for C++"
-    )
+    description = "Production-quality reference implementation of P0201r2: A polymorphic value-type for C++"
     topics = ("std", "vocabulary-type", "value-semantics")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -28,7 +26,12 @@ class PolymorphictValueConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "16", "gcc": "8", "clang": "8", "apple-clang": "11"}
+        return {
+            "Visual Studio": "16",
+            "gcc": "8",
+            "clang": "8",
+            "apple-clang": "11",
+        }
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -61,12 +64,7 @@ class PolymorphictValueConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "polymorphic_value.*",
-            self.source_folder,
-            os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "polymorphic_value.*", self.source_folder, os.path.join(self.package_folder, "include"))
         copy(
             self,
             "*LICENSE*",

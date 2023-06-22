@@ -91,13 +91,7 @@ class CalcephConan(ConanFile):
 
     @property
     def _nmake_args(self):
-        return " ".join(
-            [
-                f'DESTDIR="{self.package_folder}"',
-                "ENABLEF2003=0",
-                "ENABLEF77=0",
-            ]
-        )
+        return " ".join([f'DESTDIR="{self.package_folder}"', "ENABLEF2003=0", "ENABLEF77=0"])
 
     def build(self):
         if is_msvc(self):
@@ -115,12 +109,7 @@ class CalcephConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 self.run(f"nmake -f Makefile.vc install {self._nmake_args}")

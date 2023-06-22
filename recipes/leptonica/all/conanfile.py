@@ -176,9 +176,7 @@ class LeptonicaConan(ConanFile):
             if Version(self.version) <= "1.78.0":
                 replace_in_file(self, cmakelists, "pkg_check_modules(JP2K libopenjp2)", "")
             else:
-                replace_in_file(
-                    self, cmakelists, "pkg_check_modules(JP2K libopenjp2>=2.0 QUIET)", ""
-                )
+                replace_in_file(self, cmakelists, "pkg_check_modules(JP2K libopenjp2>=2.0 QUIET)", "")
             # versions below 1.83.0 do not have an option toggle
             replace_in_file(self, cmakelists, "if(NOT JP2K)", "if(0)")
             if not self.options.with_openjpeg:
@@ -211,9 +209,7 @@ class LeptonicaConan(ConanFile):
             "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
             "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})",
         )
-        replace_in_file(
-            self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}"
-        )
+        replace_in_file(self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}")
 
         # Remove detection of fmemopen() on macOS < 10.13
         # CheckFunctionExists will find it in the link library.
@@ -250,7 +246,9 @@ class LeptonicaConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"leptonica": "Leptonica::Leptonica"},
+            {
+                "leptonica": "Leptonica::Leptonica",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -24,7 +24,9 @@ class PcapplusplusConan(ConanFile):
     name = "pcapplusplus"
     package_type = "static-library"
     license = "Unlicense"
-    description = "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets"
+    description = (
+        "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets"
+    )
     topics = ("pcap", "network", "security", "packet")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/seladb/PcapPlusPlus"
@@ -61,19 +63,12 @@ class PcapplusplusConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "Can not build on Windows: only msvc compiler is supported."
-            )
+            raise ConanInvalidConfiguration("Can not build on Windows: only msvc compiler is supported.")
         if self.settings.os not in ("FreeBSD", "Linux", "Macos", "Windows"):
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _configure_sh_script(self):
@@ -86,9 +81,7 @@ class PcapplusplusConan(ConanFile):
 
     def _patch_sources(self):
         if not self.options.get_safe("fPIC") and self.settings.os != "Windows":
-            replace_in_file(
-                self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"), "-fPIC", ""
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"), "-fPIC", "")
         apply_conandata_patches(self)
         if self.settings.os != "Windows":
             rename(
@@ -120,17 +113,11 @@ class PcapplusplusConan(ConanFile):
                 [
                     "--libpcap-include-dir",
                     unix_path(
-                        self,
-                        self.dependencies["libpcap"]
-                        .cpp_info.aggregated_components()
-                        .includedirs[0],
+                        self, self.dependencies["libpcap"].cpp_info.aggregated_components().includedirs[0]
                     ),
                     "--libpcap-lib-dir",
                     unix_path(
-                        self,
-                        self.dependencies["libpcap"]
-                        .cpp_info.aggregated_components()
-                        .includedirs[0],
+                        self, self.dependencies["libpcap"].cpp_info.aggregated_components().includedirs[0]
                     ),
                 ]
             )

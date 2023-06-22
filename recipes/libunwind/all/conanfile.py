@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
@@ -21,9 +14,7 @@ required_conan_version = ">=1.53.0"
 
 class LiunwindConan(ConanFile):
     name = "libunwind"
-    description = (
-        "Manipulate the preserved state of each call-frame and resume the execution at any point."
-    )
+    description = "Manipulate the preserved state of each call-frame and resume the execution at any point."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libunwind/libunwind"
@@ -105,10 +96,7 @@ class LiunwindConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         autotools.install()
@@ -145,8 +133,6 @@ class LiunwindConan(ConanFile):
             self.cpp_info.components["setjmp"].libs = ["unwind-setjmp"]
             self.cpp_info.components["setjmp"].requires = ["unwind"]
         if self.options.coredump:
-            self.cpp_info.components["coredump"].set_property(
-                "pkg_config_name", "libunwind-coredump"
-            )
+            self.cpp_info.components["coredump"].set_property("pkg_config_name", "libunwind-coredump")
             self.cpp_info.components["coredump"].libs = ["unwind-coredump"]
             self.cpp_info.components["coredump"].requires = ["generic", "unwind"]

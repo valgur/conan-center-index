@@ -70,12 +70,7 @@ class CppKafkaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -88,10 +83,7 @@ class CppKafkaConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["_cppkafka"].libs = ["cppkafka"]
-        self.cpp_info.components["_cppkafka"].requires = [
-            "boost::headers",
-            "librdkafka::librdkafka",
-        ]
+        self.cpp_info.components["_cppkafka"].requires = ["boost::headers", "librdkafka::librdkafka"]
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.components["_cppkafka"].system_libs = ["mswsock", "ws2_32"]
@@ -105,7 +97,5 @@ class CppKafkaConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "CppKafka"
         self.cpp_info.components["_cppkafka"].names["cmake_find_package"] = "cppkafka"
         self.cpp_info.components["_cppkafka"].names["cmake_find_package_multi"] = "cppkafka"
-        self.cpp_info.components["_cppkafka"].set_property(
-            "cmake_target_name", "CppKafka::cppkafka"
-        )
+        self.cpp_info.components["_cppkafka"].set_property("cmake_target_name", "CppKafka::cppkafka")
         self.cpp_info.components["_cppkafka"].set_property("pkg_config_name", "cppkafka")

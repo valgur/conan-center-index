@@ -37,9 +37,9 @@ class MoldConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} can not be built on {self.settings.os}.")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "10":
             raise ConanInvalidConfiguration("GCC version 10 or higher required")
-        if (
-            self.settings.compiler == "clang" or self.settings.compiler == "apple-clang"
-        ) and Version(self.settings.compiler.version) < "12":
+        if (self.settings.compiler == "clang" or self.settings.compiler == "apple-clang") and Version(
+            self.settings.compiler.version
+        ) < "12":
             raise ConanInvalidConfiguration("Clang version 12 or higher required")
         if self.settings.compiler == "apple-clang" and "armv8" == self.settings.arch:
             raise ConanInvalidConfiguration(f"{self.name} is still not supported by Mac M1.")
@@ -108,12 +108,7 @@ class MoldConan(ConanFile):
             autotools.make(target="mold", args=["SYSTEM_TBB=1", "SYSTEM_MIMALLOC=1"])
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self._source_subfolder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "mold", src="bin", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
         copy(
             self,

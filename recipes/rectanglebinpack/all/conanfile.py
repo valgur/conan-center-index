@@ -9,7 +9,9 @@ class RectangleBinPackConan(ConanFile):
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/juj/RectangleBinPack"
-    description = "The code can be used to solve the problem of packing a set of 2D rectangles into a larger bin."
+    description = (
+        "The code can be used to solve the problem of packing a set of 2D rectangles into a larger bin."
+    )
     topics = ("rectangle", "packing", "bin")
     exports_sources = ["CMakeLists.txt", "patches/**"]
     generators = "cmake"
@@ -43,9 +45,7 @@ class RectangleBinPackConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version][0],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder
         )
         tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
@@ -65,10 +65,7 @@ class RectangleBinPackConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses")
         self.copy(
-            "*.h",
-            dst=os.path.join("include", self.name),
-            src=self._source_subfolder,
-            excludes="old/**",
+            "*.h", dst=os.path.join("include", self.name), src=self._source_subfolder, excludes="old/**"
         )
         self.copy("*.dll", dst="bin", keep_path=False)
         self.copy("*.lib", dst="lib", keep_path=False)

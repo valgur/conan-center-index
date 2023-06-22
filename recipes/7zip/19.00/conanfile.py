@@ -54,9 +54,7 @@ class SevenZipConan(ConanFile):
             item = self.conan_data["sources"][self.version]
             filename = "7z-source.7z"
             download(self, **item, filename=filename)
-            sevenzip = os.path.join(
-                self.dependencies.build["lzma_sdk"].package_folder, "bin", "7zr.exe"
-            )
+            sevenzip = os.path.join(self.dependencies.build["lzma_sdk"].package_folder, "bin", "7zr.exe")
             self.run(f"{sevenzip} x {filename}")
             os.unlink(filename)
         else:

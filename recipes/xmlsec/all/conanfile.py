@@ -202,12 +202,7 @@ class XmlSecConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "Copyright",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "Copyright", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "win32")):
                 self.run("nmake -f Makefile.msvc install")
@@ -223,9 +218,7 @@ class XmlSecConan(ConanFile):
             )
             os.unlink(
                 os.path.join(
-                    self.package_folder,
-                    "lib",
-                    "libxmlsec_a.lib" if self.options.shared else "libxmlsec.lib",
+                    self.package_folder, "lib", "libxmlsec_a.lib" if self.options.shared else "libxmlsec.lib"
                 )
             )
         else:
@@ -272,9 +265,7 @@ class XmlSecConan(ConanFile):
             ]
 
         if self.options.with_openssl:
-            self.cpp_info.components["openssl"].set_property(
-                "pkg_config_name", f"xmlsec{major}-openssl"
-            )
+            self.cpp_info.components["openssl"].set_property("pkg_config_name", f"xmlsec{major}-openssl")
             self.cpp_info.components["openssl"].libs = [f"{base_libname}-openssl{suffix}"]
             self.cpp_info.components["openssl"].requires = ["libxmlsec", "openssl::openssl"]
             self.cpp_info.components["openssl"].defines = ["XMLSEC_CRYPTO_OPENSSL=1"]

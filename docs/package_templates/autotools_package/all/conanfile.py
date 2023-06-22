@@ -144,9 +144,7 @@ class PackageConan(ConanFile):
             compile_wrapper = unix_path(
                 self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
             )
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")

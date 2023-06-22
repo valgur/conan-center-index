@@ -86,9 +86,7 @@ class OctomapConan(ConanFile):
         if Version(self.version) >= "1.9.6":
             replace_in_file(self, compiler_settings, "-Werror", "")
         # we want a clean rpath in installed shared libs
-        replace_in_file(
-            self, compiler_settings, 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")', ""
-        )
+        replace_in_file(self, compiler_settings, 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")', "")
         replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
     def build(self):
@@ -148,24 +146,18 @@ class OctomapConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "octomap")
 
         # octomath
-        self.cpp_info.components["octomath"].set_property(
-            "cmake_target_name", self._octomath_target
-        )
+        self.cpp_info.components["octomath"].set_property("cmake_target_name", self._octomath_target)
         self.cpp_info.components["octomath"].libs = ["octomath"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["octomath"].system_libs.append("m")
         # octomap
-        self.cpp_info.components["octomaplib"].set_property(
-            "cmake_target_name", self._octomap_target
-        )
+        self.cpp_info.components["octomaplib"].set_property("cmake_target_name", self._octomap_target)
         self.cpp_info.components["octomaplib"].libs = ["octomap"]
         self.cpp_info.components["octomaplib"].requires = ["octomath"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators are removed
         self.cpp_info.components["octomath"].names["cmake_find_package"] = self._octomath_target
-        self.cpp_info.components["octomath"].names[
-            "cmake_find_package_multi"
-        ] = self._octomath_target
+        self.cpp_info.components["octomath"].names["cmake_find_package_multi"] = self._octomath_target
         self.cpp_info.components["octomath"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]
@@ -173,9 +165,7 @@ class OctomapConan(ConanFile):
             self._module_file_rel_path
         ]
         self.cpp_info.components["octomaplib"].names["cmake_find_package"] = self._octomap_target
-        self.cpp_info.components["octomaplib"].names[
-            "cmake_find_package_multi"
-        ] = self._octomap_target
+        self.cpp_info.components["octomaplib"].names["cmake_find_package_multi"] = self._octomap_target
         self.cpp_info.components["octomaplib"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]

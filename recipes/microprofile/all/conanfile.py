@@ -95,9 +95,7 @@ class MicroprofileConan(ConanFile):
                 if value < 0:
                     raise ValueError
             except ValueError:
-                raise ConanInvalidConfiguration(
-                    "microprofile:{} must be a positive integer".format(opt)
-                )
+                raise ConanInvalidConfiguration("microprofile:{} must be a positive integer".format(opt))
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -112,9 +110,7 @@ class MicroprofileConan(ConanFile):
         if int(self.options.max_groups) % 32 != 0:
             raise ConanInvalidConfiguration("microprofile:max_groups must be multiple of 32.")
         if int(self.options.webserver_port) > 2**16 - 1:
-            raise ConanInvalidConfiguration(
-                "microprofile:webserver_port must be between 0 and 65535."
-            )
+            raise ConanInvalidConfiguration("microprofile:webserver_port must be between 0 and 65535.")
 
     def configure(self):
         if self.options.shared:
@@ -130,9 +126,7 @@ class MicroprofileConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version][0],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version][0], strip_root=True, destination=self._source_subfolder
         )
         tools.download(filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
@@ -165,32 +159,17 @@ class MicroprofileConan(ConanFile):
             ("MICROPROFILE_MINIZ", ("1" if self.options.with_miniz else "0")),
             ("MICROPROFILE_BIG_ENDIAN", ("1" if self.options.use_big_endian else "0")),
             ("MICROPROFILE_GPU_TIMERS", ("1" if self.options.enable_timer else "0")),
-            (
-                "MICROPROFILE_GPU_TIMER_CALLBACKS",
-                ("1" if self.options.enable_gpu_timer_callbacks else "0"),
-            ),
+            ("MICROPROFILE_GPU_TIMER_CALLBACKS", ("1" if self.options.enable_gpu_timer_callbacks else "0")),
             ("MICROPROFILE_GPU_TIMERS_GL", ("1" if self.options.enable_timer == "gl" else "0")),
-            (
-                "MICROPROFILE_GPU_TIMERS_D3D11",
-                ("1" if self.options.enable_timer == "d3d11" else "0"),
-            ),
-            (
-                "MICROPROFILE_GPU_TIMERS_D3D12",
-                ("1" if self.options.enable_timer == "d3d12" else "0"),
-            ),
-            (
-                "MICROPROFILE_GPU_TIMERS_VULKAN",
-                ("1" if self.options.enable_timer == "vulkan" else "0"),
-            ),
+            ("MICROPROFILE_GPU_TIMERS_D3D11", ("1" if self.options.enable_timer == "d3d11" else "0")),
+            ("MICROPROFILE_GPU_TIMERS_D3D12", ("1" if self.options.enable_timer == "d3d12" else "0")),
+            ("MICROPROFILE_GPU_TIMERS_VULKAN", ("1" if self.options.enable_timer == "vulkan" else "0")),
             ("MICROPROFILE_PER_THREAD_BUFFER_SIZE", str(self.options.thread_buffer_size)),
             ("MICROPROFILE_PER_THREAD_GPU_BUFFER_SIZE", str(self.options.thread_gpu_buffer_size)),
             ("MICROPROFILE_MAX_FRAME_HISTORY", str(self.options.max_frame_history)),
             ("MICROPROFILE_WEBSERVER_PORT", str(self.options.webserver_port)),
             ("MICROPROFILE_WEBSERVER_MAXFRAMES", str(self.options.webserver_maxframes)),
-            (
-                "MICROPROFILE_WEBSERVER_SOCKET_BUFFER_SIZE",
-                str(self.options.webserver_socket_buffer_size),
-            ),
+            ("MICROPROFILE_WEBSERVER_SOCKET_BUFFER_SIZE", str(self.options.webserver_socket_buffer_size)),
             ("MICROPROFILE_GPU_FRAME_DELAY", str(self.options.gpu_frame_delay)),
             ("MICROPROFILE_NAME_MAX_LEN", str(self.options.name_max_length)),
             ("MICROPROFILE_MAX_TIMERS", str(self.options.max_timers)),

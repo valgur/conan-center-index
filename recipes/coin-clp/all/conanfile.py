@@ -93,9 +93,7 @@ class CoinClpConan(ConanFile):
             tc.extra_cxxflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(
-                self, self.conf.get("user.automake:compile-wrapper", check_type=str)
-            )
+            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
@@ -134,12 +132,7 @@ class CoinClpConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         autotools = Autotools(self)

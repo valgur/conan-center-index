@@ -1,14 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    load,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 import os
@@ -55,12 +47,7 @@ class XorgMakedepend(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _user_info_build(self):
@@ -80,12 +67,7 @@ class XorgMakedepend(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         def_h_text = load(self, os.path.join(self.source_folder, "def.h"))
         license_text = next(re.finditer(r"/\*([^*]+)\*/", def_h_text)).group(1)
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_text)

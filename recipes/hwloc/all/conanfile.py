@@ -23,7 +23,11 @@ class HwlocConan(ConanFile):
         "fPIC": [True, False],
         "with_libxml2": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "with_libxml2": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_libxml2": False,
+    }
 
     def config_options(self):
         if self.settings.os == "Windows":

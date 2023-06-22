@@ -71,9 +71,7 @@ class LibsassConan(ConanFile):
 
     @property
     def _make_program(self):
-        return tools.get_env(
-            "CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make")
-        )
+        return tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make"))
 
     def _build_mingw(self):
         makefile = os.path.join(self._source_subfolder, "Makefile")
@@ -103,11 +101,12 @@ class LibsassConan(ConanFile):
                 if any(re.finditer("(^| )[/-]GL($| )", tools.get_env("CFLAGS", "")))
                 else "false",
             }
-            platforms = {"x86": "Win32", "x86_64": "Win64"}
+            platforms = {
+                "x86": "Win32",
+                "x86_64": "Win64",
+            }
             msbuild = MSBuild(self)
-            msbuild.build(
-                os.path.join("win", "libsass.sln"), platforms=platforms, properties=properties
-            )
+            msbuild.build(os.path.join("win", "libsass.sln"), platforms=platforms, properties=properties)
 
     def build(self):
         if self._is_mingw:
@@ -131,18 +130,8 @@ class LibsassConan(ConanFile):
 
     def _install_visual_studio(self):
         self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy(
-            "*.dll",
-            dst="bin",
-            src=os.path.join(self._source_subfolder, "win", "bin"),
-            keep_path=False,
-        )
-        self.copy(
-            "*.lib",
-            dst="lib",
-            src=os.path.join(self._source_subfolder, "win", "bin"),
-            keep_path=False,
-        )
+        self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "win", "bin"), keep_path=False)
+        self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "win", "bin"), keep_path=False)
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

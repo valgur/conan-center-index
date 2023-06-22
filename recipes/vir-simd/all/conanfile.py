@@ -12,7 +12,9 @@ required_conan_version = ">=1.52.0"
 
 class VirSIMDConan(ConanFile):
     name = "vir-simd"
-    description = "A fallback std::experimental::simd (Parallelism TS 2) implementation with additional features"
+    description = (
+        "A fallback std::experimental::simd (Parallelism TS 2) implementation with additional features"
+    )
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mattkretz/vir-simd"
@@ -63,16 +65,10 @@ class VirSIMDConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
-            self,
-            pattern="vir/*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
+            self, pattern="vir/*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
         )
 
     def package_info(self):

@@ -77,13 +77,7 @@ class DiligentCoreConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
 
     def export_sources(self):
-        copy(
-            self,
-            "CMakeLists.txt",
-            src=self.recipe_folder,
-            dst=self.export_sources_folder,
-            keep_path=False,
-        )
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder, keep_path=False)
         export_conandata_patches(self)
 
     def source(self):
@@ -268,12 +262,8 @@ class DiligentCoreConan(ConanFile):
         )
 
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore"))
-        self.cpp_info.includedirs.append(
-            os.path.join("include", "DiligentCore", "Common", "interface")
-        )
-        self.cpp_info.includedirs.append(
-            os.path.join("include", "DiligentCore", "Platforms", "interface")
-        )
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Common", "interface"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Platforms", "interface"))
         self.cpp_info.includedirs.append(
             os.path.join("include", "DiligentCore", "Graphics", "GraphicsEngine", "interface")
         )
@@ -290,17 +280,13 @@ class DiligentCoreConan(ConanFile):
             os.path.join("include", "DiligentCore", "Graphics", "GraphicsTools", "interface")
         )
         self.cpp_info.includedirs.append(
-            os.path.join(
-                "include", "DiligentCore", "Graphics", "HLSL2GLSLConverterLib", "interface"
-            )
+            os.path.join("include", "DiligentCore", "Graphics", "HLSL2GLSLConverterLib", "interface")
         )
         archiver_path = os.path.join("include", "DiligentCore", "Graphics", "Archiver", "interface")
         if os.path.isdir(archiver_path):
             self.cpp_info.includedirs.append(archiver_path)
 
-        self.cpp_info.includedirs.append(
-            os.path.join("include", "DiligentCore", "Primitives", "interface")
-        )
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Primitives", "interface"))
         self.cpp_info.includedirs.append(
             os.path.join("include", "DiligentCore", "Platforms", "Basic", "interface")
         )
@@ -325,14 +311,10 @@ class DiligentCoreConan(ConanFile):
                 os.path.join("include", "DiligentCore", "Platforms", "Win32", "interface")
             )
             self.cpp_info.includedirs.append(
-                os.path.join(
-                    "include", "DiligentCore", "Graphics", "GraphicsEngineD3D11", "interface"
-                )
+                os.path.join("include", "DiligentCore", "Graphics", "GraphicsEngineD3D11", "interface")
             )
             self.cpp_info.includedirs.append(
-                os.path.join(
-                    "include", "DiligentCore", "Graphics", "GraphicsEngineD3D12", "interface"
-                )
+                os.path.join("include", "DiligentCore", "Graphics", "GraphicsEngineD3D12", "interface")
             )
 
         self.cpp_info.defines.append(

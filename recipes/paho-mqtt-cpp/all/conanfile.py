@@ -104,24 +104,9 @@ class PahoMqttCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "edl-v10",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "epl-v10",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "notice.html",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "epl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "notice.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -141,7 +126,5 @@ class PahoMqttCppConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "PahoMqttCpp"
         self.cpp_info.components["paho-mqttpp"].names["cmake_find_package"] = target
         self.cpp_info.components["paho-mqttpp"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["paho-mqttpp"].set_property(
-            "cmake_target_name", f"PahoMqttCpp::{target}"
-        )
+        self.cpp_info.components["paho-mqttpp"].set_property("cmake_target_name", f"PahoMqttCpp::{target}")
         self.cpp_info.components["paho-mqttpp"].requires = ["paho-mqtt-c::paho-mqtt-c"]

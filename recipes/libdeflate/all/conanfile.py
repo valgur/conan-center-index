@@ -74,9 +74,7 @@ class LibdeflateConan(ConanFile):
             self.cpp_info.components["_libdeflate"].defines.append("LIBDEFLATE_DLL")
 
         # TODO: to remove in conan v2
-        self.cpp_info.components["_libdeflate"].names[
-            "cmake_find_package"
-        ] = f"libdeflate{target_suffix}"
+        self.cpp_info.components["_libdeflate"].names["cmake_find_package"] = f"libdeflate{target_suffix}"
         self.cpp_info.components["_libdeflate"].names[
             "cmake_find_package_multi"
         ] = f"libdeflate{target_suffix}"

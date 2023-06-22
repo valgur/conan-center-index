@@ -101,9 +101,7 @@ class ICUConan(ConanFile):
 
     def package_id(self):
         if self.info.options.dat_package_file:
-            self.info.options.dat_package_file = self._sha256sum(
-                str(self.info.options.dat_package_file)
-            )
+            self.info.options.dat_package_file = self._sha256sum(str(self.info.options.dat_package_file))
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -188,9 +186,7 @@ class ICUConan(ConanFile):
 
         if self._settings_build.os == "Windows":
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
-            makeconv_cpp = os.path.join(
-                self.source_folder, "source", "tools", "makeconv", "makeconv.cpp"
-            )
+            makeconv_cpp = os.path.join(self.source_folder, "source", "tools", "makeconv", "makeconv.cpp")
             replace_in_file(
                 self,
                 makeconv_cpp,
@@ -200,9 +196,7 @@ class ICUConan(ConanFile):
 
         # relocatable shared libs on macOS
         mh_darwin = os.path.join(self.source_folder, "source", "config", "mh-darwin")
-        replace_in_file(
-            self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir"
-        )
+        replace_in_file(self, mh_darwin, "-install_name $(libdir)/$(notdir", "-install_name @rpath/$(notdir")
         replace_in_file(
             self,
             mh_darwin,
@@ -220,9 +214,7 @@ class ICUConan(ConanFile):
         self._patch_sources()
 
         if self.options.dat_package_file:
-            dat_package_file = glob.glob(
-                os.path.join(self.source_folder, "source", "data", "in", "*.dat")
-            )
+            dat_package_file = glob.glob(os.path.join(self.source_folder, "source", "data", "in", "*.dat"))
             if dat_package_file:
                 shutil.copy(str(self.options.dat_package_file), dat_package_file[0])
 
@@ -246,12 +238,7 @@ class ICUConan(ConanFile):
         return os.path.join(data_dir, self._data_filename)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 
@@ -267,9 +254,7 @@ class ICUConan(ConanFile):
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
             mkdir(self, os.path.join(self.package_folder, "res"))
             rename(
-                self,
-                src=self._data_path,
-                dst=os.path.join(self.package_folder, "res", self._data_filename),
+                self, src=self._data_path, dst=os.path.join(self.package_folder, "res", self._data_filename)
             )
 
         # Copy some files required for cross-compiling
@@ -287,9 +272,7 @@ class ICUConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ICU")
 
         prefix = "s" if self.settings.os == "Windows" and not self.options.shared else ""
-        suffix = (
-            "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        )
+        suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
 
         # icudata
         self.cpp_info.components["icu-data"].set_property("cmake_target_name", "ICU::data")
@@ -340,9 +323,7 @@ class ICUConan(ConanFile):
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
             self.cpp_info.components["icu-data"].resdirs = ["res"]
-            data_path = os.path.join(self.package_folder, "res", self._data_filename).replace(
-                "\\", "/"
-            )
+            data_path = os.path.join(self.package_folder, "res", self._data_filename).replace("\\", "/")
             self.runenv_info.prepend_path("ICU_DATA", data_path)
             if self._enable_icu_tools or self.options.with_extras:
                 self.buildenv_info.prepend_path("ICU_DATA", data_path)

@@ -147,10 +147,7 @@ class PistacheConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if self.version == "cci.20201127":
             cmake = CMake(self)
@@ -188,6 +185,4 @@ class PistacheConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "libpistache"
         suffix = "_{}".format("shared" if self.options.shared else "static")
         self.cpp_info.components["libpistache"].names["cmake_find_package"] = "pistache" + suffix
-        self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = (
-            "pistache" + suffix
-        )
+        self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = "pistache" + suffix

@@ -1,15 +1,7 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    get,
-    copy,
-    rename,
-    rmdir,
-    rm,
-    export_conandata_patches,
-    apply_conandata_patches,
-)
+from conan.tools.files import get, copy, rename, rmdir, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -70,13 +62,7 @@ class LibexifConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--disable-docs",
-                "--disable-nls",
-                "--disable-rpath",
-            ]
-        )
+        tc.configure_args.extend(["--disable-docs", "--disable-nls", "--disable-rpath"])
         if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
             tc.extra_cflags.append("-FS")
         env = tc.environment()
@@ -95,12 +81,7 @@ class LibexifConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         if is_msvc(self) and self.options.shared:

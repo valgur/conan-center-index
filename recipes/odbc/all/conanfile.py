@@ -105,9 +105,7 @@ class OdbcConan(ConanFile):
             'if test -f "$with_ltdl_lib/libltdl.la";',
             "if true;",
         )
-        libtool_system_libs = (
-            self.dependencies["libtool"].cpp_info.aggregated_components().system_libs
-        )
+        libtool_system_libs = self.dependencies["libtool"].cpp_info.aggregated_components().system_libs
         if libtool_system_libs:
             replace_in_file(
                 self,
@@ -123,12 +121,7 @@ class OdbcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

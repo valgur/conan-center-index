@@ -85,9 +85,7 @@ class GodotCppConan(ConanFile):
                 )
             )
             self.output.warn(
-                "{} requires a compiler that supports at least C++{}".format(
-                    self.name, minimal_cpp_standard
-                )
+                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard)
             )
             return
 
@@ -98,9 +96,7 @@ class GodotCppConan(ConanFile):
                     "{} requires a clang version that supports the '-Og' flag".format(self.name)
                 )
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++{}".format(
-                    self.name, minimal_cpp_standard
-                )
+                "{} requires a compiler that supports at least C++{}".format(self.name, minimal_cpp_standard)
             )
 
     def build(self):
@@ -129,9 +125,7 @@ class GodotCppConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            "*.hpp", dst="include/godot-cpp", src=os.path.join(self._source_subfolder, "include")
-        )
+        self.copy("*.hpp", dst="include/godot-cpp", src=os.path.join(self._source_subfolder, "include"))
         self.copy("*.a", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
         self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin"))
 

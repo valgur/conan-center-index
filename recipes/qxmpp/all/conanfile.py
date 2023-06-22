@@ -12,7 +12,9 @@ class QxmppConan(ConanFile):
     license = "LGPL-2.1"
     homepage = "https://github.com/qxmpp-project/qxmpp"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Cross-platform C++ XMPP client and server library. It is written in C++ and uses Qt framework."
+    description = (
+        "Cross-platform C++ XMPP client and server library. It is written in C++ and uses Qt framework."
+    )
     topics = ("qt", "qt6", "xmpp", "xmpp-library", "xmpp-server", "xmpp-client")
 
     settings = "os", "arch", "compiler", "build_type"

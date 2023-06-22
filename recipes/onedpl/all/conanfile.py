@@ -21,9 +21,7 @@ class OneDplConan(ConanFile):
     homepage = "https://github.com/oneapi-src/oneDPL"
     topics = ("stl", "parallelism")
     settings = "os", "arch", "build_type", "compiler"
-    options = {
-        "backend": ["tbb", "serial"],
-    }
+    options = {"backend": ["tbb", "serial"]}
     default_options = {
         "backend": "tbb",
     }
@@ -47,12 +45,7 @@ class OneDplConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
 
     def package(self):
         version_major = int(str(Version(self.version).major)[0:4])
@@ -70,10 +63,7 @@ class OneDplConan(ConanFile):
                 dst=os.path.join(self.package_folder, "include"),
             )
             copy(
-                self,
-                "LICENSE.txt",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
         else:
             copy(

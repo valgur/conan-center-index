@@ -93,18 +93,12 @@ class CoinCbcConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(
-                        tools.unix_path(self._user_info_build["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        tools.unix_path(self._user_info_build["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
                     "LD": "{} link -nologo".format(
                         tools.unix_path(self._user_info_build["automake"].compile)
                     ),
-                    "AR": "{} lib".format(
-                        tools.unix_path(self._user_info_build["automake"].ar_lib)
-                    ),
+                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
                     yield
@@ -145,16 +139,14 @@ class CoinCbcConan(ConanFile):
                     )
                 )
         self._autotools.configure(
-            configure_dir=os.path.join(self.source_folder, self._source_subfolder),
-            args=configure_args,
+            configure_dir=os.path.join(self.source_folder, self._source_subfolder), args=configure_args
         )
         return self._autotools
 
     def build(self):
         apply_conandata_patches(self)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB,
-            os.path.join(self._source_subfolder, "config.sub"),
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -175,11 +167,7 @@ class CoinCbcConan(ConanFile):
         for l in ("CbcSolver", "Cbc", "OsiCbc"):
             os.unlink(f"{self.package_folder}/lib/lib{l}.la")
             if self.settings.compiler == "Visual Studio":
-                rename(
-                    self,
-                    f"{self.package_folder}/lib/lib{l}.a",
-                    f"{self.package_folder}/lib/{l}.lib",
-                )
+                rename(self, f"{self.package_folder}/lib/lib{l}.a", f"{self.package_folder}/lib/{l}.lib")
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))

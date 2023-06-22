@@ -60,12 +60,7 @@ class AwsCS3(ConanFile):
             self.requires("aws-checksums/0.1.13")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,10 +77,7 @@ class AwsCS3(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -111,6 +103,4 @@ class AwsCS3(ConanFile):
             "aws-c-auth::aws-c-auth-lib",
         ]
         if Version(self.version) >= "0.1.36":
-            self.cpp_info.components["aws-c-s3-lib"].requires.append(
-                "aws-checksums::aws-checksums-lib"
-            )
+            self.cpp_info.components["aws-c-s3-lib"].requires.append("aws-checksums::aws-checksums-lib")

@@ -117,9 +117,7 @@ class LibvipsConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/2.5.0")
-        self.requires(
-            "glib/2.76.1", transitive_headers=True, transitive_libs=True, run=can_run(self)
-        )
+        self.requires("glib/2.76.1", transitive_headers=True, transitive_libs=True, run=can_run(self))
         if self.options.with_cfitsio:
             self.requires("cfitsio/4.1.0")
         if self.options.with_cgif:
@@ -176,12 +174,8 @@ class LibvipsConan(ConanFile):
             )
         if self.options.with_pdfium and self.options.with_poppler:
             raise ConanInvalidConfiguration("pdf support is enabled either with pdfium or poppler")
-        if self.options.with_cgif and not (
-            self.options.with_imagequant or self.options.with_quantizr
-        ):
-            raise ConanInvalidConfiguration(
-                "with_cgif requires either with_imagequant or with_quantizr"
-            )
+        if self.options.with_cgif and not (self.options.with_imagequant or self.options.with_quantizr):
+            raise ConanInvalidConfiguration("with_cgif requires either with_imagequant or with_quantizr")
 
         # Visual Studio < 2019 doesn't seem to like pointer restrict of pointer restrict in libnsgif
         check_min_vs(self, "192")
@@ -298,12 +292,7 @@ class LibvipsConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -394,6 +383,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

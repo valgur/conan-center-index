@@ -96,18 +96,14 @@ class LibUSBConan(ConanFile):
             VirtualBuildEnv(self).generate()
             tc = AutotoolsToolchain(self)
             if self.settings.os in ["Linux", "Android"]:
-                tc.configure_args.append(
-                    "--enable-udev" if self.options.enable_udev else "--disable-udev"
-                )
+                tc.configure_args.append("--enable-udev" if self.options.enable_udev else "--disable-udev")
             tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
             solution_msvc_year = "2017" if Version(self.version) < "1.0.24" else "2019"
-            solution = (
-                f"libusb_{'dll' if self.options.shared else 'static'}_{solution_msvc_year}.vcxproj"
-            )
+            solution = f"libusb_{'dll' if self.options.shared else 'static'}_{solution_msvc_year}.vcxproj"
             vcxproj_path = os.path.join(self.source_folder, "msvc", solution)
 
             # ==============================
@@ -144,12 +140,7 @@ class LibUSBConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

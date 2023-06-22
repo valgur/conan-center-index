@@ -76,12 +76,7 @@ class TinyAesCConan(ConanFile):
             raise ConanInvalidConfiguration("Need to at least specify one of CBC, ECB or CTR modes")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -100,12 +95,7 @@ class TinyAesCConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "unlicense.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "unlicense.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

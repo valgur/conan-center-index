@@ -8,15 +8,7 @@ class YojimboConan(ConanFile):
     name = "yojimbo"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/networkprotocol/yojimbo"
-    topics = (
-        "conan",
-        "yojimbo",
-        "game",
-        "udp",
-        "protocol",
-        "client-server",
-        "multiplayer-game-server",
-    )
+    topics = ("conan", "yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
     description = "A network library for client/server games written in C++"
     license = "BSD-3-Clause"
     exports = "submoduledata.yml"
@@ -46,9 +38,7 @@ class YojimboConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
         submodule_filename = os.path.join(self.recipe_folder, "submoduledata.yml")
@@ -77,8 +67,7 @@ class YojimboConan(ConanFile):
         )
         lib_path_str = ", ".join(
             '"{0}"'.format(p)
-            for p in self.deps_cpp_info["libsodium"].lib_paths
-            + self.deps_cpp_info["mbedtls"].lib_paths
+            for p in self.deps_cpp_info["libsodium"].lib_paths + self.deps_cpp_info["mbedtls"].lib_paths
         )
 
         premake_path = os.path.join(self._source_subfolder, "premake5.lua")
@@ -96,10 +85,7 @@ class YojimboConan(ConanFile):
                 strict=True,
             )
             tools.replace_in_file(
-                premake_path,
-                'libdirs { "./windows" }',
-                "libdirs { %s }" % lib_path_str,
-                strict=True,
+                premake_path, 'libdirs { "./windows" }', "libdirs { %s }" % lib_path_str, strict=True
             )
 
             # Edit the premake script to change the name of libsodium
@@ -107,9 +93,7 @@ class YojimboConan(ConanFile):
 
         else:
             # Edit the premake script to use  conan rather than local dependencies
-            tools.replace_in_file(
-                premake_path, '"/usr/local/include"', include_path_str, strict=True
-            )
+            tools.replace_in_file(premake_path, '"/usr/local/include"', include_path_str, strict=True)
 
         # Build using premake
 

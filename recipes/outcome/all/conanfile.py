@@ -57,12 +57,7 @@ class OutcomeConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "Licence.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "Licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "outcome.hpp",

@@ -52,10 +52,7 @@ class SubunitConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Cannot build shared subunit libraries on Windows")
-        if (
-            self.settings.compiler == "apple-clang"
-            and tools.Version(self.settings.compiler.version) < "10"
-        ):
+        if self.settings.compiler == "apple-clang" and tools.Version(self.settings.compiler.version) < "10":
             # Complete error is:
             # make[2]: *** No rule to make target `/Applications/Xcode-9.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE/config.h', needed by `Makefile'.  Stop.
             raise ConanInvalidConfiguration(
@@ -64,9 +61,7 @@ class SubunitConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @contextlib.contextmanager
@@ -75,12 +70,8 @@ class SubunitConan(ConanFile):
             with tools.vcvars(self):
                 env = {
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
@@ -106,9 +97,9 @@ class SubunitConan(ConanFile):
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(
-                " ".join(
-                    "-I{}".format(inc) for inc in self.deps_cpp_info["cppunit"].include_paths
-                ).replace("\\", "/")
+                " ".join("-I{}".format(inc) for inc in self.deps_cpp_info["cppunit"].include_paths).replace(
+                    "\\", "/"
+                )
             ),
             "CPPUNIT_LIBS='{}'".format(" ".join(self.deps_cpp_info["cppunit"].libs)),
         ]
@@ -128,21 +119,11 @@ class SubunitConan(ConanFile):
             autotools = self._configure_autotools()
             # Avoid installing i18n + perl things in arch-dependent folders or in a `local` subfolder
             install_args = [
-                "INSTALLARCHLIB={}".format(
-                    os.path.join(self.package_folder, "lib").replace("\\", "/")
-                ),
-                "INSTALLSITEARCH={}".format(
-                    os.path.join(self.build_folder, "archlib").replace("\\", "/")
-                ),
-                "INSTALLVENDORARCH={}".format(
-                    os.path.join(self.build_folder, "archlib").replace("\\", "/")
-                ),
-                "INSTALLSITEBIN={}".format(
-                    os.path.join(self.package_folder, "bin").replace("\\", "/")
-                ),
-                "INSTALLSITESCRIPT={}".format(
-                    os.path.join(self.package_folder, "bin").replace("\\", "/")
-                ),
+                "INSTALLARCHLIB={}".format(os.path.join(self.package_folder, "lib").replace("\\", "/")),
+                "INSTALLSITEARCH={}".format(os.path.join(self.build_folder, "archlib").replace("\\", "/")),
+                "INSTALLVENDORARCH={}".format(os.path.join(self.build_folder, "archlib").replace("\\", "/")),
+                "INSTALLSITEBIN={}".format(os.path.join(self.package_folder, "bin").replace("\\", "/")),
+                "INSTALLSITESCRIPT={}".format(os.path.join(self.package_folder, "bin").replace("\\", "/")),
                 "INSTALLSITEMAN1DIR={}".format(
                     os.path.join(self.build_folder, "share", "man", "man1").replace("\\", "/")
                 ),

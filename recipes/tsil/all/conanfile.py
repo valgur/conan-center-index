@@ -17,11 +17,7 @@ class TsilConan(ConanFile):
     topics = ("high-energy", "physics", "hep", "two-loop", "integrals")
 
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "size": ["long", "double"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "size": ["long", "double"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -61,12 +57,7 @@ class TsilConan(ConanFile):
             raise ConanInvalidConfiguration(f"TSIL does not support {self.settings.compiler}")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -80,12 +71,7 @@ class TsilConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

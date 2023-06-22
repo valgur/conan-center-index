@@ -17,9 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["WITH_PREFIX"] = self.dependencies[
-            self.tested_reference_str
-        ].options.with_prefix
+        tc.variables["WITH_PREFIX"] = self.dependencies[self.tested_reference_str].options.with_prefix
         tc.generate()
 
     def build(self):

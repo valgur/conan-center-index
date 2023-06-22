@@ -9,9 +9,7 @@ required_conan_version = ">=1.53.0"
 
 class MiniscriptConan(ConanFile):
     name = "miniscript"
-    description = (
-        "modern, elegant, easy to learn, and easy to embed in your own C# or C++ projects."
-    )
+    description = "modern, elegant, easy to learn, and easy to embed in your own C# or C++ projects."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/JoeStrout/miniscript"
@@ -53,10 +51,7 @@ class MiniscriptConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

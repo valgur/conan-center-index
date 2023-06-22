@@ -61,9 +61,7 @@ class LibId3TagConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -104,8 +102,7 @@ class LibId3TagConan(ConanFile):
 
     def _build_autotools(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB,
-            os.path.join(self._source_subfolder, "config.sub"),
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,

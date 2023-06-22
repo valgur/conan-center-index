@@ -380,14 +380,11 @@ class AwsSdkCppConan(ConanFile):
             )
         if self._use_aws_crt_cpp:
             if self._is_msvc and "MT" in msvc_runtime_flag(self):
-                raise ConanInvalidConfiguration(
-                    "Static runtime is not working for more recent releases"
-                )
+                raise ConanInvalidConfiguration("Static runtime is not working for more recent releases")
         else:
             if self.settings.os == "Macos" and self.settings.arch == "armv8":
                 raise ConanInvalidConfiguration(
-                    "This version doesn't support arm8. "
-                    "See https://github.com/aws/aws-sdk-cpp/issues/1542"
+                    "This version doesn't support arm8. " "See https://github.com/aws/aws-sdk-cpp/issues/1542"
                 )
 
     def package_id(self):
@@ -398,9 +395,7 @@ class AwsSdkCppConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -470,9 +465,7 @@ class AwsSdkCppConan(ConanFile):
                 os.path.join("toolchains", "cmakeProjectConf.cmake"),
             )
             tools.replace_in_file(
-                os.path.join("cmake", "utilities.cmake"),
-                "cmakeProjectConfig.cmake",
-                "cmakeProjectConf.cmake",
+                os.path.join("cmake", "utilities.cmake"), "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake"
             )
 
     def package(self):
@@ -506,9 +499,7 @@ class AwsSdkCppConan(ConanFile):
                 ]
             )
         else:
-            self.cpp_info.components["core"].requires.append(
-                "aws-c-event-stream::aws-c-event-stream-lib"
-            )
+            self.cpp_info.components["core"].requires.append("aws-c-event-stream::aws-c-event-stream-lib")
 
         # other components
         enabled_sdks = [sdk for sdk in self._sdks if self.options.get_safe(sdk)]
@@ -522,12 +513,8 @@ class AwsSdkCppConan(ConanFile):
             # TODO: there is no way to properly emulate COMPONENTS names for
             #       find_package(AWSSDK COMPONENTS <sdk>) in set_property()
             #       right now: see https://github.com/conan-io/conan/issues/10258
-            self.cpp_info.components[sdk].set_property(
-                "cmake_target_name", "AWS::aws-sdk-cpp-{}".format(sdk)
-            )
-            self.cpp_info.components[sdk].set_property(
-                "pkg_config_name", "aws-sdk-cpp-{}".format(sdk)
-            )
+            self.cpp_info.components[sdk].set_property("cmake_target_name", "AWS::aws-sdk-cpp-{}".format(sdk))
+            self.cpp_info.components[sdk].set_property("pkg_config_name", "aws-sdk-cpp-{}".format(sdk))
             self.cpp_info.components[sdk].requires = ["core"]
             if sdk in self._internal_requirements:
                 self.cpp_info.components[sdk].requires.extend(self._internal_requirements[sdk])

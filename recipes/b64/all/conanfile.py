@@ -9,7 +9,9 @@ required_conan_version = ">=1.53.0"
 
 class B64Conan(ConanFile):
     name = "b64"
-    description = "A library of ANSI C routines for fast encoding/decoding data into and from a base64-encoded format."
+    description = (
+        "A library of ANSI C routines for fast encoding/decoding data into and from a base64-encoded format."
+    )
     license = "CC0-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libb64.sourceforge.net/"

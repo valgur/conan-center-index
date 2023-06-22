@@ -15,16 +15,8 @@ class QuircConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "max_regions": [254, 65534],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "max_regions": 254,
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "max_regions": [254, 65534]}
+    default_options = {"shared": False, "fPIC": True, "max_regions": 254}
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -60,12 +52,7 @@ class QuircConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

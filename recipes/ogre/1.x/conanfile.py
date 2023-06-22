@@ -130,16 +130,9 @@ class ogrecmakeconan(ConanFile):
         TODO: determine incompatible msvc compilers
         """
         if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) >= 11:
-            raise ConanInvalidConfiguration(
-                "OGRE 1.x not supported with gcc version greater than 11"
-            )
-        if (
-            self.settings.compiler == "clang"
-            and tools.Version(self.settings.compiler.version) >= 11
-        ):
-            raise ConanInvalidConfiguration(
-                "OGRE 1.x not supported with clang version greater than 11"
-            )
+            raise ConanInvalidConfiguration("OGRE 1.x not supported with gcc version greater than 11")
+        if self.settings.compiler == "clang" and tools.Version(self.settings.compiler.version) >= 11:
+            raise ConanInvalidConfiguration("OGRE 1.x not supported with clang version greater than 11")
 
         miss_boost_required_comp = any(
             getattr(self.options["boost"], "without_{}".format(boost_comp), True)
@@ -147,9 +140,7 @@ class ogrecmakeconan(ConanFile):
         )
         if self.options["boost"].header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
-                "OGRE requires these boost components: {}".format(
-                    ", ".join(self._required_boost_components)
-                )
+                "OGRE requires these boost components: {}".format(", ".join(self._required_boost_components))
             )
 
     def config_options(self):
@@ -194,9 +185,7 @@ class ogrecmakeconan(ConanFile):
         cmake.definitions["OGRE_BUILD_COMPONENT_PAGING"] = self.options.build_component_paging
         cmake.definitions["OGRE_BUILD_COMPONENT_PROPERTY"] = self.options.build_component_property
         cmake.definitions["OGRE_BUILD_COMPONENT_PYTHON"] = self.options.build_component_python
-        cmake.definitions[
-            "OGRE_BUILD_COMPONENT_RTSHADERSYSTEM"
-        ] = self.options.build_component_rtshadersystem
+        cmake.definitions["OGRE_BUILD_COMPONENT_RTSHADERSYSTEM"] = self.options.build_component_rtshadersystem
         cmake.definitions["OGRE_BUILD_COMPONENT_TERRAIN"] = self.options.build_component_terrain
         cmake.definitions["OGRE_BUILD_COMPONENT_VOLUME"] = self.options.build_component_volume
         cmake.definitions["OGRE_BUILD_DEPENDENCIES"] = self.options.build_dependencies
@@ -206,9 +195,7 @@ class ogrecmakeconan(ConanFile):
         cmake.definitions["OGRE_BUILD_PLUGIN_PFX"] = self.options.build_plugin_pfx
         cmake.definitions["OGRE_BUILD_RENDERSYSTEM_D3D11"] = self.options.build_rendersystem_d3d11
         cmake.definitions["OGRE_BUILD_RENDERSYSTEM_GL"] = self.options.build_rendersystem_gl
-        cmake.definitions[
-            "OGRE_BUILD_RENDERSYSTEM_GL3PLUS"
-        ] = self.options.build_rendersystem_gl3plus
+        cmake.definitions["OGRE_BUILD_RENDERSYSTEM_GL3PLUS"] = self.options.build_rendersystem_gl3plus
         cmake.definitions["OGRE_BUILD_SAMPLES"] = self.options.build_samples
         cmake.definitions["OGRE_BUILD_TOOLS"] = self.options.build_tools
         cmake.definitions[
@@ -229,9 +216,7 @@ class ogrecmakeconan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -251,9 +236,7 @@ class ogrecmakeconan(ConanFile):
             "Softimage",
             "Wix",
         ]
-        ogre_pkg_module_path = os.path.join(
-            self.build_folder, self._source_subfolder, "CMake", "Packages"
-        )
+        ogre_pkg_module_path = os.path.join(self.build_folder, self._source_subfolder, "CMake", "Packages")
         for pkg_module in ogre_pkg_modules:
             pkg_path = os.path.join(ogre_pkg_module_path, f"Find{pkg_module}.cmake")
             if os.path.isfile(pkg_path):
@@ -271,16 +254,13 @@ class ogrecmakeconan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        self.copy(
-            pattern="License.md", dst="licenses", src=os.path.join(self._source_subfolder, "Docs")
-        )
+        self.copy(pattern="License.md", dst="licenses", src=os.path.join(self._source_subfolder, "Docs"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "share"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
         tools.rmdir(os.path.join(self.package_folder, "share"))
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.Version(self.version),
+            os.path.join(self.package_folder, self._module_file_rel_path), tools.Version(self.version)
         )
 
     @staticmethod
@@ -419,11 +399,7 @@ class ogrecmakeconan(ConanFile):
                 "requires": ["OgreMain"],
                 "libs": ["Plugin_ParticleFX"],
                 "libdirs": ["lib", plugin_lib_dir],
-                "include": [
-                    "include",
-                    include_prefix,
-                    os.path.join(include_prefix, "Plugins", "ParticleFX"),
-                ],
+                "include": ["include", include_prefix, os.path.join(include_prefix, "Plugins", "ParticleFX")],
             }
 
         if self.options.build_plugin_pcz:
@@ -442,11 +418,7 @@ class ogrecmakeconan(ConanFile):
                 "requires": ["OgreMain", "PCZSceneManager"],
                 "libs": ["Plugin_OctreeZone"],
                 "libdirs": ["lib", plugin_lib_dir],
-                "include": [
-                    "include",
-                    include_prefix,
-                    os.path.join(include_prefix, "Plugins", "OctreeZone"),
-                ],
+                "include": ["include", include_prefix, os.path.join(include_prefix, "Plugins", "OctreeZone")],
             }
 
         if not self.options.shared:
@@ -480,15 +452,11 @@ class ogrecmakeconan(ConanFile):
             self.cpp_info.components[comp].includedirs = values.get("include")
 
             self.cpp_info.components[comp].builddirs.append(self._module_file_rel_dir)
-            self.cpp_info.components[comp].build_modules["cmake_find_package"] = [
-                self._module_file_rel_path
-            ]
+            self.cpp_info.components[comp].build_modules["cmake_find_package"] = [self._module_file_rel_path]
             self.cpp_info.components[comp].build_modules["cmake_find_package_multi"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components[comp].build_modules["cmake_paths"] = [
-                self._module_file_rel_path
-            ]
+            self.cpp_info.components[comp].build_modules["cmake_paths"] = [self._module_file_rel_path]
             self.cpp_info.components[comp].builddirs.append(self._module_file_rel_path)
             if self.settings.os == "Linux":
                 self.cpp_info.components[comp].system_libs.append("pthread")
@@ -502,6 +470,4 @@ class ogrecmakeconan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(
-            self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake"
-        )
+        return os.path.join(self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake")

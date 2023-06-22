@@ -63,16 +63,11 @@ class Tixi3Conan(ConanFile):
 
     def export_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            files.copy(
-                self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder
-            )
+            files.copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
+            self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder
         )
 
     def build(self):
@@ -100,17 +95,15 @@ class Tixi3Conan(ConanFile):
         cmake.install()
 
         files.rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
-        files.copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         files.rmdir(self, os.path.join(self.package_folder, "share"))
 
         # provide alias target tixi3 for v1 packages
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"tixi3": "tixi3::tixi3"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "tixi3": "tixi3::tixi3",
+            },
         )
 
     @property

@@ -44,9 +44,7 @@ class KplotConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built on Visual Studio and msvc."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
 
     def requirements(self):
         self.requires("cairo/1.17.4")

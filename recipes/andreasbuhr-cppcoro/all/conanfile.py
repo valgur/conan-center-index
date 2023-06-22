@@ -62,10 +62,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         # Currently clang expects coroutine to be implemented in a certain way (under std::experiemental::), while libstdc++ puts them under std::
         # There are also other inconsistencies, see https://bugs.llvm.org/show_bug.cgi?id=48172
         # This should be removed after both gcc and clang implements the final coroutine TS
-        if (
-            self.settings.compiler == "clang"
-            and self.settings.compiler.get_safe("libcxx") == "libstdc++"
-        ):
+        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(
                 "{} does not support clang with libstdc++. Use libc++ instead.".format(self.name)
             )
@@ -76,9 +73,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):

@@ -11,10 +11,7 @@ class PlutoVGConan(ConanFile):
     name = "plutovg"
     description = "Tiny 2D vector graphics library in C"
     license = ("MIT",)
-    topics = (
-        "vector",
-        "graphics",
-    )
+    topics = ("vector", "graphics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/sammycage/plutovg"
     package_type = "library"
@@ -57,10 +54,7 @@ class PlutoVGConan(ConanFile):
             "add_library(plutovg)",
         )
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "add_subdirectory(example)",
-            "",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(example)", ""
         )
         cmake = CMake(self)
         cmake.configure()
@@ -68,10 +62,7 @@ class PlutoVGConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

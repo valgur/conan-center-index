@@ -39,9 +39,7 @@ class AGSConan(ConanFile):
             raise ConanInvalidConfiguration("ags doesn't support OS: {}.".format(self.settings.os))
         if self.settings.compiler != "Visual Studio":
             raise ConanInvalidConfiguration(
-                "ags doesn't support compiler: {} on OS: {}.".format(
-                    self.settings.compiler, self.settings.os
-                )
+                "ags doesn't support compiler: {} on OS: {}.".format(self.settings.compiler, self.settings.os)
             )
 
         if self.settings.compiler == "Visual Studio":
@@ -50,15 +48,11 @@ class AGSConan(ConanFile):
                     "ags doesn't support MSVC version: {}".format(self.settings.compiler.version)
                 )
             if self.settings.arch not in self._supported_archs:
-                raise ConanInvalidConfiguration(
-                    "ags doesn't support arch: {}".format(self.settings.arch)
-                )
+                raise ConanInvalidConfiguration("ags doesn't support arch: {}".format(self.settings.arch))
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _convert_msvc_version_to_vs_version(self, msvc_version):
@@ -89,9 +83,7 @@ class AGSConan(ConanFile):
                 self.copy(shared_lib, dst="bin", src=os.path.join(ags_lib_path, "lib"))
                 self.copy(symbol_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
             else:
-                vs_version = self._convert_msvc_version_to_vs_version(
-                    self.settings.compiler.version
-                )
+                vs_version = self._convert_msvc_version_to_vs_version(self.settings.compiler.version)
                 static_lib = "amd_ags_{arch}_{vs_version}_{runtime}.lib".format(
                     arch=win_arch, vs_version=vs_version, runtime=self.settings.compiler.runtime
                 )

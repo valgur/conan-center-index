@@ -22,7 +22,12 @@ class So5extraConan(ConanFile):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {"gcc": "7", "clang": "6", "apple-clang": "10", "Visual Studio": "15"}
+        minimal_version = {
+            "gcc": "7",
+            "clang": "6",
+            "apple-clang": "10",
+            "Visual Studio": "15",
+        }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
@@ -30,16 +35,14 @@ class So5extraConan(ConanFile):
                 % (self.name, compiler)
             )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
             return
 
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def package_id(self):
@@ -47,16 +50,12 @@ class So5extraConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):
         self.copy(
-            "*.hpp",
-            dst="include/so_5_extra",
-            src=os.path.join(self._source_subfolder, "dev", "so_5_extra"),
+            "*.hpp", dst="include/so_5_extra", src=os.path.join(self._source_subfolder, "dev", "so_5_extra")
         )
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
@@ -71,7 +70,5 @@ class So5extraConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "sobjectizer"
         self.cpp_info.components["so_5_extra"].names["cmake_find_package"] = "so5extra"
         self.cpp_info.components["so_5_extra"].names["cmake_find_package_multi"] = "so5extra"
-        self.cpp_info.components["so_5_extra"].set_property(
-            "cmake_target_name", "sobjectizer::so5extra"
-        )
+        self.cpp_info.components["so_5_extra"].set_property("cmake_target_name", "sobjectizer::so5extra")
         self.cpp_info.components["so_5_extra"].requires = ["sobjectizer::sobjectizer"]

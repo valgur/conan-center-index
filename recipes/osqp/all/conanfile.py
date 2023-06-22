@@ -9,7 +9,9 @@ required_conan_version = ">=1.53.0"
 class OsqpConan(ConanFile):
     name = "osqp"
     package_type = "library"
-    description = "The OSQP (Operator Splitting Quadratic Program) solver is a numerical optimization package."
+    description = (
+        "The OSQP (Operator Splitting Quadratic Program) solver is a numerical optimization package."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://osqp.org/"
@@ -54,9 +56,7 @@ class OsqpConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["UNITTESTS"] = not self.conf.get(
-            "tools.build:skip_test", default=True, check_type=bool
-        )
+        tc.variables["UNITTESTS"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.variables["PRINTING"] = True
         tc.variables["PROFILING"] = True
         tc.variables["CTRLC"] = True
@@ -73,10 +73,7 @@ class OsqpConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

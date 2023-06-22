@@ -39,9 +39,7 @@ class rpclibConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -74,9 +72,7 @@ class rpclibConan(ConanFile):
         #   causing the test_package to fail
         if self.settings.os in ["Windows"]:
             if self.options.shared:
-                self.cpp_info.components["_rpc"].bindirs.append(
-                    os.path.join(self.package_folder, "lib")
-                )
+                self.cpp_info.components["_rpc"].bindirs.append(os.path.join(self.package_folder, "lib"))
 
         # TODO: Remove after Conan 2.0
         self.cpp_info.components["_rpc"].names["cmake_find_package"] = "rpc"

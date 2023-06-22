@@ -48,12 +48,7 @@ class LibSigCppConan(ConanFile):
         self.tool_requires("meson/0.64.1")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -79,20 +74,13 @@ class LibSigCppConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         for header_file in glob.glob(
             os.path.join(self.package_folder, "lib", "sigc++-2.0", "include", "*.h")
         ):
-            dst = os.path.join(
-                self.package_folder, "include", "sigc++-2.0", os.path.basename(header_file)
-            )
+            dst = os.path.join(self.package_folder, "include", "sigc++-2.0", os.path.basename(header_file))
             rename(self, header_file, dst)
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -123,6 +111,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

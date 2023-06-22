@@ -10,9 +10,7 @@ required_conan_version = ">=1.50.0"
 class JungleConan(ConanFile):
     name = "jungle"
     homepage = "https://github.com/eBay/Jungle"
-    description = (
-        "Key-value storage library, based on a combined index of LSM-tree and copy-on-write B+tree"
-    )
+    description = "Key-value storage library, based on a combined index of LSM-tree and copy-on-write B+tree"
     topics = ("kv-store", "cow")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"

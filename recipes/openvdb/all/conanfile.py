@@ -103,9 +103,7 @@ class OpenVDBConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
@@ -218,9 +216,7 @@ if(OpenEXR_FOUND)
         if not self.options["openexr"].shared:
             self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_OPENEXR_STATICLIB")
         if self.options.with_exr:
-            self.cpp_info.components["openvdb-core"].defines.append(
-                "OPENVDB_TOOLS_RAYTRACER_USE_EXR"
-            )
+            self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_TOOLS_RAYTRACER_USE_EXR")
         if self.options.with_log4cplus:
             self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_USE_LOG4CPLUS")
 
@@ -248,6 +244,4 @@ if(OpenEXR_FOUND)
         self.cpp_info.names["cmake_find_package_multi"] = "OpenVDB"
         self.cpp_info.components["openvdb-core"].names["cmake_find_package"] = "openvdb"
         self.cpp_info.components["openvdb-core"].names["cmake_find_package_multi"] = "openvdb"
-        self.cpp_info.components["openvdb-core"].set_property(
-            "cmake_target_name", "OpenVDB::openvdb"
-        )
+        self.cpp_info.components["openvdb-core"].set_property("cmake_target_name", "OpenVDB::openvdb")

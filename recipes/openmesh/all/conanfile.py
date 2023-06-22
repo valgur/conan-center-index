@@ -1,15 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 from conan.tools.microsoft import is_msvc
 import os
 import textwrap
@@ -75,12 +67,7 @@ class OpenmeshConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "libdata"))
@@ -148,9 +135,7 @@ class OpenmeshConan(ConanFile):
             self._module_file_rel_path
         ]
         self.cpp_info.components["openmeshtools"].names["cmake_find_package"] = "OpenMeshTools"
-        self.cpp_info.components["openmeshtools"].names[
-            "cmake_find_package_multi"
-        ] = "OpenMeshTools"
+        self.cpp_info.components["openmeshtools"].names["cmake_find_package_multi"] = "OpenMeshTools"
         self.cpp_info.components["openmeshtools"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]

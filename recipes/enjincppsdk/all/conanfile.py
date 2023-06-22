@@ -101,9 +101,7 @@ class EnjinCppSdk(ConanFile):
 
         # Validations for dependencies
         if not self.options["spdlog"].header_only:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires spdlog:header_only=True to be enabled."
-            )
+            raise ConanInvalidConfiguration(f"{self.name} requires spdlog:header_only=True to be enabled.")
 
         if self.options.with_default_http_client and not self.options["cpp-httplib"].with_openssl:
             raise ConanInvalidConfiguration(
@@ -113,9 +111,7 @@ class EnjinCppSdk(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):

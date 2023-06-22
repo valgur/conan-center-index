@@ -30,7 +30,5 @@ class TestPackageConan(ConanFile):
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             self.run(bin_path, env="conanrun")
             if self.options["cpputest"].with_extensions:
-                bin_extensions_path = os.path.join(
-                    self.cpp.build.bindirs[0], "test_package_with_extensions"
-                )
+                bin_extensions_path = os.path.join(self.cpp.build.bindirs[0], "test_package_with_extensions")
                 self.run(bin_extensions_path, env="conanrun")

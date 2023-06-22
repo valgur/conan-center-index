@@ -142,15 +142,11 @@ class OsgearthConan(ConanFile):
 
         for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
             # Prefer conan's find package scripts over osgEarth's
-            os.unlink(
-                os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package))
-            )
+            os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
         self._patch_sources()
@@ -163,9 +159,7 @@ class OsgearthConan(ConanFile):
         cmake.definitions["OSGEARTH_BUILD_EXAMPLES"] = False
         cmake.definitions["OSGEARTH_BUILD_TESTS"] = False
 
-        cmake.definitions[
-            "OSGEARTH_BUILD_PROCEDURAL_NODEKIT"
-        ] = self.options.build_procedural_nodekit
+        cmake.definitions["OSGEARTH_BUILD_PROCEDURAL_NODEKIT"] = self.options.build_procedural_nodekit
         # cmake.definitions["OSGEARTH_BUILD_TRITON_NODEKIT"] = self.options.build_triton_nodekit
         # cmake.definitions["OSGEARTH_BUILD_SILVERLINING_NODEKIT"] = self.options.build_silverlining_nodekit
         cmake.definitions["OSGEARTH_BUILD_LEVELDB_CACHE"] = self.options.build_leveldb_cache
@@ -199,17 +193,11 @@ class OsgearthConan(ConanFile):
 
         if self.options.install_shaders:
             rename(
-                self,
-                os.path.join(self.package_folder, "resources"),
-                os.path.join(self.package_folder, "res"),
+                self, os.path.join(self.package_folder, "resources"), os.path.join(self.package_folder, "res")
             )
 
         if os_info.is_linux:
-            rename(
-                self,
-                os.path.join(self.package_folder, "lib64"),
-                os.path.join(self.package_folder, "lib"),
-            )
+            rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
 
         tools.rmdir(os.path.join(self.package_folder, "cmake"))
 
@@ -277,9 +265,7 @@ class OsgearthConan(ConanFile):
             plugin_library.requires = ["osgEarth"]
             if not self.options.shared:
                 plugin_library.libdirs = [
-                    os.path.join(
-                        "lib", "osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version)
-                    )
+                    os.path.join("lib", "osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version))
                 ]
             return plugin_library
 

@@ -78,9 +78,7 @@ class PangommConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
@@ -145,21 +143,13 @@ class PangommConan(ConanFile):
 
         shutil.move(
             os.path.join(
-                self.package_folder,
-                "lib",
-                f"pangomm-{self._api_version}",
-                "include",
-                "pangommconfig.h",
+                self.package_folder, "lib", f"pangomm-{self._api_version}", "include", "pangommconfig.h"
             ),
-            os.path.join(
-                self.package_folder, "include", f"pangomm-{self._api_version}", "pangommconfig.h"
-            ),
+            os.path.join(self.package_folder, "include", f"pangomm-{self._api_version}", "pangommconfig.h"),
         )
 
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(
-            os.path.join(self.package_folder, "lib", "pangomm-{self._api_version}", "include")
-        )
+        tools.rmdir(os.path.join(self.package_folder, "lib", "pangomm-{self._api_version}", "include"))
 
         if is_msvc(self):
             tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), "*.pdb")

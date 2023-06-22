@@ -44,9 +44,9 @@ class WasmerConan(ConanFile):
 
     def validate(self):
         try:
-            self.conan_data["sources"][self.version][str(self.settings.os)][
-                str(self.settings.arch)
-            ][self._compiler_alias]
+            self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
+                self._compiler_alias
+            ]
         except KeyError:
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of version/os/arch/compiler are not available"
@@ -63,9 +63,7 @@ class WasmerConan(ConanFile):
             )
 
         if is_msvc(self) and not self.options.shared and not is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is only available with compiler.runtime=static"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} is only available with compiler.runtime=static")
 
     def package_id(self):
         del self.info.settings.compiler.version
@@ -81,10 +79,7 @@ class WasmerConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         copy(
@@ -98,9 +93,7 @@ class WasmerConan(ConanFile):
         dstlibdir = os.path.join(self.package_folder, "lib")
         dstbindir = os.path.join(self.package_folder, "bin")
         if self.options.shared:
-            copy(
-                self, pattern="wasmer.dll.lib", dst=dstlibdir, src=srclibdir
-            )  # FIXME: not available (yet)
+            copy(self, pattern="wasmer.dll.lib", dst=dstlibdir, src=srclibdir)  # FIXME: not available (yet)
             copy(self, pattern="wasmer.dll", dst=dstbindir, src=srclibdir)
             copy(self, pattern="libwasmer.so*", dst=dstlibdir, src=srclibdir)
             copy(self, pattern="libwasmer.dylib", dst=dstlibdir, src=srclibdir)
@@ -108,10 +101,7 @@ class WasmerConan(ConanFile):
             copy(self, pattern="wasmer.lib", dst=dstlibdir, src=srclibdir)
             copy(self, pattern="libwasmer.a", dst=dstlibdir, src=srclibdir)
             replace_in_file(
-                self,
-                os.path.join(self.package_folder, "include", "wasm.h"),
-                "__declspec(dllimport)",
-                "",
+                self, os.path.join(self.package_folder, "include", "wasm.h"), "__declspec(dllimport)", ""
             )
 
     def package_info(self):

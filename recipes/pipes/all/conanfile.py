@@ -56,9 +56,4 @@ class PipesConan(ConanFile):
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            "*.hpp",
-            dst="include",
-            src=os.path.join(self._source_subfolder, "include"),
-            keep_path=True,
-        )
+        self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)

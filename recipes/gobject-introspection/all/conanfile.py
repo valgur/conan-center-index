@@ -63,9 +63,7 @@ class GobjectIntrospectionConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_meson(self):
@@ -84,9 +82,7 @@ class GobjectIntrospectionConan(ConanFile):
 
     def build(self):
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, "meson.build"),
-            "subdir('tests')",
-            "#subdir('tests')",
+            os.path.join(self._source_subfolder, "meson.build"), "subdir('tests')", "#subdir('tests')"
         )
         tools.replace_in_file(
             os.path.join(self._source_subfolder, "meson.build"),

@@ -58,9 +58,7 @@ class RuyConan(ConanFile):
             and Version(self.settings.compiler.version) <= 5
             and self.settings.build_type == "Debug"
         ):
-            raise ConanInvalidConfiguration(
-                "Debug builds are not supported on older versions of Clang (<=5)"
-            )
+            raise ConanInvalidConfiguration("Debug builds are not supported on older versions of Clang (<=5)")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,12 +118,7 @@ class RuyConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

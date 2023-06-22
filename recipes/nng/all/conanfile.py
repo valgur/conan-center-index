@@ -65,9 +65,7 @@ class NngConan(ConanFile):
         }
         minimum_version = compiler_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.settings.compiler} < {minimum_version} is not supported",
-            )
+            raise ConanInvalidConfiguration(f"{self.settings.compiler} < {minimum_version} is not supported")
         if not self.options.max_taskq_threads.value.isdigit():
             raise ConanInvalidConfiguration("max_taskq_threads must be an integral number")
 

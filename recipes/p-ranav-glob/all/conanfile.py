@@ -35,9 +35,7 @@ class PRanavGlobConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
-                    self.name
-                )
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
             )
 
     def package_id(self):
@@ -45,9 +43,7 @@ class PRanavGlobConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

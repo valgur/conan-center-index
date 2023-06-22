@@ -24,7 +24,12 @@ class NvclothConan(ConanFile):
         "use_cuda": [True, False],
         "use_dx11": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "use_cuda": False, "use_dx11": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "use_cuda": False,
+        "use_dx11": False,
+    }
 
     generators = "cmake"
 
@@ -34,9 +39,7 @@ class NvclothConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def export_sources(self):
@@ -88,13 +91,9 @@ class NvclothConan(ConanFile):
             "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!",
         )
         shutil.copy(
+            os.path.join(self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h"),
             os.path.join(
-                self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h"
-            ),
-            os.path.join(
-                self.build_folder,
-                self._source_subfolder,
-                "NvCloth/include/NvCloth/Callbacks.h.origin",
+                self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h.origin"
             ),
         )
         for patch in self.conan_data["patches"][self.version]:
@@ -106,16 +105,12 @@ class NvclothConan(ConanFile):
                     self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h"
                 ),
                 os.path.join(
-                    self.build_folder,
-                    self._source_subfolder,
-                    "NvCloth/include/NvCloth/Callbacks.h.patched",
+                    self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h.patched"
                 ),
             )
             shutil.copy(
                 os.path.join(
-                    self.build_folder,
-                    self._source_subfolder,
-                    "NvCloth/include/NvCloth/Callbacks.h.origin",
+                    self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h.origin"
                 ),
                 os.path.join(
                     self.build_folder, self._source_subfolder, "NvCloth/include/NvCloth/Callbacks.h"
@@ -164,22 +159,15 @@ class NvclothConan(ConanFile):
         nvcloth_build_subfolder = os.path.join(self.build_folder, self._build_subfolder)
 
         self.copy(
-            pattern="NvCloth/license.txt",
-            dst="licenses",
-            src=nvcloth_source_subfolder,
-            keep_path=False,
+            pattern="NvCloth/license.txt", dst="licenses", src=nvcloth_source_subfolder, keep_path=False
         )
-        self.copy(
-            "*.h", dst="include", src=os.path.join(nvcloth_source_subfolder, "NvCloth", "include")
-        )
+        self.copy("*.h", dst="include", src=os.path.join(nvcloth_source_subfolder, "NvCloth", "include"))
         self.copy(
             "*.h",
             dst="include",
             src=os.path.join(nvcloth_source_subfolder, "NvCloth", "extensions", "include"),
         )
-        self.copy(
-            "*.h", dst="include", src=os.path.join(nvcloth_source_subfolder, "PxShared", "include")
-        )
+        self.copy("*.h", dst="include", src=os.path.join(nvcloth_source_subfolder, "PxShared", "include"))
         self.copy("*.a", dst="lib", src=nvcloth_build_subfolder, keep_path=False)
         self.copy("*.lib", dst="lib", src=nvcloth_build_subfolder, keep_path=False)
         self.copy("*.dylib*", dst="lib", src=nvcloth_build_subfolder, keep_path=False)

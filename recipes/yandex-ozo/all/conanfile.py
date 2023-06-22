@@ -8,9 +8,7 @@ required_conan_version = ">=1.33.0"
 
 class YandexOzoConan(ConanFile):
     name = "yandex-ozo"
-    description = (
-        "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
-    )
+    description = "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
     topics = ("ozo", "yandex", "postgres", "postgresql", "cpp17", "database", "db", "asio")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yandex/ozo"
@@ -36,9 +34,7 @@ class YandexOzoConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
 
         if not minimum_version:
-            self.output.warn(
-                "ozo requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warn("ozo requires C++17. Your compiler is unknown. Assuming it supports C++17.")
         elif tools.Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("ozo requires a compiler that supports at least C++17")
 
@@ -50,9 +46,7 @@ class YandexOzoConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):
@@ -76,10 +70,7 @@ class YandexOzoConan(ConanFile):
             "resource_pool::resource_pool",
             "libpq::pq",
         ]
-        main_comp.defines = [
-            "BOOST_HANA_CONFIG_ENABLE_STRING_UDL",
-            "BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT",
-        ]
+        main_comp.defines = ["BOOST_HANA_CONFIG_ENABLE_STRING_UDL", "BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
         main_comp.names["cmake_find_package"] = "ozo"
         main_comp.names["cmake_find_package_multi"] = "ozo"
 

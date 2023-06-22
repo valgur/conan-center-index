@@ -10,20 +10,13 @@ required_conan_version = ">=1.53.0"
 
 class OboeConan(ConanFile):
     name = "oboe"
-    description = (
-        "Oboe is a C++ library which makes it easy to build high-performance audio apps on Android."
-    )
+    description = "Oboe is a C++ library which makes it easy to build high-performance audio apps on Android."
     license = "Apache-2.0"
     topics = ("android", "audio")
     homepage = "https://github.com/google/oboe"
     url = "https://github.com/conan-io/conan-center-index"
 
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    settings = ("os", "arch", "compiler", "build_type")
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -63,12 +56,7 @@ class OboeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

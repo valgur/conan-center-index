@@ -59,12 +59,7 @@ class LibnetConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -80,7 +75,7 @@ class LibnetConan(ConanFile):
                 link_layer = "bpf"
             else:
                 raise ConanException(
-                    f"link-layer unknown for {self.settings.os}, feel free to contribute to libnet recipe",
+                    f"link-layer unknown for {self.settings.os}, feel free to contribute to libnet recipe"
                 )
             tc.configure_args.append(f"--with-link-layer={link_layer}")
         tc.generate()
@@ -91,12 +86,7 @@ class LibnetConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

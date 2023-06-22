@@ -94,9 +94,7 @@ class Mosquitto(ConanFile):
             and not self.dependencies["libwebsockets"].options.shared
         )
         tc.variables["DOCUMENTATION"] = False
-        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "res").replace(
-            "\\", "/"
-        )
+        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "res").replace("\\", "/")
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
 
@@ -107,12 +105,7 @@ class Mosquitto(ConanFile):
 
     def package(self):
         for license_file in ("LICENSE.txt", "edl-v10", "epl-v20"):
-            copy(
-                self,
-                license_file,
-                self.source_folder,
-                os.path.join(self.package_folder, "licenses"),
-            )
+            copy(self, license_file, self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -129,9 +122,7 @@ class Mosquitto(ConanFile):
             lib_folder = os.path.join(self.build_folder, "lib", str(self.settings.build_type))
             copy(self, "mosquitto.lib", lib_folder, package_lib_folder)
             if self.options.build_cpp:
-                libpp_folder = os.path.join(
-                    self.build_folder, "lib", "cpp", str(self.settings.build_type)
-                )
+                libpp_folder = os.path.join(self.build_folder, "lib", "cpp", str(self.settings.build_type))
                 copy(self, "mosquittopp.lib", libpp_folder, package_lib_folder)
 
     def package_info(self):
@@ -149,9 +140,7 @@ class Mosquitto(ConanFile):
             self.cpp_info.components["libmosquitto"].system_libs = ["ws2_32"]
 
         if self.options.build_cpp:
-            self.cpp_info.components["libmosquittopp"].set_property(
-                "pkg_config_name", "libmosquittopp"
-            )
+            self.cpp_info.components["libmosquittopp"].set_property("pkg_config_name", "libmosquittopp")
             self.cpp_info.components["libmosquittopp"].libs = [f"mosquittopp{lib_suffix}"]
             self.cpp_info.components["libmosquittopp"].requires = ["libmosquitto"]
             if self.settings.os == "Linux":
@@ -163,9 +152,7 @@ class Mosquitto(ConanFile):
             self.cpp_info.components["mosquitto_broker"].libdirs = []
             self.cpp_info.components["mosquitto_broker"].includedirs = []
             if self.options.websockets:
-                self.cpp_info.components["mosquitto_broker"].requires.append(
-                    "libwebsockets::libwebsockets"
-                )
+                self.cpp_info.components["mosquitto_broker"].requires.append("libwebsockets::libwebsockets")
             if self.settings.os in ("FreeBSD", "Linux"):
                 self.cpp_info.components["mosquitto_broker"].system_libs = ["pthread", "m"]
             elif self.settings.os == "Windows":
@@ -176,10 +163,7 @@ class Mosquitto(ConanFile):
                 option_comp_name = "mosquitto_{}".format(option)
                 self.cpp_info.components[option_comp_name].libdirs = []
                 self.cpp_info.components[option_comp_name].includedirs = []
-                self.cpp_info.components[option_comp_name].requires = [
-                    "openssl::openssl",
-                    "libmosquitto",
-                ]
+                self.cpp_info.components[option_comp_name].requires = ["openssl::openssl", "libmosquitto"]
                 if self.options.cjson:
                     self.cpp_info.components[option_comp_name].requires.append("cjson::cjson")
 

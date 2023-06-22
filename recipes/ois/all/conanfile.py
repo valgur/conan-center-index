@@ -63,11 +63,7 @@ class OisConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE.md",
-            src=os.path.join(self.source_folder, self._source_subfolder),
-            dst="licenses",
-        )
+        self.copy("LICENSE.md", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))

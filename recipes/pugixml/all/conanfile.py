@@ -80,10 +80,7 @@ class PugiXmlConan(ConanFile):
                 )
             if self.options.no_exceptions:
                 replace_in_file(
-                    self,
-                    header_file,
-                    "// #define PUGIXML_NO_EXCEPTIONS",
-                    "#define PUGIXML_NO_EXCEPTIONS",
+                    self, header_file, "// #define PUGIXML_NO_EXCEPTIONS", "#define PUGIXML_NO_EXCEPTIONS"
                 )
             cmake = CMake(self)
             cmake.configure()
@@ -119,7 +116,6 @@ class PugiXmlConan(ConanFile):
             self.cpp_info.libdirs = []
         else:
             self.cpp_info.set_property(
-                "cmake_target_aliases",
-                ["pugixml::shared"] if self.options.shared else ["pugixml::static"],
+                "cmake_target_aliases", ["pugixml::shared"] if self.options.shared else ["pugixml::static"]
             )
             self.cpp_info.libs = collect_libs(self)

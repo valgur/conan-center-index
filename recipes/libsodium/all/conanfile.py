@@ -67,9 +67,7 @@ class LibsodiumConan(ConanFile):
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                "Cannot build shared libsodium libraries with static runtime"
-            )
+            raise ConanInvalidConfiguration("Cannot build shared libsodium libraries with static runtime")
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -97,9 +95,7 @@ class LibsodiumConan(ConanFile):
 
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.append(
-                "--enable-soname-versions={}".format(yes_no(self.options.use_soname))
-            )
+            tc.configure_args.append("--enable-soname-versions={}".format(yes_no(self.options.use_soname)))
             tc.configure_args.append("--enable-pie={}".format(yes_no(self.options.PIE)))
             if self._is_mingw:
                 tc.extra_ldflags.append("-lssp")
@@ -180,28 +176,11 @@ class LibsodiumConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "*LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_dir = os.path.join(self.source_folder, "bin")
-            copy(
-                self,
-                "*.lib",
-                src=output_dir,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                src=output_dir,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
             inc_src = os.path.join(self.source_folder, "src", "libsodium", "include")
             copy(
                 self,

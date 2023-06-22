@@ -22,12 +22,7 @@ class GnConan(ConanFile):
 
     @property
     def _minimum_compiler_version_supporting_cxx17(self):
-        return {
-            "Visual Studio": 15,
-            "gcc": 7,
-            "clang": 4,
-            "apple-clang": 10,
-        }.get(str(self.settings.compiler))
+        return {"Visual Studio": 15, "gcc": 7, "clang": 4, "apple-clang": 10}.get(str(self.settings.compiler))
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -48,9 +43,7 @@ class GnConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        tools_files.get(
-            self, **self.conan_data["sources"][self.version], destination=self._source_subfolder
-        )
+        tools_files.get(self, **self.conan_data["sources"][self.version], destination=self._source_subfolder)
 
     def build_requirements(self):
         # FIXME: add cpython build requirements for `build/gen.py`.
@@ -110,23 +103,16 @@ class GnConan(ConanFile):
                 )
                 conf_args = [
                     "--no-last-commit-position",
-                    "--host={}".format(
-                        self._to_gn_platform(self.settings.os, self.settings.compiler)
-                    ),
+                    "--host={}".format(self._to_gn_platform(self.settings.os, self.settings.compiler)),
                 ]
                 if self.settings.build_type == "Debug":
                     conf_args.append("-d")
                 self.run(
-                    "{} build/gen.py {}".format(sys.executable, " ".join(conf_args)),
-                    run_environment=True,
+                    "{} build/gen.py {}".format(sys.executable, " ".join(conf_args)), run_environment=True
                 )
                 # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
                 time.sleep(1)
-                build_args = [
-                    "-C",
-                    "out",
-                    "-j{}".format(tools.cpu_count()),
-                ]
+                build_args = ["-C", "out", "-j{}".format(tools.cpu_count())]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 
     def package(self):

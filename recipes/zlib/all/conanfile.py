@@ -58,12 +58,7 @@ class ZlibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -80,8 +75,7 @@ class ZlibConan(ConanFile):
         apply_conandata_patches(self)
 
         is_apple_clang12 = (
-            self.settings.compiler == "apple-clang"
-            and Version(self.settings.compiler.version) >= "12.0"
+            self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "12.0"
         )
         if not is_apple_clang12:
             for filename in ["zconf.h", "zconf.h.cmakein", "zconf.h.in"]:
@@ -111,9 +105,7 @@ class ZlibConan(ConanFile):
         return license_contents
 
     def package(self):
-        save(
-            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
 

@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 import os
@@ -73,10 +66,7 @@ class LibuvConan(ConanFile):
     def package(self):
         for license_file in ["LICENSE", "LICENSE-docs"]:
             copy(
-                self,
-                license_file,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
         cmake = CMake(self)
         cmake.install()
@@ -87,7 +77,9 @@ class LibuvConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._target_name: "libuv::libuv"},
+            {
+                self._target_name: "libuv::libuv",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -124,9 +116,7 @@ class LibuvConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libuv")
         self.cpp_info.set_property("cmake_target_name", self._target_name)
-        self.cpp_info.set_property(
-            "pkg_config_name", "libuv" if self.options.shared else "libuv-static"
-        )
+        self.cpp_info.set_property("pkg_config_name", "libuv" if self.options.shared else "libuv-static")
         self.cpp_info.libs = [self._lib_name]
         if self.options.shared:
             self.cpp_info.defines = ["USING_UV_SHARED=1"]

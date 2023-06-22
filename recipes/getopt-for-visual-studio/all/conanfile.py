@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    load,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 import os
@@ -36,9 +29,7 @@ class GetoptForVisualStudioConan(ConanFile):
 
     def validate(self):
         if not is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "getopt-for-visual-studio is only supported for Visual Studio"
-            )
+            raise ConanInvalidConfiguration("getopt-for-visual-studio is only supported for Visual Studio")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -50,20 +41,12 @@ class GetoptForVisualStudioConan(ConanFile):
     def _license_text(self):
         content = load(self, os.path.join(self.source_folder, "getopt.h"))
         return "\n".join(
-            list(
-                l.strip()
-                for l in content[content.find("/**", 3) : content.find("#pragma")].split("\n")
-            )
+            list(l.strip() for l in content[content.find("/**", 3) : content.find("#pragma")].split("\n"))
         )
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
-        copy(
-            self,
-            "getopt.h",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "getopt.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

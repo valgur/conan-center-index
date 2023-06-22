@@ -33,9 +33,7 @@ class NmosCppTestPackageConan(ConanFile):
                 )
 
             # find and start up the installed nmos-cpp-registry to check it works
-            registry_path = shutil.which(
-                "nmos-cpp-registry", path=os.pathsep.join(self.env["PATH"])
-            )
+            registry_path = shutil.which("nmos-cpp-registry", path=os.pathsep.join(self.env["PATH"]))
             registry = subprocess.Popen(
                 [registry_path, "registry-config.json"],
                 stdout=subprocess.PIPE,

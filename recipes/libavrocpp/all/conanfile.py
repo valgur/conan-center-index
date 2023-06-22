@@ -82,9 +82,7 @@ class LibavrocppConan(ConanFile):
         )
         # Install either static or shared
         target = "avrocpp" if self.options.shared else "avrocpp_s"
-        replace_in_file(
-            self, cmakelists, "install (TARGETS avrocpp avrocpp_s", f"install (TARGETS {target}"
-        )
+        replace_in_file(self, cmakelists, "install (TARGETS avrocpp avrocpp_s", f"install (TARGETS {target}")
 
     def build(self):
         self._patch_sources()
@@ -94,16 +92,10 @@ class LibavrocppConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
-            self,
-            pattern="NOTICE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="NOTICE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

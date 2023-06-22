@@ -23,12 +23,7 @@ class VariantLiteConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
@@ -40,12 +35,7 @@ class VariantLiteConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "variant-lite")
@@ -62,9 +52,7 @@ class VariantLiteConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
         self.cpp_info.components["variantlite"].names["cmake_find_package"] = "variant-lite"
         self.cpp_info.components["variantlite"].names["cmake_find_package_multi"] = "variant-lite"
-        self.cpp_info.components["variantlite"].set_property(
-            "cmake_target_name", "nonstd::variant-lite"
-        )
+        self.cpp_info.components["variantlite"].set_property("cmake_target_name", "nonstd::variant-lite")
         self.cpp_info.components["variantlite"].bindirs = []
         self.cpp_info.components["variantlite"].frameworkdirs = []
         self.cpp_info.components["variantlite"].libdirs = []

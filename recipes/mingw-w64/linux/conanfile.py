@@ -17,7 +17,11 @@ class MingwConan(ConanFile):
     topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
     settings = "os", "arch", "build_type", "compiler"
     options = {"threads": ["posix", "win32"], "exception": ["seh", "sjlj"], "gcc": ["10.3.0"]}
-    default_options = {"threads": "posix", "exception": "seh", "gcc": "10.3.0"}
+    default_options = {
+        "threads": "posix",
+        "exception": "seh",
+        "gcc": "10.3.0",
+    }
     no_copy_source = True
 
     @property
@@ -74,12 +78,7 @@ class MingwConan(ConanFile):
             )
         # Download gcc version
         gcc_data = arch_data["gcc"][str(self.options.gcc)]
-        get(
-            self,
-            **gcc_data,
-            strip_root=True,
-            destination=os.path.join(self.build_folder, "sources", "gcc")
-        )
+        get(self, **gcc_data, strip_root=True, destination=os.path.join(self.build_folder, "sources", "gcc"))
 
     @property
     def _target_tag(self):
@@ -271,9 +270,7 @@ class MingwConan(ConanFile):
                 if self.options.threads == "posix":
                     self.output.info("Building mingw-w64-libraries-winpthreads ...")
                     mkdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads"))
-                    with chdir(
-                        self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")
-                    ):
+                    with chdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")):
                         autotools = AutoToolsBuildEnvironment(self)
                         conf_args = [
                             "--enable-silent-rules",
@@ -304,9 +301,7 @@ class MingwConan(ConanFile):
         self.output.info("Building done!")
 
     def package(self):
-        self.copy(
-            "COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses"
-        )
+        self.copy("COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses")
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
@@ -316,14 +311,12 @@ class MingwConan(ConanFile):
         os.unlink(os.path.join(self.package_folder, self._target_tag, "lib64"))
         self.run(
             "ln -s {} {}".format(
-                os.path.join(os.curdir, self._target_tag),
-                os.path.join(self.package_folder, "mingw"),
+                os.path.join(os.curdir, self._target_tag), os.path.join(self.package_folder, "mingw")
             )
         )
         self.run(
             "ln -s {} {}".format(
-                os.path.join(os.curdir, "lib"),
-                os.path.join(self.package_folder, self._target_tag, "lib64"),
+                os.path.join(os.curdir, "lib"), os.path.join(self.package_folder, self._target_tag, "lib64")
             )
         )
 

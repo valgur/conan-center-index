@@ -3,15 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, msvc_runtime_flag
@@ -83,12 +75,7 @@ class CoinOsiConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--without-blas",
-                "--without-lapack",
-            ]
-        )
+        tc.configure_args.extend(["--without-blas", "--without-lapack"])
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
             tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
@@ -129,12 +116,7 @@ class CoinOsiConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install(args=["-j1"])
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

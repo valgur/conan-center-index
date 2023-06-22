@@ -59,10 +59,7 @@ class ClickHouseCppConan(ConanFile):
     @property
     def _requires_compiler_rt(self):
         return self.settings.compiler == "clang" and (
-            (
-                self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"]
-                and not self.options.shared
-            )
+            (self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"] and not self.options.shared)
             or self.settings.compiler.libcxx == "libc++"
         )
 
@@ -75,9 +72,7 @@ class ClickHouseCppConan(ConanFile):
                 f"{self.ref} requires C++17, which your compiler does not support."
             )
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "f{self.ref} does not support shared library on Windows."
-            )
+            raise ConanInvalidConfiguration("f{self.ref} does not support shared library on Windows.")
             # look at https://github.com/ClickHouse/clickhouse-cpp/pull/226
 
     def config_options(self):
@@ -91,12 +86,7 @@ class ClickHouseCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -117,12 +107,7 @@ class ClickHouseCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

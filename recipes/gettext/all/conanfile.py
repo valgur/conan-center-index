@@ -54,12 +54,7 @@ class GetTextConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -94,9 +89,7 @@ class GetTextConan(ConanFile):
             # The flag above `--with-libiconv-prefix` fails to correctly detect libiconv on windows+msvc
             # so it needs an extra nudge. We could use `AutotoolsDeps` but it's currently affected by the
             # following outstanding issue: https://github.com/conan-io/conan/issues/12784
-            iconv_includedir = unix_path(
-                self, libiconv.cpp_info.aggregated_components().includedirs[0]
-            )
+            iconv_includedir = unix_path(self, libiconv.cpp_info.aggregated_components().includedirs[0])
             iconv_libdir = unix_path(self, libiconv.cpp_info.aggregated_components().libdirs[0])
             tc.extra_cflags.append(f"-I{iconv_includedir}")
             tc.extra_ldflags.append(f"-L{iconv_libdir}")
@@ -105,9 +98,7 @@ class GetTextConan(ConanFile):
             compile_wrapper = self.dependencies.build["automake"].conf_info.get(
                 "user.automake:compile-wrapper"
             )
-            lib_wrapper = self.dependencies.build["automake"].conf_info.get(
-                "user.automake:lib-wrapper"
-            )
+            lib_wrapper = self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
             env.define("CC", "{} cl -nologo".format(unix_path(self, compile_wrapper)))
             env.define("LD", "link -nologo")
             env.define("NM", "dumpbin -symbols")
@@ -119,7 +110,10 @@ class GetTextConan(ConanFile):
             # rather than a C compiler flag
             env.prepend("CPPFLAGS", f"-I{iconv_includedir}")
 
-            windres_arch = {"x86": "i686", "x86_64": "x86-64"}[str(self.settings.arch)]
+            windres_arch = {
+                "x86": "i686",
+                "x86_64": "x86-64",
+            }[str(self.settings.arch)]
             env.define("RC", f"windres --target=pe-{windres_arch}")
             env.vars(self).save_script("conanbuild_msvc")
 
@@ -137,10 +131,7 @@ class GetTextConan(ConanFile):
         autotools.install()
 
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
 
         rmdir(self, os.path.join(self.package_folder, "lib"))
@@ -163,9 +154,7 @@ class GetTextConan(ConanFile):
         self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
 
-        self.output.info(
-            "Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal)
-        )
+        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))
 
         self.output.info("Setting AUTOPOINT environment variable: {}".format(autopoint))

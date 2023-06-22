@@ -64,11 +64,7 @@ class NettleConan(ConanFile):
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built with Visual Studio")
-        if (
-            Version(self.version) < "3.6"
-            and self.options.get_safe("fat")
-            and self.settings.arch == "x86_64"
-        ):
+        if Version(self.version) < "3.6" and self.options.get_safe("fat") and self.settings.arch == "x86_64":
             raise ConanInvalidConfiguration(
                 "fat support is broken on this nettle release (due to a missing x86_64/sha_ni/sha1-compress.asm source)"
             )
@@ -98,12 +94,8 @@ class NettleConan(ConanFile):
             [
                 "--enable-public-key" if self.options.public_key else "--disable-public-key",
                 "--enable-fat" if self.options.get_safe("fat") else "--disable-fat",
-                "--enable-x86-aesni"
-                if self.options.get_safe("x86_aesni")
-                else "--disable-x86-aesni",
-                "--enable-x86_sshni"
-                if self.options.get_safe("x86_sshni")
-                else "--disable-x86_sshni",
+                "--enable-x86-aesni" if self.options.get_safe("x86_aesni") else "--disable-x86-aesni",
+                "--enable-x86_sshni" if self.options.get_safe("x86_sshni") else "--disable-x86_sshni",
             ]
         )
         tc.generate()

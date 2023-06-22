@@ -128,9 +128,7 @@ class CernRootConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_source_cmake(self):
@@ -259,14 +257,12 @@ class CernRootConan(ConanFile):
                 "PNG_PNG_INCLUDE_DIR": ";".join(self.deps_cpp_info["libpng"].include_paths).replace(
                     "\\", "/"
                 ),
-                "LIBLZMA_INCLUDE_DIR": ";".join(
-                    self.deps_cpp_info["xz_utils"].include_paths
-                ).replace("\\", "/"),
+                "LIBLZMA_INCLUDE_DIR": ";".join(self.deps_cpp_info["xz_utils"].include_paths).replace(
+                    "\\", "/"
+                ),
             }
         )
-        self._cmake.configure(
-            source_folder=self._source_subfolder, build_folder=self._build_subfolder
-        )
+        self._cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
         return self._cmake
 
     def _move_findcmake_conan_to_root_dir(self):
@@ -297,9 +293,7 @@ class CernRootConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
-        tools.remove_files_by_mask(
-            os.path.join(self.package_folder, "lib", "cmake"), "*Config*.cmake"
-        )
+        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib", "cmake"), "*Config*.cmake")
         tools.rmdir(os.path.join(self.package_folder, "res", "README"))
         tools.rmdir(os.path.join(self.package_folder, "res", "share", "man"))
         tools.rmdir(os.path.join(self.package_folder, "res", "share", "doc"))

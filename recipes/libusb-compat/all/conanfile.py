@@ -11,9 +11,7 @@ required_conan_version = ">=1.33.0"
 
 class LibUSBCompatConan(ConanFile):
     name = "libusb-compat"
-    description = (
-        "A compatibility layer allowing applications written for libusb-0.1 to work with libusb-1.0"
-    )
+    description = "A compatibility layer allowing applications written for libusb-0.1 to work with libusb-1.0"
     license = ("LGPL-2.1", "BSD-3-Clause")
     homepage = "https://github.com/libusb/libusb-compat-0.1"
     url = "https://github.com/conan-io/conan-center-index"
@@ -63,9 +61,7 @@ class LibUSBCompatConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _iterate_lib_paths_win(self, lib):
@@ -105,8 +101,7 @@ class LibUSBCompatConan(ConanFile):
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
             self._autotools.libs = (
-                list(tools.unix_path(l) for l in self._absolute_dep_libs_win)
-                + self.deps_cpp_info.system_libs
+                list(tools.unix_path(l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
             )
         conf_args = [
             "--disable-examples-build",
@@ -127,12 +122,8 @@ class LibUSBCompatConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
                     "LD": "link -nologo",
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
                     "DLLTOOL": ":",
@@ -154,9 +145,7 @@ class LibUSBCompatConan(ConanFile):
             makefile_contents,
         )
         if not match:
-            raise ConanException(
-                "Cannot extract variable {} from {}".format(variable, makefile_contents)
-            )
+            raise ConanException("Cannot extract variable {} from {}".format(variable, makefile_contents))
         lines = [line.strip(" \t\\") for line in match.group(1).split()]
         return [item for line in lines for item in shlex.split(line) if item]
 
@@ -170,8 +159,7 @@ class LibUSBCompatConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB,
-            os.path.join(self._source_subfolder, "config.sub"),
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -205,10 +193,7 @@ class LibUSBCompatConan(ConanFile):
             sources, headers = self._extract_autotools_variables()
             tools.save(
                 os.path.join(self._source_subfolder, "libusb", "CMakeLists.txt"),
-                cmakelists_in.format(
-                    libusb_sources=" ".join(sources),
-                    libusb_headers=" ".join(headers),
-                ),
+                cmakelists_in.format(libusb_sources=" ".join(sources), libusb_headers=" ".join(headers)),
             )
             tools.replace_in_file("config.h", "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
             cmake = self._configure_cmake()

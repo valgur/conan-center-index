@@ -36,9 +36,7 @@ class Sqlpp11Conan(ConanFile):
             tools.check_min_cppstd(self, self._min_stdcpp_version)
 
         if self._min_stdcpp_version > 11:
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version:
                 if tools.Version(self.settings.compiler.version) < minimum_version:
                     raise ConanInvalidConfiguration(
@@ -54,9 +52,7 @@ class Sqlpp11Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

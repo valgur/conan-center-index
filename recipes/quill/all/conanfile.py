@@ -136,9 +136,7 @@ class QuillConan(ConanFile):
             else:
                 tc.preprocessor_definitions["QUILL_X86ARCH"] = 1
             tc.variables["CMAKE_CXX_FLAGS"] = "-mclflushopt"
-        if Version(self.version) >= "2.8.0" and self.options.get_safe(
-            "with_bounded_blocking_queue"
-        ):
+        if Version(self.version) >= "2.8.0" and self.options.get_safe("with_bounded_blocking_queue"):
             tc.preprocessor_definitions["QUILL_USE_BOUNDED_BLOCKING_QUEUE"] = 1
 
         tc.generate()
@@ -148,12 +146,7 @@ class QuillConan(ConanFile):
 
     def _patch_sources(self):
         # remove bundled fmt
-        rmdir(
-            self,
-            os.path.join(
-                self.source_folder, "quill", "quill", "include", "quill", "bundled", "fmt"
-            ),
-        )
+        rmdir(self, os.path.join(self.source_folder, "quill", "quill", "include", "quill", "bundled", "fmt"))
         rmdir(self, os.path.join(self.source_folder, "quill", "quill", "src", "bundled", "fmt"))
 
         if "2.0.0" <= Version(self.version) < "2.9.1":
@@ -172,10 +165,7 @@ class QuillConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

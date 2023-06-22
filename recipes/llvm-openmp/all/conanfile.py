@@ -90,9 +90,7 @@ class LLVMOpenMpConan(ConanFile):
     def build(self):
         self._patch_sources()
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, "runtime/CMakeLists.txt"),
-            "add_subdirectory(test)",
-            "",
+            os.path.join(self._source_subfolder, "runtime/CMakeLists.txt"), "add_subdirectory(test)", ""
         )
         cmake = self._configure_cmake()
         cmake.build()
@@ -105,7 +103,10 @@ class LLVMOpenMpConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"OpenMP::OpenMP_C": "OpenMP::OpenMP", "OpenMP::OpenMP_CXX": "OpenMP::OpenMP"},
+            {
+                "OpenMP::OpenMP_C": "OpenMP::OpenMP",
+                "OpenMP::OpenMP_CXX": "OpenMP::OpenMP",
+            },
         )
 
     @staticmethod
@@ -131,9 +132,7 @@ class LLVMOpenMpConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenMP")
         self.cpp_info.set_property("cmake_target_name", "OpenMP::OpenMP")
-        self.cpp_info.set_property(
-            "cmake_target_aliases", ["OpenMP::OpenMP_C", "OpenMP::OpenMP_CXX"]
-        )
+        self.cpp_info.set_property("cmake_target_aliases", ["OpenMP::OpenMP_C", "OpenMP::OpenMP_CXX"])
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenMP"

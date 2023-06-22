@@ -60,9 +60,7 @@ class LibIdn(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @contextmanager
@@ -70,15 +68,9 @@ class LibIdn(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "LD": "{} link -nologo".format(
-                        tools.unix_path(self.deps_user_info["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                    "LD": "{} link -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
                     "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
                 }
                 with tools.environment_append(env):
@@ -103,9 +95,7 @@ class LibIdn(ConanFile):
         conf_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--with-libiconv-prefix={}".format(
-                tools.unix_path(self.deps_cpp_info["libiconv"].rootpath)
-            ),
+            "--with-libiconv-prefix={}".format(tools.unix_path(self.deps_cpp_info["libiconv"].rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]

@@ -32,12 +32,7 @@ class EmbeddedTemplateLibraryConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             "*.h",
@@ -47,7 +42,11 @@ class EmbeddedTemplateLibraryConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            self, os.path.join(self.package_folder, self._module_file_rel_path), {"etl": "etl::etl"}
+            self,
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "etl": "etl::etl",
+            },
         )
 
     @staticmethod

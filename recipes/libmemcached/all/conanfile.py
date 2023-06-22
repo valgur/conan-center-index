@@ -3,14 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.build import cross_building
-from conan.tools.files import (
-    apply_conandata_patches,
-    get,
-    copy,
-    export_conandata_patches,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, get, copy, export_conandata_patches, rm, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 
@@ -38,15 +31,14 @@ class LibmemcachedConan(ConanFile):
         "fPIC": [True, False],
         "sasl": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "sasl": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "sasl": False,
+    }
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -90,12 +82,7 @@ class LibmemcachedConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         autotools = Autotools(self)
         autotools.install()

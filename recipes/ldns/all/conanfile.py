@@ -115,10 +115,7 @@ class LdnsConan(ConanFile):
             autotools.install(target=target)
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
 
     def package_info(self):

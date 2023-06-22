@@ -8,12 +8,7 @@ required_conan_version = ">=1.40.0"
 class OfeliConan(ConanFile):
     name = "ofeli"
     description = "An Object Finite Element Library"
-    topics = (
-        "finite-element",
-        "finite-element-library",
-        "finite-element-analysis",
-        "finite-element-solver",
-    )
+    topics = ("finite-element", "finite-element-library", "finite-element-analysis", "finite-element-solver")
     license = "LGPL-3.0-or-later"
     homepage = "http://ofeli.org/index.html"
     url = "https://github.com/conan-io/conan-center-index"
@@ -36,9 +31,7 @@ class OfeliConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_autotools(self):

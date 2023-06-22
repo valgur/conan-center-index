@@ -10,8 +10,7 @@ required_conan_version = ">=1.53.0"
 class CpuinfoConan(ConanFile):
     name = "cpuinfo"
     description = (
-        "cpuinfo is a library to detect essential for performance "
-        "optimization information about host CPU."
+        "cpuinfo is a library to detect essential for performance " "optimization information about host CPU."
     )
     license = "BSD-2-Clause"
     topics = ("cpu", "cpuid", "cpu-cache", "cpu-model", "instruction-set", "cpu-topology")
@@ -81,12 +80,7 @@ class CpuinfoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

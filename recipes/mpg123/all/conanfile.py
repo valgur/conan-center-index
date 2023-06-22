@@ -4,14 +4,7 @@ from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.files import (
-    get,
-    copy,
-    export_conandata_patches,
-    apply_conandata_patches,
-    rmdir,
-    rm,
-)
+from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches, rmdir, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.build import cross_building
@@ -181,12 +174,7 @@ class Mpg123Conan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()

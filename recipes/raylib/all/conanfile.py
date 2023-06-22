@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -30,11 +23,7 @@ class RaylibConan(ConanFile):
         "fPIC": [True, False],
         "opengl_version": [None, "4.3", "3.3", "2.1", "1.1", "ES-2.0"],
     }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "opengl_version": None,
-    }
+    default_options = {"shared": False, "fPIC": True, "opengl_version": None}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -90,12 +79,7 @@ class RaylibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -104,7 +88,9 @@ class RaylibConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"raylib": "raylib::raylib"},
+            {
+                "raylib": "raylib::raylib",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

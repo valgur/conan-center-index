@@ -76,12 +76,8 @@ class GeographiclibConan(ConanFile):
                 min_length = min(len(lv1), len(lv2))
                 return lv1[:min_length] < lv2[:min_length]
 
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
-            if minimum_version and loose_lt_semver(
-                str(self.settings.compiler.version), minimum_version
-            ):
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+            if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++11 math functions, which your compiler does not support."
                 )
@@ -98,13 +94,9 @@ class GeographiclibConan(ConanFile):
 
     @property
     def _cmake_option_precision(self):
-        return {
-            "float": 1,
-            "double": 2,
-            "extended": 3,
-            "quadruple": 4,
-            "variable": 5,
-        }.get(str(self.options.precision))
+        return {"float": 1, "double": 2, "extended": 3, "quadruple": 4, "variable": 5}.get(
+            str(self.options.precision)
+        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -122,9 +114,7 @@ class GeographiclibConan(ConanFile):
         # Don't build tools if asked
         if not self.options.tools:
             replace_in_file(self, cmakelists, "add_subdirectory (tools)", "")
-            replace_in_file(
-                self, os.path.join(self.source_folder, "cmake", "CMakeLists.txt"), "${TOOLS}", ""
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "cmake", "CMakeLists.txt"), "${TOOLS}", "")
 
     def build(self):
         self._patch_sources()
@@ -133,12 +123,7 @@ class GeographiclibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         for folder in [

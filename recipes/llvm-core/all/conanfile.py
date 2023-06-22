@@ -248,15 +248,11 @@ class LLVMCoreConan(ConanFile):
 
     @property
     def _alias_module_file_rel_path(self):
-        return os.path.join(
-            self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name)
-        )
+        return os.path.join(self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name))
 
     @property
     def _old_alias_module_file_rel_path(self):
-        return os.path.join(
-            self._module_subfolder, "conan-official-{}-old-targets.cmake".format(self.name)
-        )
+        return os.path.join(self._module_subfolder, "conan-official-{}-old-targets.cmake".format(self.name))
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
@@ -341,8 +337,7 @@ class LLVMCoreConan(ConanFile):
             )
 
             self._create_cmake_module_alias_targets(
-                os.path.join(self.package_folder, self._old_alias_module_file_rel_path),
-                old_alias_targets,
+                os.path.join(self.package_folder, self._old_alias_module_file_rel_path), old_alias_targets
             )
 
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -409,13 +404,15 @@ class LLVMCoreConan(ConanFile):
             components = json.load(components_file)
 
         dependencies = ["ffi", "z", "iconv", "xml2"]
-        targets = {"ffi": "libffi::libffi", "z": "zlib::zlib", "xml2": "libxml2::libxml2"}
+        targets = {
+            "ffi": "libffi::libffi",
+            "z": "zlib::zlib",
+            "xml2": "libxml2::libxml2",
+        }
 
         for component, deps in components.items():
             self.cpp_info.components[component].libs = [component]
-            self.cpp_info.components[component].requires.extend(
-                dep for dep in deps if dep.startswith("LLVM")
-            )
+            self.cpp_info.components[component].requires.extend(dep for dep in deps if dep.startswith("LLVM"))
 
             for lib, target in targets.items():
                 if lib in deps:
@@ -431,25 +428,19 @@ class LLVMCoreConan(ConanFile):
             self.cpp_info.components[component].names["cmake_find_package"] = component
             self.cpp_info.components[component].names["cmake_find_package_multi"] = component
             self.cpp_info.components[component].build_modules["cmake_find_package"].extend(
-                [
-                    self._alias_module_file_rel_path,
-                    self._old_alias_module_file_rel_path,
-                ]
+                [self._alias_module_file_rel_path, self._old_alias_module_file_rel_path]
             )
             self.cpp_info.components[component].build_modules["cmake_find_package_multi"].extend(
-                [
-                    self._alias_module_file_rel_path,
-                    self._old_alias_module_file_rel_path,
-                ]
+                [self._alias_module_file_rel_path, self._old_alias_module_file_rel_path]
             )
 
             if self.options.use_llvm_cmake_files:
                 self.cpp_info.components[component].build_modules["cmake_find_package"].append(
                     os.path.join(self._module_subfolder, "LLVMConfigInternal.cmake")
                 )
-                self.cpp_info.components[component].build_modules[
-                    "cmake_find_package_multi"
-                ].append(os.path.join(self._module_subfolder, "LLVMConfigInternal.cmake"))
+                self.cpp_info.components[component].build_modules["cmake_find_package_multi"].append(
+                    os.path.join(self._module_subfolder, "LLVMConfigInternal.cmake")
+                )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "LLVM"

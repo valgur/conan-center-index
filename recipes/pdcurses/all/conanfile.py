@@ -6,9 +6,7 @@ import re
 
 class PDCursesConan(ConanFile):
     name = "pdcurses"
-    description = (
-        "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
-    )
+    description = "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
     topics = ("curses", "ncurses")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pdcurses.org/"
@@ -21,12 +19,7 @@ class PDCursesConan(ConanFile):
         "enable_widec": [True, False],
         "with_sdl": [None, "1", "2"],
     }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "enable_widec": False,
-        "with_sdl": None,
-    }
+    default_options = {"shared": False, "fPIC": True, "enable_widec": False, "with_sdl": None}
 
     _autotools = None
 
@@ -120,9 +113,7 @@ class PDCursesConan(ConanFile):
 
     @property
     def _license_text(self):
-        readme = tools.load(
-            os.path.join(self._source_subfolder, self._subsystem_folder, "README.md")
-        )
+        readme = tools.load(os.path.join(self._source_subfolder, self._subsystem_folder, "README.md"))
         match = re.search(
             r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)",
             readme,

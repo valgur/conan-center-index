@@ -164,18 +164,14 @@ class FreetypeConan(ConanFile):
         cmake.build()
 
     def _make_freetype_config(self, version):
-        freetype_config_in = os.path.join(
-            self.source_folder, "builds", "unix", "freetype-config.in"
-        )
+        freetype_config_in = os.path.join(self.source_folder, "builds", "unix", "freetype-config.in")
         if not os.path.isdir(os.path.join(self.package_folder, "bin")):
             os.makedirs(os.path.join(self.package_folder, "bin"))
         freetype_config = os.path.join(self.package_folder, "bin", "freetype-config")
         rename(self, freetype_config_in, freetype_config)
         libs = "-lfreetyped" if self.settings.build_type == "Debug" else "-lfreetype"
         staticlibs = f"-lm {libs}" if self.settings.os == "Linux" else libs
-        replace_in_file(
-            self, freetype_config, r"%PKG_CONFIG%", r"/bin/false"
-        )  # never use pkg-config
+        replace_in_file(self, freetype_config, r"%PKG_CONFIG%", r"/bin/false")  # never use pkg-config
         replace_in_file(self, freetype_config, r"%prefix%", r"$conan_prefix")
         replace_in_file(self, freetype_config, r"%exec_prefix%", r"$conan_exec_prefix")
         replace_in_file(self, freetype_config, r"%includedir%", r"$conan_includedir")
@@ -204,9 +200,7 @@ class FreetypeConan(ConanFile):
     def _extract_libtool_version(self):
         conf_raw = load(self, os.path.join(self.source_folder, "builds", "unix", "configure.raw"))
         return (
-            next(re.finditer(r"^version_info='([0-9:]+)'", conf_raw, flags=re.M))
-            .group(1)
-            .replace(":", ".")
+            next(re.finditer(r"^version_info='([0-9:]+)'", conf_raw, flags=re.M)).group(1).replace(":", ".")
         )
 
     @property
@@ -229,12 +223,12 @@ class FreetypeConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_target_rel_path),
-            {"freetype": "Freetype::Freetype"},
+            {
+                "freetype": "Freetype::Freetype",
+            },
         )
 
     def _create_cmake_module_variables(self, module_file):

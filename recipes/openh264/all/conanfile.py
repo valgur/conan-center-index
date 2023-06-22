@@ -26,12 +26,7 @@ class OpenH264Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.openh264.org/"
     description = "Open Source H.264 Codec"
-    topics = (
-        "h264",
-        "codec",
-        "video",
-        "compression",
-    )
+    topics = ("h264", "codec", "video", "compression")
     license = "BSD-2-Clause"
 
     settings = "os", "arch", "compiler", "build_type"
@@ -77,12 +72,7 @@ class OpenH264Conan(ConanFile):
             self.tool_requires("automake/1.16.5")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def _patch_sources(self):
         if is_msvc(self):
@@ -101,17 +91,13 @@ class OpenH264Conan(ConanFile):
         if self.settings.os == "Android":
             replace_in_file(
                 self,
-                os.path.join(
-                    self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"
-                ),
+                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
                 "APP_STL := stlport_shared",
                 f"APP_STL := {self.settings.compiler.libcxx}",
             )
             replace_in_file(
                 self,
-                os.path.join(
-                    self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"
-                ),
+                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
                 "APP_PLATFORM := android-12",
                 f"APP_PLATFORM := {self._android_target}",
             )
@@ -158,7 +144,7 @@ class OpenH264Conan(ConanFile):
             if self.settings.os == "Android":
                 libcxx = str(self.settings.compiler.libcxx)
                 stl_lib = (
-                    f'$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/lib{"c++_static.a" if libcxx == "c++_static" else "c++_shared.so"}'
+                    f'$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/lib{"c++_static.a" if libcxx == "c++_static" else "c++_shared.so",}'
                     + "$(NDKROOT)/sources/cxx-stl/llvm-libc++/libs/$(APP_ABI)/libc++abi.a"
                 )
                 ndk_home = os.environ["ANDROID_NDK_HOME"]
@@ -201,14 +187,11 @@ class OpenH264Conan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         autotools = Autotools(self)
         with chdir(self, self.source_folder):
-            autotools.make(target=f'install-{"shared" if self.options.shared else "static-lib"}')
+            autotools.make(target=f'install-{"shared" if self.options.shared else "static-lib",}')
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)

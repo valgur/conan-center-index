@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 import os
 
 required_conan_version = ">=1.54.0"
@@ -17,9 +10,7 @@ required_conan_version = ">=1.54.0"
 
 class OdeConan(ConanFile):
     name = "ode"
-    description = (
-        "ODE is an open source, high performance library for simulating rigid body dynamics."
-    )
+    description = "ODE is an open source, high performance library for simulating rigid body dynamics."
     license = ("LGPL-2.1-or-later", "BSD-3-Clause")
     topics = (
         "open-dynamics-engine",
@@ -113,10 +104,7 @@ class OdeConan(ConanFile):
     def package(self):
         for license_file in ("COPYING", "LICENSE*"):
             copy(
-                self,
-                license_file,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
         cmake = CMake(self)
         cmake.install()
@@ -134,9 +122,7 @@ class OdeConan(ConanFile):
             lib_name += "" if self.options.shared else "s"
             lib_name += "d" if self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [lib_name]
-        self.cpp_info.defines.append(
-            "dIDEDOUBLE" if self.options.precision == "double" else "dIDESINGLE"
-        )
+        self.cpp_info.defines.append("dIDEDOUBLE" if self.options.precision == "double" else "dIDESINGLE")
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.extend(["m", "pthread"])

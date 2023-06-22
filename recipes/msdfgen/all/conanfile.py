@@ -72,12 +72,7 @@ class MsdfgenConan(ConanFile):
             raise ConanInvalidConfiguration("skia recipe not available yet in CCI")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -98,10 +93,7 @@ class MsdfgenConan(ConanFile):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # workaround against CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
         replace_in_file(
-            self,
-            cmakelists,
-            "find_package(Freetype REQUIRED)",
-            "find_package(Freetype REQUIRED MODULE)",
+            self, cmakelists, "find_package(Freetype REQUIRED)", "find_package(Freetype REQUIRED MODULE)"
         )
         # remove bundled lodepng & tinyxml2
         rmdir(self, os.path.join(self.source_folder, "lib"))
@@ -142,12 +134,7 @@ class MsdfgenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -172,15 +159,11 @@ class MsdfgenConan(ConanFile):
         self.cpp_info.components["_msdfgen"].defines = ["MSDFGEN_USE_CPP11"]
         if Version(self.version) >= "1.10":
             if self.options.shared and is_msvc(self):
-                self.cpp_info.components["_msdfgen"].defines.append(
-                    "MSDFGEN_PUBLIC=__declspec(dllimport)"
-                )
+                self.cpp_info.components["_msdfgen"].defines.append("MSDFGEN_PUBLIC=__declspec(dllimport)")
             else:
                 self.cpp_info.components["_msdfgen"].defines.append("MSDFGEN_PUBLIC=")
 
-        self.cpp_info.components["msdfgen-ext"].set_property(
-            "cmake_target_name", "msdfgen::msdfgen-ext"
-        )
+        self.cpp_info.components["msdfgen-ext"].set_property("cmake_target_name", "msdfgen::msdfgen-ext")
         self.cpp_info.components["msdfgen-ext"].names["cmake_find_package"] = "msdfgen-ext"
         self.cpp_info.components["msdfgen-ext"].names["cmake_find_package_multi"] = "msdfgen-ext"
         self.cpp_info.components["msdfgen-ext"].includedirs.append(includedir)

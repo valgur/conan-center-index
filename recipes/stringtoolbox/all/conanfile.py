@@ -7,18 +7,10 @@ class DawHeaderLibrariesConan(ConanFile):
     name = "stringtoolbox"
     license = "MIT"
     description = "A simple header-only, single-file string toolbox library for C++."
-    topics = (
-        "string",
-        "header-only",
-    )
+    topics = ("string", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/chrberger/stringtoolbox"
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    settings = ("os", "arch", "compiler", "build_type")
     no_copy_source = True
 
     def validate(self):
@@ -30,9 +22,7 @@ class DawHeaderLibrariesConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

@@ -22,7 +22,11 @@ class GameNetworkingSocketsConan(ConanFile):
         "encryption": ["openssl", "libsodium", "bcrypt"],
     }
 
-    default_options = {"shared": False, "fPIC": True, "encryption": "openssl"}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "encryption": "openssl",
+    }
 
     _cmake = None
 
@@ -57,9 +61,7 @@ class GameNetworkingSocketsConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
@@ -80,9 +82,17 @@ class GameNetworkingSocketsConan(ConanFile):
         self._cmake.definitions["GAMENETWORKINGSOCKETS_BUILD_EXAMPLES"] = False
         self._cmake.definitions["GAMENETWORKINGSOCKETS_BUILD_TESTS"] = False
         self._cmake.definitions["Protobuf_USE_STATIC_LIBS"] = not self.options["protobuf"].shared
-        crypto = {"openssl": "OpenSSL", "libsodium": "libsodium", "bcrypt": "BCrypt"}
+        crypto = {
+            "openssl": "OpenSSL",
+            "libsodium": "libsodium",
+            "bcrypt": "BCrypt",
+        }
         self._cmake.definitions["USE_CRYPTO"] = crypto[str(self.options.encryption)]
-        crypto25519 = {"openssl": "OpenSSL", "libsodium": "libsodium", "bcrypt": "Reference"}
+        crypto25519 = {
+            "openssl": "OpenSSL",
+            "libsodium": "libsodium",
+            "bcrypt": "Reference",
+        }
         self._cmake.definitions["USE_CRYPTO25519"] = crypto25519[str(self.options.encryption)]
         if self.options.encryption == "openssl":
             self._cmake.definitions["OPENSSL_NEW_ENOUGH"] = True

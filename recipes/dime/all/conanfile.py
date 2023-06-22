@@ -15,12 +15,7 @@ class DimeConan(ConanFile):
     license = "BSD-3-Clause"
     exports_sources = ["CMakeLists.txt"]
     generators = ("cmake",)
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    settings = ("os", "arch", "compiler", "build_type")
     options = {
         "fPIC": [True, False],
         "shared": [True, False],
@@ -50,9 +45,7 @@ class DimeConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)

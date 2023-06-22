@@ -90,7 +90,5 @@ class TestPackageConan(ConanFile):
 
         # Test that executable linked against library runs as expected
         if can_run(self) and self._testing_library:
-            test_executable = unix_path(
-                self, os.path.join(self.cpp.build.bindirs[0], "test_package")
-            )
+            test_executable = unix_path(self, os.path.join(self.cpp.build.bindirs[0], "test_package"))
             self.run(test_executable, env="conanrun")

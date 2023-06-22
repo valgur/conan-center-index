@@ -22,12 +22,7 @@ class BanditConan(ConanFile):
         self.requires("snowhouse/5.0.0")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def layout(self):
         basic_layout(self)

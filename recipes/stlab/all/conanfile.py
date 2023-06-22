@@ -12,12 +12,7 @@ class Stlab(ConanFile):
     license = "BSL-1.0"
     topics = ("c++", "concurrency", "futures", "channels")
 
-    settings = (
-        "arch",
-        "os",
-        "compiler",
-        "build_type",
-    )
+    settings = ("arch", "os", "compiler", "build_type")
 
     options = {
         "boost_optional": [True, False],
@@ -162,10 +157,7 @@ class Stlab(ConanFile):
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "8":
             raise ConanInvalidConfiguration("Need Clang >= 8")
 
-        if (
-            self.settings.compiler == "Visual Studio"
-            and Version(self.settings.compiler.version) < "15.8"
-        ):
+        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "15.8":
             raise ConanInvalidConfiguration("Need Visual Studio >= 2017 15.8 (MSVC 19.15)")
 
         # Actually, we want *at least* 15.8 (MSVC 19.15), but we cannot check this for now with Conan.

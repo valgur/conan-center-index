@@ -12,11 +12,7 @@ class ImplotConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/epezent/implot"
     description = "Advanced 2D Plotting for Dear ImGui"
-    topics = (
-        "imgui",
-        "plot",
-        "graphics",
-    )
+    topics = ("imgui", "plot", "graphics")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
@@ -70,10 +66,7 @@ class ImplotConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

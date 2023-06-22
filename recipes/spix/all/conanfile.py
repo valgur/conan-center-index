@@ -95,13 +95,8 @@ class SpixConan(ConanFile):
                 f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
             )
 
-        if (
-            Version(self.dependencies["qt"].ref.version).major == 6
-            and not self.options["qt"].qtshadertools
-        ):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires qt:qtshadertools to get the Quick module"
-            )
+        if Version(self.dependencies["qt"].ref.version).major == 6 and not self.options["qt"].qtshadertools:
+            raise ConanInvalidConfiguration(f"{self.ref} requires qt:qtshadertools to get the Quick module")
         if not (self.options["qt"].gui and self.options["qt"].qtdeclarative):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires qt:gui and qt:qtdeclarative to get the Quick module"

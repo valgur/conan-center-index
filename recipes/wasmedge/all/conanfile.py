@@ -34,9 +34,9 @@ class WasmedgeConan(ConanFile):
 
     def validate(self):
         try:
-            self.conan_data["sources"][self.version][str(self.settings.os)][
-                str(self.settings.arch)
-            ][self._compiler_alias]
+            self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
+                self._compiler_alias
+            ]
         except KeyError:
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of version/os/arch/compiler are not available"
@@ -50,18 +50,18 @@ class WasmedgeConan(ConanFile):
         # This is packaging binaries so the download needs to be in build
         get(
             self,
-            **self.conan_data["sources"][self.version][str(self.settings.os)][
-                str(self.settings.arch)
-            ][self._compiler_alias][0],
+            **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
+                self._compiler_alias
+            ][0],
             destination=self.source_folder,
             strip_root=True
         )
         download(
             self,
             filename="LICENSE",
-            **self.conan_data["sources"][self.version][str(self.settings.os)][
-                str(self.settings.arch)
-            ][self._compiler_alias][1]
+            **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
+                self._compiler_alias
+            ][1]
         )
 
     def package(self):
@@ -80,9 +80,7 @@ class WasmedgeConan(ConanFile):
             keep_path=True,
         )
 
-        srclibdir = os.path.join(
-            self.source_folder, "lib64" if self.settings.os == "Linux" else "lib"
-        )
+        srclibdir = os.path.join(self.source_folder, "lib64" if self.settings.os == "Linux" else "lib")
         srcbindir = os.path.join(self.source_folder, "bin")
         dstlibdir = os.path.join(self.package_folder, "lib")
         dstbindir = os.path.join(self.package_folder, "bin")
@@ -95,9 +93,7 @@ class WasmedgeConan(ConanFile):
             copy(self, pattern="wasmedge_c.lib", src=srclibdir, dst=dstlibdir, keep_path=False)
             copy(self, pattern="wasmedge_c.dll", src=srcbindir, dst=dstbindir, keep_path=False)
             copy(self, pattern="libwasmedge_c.so*", src=srclibdir, dst=dstlibdir, keep_path=False)
-            copy(
-                self, pattern="libwasmedge_c*.dylib", src=srclibdir, dst=dstlibdir, keep_path=False
-            )
+            copy(self, pattern="libwasmedge_c*.dylib", src=srclibdir, dst=dstlibdir, keep_path=False)
 
         copy(self, pattern="wasmedge*", src=srcbindir, dst=dstbindir, keep_path=False)
         copy(

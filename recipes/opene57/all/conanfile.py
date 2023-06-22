@@ -7,8 +7,7 @@ import os
 class Opene57Conan(ConanFile):
     name = "opene57"
     description = (
-        "A C++ library for reading and writing E57 files, "
-        "fork of the original libE57 (http://libe57.org)"
+        "A C++ library for reading and writing E57 files, " "fork of the original libE57 (http://libe57.org)"
     )
     topics = ("e57", "libe57", "3d", "astm")
     url = "https://github.com/conan-io/conan-center-index"
@@ -66,13 +65,9 @@ class Opene57Conan(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(
-                "C++17 support required. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warn("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                "C++17 support required, which your compiler does not support."
-            )
+            raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 
     def requirements(self):
         if self.options.with_tools:
@@ -85,9 +80,7 @@ class Opene57Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -101,9 +94,7 @@ class Opene57Conan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             self._cmake.definitions["BUILD_WITH_MT"] = "MT" in msvc_runtime_flag(self)
         else:
-            self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe(
-                "fPIC", True
-            )
+            self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

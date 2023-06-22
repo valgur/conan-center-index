@@ -59,14 +59,9 @@ class LibZipppConan(ConanFile):
 
         libzippp_version = str(self.version)
         if libzippp_version != "4.0" and len(libzippp_version.split("-")) != 2:
-            raise ConanInvalidConfiguration(
-                f"{self.ref}: version number must include '-'. (ex. '5.0-1.8.0')"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref}: version number must include '-'. (ex. '5.0-1.8.0')")
 
-        if (
-            self.settings.compiler == "clang"
-            and self.settings.compiler.get_safe("libcxx") == "libc++"
-        ):
+        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(
                 f"{self.ref} does not support clang with libc++. Use libstdc++ instead."
             )
@@ -102,10 +97,7 @@ class LibZipppConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENCE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

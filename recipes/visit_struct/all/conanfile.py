@@ -15,12 +15,7 @@ class VisitStructConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cbeck88/visit_struct"
     package_type = "header-library"
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    settings = ("os", "arch", "compiler", "build_type")
     options = {
         "with_boost_fusion": [True, False],
         "with_boost_hana": [True, False],
@@ -54,10 +49,7 @@ class VisitStructConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

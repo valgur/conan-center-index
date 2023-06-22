@@ -12,7 +12,9 @@ required_conan_version = ">=1.52.0"
 
 class PackageConan(ConanFile):
     name = "cd3-boost-unit-definitions"
-    description = "A collection of pre-defined types and unit instances for working with Boost.Units quantities."
+    description = (
+        "A collection of pre-defined types and unit instances for working with Boost.Units quantities."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CD3/BoostUnitDefinitions"
@@ -80,9 +82,7 @@ class PackageConan(ConanFile):
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "BoostUnitDefinitions")
-        self.cpp_info.set_property(
-            "cmake_target_name", "BoostUnitDefinitions::BoostUnitDefinitions"
-        )
+        self.cpp_info.set_property("cmake_target_name", "BoostUnitDefinitions::BoostUnitDefinitions")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "BoostUnitDefinitions"

@@ -93,9 +93,7 @@ class TBBConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -111,9 +109,7 @@ class TBBConan(ConanFile):
         tools.replace_in_file(linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "Makefile"), "release", "debug"
-            )
+            tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
             tools.save(
@@ -197,9 +193,11 @@ class TBBConan(ConanFile):
                         "16": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
                 else:
-                    runtime = {"190": "vc14", "191": "vc14.1", "192": "vc14.2"}.get(
-                        str(self._base_compiler.version), "vc14.2"
-                    )
+                    runtime = {
+                        "190": "vc14",
+                        "191": "vc14.1",
+                        "192": "vc14.2",
+                    }.get(str(self._base_compiler.version), "vc14.2")
             extra += " runtime=%s" % runtime
 
             if self.settings.compiler == "intel":
@@ -207,9 +205,7 @@ class TBBConan(ConanFile):
             else:
                 extra += " compiler=cl"
 
-        make = tools.get_env(
-            "CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make")
-        )
+        make = tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make"))
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
@@ -232,11 +228,7 @@ class TBBConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*.h", dst="include", src="%s/include" % self._source_subfolder)
-        self.copy(
-            pattern="*",
-            dst="include/tbb/compat",
-            src="%s/include/tbb/compat" % self._source_subfolder,
-        )
+        self.copy(pattern="*", dst="include/tbb/compat", src="%s/include/tbb/compat" % self._source_subfolder)
         build_folder = "%s/build/" % self._source_subfolder
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
         self.copy(pattern="*%s*.lib" % build_type, dst="lib", src=build_folder, keep_path=False)
@@ -250,9 +242,7 @@ class TBBConan(ConanFile):
         if self.settings.os == "Linux":
             extension = "so"
             if self.options.shared:
-                self.copy(
-                    "*%s*.%s.*" % (build_type, extension), "lib", build_folder, keep_path=False
-                )
+                self.copy("*%s*.%s.*" % (build_type, extension), "lib", build_folder, keep_path=False)
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 os.chdir(outputlibdir)
                 for fpath in os.listdir(outputlibdir):
@@ -274,9 +264,7 @@ class TBBConan(ConanFile):
 
         # tbbmalloc
         if self.options.tbbmalloc:
-            self.cpp_info.components["tbbmalloc"].set_property(
-                "cmake_target_name", "TBB::tbbmalloc"
-            )
+            self.cpp_info.components["tbbmalloc"].set_property("cmake_target_name", "TBB::tbbmalloc")
             self.cpp_info.components["tbbmalloc"].libs = ["tbbmalloc{}".format(suffix)]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["tbbmalloc"].system_libs = ["dl", "pthread"]
@@ -286,9 +274,7 @@ class TBBConan(ConanFile):
                 self.cpp_info.components["tbbmalloc_proxy"].set_property(
                     "cmake_target_name", "TBB::tbbmalloc_proxy"
                 )
-                self.cpp_info.components["tbbmalloc_proxy"].libs = [
-                    "tbbmalloc_proxy{}".format(suffix)
-                ]
+                self.cpp_info.components["tbbmalloc_proxy"].libs = ["tbbmalloc_proxy{}".format(suffix)]
                 self.cpp_info.components["tbbmalloc_proxy"].requires = ["tbbmalloc"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

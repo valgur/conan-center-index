@@ -118,18 +118,16 @@ class GlfwConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"glfw": "glfw::glfw"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "glfw": "glfw::glfw",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -166,15 +164,7 @@ class GlfwConan(ConanFile):
             self.cpp_info.system_libs.append("gdi32")
         elif self.settings.os == "Macos":
             self.cpp_info.frameworks.extend(
-                [
-                    "AppKit",
-                    "Cocoa",
-                    "CoreFoundation",
-                    "CoreGraphics",
-                    "CoreServices",
-                    "Foundation",
-                    "IOKit",
-                ]
+                ["AppKit", "Cocoa", "CoreFoundation", "CoreGraphics", "CoreServices", "Foundation", "IOKit"]
             )
 
         # backward support of cmake_find_package, cmake_find_package_multi & pkg_config generators

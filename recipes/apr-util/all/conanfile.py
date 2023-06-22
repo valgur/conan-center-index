@@ -4,14 +4,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -103,9 +96,7 @@ class AprUtilConan(ConanFile):
 
     def validate(self):
         if not self.options.with_expat:
-            raise ConanInvalidConfiguration(
-                "expat cannot be disabled (at this time) (check back later)"
-            )
+            raise ConanInvalidConfiguration("expat cannot be disabled (at this time) (check back later)")
         if self.options.shared != self.dependencies["apr"].options.shared:
             raise ConanInvalidConfiguration("apr-util must be built with same shared option as apr")
         if self.options.with_nss:
@@ -170,8 +161,7 @@ class AprUtilConan(ConanFile):
             env = tc.environment()
             env.define_path("APR_ROOT", self.dependencies["apr"].package_folder)
             env.define_path(
-                "_APR_BUILDDIR",
-                os.path.join(self.dependencies["apr"].package_folder, "res", "build-1"),
+                "_APR_BUILDDIR", os.path.join(self.dependencies["apr"].package_folder, "res", "build-1")
             )
             tc.generate(env)
 
@@ -190,12 +180,7 @@ class AprUtilConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

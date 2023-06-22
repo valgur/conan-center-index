@@ -128,27 +128,16 @@ class JerryScriptStackConan(ConanFile):
             del self.options.keep_line_info
 
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "jerryscript shared lib is not yet supported under windows"
-            )
+            raise ConanInvalidConfiguration("jerryscript shared lib is not yet supported under windows")
 
     def validate(self):
         # validate integers
         try:
             checks = (
                 (0 <= int(self.options.heap_size), "heap_size must be bigger than or equal to 0"),
-                (
-                    0 <= int(self.options.gc_limit) <= 8192,
-                    "gc_limit must be in the range [0, 8192]",
-                ),
-                (
-                    0 <= int(self.options.gc_mark_limit),
-                    "gc_mark_limit must be bigger than or equal to 0",
-                ),
-                (
-                    0 <= int(self.options.stack_limit),
-                    "stack_limit must be bigger than or equal to 0",
-                ),
+                (0 <= int(self.options.gc_limit) <= 8192, "gc_limit must be in the range [0, 8192]"),
+                (0 <= int(self.options.gc_mark_limit), "gc_mark_limit must be bigger than or equal to 0"),
+                (0 <= int(self.options.stack_limit), "stack_limit must be bigger than or equal to 0"),
             )
             for check_res, txt in checks:
                 if not check_res:
@@ -166,13 +155,9 @@ class JerryScriptStackConan(ConanFile):
             )
         # validate the use of the system allocator option
         if self.settings.arch == "x86_64" and self.options.system_allocator:
-            raise ConanInvalidConfiguration(
-                "jerryscript system allocator not available on 64bit systems"
-            )
+            raise ConanInvalidConfiguration("jerryscript system allocator not available on 64bit systems")
         if self.options.system_allocator and not self.options.cpointer_32_bit:
-            raise ConanInvalidConfiguration(
-                "jerryscript system allocator must be used with 32 bit pointers"
-            )
+            raise ConanInvalidConfiguration("jerryscript system allocator must be used with 32 bit pointers")
 
     def package_id(self):
         if self.options.profile not in self._predefined_profiles:
@@ -180,9 +165,7 @@ class JerryScriptStackConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -205,9 +188,7 @@ class JerryScriptStackConan(ConanFile):
         self._cmake.definitions["JERRY_EXT"] = self.options.jerry_ext
         self._cmake.definitions[libmath_definition] = self._jerry_math
         self._cmake.definitions["ENABLE_STRIP"] = self.options.get_safe("jerry_strip", False)
-        self._cmake.definitions["ENABLE_LTO"] = self.options.get_safe(
-            "link_time_optimization", False
-        )
+        self._cmake.definitions["ENABLE_LTO"] = self.options.get_safe("link_time_optimization", False)
         self._cmake.definitions[amalgamation_definition] = self.options.amalgamated
         self._cmake.definitions["JERRY_DEBUGGER"] = self.options.debugger
         self._cmake.definitions["JERRY_LINE_INFO"] = self.options.get_safe("keep_line_info", False)
@@ -217,9 +198,7 @@ class JerryScriptStackConan(ConanFile):
         self._cmake.definitions["JERRY_SNAPSHOT_SAVE"] = self.options.snapshot_saving
         self._cmake.definitions["JERRY_PARSER"] = self.options.parser
         self._cmake.definitions["JERRY_PARSER_DUMP_BYTE_CODE"] = self.options.enable_dump_bytecode
-        self._cmake.definitions[
-            "JERRY_REGEXP_DUMP_BYTE_CODE"
-        ] = self.options.enable_dump_regexp_bytecode
+        self._cmake.definitions["JERRY_REGEXP_DUMP_BYTE_CODE"] = self.options.enable_dump_regexp_bytecode
         self._cmake.definitions["JERRY_REGEXP_STRICT_MODE"] = self.options.strict_regexp
         self._cmake.definitions["JERRY_ERROR_MESSAGES"] = self.options.error_messages
         self._cmake.definitions["JERRY_LOGGING"] = self.options.logging
@@ -231,9 +210,7 @@ class JerryScriptStackConan(ConanFile):
         self._cmake.definitions["JERRY_CPOINTER_32_BIT"] = self.options.cpointer_32_bit
         self._cmake.definitions["JERRY_SYSTEM_ALLOCATOR"] = self.options.system_allocator
         self._cmake.definitions["JERRY_VALGRIND"] = self.options.valgrind
-        self._cmake.definitions[
-            "JERRY_MEM_GC_BEFORE_EACH_ALLOC"
-        ] = self.options.gc_before_each_alloc
+        self._cmake.definitions["JERRY_MEM_GC_BEFORE_EACH_ALLOC"] = self.options.gc_before_each_alloc
         self._cmake.definitions["JERRY_VM_EXEC_STOP"] = self.options.vm_exec_stop
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -250,16 +227,12 @@ class JerryScriptStackConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.components["libjerry-port-default"].names["pkg_config"] = [
-            "libjerry-port-default"
-        ]
+        self.cpp_info.components["libjerry-port-default"].names["pkg_config"] = ["libjerry-port-default"]
         self.cpp_info.components["libjerry-port-default"].libs = ["jerry-port-default"]
 
         if self._jerry_math:
             mathlibname = "jerry-libm" if tools.Version(self.version) < "2.4.0" else "jerry-math"
-            self.cpp_info.components["libjerry-math"].names["pkg_config"] = "lib{}".format(
-                mathlibname
-            )
+            self.cpp_info.components["libjerry-math"].names["pkg_config"] = "lib{}".format(mathlibname)
             self.cpp_info.components["libjerry-math"].libs = [mathlibname]
             self.cpp_info.components["libjerry-math"].requires = ["libjerry-port-default"]
             self.cpp_info.components["libjerry-core"].requires.append("libjerry-math")
@@ -268,12 +241,8 @@ class JerryScriptStackConan(ConanFile):
             self.cpp_info.components["libjerry-port-default-minimal"].names["pkg_config"] = [
                 "libjerry-port-default-minimal"
             ]
-            self.cpp_info.components["libjerry-port-default-minimal"].libs = [
-                "jerry-port-default-minimal"
-            ]
-            self.cpp_info.components["libjerry-port-default"].requires.append(
-                "libjerry-port-default-minimal"
-            )
+            self.cpp_info.components["libjerry-port-default-minimal"].libs = ["jerry-port-default-minimal"]
+            self.cpp_info.components["libjerry-port-default"].requires.append("libjerry-port-default-minimal")
 
         self.cpp_info.components["libjerry-core"].names["pkg_config"] = "libjerry-core"
         self.cpp_info.components["libjerry-core"].libs = ["jerry-core"]

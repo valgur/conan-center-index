@@ -64,12 +64,7 @@ class CpuFeaturesConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -80,9 +75,7 @@ class CpuFeaturesConan(ConanFile):
 
         # TODO: back to global scope once cmake_find_package* generators removed
         self.cpp_info.components["libcpu_features"].libs = ["cpu_features"]
-        self.cpp_info.components["libcpu_features"].includedirs = [
-            os.path.join("include", "cpu_features")
-        ]
+        self.cpp_info.components["libcpu_features"].includedirs = [os.path.join("include", "cpu_features")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libcpu_features"].system_libs = ["dl"]
 
@@ -90,9 +83,7 @@ class CpuFeaturesConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "CpuFeatures"
         self.cpp_info.names["cmake_find_package_multi"] = "CpuFeatures"
         self.cpp_info.components["libcpu_features"].names["cmake_find_package"] = "cpu_features"
-        self.cpp_info.components["libcpu_features"].names[
-            "cmake_find_package_multi"
-        ] = "cpu_features"
+        self.cpp_info.components["libcpu_features"].names["cmake_find_package_multi"] = "cpu_features"
         self.cpp_info.components["libcpu_features"].set_property(
             "cmake_target_name", "CpuFeatures::cpu_features"
         )

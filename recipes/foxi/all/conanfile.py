@@ -45,12 +45,7 @@ class FoxiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -76,20 +71,13 @@ class FoxiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # Move plugin to bin folder on Windows
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
             rename(
-                self,
-                src=dll_file,
-                dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file)),
+                self, src=dll_file, dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file))
             )
 
     def package_info(self):

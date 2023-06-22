@@ -113,9 +113,7 @@ class AprConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if self.options.force_apr_uuid:
-            replace_in_file(
-                self, os.path.join(self.source_folder, "include", "apr.h.in"), "@osuuid@", "0"
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "include", "apr.h.in"), "@osuuid@", "0")
 
     def build(self):
         self._patch_sources()
@@ -131,12 +129,7 @@ class AprConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()
@@ -152,10 +145,7 @@ class AprConan(ConanFile):
             apr_rules_cnt = open(apr_rules_mk).read()
             for key in ("apr_builddir", "apr_builders", "top_builddir"):
                 apr_rules_cnt, nb = re.subn(
-                    f"^{key}=[^\n]*\n",
-                    f"{key}=$(_APR_BUILDDIR)\n",
-                    apr_rules_cnt,
-                    flags=re.MULTILINE,
+                    f"^{key}=[^\n]*\n", f"{key}=$(_APR_BUILDDIR)\n", apr_rules_cnt, flags=re.MULTILINE
                 )
                 if nb == 0:
                     raise ConanException(f"Could not find/replace {key} in {apr_rules_mk}")

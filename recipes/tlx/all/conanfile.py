@@ -20,8 +20,7 @@ required_conan_version = ">=1.53.0"
 class TlxConan(ConanFile):
     name = "tlx"
     description = (
-        "tlx is a collection of C++ helpers and extensions "
-        "universally needed, but not found in the STL."
+        "tlx is a collection of C++ helpers and extensions " "universally needed, but not found in the STL."
     )
     license = "BSL-1.0"
     topics = ("data-structure", "algorithm")
@@ -86,12 +85,7 @@ class TlxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "CMake"))
@@ -100,7 +94,10 @@ class TlxConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"tlx": "tlx::tlx"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "tlx": "tlx::tlx",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

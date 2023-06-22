@@ -7,9 +7,7 @@ required_conan_version = ">=1.33.0"
 
 class FtjamConan(ConanFile):
     name = "ftjam"
-    description = (
-        "Jam (ftjam) is a small open-source build tool that can be used as a replacement for Make."
-    )
+    description = "Jam (ftjam) is a small open-source build tool that can be used as a replacement for Make."
     topics = ("build", "make")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org/jam/"
@@ -46,17 +44,13 @@ class FtjamConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "jamgram.c"), "\n#line", "\n//#line"
-        )
+        tools.replace_in_file(os.path.join(self._source_subfolder, "jamgram.c"), "\n#line", "\n//#line")
 
     def _configure_autotools(self):
         if self._autotools:
@@ -80,19 +74,11 @@ class FtjamConan(ConanFile):
                 with tools.environment_append(env):
                     if self.settings.compiler == "Visual Studio":
                         with tools.vcvars(self.settings):
-                            self.run(
-                                "nmake -f builds/win32-visualc.mk JAM_TOOLSET={}".format(
-                                    jam_toolset
-                                )
-                            )
+                            self.run("nmake -f builds/win32-visualc.mk JAM_TOOLSET={}".format(jam_toolset))
                     else:
                         with tools.environment_append({"PATH": [os.getcwd()]}):
                             autotools.make(
-                                args=[
-                                    "JAM_TOOLSET={}".format(jam_toolset),
-                                    "-f",
-                                    "builds/win32-gcc.mk",
-                                ]
+                                args=["JAM_TOOLSET={}".format(jam_toolset), "-f", "builds/win32-gcc.mk"]
                             )
             else:
                 autotools = self._configure_autotools()

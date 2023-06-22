@@ -178,9 +178,7 @@ class LibspatialiteConan(ConanFile):
             self.source_folder, "src", "headers", "spatialite", "gaiaconfig-msvc.h"
         )
         if not self.options.mathsql:
-            replace_in_file(
-                self, gaiaconfig_msvc, "/* #undef OMIT_MATHSQL */", "#define OMIT_MATHSQL 1"
-            )
+            replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_MATHSQL */", "#define OMIT_MATHSQL 1")
         if self.options.geocallbacks:
             replace_in_file(self, gaiaconfig_msvc, "#define OMIT_GEOCALLBACKS 1", "")
         if not self.options.knn:
@@ -194,13 +192,9 @@ class LibspatialiteConan(ConanFile):
         if not self.options.with_proj:
             replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_PROJ */", "#define OMIT_PROJ 1")
         if not self.options.with_iconv:
-            replace_in_file(
-                self, gaiaconfig_msvc, "/* #undef OMIT_ICONV */", "#define OMIT_ICONV 1"
-            )
+            replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_ICONV */", "#define OMIT_ICONV 1")
         if not self.options.with_freexl:
-            replace_in_file(
-                self, gaiaconfig_msvc, "/* #undef OMIT_FREEXL */", "#define OMIT_FREEXL 1"
-            )
+            replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_FREEXL */", "#define OMIT_FREEXL 1")
         if not self.options.with_geos:
             replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_GEOS */", "#define OMIT_GEOS 1")
         if not self.options.get_safe("with_rttopo", False):
@@ -223,9 +217,7 @@ class LibspatialiteConan(ConanFile):
             self,
             os.path.join(self.source_folder, "configure.ac"),
             "AC_CHECK_LIB(z,",
-            "AC_CHECK_LIB({},".format(
-                self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
-            ),
+            "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
         )
         # Disable tests
         replace_in_file(
@@ -248,12 +240,7 @@ class LibspatialiteConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

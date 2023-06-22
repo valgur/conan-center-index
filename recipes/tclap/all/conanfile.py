@@ -19,10 +19,7 @@ class TclapConan(ConanFile):
     def package(self):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         self.copy(
-            pattern="*",
-            src=os.path.join(self._source_subfolder, "include"),
-            dst="include",
-            keep_path=True,
+            pattern="*", src=os.path.join(self._source_subfolder, "include"), dst="include", keep_path=True
         )
 
     def package_info(self):

@@ -52,19 +52,7 @@ class CapstoneConan(ConanFile):
         "use_default_alloc": True,
     }
 
-    _archs = [
-        "arm",
-        "m68k",
-        "mips",
-        "ppc",
-        "sparc",
-        "sysz",
-        "xcore",
-        "x86",
-        "tms320c64x",
-        "m680x",
-        "evm",
-    ]
+    _archs = ["arm", "m68k", "mips", "ppc", "sparc", "sysz", "xcore", "x86", "tms320c64x", "m680x", "evm"]
     options.update({a: [True, False] for a in _archs})
     default_options.update({a: True for a in _archs})
 
@@ -82,12 +70,7 @@ class CapstoneConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -108,12 +91,7 @@ class CapstoneConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

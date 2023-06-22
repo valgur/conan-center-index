@@ -77,20 +77,11 @@ class XnnpackConan(ConanFile):
         check_min_vs(self, 192)
         compiler = self.info.settings.compiler
         compiler_version = Version(compiler.version)
-        if (compiler == "gcc" and compiler_version < "6") or (
-            compiler == "clang" and compiler_version < "5"
-        ):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support {compiler} {compiler.version}"
-            )
+        if (compiler == "gcc" and compiler_version < "6") or (compiler == "clang" and compiler_version < "5"):
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't support {compiler} {compiler.version}")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -146,12 +137,7 @@ class XnnpackConan(ConanFile):
         cmake.build(target="XNNPACK")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

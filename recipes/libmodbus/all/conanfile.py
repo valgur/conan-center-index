@@ -22,9 +22,7 @@ required_conan_version = ">=1.57.0"
 
 class LibmodbusConan(ConanFile):
     name = "libmodbus"
-    description = (
-        "libmodbus is a free software library to send/receive data according to the Modbus protocol"
-    )
+    description = "libmodbus is a free software library to send/receive data according to the Modbus protocol"
     homepage = "https://libmodbus.org/"
     topics = ("modbus", "protocol", "industry", "automation")
     license = "LGPL-2.1"
@@ -84,9 +82,7 @@ class LibmodbusConan(ConanFile):
             tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(
-                self, os.path.join(self.source_folder, "build-aux", "compile")
-            )
+            compile_wrapper = unix_path(self, os.path.join(self.source_folder, "build-aux", "compile"))
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")

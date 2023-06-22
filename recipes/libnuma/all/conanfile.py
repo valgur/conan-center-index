@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
@@ -65,10 +58,7 @@ class LibnumaConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            "LICENSE.LGPL2.1",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, "LICENSE.LGPL2.1", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         autotools.install()

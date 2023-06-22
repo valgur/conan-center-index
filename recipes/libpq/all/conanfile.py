@@ -106,9 +106,7 @@ class LibpqConan(ConanFile):
             tc = AutotoolsToolchain(self)
             tc.configure_args.append("--without-readline")
             tc.configure_args.append("--without-zlib")
-            tc.configure_args.append(
-                "--with-openssl" if self.options.with_openssl else "--without-openssl"
-            )
+            tc.configure_args.append("--with-openssl" if self.options.with_openssl else "--without-openssl")
             if cross_building(self) and not self.options.with_openssl:
                 tc.configure_args.append("--disable-strong-random")
             if cross_building(self, skip_x64_x86=True):
@@ -152,9 +150,7 @@ class LibpqConan(ConanFile):
                 "MD": "MultiThreadedDLL",
                 "MDd": "MultiThreadedDebugDLL",
             }.get(msvc_runtime_flag(self))
-            msbuild_project_pm = os.path.join(
-                self.source_folder, "src", "tools", "msvc", "MSBuildProject.pm"
-            )
+            msbuild_project_pm = os.path.join(self.source_folder, "src", "tools", "msvc", "MSBuildProject.pm")
             replace_in_file(
                 self,
                 msbuild_project_pm,
@@ -166,9 +162,7 @@ class LibpqConan(ConanFile):
             )
             replace_in_file(self, msbuild_project_pm, "'MultiThreadedDebugDLL'", "'%s'" % runtime)
             replace_in_file(self, msbuild_project_pm, "'MultiThreadedDLL'", "'%s'" % runtime)
-            config_default_pl = os.path.join(
-                self.source_folder, "src", "tools", "msvc", "config_default.pl"
-            )
+            config_default_pl = os.path.join(self.source_folder, "src", "tools", "msvc", "config_default.pl")
             solution_pm = os.path.join(self.source_folder, "src", "tools", "msvc", "Solution.pm")
             if self.options.with_openssl:
                 openssl = self.dependencies["openssl"]
@@ -243,12 +237,7 @@ class LibpqConan(ConanFile):
             rm(self, "*.dylib", lib_folder)
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

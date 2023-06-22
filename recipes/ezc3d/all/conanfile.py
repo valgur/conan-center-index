@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -76,12 +69,7 @@ class Ezc3dConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "CMake"))
@@ -89,7 +77,10 @@ class Ezc3dConan(ConanFile):
 
         # TODO: to remove once cmake_find_package* removed in conan v2
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"ezc3d": "ezc3d::ezc3d"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "ezc3d": "ezc3d::ezc3d",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -114,7 +105,9 @@ class Ezc3dConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ezc3d")
 
         self.cpp_info.includedirs.append(os.path.join("include", "ezc3d"))
-        lib_suffix = {"Debug": "_debug"}.get(str(self.settings.build_type), "")
+        lib_suffix = {
+            "Debug": "_debug",
+        }.get(str(self.settings.build_type), "")
         self.cpp_info.libs = [f"ezc3d{lib_suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]

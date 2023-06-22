@@ -158,9 +158,7 @@ class LibxsltConan(ConanFile):
         replace_in_file(self, makefile_msvc, "libxml2.lib", format_libs("libxml2"))
         replace_in_file(self, makefile_msvc, "libxml2_a.lib", format_libs("libxml2"))
         if self.dependencies["libxml2"].options.get_safe("icu"):
-            replace_in_file(
-                self, makefile_msvc, "LIBS = wsock32.lib", f"LIBS = {format_libs('icu')}"
-            )
+            replace_in_file(self, makefile_msvc, "LIBS = wsock32.lib", f"LIBS = {format_libs('icu')}")
 
         # Avoid to indirectly build both static & shared when we build utils
         lib_suffix = "" if self.options.shared else "a"
@@ -186,12 +184,7 @@ class LibxsltConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,
@@ -206,13 +199,7 @@ class LibxsltConan(ConanFile):
                 dst=os.path.join(self.package_folder, "include", "libexslt"),
             )
             build_dir = os.path.join(self.source_folder, "win32", "bin.msvc")
-            copy(
-                self,
-                "*.exe",
-                src=build_dir,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*.exe", src=build_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
             if self.options.shared:
                 copy(
                     self,

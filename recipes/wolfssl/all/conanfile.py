@@ -125,9 +125,7 @@ class WolfSSLConan(ConanFile):
             compile_wrapper = unix_path(
                 self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
             )
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
@@ -141,12 +139,7 @@ class WolfSSLConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         os.unlink(os.path.join(self.package_folder, "bin", "wolfssl-config"))

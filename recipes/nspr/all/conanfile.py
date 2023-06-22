@@ -74,7 +74,13 @@ class NsprConan(ConanFile):
     def _build_context(self):
         if self._is_msvc:
             with tools.vcvars(self):
-                with tools.environment_append({"CC": "cl", "CXX": "cl", "LD": "link"}):
+                with tools.environment_append(
+                    {
+                        "CC": "cl",
+                        "CXX": "cl",
+                        "LD": "link",
+                    }
+                ):
                     yield
         else:
             yield
@@ -88,9 +94,7 @@ class NsprConan(ConanFile):
             "--enable-64bit={}".format(
                 yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))
             ),
-            "--enable-strip={}".format(
-                yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))
-            ),
+            "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
             "--datarootdir={}".format(tools.unix_path(os.path.join(self.package_folder, "res"))),
             "--disable-cplus",
@@ -127,9 +131,7 @@ class NsprConan(ConanFile):
     def build(self):
         with chdir(self, self._source_subfolder):
             # relocatable shared libs on macOS
-            replace_in_file(
-                self, "configure", "-install_name @executable_path/", "-install_name @rpath/"
-            )
+            replace_in_file(self, "configure", "-install_name @executable_path/", "-install_name @rpath/")
             with self._build_context():
                 autotools = self._configure_autotools()
                 autotools.make()
@@ -150,18 +152,14 @@ class NsprConan(ConanFile):
                 libsuffix = "lib" if self._is_msvc else "a"
                 libprefix = "" if self._is_msvc else "lib"
                 if self.options.shared:
-                    os.unlink(
-                        os.path.join(self.package_folder, "lib", f"{libprefix}{lib}_s.{libsuffix}")
-                    )
+                    os.unlink(os.path.join(self.package_folder, "lib", f"{libprefix}{lib}_s.{libsuffix}"))
                     rename(
                         self,
                         os.path.join(self.package_folder, "lib", f"{lib}.dll"),
                         os.path.join(self.package_folder, "bin", f"{lib}.dll"),
                     )
                 else:
-                    os.unlink(
-                        os.path.join(self.package_folder, "lib", f"{libprefix}{lib}.{libsuffix}")
-                    )
+                    os.unlink(os.path.join(self.package_folder, "lib", f"{libprefix}{lib}.{libsuffix}"))
                     os.unlink(os.path.join(self.package_folder, "lib", f"{lib}.dll"))
             if not self.options.shared:
                 replace_in_file(

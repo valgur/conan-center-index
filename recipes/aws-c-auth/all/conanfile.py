@@ -55,12 +55,7 @@ class AwsCAuth(ConanFile):
             self.requires("aws-c-sdkutils/0.1.3", transitive_headers=True, transitive_libs=True)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,10 +72,7 @@ class AwsCAuth(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -98,9 +90,7 @@ class AwsCAuth(ConanFile):
             "aws-c-http::aws-c-http-lib",
         ]
         if Version(self.version) >= "0.6.5":
-            self.cpp_info.components["aws-c-auth-lib"].requires.append(
-                "aws-c-sdkutils::aws-c-sdkutils-lib"
-            )
+            self.cpp_info.components["aws-c-auth-lib"].requires.append("aws-c-sdkutils::aws-c-sdkutils-lib")
 
         # TODO: to remove once conan v1 support dropped
         self.cpp_info.filenames["cmake_find_package"] = "aws-c-auth"
@@ -109,6 +99,4 @@ class AwsCAuth(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "AWS"
         self.cpp_info.components["aws-c-auth-lib"].names["cmake_find_package"] = "aws-c-auth"
         self.cpp_info.components["aws-c-auth-lib"].names["cmake_find_package_multi"] = "aws-c-auth"
-        self.cpp_info.components["aws-c-auth-lib"].set_property(
-            "cmake_target_name", "AWS::aws-c-auth"
-        )
+        self.cpp_info.components["aws-c-auth-lib"].set_property("cmake_target_name", "AWS::aws-c-auth")

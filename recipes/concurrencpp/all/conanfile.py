@@ -12,7 +12,9 @@ required_conan_version = ">=1.53.0"
 
 class ConcurrencppConan(ConanFile):
     name = "concurrencpp"
-    description = "Modern concurrency for C++. Tasks, executors, timers and C++20 coroutines to rule them all."
+    description = (
+        "Modern concurrency for C++. Tasks, executors, timers and C++20 coroutines to rule them all."
+    )
     homepage = "https://github.com/David-Haim/concurrencpp"
     topics = (
         "scheduler",
@@ -68,16 +70,12 @@ class ConcurrencppConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         if Version(self.version) <= "0.1.5" and self.options.shared and is_msvc(self):
             # see https://github.com/David-Haim/concurrencpp/issues/75
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not support shared builds with Visual Studio"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} does not support shared builds with Visual Studio")
         if self.settings.compiler == "gcc":
             raise ConanInvalidConfiguration("gcc is not supported by concurrencpp")
         if Version(self.version) >= "0.1.5" and self.settings.compiler == "apple-clang":
             # apple-clang does not seem to support the C++20 synchronization library which concurrencpp 0.1.5 depends on
-            raise ConanInvalidConfiguration(
-                "apple-clang is not supported by concurrencpp 0.1.5 and higher"
-            )
+            raise ConanInvalidConfiguration("apple-clang is not supported by concurrencpp 0.1.5 and higher")
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -101,12 +99,7 @@ class ConcurrencppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

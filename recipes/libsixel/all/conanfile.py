@@ -71,9 +71,7 @@ class LibSixelConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -87,10 +85,7 @@ class LibSixelConan(ConanFile):
             "sixel2png": "disabled",
             "python2": "disabled",
         }
-        meson.configure(
-            defs=defs,
-            source_folder=self._source_subfolder,
-        )
+        meson.configure(defs=defs, source_folder=self._source_subfolder)
         return meson
 
     def build(self):

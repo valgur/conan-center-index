@@ -59,10 +59,7 @@ class PatchElfConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
 
         autotools = Autotools(self)

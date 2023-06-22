@@ -47,12 +47,10 @@ class TzConan(ConanFile):
 
     def _patch_sources(self):
         # INFO: The Makefile enforces /usr/bin/awk, but we want to use tool requirements
-        awk_path = os.path.join(
-            self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk"
-        ).replace("\\", "/")
-        replace_in_file(
-            self, os.path.join(self.source_folder, "Makefile"), "AWK=		awk", f"AWK={awk_path}"
+        awk_path = os.path.join(self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk").replace(
+            "\\", "/"
         )
+        replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "AWK=		awk", f"AWK={awk_path}")
 
     def build(self):
         self._patch_sources()
@@ -60,12 +58,7 @@ class TzConan(ConanFile):
         autotools.make(args=["-C", self.source_folder.replace("\\", "/")])
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         autotools = Autotools(self)
         destdir = self.package_folder.replace("\\", "/")
         autotools.install(args=["-C", self.source_folder.replace("\\", "/"), f"DESTDIR={destdir}"])
@@ -79,9 +72,5 @@ class TzConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = [os.path.join("usr", "share")]
         self.cpp_info.bindirs = [os.path.join("usr", "bin"), os.path.join("usr", "sbin")]
-        self.buildenv_info.define(
-            "TZDATA", os.path.join(self.package_folder, "usr", "share", "zoneinfo")
-        )
-        self.runenv_info.define(
-            "TZDATA", os.path.join(self.package_folder, "usr", "share", "zoneinfo")
-        )
+        self.buildenv_info.define("TZDATA", os.path.join(self.package_folder, "usr", "share", "zoneinfo"))
+        self.runenv_info.define("TZDATA", os.path.join(self.package_folder, "usr", "share", "zoneinfo"))

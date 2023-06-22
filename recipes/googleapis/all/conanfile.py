@@ -78,9 +78,7 @@ class GoogleAPIS(ConanFile):
             raise ConanInvalidConfiguration("Build with GCC 5 fails")
 
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Source code generated from protos is missing some export macro"
-            )
+            raise ConanInvalidConfiguration("Source code generated from protos is missing some export macro")
         if self.options.shared and not self.dependencies["protobuf"].options.shared:
             raise ConanInvalidConfiguration(
                 "If built as shared, protobuf must be shared as well. Please, use `protobuf:shared=True`"
@@ -112,16 +110,12 @@ class GoogleAPIS(ConanFile):
         for filename in glob.iglob(
             os.path.join(self.source_folder, "google", "**", "BUILD.bazel"), recursive=True
         ):
-            proto_libraries += parse_proto_libraries(
-                filename, self.source_folder, self.output.error
-            )
+            proto_libraries += parse_proto_libraries(filename, self.source_folder, self.output.error)
 
         for filename in glob.iglob(
             os.path.join(self.source_folder, "grafeas", "**", "BUILD.bazel"), recursive=True
         ):
-            proto_libraries += parse_proto_libraries(
-                filename, self.source_folder, self.output.error
-            )
+            proto_libraries += parse_proto_libraries(filename, self.source_folder, self.output.error)
 
         # Validate that all files exist and all dependencies are found
         all_deps = [f"{it.qname}:{it.name}" for it in proto_libraries]
@@ -170,12 +164,8 @@ class GoogleAPIS(ConanFile):
         if self.settings.os == "Android":
             deactivate_library("//google/identity/accesscontextmanager/type:type_proto")
             deactivate_library("//google/identity/accesscontextmanager/type:type_cc_proto")
-            deactivate_library(
-                "//google/identity/accesscontextmanager/v1:accesscontextmanager_proto"
-            )
-            deactivate_library(
-                "//google/identity/accesscontextmanager/v1:accesscontextmanager_cc_proto"
-            )
+            deactivate_library("//google/identity/accesscontextmanager/v1:accesscontextmanager_proto")
+            deactivate_library("//google/identity/accesscontextmanager/v1:accesscontextmanager_cc_proto")
             deactivate_library("//google/devtools/testing/v1:testing_proto")
             deactivate_library("//google/devtools/testing/v1:testing_cc_proto")
             deactivate_library("//google/devtools/resultstore/v2:resultstore_proto")
@@ -203,9 +193,7 @@ class GoogleAPIS(ConanFile):
         # Use a separate file to host the generated code, which is generated in full each time.
         # This is safe to call multiple times, for example, if you need to invoke `conan build` more than
         # once.
-        with open(
-            os.path.join(self.source_folder, "generated_targets.cmake"), "w", encoding="utf-8"
-        ) as f:
+        with open(os.path.join(self.source_folder, "generated_targets.cmake"), "w", encoding="utf-8") as f:
             f.write("# Generated C++ library targets for googleapis\n")
             f.write("# DO NOT EDIT - change the generation code in conanfile.py instead\n")
             for it in filter(lambda u: u.is_used, proto_libraries):
@@ -218,23 +206,10 @@ class GoogleAPIS(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
-        copy(
-            self,
-            pattern="*.proto",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "res"),
-        )
-        copy(
-            self,
-            pattern="*.pb.h",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+        copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
 
         copy(
             self,

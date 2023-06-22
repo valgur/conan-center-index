@@ -32,15 +32,5 @@ class ArteryFontFormatConan(ConanFile):
             dst=os.path.join(self.package_folder, "licenses"),
             src=self.source_folder,
         )
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)

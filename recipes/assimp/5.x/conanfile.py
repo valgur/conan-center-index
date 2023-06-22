@@ -156,11 +156,7 @@ class AssimpConan(ConanFile):
     def _depends_on_stb(self):
         if Version(self.version) < "5.1.0":
             return False
-        return (
-            self.options.with_m3d
-            or self.options.with_m3d_exporter
-            or self.options.with_pbrt_exporter
-        )
+        return self.options.with_m3d or self.options.with_m3d_exporter or self.options.with_pbrt_exporter
 
     @property
     def _depends_on_zlib(self):
@@ -208,10 +204,7 @@ class AssimpConan(ConanFile):
             self.requires("openddl-parser/0.5.0")
 
     def validate(self):
-        if (
-            self._depends_on_clipper
-            and Version(self.dependencies["clipper"].ref.version).major != "4"
-        ):
+        if self._depends_on_clipper and Version(self.dependencies["clipper"].ref.version).major != "4":
             raise ConanInvalidConfiguration("Only 'clipper/4.x' is supported")
 
     def source(self):
@@ -269,11 +262,7 @@ class AssimpConan(ConanFile):
 
         for before, after in replace_mapping:
             replace_in_file(
-                self,
-                os.path.join(self.source_folder, "CMakeLists.txt"),
-                before,
-                after,
-                strict=False,
+                self, os.path.join(self.source_folder, "CMakeLists.txt"), before, after, strict=False
             )
         # Take care to not use these vendored libs
         vendors = ["poly2tri", "rapidjson", "utf8cpp", "zip", "unzip", "stb", "zlib", "clipper"]
@@ -291,12 +280,7 @@ class AssimpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

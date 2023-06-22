@@ -61,10 +61,7 @@ class OneTBBConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos":
-            if (
-                self.settings.compiler == "apple-clang"
-                and Version(self.settings.compiler.version) < "8.0"
-            ):
+            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(
                     "%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version)
                 )
@@ -103,9 +100,7 @@ class OneTBBConan(ConanFile):
         replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            replace_in_file(
-                self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug"
-            )
+            replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
             save(
@@ -148,9 +143,7 @@ class OneTBBConan(ConanFile):
             "x86": "ia32",
             "x86_64": "intel64",
             "armv7": "armv7",
-            "armv8": "arm64"
-            if (self.settings.os == "iOS" or self.settings.os == "Macos")
-            else "aarch64",
+            "armv8": "arm64" if (self.settings.os == "iOS" or self.settings.os == "Macos") else "aarch64",
         }[str(self.settings.arch)]
         extra += " arch=%s" % arch
 
@@ -195,9 +188,11 @@ class OneTBBConan(ConanFile):
                         "16": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
                 else:
-                    runtime = {"190": "vc14", "191": "vc14.1", "192": "vc14.2"}.get(
-                        str(self._base_compiler.version), "vc14.2"
-                    )
+                    runtime = {
+                        "190": "vc14",
+                        "191": "vc14.1",
+                        "192": "vc14.2",
+                    }.get(str(self._base_compiler.version), "vc14.2")
             extra += " runtime=%s" % runtime
 
             if self.settings.compiler == "intel":
@@ -239,12 +234,7 @@ class OneTBBConan(ConanFile):
                 self.run("%s %s %s" % (make, extra, " ".join(targets)))
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self._source_subfolder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_subfolder)
         copy(
             self,
             pattern="*.h",
@@ -326,9 +316,7 @@ class OneTBBConan(ConanFile):
 
         # tbbmalloc
         if self.options.tbbmalloc:
-            self.cpp_info.components["tbbmalloc"].set_property(
-                "cmake_target_name", "TBB::tbbmalloc"
-            )
+            self.cpp_info.components["tbbmalloc"].set_property("cmake_target_name", "TBB::tbbmalloc")
             self.cpp_info.components["tbbmalloc"].libs = ["tbbmalloc{}".format(suffix)]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["tbbmalloc"].system_libs = ["dl", "pthread"]
@@ -338,9 +326,7 @@ class OneTBBConan(ConanFile):
                 self.cpp_info.components["tbbmalloc_proxy"].set_property(
                     "cmake_target_name", "TBB::tbbmalloc_proxy"
                 )
-                self.cpp_info.components["tbbmalloc_proxy"].libs = [
-                    "tbbmalloc_proxy{}".format(suffix)
-                ]
+                self.cpp_info.components["tbbmalloc_proxy"].libs = ["tbbmalloc_proxy{}".format(suffix)]
                 self.cpp_info.components["tbbmalloc_proxy"].requires = ["tbbmalloc"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

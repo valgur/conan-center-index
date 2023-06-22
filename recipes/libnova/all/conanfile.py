@@ -61,9 +61,7 @@ class LibnovaConan(ConanFile):
 
     def source(self):
         # Generate the archive download link
-        self._generate_git_tag_archive_sourceforge(
-            self.conan_data["sources"][self.version]["post"]["url"]
-        )
+        self._generate_git_tag_archive_sourceforge(self.conan_data["sources"][self.version]["post"]["url"])
 
         # Download archive
         get(self, **self.conan_data["sources"][self.version]["archive"], strip_root=True)
@@ -80,12 +78,7 @@ class LibnovaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

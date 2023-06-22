@@ -15,16 +15,7 @@ class HazelcastCppClient(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hazelcast/hazelcast-cpp-client"
-    topics = (
-        "hazelcast",
-        "client",
-        "database",
-        "cache",
-        "in-memory",
-        "distributed",
-        "computing",
-        "ssl",
-    )
+    topics = ("hazelcast", "client", "database", "cache", "in-memory", "distributed", "computing", "ssl")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -81,21 +72,14 @@ class HazelcastCppClient(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "hazelcast-cpp-client")
-        self.cpp_info.set_property(
-            "cmake_target_name", "hazelcast-cpp-client::hazelcast-cpp-client"
-        )
+        self.cpp_info.set_property("cmake_target_name", "hazelcast-cpp-client::hazelcast-cpp-client")
 
         self.cpp_info.libs = ["hazelcast-cpp-client"]
         self.cpp_info.defines = ["BOOST_THREAD_VERSION=5"]

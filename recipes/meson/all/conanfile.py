@@ -23,33 +23,20 @@ class MesonConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        if (
-            self.conf.get("tools.meson.mesontoolchain:backend", default="ninja", check_type=str)
-            == "ninja"
-        ):
+        if self.conf.get("tools.meson.mesontoolchain:backend", default="ninja", check_type=str) == "ninja":
             self.requires("ninja/1.11.1")
 
     def package_id(self):
         self.info.clear()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "bin", "test cases"))
 

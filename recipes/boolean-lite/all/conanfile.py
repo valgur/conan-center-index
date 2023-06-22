@@ -10,7 +10,9 @@ class BooleanLiteConan(ConanFile):
     name = "boolean-lite"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/boolean-lite"
-    description = "boolean lite - A strong boolean type for C++98 and later in a single-file header-only library"
+    description = (
+        "boolean lite - A strong boolean type for C++98 and later in a single-file header-only library"
+    )
     topics = ("strong bool", "cpp98/11/17")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -23,12 +25,7 @@ class BooleanLiteConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
@@ -40,12 +37,7 @@ class BooleanLiteConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "boolean-lite")
@@ -62,6 +54,4 @@ class BooleanLiteConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
         self.cpp_info.components["booleanlite"].names["cmake_find_package"] = "boolean-lite"
         self.cpp_info.components["booleanlite"].names["cmake_find_package_multi"] = "boolean-lite"
-        self.cpp_info.components["booleanlite"].set_property(
-            "cmake_target_name", "nonstd::boolean-lite"
-        )
+        self.cpp_info.components["booleanlite"].set_property("cmake_target_name", "nonstd::boolean-lite")

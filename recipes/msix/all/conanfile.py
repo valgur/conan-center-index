@@ -42,7 +42,9 @@ class MsixConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "15"}
+        return {
+            "Visual Studio": "15",
+        }
 
     def _configure_cmake(self):
         if self._cmake:
@@ -124,9 +126,7 @@ class MsixConan(ConanFile):
                         "Using libCompression APIs and packaging features is not supported"
                     )
                 if self.options.xml_parser != "xerces":
-                    raise ConanInvalidConfiguration(
-                        "Xerces is the only supported parser for MacOS pack"
-                    )
+                    raise ConanInvalidConfiguration("Xerces is the only supported parser for MacOS pack")
             if not self.options.use_validation_parser:
                 raise ConanInvalidConfiguration("Packaging requires validation parser")
         if self.options.xml_parser == "xerces" and self.options["xerces-c"].char_type != "char16_t":
@@ -136,9 +136,7 @@ class MsixConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):

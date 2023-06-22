@@ -43,9 +43,7 @@ class AwsCdiSdkConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):
@@ -79,9 +77,7 @@ class AwsCdiSdkConan(ConanFile):
         with tools.chdir(self._source_subfolder):
             # configure autotools to find aws-cpp-sdk-cdi
             autotools.include_paths.append(
-                os.path.join(
-                    self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include"
-                )
+                os.path.join(self.build_folder, self._source_subfolder, "aws-cpp-sdk-cdi", "include")
             )
             autotools.library_paths.append(os.path.join(self.build_folder, "lib"))
             autotools.libs.append("aws-cpp-sdk-cdi")
@@ -104,9 +100,7 @@ class AwsCdiSdkConan(ConanFile):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
         config = "debug" if self.settings.build_type == "Debug" else "release"
-        self.copy(
-            pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib")
-        )
+        self.copy(pattern="*", dst="lib", src=os.path.join(self._source_subfolder, "build", config, "lib"))
 
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))

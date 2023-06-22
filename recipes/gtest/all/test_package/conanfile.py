@@ -24,9 +24,7 @@ class TestPackageConan(ConanFile):
         if with_gmock:
             tc.preprocessor_definitions["WITH_GMOCK"] = 1
 
-        tc.variables["WITH_MAIN"] = not bool(
-            self.dependencies[self.tested_reference_str].options.no_main
-        )
+        tc.variables["WITH_MAIN"] = not bool(self.dependencies[self.tested_reference_str].options.no_main)
         tc.generate()
 
     def build(self):

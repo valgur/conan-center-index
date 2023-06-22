@@ -22,9 +22,11 @@ class ZuluOpenJDK(ConanFile):
 
     @property
     def _jni_folder(self):
-        folder = {"Linux": "linux", "Macos": "darwin", "Windows": "win32"}.get(
-            str(self._settings_build.os)
-        )
+        folder = {
+            "Linux": "linux",
+            "Macos": "darwin",
+            "Windows": "win32",
+        }.get(str(self._settings_build.os))
         return os.path.join("include", folder)
 
     def package_id(self):

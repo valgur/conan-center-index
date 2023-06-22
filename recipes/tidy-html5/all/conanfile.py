@@ -44,9 +44,7 @@ class TidyHtml5Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):
@@ -87,9 +85,7 @@ class TidyHtml5Conan(ConanFile):
         self.cpp_info.names["pkg_config"] = "tidy"
         suffix = "_static" if self.settings.os == "Windows" and not self.options.shared else ""
         suffix += (
-            "d"
-            if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug"
-            else ""
+            "d" if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug" else ""
         )
         self.cpp_info.libs = ["tidy" + suffix]
         if self.settings.os == "Windows" and not self.options.shared:

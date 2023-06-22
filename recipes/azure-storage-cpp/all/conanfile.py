@@ -54,9 +54,7 @@ class AzureStorageCppConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -71,9 +69,7 @@ class AzureStorageCppConan(ConanFile):
             self._cmake.definitions["CMAKE_CXX_STANDARD"] = self._minimum_cpp_standard
 
         if self.settings.os == "Macos":
-            self._cmake.definitions["GETTEXT_LIB_DIR"] = self.deps_cpp_info["libgettext"].lib_paths[
-                0
-            ]
+            self._cmake.definitions["GETTEXT_LIB_DIR"] = self.deps_cpp_info["libgettext"].lib_paths[0]
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
@@ -109,10 +105,7 @@ class AzureStorageCppConan(ConanFile):
 
         # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
         # https://github.com/conan-io/conan-center-index/issues/4195
-        if (
-            self.settings.compiler == "Visual Studio"
-            and tools.Version(self.settings.compiler.version) < "16"
-        ):
+        if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if (
             self.settings.compiler == "Visual Studio"

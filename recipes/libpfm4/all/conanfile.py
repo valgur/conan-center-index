@@ -40,12 +40,7 @@ class Libpfm4Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -71,12 +66,7 @@ class Libpfm4Conan(ConanFile):
         autotools.make(args=args)
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             "err.h",

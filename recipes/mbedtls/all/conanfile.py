@@ -87,12 +87,7 @@ class MBedTLSConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -101,18 +96,14 @@ class MBedTLSConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "MbedTLS")
         self.cpp_info.set_property("cmake_target_name", "MbedTLS::mbedtls")
 
-        self.cpp_info.components["mbedcrypto"].set_property(
-            "cmake_target_name", "MbedTLS::mbedcrypto"
-        )
+        self.cpp_info.components["mbedcrypto"].set_property("cmake_target_name", "MbedTLS::mbedcrypto")
         self.cpp_info.components["mbedcrypto"].libs = ["mbedcrypto"]
 
         self.cpp_info.components["mbedx509"].set_property("cmake_target_name", "MbedTLS::mbedx509")
         self.cpp_info.components["mbedx509"].libs = ["mbedx509"]
         self.cpp_info.components["mbedx509"].requires = ["mbedcrypto"]
 
-        self.cpp_info.components["libembedtls"].set_property(
-            "cmake_target_name", "MbedTLS::mbedtls"
-        )
+        self.cpp_info.components["libembedtls"].set_property("cmake_target_name", "MbedTLS::mbedtls")
         self.cpp_info.components["libembedtls"].libs = ["mbedtls"]
         self.cpp_info.components["libembedtls"].requires = ["mbedx509"]
 

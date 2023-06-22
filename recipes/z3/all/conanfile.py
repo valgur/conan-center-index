@@ -33,7 +33,12 @@ class Z3Conan(ConanFile):
         "multithreaded": [True, False],
         "use_gmp": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "multithreaded": True, "use_gmp": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "multithreaded": True,
+        "use_gmp": False,
+    }
 
     @property
     def _min_cppstd(self):
@@ -47,7 +52,7 @@ class Z3Conan(ConanFile):
                 "gcc": "8",
                 "clang": "5",
                 "apple-clang": "9.1",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -128,9 +133,7 @@ class Z3Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "z3::libz3")
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libz3"].libs = [
-            "libz3" if self.settings.os == "Windows" else "z3"
-        ]
+        self.cpp_info.components["libz3"].libs = ["libz3" if self.settings.os == "Windows" else "z3"]
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libz3"].system_libs.extend(["pthread", "m"])

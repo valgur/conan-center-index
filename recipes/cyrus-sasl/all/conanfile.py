@@ -88,12 +88,10 @@ class CyrusSaslConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Cyrus SASL package is not compatible with Windows yet."
-            )
+            raise ConanInvalidConfiguration("Cyrus SASL package is not compatible with Windows yet.")
         if self.options.with_gssapi:
             raise ConanInvalidConfiguration(
-                f"{self.name}:with_gssapi=True requires krb5 recipe, not yet available in conan-center",
+                f"{self.name}:with_gssapi=True requires krb5 recipe, not yet available in conan-center"
             )
 
     def build_requirements(self):
@@ -115,9 +113,7 @@ class CyrusSaslConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        rootpath_no = (
-            lambda v, req: unix_path(self, self.dependencies[req].package_folder) if v else "no"
-        )
+        rootpath_no = lambda v, req: unix_path(self, self.dependencies[req].package_folder) if v else "no"
         tc.configure_args.extend(
             [
                 "--disable-sample",
@@ -133,10 +129,8 @@ class CyrusSaslConan(ConanFile):
                 "--enable-anon={}".format(yes_no(self.options.with_anon)),
                 "--enable-sql={}".format(
                     yes_no(
-                        self.options.with_postgresql
-                        or self.options.with_mysql
-                        or self.options.with_sqlite3
-                    ),
+                        self.options.with_postgresql or self.options.with_mysql or self.options.with_sqlite3
+                    )
                 ),
                 "--with-pgsql={}".format(rootpath_no(self.options.with_postgresql, "libpq")),
                 "--with-mysql={}".format(rootpath_no(self.options.with_mysql, "libmysqlclient")),
@@ -171,12 +165,7 @@ class CyrusSaslConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

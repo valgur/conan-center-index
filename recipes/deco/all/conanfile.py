@@ -12,25 +12,23 @@ class DecoConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True
     settings = ("compiler", "build_type", "os", "arch")
-    requires = (
-        "enhex-generic_serialization/1.0.0",
-        "enhex-strong_type/1.0.0",
-        "boost/1.79.0",
-        "rang/3.2",
-    )
+    requires = ("enhex-generic_serialization/1.0.0", "enhex-strong_type/1.0.0", "boost/1.79.0", "rang/3.2")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, 17)
 
-        minimal_version = {"Visual Studio": "15", "gcc": "7", "clang": "5.0", "apple-clang": "9.1"}
+        minimal_version = {
+            "Visual Studio": "15",
+            "gcc": "7",
+            "clang": "5.0",
+            "apple-clang": "9.1",
+        }
         compiler = str(self.settings.compiler)
         compiler_version = tools.Version(self.settings.compiler.version)
 
         if compiler not in minimal_version:
-            self.output.info(
-                "{} requires a compiler that supports at least C++17".format(self.name)
-            )
+            self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
             return
 
         # Exclude compilers not supported
@@ -43,9 +41,7 @@ class DecoConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

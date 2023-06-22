@@ -96,20 +96,12 @@ class CapnprotoConan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support shared libraries for Visual Studio"
-            )
-        if (
-            self.settings.os == "Windows"
-            and Version(self.version) < "0.8.0"
-            and self.options.with_openssl
-        ):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support OpenSSL on Windows pre 0.8.0"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't support shared libraries for Visual Studio")
+        if self.settings.os == "Windows" and Version(self.version) < "0.8.0" and self.options.with_openssl:
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't support OpenSSL on Windows pre 0.8.0")
 
     def build_requirements(self):
         if self.settings.os != "Windows":
@@ -141,10 +133,7 @@ class CapnprotoConan(ConanFile):
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
             tc.configure_args.extend(
-                [
-                    f"--with-openssl={yes_no(self.options.with_openssl)}",
-                    "--enable-reflection",
-                ]
+                [f"--with-openssl={yes_no(self.options.with_openssl)}", "--enable-reflection"]
             )
             if Version(self.version) >= "0.8.0":
                 tc.configure_args.append(f"--with-zlib={yes_no(self.options.with_zlib)}")
@@ -174,12 +163,7 @@ class CapnprotoConan(ConanFile):
         return os.path.join("lib", "cmake", "CapnProto")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()
@@ -236,15 +220,10 @@ class CapnprotoConan(ConanFile):
         if self.options.get_safe("with_zlib"):
             components.append({"name": "kj-gzip", "requires": ["kj", "kj-async", "zlib::zlib"]})
         if self.options.with_openssl:
-            components.append(
-                {"name": "kj-tls", "requires": ["kj", "kj-async", "openssl::openssl"]}
-            )
+            components.append({"name": "kj-tls", "requires": ["kj", "kj-async", "openssl::openssl"]})
         if Version(self.version) >= "0.9.0":
             components.append(
-                {
-                    "name": "capnp-websocket",
-                    "requires": ["capnp", "capnp-rpc", "kj-http", "kj-async", "kj"],
-                }
+                {"name": "capnp-websocket", "requires": ["capnp", "capnp-rpc", "kj-http", "kj-async", "kj"]}
             )
 
         for component in components:

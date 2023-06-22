@@ -78,12 +78,7 @@ class ProjConan(ConanFile):
             self.tool_requires("sqlite3/3.41.1")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -112,9 +107,7 @@ class ProjConan(ConanFile):
             tc.variables["ENABLE_CURL"] = self.options.with_curl
             tc.variables["BUILD_TESTING"] = False
             tc.variables["ENABLE_IPO"] = False
-            tc.variables["BUILD_PROJSYNC"] = (
-                self.options.build_executables and self.options.with_curl
-            )
+            tc.variables["BUILD_PROJSYNC"] = self.options.build_executables and self.options.with_curl
         if Version(self.version) >= "8.1.0":
             tc.variables["NLOHMANN_JSON_ORIGIN"] = "external"
         tc.variables["CMAKE_MACOSX_BUNDLE"] = False
@@ -135,9 +128,7 @@ class ProjConan(ConanFile):
         rm(self, "FindSqlite3.cmake", os.path.join(self.source_folder, "cmake"))
         replace_in_file(self, cmakelists, "SQLITE3_FOUND", "SQLite3_FOUND")
         replace_in_file(self, cmakelists, "SQLITE3_VERSION", "SQLite3_VERSION")
-        replace_in_file(
-            self, cmakelists, "find_package(Sqlite3 REQUIRED)", "find_package(SQLite3 REQUIRED)"
-        )
+        replace_in_file(self, cmakelists, "find_package(Sqlite3 REQUIRED)", "find_package(SQLite3 REQUIRED)")
 
         # Let CMake install shared lib with a clean rpath !
         if Version(self.version) >= "7.1.0" and Version(self.version) < "9.0.0":
@@ -174,12 +165,7 @@ class ProjConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         # recover the data ... 9.1.0 saves into share/proj rather than res directly
@@ -202,9 +188,7 @@ class ProjConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", cmake_config_filename)
         self.cpp_info.set_property("cmake_target_name", f"{cmake_namespace}::proj")
         self.cpp_info.set_property("pkg_config_name", "proj")
-        self.cpp_info.components["projlib"].set_property(
-            "cmake_target_name", f"{cmake_namespace}::proj"
-        )
+        self.cpp_info.components["projlib"].set_property("cmake_target_name", f"{cmake_namespace}::proj")
         self.cpp_info.components["projlib"].set_property("pkg_config_name", "proj")
 
         self.cpp_info.components["projlib"].libs = collect_libs(self)

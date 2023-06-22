@@ -21,9 +21,7 @@ class OpenSSLConan(ConanFile):
     homepage = "https://github.com/openssl/openssl"
     license = "Apache-2.0"
     topics = ("ssl", "tls", "encryption", "security")
-    description = (
-        "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-    )
+    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -136,9 +134,7 @@ class OpenSSLConan(ConanFile):
                 )
 
         if self.settings.os == "iOS" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "OpenSSL 3 does not support building shared libraries for iOS"
-            )
+            raise ConanInvalidConfiguration("OpenSSL 3 does not support building shared libraries for iOS")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -156,12 +152,7 @@ class OpenSSLConan(ConanFile):
         return self._is_clangcl or is_msvc(self)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _target(self):
@@ -334,9 +325,7 @@ class OpenSSLConan(ConanFile):
             return os.environ["CONAN_OPENSSL_CONFIGURATION"]
         compiler = "Visual Studio" if self.settings.compiler == "msvc" else self.settings.compiler
         query = f"{self.settings.os}-{self.settings.arch}-{compiler}"
-        ancestor = next(
-            (self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None
-        )
+        ancestor = next((self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None)
         if not ancestor:
             raise ConanInvalidConfiguration(
                 f"Unsupported configuration ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\n"
@@ -368,9 +357,7 @@ class OpenSSLConan(ConanFile):
         ]
 
         if self.settings.os == "Android":
-            args.append(
-                " -D__ANDROID_API__=%s" % str(self.settings.os.api_level)
-            )  # see NOTES.ANDROID
+            args.append(" -D__ANDROID_API__=%s" % str(self.settings.os.api_level))  # see NOTES.ANDROID
         if self.settings.os == "Emscripten":
             args.append("-D__STDC_NO_ATOMICS__=1")
         if self.settings.os == "Windows":
@@ -405,9 +392,7 @@ class OpenSSLConan(ConanFile):
             else:
                 args.append("zlib")
 
-            args.extend(
-                ['--with-zlib-include="%s"' % include_path, '--with-zlib-lib="%s"' % lib_path]
-            )
+            args.extend(['--with-zlib-include="%s"' % include_path, '--with-zlib-lib="%s"' % lib_path])
 
         for option_name in self.default_options.keys():
             if self.options.get_safe(option_name, False) and option_name not in (
@@ -532,9 +517,7 @@ class OpenSSLConan(ConanFile):
             if self._use_nmake:
                 self._replace_runtime_in_file(os.path.join("Configurations", "10-main.conf"))
 
-            self.run(
-                "{perl} ./Configure {args}".format(perl=self._perl, args=args), env="conanbuild"
-            )
+            self.run("{perl} ./Configure {args}".format(perl=self._perl, args=args), env="conanbuild")
             if self._use_nmake:
                 # When `--prefix=/`, the scripts derive `\` without escaping, which
                 # causes issues on Windows
@@ -560,12 +543,7 @@ class OpenSSLConan(ConanFile):
             replace_in_file(self, filename, f'/{e}"', f'/{runtime}"', strict=False)
 
     def package(self):
-        copy(
-            self,
-            "*LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         self._make_install()
         if is_apple_os(self):
             fix_apple_shared_install_name(self)
@@ -600,9 +578,7 @@ class OpenSSLConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(
@@ -654,9 +630,7 @@ class OpenSSLConan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(
-            self._module_subfolder, "conan-official-{}-variables.cmake".format(self.name)
-        )
+        return os.path.join(self._module_subfolder, "conan-official-{}-variables.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenSSL")
@@ -666,19 +640,11 @@ class OpenSSLConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "OpenSSL"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenSSL"
         self.cpp_info.components["ssl"].builddirs.append(self._module_subfolder)
-        self.cpp_info.components["ssl"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["ssl"].set_property(
-            "cmake_build_modules", [self._module_file_rel_path]
-        )
+        self.cpp_info.components["ssl"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.components["ssl"].set_property("cmake_build_modules", [self._module_file_rel_path])
         self.cpp_info.components["crypto"].builddirs.append(self._module_subfolder)
-        self.cpp_info.components["crypto"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["crypto"].set_property(
-            "cmake_build_modules", [self._module_file_rel_path]
-        )
+        self.cpp_info.components["crypto"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.components["crypto"].set_property("cmake_build_modules", [self._module_file_rel_path])
 
         if self._use_nmake:
             libsuffix = "d" if self.settings.build_type == "Debug" else ""

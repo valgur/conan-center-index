@@ -153,9 +153,7 @@ class TestPackageConan(ConanFile):
         lib_extension = "dll" if self.settings.os == "Windows" else "so"
 
         if can_run(self):
-            bin_executable = unix_path(
-                self, os.path.join(self.cpp.build.bindirs[0], "test_package")
-            )
+            bin_executable = unix_path(self, os.path.join(self.cpp.build.bindirs[0], "test_package"))
             lib_path = unix_path(
                 self, os.path.join(self.cpp.build.libdirs[0], f"{lib_prefix}liba.{lib_extension}")
             )

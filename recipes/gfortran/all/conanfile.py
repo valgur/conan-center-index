@@ -25,9 +25,7 @@ class GFortranConan(ConanFile):
                 "No binaries available for the architecture '{}'.".format(self.settings.arch)
             )
         if str(self.settings.os) not in ("Windows", "Linux", "Macos"):
-            raise ConanInvalidConfiguration(
-                "No binaries available for the OS '{}'.".format(self.settings.os)
-            )
+            raise ConanInvalidConfiguration("No binaries available for the OS '{}'.".format(self.settings.os))
 
     def build_requirements(self):
         if self.settings.os == "Windows":
@@ -85,12 +83,7 @@ class GFortranConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(
-            self,
-            "LICENSE",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "gfortran*",
@@ -98,10 +91,7 @@ class GFortranConan(ConanFile):
             dst=os.path.join(self.package_folder, "bin"),
         )
         copy(
-            self,
-            "libgfortran.a",
-            src=self._library_source_path,
-            dst=os.path.join(self.package_folder, "lib"),
+            self, "libgfortran.a", src=self._library_source_path, dst=os.path.join(self.package_folder, "lib")
         )
 
     def package_info(self):

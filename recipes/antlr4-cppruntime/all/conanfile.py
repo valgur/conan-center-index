@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    export_conandata_patches,
-    apply_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir, save
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -50,7 +42,7 @@ class Antlr4CppRuntimeConan(ConanFile):
                 "gcc": "7",
                 "clang": "5",
                 "apple-clang": "9.1",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):

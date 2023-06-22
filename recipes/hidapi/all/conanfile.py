@@ -65,9 +65,7 @@ class HidapiConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Static libraries for Visual Studio are currently not available"
-            )
+            raise ConanInvalidConfiguration("Static libraries for Visual Studio are currently not available")
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -127,9 +125,7 @@ class HidapiConan(ConanFile):
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-            msbuild.build(
-                os.path.join(self.source_folder, "windows", "hidapi.sln"), targets=["hidapi"]
-            )
+            msbuild.build(os.path.join(self.source_folder, "windows", "hidapi.sln"), targets=["hidapi"])
         else:
             autotools = Autotools(self)
             autotools.autoreconf()
@@ -137,12 +133,7 @@ class HidapiConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

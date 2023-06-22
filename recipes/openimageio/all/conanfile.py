@@ -145,9 +145,7 @@ class OpenImageIOConan(ConanFile):
             else:
                 check_min_cppstd(self, 11)
         if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Building shared library with static runtime is not supported!"
-            )
+            raise ConanInvalidConfiguration("Building shared library with static runtime is not supported!")
 
     def source(self):
         files.get(
@@ -243,9 +241,7 @@ class OpenImageIOConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openimageio_util"].system_libs.extend(["dl", "m", "pthread"])
 
-        self.cpp_info.components["main"].set_property(
-            "cmake_target_name", "OpenImageIO::OpenImageIO"
-        )
+        self.cpp_info.components["main"].set_property("cmake_target_name", "OpenImageIO::OpenImageIO")
         self.cpp_info.components["main"].set_property("pkg_config_name", "OpenImageIO")
         self.cpp_info.components["main"].libs = ["OpenImageIO"]
         self.cpp_info.components["main"].requires = [
@@ -306,7 +302,5 @@ class OpenImageIOConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "OpenImageIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenImageIO"
         self.cpp_info.names["pkg_config"] = "OpenImageIO"
-        self.cpp_info.components["openimageio_util"].names[
-            "cmake_find_package"
-        ] = "OpenImageIO_Util"
+        self.cpp_info.components["openimageio_util"].names["cmake_find_package"] = "OpenImageIO_Util"
         self.cpp_info.components["main"].names["cmake_find_package"] = "OpenImageIO"

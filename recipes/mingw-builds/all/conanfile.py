@@ -16,7 +16,10 @@ class MingwConan(ConanFile):
     topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
     settings = "os", "arch"
     options = {"threads": ["posix", "win32"], "exception": ["seh", "sjlj"]}
-    default_options = {"threads": "posix", "exception": "seh"}
+    default_options = {
+        "threads": "posix",
+        "exception": "seh",
+    }
 
     provides = "mingw-w64"
 
@@ -66,9 +69,7 @@ class MingwConan(ConanFile):
 
     def build(self):
         # Source should be downloaded in the build step since it depends on specific options
-        url = self.conan_data["sources"][self.version][str(self.options.threads)][
-            str(self.options.exception)
-        ]
+        url = self.conan_data["sources"][self.version][str(self.options.threads)][str(self.options.exception)]
         self.output.info(f"Downloading: {url['url']}")
         download(self, url["url"], "file.7z", sha256=url["sha256"])
         self.run("7z x file.7z")
@@ -110,16 +111,8 @@ class MingwConan(ConanFile):
         self.env_info.NM = os.path.join(self.package_folder, "bin", "nm.exe").replace("\\", "/")
         self.env_info.AR = os.path.join(self.package_folder, "bin", "ar.exe").replace("\\", "/")
         self.env_info.AS = os.path.join(self.package_folder, "bin", "as.exe").replace("\\", "/")
-        self.env_info.STRIP = os.path.join(self.package_folder, "bin", "strip.exe").replace(
-            "\\", "/"
-        )
-        self.env_info.RANLIB = os.path.join(self.package_folder, "bin", "ranlib.exe").replace(
-            "\\", "/"
-        )
-        self.env_info.STRINGS = os.path.join(self.package_folder, "bin", "strings.exe").replace(
-            "\\", "/"
-        )
-        self.env_info.OBJDUMP = os.path.join(self.package_folder, "bin", "objdump.exe").replace(
-            "\\", "/"
-        )
+        self.env_info.STRIP = os.path.join(self.package_folder, "bin", "strip.exe").replace("\\", "/")
+        self.env_info.RANLIB = os.path.join(self.package_folder, "bin", "ranlib.exe").replace("\\", "/")
+        self.env_info.STRINGS = os.path.join(self.package_folder, "bin", "strings.exe").replace("\\", "/")
+        self.env_info.OBJDUMP = os.path.join(self.package_folder, "bin", "objdump.exe").replace("\\", "/")
         self.env_info.GCOV = os.path.join(self.package_folder, "bin", "gcov.exe").replace("\\", "/")

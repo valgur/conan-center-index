@@ -81,9 +81,7 @@ class HexlConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
-                    self.name
-                )
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
             )
 
         if self.settings.arch not in ["x86", "x86_64"]:
@@ -105,10 +103,7 @@ class HexlConan(ConanFile):
         self._cmake.definitions["HEXL_TESTING"] = False
         self._cmake.definitions["HEXL_EXPERIMENTAL"] = self.options.experimental
 
-        if (
-            self.options.fpga_compatibility_dyadic_multiply
-            and self.options.fpga_compatibility_keyswitch
-        ):
+        if self.options.fpga_compatibility_dyadic_multiply and self.options.fpga_compatibility_keyswitch:
             self._cmake.definitions["HEXL_FPGA_COMPATIBILITY"] = 3
         elif self.options.fpga_compatibility_dyadic_multiply:
             self._cmake.definitions["HEXL_FPGA_COMPATIBILITY"] = 1

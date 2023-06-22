@@ -67,12 +67,7 @@ class InihConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -105,6 +100,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

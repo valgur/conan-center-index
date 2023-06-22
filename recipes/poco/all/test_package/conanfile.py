@@ -21,9 +21,9 @@ class TestPackageConan(ConanFile):
         tc.variables["TEST_CRYPTO"] = poco_options.enable_crypto
         tc.variables["TEST_UTIL"] = poco_options.enable_util
         tc.variables["TEST_NET"] = poco_options.enable_net
-        tc.variables["TEST_NETSSL"] = poco_options.get_safe(
-            "enable_netssl"
-        ) or poco_options.get_safe("enable_netssl_win")
+        tc.variables["TEST_NETSSL"] = poco_options.get_safe("enable_netssl") or poco_options.get_safe(
+            "enable_netssl_win"
+        )
         tc.variables["TEST_SQLITE"] = poco_options.enable_data_sqlite
         tc.variables["TEST_ENCODINGS"] = poco_options.get_safe("enable_encodings", False)
         tc.variables["TEST_JWT"] = poco_options.get_safe("enable_jwt", False)

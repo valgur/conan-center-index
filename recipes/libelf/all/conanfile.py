@@ -78,7 +78,7 @@ class LibelfConan(ConanFile):
             tc.configure_args.extend(
                 [
                     # it's required, libelf doesnt seem to understand DESTDIR
-                    f"--prefix={unix_path(self, self.package_folder)}",
+                    f"--prefix={unix_path(self, self.package_folder)}"
                 ]
             )
             tc.generate()
@@ -114,12 +114,7 @@ class LibelfConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING.LIB",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

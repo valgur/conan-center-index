@@ -39,13 +39,7 @@ class TestPackageConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
-        for src in (
-            "configure.ac",
-            "config.h.in",
-            "Makefile.in",
-            "test_package_c.c",
-            "test_package_cpp.cpp",
-        ):
+        for src in ("configure.ac", "config.h.in", "Makefile.in", "test_package_c.c", "test_package_cpp.cpp"):
             copy(self, src, self.source_folder, self.build_folder)
         self.run("autoconf --verbose")
         autotools = Autotools(self)

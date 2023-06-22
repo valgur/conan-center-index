@@ -49,10 +49,7 @@ class TestPackageConan(ConanFile):
             self.run(f"{files['compiler']} -dumpversion", env="conanbuild")
 
             # Confirm files can be compiled
-            self.run(
-                f"{files['compiler']} {files['src']} -o {files['bin']}",
-                env="conanbuild",
-            )
+            self.run(f"{files['compiler']} {files['src']} -o {files['bin']}", env="conanbuild")
             self.output.info(f"Successfully built {files['bin']}")
 
     def test(self):

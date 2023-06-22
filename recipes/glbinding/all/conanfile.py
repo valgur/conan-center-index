@@ -89,12 +89,7 @@ class GlbindingConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -105,9 +100,7 @@ class GlbindingConan(ConanFile):
 
         suffix = "d" if self.settings.build_type == "Debug" else ""
         # glbinding
-        self.cpp_info.components["_glbinding"].set_property(
-            "cmake_target_name", "glbinding::glbinding"
-        )
+        self.cpp_info.components["_glbinding"].set_property("cmake_target_name", "glbinding::glbinding")
         self.cpp_info.components["_glbinding"].libs = ["glbinding" + suffix]
         self.cpp_info.components["_glbinding"].requires = ["khrplatform"]
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -119,9 +112,7 @@ class GlbindingConan(ConanFile):
         self.cpp_info.components["glbinding-aux"].libs = ["glbinding-aux" + suffix]
         self.cpp_info.components["glbinding-aux"].requires = ["_glbinding"]
         # KHRplatform
-        self.cpp_info.components["khrplatform"].set_property(
-            "cmake_target_name", "glbinding::KHRplatform"
-        )
+        self.cpp_info.components["khrplatform"].set_property("cmake_target_name", "glbinding::KHRplatform")
         self.cpp_info.components["khrplatform"].libdirs = []
 
         # workaround to propagate all components in CMakeDeps generator
@@ -133,8 +124,6 @@ class GlbindingConan(ConanFile):
         self.cpp_info.components["_glbinding"].names["cmake_find_package"] = "glbinding"
         self.cpp_info.components["_glbinding"].names["cmake_find_package_multi"] = "glbinding"
         self.cpp_info.components["glbinding-aux"].names["cmake_find_package"] = "glbinding-aux"
-        self.cpp_info.components["glbinding-aux"].names[
-            "cmake_find_package_multi"
-        ] = "glbinding-aux"
+        self.cpp_info.components["glbinding-aux"].names["cmake_find_package_multi"] = "glbinding-aux"
         self.cpp_info.components["khrplatform"].names["cmake_find_package"] = "KHRplatform"
         self.cpp_info.components["khrplatform"].names["cmake_find_package_multi"] = "KHRplatform"

@@ -13,7 +13,9 @@ required_conan_version = ">=1.53.0"
 
 class Dav1dConan(ConanFile):
     name = "dav1d"
-    description = "dav1d is a new AV1 cross-platform decoder, open-source, and focused on speed, size and correctness."
+    description = (
+        "dav1d is a new AV1 cross-platform decoder, open-source, and focused on speed, size and correctness."
+    )
     homepage = "https://www.videolan.org/projects/dav1d.html"
     topics = ("av1", "codec", "video", "decoding")
     license = "BSD-2-Clause"
@@ -91,12 +93,7 @@ class Dav1dConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -131,6 +128,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

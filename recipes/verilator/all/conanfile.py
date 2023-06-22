@@ -74,9 +74,7 @@ class VerilatorConan(ConanFile):
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Cross building is not yet supported. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
         if (
             Version(self.version) >= "4.200"
@@ -86,20 +84,14 @@ class VerilatorConan(ConanFile):
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
         if self.settings.os == "Windows" and Version(self.version) >= "4.200":
-            raise ConanInvalidConfiguration(
-                "Windows build is not yet supported. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             build_env = {
-                "CC": "{} cl -nologo".format(
-                    tools.unix_path(self.deps_user_info["automake"].compile)
-                ),
-                "CXX": "{} cl -nologo".format(
-                    tools.unix_path(self.deps_user_info["automake"].compile)
-                ),
+                "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
+                "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
                 "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
             }
             with tools.vcvars(self.settings):
@@ -120,9 +112,7 @@ class VerilatorConan(ConanFile):
             self._autotools.cxx_flags.append("-EHsc")
             self._autotools.defines.append("YY_NO_UNISTD_H")
             self._autotools.flags.append("-FS")
-        conf_args = [
-            "--datarootdir={}/bin/share".format(tools.unix_path(self.package_folder)),
-        ]
+        conf_args = ["--datarootdir={}/bin/share".format(tools.unix_path(self.package_folder))]
         yacc = tools.get_env("YACC")
         if yacc:
             if yacc.endswith(" -y"):
@@ -132,8 +122,7 @@ class VerilatorConan(ConanFile):
                 with tools.chdir(self._source_subfolder):
                     self.run("autoconf", win_bash=tools.os_info.is_windows, run_environment=True)
             self._autotools.configure(
-                args=conf_args,
-                configure_dir=os.path.join(self.build_folder, self._source_subfolder),
+                args=conf_args, configure_dir=os.path.join(self.build_folder, self._source_subfolder)
             )
 
         return self._autotools
@@ -149,9 +138,7 @@ class VerilatorConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             args.append(
                 "PROGLINK={}".format(
-                    tools.unix_path(
-                        os.path.join(self.build_folder, self._source_subfolder, "msvc_link.sh")
-                    )
+                    tools.unix_path(os.path.join(self.build_folder, self._source_subfolder, "msvc_link.sh"))
                 )
             )
         return args
@@ -167,10 +154,7 @@ class VerilatorConan(ConanFile):
 
         if self.settings.compiler == "Visual Studio":
             replace_in_file(
-                self,
-                os.path.join(self._source_subfolder, "src", "Makefile_obj.in"),
-                "${LINK}",
-                "${PROGLINK}",
+                self, os.path.join(self._source_subfolder, "src", "Makefile_obj.in"), "${LINK}", "${PROGLINK}"
             )
 
     def build(self):
@@ -189,15 +173,11 @@ class VerilatorConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "verilator", "examples"))
         os.unlink(
-            os.path.join(
-                self.package_folder, "bin", "share", "verilator", "verilator-config-version.cmake"
-            )
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config-version.cmake")
         )
         rename(
             self,
-            os.path.join(
-                self.package_folder, "bin", "share", "verilator", "verilator-config.cmake"
-            ),
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config.cmake"),
             os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
         )
         replace_in_file(
@@ -209,9 +189,7 @@ class VerilatorConan(ConanFile):
         if self.settings.build_type == "Debug":
             replace_in_file(
                 self,
-                os.path.join(
-                    self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"
-                ),
+                os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
                 "verilator_bin",
                 "verilator_bin_dbg",
             )
@@ -224,20 +202,13 @@ class VerilatorConan(ConanFile):
         if Version(self.version) >= "4.224":
             shutil.move(
                 os.path.join(
-                    self.package_folder,
-                    "bin",
-                    "share",
-                    "verilator",
-                    "bin",
-                    "verilator_ccache_report",
+                    self.package_folder, "bin", "share", "verilator", "bin", "verilator_ccache_report"
                 ),
                 os.path.join(self.package_folder, "bin", "verilator_ccache_report"),
             )
 
         shutil.move(
-            os.path.join(
-                self.package_folder, "bin", "share", "verilator", "bin", "verilator_includer"
-            ),
+            os.path.join(self.package_folder, "bin", "share", "verilator", "bin", "verilator_includer"),
             os.path.join(self.package_folder, "bin", "verilator_includer"),
         )
 
@@ -252,9 +223,7 @@ class VerilatorConan(ConanFile):
         self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
 
-        verilator_bin = (
-            "verilator_bin_dbg" if self.settings.build_type == "Debug" else "verilator_bin"
-        )
+        verilator_bin = "verilator_bin_dbg" if self.settings.build_type == "Debug" else "verilator_bin"
         self.output.info("Setting VERILATOR_BIN environment variable to {}".format(verilator_bin))
         self.env_info.VERILATOR_BIN = verilator_bin
 
@@ -263,6 +232,4 @@ class VerilatorConan(ConanFile):
         self.env_info.VERILATOR_ROOT = verilator_root
 
         self.cpp_info.builddirs.append(os.path.join("bin", "share", "verilator"))
-        self.cpp_info.build_modules.append(
-            os.path.join("bin", "share", "verilator", "verilator-tools.cmake")
-        )
+        self.cpp_info.build_modules.append(os.path.join("bin", "share", "verilator", "verilator-tools.cmake"))

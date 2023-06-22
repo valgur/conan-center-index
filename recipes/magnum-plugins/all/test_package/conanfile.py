@@ -12,9 +12,7 @@ class TestPackage(ConanFile):
             self.deps_user_info["magnum-plugins"].plugins_basepath, "importers"
         ).replace("\\", "/")
         # STL file taken from https://www.thingiverse.com/thing:2798332
-        cmake.definitions["CONAN_STL_FILE"] = os.path.join(self.source_folder, "conan.stl").replace(
-            "\\", "/"
-        )
+        cmake.definitions["CONAN_STL_FILE"] = os.path.join(self.source_folder, "conan.stl").replace("\\", "/")
         cmake.definitions["SHARED_PLUGINS"] = self.options["magnum-plugins"].shared_plugins
         cmake.definitions["TARGET_EMSCRIPTEN"] = bool(self.settings.os == "Emscripten")
         cmake.configure()

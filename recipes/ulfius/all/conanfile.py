@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
 import os
@@ -54,9 +47,7 @@ class UlfiusConan(ConanFile):
                 "with_gnutls=True is not yet implemented due to missing gnutls CCI recipe"
             )
         if self.settings.os == "Windows" and self.options.enable_websockets:
-            raise ConanInvalidConfiguration(
-                "ulfius does not support with_websockets=True on Windows"
-            )
+            raise ConanInvalidConfiguration("ulfius does not support with_websockets=True on Windows")
 
     def configure(self):
         if self.options.shared:
@@ -84,12 +75,7 @@ class UlfiusConan(ConanFile):
             self.requires("libcurl/7.85.0")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -203,12 +189,7 @@ class UlfiusConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            os.path.join(self.source_folder),
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -230,7 +211,11 @@ class UlfiusConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Ulfius::Ulfius-static": "Ulfius::Ulfius"},
+            {}
+            if self.options.shared
+            else {
+                "Ulfius::Ulfius-static": "Ulfius::Ulfius",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

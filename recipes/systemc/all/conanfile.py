@@ -72,9 +72,7 @@ class SystemcConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -88,9 +86,7 @@ class SystemcConan(ConanFile):
             "ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"
         ] = self.options.enable_immediate_self_notifications
         cmake.definitions["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
-        cmake.definitions["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe(
-            "enable_phase_callbacks", False
-        )
+        cmake.definitions["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
         cmake.definitions["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe(
             "enable_phase_callbacks_tracing", False
         )

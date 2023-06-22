@@ -46,9 +46,7 @@ class CityhashConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "cityhash does not support shared builds with Visual Studio"
-            )
+            raise ConanInvalidConfiguration("cityhash does not support shared builds with Visual Studio")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -92,12 +90,7 @@ class CityhashConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

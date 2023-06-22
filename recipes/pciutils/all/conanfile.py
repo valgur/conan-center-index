@@ -17,7 +17,12 @@ class PciUtilsConan(ConanFile):
         "with_zlib": [True, False],
         "with_udev": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "with_zlib": True, "with_udev": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_zlib": True,
+        "with_udev": False,
+    }
 
     def configure(self):
         if self.settings.os != "Linux":
@@ -52,9 +57,7 @@ class PciUtilsConan(ConanFile):
                 "ZLIB={}".format(yes_no(self.options.with_zlib)),
                 "HWDB={}".format(yes_no(self.options.with_udev)),
                 "PREFIX={}".format(self.package_folder),
-                "OPT={}".format(
-                    "{} {}".format(autotools.vars["CPPFLAGS"], autotools.vars["CFLAGS"])
-                ),
+                "OPT={}".format("{} {}".format(autotools.vars["CPPFLAGS"], autotools.vars["CFLAGS"])),
                 "DNS=no",
             ],
             target=" ".join(targets),

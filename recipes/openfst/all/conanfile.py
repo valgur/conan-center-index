@@ -99,9 +99,7 @@ class OpenFstConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -151,9 +149,7 @@ class OpenFstConan(ConanFile):
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
         if os.path.exists(lib_subdir):
             for fn in os.listdir(lib_subdir):
-                tools.rename(
-                    os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn))
-                )
+                tools.rename(os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
             tools.rmdir(lib_subdir)
 
         tools.rmdir(os.path.join(self.package_folder, "share"))
@@ -168,8 +164,7 @@ class OpenFstConan(ConanFile):
         return [
             "compact{}_{}-fst".format(n, fst)
             for n, fst in product(
-                [8, 16, 64],
-                ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"],
+                [8, 16, 64], ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"]
             )
         ]
 

@@ -25,7 +25,11 @@ class FollyConan(ConanFile):
         "fPIC": [True, False],
         "use_sse4_2": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "use_sse4_2": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "use_sse4_2": False,
+    }
 
     generators = "cmake", "cmake_find_package"
 
@@ -149,9 +153,7 @@ class FollyConan(ConanFile):
         )
         if miss_boost_required_comp:
             raise ConanInvalidConfiguration(
-                "Folly requires these boost components: {}".format(
-                    ", ".join(self._required_boost_components)
-                )
+                "Folly requires these boost components: {}".format(", ".join(self._required_boost_components))
             )
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
@@ -215,9 +217,7 @@ class FollyConan(ConanFile):
 
         cxx_std_flag = tools.cppstd_flag(self.settings)
         cxx_std_value = (
-            cxx_std_flag.split("=")[1]
-            if cxx_std_flag
-            else "c++{}".format(self._minimum_cpp_standard)
+            cxx_std_flag.split("=")[1] if cxx_std_flag else "c++{}".format(self._minimum_cpp_standard)
         )
         cmake.definitions["CXX_STD"] = cxx_std_value
         if is_msvc:
@@ -247,11 +247,7 @@ class FollyConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if Version(self.version) == "2019.10.21.00":
-            self.cpp_info.components["libfolly"].libs = [
-                "follybenchmark",
-                "folly_test_util",
-                "folly",
-            ]
+            self.cpp_info.components["libfolly"].libs = ["follybenchmark", "folly_test_util", "folly"]
         elif Version(self.version) >= "2020.08.10.00":
             if self.settings.os == "Linux":
                 self.cpp_info.components["libfolly"].libs = [
@@ -263,11 +259,7 @@ class FollyConan(ConanFile):
                     "folly",
                 ]
             else:
-                self.cpp_info.components["libfolly"].libs = [
-                    "folly_test_util",
-                    "follybenchmark",
-                    "folly",
-                ]
+                self.cpp_info.components["libfolly"].libs = ["folly_test_util", "follybenchmark", "folly"]
 
         self.cpp_info.components["libfolly"].requires = [
             "boost::boost",
@@ -295,14 +287,10 @@ class FollyConan(ConanFile):
         if Version(self.version) >= "2020.08.10.00":
             self.cpp_info.components["libfolly"].requires.append("fmt::fmt")
             if self.settings.os == "Linux":
-                self.cpp_info.components["libfolly"].defines.extend(
-                    ["FOLLY_HAVE_ELF", "FOLLY_HAVE_DWARF"]
-                )
+                self.cpp_info.components["libfolly"].defines.extend(["FOLLY_HAVE_ELF", "FOLLY_HAVE_DWARF"])
 
         elif self.settings.os == "Windows":
-            self.cpp_info.components["libfolly"].system_libs.extend(
-                ["ws2_32", "iphlpapi", "crypt32"]
-            )
+            self.cpp_info.components["libfolly"].system_libs.extend(["ws2_32", "iphlpapi", "crypt32"])
 
         if (
             self.settings.os == "Linux"
@@ -341,18 +329,14 @@ class FollyConan(ConanFile):
             self.cpp_info.components["follybenchmark"].set_property(
                 "cmake_target_name", "Folly::follybenchmark"
             )
-            self.cpp_info.components["follybenchmark"].set_property(
-                "pkg_config_name", "libfollybenchmark"
-            )
+            self.cpp_info.components["follybenchmark"].set_property("pkg_config_name", "libfollybenchmark")
             self.cpp_info.components["follybenchmark"].libs = ["follybenchmark"]
             self.cpp_info.components["follybenchmark"].requires = ["libfolly"]
 
             self.cpp_info.components["folly_test_util"].set_property(
                 "cmake_target_name", "Folly::folly_test_util"
             )
-            self.cpp_info.components["folly_test_util"].set_property(
-                "pkg_config_name", "libfolly_test_util"
-            )
+            self.cpp_info.components["folly_test_util"].set_property("pkg_config_name", "libfolly_test_util")
             self.cpp_info.components["folly_test_util"].libs = ["folly_test_util"]
             self.cpp_info.components["folly_test_util"].requires = ["libfolly"]
 
@@ -363,9 +347,7 @@ class FollyConan(ConanFile):
             self.cpp_info.components["folly_exception_tracer_base"].set_property(
                 "pkg_config_name", "libfolly_exception_tracer_base"
             )
-            self.cpp_info.components["folly_exception_tracer_base"].libs = [
-                "folly_exception_tracer_base"
-            ]
+            self.cpp_info.components["folly_exception_tracer_base"].libs = ["folly_exception_tracer_base"]
             self.cpp_info.components["folly_exception_tracer_base"].requires = ["libfolly"]
 
             self.cpp_info.components["folly_exception_tracer"].set_property(
@@ -375,9 +357,7 @@ class FollyConan(ConanFile):
                 "pkg_config_name", "libfolly_exception_tracer"
             )
             self.cpp_info.components["folly_exception_tracer"].libs = ["folly_exception_tracer"]
-            self.cpp_info.components["folly_exception_tracer"].requires = [
-                "folly_exception_tracer_base"
-            ]
+            self.cpp_info.components["folly_exception_tracer"].requires = ["folly_exception_tracer_base"]
 
             self.cpp_info.components["folly_exception_counter"].set_property(
                 "cmake_target_name", "Folly::folly_exception_counter"
@@ -386,6 +366,4 @@ class FollyConan(ConanFile):
                 "pkg_config_name", "libfolly_exception_counter"
             )
             self.cpp_info.components["folly_exception_counter"].libs = ["folly_exception_counter"]
-            self.cpp_info.components["folly_exception_counter"].requires = [
-                "folly_exception_tracer"
-            ]
+            self.cpp_info.components["folly_exception_counter"].requires = ["folly_exception_tracer"]

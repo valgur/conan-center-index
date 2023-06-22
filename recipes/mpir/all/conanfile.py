@@ -14,8 +14,7 @@ required_conan_version = ">=1.50.0"
 class MpirConan(ConanFile):
     name = "mpir"
     description = (
-        "MPIR is a highly optimised library for bignum arithmetic"
-        "forked from the GMP bignum library."
+        "MPIR is a highly optimised library for bignum arithmetic" "forked from the GMP bignum library."
     )
     topics = ("multiprecision", "math", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"
@@ -81,7 +80,10 @@ class MpirConan(ConanFile):
 
     @property
     def _platforms(self):
-        return {"x86": "Win32", "x86_64": "x64"}
+        return {
+            "x86": "Win32",
+            "x86_64": "x64",
+        }
 
     @property
     def _dll_or_lib(self):
@@ -90,9 +92,7 @@ class MpirConan(ConanFile):
     @property
     def _vcxproj_paths(self):
         compiler_version = (
-            self.settings.compiler.version
-            if Version(self.settings.compiler.version) <= "17"
-            else "17"
+            self.settings.compiler.version if Version(self.settings.compiler.version) <= "17" else "17"
         )
         build_subdir = "build.vc{}".format(compiler_version)
         vcxproj_paths = [
@@ -105,9 +105,7 @@ class MpirConan(ConanFile):
         ]
         if self.options.get_safe("enable_cxx"):
             vcxproj_paths.append(
-                os.path.join(
-                    self._source_subfolder, build_subdir, "lib_mpir_cxx", "lib_mpir_cxx.vcxproj"
-                )
+                os.path.join(self._source_subfolder, build_subdir, "lib_mpir_cxx", "lib_mpir_cxx.vcxproj")
             )
         return vcxproj_paths
 
@@ -117,9 +115,7 @@ class MpirConan(ConanFile):
             props_path = os.path.join(
                 self._source_subfolder, "build.vc", "mpir_{}_lib.props".format(build_type)
             )
-            old_runtime = "MultiThreaded{}".format(
-                "Debug" if build_type == "debug" else "",
-            )
+            old_runtime = "MultiThreaded{}".format("Debug" if build_type == "debug" else "")
             new_runtime = "MultiThreaded{}{}".format(
                 "Debug" if "d" in msvc_runtime_flag(self) else "",
                 "DLL" if "MD" in msvc_runtime_flag(self) else "",
@@ -158,9 +154,7 @@ class MpirConan(ConanFile):
 
             args.append("--disable-silent-rules")
             args.append("--enable-cxx" if self.options.get_safe("enable_cxx") else "--disable-cxx")
-            args.append(
-                "--enable-gmpcompat" if self.options.enable_gmpcompat else "--disable-gmpcompat"
-            )
+            args.append("--enable-gmpcompat" if self.options.enable_gmpcompat else "--disable-gmpcompat")
 
             # compiler checks are written for C89 but compilers that default to C99 treat implicit functions as error
             self._autotools.flags.append("-Wno-implicit-function-declaration")
@@ -189,22 +183,12 @@ class MpirConan(ConanFile):
                     strict=False,
                 )
                 replace_in_file(
-                    self,
-                    full_file,
-                    "prebuild p3 Win32 15",
-                    f"prebuild p3 Win32 {ver}",
-                    strict=False,
+                    self, full_file, "prebuild p3 Win32 15", f"prebuild p3 Win32 {ver}", strict=False
                 )
                 replace_in_file(
-                    self,
-                    full_file,
-                    "prebuild gc Win32 15",
-                    f"prebuild gc Win32 {ver}",
-                    strict=False,
+                    self, full_file, "prebuild gc Win32 15", f"prebuild gc Win32 {ver}", strict=False
                 )
-                replace_in_file(
-                    self, full_file, "prebuild gc x64 15", f"prebuild gc x64 {ver}", strict=False
-                )
+                replace_in_file(self, full_file, "prebuild gc x64 15", f"prebuild gc x64 {ver}", strict=False)
                 replace_in_file(
                     self,
                     full_file,
@@ -213,11 +197,7 @@ class MpirConan(ConanFile):
                     strict=False,
                 )
                 replace_in_file(
-                    self,
-                    full_file,
-                    "prebuild core2 x64 15",
-                    f"prebuild core2 x64 {ver}",
-                    strict=False,
+                    self, full_file, "prebuild core2 x64 15", f"prebuild core2 x64 {ver}", strict=False
                 )
                 replace_in_file(
                     self,
@@ -246,9 +226,7 @@ class MpirConan(ConanFile):
         else:
             with chdir(self, self._source_subfolder), self._build_context():
                 # relocatable shared lib on macOS
-                replace_in_file(
-                    self, "configure", "-install_name \\$rpath/", "-install_name @rpath/"
-                )
+                replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
                 autotools = self._configure_autotools()
                 autotools.make()
 

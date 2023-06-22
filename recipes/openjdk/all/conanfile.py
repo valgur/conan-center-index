@@ -45,9 +45,7 @@ class OpenJDK(ConanFile):
 
     def package(self):
         if self.settings.os == "Macos":
-            source_folder = os.path.join(
-                self.source_folder, f"jdk-{self.version}.jdk", "Contents", "Home"
-            )
+            source_folder = os.path.join(self.source_folder, f"jdk-{self.version}.jdk", "Contents", "Home")
         else:
             source_folder = self.source_folder
         symlinks.remove_broken_symlinks(self, source_folder)

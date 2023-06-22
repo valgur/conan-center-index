@@ -7,7 +7,9 @@ required_conan_version = ">=1.33.0"
 class DuktapeConan(ConanFile):
     name = "duktape"
     license = "MIT"
-    description = "Duktape is an embeddable Javascript engine, with a focus on portability and compact footprint."
+    description = (
+        "Duktape is an embeddable Javascript engine, with a focus on portability and compact footprint."
+    )
     topics = ("javascript", "engine", "embeddable", "compact")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://duktape.org"
@@ -37,9 +39,7 @@ class DuktapeConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):
@@ -70,9 +70,5 @@ class DuktapeConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["duktape"]
-        if not self.options.shared and str(self.settings.os) in (
-            "Linux",
-            "FreeBSD",
-            "SunOS",
-        ):
+        if not self.options.shared and str(self.settings.os) in ("Linux", "FreeBSD", "SunOS"):
             self.cpp_info.system_libs = ["m"]

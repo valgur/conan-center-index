@@ -101,9 +101,7 @@ class mFASTConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -132,12 +130,7 @@ class mFASTConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "licence.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         mkdir(self, os.path.join(self.package_folder, self._new_mfast_config_dir))
@@ -184,21 +177,16 @@ class mFASTConan(ConanFile):
     def _extract_fasttypegentarget_macro(self):
         if Version(self.version) < "1.2.2":
             config_file_content = load(
-                self,
-                os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake"),
+                self, os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake")
             )
             begin = config_file_content.find("macro(FASTTYPEGEN_TARGET Name)")
             end = config_file_content.find("endmacro()", begin) + len("endmacro()")
             macro_str = config_file_content[begin:end]
-            save(
-                self, os.path.join(self.package_folder, self._fast_type_gen_target_file), macro_str
-            )
+            save(self, os.path.join(self.package_folder, self._fast_type_gen_target_file), macro_str)
         else:
             rename(
                 self,
-                os.path.join(
-                    self.package_folder, self._old_mfast_config_dir, "FastTypeGenTarget.cmake"
-                ),
+                os.path.join(self.package_folder, self._old_mfast_config_dir, "FastTypeGenTarget.cmake"),
                 os.path.join(self.package_folder, self._fast_type_gen_target_file),
             )
 
@@ -206,9 +194,7 @@ class mFASTConan(ConanFile):
         extension = ".exe" if self.settings.os == "Windows" else ""
         fast_type_filename = "fast_type_gen" + extension
         module_folder_depth = len(os.path.normpath(self._new_mfast_config_dir).split(os.path.sep))
-        fast_type_rel_path = "{}bin/{}".format(
-            "".join(["../"] * module_folder_depth), fast_type_filename
-        )
+        fast_type_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), fast_type_filename)
         exec_target_content = textwrap.dedent(
             """\
             if(NOT TARGET fast_type_gen)
@@ -285,7 +271,7 @@ class mFASTConan(ConanFile):
                         "target": "mfast_sqlite3" + target_suffix,
                         "lib": "mfast_sqlite3" + lib_suffix,
                         "requires": ["libmfast", "boost::headers", "sqlite3::sqlite3"],
-                    },
+                    }
                 }
             )
         return components
@@ -313,14 +299,10 @@ class mFASTConan(ConanFile):
             # TODO: to remove in conan v2 once cmake_find_package* generators removed
             self.cpp_info.components[conan_comp].names["cmake_find_package"] = target
             self.cpp_info.components[conan_comp].names["cmake_find_package_multi"] = target
-            self.cpp_info.components[conan_comp].build_modules["cmake"] = [
-                self._fast_type_gen_target_file
-            ]
+            self.cpp_info.components[conan_comp].build_modules["cmake"] = [self._fast_type_gen_target_file]
             build_modules = [self._lib_targets_module_file, self._fast_type_gen_target_file]
             self.cpp_info.components[conan_comp].build_modules["cmake_find_package"] = build_modules
-            self.cpp_info.components[conan_comp].build_modules[
-                "cmake_find_package_multi"
-            ] = build_modules
+            self.cpp_info.components[conan_comp].build_modules["cmake_find_package_multi"] = build_modules
             if comp != target:
                 conan_comp_alias = conan_comp + "_alias"
                 self.cpp_info.components[conan_comp_alias].names["cmake_find_package"] = comp

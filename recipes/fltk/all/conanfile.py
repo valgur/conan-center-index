@@ -123,22 +123,8 @@ class FltkConan(ConanFile):
             if self.options.with_gl:
                 self.cpp_info.system_libs.extend(["GL", "GLU"])
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks = [
-                "Cocoa",
-                "OpenGL",
-                "IOKit",
-                "Carbon",
-                "CoreFoundation",
-                "CoreVideo",
-            ]
+            self.cpp_info.frameworks = ["Cocoa", "OpenGL", "IOKit", "Carbon", "CoreFoundation", "CoreVideo"]
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = [
-                "gdi32",
-                "imm32",
-                "msimg32",
-                "ole32",
-                "oleaut32",
-                "uuid",
-            ]
+            self.cpp_info.system_libs = ["gdi32", "imm32", "msimg32", "ole32", "oleaut32", "uuid"]
             if self.options.get_safe("with_gdiplus"):
                 self.cpp_info.system_libs.append("gdiplus")

@@ -26,30 +26,22 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["HEADER_ONLY"] = self.dependencies["boost"].options.header_only
         if not self.dependencies["boost"].options.header_only:
-            tc.cache_variables["Boost_USE_STATIC_LIBS"] = not self.dependencies[
-                "boost"
-            ].options.shared
+            tc.cache_variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
         tc.cache_variables["WITH_PYTHON"] = not self.dependencies["boost"].options.without_python
         if not self.dependencies["boost"].options.without_python:
             pyversion = self.dependencies["boost"].options.python_version
             tc.cache_variables["PYTHON_VERSION_TO_SEARCH"] = pyversion
-            tc.cache_variables["Python_EXECUTABLE"] = self.dependencies[
-                "boost"
-            ].options.python_executable
+            tc.cache_variables["Python_EXECUTABLE"] = self.dependencies["boost"].options.python_executable
         tc.cache_variables["WITH_RANDOM"] = not self.dependencies["boost"].options.without_random
         tc.cache_variables["WITH_REGEX"] = not self.dependencies["boost"].options.without_regex
         tc.cache_variables["WITH_TEST"] = not self.dependencies["boost"].options.without_test
-        tc.cache_variables["WITH_COROUTINE"] = not self.dependencies[
-            "boost"
-        ].options.without_coroutine
+        tc.cache_variables["WITH_COROUTINE"] = not self.dependencies["boost"].options.without_coroutine
         tc.cache_variables["WITH_CHRONO"] = not self.dependencies["boost"].options.without_chrono
         tc.cache_variables["WITH_FIBER"] = not self.dependencies["boost"].options.without_fiber
         tc.cache_variables["WITH_LOCALE"] = not self.dependencies["boost"].options.without_locale
         tc.cache_variables["WITH_NOWIDE"] = not self._boost_option("without_nowide", True)
         tc.cache_variables["WITH_JSON"] = not self._boost_option("without_json", True)
-        tc.cache_variables["WITH_STACKTRACE"] = not self.dependencies[
-            "boost"
-        ].options.without_stacktrace
+        tc.cache_variables["WITH_STACKTRACE"] = not self.dependencies["boost"].options.without_stacktrace
         tc.cache_variables["WITH_STACKTRACE_ADDR2LINE"] = self.dependencies["boost"].conf_info.get(
             "user.boost:stacktrace_addr2line_available"
         )

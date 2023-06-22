@@ -25,10 +25,7 @@ class Libx265Conan(ConanFile):
     topics = ("x265", "codec", "video", "H.265")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.videolan.org/developers/x265.html"
-    license = (
-        "GPL-2.0-only",
-        "commercial",
-    )  # https://bitbucket.org/multicoreware/x265/src/default/COPYING
+    license = ("GPL-2.0-only", "commercial")  # https://bitbucket.org/multicoreware/x265/src/default/COPYING
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -128,12 +125,7 @@ class Libx265Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

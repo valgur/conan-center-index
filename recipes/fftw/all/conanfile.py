@@ -9,7 +9,9 @@ required_conan_version = ">=1.54.0"
 
 class FFTWConan(ConanFile):
     name = "fftw"
-    description = "C subroutine library for computing the Discrete Fourier Transform (DFT) in one or more dimensions"
+    description = (
+        "C subroutine library for computing the Discrete Fourier Transform (DFT) in one or more dimensions"
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.fftw.org/"
     license = "GPL-2.0"
@@ -87,12 +89,7 @@ class FFTWConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -135,4 +132,8 @@ class FFTWConan(ConanFile):
 
     @property
     def _prec_suffix(self):
-        return {"double": "", "single": "f", "longdouble": "l"}
+        return {
+            "double": "",
+            "single": "f",
+            "longdouble": "l",
+        }

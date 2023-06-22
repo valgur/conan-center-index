@@ -40,10 +40,7 @@ class SrtConan(ConanFile):
             self.settings.os == "Windows"
             and (
                 self.settings.compiler == "Visual Studio"
-                or (
-                    self.settings.compiler == "gcc"
-                    and self.settings.compiler.get_safe("threads") == "win32"
-                )
+                or (self.settings.compiler == "gcc" and self.settings.compiler.get_safe("threads") == "win32")
             )
         )
 
@@ -62,9 +59,7 @@ class SrtConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -108,11 +103,7 @@ class SrtConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "srt"
-        suffix = (
-            "_static"
-            if self.settings.compiler == "Visual Studio" and not self.options.shared
-            else ""
-        )
+        suffix = "_static" if self.settings.compiler == "Visual Studio" and not self.options.shared else ""
         self.cpp_info.libs = ["srt" + suffix]
         if self.options.shared:
             self.cpp_info.defines = ["SRT_DYNAMIC"]

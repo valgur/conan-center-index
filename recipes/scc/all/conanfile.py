@@ -64,9 +64,7 @@ class SystemcComponentsConan(ConanFile):
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["SC_WITH_PHASE_CALLBACKS"] = self.options.enable_phase_callbacks
-        cmake.definitions[
-            "SC_WITH_PHASE_CALLBACK_TRACING"
-        ] = self.options.enable_phase_callbacks_tracing
+        cmake.definitions["SC_WITH_PHASE_CALLBACK_TRACING"] = self.options.enable_phase_callbacks_tracing
         cmake.definitions["BUILD_SCC_DOCUMENTATION"] = False
         cmake.definitions["SCC_LIB_ONLY"] = True
         if self.settings.os == "Windows":

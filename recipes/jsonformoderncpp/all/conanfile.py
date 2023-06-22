@@ -17,7 +17,9 @@ class JsonformoderncppConan(ConanFile):
     options = {
         "multiple_headers": [True, False],
     }
-    default_options = {"multiple_headers": False}
+    default_options = {
+        "multiple_headers": False,
+    }
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

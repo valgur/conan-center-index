@@ -82,13 +82,7 @@ class BisonConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--enable-relocatable",
-                "--disable-nls",
-                "--datarootdir=${prefix}/res",
-            ]
-        )
+        tc.configure_args.extend(["--enable-relocatable", "--disable-nls", "--datarootdir=${prefix}/res"])
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append("gl_cv_compiler_check_decl_option=")
         if is_msvc(self):
@@ -152,9 +146,7 @@ class BisonConan(ConanFile):
                 'echo \'#define DATAROOTDIR "$(shell cygpath -m "$(datarootdir)")"\';',
             )
 
-        replace_in_file(
-            self, makefile, "dist_man_MANS = $(top_srcdir)/doc/bison.1", "dist_man_MANS ="
-        )
+        replace_in_file(self, makefile, "dist_man_MANS = $(top_srcdir)/doc/bison.1", "dist_man_MANS =")
         replace_in_file(self, yacc, "@prefix@", "$CONAN_BISON_ROOT")
         replace_in_file(self, yacc, "@bindir@", "$CONAN_BISON_ROOT/bin")
 
@@ -165,12 +157,7 @@ class BisonConan(ConanFile):
         autotools.install()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         if is_msvc(self):

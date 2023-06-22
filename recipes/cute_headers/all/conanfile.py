@@ -5,9 +5,7 @@ import glob
 
 class CuteHeadersConan(ConanFile):
     name = "cute_headers"
-    description = (
-        "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
-    )
+    description = "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
     topics = ("various", "pure-c")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/RandyGaul/cute_headers"
@@ -31,9 +29,7 @@ class CuteHeadersConan(ConanFile):
             src=self._source_subfolder,
             excludes=("examples_cute_*", "test_cute_*"),
         )
-        tools.save(
-            os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
-        )
+        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
 
     def package_id(self):
         self.info.header_only()

@@ -26,7 +26,10 @@ class bxConan(ConanFile):
         "fPIC": [True, False],
         "tools": [True, False],
     }
-    default_options = {"fPIC": True, "tools": False}
+    default_options = {
+        "fPIC": True,
+        "tools": False,
+    }
 
     @property
     def _bx_folder(self):
@@ -77,9 +80,7 @@ class bxConan(ConanFile):
         check_min_vs(self, 191)
         if not is_msvc(self):
             try:
-                minimum_required_compiler_version = self._compiler_required[
-                    str(self.settings.compiler)
-                ]
+                minimum_required_compiler_version = self._compiler_required[str(self.settings.compiler)]
                 if Version(self.settings.compiler.version) < minimum_required_compiler_version:
                     raise ConanInvalidConfiguration(
                         "This package requires C++14 support. The current compiler does not support it."
@@ -137,8 +138,7 @@ class bxConan(ConanFile):
             # use Win32 instead of the default value when building x86
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
             msbuild.build(
-                os.path.join(self._bx_path, ".build", "projects", genie_VS, "bx.sln"),
-                targets=self._projs,
+                os.path.join(self._bx_path, ".build", "projects", genie_VS, "bx.sln"), targets=self._projs
             )
         else:
             # Not sure if XCode can be spefically handled by conan for building through, so assume everything not VS is make
@@ -177,8 +177,14 @@ class bxConan(ConanFile):
                 "iOS": True,
             }
 
-            build_type_to_make_config = {"Debug": "config=debug", "Release": "config=release"}
-            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64"}
+            build_type_to_make_config = {
+                "Debug": "config=debug",
+                "Release": "config=release",
+            }
+            arch_to_make_config_suffix = {
+                "x86": "32",
+                "x86_64": "64",
+            }
             os_to_use_make_config_suffix = {
                 "Windows": True,
                 "Linux": True,
@@ -236,12 +242,7 @@ class bxConan(ConanFile):
                 break
 
         # Copy license
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self._bx_path,
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._bx_path)
         # Copy includes
         copy(
             self,

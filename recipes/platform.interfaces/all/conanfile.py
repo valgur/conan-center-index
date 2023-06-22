@@ -66,16 +66,11 @@ class PlatformInterfacesConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
         if Version(self.version) >= "0.3.41":
-            download(
-                self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE"
-            )
+            download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         if Version(self.version) < "0.3.41":
@@ -87,10 +82,7 @@ class PlatformInterfacesConan(ConanFile):
             )
         else:
             copy(
-                self,
-                pattern="*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
+                self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
             )
 
     def package_info(self):

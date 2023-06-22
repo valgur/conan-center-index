@@ -64,10 +64,7 @@ class LibsamplerateConan(ConanFile):
     def _patch_sources(self):
         # Disable upstream logic about msvc runtime policy, called before conan toolchain resolution
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "cmake_policy(SET CMP0091 OLD)",
-            "",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "cmake_policy(SET CMP0091 OLD)", ""
         )
 
     def build(self):
@@ -77,12 +74,7 @@ class LibsamplerateConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -104,6 +96,4 @@ class LibsamplerateConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "samplerate"
         self.cpp_info.components["samplerate"].names["cmake_find_package"] = "samplerate"
         self.cpp_info.components["samplerate"].names["cmake_find_package_multi"] = "samplerate"
-        self.cpp_info.components["samplerate"].set_property(
-            "cmake_target_name", "SampleRate::samplerate"
-        )
+        self.cpp_info.components["samplerate"].set_property("cmake_target_name", "SampleRate::samplerate")

@@ -64,9 +64,7 @@ class SofaConan(ConanFile):
 
     def _get_license(self):
         sofa_header = load(self, os.path.join(self._sofa_src_dir, "sofa.h"))
-        begin = sofa_header.find(
-            "/*----------------------------------------------------------------------"
-        )
+        begin = sofa_header.find("/*----------------------------------------------------------------------")
         return sofa_header[begin:]
 
     def package_info(self):

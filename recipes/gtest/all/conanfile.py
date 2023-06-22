@@ -132,9 +132,7 @@ class GTestConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # No warnings as errors
-        internal_utils = os.path.join(
-            self.source_folder, "googletest", "cmake", "internal_utils.cmake"
-        )
+        internal_utils = os.path.join(self.source_folder, "googletest", "cmake", "internal_utils.cmake")
         replace_in_file(self, internal_utils, "-WX", "")
         if Version(self.version) < "1.12.0":
             replace_in_file(self, internal_utils, "-Werror", "")
@@ -176,12 +174,8 @@ class GTestConan(ConanFile):
 
         # gtest_main
         if not self.options.no_main:
-            self.cpp_info.components["gtest_main"].set_property(
-                "cmake_target_name", "GTest::gtest_main"
-            )
-            self.cpp_info.components["gtest_main"].set_property(
-                "cmake_target_aliases", ["GTest::Main"]
-            )
+            self.cpp_info.components["gtest_main"].set_property("cmake_target_name", "GTest::gtest_main")
+            self.cpp_info.components["gtest_main"].set_property("cmake_target_aliases", ["GTest::Main"])
             self.cpp_info.components["gtest_main"].set_property("pkg_config_name", "gtest_main")
             self.cpp_info.components["gtest_main"].libs = [f"gtest_main{self._postfix}"]
             self.cpp_info.components["gtest_main"].requires = ["libgtest"]
@@ -195,9 +189,7 @@ class GTestConan(ConanFile):
 
             # gmock_main
             if not self.options.no_main:
-                self.cpp_info.components["gmock_main"].set_property(
-                    "cmake_target_name", "GTest::gmock_main"
-                )
+                self.cpp_info.components["gmock_main"].set_property("cmake_target_name", "GTest::gmock_main")
                 self.cpp_info.components["gmock_main"].set_property("pkg_config_name", "gmock_main")
                 self.cpp_info.components["gmock_main"].libs = [f"gmock_main{self._postfix}"]
                 self.cpp_info.components["gmock_main"].requires = ["gmock"]

@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    rm,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -20,9 +13,7 @@ required_conan_version = ">=1.54.0"
 
 class LibbacktraceConan(ConanFile):
     name = "libbacktrace"
-    description = (
-        "A C library that may be linked into a C/C++ program to produce symbolic backtraces."
-    )
+    description = "A C library that may be linked into a C/C++ program to produce symbolic backtraces."
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ianlancetaylor/libbacktrace"
     license = "BSD-3-Clause"
@@ -61,9 +52,7 @@ class LibbacktraceConan(ConanFile):
     def validate(self):
         check_min_vs(self, "180")
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "libbacktrace shared is not supported with Visual Studio"
-            )
+            raise ConanInvalidConfiguration("libbacktrace shared is not supported with Visual Studio")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -105,12 +94,7 @@ class LibbacktraceConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         lib_folder = os.path.join(self.package_folder, "lib")
@@ -118,9 +102,7 @@ class LibbacktraceConan(ConanFile):
         fix_apple_shared_install_name(self)
         if is_msvc(self):
             rename(
-                self,
-                os.path.join(lib_folder, "libbacktrace.lib"),
-                os.path.join(lib_folder, "backtrace.lib"),
+                self, os.path.join(lib_folder, "libbacktrace.lib"), os.path.join(lib_folder, "backtrace.lib")
             )
 
     def package_info(self):

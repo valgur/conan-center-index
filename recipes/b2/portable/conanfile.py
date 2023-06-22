@@ -73,7 +73,10 @@ class B2Conan(ConanFile):
             "vc143",
         ],
     }
-    default_options = {"use_cxx_env": False, "toolset": "auto"}
+    default_options = {
+        "use_cxx_env": False,
+        "toolset": "auto",
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -121,7 +124,12 @@ class B2Conan(ConanFile):
         os.environ.update({"VSCMD_START_DIR": os.getcwd()})
         if not self.options.use_cxx_env:
             # To avoid using the CXX env vars we clear them out for the build.
-            os.environ.update({"CXX": "", "CXXFLAGS": ""})
+            os.environ.update(
+                {
+                    "CXX": "",
+                    "CXXFLAGS": "",
+                }
+            )
         try:
             yield
         finally:
@@ -154,10 +162,7 @@ class B2Conan(ConanFile):
                             for kv in guess_vars:
                                 if kv.startswith("B2_TOOLSET_ROOT="):
                                     b2_vcvars = os.path.join(
-                                        kv.split("=")[1].strip(),
-                                        "Auxiliary",
-                                        "Build",
-                                        "vcvars32.bat",
+                                        kv.split("=")[1].strip(), "Auxiliary", "Build", "vcvars32.bat"
                                     )
                                     command += '"' + b2_vcvars + '" && '
         command += "build" if use_windows_commands else "./build.sh"
@@ -191,12 +196,7 @@ class B2Conan(ConanFile):
             self.run(full_command)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*b2", dst=self._pkg_bin_dir, src=self._b2_output_dir)
         copy(self, "*b2.exe", dst=self._pkg_bin_dir, src=self._b2_output_dir)
         copy(self, "*.jam", dst=self._pkg_bin_dir, src=self._b2_output_dir)

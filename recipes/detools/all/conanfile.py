@@ -30,9 +30,7 @@ class DetoolsConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration(
-                "This library is only compatible with Linux and FreeBSD"
-            )
+            raise ConanInvalidConfiguration("This library is only compatible with Linux and FreeBSD")
 
     def configure(self):
         if self.options.shared:
@@ -42,9 +40,7 @@ class DetoolsConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)

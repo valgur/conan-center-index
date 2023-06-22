@@ -55,13 +55,9 @@ class LibniceConan(ConanFile):
                 f"-o {self.ref}:crypto_library=win32 is not supported on non-Windows"
             )
         if self.settings.os == "Windows" and self.options.with_gtk_doc:
-            raise ConanInvalidConfiguration(
-                f"-o {self.ref}:with_gtk_doc=True is not support on Windows"
-            )
+            raise ConanInvalidConfiguration(f"-o {self.ref}:with_gtk_doc=True is not support on Windows")
         if is_msvc_static_runtime(self) and self.dependencies["glib"].options.shared:
-            raise ConanInvalidConfiguration(
-                "-o glib/*:shared=True with static runtime is not supported"
-            )
+            raise ConanInvalidConfiguration("-o glib/*:shared=True with static runtime is not supported")
 
     def requirements(self):
         self.requires("glib/2.75.2")
@@ -93,9 +89,7 @@ class LibniceConan(ConanFile):
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["gtk_doc"] = "disabled" if self.options.with_gtk_doc else "disabled"
-        tc.project_options["introspection"] = (
-            "enabled" if self.options.with_introspection else "disabled"
-        )
+        tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
 
     def build(self):

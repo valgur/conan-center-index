@@ -67,12 +67,10 @@ class Aaplusconan(ConanFile):
         compiler_version = Version(self.settings.compiler.version)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.settings.compiler == "clang" and (
-            compiler_version >= "10" and compiler_version < "12"
-        ):
+        if self.settings.compiler == "clang" and (compiler_version >= "10" and compiler_version < "12"):
             raise ConanInvalidConfiguration(
                 "AA+ cannot handle clang 10 and 11 due to filesystem being under experimental namespace"
             )
@@ -91,9 +89,7 @@ class Aaplusconan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(
-            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
 

@@ -30,9 +30,7 @@ class TomlPlusPlusConan(ConanFile):
             "Visual Studio": "16"
             if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0"
             else "15",
-            "msvc": "192"
-            if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0"
-            else "191",
+            "msvc": "192" if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0" else "191",
             "gcc": "7",
             "clang": "5",
             "apple-clang": "10",
@@ -58,9 +56,7 @@ class TomlPlusPlusConan(ConanFile):
                 )
 
         if self.settings.compiler == "apple-clang" and Version(self.version) < "2.3.0":
-            raise ConanInvalidConfiguration(
-                f"The compiler {compiler} is supported in version >= 2.3.0"
-            )
+            raise ConanInvalidConfiguration(f"The compiler {compiler} is supported in version >= 2.3.0")
 
         if is_msvc(self) and Version(self.version) == "2.1.0":
             raise ConanInvalidConfiguration(
@@ -68,20 +64,10 @@ class TomlPlusPlusConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             pattern="*.h**",
@@ -95,10 +81,7 @@ class TomlPlusPlusConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
         )
         copy(
-            self,
-            pattern="toml.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
+            self, pattern="toml.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
         )
 
     def package_info(self):

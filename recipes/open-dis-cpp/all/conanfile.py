@@ -52,12 +52,7 @@ class OpenDisConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
@@ -67,10 +62,7 @@ class OpenDisConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         cmake = CMake(self)
         cmake.install()

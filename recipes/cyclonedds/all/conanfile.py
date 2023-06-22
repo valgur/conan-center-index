@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -22,8 +15,7 @@ class CycloneDDSConan(ConanFile):
     homepage = "https://cyclonedds.io/"
     url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "Eclipse Cyclone DDS - An implementation"
-        " of the OMG Data Distribution Service (DDS) specification"
+        "Eclipse Cyclone DDS - An implementation" " of the OMG Data Distribution Service (DDS) specification"
     )
     topics = ("dds", "ipc", "ros", "middleware")
 
@@ -154,12 +146,7 @@ class CycloneDDSConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["CycloneDDS"].system_libs = ["dl", "pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["CycloneDDS"].system_libs = [
-                "ws2_32",
-                "dbghelp",
-                "bcrypt",
-                "iphlpapi",
-            ]
+            self.cpp_info.components["CycloneDDS"].system_libs = ["ws2_32", "dbghelp", "bcrypt", "iphlpapi"]
 
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "CycloneDDS"

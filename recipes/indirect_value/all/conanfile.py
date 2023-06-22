@@ -8,7 +8,9 @@ required_conan_version = ">=1.43.0"
 class IndirectValueConan(ConanFile):
     name = "indirect_value"
     homepage = "https://github.com/jbcoe/indirect_value"
-    description = "Production-quality reference implementation of P1950: A Free-Store-Allocated Value Type For C++"
+    description = (
+        "Production-quality reference implementation of P1950: A Free-Store-Allocated Value Type For C++"
+    )
     topics = ("std", "vocabulary-type", "value-semantics")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -21,7 +23,12 @@ class IndirectValueConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "16", "gcc": "8", "clang": "8", "apple-clang": "11"}
+        return {
+            "Visual Studio": "16",
+            "gcc": "8",
+            "clang": "8",
+            "apple-clang": "11",
+        }
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -49,9 +56,7 @@ class IndirectValueConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

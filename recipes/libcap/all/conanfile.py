@@ -3,14 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    chdir,
-    export_conandata_patches,
-    get,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, chdir, export_conandata_patches, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
@@ -23,8 +16,7 @@ class LibcapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
     description = (
-        "This is a library for getting and setting POSIX.1e"
-        " (formerly POSIX 6) draft 15 capabilities"
+        "This is a library for getting and setting POSIX.1e" " (formerly POSIX 6) draft 15 capabilities"
     )
     topics = "capabilities"
     settings = "os", "arch", "compiler", "build_type"

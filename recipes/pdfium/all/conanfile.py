@@ -13,11 +13,7 @@ class PdfiumConan(ConanFile):
     homepage = "https://opensource.google/projects/pdfium"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "with_libjpeg": ["libjpeg", "libjpeg-turbo"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -54,10 +50,7 @@ class PdfiumConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, 14)
-        minimum_compiler_versions = {
-            "gcc": 8,
-            "Visual Studio": 15,
-        }
+        minimum_compiler_versions = {"gcc": 8, "Visual Studio": 15}
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version:
             if tools.Version(self.settings.compiler.version) < min_compiler_version:
@@ -71,9 +64,7 @@ class PdfiumConan(ConanFile):
             destination="pdfium-cmake",
             strip_root=True
         )
-        tools.get(
-            **self.conan_data["sources"][self.version]["pdfium"], destination=self._source_subfolder
-        )
+        tools.get(**self.conan_data["sources"][self.version]["pdfium"], destination=self._source_subfolder)
         tools.get(
             **self.conan_data["sources"][self.version]["trace_event"],
             destination=os.path.join(self._source_subfolder, "base", "trace_event", "common")

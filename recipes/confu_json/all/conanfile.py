@@ -57,9 +57,7 @@ class ConfuJson(ConanFile):
             raise ConanInvalidConfiguration("apple-clang is not supported. Pull request welcome")
 
         if self.settings.compiler == "gcc" and Version(self.version) < "1.0.0":
-            raise ConanInvalidConfiguration(
-                "gcc is only supported in versions greater than or equal 1.0.0."
-            )
+            raise ConanInvalidConfiguration("gcc is only supported in versions greater than or equal 1.0.0.")
 
         if is_msvc(self) and Version(self.version) < "0.0.9":
             raise ConanInvalidConfiguration(
@@ -82,12 +80,7 @@ class ConfuJson(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h*",

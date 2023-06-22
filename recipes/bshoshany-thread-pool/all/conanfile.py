@@ -62,12 +62,7 @@ class BShoshanyThreadPoolConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "bshoshany-thread-pool"
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -76,5 +71,5 @@ class BShoshanyThreadPoolConan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )

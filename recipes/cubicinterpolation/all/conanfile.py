@@ -60,7 +60,7 @@ class CubicInterpolationConan(ConanFile):
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}",
+                f"{', '.join(self._required_boost_components)}"
             )
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -72,9 +72,7 @@ class CubicInterpolationConan(ConanFile):
             )
 
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} shared is not supported with Visual Studio"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -96,12 +94,7 @@ class CubicInterpolationConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

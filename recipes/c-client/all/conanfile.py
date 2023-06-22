@@ -100,9 +100,7 @@ class CclientConan(ConanFile):
         self._chmod_x(os.path.join(unix, "drivers"))
         self._chmod_x(os.path.join(unix, "mkauths"))
         ssldir = self.dependencies["openssl"].package_folder
-        replace_in_file(
-            self, os.path.join(unix, "Makefile"), "SSLDIR=/usr/local/ssl", f"SSLDIR={ssldir}"
-        )
+        replace_in_file(self, os.path.join(unix, "Makefile"), "SSLDIR=/usr/local/ssl", f"SSLDIR={ssldir}")
         # This is from the Homebrew Formula
         replace_in_file(
             self,
@@ -126,20 +124,13 @@ class CclientConan(ConanFile):
             self._build_unix()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         # Install headers (headers in build tree are symlinks)
         include_folder = os.path.join(self.package_folder, "include", "c-client")
         mkdir(self, include_folder)
         for header_path in glob.glob(os.path.join(self.source_folder, "c-client", "*.h")):
             # conan.tools.files.copy can't be used because it copies symlinks instead of real files
-            shutil.copy(
-                src=header_path, dst=os.path.join(include_folder, os.path.basename(header_path))
-            )
+            shutil.copy(src=header_path, dst=os.path.join(include_folder, os.path.basename(header_path)))
         # Install libs
         for lib in ("*.a", "*.lib"):
             copy(

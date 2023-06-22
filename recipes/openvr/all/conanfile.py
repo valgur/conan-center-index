@@ -6,11 +6,7 @@ from conans.errors import ConanInvalidConfiguration
 class OpenvrConan(ConanFile):
     name = "openvr"
     description = "API and runtime that allows access to VR hardware from applications have specific knowledge of the hardware they are targeting."
-    topics = (
-        "conan",
-        "openvr",
-        "vr",
-    )
+    topics = ("conan", "openvr", "vr")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ValveSoftware/openvr"
     license = "BSD-3-Clause"
@@ -82,9 +78,7 @@ class OpenvrConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses"
-        )
+        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
         self.copy(pattern="openvr_api*.dll", dst="bin", src="bin", keep_path=False)

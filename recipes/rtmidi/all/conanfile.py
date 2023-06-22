@@ -68,10 +68,7 @@ class RtMidiConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "${ALSA_LIBRARY}",
-            "ALSA::ALSA",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "${ALSA_LIBRARY}", "ALSA::ALSA"
         )
 
     def build(self):
@@ -82,10 +79,7 @@ class RtMidiConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

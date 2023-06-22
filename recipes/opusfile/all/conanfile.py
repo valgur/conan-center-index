@@ -101,12 +101,7 @@ class OpusFileConan(ConanFile):
             VirtualBuildEnv(self).generate()
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend(
-                [
-                    f"--enable-http={yes_no(self.options.http)}",
-                    "--disable-examples",
-                ]
-            )
+            tc.configure_args.extend([f"--enable-http={yes_no(self.options.http)}", "--disable-examples"])
             tc.generate()
             PkgConfigDeps(self).generate()
 
@@ -120,12 +115,7 @@ class OpusFileConan(ConanFile):
 
             # ==============================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
-            replace_in_file(
-                self,
-                vcxproj,
-                "<WholeProgramOptimization>true</WholeProgramOptimization>",
-                "",
-            )
+            replace_in_file(self, vcxproj, "<WholeProgramOptimization>true</WholeProgramOptimization>", "")
             replace_in_file(
                 self,
                 vcxproj,
@@ -156,20 +146,10 @@ class OpusFileConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             include_folder = os.path.join(self.source_folder, "include")
-            copy(
-                self,
-                "*",
-                src=include_folder,
-                dst=os.path.join(self.package_folder, "include", "opus"),
-            )
+            copy(self, "*", src=include_folder, dst=os.path.join(self.package_folder, "include", "opus"))
             copy(
                 self,
                 "*.dll",

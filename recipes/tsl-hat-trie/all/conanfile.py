@@ -31,12 +31,7 @@ class TslHatTrieConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         rmdir(self, os.path.join(self.source_folder, "include", "tsl", "array-hash"))
@@ -48,12 +43,7 @@ class TslHatTrieConan(ConanFile):
         )
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h",

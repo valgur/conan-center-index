@@ -144,9 +144,7 @@ class GetDnsConan(ConanFile):
         if self.options.with_libidn2:
             self.cpp_info.components["libgetdns"].requires.append("libidn2::libidn2")
         if self.options.tls == "gnutls":
-            self.cpp_info.components["libgetdns"].requires.extend(
-                ["nettle::nettle", "gnutls::gnutls"]
-            )
+            self.cpp_info.components["libgetdns"].requires.extend(["nettle::nettle", "gnutls::gnutls"])
 
         if self.options.with_libevent:
             self.cpp_info.components["dns_ex_event"].libs = ["getdns_ex_event" + libsuffix]

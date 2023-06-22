@@ -16,9 +16,7 @@ class PackageConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "Windows", "Macos"] or self.settings.arch != "x86_64":
-            raise ConanInvalidConfiguration(
-                "{} doesn't support current environment".format(self.name)
-            )
+            raise ConanInvalidConfiguration("{} doesn't support current environment".format(self.name))
 
     def package_id(self):
         del self.info.settings.compiler
@@ -26,12 +24,9 @@ class PackageConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version][str(self.settings.os)],
-            destination=self.source_folder
+            **self.conan_data["sources"][self.version][str(self.settings.os)], destination=self.source_folder
         )
-        tools.download(
-            **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt"
-        )
+        tools.download(**self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
 
     def package(self):
         if self.settings.os != "Windows":

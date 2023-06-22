@@ -17,9 +17,7 @@ required_conan_version = ">=1.53.0"
 
 class LibgdConan(ConanFile):
     name = "libgd"
-    description = (
-        "GD is an open source code library for the dynamic" "creation of images by programmers."
-    )
+    description = "GD is an open source code library for the dynamic" "creation of images by programmers."
     license = "BSD-like"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libgd.github.io"
@@ -126,10 +124,7 @@ class LibgdConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

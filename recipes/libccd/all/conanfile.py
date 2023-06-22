@@ -57,19 +57,17 @@ class LibccdConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "BSD-LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "BSD-LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "ccd"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"ccd": "ccd::ccd"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "ccd": "ccd::ccd",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

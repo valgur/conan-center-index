@@ -120,18 +120,11 @@ class FontconfigConan(ConanFile):
         self._patch_files()
         autotools = Autotools(self)
         autotools.configure()
-        replace_in_file(
-            self, os.path.join(self.build_folder, "Makefile"), "po-conf test", "po-conf"
-        )
+        replace_in_file(self, os.path.join(self.build_folder, "Makefile"), "po-conf test", "po-conf")
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

@@ -11,9 +11,7 @@ class DoubleConversionConan(ConanFile):
     name = "double-conversion"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/double-conversion"
-    description = (
-        "Efficient binary-decimal and decimal-binary conversion routines for IEEE doubles."
-    )
+    description = "Efficient binary-decimal and decimal-binary conversion routines for IEEE doubles."
     license = "BSD-3-Clause"
     topics = ("google", "decimal-binary", "conversion")
 
@@ -56,12 +54,7 @@ class DoubleConversionConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

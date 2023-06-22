@@ -55,9 +55,7 @@ class LibRHashConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):
@@ -91,12 +89,10 @@ class LibRHashConan(ConanFile):
             {
                 "BUILD_TARGET": tools.get_gnu_triplet(
                     str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
-                ),
+                )
             }
         ):
-            self._autotools.configure(
-                args=conf_args, use_default_install_dirs=False, build=False, host=False
-            )
+            self._autotools.configure(args=conf_args, use_default_install_dirs=False, build=False, host=False)
         return self._autotools
 
     def build(self):

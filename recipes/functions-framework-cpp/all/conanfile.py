@@ -84,9 +84,7 @@ class FunctionsFrameworkCppConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 "{} requires C++17, which your compiler does not support.".format(self.name)
             )
@@ -99,9 +97,7 @@ class FunctionsFrameworkCppConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -149,6 +145,4 @@ class FunctionsFrameworkCppConan(ConanFile):
         self.cpp_info.components["framework"].set_property(
             "cmake_target_name", "functions-framework-cpp::framework"
         )
-        self.cpp_info.components["framework"].set_property(
-            "pkg_config_name", "functions_framework_cpp"
-        )
+        self.cpp_info.components["framework"].set_property("pkg_config_name", "functions_framework_cpp")

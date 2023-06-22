@@ -21,7 +21,9 @@ required_conan_version = ">=1.53.0"
 
 class LibStudXmlConan(ConanFile):
     name = "libstudxml"
-    description = "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
+    description = (
+        "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
+    )
     topics = ("xml", "xml-parser", "serialization")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.codesynthesis.com/projects/libstudxml/"
@@ -116,9 +118,7 @@ class LibStudXmlConan(ConanFile):
         sln_path = None
 
         def get_sln_path():
-            return os.path.join(
-                self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln"
-            )
+            return os.path.join(self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln")
 
         sln_path = get_sln_path()
         while not os.path.exists(sln_path):
@@ -134,7 +134,12 @@ class LibStudXmlConan(ConanFile):
             replace_in_file(self, proj_path, "LIBSTUDXML_DYNAMIC_LIB", "LIBSTUDXML_STATIC_LIB")
 
         msbuild = MSBuild(self)
-        msbuild.build(sln_path, platforms={"x86": "Win32"})
+        msbuild.build(
+            sln_path,
+            platforms={
+                "x86": "Win32",
+            },
+        )
 
     def _build_autotools(self):
         for gnu_config in [
@@ -155,9 +160,7 @@ class LibStudXmlConan(ConanFile):
             rm(self, "version", os.path.join(self.source_folder, self._source_subfolder))
 
         with chdir(self, os.path.join(self.source_folder, self._source_subfolder)):
-            self.run(
-                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
-            )
+            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
 
         autotools = self._configure_autotools()
         autotools.make()
@@ -193,16 +196,10 @@ class LibStudXmlConan(ConanFile):
             if self.settings.arch == "x86_64":
                 suffix = "64"
             if self.options.shared:
-                self.copy(
-                    "*.lib", dst="lib", src=os.path.join(self._source_subfolder, "lib" + suffix)
-                )
-                self.copy(
-                    "*.dll", dst="bin", src=os.path.join(self._source_subfolder, "bin" + suffix)
-                )
+                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "lib" + suffix))
+                self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "bin" + suffix))
             else:
-                self.copy(
-                    "*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin" + suffix)
-                )
+                self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "bin" + suffix))
         else:
             autotools = self._configure_autotools()
             autotools.install()

@@ -8,9 +8,7 @@ class ImmerConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/arximboldi/immer"
-    description = (
-        "Postmodern immutable and persistent data structures for C++---value semantics at scale"
-    )
+    description = "Postmodern immutable and persistent data structures for C++---value semantics at scale"
     topics = (
         "header",
         "header-only",
@@ -32,9 +30,7 @@ class ImmerConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

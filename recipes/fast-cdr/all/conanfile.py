@@ -66,12 +66,7 @@ class FastCDRConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -82,7 +77,9 @@ class FastCDRConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"fastcdr": "fastcdr::fastcdr"},
+            {
+                "fastcdr": "fastcdr::fastcdr",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

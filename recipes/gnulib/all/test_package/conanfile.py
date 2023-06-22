@@ -40,25 +40,19 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         for src in self.exports_sources:
-            shutil.copy(
-                os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src)
-            )
+            shutil.copy(os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src))
         with tools.chdir(self.build_folder):
             for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
                 tools.save(fn, "\n")
             with tools.run_environment(self):
-                self.run(
-                    "gnulib-tool --list", win_bash=tools.os_info.is_windows, run_environment=True
-                )
+                self.run("gnulib-tool --list", win_bash=tools.os_info.is_windows, run_environment=True)
                 self.run(
                     "gnulib-tool --import getopt-posix",
                     win_bash=tools.os_info.is_windows,
                     run_environment=True,
                 )
             # m4 built with Visual Studio does not support executing *nix utils (e.g. `test`)
-            with tools.environment_append(
-                {"M4": None}
-            ) if self.settings.os == "Windows" else tools.no_op():
+            with tools.environment_append({"M4": None}) if self.settings.os == "Windows" else tools.no_op():
                 self.run(
                     "{} -fiv".format(os.environ["AUTORECONF"]),
                     win_bash=tools.os_info.is_windows,

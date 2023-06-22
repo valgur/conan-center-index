@@ -73,12 +73,12 @@ class PahoMqttcConan(ConanFile):
         tc.variables["PAHO_BUILD_SAMPLES"] = False
         tc.variables["PAHO_WITH_SSL"] = self.options.ssl
         if self.options.ssl:
-            tc.cache_variables["OPENSSL_SEARCH_PATH"] = self.dependencies[
-                "openssl"
-            ].package_folder.replace("\\", "/")
-            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies[
-                "openssl"
-            ].package_folder.replace("\\", "/")
+            tc.cache_variables["OPENSSL_SEARCH_PATH"] = self.dependencies["openssl"].package_folder.replace(
+                "\\", "/"
+            )
+            tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace(
+                "\\", "/"
+            )
         tc.variables["PAHO_HIGH_PERFORMANCE"] = self.options.high_performance
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         tc.generate()
@@ -109,24 +109,9 @@ class PahoMqttcConan(ConanFile):
         cmake.build(target=self._cmake_target)
 
     def package(self):
-        copy(
-            self,
-            "edl-v10",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            self._epl_file,
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "notice.html",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, self._epl_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "notice.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         # Manually copy since the CMake installs everything
         copy(
@@ -164,9 +149,7 @@ class PahoMqttcConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "eclipse-paho-mqtt-c")
-        self.cpp_info.set_property(
-            "cmake_target_name", f"eclipse-paho-mqtt-c::{self._cmake_target}"
-        )
+        self.cpp_info.set_property("cmake_target_name", f"eclipse-paho-mqtt-c::{self._cmake_target}")
 
         # TODO: back to global scope in conan v2
         self.cpp_info.components["_paho-mqtt-c"].libs = [self._lib_target]
@@ -178,9 +161,7 @@ class PahoMqttcConan(ConanFile):
                         ["wsock32", "uuid", "crypt32", "rpcrt4"]
                     )
         elif self.settings.os == "Linux":
-            self.cpp_info.components["_paho-mqtt-c"].system_libs.extend(
-                ["anl", "c", "dl", "pthread"]
-            )
+            self.cpp_info.components["_paho-mqtt-c"].system_libs.extend(["anl", "c", "dl", "pthread"])
         elif self.settings.os == "FreeBSD":
             self.cpp_info.components["_paho-mqtt-c"].system_libs.extend(["compat", "pthread"])
         elif self.settings.os == "Android":
@@ -195,9 +176,7 @@ class PahoMqttcConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "eclipse-paho-mqtt-c"
         self.cpp_info.names["cmake_find_package_multi"] = "eclipse-paho-mqtt-c"
         self.cpp_info.components["_paho-mqtt-c"].names["cmake_find_package"] = self._cmake_target
-        self.cpp_info.components["_paho-mqtt-c"].names[
-            "cmake_find_package_multi"
-        ] = self._cmake_target
+        self.cpp_info.components["_paho-mqtt-c"].names["cmake_find_package_multi"] = self._cmake_target
         self.cpp_info.components["_paho-mqtt-c"].set_property(
             "cmake_target_name", f"eclipse-paho-mqtt-c::{self._cmake_target}"
         )

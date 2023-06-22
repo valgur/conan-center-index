@@ -33,7 +33,12 @@ class TinyDnnConan(ConanFile):
 
     @property
     def _min_compilers_version(self):
-        return {"gcc": "5", "clang": "3.4", "apple-clang": "10", "Visual Studio": "14"}
+        return {
+            "gcc": "5",
+            "clang": "3.4",
+            "apple-clang": "10",
+            "Visual Studio": "14",
+        }
 
     def requirements(self):
         self.requires("cereal/1.3.1")
@@ -47,15 +52,9 @@ class TinyDnnConan(ConanFile):
 
         compiler = str(self.settings.compiler)
         version = tools.Version(self.settings.compiler.version)
-        if (
-            compiler in self._min_compilers_version
-            and version < self._min_compilers_version[compiler]
-        ):
+        if compiler in self._min_compilers_version and version < self._min_compilers_version[compiler]:
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++{}".format(
-                    self.name,
-                    self._min_cppstd,
-                )
+                "{} requires a compiler that supports at least C++{}".format(self.name, self._min_cppstd)
             )
 
     def package_id(self):
@@ -63,16 +62,12 @@ class TinyDnnConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, "tiny_dnn", "util", "image.h"),
-            "third_party/",
-            "",
+            os.path.join(self._source_subfolder, "tiny_dnn", "util", "image.h"), "third_party/", ""
         )
 
     def package(self):

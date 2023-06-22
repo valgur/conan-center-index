@@ -14,11 +14,7 @@ class ItoaConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jeaiii/itoa/"
-    topics = (
-        "string-conversion",
-        "itona",
-        "integer-conversion",
-    )
+    topics = ("string-conversion", "itona", "integer-conversion")
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -41,22 +37,14 @@ class ItoaConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

@@ -86,17 +86,10 @@ class PCRE2Conan(ConanFile):
                 "At least one of build_pcre2_8, build_pcre2_16 or build_pcre2_32 must be enabled"
             )
         if self.options.build_pcre2grep and not self.options.build_pcre2_8:
-            raise ConanInvalidConfiguration(
-                "build_pcre2_8 must be enabled for the pcre2grep program"
-            )
+            raise ConanInvalidConfiguration("build_pcre2_8 must be enabled for the pcre2grep program")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -133,19 +126,14 @@ class PCRE2Conan(ConanFile):
         # Do not add ${PROJECT_SOURCE_DIR}/cmake because it contains a custom
         # FindPackageHandleStandardArgs.cmake which can break conan generators
         if Version(self.version) < "10.34":
-            replace_in_file(
-                self, cmakelists, "SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", ""
-            )
+            replace_in_file(self, cmakelists, "SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
         else:
             replace_in_file(
                 self, cmakelists, "LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", ""
             )
         # Avoid CMP0006 error (macos bundle)
         replace_in_file(
-            self,
-            cmakelists,
-            "RUNTIME DESTINATION bin",
-            "RUNTIME DESTINATION bin BUNDLE DESTINATION bin",
+            self, cmakelists, "RUNTIME DESTINATION bin", "RUNTIME DESTINATION bin BUNDLE DESTINATION bin"
         )
 
     def build(self):
@@ -155,12 +143,7 @@ class PCRE2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENCE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENCE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -179,12 +162,8 @@ class PCRE2Conan(ConanFile):
             if not self.options.shared:
                 self.cpp_info.components["pcre2-8"].defines.append("PCRE2_STATIC")
             # pcre2-posix
-            self.cpp_info.components["pcre2-posix"].set_property(
-                "cmake_target_name", "PCRE2::POSIX"
-            )
-            self.cpp_info.components["pcre2-posix"].set_property(
-                "pkg_config_name", "libpcre2-posix"
-            )
+            self.cpp_info.components["pcre2-posix"].set_property("cmake_target_name", "PCRE2::POSIX")
+            self.cpp_info.components["pcre2-posix"].set_property("pkg_config_name", "libpcre2-posix")
             self.cpp_info.components["pcre2-posix"].libs = [self._lib_name("pcre2-posix")]
             self.cpp_info.components["pcre2-posix"].requires = ["pcre2-8"]
         # pcre2-16

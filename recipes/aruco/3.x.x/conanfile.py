@@ -16,10 +16,7 @@ class ArucoConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [False, True],
-        "fPIC": [False, True],
-    }
+    options = {"shared": [False, True], "fPIC": [False, True]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -63,12 +60,7 @@ class ArucoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

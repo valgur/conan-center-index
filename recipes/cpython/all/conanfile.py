@@ -12,7 +12,9 @@ class CPythonConan(ConanFile):
     name = "cpython"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.python.org"
-    description = "Python is a programming language that lets you work quickly and integrate systems more effectively."
+    description = (
+        "Python is a programming language that lets you work quickly and integrate systems more effectively."
+    )
     topics = ("python", "language", "script")
     license = ("Python-2.0",)
     exports_sources = "patches/**"
@@ -166,17 +168,14 @@ class CPythonConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @property
     def _with_libffi(self):
         # cpython 3.7.x on MSVC uses an ancient libffi 2.00-beta (which is not available at cci, and is API/ABI incompatible with current 3.2+)
         return self._supports_modules and (
-            self.settings.compiler != "Visual Studio"
-            or tools.Version(self._version_number_only) >= "3.8"
+            self.settings.compiler != "Visual Studio" or tools.Version(self._version_number_only) >= "3.8"
         )
 
     def requirements(self):
@@ -231,11 +230,7 @@ class CPythonConan(ConanFile):
             "--with-pydebug={}".format(yes_no(self.settings.build_type == "Debug")),
         ]
         if self._is_py2:
-            conf_args.extend(
-                [
-                    "--enable-unicode={}".format(yes_no(self.options.unicode)),
-                ]
-            )
+            conf_args.extend(["--enable-unicode={}".format(yes_no(self.options.unicode))])
         if self._is_py3:
             conf_args.extend(
                 [
@@ -283,9 +278,7 @@ class CPythonConan(ConanFile):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         if self._is_py3 and tools.Version(self._version_number_only) < "3.10":
-            tools.replace_in_file(
-                os.path.join(self._source_subfolder, "setup.py"), ":libmpdec.so.2", "mpdec"
-            )
+            tools.replace_in_file(os.path.join(self._source_subfolder, "setup.py"), ":libmpdec.so.2", "mpdec")
         if self.settings.compiler == "Visual Studio":
             runtime_library = {
                 "MT": "MultiThreaded",
@@ -315,10 +308,7 @@ class CPythonConan(ConanFile):
                 os.path.join(self._source_subfolder, "setup.py"),
                 "curses_libs = ",
                 "curses_libs = {} #".format(
-                    repr(
-                        self.deps_cpp_info["ncurses"].libs
-                        + self.deps_cpp_info["ncurses"].system_libs
-                    )
+                    repr(self.deps_cpp_info["ncurses"].libs + self.deps_cpp_info["ncurses"].system_libs)
                 ),
             )
 
@@ -392,9 +382,7 @@ class CPythonConan(ConanFile):
     def _solution_projects(self):
         if self.options.shared:
             solution_path = os.path.join(self._source_subfolder, "PCbuild", "pcbuild.sln")
-            projects = set(
-                m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path).read())
-            )
+            projects = set(m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path).read()))
 
             def project_build(name):
                 if os.path.basename(name) in self._msvc_discarded_projects:
@@ -420,7 +408,10 @@ class CPythonConan(ConanFile):
 
     @property
     def _msvc_discarded_projects(self):
-        discarded = {"python_uwp", "pythonw_uwp"}
+        discarded = {
+            "python_uwp",
+            "pythonw_uwp",
+        }
         if not self.options.with_bz2:
             discarded.add("bz2")
         if not self.options.with_sqlite3:
@@ -430,13 +421,27 @@ class CPythonConan(ConanFile):
         if self._is_py2:
             # Python 2 Visual Studio projects NOT to build
             discarded = discarded.union(
-                {"bdist_wininst", "libeay", "ssleay", "sqlite3", "tcl", "tk", "tix"}
+                {
+                    "bdist_wininst",
+                    "libeay",
+                    "ssleay",
+                    "sqlite3",
+                    "tcl",
+                    "tk",
+                    "tix",
+                }
             )
             if not self.options.with_bsddb:
                 discarded.add("_bsddb")
         elif self._is_py3:
             discarded = discarded.union(
-                {"bdist_wininst", "liblzma", "openssl", "sqlite3", "xxlimited"}
+                {
+                    "bdist_wininst",
+                    "liblzma",
+                    "openssl",
+                    "sqlite3",
+                    "xxlimited",
+                }
             )
             if not self.options.with_lzma:
                 discarded.add("_lzma")
@@ -468,9 +473,7 @@ class CPythonConan(ConanFile):
 
         with tools.no_op():
             for project_i, project in enumerate(projects, 1):
-                self.output.info(
-                    "[{}/{}] Building project '{}'...".format(project_i, len(projects), project)
-                )
+                self.output.info("[{}/{}] Building project '{}'...".format(project_i, len(projects), project))
                 project_file = os.path.join(self._source_subfolder, "PCbuild", project + ".vcxproj")
                 self._upgrade_single_project_file(project_file)
                 msbuild.build(
@@ -526,9 +529,7 @@ class CPythonConan(ConanFile):
                     "armv8": "arm64",
                 }
             )
-        return os.path.join(
-            self._source_subfolder, "PCbuild", build_subdir_lut[str(self.settings.arch)]
-        )
+        return os.path.join(self._source_subfolder, "PCbuild", build_subdir_lut[str(self.settings.arch)])
 
     @property
     def _msvc_install_subprefix(self):
@@ -591,14 +592,10 @@ class CPythonConan(ConanFile):
         build_path = self._msvc_artifacts_path
         infix = "_d" if self.settings.build_type == "Debug" else ""
         self.copy(
-            "*.exe",
-            src=build_path,
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix),
+            "*.exe", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix)
         )
         self.copy(
-            "*.dll",
-            src=build_path,
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix),
+            "*.dll", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix)
         )
         self.copy(
             "*.pyd",
@@ -647,9 +644,7 @@ class CPythonConan(ConanFile):
         self.run(
             "{} -c \"import compileall; compileall.compile_dir('{}')\"".format(
                 os.path.join(build_path, self._cpython_interpreter_name),
-                os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib").replace(
-                    "\\", "/"
-                ),
+                os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib").replace("\\", "/"),
             ),
             run_environment=True,
         )
@@ -793,9 +788,7 @@ class CPythonConan(ConanFile):
         else:
             self.cpp_info.components["python"].defines.append("Py_NO_ENABLE_SHARED")
             if self.settings.os == "Linux":
-                self.cpp_info.components["python"].system_libs.extend(
-                    ["dl", "m", "pthread", "util"]
-                )
+                self.cpp_info.components["python"].system_libs.extend(["dl", "m", "pthread", "util"])
             elif self.settings.os == "Windows":
                 self.cpp_info.components["python"].system_libs.extend(
                     ["pathcch", "shlwapi", "version", "ws2_32"]
@@ -808,9 +801,7 @@ class CPythonConan(ConanFile):
         )
         self.cpp_info.components["python"].libdirs = []
 
-        self.cpp_info.components["_python_copy"].names["pkg_config"] = "python{}".format(
-            py_version.major
-        )
+        self.cpp_info.components["_python_copy"].names["pkg_config"] = "python{}".format(py_version.major)
         self.cpp_info.components["_python_copy"].requires = ["python"]
         self.cpp_info.components["_python_copy"].libdirs = []
 
@@ -880,9 +871,7 @@ class CPythonConan(ConanFile):
             )
         self.user_info.pythonhome = pythonhome
 
-        pythonhome_required = self.settings.compiler == "Visual Studio" or tools.is_apple_os(
-            self.settings.os
-        )
+        pythonhome_required = self.settings.compiler == "Visual Studio" or tools.is_apple_os(self.settings.os)
         self.user_info.module_requires_pythonhome = pythonhome_required
 
         if self.settings.compiler == "Visual Studio":

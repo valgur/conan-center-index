@@ -36,7 +36,11 @@ class LibpqxxConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         if Version(self.version) < "7.0":
-            return {"gcc": "7", "clang": "6", "apple-clang": "10"}
+            return {
+                "gcc": "7",
+                "clang": "6",
+                "apple-clang": "10",
+            }
         else:
             return {
                 "gcc": "7" if Version(self.version) < "7.5.0" else "8",
@@ -82,9 +86,7 @@ class LibpqxxConan(ConanFile):
             )
 
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.info.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -98,12 +100,7 @@ class LibpqxxConan(ConanFile):
                 )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -124,10 +121,7 @@ class LibpqxxConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         cmake = CMake(self)

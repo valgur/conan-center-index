@@ -51,9 +51,7 @@ class ForestDBConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -79,12 +77,7 @@ class ForestDBConan(ConanFile):
         self.copy("*.so*", dst="lib", src="lib", symlinks=True)
         self.copy("*.dylib*", dst="lib", src="lib", symlinks=True)
         self.copy("*.dll*", dst="lib", src="lib")
-        self.copy(
-            "*.h",
-            dst="include",
-            src=os.path.join(self._source_subfolder, "include"),
-            keep_path=True,
-        )
+        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]

@@ -1,14 +1,6 @@
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, NMakeToolchain
@@ -96,25 +88,10 @@ class LibdeflateConan(ConanFile):
             self._build_make()
 
     def _package_windows(self):
-        copy(
-            self,
-            "libdeflate.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, "libdeflate.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         if self.options.shared:
-            copy(
-                self,
-                "*deflate.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.source_folder,
-            )
-            copy(
-                self,
-                "*deflate.dll",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=self.source_folder,
-            )
+            copy(self, "*deflate.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder)
+            copy(self, "*deflate.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
         else:
             copy(
                 self,
@@ -130,11 +107,7 @@ class LibdeflateConan(ConanFile):
             autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}", "PREFIX=/"])
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(
-            self,
-            "*.a" if self.options.shared else "*.[so|dylib]*",
-            os.path.join(self.package_folder, "lib"),
-        )
+        rm(self, "*.a" if self.options.shared else "*.[so|dylib]*", os.path.join(self.package_folder, "lib"))
 
     def package(self):
         copy(self, "COPYING", self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

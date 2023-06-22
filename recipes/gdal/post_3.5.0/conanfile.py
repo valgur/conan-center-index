@@ -296,15 +296,12 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_pcre") and self.options.get_safe("with_pcre2"):
             raise ConanInvalidConfiguration("Enable either pcre or pcre2, not both")
 
-        if (
-            self.options.get_safe("with_sqlite3")
-            and not self.options["sqlite3"].enable_column_metadata
-        ):
+        if self.options.get_safe("with_sqlite3") and not self.options["sqlite3"].enable_column_metadata:
             raise ConanInvalidConfiguration("gdql requires sqlite3:enable_column_metadata=True")
 
-        if self.options.get_safe("with_libtiff") and self.options[
-            "libtiff"
-        ].jpeg != self.options.get_safe("with_jpeg"):
+        if self.options.get_safe("with_libtiff") and self.options["libtiff"].jpeg != self.options.get_safe(
+            "with_jpeg"
+        ):
             msg = "libtiff:jpeg and gdal:with_jpeg must be set to the same value, either libjpeg or libjpeg-turbo."
             # For some reason, the ConanInvalidConfiguration message is not shown, only
             #     ERROR: At least two recipes provides the same functionality:
@@ -354,9 +351,7 @@ class GdalConan(ConanFile):
 
         cmake.definitions["BUILD_APPS"] = self.options.tools
 
-        cmake.definitions["SQLite3_HAS_COLUMN_METADATA"] = self.options[
-            "sqlite3"
-        ].enable_column_metadata
+        cmake.definitions["SQLite3_HAS_COLUMN_METADATA"] = self.options["sqlite3"].enable_column_metadata
 
         cmake.definitions["SQLite3_HAS_RTREE"] = self.options["sqlite3"].enable_rtree
 
@@ -370,63 +365,63 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_ARMADILLO"] = self.options.with_armadillo
         if self.options.with_armadillo:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_ARMADILLO"] = "armadillo"
-            cmake.definitions["TARGET_FOR_ARMADILLO"] = self.dependencies[
-                "armadillo"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_ARMADILLO"] = self.dependencies["armadillo"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Armadillo_FOUND"] = False
 
         cmake.definitions["GDAL_USE_ARROW"] = self.options.with_arrow
         if self.options.with_arrow:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_ARROW"] = "arrow"
-            cmake.definitions["TARGET_FOR_ARROW"] = self.dependencies[
-                "arrow"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_ARROW"] = self.dependencies["arrow"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Arrow_FOUND"] = False
 
         cmake.definitions["GDAL_USE_BLOSC"] = self.options.with_blosc
         if self.options.with_blosc:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_BLOSC"] = "c-blosc"
-            cmake.definitions["TARGET_FOR_BLOSC"] = self.dependencies[
-                "c-blosc"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_BLOSC"] = self.dependencies["c-blosc"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Blosc_FOUND"] = False
 
         cmake.definitions["GDAL_USE_CFITSIO"] = self.options.with_cfitsio
         if self.options.with_cfitsio:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_CFITSIO"] = "cfitsio"
-            cmake.definitions["TARGET_FOR_CFITSIO"] = self.dependencies[
-                "cfitsio"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_CFITSIO"] = self.dependencies["cfitsio"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["CFITSIO_FOUND"] = False
 
         cmake.definitions["GDAL_USE_CRYPTOPP"] = self.options.with_cryptopp
         if self.options.with_cryptopp:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_CRYPTOPP"] = "cryptopp"
-            cmake.definitions["TARGET_FOR_CRYPTOPP"] = self.dependencies[
-                "cryptopp"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_CRYPTOPP"] = self.dependencies["cryptopp"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["CryptoPP_FOUND"] = False
 
         cmake.definitions["GDAL_USE_CURL"] = self.options.with_curl
         if self.options.with_curl:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_CURL"] = "libcurl"
-            cmake.definitions["TARGET_FOR_CURL"] = self.dependencies[
-                "libcurl"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_CURL"] = self.dependencies["libcurl"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["CURL_FOUND"] = False
 
         cmake.definitions["GDAL_USE_CRNLIB"] = self.options.with_dds
         if self.options.with_dds:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_CRNLIB"] = "crunch"
-            cmake.definitions["TARGET_FOR_CRNLIB"] = self.dependencies[
-                "crunch"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_CRNLIB"] = self.dependencies["crunch"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Crnlib_FOUND"] = False
 
@@ -440,9 +435,9 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_OPENEXR"] = self.options.with_exr
         if self.options.with_exr:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_OPENEXR"] = "openexr"
-            cmake.definitions["TARGET_FOR_OPENEXR"] = self.dependencies[
-                "openexr"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_OPENEXR"] = self.dependencies["openexr"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["OpenEXR_FOUND"] = False
 
@@ -501,9 +496,9 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_HEIF"] = self.options.with_heif
         if self.options.with_heif:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_HEIF"] = "libheif"
-            cmake.definitions["TARGET_FOR_HEIF"] = self.dependencies[
-                "libheif"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_HEIF"] = self.dependencies["libheif"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["HEIF_FOUND"] = False
 
@@ -519,18 +514,18 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_DEFLATE"] = self.options.with_libdeflate
         if self.options.with_libdeflate:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_DEFLATE"] = "libdeflate"
-            cmake.definitions["TARGET_FOR_DEFLATE"] = self.dependencies[
-                "libdeflate"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_DEFLATE"] = self.dependencies["libdeflate"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Deflate_FOUND"] = False
 
         cmake.definitions["GDAL_USE_ICONV"] = self.options.with_libiconv
         if self.options.with_libiconv:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_ICONV"] = "libiconv"
-            cmake.definitions["TARGET_FOR_ICONV"] = self.dependencies[
-                "libiconv"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_ICONV"] = self.dependencies["libiconv"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Iconv_FOUND"] = False
 
@@ -551,18 +546,18 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_LIBKML"] = self.options.with_libkml
         if self.options.with_libkml:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_LIBKML"] = "libkml"
-            cmake.definitions["TARGET_FOR_LIBKML"] = self.dependencies[
-                "libkml"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_LIBKML"] = self.dependencies["libkml"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["LibKML_FOUND"] = False
 
         cmake.definitions["GDAL_USE_TIFF"] = self.options.with_libtiff
         if self.options.with_libtiff:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_TIFF"] = "libtiff"
-            cmake.definitions["TARGET_FOR_TIFF"] = self.dependencies[
-                "libtiff"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_TIFF"] = self.dependencies["libtiff"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["TIFF_FOUND"] = False
 
@@ -584,10 +579,7 @@ class GdalConan(ConanFile):
         else:
             cmake.definitions["MONGOCXX_FOUND"] = False
 
-        if (
-            self.options.with_mysql == "libmysqlclient"
-            or self.options.with_mysql == "mariadb-connector-c"
-        ):
+        if self.options.with_mysql == "libmysqlclient" or self.options.with_mysql == "mariadb-connector-c":
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_MYSQL"] = str(self.options.with_mysql)
             cmake.definitions["TARGET_FOR_MYSQL"] = (
                 "mariadb-connector-c::mariadb-connector-c"
@@ -600,9 +592,9 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_NETCDF"] = self.options.with_netcdf
         if self.options.with_netcdf:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_NETCDF"] = "netcdf"
-            cmake.definitions["TARGET_FOR_NETCDF"] = self.dependencies[
-                "netcdf"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_NETCDF"] = self.dependencies["netcdf"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["NetCDF_FOUND"] = False
 
@@ -618,18 +610,18 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_OPENJPEG"] = self.options.with_openjpeg
         if self.options.with_openjpeg:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_OPENJPEG"] = "openjpeg"
-            cmake.definitions["TARGET_FOR_OPENJPEG"] = self.dependencies[
-                "openjpeg"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_OPENJPEG"] = self.dependencies["openjpeg"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["OPENJPEG_FOUND"] = False
 
         cmake.definitions["GDAL_USE_OPENSSL"] = self.options.with_openssl
         if self.options.with_openssl:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_OPENSSL"] = "openssl"
-            cmake.definitions["TARGET_FOR_OPENSSL"] = self.dependencies[
-                "openssl"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_OPENSSL"] = self.dependencies["openssl"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["OpenSSL_FOUND"] = False
 
@@ -645,9 +637,9 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_PCRE2"] = self.options.with_pcre2
         if self.options.with_pcre2:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_PCRE2"] = "pcre2"
-            cmake.definitions["TARGET_FOR_PCRE2"] = self.dependencies[
-                "pcre2"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_PCRE2"] = self.dependencies["pcre2"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["PCRE2_FOUND"] = False
 
@@ -657,9 +649,9 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_POSTGRESQL"] = self.options.with_pg
         if self.options.with_pg:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_POSTGRESQL"] = "libpq"
-            cmake.definitions["TARGET_FOR_POSTGRESQL"] = self.dependencies[
-                "libpq"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_POSTGRESQL"] = self.dependencies["libpq"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["PostgreSQL_FOUND"] = False
 
@@ -675,18 +667,18 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_PODOFO"] = self.options.with_podofo
         if self.options.with_podofo:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_PODOFO"] = "podofo"
-            cmake.definitions["TARGET_FOR_PODOFO"] = self.dependencies[
-                "podofo"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_PODOFO"] = self.dependencies["podofo"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Podofo_FOUND"] = False
 
         cmake.definitions["GDAL_USE_POPPLER"] = self.options.with_poppler
         if self.options.with_poppler:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_POPPLER"] = "poppler"
-            cmake.definitions["TARGET_FOR_POPPLER"] = self.dependencies[
-                "poppler"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_POPPLER"] = self.dependencies["poppler"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["Poppler_FOUND"] = False
 
@@ -702,45 +694,45 @@ class GdalConan(ConanFile):
         cmake.definitions["GDAL_USE_QHULL"] = self.options.with_qhull
         if self.options.with_qhull:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_QHULL"] = "qhull"
-            cmake.definitions["TARGET_FOR_QHULL"] = self.dependencies[
-                "qhull"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_QHULL"] = self.dependencies["qhull"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["QHULL_FOUND"] = False
 
         cmake.definitions["GDAL_USE_SQLITE3"] = self.options.with_sqlite3
         if self.options.with_sqlite3:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_SQLITE3"] = "sqlite3"
-            cmake.definitions["TARGET_FOR_SQLITE3"] = self.dependencies[
-                "sqlite3"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_SQLITE3"] = self.dependencies["sqlite3"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["SQLite3_FOUND"] = False
 
         cmake.definitions["GDAL_USE_WEBP"] = self.options.with_webp
         if self.options.with_webp:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_WEBP"] = "libwebp"
-            cmake.definitions["TARGET_FOR_WEBP"] = self.dependencies[
-                "libwebp"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_WEBP"] = self.dependencies["libwebp"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["WebP_FOUND"] = False
 
         cmake.definitions["GDAL_USE_XERCESC"] = self.options.with_xerces
         if self.options.with_xerces:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_XERCESC"] = "xerces-c"
-            cmake.definitions["TARGET_FOR_XERCESC"] = self.dependencies[
-                "xerces-c"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_XERCESC"] = self.dependencies["xerces-c"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["XercesC_FOUND"] = False
 
         cmake.definitions["GDAL_USE_LIBXML2"] = self.options.with_xml2
         if self.options.with_xml2:
             cmake.definitions["GDAL_CONAN_PACKAGE_FOR_LIBXML2"] = "libxml2"
-            cmake.definitions["TARGET_FOR_LIBXML2"] = self.dependencies[
-                "libxml2"
-            ].cpp_info.get_property("cmake_target_name")
+            cmake.definitions["TARGET_FOR_LIBXML2"] = self.dependencies["libxml2"].cpp_info.get_property(
+                "cmake_target_name"
+            )
         else:
             cmake.definitions["LibXml2_FOUND"] = False
 

@@ -55,9 +55,7 @@ _PROTO_DEPS_REPLACED_NAMES = {
 }
 
 # A few *.deps files are not used.
-_PROTO_DEPS_UNUSED = {
-    "iam_policy",
-}
+_PROTO_DEPS_UNUSED = {"iam_policy"}
 
 # A few _protos libraries were introduced before `google-cloud-cpp` adopted
 # more consistent naming.
@@ -113,10 +111,7 @@ _PROTO_BASE_COMPONENTS = {
 
 # A list of experimental components used when `google-cloud-cpp` does not
 # provide an easy-to-use list.
-_DEFAULT_EXPERIMENTAL_COMPONENTS = {
-    "apikeys",
-    "pubsublite",
-}
+_DEFAULT_EXPERIMENTAL_COMPONENTS = {"apikeys", "pubsublite"}
 
 # A list of components used when `google-cloud-cpp` does not provide an
 # easy-to-use list.
@@ -320,9 +315,7 @@ def main():
     """Generate a python file representing the google-cloud-cpp proto deps."""
     parser = argparse.ArgumentParser(description=(__doc__))
     parser.add_argument(
-        "-s",
-        "--source-folder",
-        help="a directory where `google-cloud-cpp` source has been extracted",
+        "-s", "--source-folder", help="a directory where `google-cloud-cpp` source has been extracted"
     )
     args = parser.parse_args()
     source_folder = vars(args)["source_folder"]

@@ -25,11 +25,7 @@ class CMakeConan(ConanFile):
                 "CMake binaries are only provided for x86_64 and armv8 architectures"
             )
 
-        if (
-            self.settings.os == "Windows"
-            and self.settings.arch == "armv8"
-            and Version(self.version) < "3.24"
-        ):
+        if self.settings.os == "Windows" and self.settings.arch == "armv8" and Version(self.version) < "3.24":
             raise ConanInvalidConfiguration(
                 "CMake only supports ARM64 binaries on Windows starting from 3.24"
             )

@@ -46,9 +46,7 @@ class MsgpackConan(ConanFile):
         if self.options.header_only:
             self.options.c_api = False
             self.options.cpp_api = True
-            self.output.warn(
-                "header_only option is deprecated, prefer c_api=False and cpp_api=True"
-            )
+            self.output.warn("header_only option is deprecated, prefer c_api=False and cpp_api=True")
         del self.options.header_only
 
         if not self.options.c_api and not self.options.cpp_api:
@@ -132,9 +130,7 @@ class MsgpackConan(ConanFile):
             self.cpp_info.components["msgpackc"].libs = tools.collect_libs(self)
         if self.options.cpp_api:
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package"] = "msgpackc-cxx"
-            self.cpp_info.components["msgpackc-cxx"].names[
-                "cmake_find_package_multi"
-            ] = "msgpackc-cxx"
+            self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package_multi"] = "msgpackc-cxx"
             if self.options.with_boost:
                 self.cpp_info.components["msgpackc-cxx"].defines = ["MSGPACK_USE_BOOST"]
                 self.cpp_info.components["msgpackc-cxx"].requires = ["boost::boost"]

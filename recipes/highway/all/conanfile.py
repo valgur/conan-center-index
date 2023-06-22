@@ -96,12 +96,7 @@ class HighwayConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -114,9 +109,7 @@ class HighwayConan(ConanFile):
                 "HWY_SHARED_DEFINE" if self.options.shared else "HWY_STATIC_DEFINE"
             )
         if Version(self.version) >= "0.12.1":
-            self.cpp_info.components["hwy_contrib"].set_property(
-                "pkg_config_name", "libhwy-contrib"
-            )
+            self.cpp_info.components["hwy_contrib"].set_property("pkg_config_name", "libhwy-contrib")
             self.cpp_info.components["hwy_contrib"].libs = ["hwy_contrib"]
             self.cpp_info.components["hwy_contrib"].requires = ["hwy"]
         if Version(self.version) >= "0.15.0":

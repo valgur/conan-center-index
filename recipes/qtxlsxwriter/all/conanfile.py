@@ -51,9 +51,7 @@ class QtXlsxWriterConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires qt gui")
         # FIXME: to remove once https://github.com/conan-io/conan/issues/11385 fixed
         if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} recipe does not support cross-compilation yet"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} recipe does not support cross-compilation yet")
 
     def build_requirements(self):
         if hasattr(self, "settings_build") and cross_building(self):
@@ -91,12 +89,7 @@ class QtXlsxWriterConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

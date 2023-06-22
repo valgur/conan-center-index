@@ -168,25 +168,15 @@ class VulkanLoaderConan(ConanFile):
             replace_in_file(self, cmakelists, "/WX", "")
         # This fix is needed due to CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in CMakeToolchain (see https://github.com/conan-io/conan/issues/10387).
         # Indeed we want to use upstream Find modules of xcb, x11, wayland and directfb. There are properly using pkgconfig under the hood.
-        replace_in_file(
-            self, cmakelists, "find_package(XCB REQUIRED)", "find_package(XCB REQUIRED MODULE)"
-        )
-        replace_in_file(
-            self, cmakelists, "find_package(X11 REQUIRED)", "find_package(X11 REQUIRED MODULE)"
-        )
+        replace_in_file(self, cmakelists, "find_package(XCB REQUIRED)", "find_package(XCB REQUIRED MODULE)")
+        replace_in_file(self, cmakelists, "find_package(X11 REQUIRED)", "find_package(X11 REQUIRED MODULE)")
         # find_package(Wayland REQUIRED) was removed, as it was unused
         if Version(self.version) < "1.3.231":
             replace_in_file(
-                self,
-                cmakelists,
-                "find_package(Wayland REQUIRED)",
-                "find_package(Wayland REQUIRED MODULE)",
+                self, cmakelists, "find_package(Wayland REQUIRED)", "find_package(Wayland REQUIRED MODULE)"
             )
         replace_in_file(
-            self,
-            cmakelists,
-            "find_package(DirectFB REQUIRED)",
-            "find_package(DirectFB REQUIRED MODULE)",
+            self, cmakelists, "find_package(DirectFB REQUIRED)", "find_package(DirectFB REQUIRED MODULE)"
         )
 
     def build(self):
@@ -198,12 +188,7 @@ class VulkanLoaderConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "loader"))
 

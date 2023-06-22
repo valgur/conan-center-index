@@ -37,10 +37,7 @@ class CpplazyConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        if (
-            self.settings.compiler == "apple-clang"
-            and Version(self.settings.compiler.version) < "14.0"
-        ):
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14.0":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support apple-clang < 14.0.")
 
     def source(self):

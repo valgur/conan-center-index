@@ -55,18 +55,13 @@ class lmdbConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LMDB_SRC_DIR"] = os.path.join(
-            self.source_folder, "libraries", "liblmdb"
-        ).replace("\\", "/")
+        tc.variables["LMDB_SRC_DIR"] = os.path.join(self.source_folder, "libraries", "liblmdb").replace(
+            "\\", "/"
+        )
         tc.variables["LMDB_ENABLE_ROBUST_MUTEX"] = self.options.enable_robust_mutex
         tc.generate()
 

@@ -12,9 +12,7 @@ required_conan_version = ">=1.51.1"
 
 class BitserializerConan(ConanFile):
     name = "bitserializer"
-    description = (
-        "C++ 17 library for serialization to multiple output formats (JSON, XML, YAML, CSV)"
-    )
+    description = "C++ 17 library for serialization to multiple output formats (JSON, XML, YAML, CSV)"
     topics = ("serialization", "json", "xml", "yaml", "csv")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/Pavel_Kisliak/bitserializer"
@@ -101,7 +99,7 @@ class BitserializerConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
         # Check stdlib ABI compatibility
@@ -110,10 +108,7 @@ class BitserializerConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f'Using {self.ref} with GCC requires "compiler.libcxx=libstdc++11"'
             )
-        elif compiler_name == "clang" and self.settings.compiler.libcxx not in [
-            "libstdc++11",
-            "libc++",
-        ]:
+        elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
             raise ConanInvalidConfiguration(
                 f'Using {self.ref} with Clang requires either "compiler.libcxx=libstdc++11"'
                 ' or "compiler.libcxx=libc++"'
@@ -164,12 +159,7 @@ class BitserializerConan(ConanFile):
                 dst=os.path.join(self.package_folder, "include"),
             )
         # Copy license
-        copy(
-            self,
-            "license.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         lib_suffix = "d" if self.settings.build_type == "Debug" else ""
@@ -266,9 +256,7 @@ class BitserializerConan(ConanFile):
                 "cmake_find_package_multi"
             ] = "rapidjson-archive"
         if self.options.with_pugixml:
-            self.cpp_info.components["bitserializer-pugixml"].names[
-                "cmake_find_package"
-            ] = "pugixml-archive"
+            self.cpp_info.components["bitserializer-pugixml"].names["cmake_find_package"] = "pugixml-archive"
             self.cpp_info.components["bitserializer-pugixml"].names[
                 "cmake_find_package_multi"
             ] = "pugixml-archive"
@@ -280,9 +268,5 @@ class BitserializerConan(ConanFile):
                 "cmake_find_package_multi"
             ] = "rapidyaml-archive"
         if self.options.get_safe("with_csv"):
-            self.cpp_info.components["bitserializer-csv"].names[
-                "cmake_find_package"
-            ] = "csv-archive"
-            self.cpp_info.components["bitserializer-csv"].names[
-                "cmake_find_package_multi"
-            ] = "csv-archive"
+            self.cpp_info.components["bitserializer-csv"].names["cmake_find_package"] = "csv-archive"
+            self.cpp_info.components["bitserializer-csv"].names["cmake_find_package_multi"] = "csv-archive"

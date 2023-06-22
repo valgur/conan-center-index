@@ -34,9 +34,7 @@ class GenieConan(ConanFile):
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Cross building is not yet supported. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -47,12 +45,7 @@ class GenieConan(ConanFile):
             self.tool_requires("cccl/1.3")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _os(self):
@@ -118,10 +111,7 @@ class GenieConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
         copy(

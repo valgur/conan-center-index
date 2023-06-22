@@ -13,9 +13,7 @@ class _ProtoLibrary:
 
     def __init__(self, is_cc) -> None:
         self.srcs = []
-        self.deps = set(
-            ["protobuf::libprotobuf"]
-        )  # Add to all libraries even if not explicitly set
+        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
         self.is_cc = is_cc
         self.is_used = self.is_cc
 
@@ -171,9 +169,7 @@ def parse_proto_libraries(filename, source_folder, error):
                 proto_library = _ProtoLibrary(is_cc=True)
             elif line == "_PROTO_SUBPACKAGE_DEPS = [":
                 variables["_PROTO_SUBPACKAGE_DEPS"] = []
-                parsing_variable = lambda u: collecting_items(
-                    variables["_PROTO_SUBPACKAGE_DEPS"], u
-                )
+                parsing_variable = lambda u: collecting_items(variables["_PROTO_SUBPACKAGE_DEPS"], u)
             elif parsing_variable != None:
                 if line == "]":
                     parsing_variable = None

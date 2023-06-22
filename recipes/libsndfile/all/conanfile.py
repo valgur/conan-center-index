@@ -111,12 +111,7 @@ class LibsndfileConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -132,13 +127,7 @@ class LibsndfileConan(ConanFile):
         self.cpp_info.components["sndfile"].libs = ["sndfile"]
         if self.options.with_external_libs:
             self.cpp_info.components["sndfile"].requires.extend(
-                [
-                    "ogg::ogg",
-                    "vorbis::vorbismain",
-                    "vorbis::vorbisenc",
-                    "flac::flac",
-                    "opus::opus",
-                ]
+                ["ogg::ogg", "vorbis::vorbismain", "vorbis::vorbisenc", "flac::flac", "opus::opus"]
             )
         if self.options.get_safe("with_mpeg", False):
             self.cpp_info.components["sndfile"].requires.append("mpg123::mpg123")

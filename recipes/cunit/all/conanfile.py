@@ -59,9 +59,7 @@ class CunitConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
         with tools.chdir(self._source_subfolder):
             for f in glob.glob("*.c"):
@@ -78,9 +76,7 @@ class CunitConan(ConanFile):
             with tools.vcvars(self.settings):
                 env.update(
                     {
-                        "AR": "{} lib".format(
-                            tools.unix_path(self._user_info_build["automake"].ar_lib)
-                        ),
+                        "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
                         "CC": "{} cl -nologo".format(
                             tools.unix_path(self._user_info_build["automake"].compile)
                         ),
@@ -110,9 +106,7 @@ class CunitConan(ConanFile):
             # MSVC canonical names aren't understood
             host, build = False, False
         conf_args = [
-            "--datarootdir={}".format(
-                os.path.join(self.package_folder, "bin", "share").replace("\\", "/")
-            ),
+            "--datarootdir={}".format(os.path.join(self.package_folder, "bin", "share").replace("\\", "/")),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
             "--enable-automated" if self.options.enable_automated else "--disable-automated",
             "--enable-basic" if self.options.enable_basic else "--disable-basic",
@@ -131,9 +125,7 @@ class CunitConan(ConanFile):
             tools.patch(**patch)
         with self._build_context():
             with tools.chdir(self._source_subfolder):
-                self.run(
-                    "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
-                )
+                self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
                 autotools = self._configure_autotools()
                 autotools.make()
 

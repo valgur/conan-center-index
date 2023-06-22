@@ -27,9 +27,7 @@ class TestPackageConan(ConanFile):
         else:
             VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
-        tc.cache_variables["protobuf_LITE"] = self.dependencies[
-            self.tested_reference_str
-        ].options.lite
+        tc.cache_variables["protobuf_LITE"] = self.dependencies[self.tested_reference_str].options.lite
         tc.generate()
 
     def build(self):

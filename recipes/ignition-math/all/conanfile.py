@@ -61,9 +61,7 @@ class IgnitionMathConan(ConanFile):
             if tools.Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
+                        self.name, self.settings.compiler, self.settings.compiler.version
                     )
                 )
 
@@ -80,9 +78,7 @@ class IgnitionMathConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):
@@ -107,15 +103,12 @@ class IgnitionMathConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            tools.Version(self.version),
+            os.path.join(self.package_folder, self._module_file_rel_path), tools.Version(self.version)
         )
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(
-                os.path.join(self.package_folder, "bin"), dll_pattern_to_remove
-            )
+            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
 
     @staticmethod
     def _create_cmake_module_variables(module_file, version):
@@ -147,22 +140,14 @@ class IgnitionMathConan(ConanFile):
         self.cpp_info.components[lib_name].includedirs.append(
             os.path.join("include", "ignition", "math" + version_major)
         )
-        self.cpp_info.components[lib_name].requires = [
-            "swig::swig",
-            "eigen::eigen",
-            "doxygen::doxygen",
-        ]
+        self.cpp_info.components[lib_name].requires = ["swig::swig", "eigen::eigen", "doxygen::doxygen"]
 
         self.cpp_info.components[lib_name].builddirs = [self._module_file_rel_dir]
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [
             self._module_file_rel_path
         ]
-        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [self._module_file_rel_path]
 
         self.cpp_info.components["eigen3"].names["cmake_find_package"] = "eigen3"
         self.cpp_info.components["eigen3"].names["cmake_find_package_multi"] = "eigen3"
@@ -173,21 +158,15 @@ class IgnitionMathConan(ConanFile):
         self.cpp_info.components["eigen3"].requires = ["eigen::eigen"]
 
         self.cpp_info.components["eigen3"].builddirs = [self._module_file_rel_dir]
-        self.cpp_info.components["eigen3"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components["eigen3"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.components["eigen3"].build_modules["cmake_find_package_multi"] = [
             self._module_file_rel_path
         ]
-        self.cpp_info.components["eigen3"].build_modules["cmake_paths"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components["eigen3"].build_modules["cmake_paths"] = [self._module_file_rel_path]
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration(
-                "sorry, M1 builds are not currently supported, give up!"
-            )
+            raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
 
     @property
     def _module_file_rel_dir(self):
@@ -195,6 +174,4 @@ class IgnitionMathConan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(
-            self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake"
-        )
+        return os.path.join(self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake")

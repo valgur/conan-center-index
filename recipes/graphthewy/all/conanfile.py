@@ -9,7 +9,9 @@ class GraphthewyConan(ConanFile):
     license = "EUPL-1.2"
     homepage = "https://github.com/alex-87/graphthewy"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Simple header-only C++ Library for graph modelling (directed or not) and graph cycle detection. "
+    description = (
+        "Simple header-only C++ Library for graph modelling (directed or not) and graph cycle detection. "
+    )
     topics = ("graph", "algorithm", "modelling", "header-only")
     settings = "compiler"
     no_copy_source = True
@@ -20,7 +22,12 @@ class GraphthewyConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {"Visual Studio": "15.7", "gcc": "7", "clang": "7", "apple-clang": "10"}
+        return {
+            "Visual Studio": "15.7",
+            "gcc": "7",
+            "clang": "7",
+            "apple-clang": "10",
+        }
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -45,10 +52,7 @@ class GraphthewyConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(
-            "*.hpp",
-            dst=os.path.join("include", "graphthewy"),
-            src=self._source_subfolder,
-            keep_path=False,
+            "*.hpp", dst=os.path.join("include", "graphthewy"), src=self._source_subfolder, keep_path=False
         )
 
     def package_id(self):

@@ -59,12 +59,7 @@ class LibDaemonConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -95,12 +90,7 @@ class LibDaemonConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

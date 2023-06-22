@@ -11,7 +11,9 @@ required_conan_version = ">=1.52.0"
 
 class DoxygenConan(ConanFile):
     name = "doxygen"
-    description = "A documentation system for C++, C, Java, IDL and PHP --- Note: Dot is disabled in this package"
+    description = (
+        "A documentation system for C++, C, Java, IDL and PHP --- Note: Dot is disabled in this package"
+    )
     topics = ("installer", "devtool", "documentation")
     homepage = "https://github.com/doxygen/doxygen"
     license = "GPL-2.0-or-later"
@@ -62,10 +64,7 @@ class DoxygenConan(ConanFile):
 
     def validate(self):
         minimum_compiler_version = self._minimum_compiler_version.get(str(self.settings.compiler))
-        if (
-            minimum_compiler_version
-            and Version(self.settings.compiler.version) < minimum_compiler_version
-        ):
+        if minimum_compiler_version and Version(self.settings.compiler.version) < minimum_compiler_version:
             raise ConanInvalidConfiguration(
                 f"Compiler version too old. At least {minimum_compiler_version} is required."
             )
@@ -100,12 +99,7 @@ class DoxygenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

@@ -101,12 +101,7 @@ class OGDFConan(ConanFile):
         cmake.build(target="OGDF")
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*.txt",
-            src=self.source_folder,
-            dst=join(self.package_folder, "licenses"),
-        )
+        copy(self, pattern="LICENSE*.txt", src=self.source_folder, dst=join(self.package_folder, "licenses"))
         copy(
             self,
             pattern="*.h",
@@ -121,12 +116,7 @@ class OGDFConan(ConanFile):
         )
         if self.options.shared:
             copy(self, pattern="*.so*", src=self.build_folder, dst=join(self.package_folder, "lib"))
-            copy(
-                self,
-                pattern="*.dylib*",
-                src=self.build_folder,
-                dst=join(self.package_folder, "lib"),
-            )
+            copy(self, pattern="*.dylib*", src=self.build_folder, dst=join(self.package_folder, "lib"))
         else:
             copy(self, pattern="*.a", src=self.build_folder, dst=join(self.package_folder, "lib"))
             copy(

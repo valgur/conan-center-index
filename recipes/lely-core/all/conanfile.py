@@ -4,14 +4,7 @@ from conan import ConanFile
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.files import (
-    export_conandata_patches,
-    apply_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    rm,
-)
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rmdir, rm
 from conan.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=1.53.0"
@@ -126,12 +119,7 @@ class LelyConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} can only be compiled with GCC currently")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -206,12 +194,7 @@ class LelyConan(ConanFile):
         autotools.install()
         fix_apple_shared_install_name(self)
 
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
@@ -222,10 +205,7 @@ class LelyConan(ConanFile):
             "coapp": {"requires": ["libc", "io2", "co"]},
             "ev": {"requires": ["libc", "util"]},
             "io2": {"requires": ["libc", "util", "can", "ev"]},
-            "libc": {
-                "requires": [],
-                "system_libs": ["pthread"] if self.options.threads else [],
-            },
+            "libc": {"requires": [], "system_libs": ["pthread"] if self.options.threads else []},
             "tap": {"requires": ["libc"]},
             "util": {"requires": ["libc"], "system_libs": ["m"]},
         }

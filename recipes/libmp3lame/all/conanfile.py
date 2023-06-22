@@ -24,9 +24,7 @@ required_conan_version = ">=1.55.0"
 class LibMP3LameConan(ConanFile):
     name = "libmp3lame"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL."
-    )
+    description = "LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL."
     homepage = "http://lame.sourceforge.net"
     topics = ("multimedia", "audio", "mp3", "decoder", "encoding", "decoding")
     license = "LGPL-2.0"
@@ -113,14 +111,10 @@ class LibMP3LameConan(ConanFile):
                 # https://docs.microsoft.com/en-us/cpp/build/reference/ga-optimize-for-windows-application?view=msvc-170
                 replace_in_file(self, "Makefile.MSVC", "/GAy", "/GA")
             if self.settings.arch == "x86_64":
-                replace_in_file(
-                    self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:X64"
-                )
+                replace_in_file(self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:X64")
                 command += " MSVCVER=Win64 asm=yes"
             elif self.settings.arch == "armv8":
-                replace_in_file(
-                    self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:ARM64"
-                )
+                replace_in_file(self, "Makefile.MSVC", "MACHINE = /machine:I386", "MACHINE =/machine:ARM64")
                 command += " MSVCVER=Win64"
             else:
                 command += " asm=yes"
@@ -146,10 +140,7 @@ class LibMP3LameConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "include", "libmp3lame.sym"),
-            "lame_init_old\n",
-            "",
+            self, os.path.join(self.source_folder, "include", "libmp3lame.sym"), "lame_init_old\n", ""
         )
 
         if is_msvc(self) or self._is_clang_cl:
@@ -159,10 +150,7 @@ class LibMP3LameConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         if is_msvc(self) or self._is_clang_cl:
             copy(

@@ -81,9 +81,7 @@ class LibfabricConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):
@@ -91,11 +89,13 @@ class LibfabricConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         with tools.chdir(self._source_subfolder):
-            self.run(
-                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
-            )
+            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
 
-        yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
+        yes_no_dl = lambda v: {
+            "True": "yes",
+            "False": "no",
+            "shared": "dl",
+        }[str(v)]
         yes_no = lambda v: "yes" if v else "no"
         args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
@@ -106,9 +106,7 @@ class LibfabricConan(ConanFile):
         for p in self._providers:
             args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            args.append(
-                "--with-libnl={}".format(tools.unix_path(self.deps_cpp_info["libnl"].rootpath))
-            ),
+            args.append("--with-libnl={}".format(tools.unix_path(self.deps_cpp_info["libnl"].rootpath))),
         else:
             args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":

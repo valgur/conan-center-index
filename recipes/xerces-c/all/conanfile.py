@@ -87,9 +87,7 @@ class XercesCConan(ConanFile):
                    OS(es) that `value` is valid on
         """
         if self.settings.os not in host_os and getattr(self.options, option) == value:
-            raise ConanInvalidConfiguration(
-                f"Option '{option}={value}' is only supported on {host_os}"
-            )
+            raise ConanInvalidConfiguration(f"Option '{option}={value}' is only supported on {host_os}")
 
     def validate(self):
         if self.settings.os not in ("Windows", "Macos", "Linux"):
@@ -144,12 +142,7 @@ class XercesCConan(ConanFile):
 
     def package(self):
         for license in ("LICENSE", "NOTICE"):
-            copy(
-                self,
-                license,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
-            )
+            copy(self, license, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

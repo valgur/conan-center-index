@@ -23,11 +23,7 @@ class LibX264Conan(ConanFile):
     license = "GPL-2.0"
 
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "bit_depth": [8, 10, "all"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "bit_depth": [8, 10, "all"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -98,9 +94,7 @@ class LibX264Conan(ConanFile):
             extra_asflags.append("-arch arm64")
             extra_ldflags.append("-arch arm64")
             args["--host"] = "aarch64-apple-darwin"
-            if (
-                self.settings.os != "Macos"
-            ):  # TODO not sure why this is != "Macos" ... shouldn't it be == ??
+            if self.settings.os != "Macos":  # TODO not sure why this is != "Macos" ... shouldn't it be == ??
                 xcrun = XCRun(self)
                 platform_flags = ["-isysroot", xcrun.sdk_path]
                 apple_min_version_flag = AutotoolsToolchain(self).apple_min_version_flag
@@ -170,10 +164,7 @@ class LibX264Conan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         autotools.install()

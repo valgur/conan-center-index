@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -22,9 +14,7 @@ required_conan_version = ">=1.54.0"
 
 class UnicornConan(ConanFile):
     name = "unicorn"
-    description = (
-        "Unicorn is a lightweight multi-platform, multi-architecture CPU emulator framework."
-    )
+    description = "Unicorn is a lightweight multi-platform, multi-architecture CPU emulator framework."
     topics = (
         "emulator",
         "security",
@@ -190,9 +180,7 @@ class UnicornConan(ConanFile):
 
     def package(self):
         for lic in ("COPYING", "COPYING.LGPL2", "COPYING_GLIB"):
-            copy(
-                self, lic, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-            )
+            copy(self, lic, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -203,9 +191,7 @@ class UnicornConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "unicorn")
         suffix = (
-            "-import"
-            if Version(self.version) >= "2.0.0" and is_msvc(self) and self.options.shared
-            else ""
+            "-import" if Version(self.version) >= "2.0.0" and is_msvc(self) and self.options.shared else ""
         )
         self.cpp_info.libs = [f"unicorn{suffix}"]
         if self.settings.os in ("FreeBSD", "Linux"):

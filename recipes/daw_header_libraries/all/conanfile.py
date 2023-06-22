@@ -12,9 +12,7 @@ required_conan_version = ">=1.50.0"
 
 class DawHeaderLibrariesConan(ConanFile):
     name = "daw_header_libraries"
-    description = (
-        "Various header libraries mostly future std lib, replacements for(e.g. visit), or some misc"
-    )
+    description = "Various header libraries mostly future std lib, replacements for(e.g. visit), or some misc"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/beached/header_libraries"
@@ -48,10 +46,7 @@ class DawHeaderLibrariesConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if (
-            minimum_version
-            and Version(self.settings.get_safe("compiler.version")) < minimum_version
-        ):
+        if minimum_version and Version(self.settings.get_safe("compiler.version")) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -90,6 +85,4 @@ class DawHeaderLibrariesConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "daw"
         self.cpp_info.components["daw"].names["cmake_find_package"] = "daw-header-libraries"
         self.cpp_info.components["daw"].names["cmake_find_package_multi"] = "daw-header-libraries"
-        self.cpp_info.components["daw"].set_property(
-            "cmake_target_name", "daw::daw-header-libraries"
-        )
+        self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-header-libraries")

@@ -1,11 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    replace_in_file,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
@@ -86,10 +80,7 @@ class NsyncConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

@@ -75,22 +75,44 @@ class NloptConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         algs_licenses = [
-            {"subdir": "ags", "license_name": "COPYRIGHT"},
-            {"subdir": "bobyqa", "license_name": "COPYRIGHT"},
-            {"subdir": "cobyla", "license_name": "COPYRIGHT"},
-            {"subdir": "direct", "license_name": "COPYING"},
-            {"subdir": "esch", "license_name": "COPYRIGHT"},
-            {"subdir": "luskan", "license_name": "COPYRIGHT"},
-            {"subdir": "newuoa", "license_name": "COPYRIGHT"},
-            {"subdir": "slsqp", "license_name": "COPYRIGHT"},
-            {"subdir": "stogo", "license_name": "COPYRIGHT"},
+            {
+                "subdir": "ags",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "bobyqa",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "cobyla",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "direct",
+                "license_name": "COPYING",
+            },
+            {
+                "subdir": "esch",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "luskan",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "newuoa",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "slsqp",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "stogo",
+                "license_name": "COPYRIGHT",
+            },
         ]
         for alg_license in algs_licenses:
             copy(

@@ -57,9 +57,7 @@ class PixmanConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "pixman can only be built as a static library on Windows"
-            )
+            raise ConanInvalidConfiguration("pixman can only be built as a static library on Windows")
 
     def build_requirements(self):
         self.tool_requires("meson/1.1.1")
@@ -71,15 +69,18 @@ class PixmanConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
-        tc.project_options.update({"libpng": "disabled", "gtk": "disabled"})
+        tc.project_options.update(
+            {
+                "libpng": "disabled",
+                "gtk": "disabled",
+            }
+        )
         tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('test')", "")
-        replace_in_file(
-            self, os.path.join(self.source_folder, "meson.build"), "subdir('demos')", ""
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('demos')", "")
 
     def build(self):
         self._patch_sources()
@@ -97,11 +98,7 @@ class PixmanConan(ConanFile):
         fix_apple_shared_install_name(self)
         if is_msvc(self):
             prefix = "libpixman-1"
-            rename(
-                self,
-                os.path.join(lib_folder, f"{prefix}.a"),
-                os.path.join(lib_folder, f"{prefix}.lib"),
-            )
+            rename(self, os.path.join(lib_folder, f"{prefix}.a"), os.path.join(lib_folder, f"{prefix}.lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["libpixman-1"] if self.settings.os == "Windows" else ["pixman-1"]

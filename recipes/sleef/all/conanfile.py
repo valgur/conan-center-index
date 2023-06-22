@@ -7,9 +7,7 @@ required_conan_version = ">=1.32.0"
 
 class SleefConan(ConanFile):
     name = "sleef"
-    description = (
-        "SLEEF is a library that implements vectorized versions " "of C standard math functions."
-    )
+    description = "SLEEF is a library that implements vectorized versions " "of C standard math functions."
     license = "BSL-1.0"
     topics = ("vectorization", "simd")
     homepage = "https://sleef.org"

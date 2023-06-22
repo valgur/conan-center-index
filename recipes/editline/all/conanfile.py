@@ -20,11 +20,7 @@ class EditlineConan(ConanFile):
     license = "BSD-3-Clause"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "terminal_db": ["termcap", "ncurses", "tinfo"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "terminal_db": ["termcap", "ncurses", "tinfo"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -52,9 +48,7 @@ class EditlineConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows is not supported by libedit (missing termios.h)"
-            )
+            raise ConanInvalidConfiguration("Windows is not supported by libedit (missing termios.h)")
         if self.options.terminal_db == "tinfo":
             # TODO - Add tinfo when available
             raise ConanInvalidConfiguration("tinfo is not (yet) available on CCI")
@@ -78,12 +72,7 @@ class EditlineConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

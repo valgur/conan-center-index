@@ -54,23 +54,14 @@ class AutoconfConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--datarootdir=${prefix}/res",
-            ]
-        )
+        tc.configure_args.extend(["--datarootdir=${prefix}/res"])
 
         if self.settings.os == "Windows":
             if is_msvc(self):
@@ -120,12 +111,7 @@ class AutoconfConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        copy(
-            self,
-            "COPYING*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "res", "info"))
         rmdir(self, os.path.join(self.package_folder, "res", "man"))
 

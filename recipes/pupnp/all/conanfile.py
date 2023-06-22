@@ -75,9 +75,7 @@ class PupnpConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):
@@ -95,16 +93,7 @@ class PupnpConan(ConanFile):
             args.extend(
                 map(
                     enable_disable,
-                    (
-                        "ipv6",
-                        "reuseaddr",
-                        "webserver",
-                        "client",
-                        "device",
-                        "largefile",
-                        "tools",
-                        "debug",
-                    ),
+                    ("ipv6", "reuseaddr", "webserver", "client", "device", "largefile", "tools", "debug"),
                 )
             )
 
@@ -119,9 +108,7 @@ class PupnpConan(ConanFile):
 
     def build(self):
         with tools.chdir(self._source_subfolder):
-            self.run(
-                "{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows
-            )
+            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
         autotools = self._configure_autotools()
         autotools.make()
 

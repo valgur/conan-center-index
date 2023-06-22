@@ -80,11 +80,7 @@ class CAFConan(ConanFile):
             raise ConanInvalidConfiguration("clang >= 11.0 does not support x86")
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")
-        if (
-            self.options.with_openssl
-            and self.settings.os == "Windows"
-            and self.settings.arch == "x86"
-        ):
+        if self.options.with_openssl and self.settings.os == "Windows" and self.settings.arch == "x86":
             raise ConanInvalidConfiguration("OpenSSL is not supported for Windows x86")
 
     def source(self):
@@ -109,12 +105,7 @@ class CAFConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -136,9 +127,7 @@ class CAFConan(ConanFile):
             self.cpp_info.components["caf_io"].system_libs = ["ws2_32"]
 
         if self.options.with_openssl:
-            self.cpp_info.components["caf_openssl"].set_property(
-                "cmake_target_name", "CAF::openssl"
-            )
+            self.cpp_info.components["caf_openssl"].set_property("cmake_target_name", "CAF::openssl")
             self.cpp_info.components["caf_openssl"].libs = ["caf_openssl"]
             self.cpp_info.components["caf_openssl"].requires = ["caf_io", "openssl::openssl"]
 

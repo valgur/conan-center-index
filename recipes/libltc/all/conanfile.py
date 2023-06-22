@@ -66,8 +66,7 @@ class LibltcConan(ConanFile):
         env = tc.environment()
         if is_msvc(self):
             compile_wrapper = unix_path(
-                self,
-                self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper"),
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper")
             )
             lib_wrapper = unix_path(
                 self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
@@ -84,12 +83,7 @@ class LibltcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

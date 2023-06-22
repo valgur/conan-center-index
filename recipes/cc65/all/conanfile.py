@@ -24,9 +24,7 @@ class Cc65Conan(ConanFile):
             if self.settings.arch not in ("x86", "x86_64"):
                 raise ConanInvalidConfiguration("Invalid arch")
             if self.settings.arch == "x86_64":
-                self.output.info(
-                    "This recipe will build x86 instead of x86_64 (the binaries are compatible)"
-                )
+                self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
 
     def build_requirements(self):
         if self.settings.compiler == "Visual Studio" and not tools.which("make"):
@@ -80,11 +78,7 @@ class Cc65Conan(ConanFile):
             datadir = tools.unix_path(datadir)
             prefix = tools.unix_path(prefix)
             samplesdir = tools.unix_path(samplesdir)
-        args = [
-            "PREFIX={}".format(prefix),
-            "datadir={}".format(datadir),
-            "samplesdir={}".format(samplesdir),
-        ]
+        args = ["PREFIX={}".format(prefix), "datadir={}".format(datadir), "samplesdir={}".format(samplesdir)]
         if self.settings.os == "Windows":
             args.append("EXE_SUFFIX=.exe")
         return args
@@ -104,9 +98,7 @@ class Cc65Conan(ConanFile):
                         continue
                     tools.replace_in_file(fn, "v141", tools.msvs_toolset(self))
                     tools.replace_in_file(
-                        fn,
-                        "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>",
-                        "",
+                        fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", ""
                     )
         if self.settings.os == "Windows":
             # Add ".exe" suffix to calls from cl65 to other utilities
@@ -140,9 +132,7 @@ class Cc65Conan(ConanFile):
         )
         for dir in ("asminc", "cfg", "include", "lib", "target"):
             self.copy(
-                "*",
-                src=os.path.join(self._source_subfolder, dir),
-                dst=os.path.join(self._datadir, dir),
+                "*", src=os.path.join(self._source_subfolder, dir), dst=os.path.join(self._datadir, dir)
             )
 
     def _package_autotools(self):

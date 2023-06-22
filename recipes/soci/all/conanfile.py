@@ -74,7 +74,12 @@ class SociConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "14", "gcc": "4.8", "clang": "3.8", "apple-clang": "8.0"}
+        return {
+            "Visual Studio": "14",
+            "gcc": "4.8",
+            "clang": "3.8",
+            "apple-clang": "8.0",
+        }
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -142,10 +147,7 @@ class SociConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            "LICENSE_1_0.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, "LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         cmake = CMake(self)
@@ -159,17 +161,13 @@ class SociConan(ConanFile):
         target_suffix = "" if self.options.shared else "_static"
         lib_prefix = "lib" if is_msvc(self) and not self.options.shared else ""
         version = Version(self.version)
-        lib_suffix = (
-            "_{}_{}".format(version.major, version.minor) if self.settings.os == "Windows" else ""
-        )
+        lib_suffix = "_{}_{}".format(version.major, version.minor) if self.settings.os == "Windows" else ""
 
         # soci_core
         self.cpp_info.components["soci_core"].set_property(
             "cmake_target_name", "SOCI::soci_core{}".format(target_suffix)
         )
-        self.cpp_info.components["soci_core"].libs = [
-            "{}soci_core{}".format(lib_prefix, lib_suffix)
-        ]
+        self.cpp_info.components["soci_core"].libs = ["{}soci_core{}".format(lib_prefix, lib_suffix)]
         if self.options.with_boost:
             self.cpp_info.components["soci_core"].requires.append("boost::boost")
 
@@ -178,9 +176,7 @@ class SociConan(ConanFile):
             self.cpp_info.components["soci_empty"].set_property(
                 "cmake_target_name", "SOCI::soci_empty{}".format(target_suffix)
             )
-            self.cpp_info.components["soci_empty"].libs = [
-                "{}soci_empty{}".format(lib_prefix, lib_suffix)
-            ]
+            self.cpp_info.components["soci_empty"].libs = ["{}soci_empty{}".format(lib_prefix, lib_suffix)]
             self.cpp_info.components["soci_empty"].requires = ["soci_core"]
 
         # soci_sqlite3
@@ -198,9 +194,7 @@ class SociConan(ConanFile):
             self.cpp_info.components["soci_odbc"].set_property(
                 "cmake_target_name", "SOCI::soci_odbc{}".format(target_suffix)
             )
-            self.cpp_info.components["soci_odbc"].libs = [
-                "{}soci_odbc{}".format(lib_prefix, lib_suffix)
-            ]
+            self.cpp_info.components["soci_odbc"].libs = ["{}soci_odbc{}".format(lib_prefix, lib_suffix)]
             self.cpp_info.components["soci_odbc"].requires = ["soci_core"]
             if self.settings.os == "Windows":
                 self.cpp_info.components["soci_odbc"].system_libs.append("odbc32")
@@ -212,13 +206,8 @@ class SociConan(ConanFile):
             self.cpp_info.components["soci_mysql"].set_property(
                 "cmake_target_name", "SOCI::soci_mysql{}".format(target_suffix)
             )
-            self.cpp_info.components["soci_mysql"].libs = [
-                "{}soci_mysql{}".format(lib_prefix, lib_suffix)
-            ]
-            self.cpp_info.components["soci_mysql"].requires = [
-                "soci_core",
-                "libmysqlclient::libmysqlclient",
-            ]
+            self.cpp_info.components["soci_mysql"].libs = ["{}soci_mysql{}".format(lib_prefix, lib_suffix)]
+            self.cpp_info.components["soci_mysql"].requires = ["soci_core", "libmysqlclient::libmysqlclient"]
 
         # soci_postgresql
         if self.options.with_postgresql:
@@ -236,37 +225,37 @@ class SociConan(ConanFile):
         self.cpp_info.components["soci_core"].names["cmake_find_package"] = "soci_core{}".format(
             target_suffix
         )
-        self.cpp_info.components["soci_core"].names[
-            "cmake_find_package_multi"
-        ] = "soci_core{}".format(target_suffix)
+        self.cpp_info.components["soci_core"].names["cmake_find_package_multi"] = "soci_core{}".format(
+            target_suffix
+        )
         if self.options.empty:
-            self.cpp_info.components["soci_empty"].names[
-                "cmake_find_package"
-            ] = "soci_empty{}".format(target_suffix)
-            self.cpp_info.components["soci_empty"].names[
-                "cmake_find_package_multi"
-            ] = "soci_empty{}".format(target_suffix)
+            self.cpp_info.components["soci_empty"].names["cmake_find_package"] = "soci_empty{}".format(
+                target_suffix
+            )
+            self.cpp_info.components["soci_empty"].names["cmake_find_package_multi"] = "soci_empty{}".format(
+                target_suffix
+            )
         if self.options.with_sqlite3:
-            self.cpp_info.components["soci_sqlite3"].names[
-                "cmake_find_package"
-            ] = "soci_sqlite3{}".format(target_suffix)
+            self.cpp_info.components["soci_sqlite3"].names["cmake_find_package"] = "soci_sqlite3{}".format(
+                target_suffix
+            )
             self.cpp_info.components["soci_sqlite3"].names[
                 "cmake_find_package_multi"
             ] = "soci_sqlite3{}".format(target_suffix)
         if self.options.with_odbc:
-            self.cpp_info.components["soci_odbc"].names[
-                "cmake_find_package"
-            ] = "soci_odbc{}".format(target_suffix)
-            self.cpp_info.components["soci_odbc"].names[
-                "cmake_find_package_multi"
-            ] = "soci_odbc{}".format(target_suffix)
+            self.cpp_info.components["soci_odbc"].names["cmake_find_package"] = "soci_odbc{}".format(
+                target_suffix
+            )
+            self.cpp_info.components["soci_odbc"].names["cmake_find_package_multi"] = "soci_odbc{}".format(
+                target_suffix
+            )
         if self.options.with_mysql:
-            self.cpp_info.components["soci_mysql"].names[
-                "cmake_find_package"
-            ] = "soci_mysql{}".format(target_suffix)
-            self.cpp_info.components["soci_mysql"].names[
-                "cmake_find_package_multi"
-            ] = "soci_mysql{}".format(target_suffix)
+            self.cpp_info.components["soci_mysql"].names["cmake_find_package"] = "soci_mysql{}".format(
+                target_suffix
+            )
+            self.cpp_info.components["soci_mysql"].names["cmake_find_package_multi"] = "soci_mysql{}".format(
+                target_suffix
+            )
         if self.options.with_postgresql:
             self.cpp_info.components["soci_postgresql"].names[
                 "cmake_find_package"

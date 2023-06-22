@@ -101,16 +101,7 @@ class GtsamConan(ConanFile):
 
     @property
     def _required_boost_components(self):
-        return [
-            "serialization",
-            "system",
-            "filesystem",
-            "thread",
-            "date_time",
-            "regex",
-            "timer",
-            "chrono",
-        ]
+        return ["serialization", "system", "filesystem", "thread", "date_time", "regex", "timer", "chrono"]
 
     def validate(self):
         miss_boost_required_comp = any(
@@ -178,9 +169,7 @@ class GtsamConan(ConanFile):
         apply_conandata_patches(self)
         # Honor vc runtime
         if is_msvc(self):
-            gtsam_build_types_cmake = os.path.join(
-                self.source_folder, "cmake", "GtsamBuildTypes.cmake"
-            )
+            gtsam_build_types_cmake = os.path.join(self.source_folder, "cmake", "GtsamBuildTypes.cmake")
             replace_in_file(self, gtsam_build_types_cmake, "/MD ", f"/{msvc_runtime_flag(self)} ")
             replace_in_file(self, gtsam_build_types_cmake, "/MDd ", f"/{msvc_runtime_flag(self)} ")
 
@@ -191,18 +180,8 @@ class GtsamConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "LICENSE.BSD",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.BSD", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -255,23 +234,17 @@ class GtsamConan(ConanFile):
             self.cpp_info.components["libgtsam"].system_libs = ["dbghelp"]
 
         if self.options.build_unstable:
-            self.cpp_info.components["libgtsam_unstable"].set_property(
-                "cmake_target_name", "gtsam_unstable"
-            )
+            self.cpp_info.components["libgtsam_unstable"].set_property("cmake_target_name", "gtsam_unstable")
             self.cpp_info.components["libgtsam_unstable"].libs = [f"{prefix}gtsam_unstable"]
             self.cpp_info.components["libgtsam_unstable"].requires = ["libgtsam"]
 
         if self.options.support_nested_dissection:
-            self.cpp_info.components["libmetis-gtsam"].set_property(
-                "cmake_target_name", "metis-gtsam"
-            )
+            self.cpp_info.components["libmetis-gtsam"].set_property("cmake_target_name", "metis-gtsam")
             self.cpp_info.components["libmetis-gtsam"].libs = ["metis-gtsam"]
             self.cpp_info.components["libmetis-gtsam"].names["pkg_config"] = "metis-gtsam"
 
         if self.options.install_cppunitlite:
-            self.cpp_info.components["gtsam_CppUnitLite"].set_property(
-                "cmake_target_name", "CppUnitLite"
-            )
+            self.cpp_info.components["gtsam_CppUnitLite"].set_property("cmake_target_name", "CppUnitLite")
             self.cpp_info.components["gtsam_CppUnitLite"].libs = ["CppUnitLite"]
             self.cpp_info.components["gtsam_CppUnitLite"].requires = ["boost::boost"]
 
@@ -287,23 +260,17 @@ class GtsamConan(ConanFile):
             self._module_file_rel_path
         ]
         if self.options.build_unstable:
-            self.cpp_info.components["libgtsam_unstable"].names[
-                "cmake_find_package"
-            ] = "gtsam_unstable"
-            self.cpp_info.components["libgtsam_unstable"].names[
-                "cmake_find_package_multi"
-            ] = "gtsam_unstable"
+            self.cpp_info.components["libgtsam_unstable"].names["cmake_find_package"] = "gtsam_unstable"
+            self.cpp_info.components["libgtsam_unstable"].names["cmake_find_package_multi"] = "gtsam_unstable"
             self.cpp_info.components["libgtsam_unstable"].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components["libgtsam_unstable"].build_modules[
-                "cmake_find_package_multi"
-            ] = [self._module_file_rel_path]
+            self.cpp_info.components["libgtsam_unstable"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
         if self.options.support_nested_dissection:
             self.cpp_info.components["libmetis-gtsam"].names["cmake_find_package"] = "metis-gtsam"
-            self.cpp_info.components["libmetis-gtsam"].names[
-                "cmake_find_package_multi"
-            ] = "metis-gtsam"
+            self.cpp_info.components["libmetis-gtsam"].names["cmake_find_package_multi"] = "metis-gtsam"
             self.cpp_info.components["libmetis-gtsam"].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]
@@ -311,15 +278,11 @@ class GtsamConan(ConanFile):
                 self._module_file_rel_path
             ]
         if self.options.install_cppunitlite:
-            self.cpp_info.components["gtsam_CppUnitLite"].names[
-                "cmake_find_package"
-            ] = "CppUnitLite"
-            self.cpp_info.components["gtsam_CppUnitLite"].names[
-                "cmake_find_package_multi"
-            ] = "CppUnitLite"
+            self.cpp_info.components["gtsam_CppUnitLite"].names["cmake_find_package"] = "CppUnitLite"
+            self.cpp_info.components["gtsam_CppUnitLite"].names["cmake_find_package_multi"] = "CppUnitLite"
             self.cpp_info.components["gtsam_CppUnitLite"].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components["gtsam_CppUnitLite"].build_modules[
-                "cmake_find_package_multi"
-            ] = [self._module_file_rel_path]
+            self.cpp_info.components["gtsam_CppUnitLite"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

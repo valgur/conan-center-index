@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -80,7 +73,7 @@ class GmpConan(ConanFile):
     def validate(self):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(
-                f"{self.ref} cannot be built as a shared library using Visual Studio: some error occurs at link time",
+                f"{self.ref} cannot be built as a shared library using Visual Studio: some error occurs at link time"
             )
 
     def build_requirements(self):
@@ -108,7 +101,7 @@ class GmpConan(ConanFile):
                 f'--enable-assembly={yes_no(not self.options.get_safe("disable_assembly", False))}',
                 f'--enable-fat={yes_no(self.options.get_safe("enable_fat", False))}',
                 f"--enable-cxx={yes_no(self.options.enable_cxx)}",
-                f'--srcdir={"../src"}',  # Use relative path to avoid issues with #include "$srcdir/gmp-h.in" on Windows
+                f'--srcdir={"../src",}',  # Use relative path to avoid issues with #include "$srcdir/gmp-h.in" on Windows
             ]
         )
         if is_msvc(self):
@@ -136,8 +129,7 @@ class GmpConan(ConanFile):
             dumpbin_nm = unix_path(self, os.path.join(self.source_folder, "dumpbin_nm.py"))
             env.define("CC", "cl -nologo")
             env.define(
-                "CCAS",
-                f"{yasm_wrapper} -a x86 -m {yasm_machine} -p gas -r raw -f win32 -g null -X gnu",
+                "CCAS", f"{yasm_wrapper} -a x86 -m {yasm_machine} -p gas -r raw -f win32 -g null -X gnu"
             )
             env.define("CXX", "cl -nologo")
             env.define("LD", "link -nologo")
@@ -163,12 +155,7 @@ class GmpConan(ConanFile):
             autotools.make(target="check")
 
     def package(self):
-        copy(
-            self,
-            "COPYINGv2",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYINGv2", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "COPYING.LESSERv3",

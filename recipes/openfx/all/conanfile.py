@@ -26,11 +26,7 @@ class openfx(ConanFile):
     _cmake = None
 
     def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version],
-            destination="source_subfolder",
-            strip_root=True
-        )
+        tools.get(**self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
 
     def configure(self):
         if self.options.shared:

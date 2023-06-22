@@ -65,8 +65,7 @@ class ElfutilsConan(ConanFile):
         else:
             if self.settings.compiler in ["Visual Studio", "clang", "apple-clang", "msvc"]:
                 raise ConanInvalidConfiguration(
-                    "Compiler %s not supported. "
-                    "elfutils only supports gcc" % self.settings.compiler
+                    "Compiler %s not supported. " "elfutils only supports gcc" % self.settings.compiler
                 )
         if self.settings.compiler != "gcc":
             self.output.warn("Compiler %s is not gcc." % self.settings.compiler)
@@ -100,9 +99,7 @@ class ElfutilsConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_autotools(self):
@@ -119,9 +116,7 @@ class ElfutilsConan(ConanFile):
             ]
             if tools.Version(self.version) >= "0.186":
                 args.append(
-                    "--enable-libdebuginfod"
-                    if self.options.libdebuginfod
-                    else "--disable-libdebuginfod"
+                    "--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod"
                 )
             args.append("BUILD_STATIC={}".format("0" if self.options.shared else "1"))
 
@@ -177,9 +172,7 @@ class ElfutilsConan(ConanFile):
 
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
 
-        addr2line = tools.unix_path(
-            os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext)
-        )
+        addr2line = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
         self.output.info("Setting ADDR2LINE to {}".format(addr2line))
         self.env_info.ADDR2LINE = addr2line
 
@@ -187,9 +180,7 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting AR to {}".format(ar))
         self.env_info.AR = ar
 
-        elfclassify = tools.unix_path(
-            os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext)
-        )
+        elfclassify = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
         self.output.info("Setting ELFCLASSIFY to {}".format(elfclassify))
         self.env_info.ELFCLASSIFY = elfclassify
 
@@ -197,9 +188,7 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting ELFCMP to {}".format(elfcmp))
         self.env_info.ELFCMP = elfcmp
 
-        elfcompress = tools.unix_path(
-            os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext)
-        )
+        elfcompress = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
         self.output.info("Setting ELFCOMPRESS to {}".format(elfcompress))
         self.env_info.ELFCOMPRESS = elfcompress
 
@@ -207,9 +196,7 @@ class ElfutilsConan(ConanFile):
         self.output.info("Setting ELFLINT to {}".format(elflint))
         self.env_info.ELFLINT = elflint
 
-        findtextrel = tools.unix_path(
-            os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext)
-        )
+        findtextrel = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
         self.output.info("Setting FINDTEXTREL to {}".format(findtextrel))
         self.env_info.FINDTEXTREL = findtextrel
 

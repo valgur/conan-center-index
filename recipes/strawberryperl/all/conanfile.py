@@ -25,9 +25,7 @@ class StrawberryPerlConan(ConanFile):
 
     def validate(self):
         if self.info.settings.os != "Windows":
-            raise ConanInvalidConfiguration(
-                "Strawberry Perl is only intended to be used on Windows."
-            )
+            raise ConanInvalidConfiguration("Strawberry Perl is only intended to be used on Windows.")
 
     def source(self):
         pass

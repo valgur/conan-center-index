@@ -103,12 +103,7 @@ class SdbusCppConan(ConanFile):
         tc.generate()
 
         # workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18150
-        copy(
-            self,
-            "*.pc",
-            self.generators_folder,
-            os.path.join(self.generators_folder, "lib", "pkgconfig"),
-        )
+        copy(self, "*.pc", self.generators_folder, os.path.join(self.generators_folder, "lib", "pkgconfig"))
 
     def build(self):
         apply_conandata_patches(self)
@@ -140,9 +135,7 @@ class SdbusCppConan(ConanFile):
         self.cpp_info.components["sdbus-c++"].names["cmake_find_package"] = "sdbus-c++"
         self.cpp_info.components["sdbus-c++"].names["cmake_find_package_multi"] = "sdbus-c++"
         self.cpp_info.components["sdbus-c++"].names["pkg_config"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].set_property(
-            "cmake_target_name", "SDBusCpp::sdbus-c++"
-        )
+        self.cpp_info.components["sdbus-c++"].set_property("cmake_target_name", "SDBusCpp::sdbus-c++")
         self.cpp_info.components["sdbus-c++"].set_property("pkg_config_name", "sdbus-c++")
         self.cpp_info.components["sdbus-c++"].requires.append("libsystemd::libsystemd")
         if self.options.with_code_gen:

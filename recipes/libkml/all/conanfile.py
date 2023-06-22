@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -80,12 +73,7 @@ class LibkmlConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -142,22 +130,14 @@ class LibkmlConan(ConanFile):
                         "zlib::zlib",
                     ],
                 },
-                "kmlxsd": {
-                    "requires": ["boost::headers", "kmlbase"],
-                },
-                "kmldom": {
-                    "requires": ["boost::headers", "kmlbase"],
-                },
+                "kmlxsd": {"requires": ["boost::headers", "kmlbase"]},
+                "kmldom": {"requires": ["boost::headers", "kmlbase"]},
                 "kmlengine": {
                     "system_libs": ["m"] if self.settings.os in ["Linux", "FreeBSD"] else [],
                     "requires": ["boost::headers", "kmldom", "kmlbase"],
                 },
-                "kmlconvenience": {
-                    "requires": ["boost::headers", "kmlengine", "kmldom", "kmlbase"],
-                },
-                "kmlregionator": {
-                    "requires": ["kmlconvenience", "kmlengine", "kmldom", "kmlbase"],
-                },
+                "kmlconvenience": {"requires": ["boost::headers", "kmlengine", "kmldom", "kmlbase"]},
+                "kmlregionator": {"requires": ["kmlconvenience", "kmlengine", "kmldom", "kmlbase"]},
             }
         )
 
@@ -169,18 +149,16 @@ class LibkmlConan(ConanFile):
             self.cpp_info.components[comp_cmake_lib_name].set_property(
                 "cmake_target_name", comp_cmake_lib_name
             )
-            self.cpp_info.components[comp_cmake_lib_name].names[
-                "cmake_find_package"
-            ] = comp_cmake_lib_name
+            self.cpp_info.components[comp_cmake_lib_name].names["cmake_find_package"] = comp_cmake_lib_name
             self.cpp_info.components[comp_cmake_lib_name].names[
                 "cmake_find_package_multi"
             ] = comp_cmake_lib_name
             self.cpp_info.components[comp_cmake_lib_name].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components[comp_cmake_lib_name].build_modules[
-                "cmake_find_package_multi"
-            ] = [self._module_file_rel_path]
+            self.cpp_info.components[comp_cmake_lib_name].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
             self.cpp_info.components[comp_cmake_lib_name].libs = [comp_cmake_lib_name]
             self.cpp_info.components[comp_cmake_lib_name].defines = defines
             self.cpp_info.components[comp_cmake_lib_name].system_libs = system_libs

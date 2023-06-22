@@ -77,10 +77,7 @@ class LibConfuseConan(ConanFile):
         )
         if not self.options.shared:
             replace_in_file(
-                self,
-                os.path.join(self.source_folder, "src", "confuse.h"),
-                "__declspec (dllimport)",
-                "",
+                self, os.path.join(self.source_folder, "src", "confuse.h"), "__declspec (dllimport)", ""
             )
 
     def build(self):
@@ -90,12 +87,7 @@ class LibConfuseConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

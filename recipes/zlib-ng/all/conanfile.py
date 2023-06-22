@@ -100,11 +100,7 @@ class ZlibNgConan(ConanFile):
         if self.settings.os == "Windows":
             # The library name of zlib-ng is complicated in zlib-ng>=2.0.4:
             # https://github.com/zlib-ng/zlib-ng/blob/2.0.4/CMakeLists.txt#L994-L1016
-            base = (
-                "zlib"
-                if is_msvc(self) or Version(self.version) < "2.0.4" or self.options.shared
-                else "z"
-            )
+            base = "zlib" if is_msvc(self) or Version(self.version) < "2.0.4" or self.options.shared else "z"
             static_flag = (
                 "static"
                 if is_msvc(self) and not self.options.shared and Version(self.version) >= "2.0.4"

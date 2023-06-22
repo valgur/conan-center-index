@@ -79,10 +79,7 @@ class SquirrelConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,
@@ -113,9 +110,7 @@ class SquirrelConan(ConanFile):
             self.cpp_info.components["libsquirrel"].system_libs.append("m")
 
         # sqstdlib
-        self.cpp_info.components["sqstdlib"].set_property(
-            "cmake_target_name", f"squirrel::sqstdlib{suffix}"
-        )
+        self.cpp_info.components["sqstdlib"].set_property("cmake_target_name", f"squirrel::sqstdlib{suffix}")
         self.cpp_info.components["sqstdlib"].libs = [f"sqstdlib{suffix}"]
         self.cpp_info.components["sqstdlib"].requires = ["libsquirrel"]
 
@@ -125,8 +120,6 @@ class SquirrelConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["libsquirrel"].names["cmake_find_package"] = f"squirrel{suffix}"
-        self.cpp_info.components["libsquirrel"].names[
-            "cmake_find_package_multi"
-        ] = f"squirrel{suffix}"
+        self.cpp_info.components["libsquirrel"].names["cmake_find_package_multi"] = f"squirrel{suffix}"
         self.cpp_info.components["sqstdlib"].names["cmake_find_package"] = f"sqstdlib{suffix}"
         self.cpp_info.components["sqstdlib"].names["cmake_find_package_multi"] = f"sqstdlib{suffix}"

@@ -10,7 +10,9 @@ required_conan_version = ">=1.53.0"
 
 class PackageConan(ConanFile):
     name = "vtu11"
-    description = "Vtu11 is a small C++ header-only library to write unstructured grids using the vtu file format"
+    description = (
+        "Vtu11 is a small C++ header-only library to write unstructured grids using the vtu file format"
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/phmkopp/vtu11"
@@ -54,10 +56,7 @@ class PackageConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

@@ -14,7 +14,9 @@ required_conan_version = ">=1.53.0"
 
 class DCMTKConan(ConanFile):
     name = "dcmtk"
-    description = "DCMTK is a collection of libraries and applications implementing large parts the DICOM standard"
+    description = (
+        "DCMTK is a collection of libraries and applications implementing large parts the DICOM standard"
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://dicom.offis.de/dcmtk"
     license = "BSD-3-Clause"
@@ -163,9 +165,7 @@ class DCMTKConan(ConanFile):
         cmake.definitions["DCMTK_ENABLE_PRIVATE_TAGS"] = self.options.builtin_private_tags
         if self.options.external_dictionary is not None:
             if Version(self.version) < "3.6.7":
-                cmake.definitions[
-                    "DCMTK_ENABLE_EXTERNAL_DICTIONARY"
-                ] = self.options.external_dictionary
+                cmake.definitions["DCMTK_ENABLE_EXTERNAL_DICTIONARY"] = self.options.external_dictionary
             else:
                 cmake.definitions["DCMTK_DEFAULT_DICT"] = self.options.external_dictionary
         if self.options.builtin_dictionary is not None:
@@ -178,9 +178,7 @@ class DCMTKConan(ConanFile):
 
         if is_msvc(self):
             cmake.definitions["DCMTK_ICONV_FLAGS_ANALYZED"] = True
-            cmake.definitions["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = "MD" in msvc_runtime_flag(
-                self
-            )
+            cmake.definitions["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = "MD" in msvc_runtime_flag(self)
 
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
@@ -235,9 +233,7 @@ class DCMTKConan(ConanFile):
         def charset_conversion():
             if bool(self.options.charset_conversion):
                 return (
-                    ["libiconv::libiconv"]
-                    if self.options.charset_conversion == "libiconv"
-                    else ["icu::icu"]
+                    ["libiconv::libiconv"] if self.options.charset_conversion == "libiconv" else ["icu::icu"]
                 )
             return []
 
@@ -254,9 +250,7 @@ class DCMTKConan(ConanFile):
             return ["openssl::openssl"] if self.options.with_openssl else []
 
         def tcpwrappers():
-            return (
-                ["tcp-wrappers::tcp-wrappers"] if self.options.get_safe("with_tcpwrappers") else []
-            )
+            return ["tcp-wrappers::tcp-wrappers"] if self.options.get_safe("with_tcpwrappers") else []
 
         def xml2():
             return ["libxml2::libxml2"] if self.options.with_libxml2 else []
@@ -270,16 +264,7 @@ class DCMTKConan(ConanFile):
             "i2d": ["dcmdata"],
             "dcmimgle": ["ofstd", "oflog", "dcmdata"],
             "dcmimage": ["oflog", "dcmdata", "dcmimgle"] + png() + tiff(),
-            "dcmjpeg": [
-                "ofstd",
-                "oflog",
-                "dcmdata",
-                "dcmimgle",
-                "dcmimage",
-                "ijg8",
-                "ijg12",
-                "ijg16",
-            ],
+            "dcmjpeg": ["ofstd", "oflog", "dcmdata", "dcmimgle", "dcmimage", "ijg8", "ijg12", "ijg16"],
             "ijg8": [],
             "ijg12": [],
             "ijg16": [],
@@ -328,9 +313,7 @@ class DCMTKConan(ConanFile):
             for target_lib, requires in components.items():
                 self.cpp_info.components[target_lib].set_property("cmake_target_name", target_lib)
                 self.cpp_info.components[target_lib].libs = [target_lib]
-                self.cpp_info.components[target_lib].includedirs.append(
-                    os.path.join("include", "dcmtk")
-                )
+                self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "dcmtk"))
                 self.cpp_info.components[target_lib].requires = requires
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed

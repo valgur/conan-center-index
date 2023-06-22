@@ -35,9 +35,7 @@ class KhrplatformConan(ConanFile):
         return license_data[begin:end].replace("**", "")
 
     def package(self):
-        save(
-            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         copy(
             self,
             "khrplatform.h",

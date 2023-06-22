@@ -13,9 +13,7 @@ SLN_FILE = "lzham.sln"
 class PackageConan(ConanFile):
     name = "lzham"
 
-    description = (
-        "Compression algorithm similar compression ratio and faster " "decompression than LZMA."
-    )
+    description = "Compression algorithm similar compression ratio and faster " "decompression than LZMA."
 
     license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
@@ -49,12 +47,7 @@ class PackageConan(ConanFile):
             cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -86,10 +79,7 @@ class PackageConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         if is_msvc(self):

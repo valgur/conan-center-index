@@ -88,9 +88,7 @@ class GStPluginsBaseConan(ConanFile):
             and self.options.get_safe("with_wayland")
             and not self.options.get_safe("with_egl")
         ):
-            raise ConanInvalidConfiguration(
-                "OpenGL support with Wayland requires 'with_egl' turned on!"
-            )
+            raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
 
     def configure(self):
         if self.options.shared:
@@ -160,9 +158,7 @@ class GStPluginsBaseConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _gl_config(self):
@@ -234,15 +230,9 @@ class GStPluginsBaseConan(ConanFile):
         defs["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         defs["orc"] = "disabled"  # TODO: orc
         defs["gl"] = "enabled" if self.options.with_gl else "disabled"
-        defs["gl-graphene"] = (
-            "enabled" if self.options.with_gl and self.options.with_graphene else "disabled"
-        )
-        defs["gl-png"] = (
-            "enabled" if self.options.with_gl and self.options.with_libpng else "disabled"
-        )
-        defs["gl-jpeg"] = (
-            "enabled" if self.options.with_gl and self.options.with_libjpeg else "disabled"
-        )
+        defs["gl-graphene"] = "enabled" if self.options.with_gl and self.options.with_graphene else "disabled"
+        defs["gl-png"] = "enabled" if self.options.with_gl and self.options.with_libpng else "disabled"
+        defs["gl-jpeg"] = "enabled" if self.options.with_gl and self.options.with_libjpeg else "disabled"
         defs["gl_api"] = gl_api
         defs["gl_platform"] = gl_platform
         defs["gl_winsys"] = gl_winsys
@@ -264,9 +254,7 @@ class GStPluginsBaseConan(ConanFile):
         defs["x11"] = "enabled" if self.options.get_safe("with_xorg") else "disabled"
         defs["xshm"] = "enabled" if self.options.get_safe("with_xorg") else "disabled"
         defs["xvideo"] = "enabled" if self.options.get_safe("with_xorg") else "disabled"
-        meson.configure(
-            build_folder=self._build_subfolder, source_folder=self._source_subfolder, defs=defs
-        )
+        meson.configure(build_folder=self._build_subfolder, source_folder=self._source_subfolder, defs=defs)
         return meson
 
     def build(self):
@@ -410,10 +398,7 @@ class GStPluginsBaseConan(ConanFile):
 
         self.cpp_info.components["gstgio"].libs = ["gstgio"]
         self.cpp_info.components["gstgio"].libdirs.append(gst_plugin_path)
-        self.cpp_info.components["gstgio"].requires = [
-            "gstreamer::gstreamer-base-1.0",
-            "glib::gio-2.0",
-        ]
+        self.cpp_info.components["gstgio"].requires = ["gstreamer::gstreamer-base-1.0", "glib::gio-2.0"]
         gst_plugins.append("gstgio")
 
         self.cpp_info.components["gstoverlaycomposition"].libs = ["gstoverlaycomposition"]
@@ -553,17 +538,13 @@ class GStPluginsBaseConan(ConanFile):
                     "QuartzCore",
                 ]
             if self.options.with_graphene:
-                self.cpp_info.components["gstopengl"].requires.append(
-                    "graphene::graphene-gobject-1.0"
-                )
+                self.cpp_info.components["gstopengl"].requires.append("graphene::graphene-gobject-1.0")
             if self.options.with_libpng:
                 self.cpp_info.components["gstopengl"].requires.append("libpng::libpng")
             if self.options.with_libjpeg == "libjpeg":
                 self.cpp_info.components["gstopengl"].requires.append("libjpeg::libjpeg")
             elif self.options.with_libjpeg == "libjpeg-turbo":
-                self.cpp_info.components["gstopengl"].requires.append(
-                    "libjpeg-turbo::libjpeg-turbo"
-                )
+                self.cpp_info.components["gstopengl"].requires.append("libjpeg-turbo::libjpeg-turbo")
             if self.options.get_safe("with_xorg"):
                 self.cpp_info.components["gstopengl"].requires.append("xorg::x11")
             if self.settings.os == "Linux":
@@ -701,14 +682,10 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-plugins-base-1.0"].names[
             "pkg_config"
         ] = "gstreamer-plugins-base-1.0"
-        self.cpp_info.components["gstreamer-plugins-base-1.0"].requires = [
-            "gstreamer::gstreamer-1.0"
-        ]
+        self.cpp_info.components["gstreamer-plugins-base-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-plugins-base-1.0"].includedirs = [gst_include_path]
         if not self.options.shared:
-            self.cpp_info.components["gstreamer-plugins-base-1.0"].defines.append(
-                "GST_PLUGINS_BASE_STATIC"
-            )
+            self.cpp_info.components["gstreamer-plugins-base-1.0"].defines.append("GST_PLUGINS_BASE_STATIC")
             self.cpp_info.components["gstreamer-plugins-base-1.0"].requires.extend(gst_plugins)
         else:
             self.cpp_info.components["gstreamer-plugins-base-1.0"].bindirs.append(gst_plugin_path)
@@ -716,9 +693,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-allocators-1.0"].names[
-            "pkg_config"
-        ] = "gstreamer-allocators-1.0"
+        self.cpp_info.components["gstreamer-allocators-1.0"].names["pkg_config"] = "gstreamer-allocators-1.0"
         self.cpp_info.components["gstreamer-allocators-1.0"].libs = ["gstallocators-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].includedirs = [gst_include_path]
@@ -769,9 +744,7 @@ class GStPluginsBaseConan(ConanFile):
                 "gl_platforms": " ".join(gl_platform),
                 "gl_winsys": " ".join(gl_winsys),
             }
-            gl_custom_content = "\n".join(
-                "{}={}".format(key, value) for key, value in gl_variables.items()
-            )
+            gl_custom_content = "\n".join("{}={}".format(key, value) for key, value in gl_variables.items())
 
             self.cpp_info.components["gstreamer-gl-1.0"].names["pkg_config"] = "gstreamer-gl-1.0"
             self.cpp_info.components["gstreamer-gl-1.0"].libs = ["gstgl-1.0"]
@@ -786,9 +759,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.options.get_safe("with_egl"):
                 self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(["egl::egl"])
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(
-                    ["xorg::x11", "xorg::x11-xcb"]
-                )
+                self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(["xorg::x11", "xorg::x11-xcb"])
             if self.options.get_safe("with_wayland"):
                 self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(
                     [
@@ -810,9 +781,7 @@ class GStPluginsBaseConan(ConanFile):
                     "Cocoa",
                 ]
             if self.settings.os in ["iOS", "tvOS", "watchOS"]:
-                self.cpp_info.components["gstreamer-gl-1.0"].frameworks.extend(
-                    ["CoreGraphics", "UIkit"]
-                )
+                self.cpp_info.components["gstreamer-gl-1.0"].frameworks.extend(["CoreGraphics", "UIkit"])
             self.cpp_info.components["gstreamer-gl-1.0"].includedirs = [
                 os.path.join(self.package_folder, "include"),
                 gst_include_path,
@@ -833,13 +802,8 @@ class GStPluginsBaseConan(ConanFile):
             ]
 
             if self.options.get_safe("with_egl"):
-                self.cpp_info.components["gstreamer-gl-egl-1.0"].names[
-                    "pkg_config"
-                ] = "gstreamer-gl-egl-1.0"
-                self.cpp_info.components["gstreamer-gl-egl-1.0"].requires = [
-                    "gstreamer-gl-1.0",
-                    "egl::egl",
-                ]
+                self.cpp_info.components["gstreamer-gl-egl-1.0"].names["pkg_config"] = "gstreamer-gl-egl-1.0"
+                self.cpp_info.components["gstreamer-gl-egl-1.0"].requires = ["gstreamer-gl-1.0", "egl::egl"]
 
             if self.options.get_safe("with_wayland"):
                 self.cpp_info.components["gstreamer-gl-wayland-1.0"].names[
@@ -853,17 +817,13 @@ class GStPluginsBaseConan(ConanFile):
                 ]
 
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstreamer-gl-x11-1.0"].names[
-                    "pkg_config"
-                ] = "gstreamer-gl-x11-1.0"
+                self.cpp_info.components["gstreamer-gl-x11-1.0"].names["pkg_config"] = "gstreamer-gl-x11-1.0"
                 self.cpp_info.components["gstreamer-gl-x11-1.0"].requires = [
                     "gstreamer-gl-1.0",
                     "xorg::x11-xcb",
                 ]
 
-        self.cpp_info.components["gstreamer-pbutils-1.0"].names[
-            "pkg_config"
-        ] = "gstreamer-pbutils-1.0"
+        self.cpp_info.components["gstreamer-pbutils-1.0"].names["pkg_config"] = "gstreamer-pbutils-1.0"
         self.cpp_info.components["gstreamer-pbutils-1.0"].libs = ["gstpbutils-1.0"]
         self.cpp_info.components["gstreamer-pbutils-1.0"].requires = [
             "gstreamer::gstreamer-1.0",

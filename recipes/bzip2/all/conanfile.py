@@ -13,7 +13,9 @@ class Bzip2Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.bzip.org"
     license = "bzip2-1.0.8"
-    description = "bzip2 is a free and open-source file compression program that uses the Burrows Wheeler algorithm."
+    description = (
+        "bzip2 is a free and open-source file compression program that uses the Burrows Wheeler algorithm."
+    )
     topics = ("data-compressor", "file-compression")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -64,17 +66,10 @@ class Bzip2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(

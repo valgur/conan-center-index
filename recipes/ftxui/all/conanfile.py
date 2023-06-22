@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    rm,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rm
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -97,10 +90,7 @@ class FTXUIConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -108,11 +98,7 @@ class FTXUIConan(ConanFile):
         if Version(self.version) >= "4.1.0":
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if Version(self.version) >= "4.1.1":
-            rm(
-                self,
-                "ftxui.pc",
-                os.path.join(self.package_folder, "lib"),
-            )
+            rm(self, "ftxui.pc", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ftxui")
@@ -130,9 +116,7 @@ class FTXUIConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ftxui-screen"].system_libs.append("m")
 
-        self.cpp_info.components["ftxui-component"].set_property(
-            "cmake_target_name", "ftxui::component"
-        )
+        self.cpp_info.components["ftxui-component"].set_property("cmake_target_name", "ftxui::component")
         self.cpp_info.components["ftxui-component"].libs = ["ftxui-component"]
         self.cpp_info.components["ftxui-component"].requires = ["ftxui-dom"]
         if self.settings.os in ["Linux", "FreeBSD"]:

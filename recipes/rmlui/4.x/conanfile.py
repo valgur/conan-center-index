@@ -2,13 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import (
-    get,
-    replace_in_file,
-    copy,
-    export_conandata_patches,
-    apply_conandata_patches,
-)
+from conan.tools.files import get, replace_in_file, copy, export_conandata_patches, apply_conandata_patches
 import os
 
 
@@ -103,12 +97,7 @@ class RmluiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -131,9 +120,7 @@ class RmluiConan(ConanFile):
         # If we are using robin_hood hashing provided by conan, we need to change its include path
         if self.options.with_thirdparty_containers:
             config_path = os.path.join(self.source_folder, "Include", "RmlUi", "Config", "Config.h")
-            replace_in_file(
-                self, config_path, '"../Core/Containers/robin_hood.h"', "<robin_hood.h>"
-            )
+            replace_in_file(self, config_path, '"../Core/Containers/robin_hood.h"', "<robin_hood.h>")
 
     def build(self):
         self._patch_sources()

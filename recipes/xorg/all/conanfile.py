@@ -284,9 +284,7 @@ class XorgConan(ConanFile):
             "xcb-cursor",
         ] + ([] if self.settings.os == "FreeBSD" else ["uuid"]):
             pkg_config = PkgConfig(self, name)
-            pkg_config.fill_cpp_info(
-                self.cpp_info.components[name], is_system=self.settings.os != "FreeBSD"
-            )
+            pkg_config.fill_cpp_info(self.cpp_info.components[name], is_system=self.settings.os != "FreeBSD")
             self.cpp_info.components[name].version = pkg_config.version
             self.cpp_info.components[name].set_property("pkg_config_name", name)
             self.cpp_info.components[name].set_property("component_version", pkg_config.version)

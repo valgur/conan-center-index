@@ -67,9 +67,7 @@ class SqlcipherConan(ConanFile):
             self.requires("libressl/3.4.3")
 
     def validate(self):
-        if self.options.crypto_library == "commoncrypto" and not tools.is_apple_os(
-            self.settings.os
-        ):
+        if self.options.crypto_library == "commoncrypto" and not tools.is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("commoncrypto is only supported on Macos")
 
     def build_requirements(self):
@@ -81,9 +79,7 @@ class SqlcipherConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @property
@@ -129,7 +125,10 @@ class SqlcipherConan(ConanFile):
         if self.settings.build_type == "Debug":
             nmake_flags.append("DEBUG=2")
         nmake_flags.append("FOR_WIN10=1")
-        platforms = {"x86": "x86", "x86_64": "x64"}
+        platforms = {
+            "x86": "x86",
+            "x86_64": "x64",
+        }
         nmake_flags.append("PLATFORM=%s" % platforms[str(self.settings.arch)])
         vcvars = tools.vcvars_command(self.settings)
         self.run(
@@ -144,8 +143,7 @@ class SqlcipherConan(ConanFile):
 
     def _build_autotools(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB,
-            os.path.join(self._source_subfolder, "config.sub"),
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,

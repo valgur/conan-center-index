@@ -51,23 +51,13 @@ class OatppLibresslConan(ConanFile):
             check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared library with msvc"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")
 
-        if (
-            self.info.settings.compiler == "gcc"
-            and Version(self.info.settings.compiler.version) < "5"
-        ):
+        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -85,12 +75,7 @@ class OatppLibresslConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -102,9 +87,7 @@ class OatppLibresslConan(ConanFile):
         self.cpp_info.components["_oatpp-libressl"].includedirs = [
             os.path.join("include", f"oatpp-{self.version}", "oatpp-libressl")
         ]
-        self.cpp_info.components["_oatpp-libressl"].libdirs = [
-            os.path.join("lib", f"oatpp-{self.version}")
-        ]
+        self.cpp_info.components["_oatpp-libressl"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["_oatpp-libressl"].bindirs = [
                 os.path.join("bin", f"oatpp-{self.version}")
@@ -121,13 +104,6 @@ class OatppLibresslConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "oatpp"
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
         self.cpp_info.components["_oatpp-libressl"].names["cmake_find_package"] = "oatpp-libressl"
-        self.cpp_info.components["_oatpp-libressl"].names[
-            "cmake_find_package_multi"
-        ] = "oatpp-libressl"
-        self.cpp_info.components["_oatpp-libressl"].set_property(
-            "cmake_target_name", "oatpp::oatpp-libressl"
-        )
-        self.cpp_info.components["_oatpp-libressl"].requires = [
-            "oatpp::oatpp",
-            "libressl::libressl",
-        ]
+        self.cpp_info.components["_oatpp-libressl"].names["cmake_find_package_multi"] = "oatpp-libressl"
+        self.cpp_info.components["_oatpp-libressl"].set_property("cmake_target_name", "oatpp::oatpp-libressl")
+        self.cpp_info.components["_oatpp-libressl"].requires = ["oatpp::oatpp", "libressl::libressl"]

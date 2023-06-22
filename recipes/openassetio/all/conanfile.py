@@ -76,9 +76,7 @@ class PackageConan(ConanFile):
 
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -140,19 +138,12 @@ class PackageConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
 
-        rm(
-            self,
-            "OpenAssetIOConfig*.cmake",
-            os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"),
-        )
+        rm(self, "OpenAssetIOConfig*.cmake", os.path.join(self.package_folder, "lib", "cmake", "OpenAssetIO"))
         rm(
             self,
             "OpenAssetIOTargets*.cmake",
@@ -166,8 +157,7 @@ class PackageConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenAssetIO")
         self.cpp_info.set_property("cmake_target_name", "OpenAssetIO::OpenAssetIO")
         self.cpp_info.set_property(
-            "cmake_build_modules",
-            [os.path.join("lib", "cmake", "OpenAssetIO", "OpenAssetIOVariables.cmake")],
+            "cmake_build_modules", [os.path.join("lib", "cmake", "OpenAssetIO", "OpenAssetIOVariables.cmake")]
         )
         self.cpp_info.builddirs = [os.path.join("lib", "cmake")]
 

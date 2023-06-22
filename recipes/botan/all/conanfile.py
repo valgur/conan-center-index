@@ -188,15 +188,11 @@ class BotanConan(ConanFile):
                 )
 
         if self.options.get_safe("single_amalgamation", False) and not self.options.amalgamation:
-            raise ConanInvalidConfiguration(
-                "botan:single_amalgamation=True requires botan:amalgamation=True"
-            )
+            raise ConanInvalidConfiguration("botan:single_amalgamation=True requires botan:amalgamation=True")
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -410,9 +406,7 @@ class BotanConan(ConanFile):
 
         call_python = "python" if self.settings.os == "Windows" else ""
 
-        prefix = (
-            tools.unix_path(self.package_folder) if self._is_mingw_windows else self.package_folder
-        )
+        prefix = tools.unix_path(self.package_folder) if self._is_mingw_windows else self.package_folder
 
         botan_abi = " ".join(botan_abi_flags) if botan_abi_flags else " "
         botan_cxx_extras = " ".join(botan_extra_cxx_flags) if botan_extra_cxx_flags else " "
@@ -449,9 +443,7 @@ class BotanConan(ConanFile):
 
     @property
     def _make_program(self):
-        return tools.get_env(
-            "CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make")
-        )
+        return tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make"))
 
     @property
     def _gnumake_cmd(self):

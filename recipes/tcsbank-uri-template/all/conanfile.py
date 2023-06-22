@@ -24,10 +24,7 @@ class TCSBankUriTemplateConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = [
-        "CMakeLists.txt",
-        "patches/*",
-    ]
+    exports_sources = ["CMakeLists.txt", "patches/*"]
 
     _cmake = None
 
@@ -72,10 +69,7 @@ class TCSBankUriTemplateConan(ConanFile):
             "clang": "6.0",
             "apple-clang": "10.0",
         }
-        if (
-            compiler_name not in compilers_required
-            or compiler_version < compilers_required[compiler_name]
-        ):
+        if compiler_name not in compilers_required or compiler_version < compilers_required[compiler_name]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s. %s %s is not supported."
                 % (self.name, min_req_cppstd, compiler_name, compiler_version)
@@ -86,10 +80,7 @@ class TCSBankUriTemplateConan(ConanFile):
             raise ConanInvalidConfiguration(
                 'Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name
             )
-        elif compiler_name == "clang" and self.settings.compiler.libcxx not in [
-            "libstdc++11",
-            "libc++",
-        ]:
+        elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
             raise ConanInvalidConfiguration(
                 'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
                 ' or "compiler.libcxx=libc++"' % self.name
@@ -97,9 +88,7 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):

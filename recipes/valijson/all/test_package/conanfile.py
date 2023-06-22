@@ -30,6 +30,5 @@ class TestPackageConan(ConanFile):
             valid_file = os.path.abspath(os.path.join(self.source_folder, "valid.json"))
             invalid_file = os.path.abspath(os.path.join(self.source_folder, "invalid.json"))
             self.run(
-                "{} {} {} {}".format(bin_path, schema_file, valid_file, invalid_file),
-                run_environment=True,
+                "{} {} {} {}".format(bin_path, schema_file, valid_file, invalid_file), run_environment=True
             )

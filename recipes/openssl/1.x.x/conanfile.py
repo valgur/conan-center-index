@@ -90,9 +90,7 @@ class OpenSSLConan(ConanFile):
     homepage = "https://github.com/openssl/openssl"
     license = "OpenSSL"
     topics = ("ssl", "tls", "encryption", "security")
-    description = (
-        "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-    )
+    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -245,12 +243,7 @@ class OpenSSLConan(ConanFile):
     def validate(self):
         if self.settings.os == "Emscripten":
             if not all(
-                (
-                    self.options.no_asm,
-                    self.options.no_threads,
-                    self.options.no_stdio,
-                    self.options.no_tests,
-                )
+                (self.options.no_asm, self.options.no_threads, self.options.no_stdio, self.options.no_tests)
             ):
                 raise ConanInvalidConfiguration(
                     "os=Emscripten requires openssl:{no_asm,no_threads,no_stdio,no_tests}=True"
@@ -268,12 +261,7 @@ class OpenSSLConan(ConanFile):
                     self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -302,9 +290,7 @@ class OpenSSLConan(ConanFile):
             zlib_cpp_info = self.dependencies["zlib"].cpp_info.aggregated_components()
             gen_info["zlib_include_path"] = zlib_cpp_info.includedirs[0]
             if self.settings.os == "Windows":
-                gen_info[
-                    "zlib_lib_path"
-                ] = f"{zlib_cpp_info.libdirs[0]}/{zlib_cpp_info.libs[0]}.lib"
+                gen_info["zlib_lib_path"] = f"{zlib_cpp_info.libdirs[0]}/{zlib_cpp_info.libs[0]}.lib"
             else:
                 gen_info["zlib_lib_path"] = zlib_cpp_info.libdirs[
                     0
@@ -397,9 +383,7 @@ class OpenSSLConan(ConanFile):
         is_1_0 = self._full_version < "1.1.0"
         has_darwin_arm = self._full_version >= "1.1.1i" or is_1_0
         return {
-            "Linux-x86-clang": ("%slinux-generic32" % self._target_prefix)
-            if is_1_0
-            else "linux-x86-clang",
+            "Linux-x86-clang": ("%slinux-generic32" % self._target_prefix) if is_1_0 else "linux-x86-clang",
             "Linux-x86_64-clang": ("%slinux-x86_64" % self._target_prefix)
             if is_1_0
             else "linux-x86_64-clang",
@@ -507,9 +491,7 @@ class OpenSSLConan(ConanFile):
             return os.environ["CONAN_OPENSSL_CONFIGURATION"]
         compiler = "Visual Studio" if self.settings.compiler == "msvc" else self.settings.compiler
         query = f"{self.settings.os}-{self.settings.arch}-{compiler}"
-        ancestor = next(
-            (self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None
-        )
+        ancestor = next((self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None)
         if not ancestor:
             raise ConanInvalidConfiguration(
                 f"Unsupported configuration ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\n"
@@ -530,11 +512,7 @@ class OpenSSLConan(ConanFile):
         # use a more restricted regular expresion to prevent that Configure script trying to do it again
         configure = os.path.join(self.source_folder, "Configure")
         replace_in_file(
-            self,
-            configure,
-            r"s/^AR=\s*ar/AR= $ar/;",
-            r"s/^AR=\s*ar\b/AR= $ar/;",
-            encoding="latin_1",
+            self, configure, r"s/^AR=\s*ar/AR= $ar/;", r"s/^AR=\s*ar\b/AR= $ar/;", encoding="latin_1"
         )
 
     def _adjust_path(self, path):
@@ -548,10 +526,7 @@ class OpenSSLConan(ConanFile):
             cc = os.environ.get("CC", "cc")
             gen_info = json.loads(load(self, os.path.join(self.generators_folder, "gen_info.conf")))
             replace_in_file(
-                self,
-                makefile_org,
-                "CC= cc\n",
-                "CC= %s %s\n" % (self._adjust_path(cc), gen_info["CFLAGS"]),
+                self, makefile_org, "CC= cc\n", "CC= %s %s\n" % (self._adjust_path(cc), gen_info["CFLAGS"])
             )
             if "AR" in os.environ:
                 replace_in_file(
@@ -569,19 +544,14 @@ class OpenSSLConan(ConanFile):
                 )
             rc = os.environ.get("WINDRES", os.environ.get("RC"))
             if rc:
-                replace_in_file(
-                    self, makefile_org, "RC= windres\n", "RC= %s\n" % self._adjust_path(rc)
-                )
+                replace_in_file(self, makefile_org, "RC= windres\n", "RC= %s\n" % self._adjust_path(rc))
             if "NM" in os.environ:
                 replace_in_file(
                     self, makefile_org, "NM= nm\n", "NM= %s\n" % self._adjust_path(os.environ["NM"])
                 )
             if "AS" in os.environ:
                 replace_in_file(
-                    self,
-                    makefile_org,
-                    "AS=$(CC) -c\n",
-                    "AS=%s\n" % self._adjust_path(os.environ["AS"]),
+                    self, makefile_org, "AS=$(CC) -c\n", "AS=%s\n" % self._adjust_path(os.environ["AS"])
                 )
 
     def _get_default_openssl_dir(self):
@@ -608,16 +578,12 @@ class OpenSSLConan(ConanFile):
         if self._full_version >= "1.1.0":
             args.append("--debug" if self.settings.build_type == "Debug" else "--release")
 
-        args.append(
-            "--libdir=lib"
-        )  # See https://github.com/openssl/openssl/blob/master/INSTALL.md#libdir
+        args.append("--libdir=lib")  # See https://github.com/openssl/openssl/blob/master/INSTALL.md#libdir
 
         if self.settings.os in ["tvOS", "watchOS"]:
             args.append(" -DNO_FORK")  # fork is not available on tvOS and watchOS
         if self.settings.os == "Android":
-            args.append(
-                " -D__ANDROID_API__=%s" % str(self.settings.os.api_level)
-            )  # see NOTES.ANDROID
+            args.append(" -D__ANDROID_API__=%s" % str(self.settings.os.api_level))  # see NOTES.ANDROID
         if self.settings.os == "Emscripten":
             args.append("-D__STDC_NO_ATOMICS__=1")
         if self.settings.os == "Windows":
@@ -639,9 +605,7 @@ class OpenSSLConan(ConanFile):
             if self.options.get_safe("no_zlib"):
                 args.append("no-zlib")
             else:
-                gen_info = json.loads(
-                    load(self, os.path.join(self.generators_folder, "gen_info.conf"))
-                )
+                gen_info = json.loads(load(self, os.path.join(self.generators_folder, "gen_info.conf")))
                 include_path = gen_info["zlib_include_path"]
                 lib_path = gen_info["zlib_lib_path"]
                 # clang-cl doesn't like backslashes in #define CFLAGS (builldinf.h -> cversion.c)
@@ -653,9 +617,7 @@ class OpenSSLConan(ConanFile):
                 else:
                     args.append("zlib")
 
-                args.extend(
-                    ['--with-zlib-include="%s"' % include_path, '--with-zlib-lib="%s"' % lib_path]
-                )
+                args.extend(['--with-zlib-include="%s"' % include_path, '--with-zlib-lib="%s"' % lib_path])
 
         if Version(conan_version).major < 2:
             possible_values = self.options.values.fields
@@ -827,9 +789,7 @@ class OpenSSLConan(ConanFile):
                         if not self.options.no_asm and self.settings.arch == "x86":
                             self.run(r"ms\do_nasm")
                         else:
-                            self.run(
-                                r"ms\do_ms" if self.settings.arch == "x86" else r"ms\do_win64a"
-                            )
+                            self.run(r"ms\do_ms" if self.settings.arch == "x86" else r"ms\do_win64a")
 
                         self._replace_runtime_in_file(os.path.join("ms", "nt.mak"))
                         self._replace_runtime_in_file(os.path.join("ms", "ntdll.mak"))
@@ -921,9 +881,7 @@ class OpenSSLConan(ConanFile):
 
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(
@@ -1017,12 +975,8 @@ class OpenSSLConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenSSL"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenSSL"
-        self.cpp_info.components["ssl"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["crypto"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components["ssl"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.components["crypto"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.components["crypto"].names["cmake_find_package"] = "Crypto"
         self.cpp_info.components["crypto"].names["cmake_find_package_multi"] = "Crypto"
         self.cpp_info.components["ssl"].names["cmake_find_package"] = "SSL"

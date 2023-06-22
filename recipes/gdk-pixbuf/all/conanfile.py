@@ -71,9 +71,7 @@ class GdkPixbufConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(
-            "glib/2.76.0", transitive_headers=True, transitive_libs=True, run=can_run(self)
-        )
+        self.requires("glib/2.76.0", transitive_headers=True, transitive_libs=True, run=can_run(self))
         if self.options.with_libpng:
             self.requires("libpng/1.6.39")
         if self.options.with_libtiff:
@@ -260,6 +258,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

@@ -43,9 +43,7 @@ class AndroidNDKConan(ConanFile):
     @property
     def _settings_arch_supported(self):
         return (
-            self.conan_data["sources"][self.version]
-            .get(str(self.settings.os), {})
-            .get(str(self._arch))
+            self.conan_data["sources"][self.version].get(str(self.settings.os), {}).get(str(self._arch))
             is not None
         )
 
@@ -75,9 +73,7 @@ class AndroidNDKConan(ConanFile):
         major, _ = self._ndk_major_minor
         if major >= 23:
             data = self.conan_data["sources"][self.version][str(self.settings.os)][str(self._arch)]
-            self._unzip_fix_symlinks(
-                url=data["url"], target_folder=self.source_folder, sha256=data["sha256"]
-            )
+            self._unzip_fix_symlinks(url=data["url"], target_folder=self.source_folder, sha256=data["sha256"])
         else:
             get(
                 self,
@@ -88,12 +84,7 @@ class AndroidNDKConan(ConanFile):
 
     def package(self):
         copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(
-            self,
-            "*NOTICE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*NOTICE.toolchain",
@@ -324,9 +315,7 @@ class AndroidNDKConan(ConanFile):
         self.conf_info.define("tools.build:sysroot", ndk_sysroot)
         self.buildenv_info.define_path("SYSROOT", ndk_sysroot)
 
-        self.buildenv_info.define(
-            "ANDROID_NATIVE_API_LEVEL", str(self.settings_target.os.api_level)
-        )
+        self.buildenv_info.define("ANDROID_NATIVE_API_LEVEL", str(self.settings_target.os.api_level))
 
         # CMakeToolchain automatically adds the standard Android toolchain file that ships with the NDK
         # when `tools.android:ndk_path` is provided, so it MUST NOT be manually injected here to `tools.cmake.cmaketoolchain:user_toolchain` conf_info
@@ -347,18 +336,14 @@ class AndroidNDKConan(ConanFile):
         self.buildenv_info.define_path("AS", self._define_tool_var("AS", "as", bare))
         self.buildenv_info.define_path("RANLIB", self._define_tool_var("RANLIB", "ranlib", bare))
         self.buildenv_info.define_path("STRIP", self._define_tool_var("STRIP", "strip", bare))
-        self.buildenv_info.define_path(
-            "ADDR2LINE", self._define_tool_var("ADDR2LINE", "addr2line", bare)
-        )
+        self.buildenv_info.define_path("ADDR2LINE", self._define_tool_var("ADDR2LINE", "addr2line", bare))
         self.buildenv_info.define_path("NM", self._define_tool_var("NM", "nm", bare))
         self.buildenv_info.define_path("OBJCOPY", self._define_tool_var("OBJCOPY", "objcopy", bare))
         self.buildenv_info.define_path("OBJDUMP", self._define_tool_var("OBJDUMP", "objdump", bare))
         self.buildenv_info.define_path("READELF", self._define_tool_var("READELF", "readelf", bare))
         # there doesn't seem to be an 'elfedit' included anymore.
         if self._ndk_version_major < 23:
-            self.buildenv_info.define_path(
-                "ELFEDIT", self._define_tool_var("ELFEDIT", "elfedit", bare)
-            )
+            self.buildenv_info.define_path("ELFEDIT", self._define_tool_var("ELFEDIT", "elfedit", bare))
 
         # The `ld` tool changed naming conventions earlier than others
         if self._ndk_version_major >= 22:
@@ -366,9 +351,7 @@ class AndroidNDKConan(ConanFile):
         else:
             self.buildenv_info.define_path("LD", self._define_tool_var("LD", "ld"))
 
-        self.buildenv_info.define(
-            "ANDROID_PLATFORM", f"android-{self.settings_target.os.api_level}"
-        )
+        self.buildenv_info.define("ANDROID_PLATFORM", f"android-{self.settings_target.os.api_level}")
         self.buildenv_info.define("ANDROID_TOOLCHAIN", "clang")
         self.buildenv_info.define("ANDROID_ABI", self._android_abi)
         libcxx_str = str(self.settings_target.compiler.libcxx)
@@ -396,9 +379,7 @@ class AndroidNDKConan(ConanFile):
             self.env_info.SYSROOT = ndk_sysroot
             self.env_info.ANDROID_NATIVE_API_LEVEL = str(self.settings_target.os.api_level)
             self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
-            cmake_wrapper = (
-                "cmake-wrapper.cmd" if self.settings.os == "Windows" else "cmake-wrapper"
-            )
+            cmake_wrapper = "cmake-wrapper.cmd" if self.settings.os == "Windows" else "cmake-wrapper"
             cmake_wrapper = os.path.join(self.package_folder, "bin", cmake_wrapper)
             self.env_info.CONAN_CMAKE_PROGRAM = cmake_wrapper
             self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = os.path.join(
@@ -424,9 +405,7 @@ class AndroidNDKConan(ConanFile):
             self.env_info.ANDROID_PLATFORM = f"android-{self.settings_target.os.api_level}"
             self.env_info.ANDROID_TOOLCHAIN = "clang"
             self.env_info.ANDROID_ABI = self._android_abi
-            self.env_info.ANDROID_STL = (
-                libcxx_str if libcxx_str.startswith("c++_") else "c++_shared"
-            )
+            self.env_info.ANDROID_STL = libcxx_str if libcxx_str.startswith("c++_") else "c++_shared"
             self.env_info.CMAKE_FIND_ROOT_PATH_MODE_PROGRAM = "BOTH"
             self.env_info.CMAKE_FIND_ROOT_PATH_MODE_LIBRARY = "BOTH"
             self.env_info.CMAKE_FIND_ROOT_PATH_MODE_INCLUDE = "BOTH"
@@ -463,9 +442,7 @@ class AndroidNDKConan(ConanFile):
                         os.symlink(target, full_name)
                     except OSError:
                         if not os.path.isabs(target):
-                            target = os.path.normpath(
-                                os.path.join(os.path.dirname(full_name), target)
-                            )
+                            target = os.path.normpath(os.path.join(os.path.dirname(full_name), target))
                         shutil.copy2(target, full_name)
 
         os.unlink(filename)

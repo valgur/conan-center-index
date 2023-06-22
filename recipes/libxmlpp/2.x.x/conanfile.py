@@ -65,9 +65,7 @@ class LibXMLPlusPlus(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
@@ -119,9 +117,7 @@ class LibXMLPlusPlus(ConanFile):
             os.path.join(
                 self.package_folder, "lib", f"libxml++-{lib_version}", "include", "libxml++config.h"
             ),
-            os.path.join(
-                self.package_folder, "include", f"libxml++-{lib_version}", "libxml++config.h"
-            ),
+            os.path.join(self.package_folder, "include", f"libxml++-{lib_version}", "libxml++config.h"),
         )
 
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -149,14 +145,9 @@ class LibXMLPlusPlus(ConanFile):
         self.cpp_info.components[f"libxml++-{lib_version}"].includedirs = [
             os.path.join("include", f"libxml++-{lib_version}")
         ]
-        self.cpp_info.components[f"libxml++-{lib_version}"].requires = [
-            "glibmm::glibmm",
-            "libxml2::libxml2",
-        ]
+        self.cpp_info.components[f"libxml++-{lib_version}"].requires = ["glibmm::glibmm", "libxml2::libxml2"]
 
         self.cpp_info.names["cmake_find_package"] = "libxml++"
         self.cpp_info.names["cmake_find_package_multi"] = "libxml++"
         self.cpp_info.names["pkg_config"] = "libxml++"
-        self.cpp_info.components[f"libxml++-{lib_version}"].names[
-            "pkg_config"
-        ] = f"libxml++-{lib_version}"
+        self.cpp_info.components[f"libxml++-{lib_version}"].names["pkg_config"] = f"libxml++-{lib_version}"

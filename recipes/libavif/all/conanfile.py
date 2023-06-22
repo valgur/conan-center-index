@@ -23,11 +23,7 @@ class LibAVIFConan(ConanFile):
     homepage = "https://github.com/AOMediaCodec/libavif"
     topics = "avif"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_decoder": ["aom", "dav1d"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "with_decoder": ["aom", "dav1d"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -61,12 +57,7 @@ class LibAVIFConan(ConanFile):
             self.requires("dav1d/1.0.0")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,10 +84,7 @@ class LibAVIFConan(ConanFile):
         )
         replace_in_file(self, cmakelists, "${DAV1D_LIBRARY}", "dav1d::dav1d")
         replace_in_file(
-            self,
-            cmakelists,
-            "find_package(aom REQUIRED)",
-            "find_package(libaom-av1 REQUIRED CONFIG)",
+            self, cmakelists, "find_package(aom REQUIRED)", "find_package(libaom-av1 REQUIRED CONFIG)"
         )
         replace_in_file(self, cmakelists, "${AOM_LIBRARIES}", "libaom-av1::libaom-av1")
 
@@ -111,12 +99,7 @@ class LibAVIFConan(ConanFile):
         return os.path.join("lib", "conan-official-avif-targets.cmake")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -94,12 +94,7 @@ class LibjpegConan(ConanFile):
             tc.generate()
 
     def _build_nmake(self):
-        copy(
-            self,
-            "Win32.Mak",
-            src=os.path.join(self.source_folder, os.pardir),
-            dst=self.source_folder,
-        )
+        copy(self, "Win32.Mak", src=os.path.join(self.source_folder, os.pardir), dst=self.source_folder)
         with chdir(self, self.source_folder):
             # export symbols if shared
             replace_in_file(
@@ -111,9 +106,7 @@ class LibjpegConan(ConanFile):
                 ),
             )
             shutil.copy("jconfig.vc", "jconfig.h")
-            make_args = [
-                "nodebug=1" if self.settings.build_type != "Debug" else "",
-            ]
+            make_args = ["nodebug=1" if self.settings.build_type != "Debug" else ""]
             if self._is_clang_cl:
                 compilers_from_conf = self.conf.get(
                     "tools.build:compiler_executables", default={}, check_type=dict
@@ -148,12 +141,7 @@ class LibjpegConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "README",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "README", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self) or self._is_clang_cl:
             for filename in ["jpeglib.h", "jerror.h", "jconfig.h", "jmorecfg.h"]:
                 copy(
@@ -191,16 +179,10 @@ class LibjpegConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "share"))
             fix_apple_shared_install_name(self)
 
-        for fn in (
-            "jpegint.h",
-            "transupp.h",
-        ):
+        for fn in ("jpegint.h", "transupp.h"):
             copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
-        for fn in (
-            "jinclude.h",
-            "transupp.c",
-        ):
+        for fn in ("jinclude.h", "transupp.c"):
             copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
 
         # Remove export decorations of transupp symbols

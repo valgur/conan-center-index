@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment
-from conan.tools.files import (
-    copy,
-    get,
-    apply_conandata_patches,
-    chdir,
-    export_conandata_patches,
-    rmdir,
-)
+from conan.tools.files import copy, get, apply_conandata_patches, chdir, export_conandata_patches, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -70,12 +63,7 @@ class Base64Conan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support build shared.")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _use_cmake(self):
@@ -115,10 +103,7 @@ class Base64Conan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if self._use_cmake:
             cmake = CMake(self)

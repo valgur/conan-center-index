@@ -68,18 +68,14 @@ class MagnumExtrasConan(ConanFile):
         if not getattr(self.options["magnum"], opt_name):
             raise ConanInvalidConfiguration("Magnum needs option '{opt}=True'".format(opt=opt_name))
         if self.settings.os == "Emscripten" and self.options["magnum"].target_gl == "gles2":
-            raise ConanInvalidConfiguration(
-                "OpenGL ES 3 required, use option 'magnum:target_gl=gles3'"
-            )
+            raise ConanInvalidConfiguration("OpenGL ES 3 required, use option 'magnum:target_gl=gles3'")
 
     def build_requirements(self):
         self.build_requires("corrade/{}".format(self.version))
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -112,9 +108,7 @@ class MagnumExtrasConan(ConanFile):
             os.path.join("src", "player", "CMakeLists.txt"),
         ]
         app_name = "{}Application".format(
-            "XEgl"
-            if self.options.application == "xegl"
-            else str(self.options.application).capitalize()
+            "XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize()
         )
         for cmakelist in cmakelists:
             tools.replace_in_file(

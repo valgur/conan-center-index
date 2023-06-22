@@ -57,9 +57,7 @@ class LexborConan(ConanFile):
             )
 
         if self.options.build_separately:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support build_separately option(yet)."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't support build_separately option(yet).")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -80,10 +78,7 @@ class LexborConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

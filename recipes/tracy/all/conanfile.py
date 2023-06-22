@@ -36,16 +36,8 @@ class TracyConan(ConanFile):
         "no_system_tracing": ([True, False], False),
         "delayed_init": ([True, False], False),
     }
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        **{k: v[0] for k, v in _tracy_options.items()},
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        **{k: v[1] for k, v in _tracy_options.items()},
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], **{k: v[0] for k, v in _tracy_options.items()}}
+    default_options = {"shared": False, "fPIC": True, **{k: v[1] for k, v in _tracy_options.items()}}
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -63,12 +55,7 @@ class TracyConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -86,12 +73,7 @@ class TracyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -120,6 +102,4 @@ class TracyConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Tracy"
         self.cpp_info.components["tracyclient"].names["cmake_find_package"] = "TracyClient"
         self.cpp_info.components["tracyclient"].names["cmake_find_package_multi"] = "TracyClient"
-        self.cpp_info.components["tracyclient"].set_property(
-            "cmake_target_name", "Tracy::TracyClient"
-        )
+        self.cpp_info.components["tracyclient"].set_property("cmake_target_name", "Tracy::TracyClient")

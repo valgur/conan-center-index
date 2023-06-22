@@ -16,16 +16,7 @@ class Atomic_opsConan(ConanFile):
     license = "GPL-2.0-or-later"
     settings = "os", "compiler", "build_type", "arch"
 
-    _cmake_options_defaults = (
-        (
-            "assertions",
-            False,
-        ),
-        (
-            "atomic_intrinsics",
-            True,
-        ),
-    )
+    _cmake_options_defaults = (("assertions", False), ("atomic_intrinsics", True))
 
     options = {
         "shared": [True, False],
@@ -65,12 +56,7 @@ class Atomic_opsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,12 +76,7 @@ class Atomic_opsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -112,9 +93,7 @@ class Atomic_opsConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "Atomic_ops"
         self.cpp_info.names["cmake_find_package_multi"] = "Atomic_ops"
 
-        self.cpp_info.components["atomic_ops"].set_property(
-            "cmake_target_name", "Atomic_ops::atomic_ops"
-        )
+        self.cpp_info.components["atomic_ops"].set_property("cmake_target_name", "Atomic_ops::atomic_ops")
         self.cpp_info.components["atomic_ops"].set_property("pkg_config_name", "atomic_ops")
         self.cpp_info.components["atomic_ops"].libs = ["atomic_ops"]
         if self.settings.os in ["Linux", "FreeBSD"]:

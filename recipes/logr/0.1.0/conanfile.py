@@ -8,16 +8,16 @@ class LogrConan(ConanFile):
     license = "BSD 3-Clause License"
     homepage = "https://github.com/ngrodzitski/logr"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
-    )
+    description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = ["CMakeLists.txt"]
 
     options = {"backend": ["spdlog", "glog", "log4cplus", "log4cplus-unicode", None]}
-    default_options = {"backend": "spdlog"}
+    default_options = {
+        "backend": "spdlog",
+    }
 
     _cmake = None
 
@@ -41,7 +41,12 @@ class LogrConan(ConanFile):
         minimal_cpp_standard = "17"
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {"gcc": "7", "clang": "7", "apple-clang": "10", "Visual Studio": "16"}
+        minimal_version = {
+            "gcc": "7",
+            "clang": "7",
+            "apple-clang": "10",
+            "Visual Studio": "16",
+        }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
@@ -49,16 +54,14 @@ class LogrConan(ConanFile):
                 % (self.name, compiler)
             )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
             return
 
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def _configure_cmake(self):
@@ -87,9 +90,7 @@ class LogrConan(ConanFile):
         if self.options.backend == "log4cplus" and self.options["log4cplus"].unicode:
             raise ConanInvalidConfiguration("backend='log4cplus' requires log4cplus:unicode=False")
         elif self.options.backend == "log4cplus-unicode" and not self.options["log4cplus"].unicode:
-            raise ConanInvalidConfiguration(
-                "backend='log4cplus-unicode' requires log4cplus:unicode=True"
-            )
+            raise ConanInvalidConfiguration("backend='log4cplus-unicode' requires log4cplus:unicode=True")
 
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")

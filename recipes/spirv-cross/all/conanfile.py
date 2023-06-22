@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 import os
 import textwrap
 
@@ -101,9 +93,7 @@ class SpirvCrossConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS"] = not self.options.exceptions
         tc.variables["SPIRV_CROSS_SHARED"] = self.options.shared
-        tc.variables["SPIRV_CROSS_STATIC"] = (
-            not self.options.shared or self.options.build_executable
-        )
+        tc.variables["SPIRV_CROSS_STATIC"] = not self.options.shared or self.options.build_executable
         tc.variables["SPIRV_CROSS_CLI"] = self.options.build_executable
         tc.variables["SPIRV_CROSS_ENABLE_TESTS"] = False
         tc.variables["SPIRV_CROSS_ENABLE_GLSL"] = self.options.glsl
@@ -127,12 +117,7 @@ class SpirvCrossConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -215,13 +200,9 @@ class SpirvCrossConan(ConanFile):
             self.cpp_info.components[target_lib].set_property("cmake_target_name", target_lib)
             if self.options.shared:
                 self.cpp_info.components[target_lib].set_property("pkg_config_name", target_lib)
-            prefix = (
-                "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-            )
+            prefix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
             self.cpp_info.components[target_lib].libs = [f"{target_lib}{prefix}"]
-            self.cpp_info.components[target_lib].includedirs.append(
-                os.path.join("include", "spirv_cross")
-            )
+            self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "spirv_cross"))
             self.cpp_info.components[target_lib].defines.append(
                 f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.options.namespace}"
             )

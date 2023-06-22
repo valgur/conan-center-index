@@ -21,18 +21,8 @@ class LibSafeCConan(ConanFile):
     topics = ("safec", "libc", "bounds-checking")
 
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "strmax": ["ANY"],
-        "memmax": ["ANY"],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "strmax": 4096,
-        "memmax": 268435456,
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "strmax": ["ANY"], "memmax": ["ANY"]}
+    default_options = {"shared": False, "fPIC": True, "strmax": 4096, "memmax": 268435456}
 
     _autotools = None
 
@@ -114,12 +104,7 @@ class LibSafeCConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self._source_subfolder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

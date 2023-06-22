@@ -65,12 +65,7 @@ class XorgProtoConan(ConanFile):
         export_conandata_patches(self)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -92,12 +87,7 @@ class XorgProtoConan(ConanFile):
         return os.path.join(self.package_folder, "res", "pc_data.yml")
 
     def package(self):
-        copy(
-            self,
-            "COPYING-*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         autotools = Autotools(self)
         autotools.install()
@@ -107,13 +97,8 @@ class XorgProtoConan(ConanFile):
             pc_text = load(self, fn)
             filename = os.path.basename(fn)[:-3]
             name = next(re.finditer("^Name: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
-            version = next(
-                re.finditer("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)
-            ).group(1)
-            pc_data[filename] = {
-                "version": version,
-                "name": name,
-            }
+            version = next(re.finditer("^Version: ([^\n$]+)[$\n]", pc_text, flags=re.MULTILINE)).group(1)
+            pc_data[filename] = {"version": version, "name": name}
         mkdir(self, os.path.dirname(self._pc_data_path))
         save(self, self._pc_data_path, yaml.dump(pc_data))
 

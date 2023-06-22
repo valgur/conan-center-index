@@ -74,16 +74,12 @@ class UnleashConan(ConanFile):
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version and loose_lt_semver(str(self.settings.compiler.version), min_version):
             raise ConanInvalidConfiguration(
-                "{} requires C++{}, which your compiler does not support.".format(
-                    self.name, self._min_cppstd
-                )
+                "{} requires C++{}, which your compiler does not support.".format(self.name, self._min_cppstd)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):

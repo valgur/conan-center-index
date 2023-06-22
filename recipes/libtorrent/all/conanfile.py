@@ -71,7 +71,7 @@ class LibtorrentConan(ConanFile):
                 "gcc": "5" if Version(self.version) < "2.0.8" else "6",
                 "clang": "5",
                 "apple-clang": "5",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -183,10 +183,7 @@ class LibtorrentConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -207,10 +204,7 @@ class LibtorrentConan(ConanFile):
         ]
         self.cpp_info.components["libtorrent-rasterbar"].libs = ["torrent-rasterbar"]
 
-        self.cpp_info.components["libtorrent-rasterbar"].requires = [
-            "boost::headers",
-            "boost::system",
-        ]
+        self.cpp_info.components["libtorrent-rasterbar"].requires = ["boost::headers", "boost::system"]
         if self.options.enable_encryption:
             self.cpp_info.components["libtorrent-rasterbar"].requires.append("openssl::openssl")
         if self.options.enable_iconv:
@@ -232,17 +226,13 @@ class LibtorrentConan(ConanFile):
             ]
 
         if self.options.shared:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append(
-                "TORRENT_LINKING_SHARED"
-            )
+            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_LINKING_SHARED")
         if self.options.enable_encryption:
             self.cpp_info.components["libtorrent-rasterbar"].defines.extend(
                 ["TORRENT_USE_OPENSSL", "TORRENT_USE_LIBCRYPTO"]
             )
         else:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append(
-                "TORRENT_DISABLE_ENCRYPTION"
-            )
+            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_DISABLE_ENCRYPTION")
         if self.options.enable_iconv:
             self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_USE_ICONV")
         if not self.options.enable_dht:
@@ -251,9 +241,7 @@ class LibtorrentConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "LibtorrentRasterbar"
         self.cpp_info.names["cmake_find_package_multi"] = "LibtorrentRasterbar"
-        self.cpp_info.components["libtorrent-rasterbar"].names[
-            "cmake_find_package"
-        ] = "torrent-rasterbar"
+        self.cpp_info.components["libtorrent-rasterbar"].names["cmake_find_package"] = "torrent-rasterbar"
         self.cpp_info.components["libtorrent-rasterbar"].names[
             "cmake_find_package_multi"
         ] = "torrent-rasterbar"

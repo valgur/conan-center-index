@@ -56,7 +56,7 @@ class AbseilConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -82,9 +82,7 @@ class AbseilConan(ConanFile):
 
         if self.options.shared and is_msvc(self):
             # upstream tries its best to export symbols, but it's broken for the moment
-            raise ConanInvalidConfiguration(
-                f"{self.ref} shared not availabe for Visual Studio (yet)"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} shared not availabe for Visual Studio (yet)")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -136,18 +134,11 @@ class AbseilConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         abi_file = _ABIFile(self, os.path.join(self.build_folder, "abi.h"))
-        abi_file.replace_in_options_file(
-            os.path.join(self.source_folder, "absl", "base", "options.h")
-        )
+        abi_file.replace_in_options_file(os.path.join(self.source_folder, "absl", "base", "options.h"))
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -209,17 +200,17 @@ class AbseilConan(ConanFile):
                             else:  # system libs or frameworks
                                 if self.settings.os in ["Linux", "FreeBSD"]:
                                     if dependency == "Threads::Threads":
-                                        components[potential_lib_name].setdefault(
-                                            "system_libs", []
-                                        ).append("pthread")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "pthread"
+                                        )
                                     elif "-lm" in dependency:
-                                        components[potential_lib_name].setdefault(
-                                            "system_libs", []
-                                        ).append("m")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "m"
+                                        )
                                     elif "-lrt" in dependency:
-                                        components[potential_lib_name].setdefault(
-                                            "system_libs", []
-                                        ).append("rt")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "rt"
+                                        )
                                 elif self.settings.os == "Windows":
                                     for system_lib in ["bcrypt", "advapi32", "dbghelp"]:
                                         if system_lib in dependency:
@@ -235,9 +226,7 @@ class AbseilConan(ConanFile):
                     elif property_type == "INTERFACE_COMPILE_DEFINITIONS":
                         values_list = target_property[1].replace('"', "").split(";")
                         for definition in values_list:
-                            components[potential_lib_name].setdefault("defines", []).append(
-                                definition
-                            )
+                            components[potential_lib_name].setdefault("defines", []).append(definition)
 
         return components
 
@@ -279,16 +268,11 @@ class AbseilConan(ConanFile):
             self.cpp_info.components[pkgconfig_name].requires = values.get("requires", [])
             if is_msvc(self) and self.settings.compiler.get_safe("cppstd") == "20":
                 self.cpp_info.components[pkgconfig_name].defines.extend(
-                    [
-                        "_HAS_DEPRECATED_RESULT_OF",
-                        "_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING",
-                    ]
+                    ["_HAS_DEPRECATED_RESULT_OF", "_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING"]
                 )
 
             self.cpp_info.components[pkgconfig_name].names["cmake_find_package"] = cmake_target
-            self.cpp_info.components[pkgconfig_name].names[
-                "cmake_find_package_multi"
-            ] = cmake_target
+            self.cpp_info.components[pkgconfig_name].names["cmake_find_package_multi"] = cmake_target
 
         self.cpp_info.names["cmake_find_package"] = "absl"
         self.cpp_info.names["cmake_find_package_multi"] = "absl"

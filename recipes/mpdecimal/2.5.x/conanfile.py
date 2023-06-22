@@ -23,7 +23,9 @@ required_conan_version = ">=1.55.0"
 
 class MpdecimalConan(ConanFile):
     name = "mpdecimal"
-    description = "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
+    description = (
+        "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
+    )
     license = "BSD-2-Clause"
     topics = ("multiprecision", "library")
     url = "https://github.com/conan-io/conan-center-index"
@@ -133,12 +135,8 @@ class MpdecimalConan(ConanFile):
         copy(self, "Makefile.vc", libmpdec_folder, build_dir)
         rename(self, build_dir / "Makefile.vc", libmpdec_folder / "Makefile")
 
-        mpdec_target = "libmpdec-{}.{}".format(
-            self.version, "dll" if self.options.shared else "lib"
-        )
-        mpdecpp_target = "libmpdec++-{}.{}".format(
-            self.version, "dll" if self.options.shared else "lib"
-        )
+        mpdec_target = "libmpdec-{}.{}".format(self.version, "dll" if self.options.shared else "lib")
+        mpdecpp_target = "libmpdec++-{}.{}".format(self.version, "dll" if self.options.shared else "lib")
 
         builds = [[libmpdec_folder, mpdec_target]]
         if self.options.cxx:
@@ -149,7 +147,10 @@ class MpdecimalConan(ConanFile):
                 self.run(
                     """nmake -f Makefile.vc {target} MACHINE={machine} DEBUG={debug} DLL={dll}""".format(
                         target=target,
-                        machine={"x86": "ppro", "x86_64": "x64"}[str(self.settings.arch)],
+                        machine={
+                            "x86": "ppro",
+                            "x86_64": "x64",
+                        }[str(self.settings.arch)],
                         # FIXME: else, use ansi32 and ansi64
                         debug="1" if self.settings.build_type == "Debug" else "0",
                         dll="1" if self.options.shared else "0",
@@ -219,9 +220,7 @@ class MpdecimalConan(ConanFile):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=pkg_dir / "licenses")
         if is_msvc(self):
             build_dir = pathlib.Path(self.build_folder)
-            distfolder = (
-                build_dir / "vcbuild" / "dist{}".format(32 if self.settings.arch == "x86" else 64)
-            )
+            distfolder = build_dir / "vcbuild" / "dist{}".format(32 if self.settings.arch == "x86" else 64)
             copy(self, "vc*.h", src=source_dir / "libmpdec", dst=pkg_dir / "include")
             copy(self, "*.h", src=distfolder, dst=pkg_dir / "include")
             if self.options.cxx:

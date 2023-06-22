@@ -18,28 +18,15 @@ class CircularBufferConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def package(self):
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            "CircularBuffer.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
+            self, "CircularBuffer.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
         )
         copy(
             self,

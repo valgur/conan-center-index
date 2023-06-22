@@ -9,7 +9,9 @@ required_conan_version = ">=1.33.0"
 class OpenSimulationInterfaceConan(ConanFile):
     name = "open-simulation-interface"
     homepage = "https://github.com/OpenSimulationInterface/open-simulation-interface"
-    description = "Generic interface environmental perception of automated driving functions in virtual scenarios"
+    description = (
+        "Generic interface environmental perception of automated driving functions in virtual scenarios"
+    )
     topics = ("asam", "adas", "open-simulation", "automated-driving", "openx")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MPL-2.0"
@@ -60,9 +62,7 @@ class OpenSimulationInterfaceConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -99,9 +99,5 @@ class OpenSimulationInterfaceConan(ConanFile):
         self.cpp_info.components["libopen_simulation_interface"].names[
             "cmake_find_package_multi"
         ] = "open_simulation_interface"
-        self.cpp_info.components["libopen_simulation_interface"].libs = [
-            "open_simulation_interface"
-        ]
-        self.cpp_info.components["libopen_simulation_interface"].requires = [
-            "protobuf::libprotobuf"
-        ]
+        self.cpp_info.components["libopen_simulation_interface"].libs = ["open_simulation_interface"]
+        self.cpp_info.components["libopen_simulation_interface"].requires = ["protobuf::libprotobuf"]

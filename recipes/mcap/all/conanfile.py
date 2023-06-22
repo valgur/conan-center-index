@@ -73,10 +73,7 @@ class McapConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self._source_package_path,
+            self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_package_path
         )
         copy(
             self,

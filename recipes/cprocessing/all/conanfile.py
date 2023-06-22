@@ -50,25 +50,19 @@ class CProcessingConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn(
-                "{} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(
-                    self.name
-                )
+                "{} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(self.name)
             )
         elif lazy_lt_semver(compiler_version, minimum_version):
             raise ConanInvalidConfiguration("{} requires some C++20 features,".format(self.name))
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
         tools.replace_in_file(
-            os.path.join(self._source_subfolder, "lib", "PImage.h"),
-            "stb/stb_image.h",
-            "stb_image.h",
+            os.path.join(self._source_subfolder, "lib", "PImage.h"), "stb/stb_image.h", "stb_image.h"
         )
 
     def package(self):

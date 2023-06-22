@@ -64,14 +64,8 @@ class ArmadilloConan(ConanFile):
     }
     # Values that must be set for multiple options to be valid
     _co_dependencies = {
-        "intel_mkl": [
-            "use_blas",
-            "use_lapack",
-        ],
-        "framework_accelerate": [
-            "use_blas",
-            "use_lapack",
-        ],
+        "intel_mkl": ["use_blas", "use_lapack"],
+        "framework_accelerate": ["use_blas", "use_lapack"],
     }
 
     def export_sources(self):
@@ -113,10 +107,7 @@ class ArmadilloConan(ConanFile):
             if options_without_value and (len(options) != len(options_without_value)):
                 raise ConanInvalidConfiguration(
                     "Options {} must all be set to '{}' to use this feature. To fix this, set option {} to '{}'.".format(
-                        ", ".join(options),
-                        value,
-                        ", ".join(options_without_value),
-                        value,
+                        ", ".join(options), value, ", ".join(options_without_value), value
                     )
                 )
 
@@ -127,14 +118,7 @@ class ArmadilloConan(ConanFile):
 
         deprecated_opts = list(
             set(
-                [
-                    opt
-                    for opt in [
-                        str(self.options.use_blas),
-                        str(self.options.use_lapack),
-                    ]
-                    if "system" in opt
-                ]
+                [opt for opt in [str(self.options.use_blas), str(self.options.use_lapack)] if "system" in opt]
             )
         )
 
@@ -240,18 +224,8 @@ class ArmadilloConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(
-            self,
-            "LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            "NOTICE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "NOTICE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 

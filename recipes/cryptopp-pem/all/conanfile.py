@@ -59,9 +59,7 @@ class CryptoPPPEMConan(ConanFile):
         tools.get(**self.conan_data["sources"][self.version]["cmake"])
         src_folder = os.path.join(self.source_folder, "cryptopp-cmake-" + suffix)
         dst_folder = os.path.join(self.source_folder, self._source_subfolder)
-        shutil.move(
-            os.path.join(src_folder, "CMakeLists.txt"), os.path.join(dst_folder, "CMakeLists.txt")
-        )
+        shutil.move(os.path.join(src_folder, "CMakeLists.txt"), os.path.join(dst_folder, "CMakeLists.txt"))
         shutil.move(
             os.path.join(src_folder, "cryptopp-config.cmake"),
             os.path.join(dst_folder, "cryptopp-config.cmake"),
@@ -79,11 +77,7 @@ class CryptoPPPEMConan(ConanFile):
         if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
             shutil.copyfile(
                 os.path.join(
-                    tools.get_env("ANDROID_NDK_HOME"),
-                    "sources",
-                    "android",
-                    "cpufeatures",
-                    "cpu-features.h",
+                    tools.get_env("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
                 ),
                 os.path.join(self._source_subfolder, "cpu-features.h"),
             )
@@ -185,10 +179,6 @@ class CryptoPPPEMConan(ConanFile):
             self._module_file_rel_path
         ]
         self.cpp_info.components["libcryptopp-pem"].set_property("cmake_target_name", cmake_target)
-        self.cpp_info.components["libcryptopp-pem"].set_property(
-            "pkg_config_name", "libcryptopp-pem"
-        )
+        self.cpp_info.components["libcryptopp-pem"].set_property("pkg_config_name", "libcryptopp-pem")
 
-        self.cpp_info.components["libcryptopp-pem"].requires = [
-            "cryptopp::cryptopp",
-        ]
+        self.cpp_info.components["libcryptopp-pem"].requires = ["cryptopp::cryptopp"]

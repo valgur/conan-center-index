@@ -80,9 +80,7 @@ class FastDDSConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, "192")
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -120,12 +118,7 @@ class FastDDSConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -140,7 +133,9 @@ class FastDDSConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"fastrtps": "fastdds::fastrtps"},
+            {
+                "fastrtps": "fastdds::fastrtps",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -167,9 +162,7 @@ class FastDDSConan(ConanFile):
 
         # component fastrtps
         self.cpp_info.components["fastrtps"].set_property("cmake_target_name", "fastrtps")
-        self.cpp_info.components["fastrtps"].set_property(
-            "cmake_target_aliases", ["fastdds::fastrtps"]
-        )
+        self.cpp_info.components["fastrtps"].set_property("cmake_target_aliases", ["fastdds::fastrtps"])
         self.cpp_info.components["fastrtps"].libs = collect_libs(self)
         self.cpp_info.components["fastrtps"].requires = [
             "fast-cdr::fast-cdr",

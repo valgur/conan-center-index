@@ -61,12 +61,7 @@ class YderConan(ConanFile):
             self.requires("libsystemd/251.4")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -102,12 +97,7 @@ class YderConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            os.path.join(self.source_folder),
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -129,7 +119,11 @@ class YderConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Yder::Yder-static": "Yder::Yder"},
+            {}
+            if self.options.shared
+            else {
+                "Yder::Yder-static": "Yder::Yder",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

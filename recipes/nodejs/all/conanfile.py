@@ -44,8 +44,7 @@ class NodejsConan(ConanFile):
         if (
             not self.version in self.conan_data["sources"]
             or not str(self.settings.os) in self.conan_data["sources"][self.version]
-            or not self._nodejs_arch
-            in self.conan_data["sources"][self.version][str(self.settings.os)]
+            or not self._nodejs_arch in self.conan_data["sources"][self.version][str(self.settings.os)]
         ):
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of architecture/version/os not available"
@@ -86,23 +85,10 @@ class NodejsConan(ConanFile):
             src=os.path.join(self._source_subfolder, "lib"),
         )
         copy(
-            self,
-            pattern="node.exe",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._source_subfolder,
+            self, pattern="node.exe", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder
         )
-        copy(
-            self,
-            pattern="npm",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._source_subfolder,
-        )
-        copy(
-            self,
-            pattern="npx",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._source_subfolder,
-        )
+        copy(self, pattern="npm", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder)
+        copy(self, pattern="npx", dst=os.path.join(self.package_folder, "bin"), src=self._source_subfolder)
 
     def package_info(self):
         self.cpp_info.includedirs = []

@@ -82,12 +82,7 @@ class XqillaConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -133,12 +128,7 @@ class XqillaConan(ConanFile):
         return tmp[2 : tmp.find("*/", 1)]
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "README",
@@ -151,9 +141,7 @@ class XqillaConan(ConanFile):
             os.path.join(self.package_folder, "licenses", "LICENSE.mapm"),
         )
         save(
-            self,
-            os.path.join(self.package_folder, "licenses", "LICENSE.yajl"),
-            self._extract_yajl_license(),
+            self, os.path.join(self.package_folder, "licenses", "LICENSE.yajl"), self._extract_yajl_license()
         )
 
         autotools = Autotools(self)

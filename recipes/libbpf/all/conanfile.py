@@ -56,11 +56,7 @@ class LibbpfConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.make_args.extend(
-            [
-                "PREFIX={}".format(""),
-                "DESTDIR={}".format(self.package_folder),
-                "LIBSUBDIR={}".format("lib"),
-            ]
+            ["PREFIX={}".format(""), "DESTDIR={}".format(self.package_folder), "LIBSUBDIR={}".format("lib")]
         )
         if not self.options.shared:
             tc.configure_args.append("BUILD_STATIC_ONLY={}".format(1))

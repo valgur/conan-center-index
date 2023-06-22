@@ -175,19 +175,17 @@ class Libxml2Conan(ConanFile):
                 f"static={static}",
             ]
 
-            incdirs = [
-                incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs
-            ]
-            libdirs = [
-                libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs
-            ]
+            incdirs = [incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs]
+            libdirs = [libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs]
             args.append(f"include=\"{';'.join(incdirs)}\"")
             args.append(f"lib=\"{';'.join(libdirs)}\"")
 
             for name in self._configure_option_names:
-                cname = {"mem-debug": "mem_debug", "run-debug": "run_debug", "docbook": "docb"}.get(
-                    name, name
-                )
+                cname = {
+                    "mem-debug": "mem_debug",
+                    "run-debug": "run_debug",
+                    "docbook": "docb",
+                }.get(name, name)
                 value = getattr(self.options, name)
                 value = "yes" if value else "no"
                 args.append(f"{cname}={value}")
@@ -200,12 +198,8 @@ class Libxml2Conan(ConanFile):
             def fix_library(option, package, old_libname):
                 if option:
                     libs = []
-                    aggregated_cpp_info = self.dependencies[
-                        package
-                    ].cpp_info.aggregated_components()
-                    for lib in itertools.chain(
-                        aggregated_cpp_info.libs, aggregated_cpp_info.system_libs
-                    ):
+                    aggregated_cpp_info = self.dependencies[package].cpp_info.aggregated_components()
+                    for lib in itertools.chain(aggregated_cpp_info.libs, aggregated_cpp_info.system_libs):
                         libname = lib
                         if not libname.endswith(".lib"):
                             libname += ".lib"
@@ -248,12 +242,8 @@ class Libxml2Conan(ConanFile):
                 f"static={yes_no(not self.options.shared)}",
             ]
 
-            incdirs = [
-                incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs
-            ]
-            libdirs = [
-                libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs
-            ]
+            incdirs = [incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs]
+            libdirs = [libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs]
             args.append(f"include=\"{' -I'.join(incdirs)}\"")
             args.append(f"lib=\"{' -L'.join(libdirs)}\"")
 
@@ -271,9 +261,7 @@ class Libxml2Conan(ConanFile):
             # build
             def fix_library(option, package, old_libname):
                 if option:
-                    aggregated_cpp_info = self.dependencies[
-                        package
-                    ].cpp_info.aggregated_components()
+                    aggregated_cpp_info = self.dependencies[package].cpp_info.aggregated_components()
                     replace_in_file(
                         self,
                         "Makefile.mingw",
@@ -366,9 +354,7 @@ class Libxml2Conan(ConanFile):
             autotools = Autotools(self)
 
             for target in ["install-libLTLIBRARIES", "install-data"]:
-                autotools.make(
-                    target=target, args=[f"DESTDIR={unix_path(self, self.package_folder)}"]
-                )
+                autotools.make(target=target, args=[f"DESTDIR={unix_path(self, self.package_folder)}"])
 
             if self.options.include_utils:
                 autotools.install()
@@ -391,9 +377,7 @@ class Libxml2Conan(ConanFile):
                 keep_path=False,
             )
 
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         # FIXME: also define LIBXML2_XMLLINT_EXECUTABLE variable

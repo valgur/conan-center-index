@@ -174,8 +174,7 @@ class CairoConan(ConanFile):
 
         if is_msvc(self):
             tc_gobject = self._create_toolchain(
-                "gobject",
-                unix_path(self, os.path.join(self.source_folder, "util", "cairo-gobject")),
+                "gobject", unix_path(self, os.path.join(self.source_folder, "util", "cairo-gobject"))
             )
             tc_gobject.generate()
 
@@ -235,10 +234,7 @@ class CairoConan(ConanFile):
                 self.deps_cpp_info["freetype"].libs[0] + ".lib",
             )
             replace_in_file(
-                self,
-                win32_common,
-                "$(ZLIB_PATH)/lib/zlib1.lib",
-                self.deps_cpp_info["zlib"].libs[0] + ".lib",
+                self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib", self.deps_cpp_info["zlib"].libs[0] + ".lib"
             )
             replace_in_file(
                 self,
@@ -261,10 +257,7 @@ class CairoConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if is_msvc(self):
             src = os.path.join(self.source_folder, "src")
@@ -284,18 +277,11 @@ class CairoConan(ConanFile):
             copy(self, "cairo-ps.h", src, inc)
             copy(self, "cairo-pdf.h", src, inc)
             copy(self, "cairo-svg.h", src, inc)
-            copy(
-                self,
-                "cairo-gobject.h",
-                inc,
-                os.path.join(self.source_folder, "util", "cairo-gobject"),
-            )
+            copy(self, "cairo-gobject.h", inc, os.path.join(self.source_folder, "util", "cairo-gobject"))
 
             config = str(self.settings.build_type).lower()
             lib_src_path = os.path.join(self.source_folder, "src", config)
-            cairo_gobject_src_path = os.path.join(
-                self.source_folder, "util", "cairo-gobject", config
-            )
+            cairo_gobject_src_path = os.path.join(self.source_folder, "util", "cairo-gobject", config)
             lib_dest_path = os.path.join(self.package_folder, "lib")
             runtime_dest_path = os.path.join(self.package_folder, "bin")
 
@@ -327,11 +313,7 @@ class CairoConan(ConanFile):
         self.cpp_info.components["cairo_"].set_property("pkg_config_name", "cairo")
         self.cpp_info.components["cairo_"].libs = ["cairo"]
         self.cpp_info.components["cairo_"].includedirs.insert(0, os.path.join("include", "cairo"))
-        self.cpp_info.components["cairo_"].requires = [
-            "pixman::pixman",
-            "libpng::libpng",
-            "zlib::zlib",
-        ]
+        self.cpp_info.components["cairo_"].requires = ["pixman::pixman", "libpng::libpng", "zlib::zlib"]
 
         if self.options.get_safe("with_freetype", True):
             self.cpp_info.components["cairo_"].requires.append("freetype::freetype")
@@ -342,9 +324,7 @@ class CairoConan(ConanFile):
                 self.cpp_info.components["cairo_"].defines.append("CAIRO_WIN32_STATIC_BUILD=1")
         else:
             if self.options.with_glib:
-                self.cpp_info.components["cairo_"].requires.extend(
-                    ["glib::gobject-2.0", "glib::glib-2.0"]
-                )
+                self.cpp_info.components["cairo_"].requires.extend(["glib::gobject-2.0", "glib::glib-2.0"])
             if self.options.with_fontconfig:
                 self.cpp_info.components["cairo_"].requires.append("fontconfig::fontconfig")
 
@@ -364,16 +344,10 @@ class CairoConan(ConanFile):
 
         if self.settings.os == "Windows":
             self.cpp_info.components["cairo-win32"].set_property("pkg_config_name", "cairo-win32")
-            self.cpp_info.components["cairo-win32"].requires = [
-                "cairo_",
-                "pixman::pixman",
-                "libpng::libpng",
-            ]
+            self.cpp_info.components["cairo-win32"].requires = ["cairo_", "pixman::pixman", "libpng::libpng"]
 
         if self.options.get_safe("with_glib", True):
-            self.cpp_info.components["cairo-gobject"].set_property(
-                "pkg_config_name", "cairo-gobject"
-            )
+            self.cpp_info.components["cairo-gobject"].set_property("pkg_config_name", "cairo-gobject")
             self.cpp_info.components["cairo-gobject"].libs = ["cairo-gobject"]
             self.cpp_info.components["cairo-gobject"].requires = [
                 "cairo_",
@@ -394,11 +368,7 @@ class CairoConan(ConanFile):
         if self.settings.os == "Linux":
             if self.options.with_xlib:
                 self.cpp_info.components["cairo-xlib"].set_property("pkg_config_name", "cairo-xlib")
-                self.cpp_info.components["cairo-xlib"].requires = [
-                    "cairo_",
-                    "xorg::x11",
-                    "xorg::xext",
-                ]
+                self.cpp_info.components["cairo-xlib"].requires = ["cairo_", "xorg::x11", "xorg::xext"]
 
         if is_apple_os(self):
             self.cpp_info.components["cairo-quartz"].set_property("pkg_config_name", "cairo-quartz")
@@ -407,7 +377,5 @@ class CairoConan(ConanFile):
                 ["CoreFoundation", "CoreGraphics", "ApplicationServices"]
             )
 
-            self.cpp_info.components["cairo-quartz-font"].set_property(
-                "pkg_config_name", "cairo-quartz-font"
-            )
+            self.cpp_info.components["cairo-quartz-font"].set_property("pkg_config_name", "cairo-quartz-font")
             self.cpp_info.components["cairo-quartz-font"].requires = ["cairo_"]

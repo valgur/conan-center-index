@@ -23,9 +23,7 @@ required_conan_version = ">=1.53.0"
 
 class AtkConan(ConanFile):
     name = "atk"
-    description = (
-        "set of accessibility interfaces that are implemented by other toolkits and applications"
-    )
+    description = "set of accessibility interfaces that are implemented by other toolkits and applications"
     topics = ("accessibility",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.atk.org"
@@ -96,9 +94,7 @@ class AtkConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["introspection"] = False
         tc.project_options["docs"] = False
-        tc.project_options["localedir"] = os.path.join(
-            self.package_folder, "bin", "share", "locale"
-        )
+        tc.project_options["localedir"] = os.path.join(self.package_folder, "bin", "share", "locale")
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
@@ -106,10 +102,7 @@ class AtkConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "meson.build"),
-            "subdir('tests')",
-            "#subdir('tests')",
+            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
         )
 
     def build(self):
@@ -119,12 +112,7 @@ class AtkConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -153,6 +141,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

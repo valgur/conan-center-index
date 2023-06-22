@@ -7,7 +7,9 @@ import glob
 
 class ResourcePool(ConanFile):
     name = "resource_pool"
-    description = "C++ header only library purposed to create pool of some resources like keepalive connections"
+    description = (
+        "C++ header only library purposed to create pool of some resources like keepalive connections"
+    )
     topics = ("resource pool", "asio", "elsid", "c++17", "cpp17")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://github.com/elsid/resource_pool"
@@ -42,9 +44,7 @@ class ResourcePool(ConanFile):
                 "resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                "resource_pool requires a compiler that supports at least C++17"
-            )
+            raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
 
     def validate(self):
         self._validate_compiler_settings()

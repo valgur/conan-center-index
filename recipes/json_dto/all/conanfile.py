@@ -15,9 +15,7 @@ class PackageConan(ConanFile):
     license = "BSD-3-Clause"
     homepage = "https://github.com/Stiffstream/json_dto"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "A small header-only helper for converting data between json representation and c++ structs"
-    )
+    description = "A small header-only helper for converting data between json representation and c++ structs"
     topics = ("json", "dto", "serialization")
     settings = "os", "compiler", "build_type", "arch"
     no_copy_source = True
@@ -55,19 +53,11 @@ class PackageConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

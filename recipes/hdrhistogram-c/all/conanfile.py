@@ -75,18 +75,8 @@ class HdrhistogramcConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "COPYING.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
@@ -99,9 +89,7 @@ class HdrhistogramcConan(ConanFile):
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["hdr_histrogram"].libs = collect_libs(self)
-        self.cpp_info.components["hdr_histrogram"].includedirs.append(
-            os.path.join("include", "hdr")
-        )
+        self.cpp_info.components["hdr_histrogram"].includedirs.append(os.path.join("include", "hdr"))
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["hdr_histrogram"].system_libs = ["m", "rt", "pthread"]

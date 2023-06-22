@@ -84,12 +84,7 @@ class CMakeConan(ConanFile):
             cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
         rmdir(self, os.path.join(self.source_folder, "Tests", "RunCMake", "find_package"))
 
     def generate(self):
@@ -107,7 +102,7 @@ class CMakeConan(ConanFile):
                     openssl = self.dependencies["openssl"]
                     bootstrap_cmake_options.append("-DCMAKE_USE_OPENSSL=ON")
                     bootstrap_cmake_options.append(
-                        f'-DOPENSSL_USE_STATIC_LIBS={"FALSE" if openssl.options.shared else "TRUE"}'
+                        f'-DOPENSSL_USE_STATIC_LIBS={"FALSE" if openssl.options.shared else "TRUE",}'
                     )
                     bootstrap_cmake_options.append(f"-DOPENSSL_ROOT_DIR={openssl.package_path}")
                 else:
@@ -115,9 +110,7 @@ class CMakeConan(ConanFile):
             save(
                 self,
                 "bootstrap_args",
-                json.dumps(
-                    {"bootstrap_cmake_options": " ".join(arg for arg in bootstrap_cmake_options)}
-                ),
+                json.dumps({"bootstrap_cmake_options": " ".join(arg for arg in bootstrap_cmake_options)}),
             )
         else:
             tc = CMakeToolchain(self)
@@ -152,9 +145,7 @@ class CMakeConan(ConanFile):
             )
             bootstrap_cmake_options = toolchain_file_content.get("bootstrap_cmake_options")
             with chdir(self, self.source_folder):
-                self.run(
-                    f'./bootstrap --prefix="" --parallel={build_jobs(self)} {bootstrap_cmake_options}'
-                )
+                self.run(f'./bootstrap --prefix="" --parallel={build_jobs(self)} {bootstrap_cmake_options}')
                 autotools = Autotools(self)
                 autotools.make()
         else:

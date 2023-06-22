@@ -18,7 +18,11 @@ class OpenMPIConan(ConanFile):
         "fPIC": [True, False],
         "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"],
     }
-    default_options = {"shared": False, "fPIC": True, "fortran": "no"}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "fortran": "no",
+    }
 
     _autotools = None
 
@@ -80,9 +84,7 @@ class OpenMPIConan(ConanFile):
 
         self.output.info("Creating MPI_HOME environment variable: {}".format(self.package_folder))
         self.env_info.MPI_HOME = self.package_folder
-        self.output.info(
-            "Creating OPAL_PREFIX environment variable: {}".format(self.package_folder)
-        )
+        self.output.info("Creating OPAL_PREFIX environment variable: {}".format(self.package_folder))
         self.env_info.OPAL_PREFIX = self.package_folder
         mpi_bin = os.path.join(self.package_folder, "bin")
         self.output.info("Creating MPI_BIN environment variable: {}".format(mpi_bin))

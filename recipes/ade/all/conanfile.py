@@ -54,19 +54,17 @@ class AdeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"ade": "ade::ade"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "ade": "ade::ade",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

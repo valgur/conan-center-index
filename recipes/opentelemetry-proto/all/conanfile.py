@@ -27,24 +27,14 @@ class OpenTelemetryProtoConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        copy(
-            self,
-            pattern="*.proto",
-            dst=os.path.join(self.package_folder, "res"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="*.proto", dst=os.path.join(self.package_folder, "res"), src=self.source_folder)
         # satisfy KB-H014 (header_only recipes require headers)
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
-        self.conf_info.define(
-            "user.opentelemetry-proto:proto_root", os.path.join(self.package_folder, "res")
-        )
+        self.conf_info.define("user.opentelemetry-proto:proto_root", os.path.join(self.package_folder, "res"))
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

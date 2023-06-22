@@ -30,16 +30,12 @@ class DepotToolsConan(ConanFile):
             return
 
         for root, dirs, files in os.walk(self._source_subfolder):
-            symlinks = [
-                os.path.join(root, f) for f in files if os.path.islink(os.path.join(root, f))
-            ]
+            symlinks = [os.path.join(root, f) for f in files if os.path.islink(os.path.join(root, f))]
             for symlink in symlinks:
                 dest = os.readlink(symlink)
                 os.remove(symlink)
                 shutil.copy(os.path.join(root, dest), symlink, follow_symlinks=False)
-                self.output.info(
-                    "Replaced symlink '%s' with its destination file '%s'" % (symlink, dest)
-                )
+                self.output.info("Replaced symlink '%s' with its destination file '%s'" % (symlink, dest))
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder)

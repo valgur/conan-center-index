@@ -77,9 +77,7 @@ class SfmlConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["SFML_DEPENDENCIES_INSTALL_PREFIX"] = self.package_folder.replace(
-            "\\", "/"
-        )
+        tc.cache_variables["SFML_DEPENDENCIES_INSTALL_PREFIX"] = self.package_folder.replace("\\", "/")
         tc.cache_variables["SFML_MISC_INSTALL_PREFIX"] = os.path.join(
             self.package_folder, "licenses"
         ).replace("\\", "/")
@@ -110,10 +108,7 @@ class SfmlConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                values["target"]: f"SFML::{component}"
-                for component, values in self._sfml_components.items()
-            },
+            {values["target"]: f"SFML::{component}" for component, values in self._sfml_components.items()},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -190,11 +185,7 @@ class SfmlConan(ConanFile):
             return ["UIKit"] if self.settings.os == "iOS" else []
 
         def opengl():
-            return (
-                ["opengl::opengl"]
-                if self.settings.os in ["Windows", "Linux", "FreeBSD", "Macos"]
-                else []
-            )
+            return ["opengl::opengl"] if self.settings.os in ["Windows", "Linux", "FreeBSD", "Macos"] else []
 
         def opengles_android():
             return ["EGL", "GLESv1_CM"] if self.settings.os == "Android" else []
@@ -210,7 +201,7 @@ class SfmlConan(ConanFile):
                 "target": "sfml-system",
                 "libs": [f"sfml-system{suffix}"],
                 "system_libs": winmm() + pthread() + rt() + android() + log(),
-            },
+            }
         }
         if self.settings.os in ["Windows", "Android", "iOS"]:
             sfml_main_suffix = "-d" if self.settings.build_type == "Debug" else ""
@@ -218,13 +209,7 @@ class SfmlConan(ConanFile):
             if self.settings.os == "Android":
                 sfmlmain_libs.append(f"sfml-activity{suffix}")
             sfml_components.update(
-                {
-                    "main": {
-                        "target": "sfml-main",
-                        "libs": sfmlmain_libs,
-                        "system_libs": android() + log(),
-                    },
-                }
+                {"main": {"target": "sfml-main", "libs": sfmlmain_libs, "system_libs": android() + log()}}
             )
         if self.options.window:
             sfml_components.update(
@@ -233,11 +218,7 @@ class SfmlConan(ConanFile):
                         "target": "sfml-window",
                         "libs": [f"sfml-window{suffix}"],
                         "requires": ["system"] + opengl() + xorg() + libudev(),
-                        "system_libs": gdi32()
-                        + winmm()
-                        + usbhid()
-                        + android()
-                        + opengles_android(),
+                        "system_libs": gdi32() + winmm() + usbhid() + android() + opengles_android(),
                         "frameworks": foundation()
                         + appkit()
                         + iokit()
@@ -247,7 +228,7 @@ class SfmlConan(ConanFile):
                         + quartzcore()
                         + coremotion()
                         + opengles_ios(),
-                    },
+                    }
                 }
             )
         if self.options.graphics:
@@ -257,7 +238,7 @@ class SfmlConan(ConanFile):
                         "target": "sfml-graphics",
                         "libs": [f"sfml-graphics{suffix}"],
                         "requires": ["window", "freetype::freetype", "stb::stb"],
-                    },
+                    }
                 }
             )
         if self.options.network:
@@ -268,7 +249,7 @@ class SfmlConan(ConanFile):
                         "libs": [f"sfml-network{suffix}"],
                         "requires": ["system"],
                         "system_libs": ws2_32(),
-                    },
+                    }
                 }
             )
         if self.options.audio:
@@ -277,14 +258,9 @@ class SfmlConan(ConanFile):
                     "audio": {
                         "target": "sfml-audio",
                         "libs": [f"sfml-audio{suffix}"],
-                        "requires": [
-                            "system",
-                            "flac::flac",
-                            "openal-soft::openal-soft",
-                            "vorbis::vorbis",
-                        ],
+                        "requires": ["system", "flac::flac", "openal-soft::openal-soft", "vorbis::vorbis"],
                         "system_libs": android(),
-                    },
+                    }
                 }
             )
 

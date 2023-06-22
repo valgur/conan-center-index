@@ -80,13 +80,8 @@ class AsioGrpcConan(ConanFile):
                     and str(libcxx) == "libstdc++"
                 )
             )
-            self._local_allocator_option = (
-                "boost_container" if prefer_boost_container else "memory_resource"
-            )
-        if (
-            self._local_allocator_option == "recycling_allocator"
-            and self.options.backend == "unifex"
-        ):
+            self._local_allocator_option = "boost_container" if prefer_boost_container else "memory_resource"
+        if self._local_allocator_option == "recycling_allocator" and self.options.backend == "unifex":
             raise ConanInvalidConfiguration(
                 f"{self.name} 'recycling_allocator' cannot be used in combination with the 'unifex' backend."
             )
@@ -112,9 +107,7 @@ class AsioGrpcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["ASIO_GRPC_USE_BOOST_CONTAINER"] = (
-            self._local_allocator_option == "boost_container"
-        )
+        tc.variables["ASIO_GRPC_USE_BOOST_CONTAINER"] = self._local_allocator_option == "boost_container"
         tc.variables["ASIO_GRPC_USE_RECYCLING_ALLOCATOR"] = (
             self._local_allocator_option == "recycling_allocator"
         )
@@ -125,20 +118,13 @@ class AsioGrpcConan(ConanFile):
         cmake.configure()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "asio-grpc*", os.path.join(self.package_folder, "lib", "cmake", "asio-grpc"))
 
     def package_info(self):
-        build_modules = [
-            os.path.join("lib", "cmake", "asio-grpc", "AsioGrpcProtobufGenerator.cmake")
-        ]
+        build_modules = [os.path.join("lib", "cmake", "asio-grpc", "AsioGrpcProtobufGenerator.cmake")]
 
         self.cpp_info.requires = ["grpc::grpc++_unsecure"]
         if self.options.backend == "boost":

@@ -29,9 +29,7 @@ class LibXpmConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ("Windows", "Linux", "FreeBSD"):
-            raise ConanInvalidConfiguration(
-                "libXpm is supported only on Windows, Linux and FreeBSD"
-            )
+            raise ConanInvalidConfiguration("libXpm is supported only on Windows, Linux and FreeBSD")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version], strip_root=True)

@@ -75,18 +75,11 @@ class ZintConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} needs qt:gui=True")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib").replace(
-            "\\", "/"
-        )
+        tc.variables["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib").replace("\\", "/")
         tc.variables["ZINT_USE_QT"] = self.options.with_qt
         if self.options.with_qt:
             tc.variables["QT_VERSION_MAJOR"] = Version(self.dependencies["qt"].ref.version).major
@@ -99,10 +92,7 @@ class ZintConan(ConanFile):
         apply_conandata_patches(self)
         # Don't override CMAKE_OSX_SYSROOT, it can easily break consumers.
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            'set(CMAKE_OSX_SYSROOT "/")',
-            "",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), 'set(CMAKE_OSX_SYSROOT "/")', ""
         )
 
     def build(self):
@@ -112,12 +102,7 @@ class ZintConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -126,9 +111,7 @@ class ZintConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Zint")
 
         self.cpp_info.components["libzint"].set_property("cmake_target_name", "Zint::Zint")
-        self.cpp_info.components["libzint"].libs = [
-            "zint" if self.options.shared else "zint-static"
-        ]
+        self.cpp_info.components["libzint"].libs = ["zint" if self.options.shared else "zint-static"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["libzint"].defines = ["ZINT_DLL"]
         if self.options.with_libpng:
@@ -137,12 +120,7 @@ class ZintConan(ConanFile):
         if self.options.with_qt:
             self.cpp_info.components["libqzint"].set_property("cmake_target_name", "Zint::QZint")
             self.cpp_info.components["libqzint"].libs = ["QZint"]
-            self.cpp_info.components["libqzint"].requires.extend(
-                [
-                    "libzint",
-                    "qt::qtGui",
-                ]
-            )
+            self.cpp_info.components["libqzint"].requires.extend(["libzint", "qt::qtGui"])
             if self.settings.os == "Windows" and self.options.shared:
                 self.cpp_info.components["libqzint"].defines = ["QZINT_DLL"]
 

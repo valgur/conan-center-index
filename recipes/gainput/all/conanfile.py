@@ -47,12 +47,7 @@ class GainputConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -69,19 +64,13 @@ class GainputConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         suffix = "{}{}".format(
-            "" if self.options.shared else "static",
-            "-d" if self.settings.build_type == "Debug" else "",
+            "" if self.options.shared else "static", "-d" if self.settings.build_type == "Debug" else ""
         )
         self.cpp_info.libs = ["gainput" + suffix]
         if self.settings.os == "Windows":

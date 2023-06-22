@@ -63,9 +63,7 @@ class QuickfixConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -74,9 +72,7 @@ class QuickfixConan(ConanFile):
             self._cmake.definitions["HAVE_SSL"] = self.options.with_ssl
             self._cmake.definitions["HAVE_POSTGRESQL"] = self.options.with_postgres
             self._cmake.definitions["HAVE_MYSQL"] = bool(self.options.with_mysql)
-            self._cmake.configure(
-                source_folder=self._source_subfolder, build_folder=self._build_subfolder
-            )
+            self._cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
         return self._cmake
 
     def build(self):

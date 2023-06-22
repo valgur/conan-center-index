@@ -14,9 +14,7 @@ required_conan_version = ">=1.54.0"
 
 class LibevConan(ConanFile):
     name = "libev"
-    description = (
-        "A full-featured and high-performance event loop that is loosely modelled after libevent"
-    )
+    description = "A full-featured and high-performance event loop that is loosely modelled after libevent"
     topics = ("event", "event-loop", "periodic-timer", "notify")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://software.schmorp.de/pkg/libev.html"
@@ -94,12 +92,7 @@ class LibevConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()

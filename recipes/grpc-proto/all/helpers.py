@@ -15,17 +15,13 @@ class _ProtoLibrary:
 
     def __init__(self) -> None:
         self.srcs = []
-        self.deps = set(
-            ["protobuf::libprotobuf"]
-        )  # Add to all libraries even if not explicitly set
+        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
         self.is_used = True
 
     def validate(self, source_folder, all_deps):
         # Check all files exists
         for it in self.srcs:
-            assert os.path.exists(
-                os.path.join(source_folder, it)
-            ), f"{self.name} - file '{it}' doesn't exist"
+            assert os.path.exists(os.path.join(source_folder, it)), f"{self.name} - file '{it}' doesn't exist"
         # Check all deps exists
         for it in self.deps:
             assert it in all_deps, f"{self.name} - dep '{it}' not found"
@@ -33,14 +29,7 @@ class _ProtoLibrary:
     def dumps(self):
         import json
 
-        return json.dumps(
-            {
-                "name": self.name,
-                "srcs": self.srcs,
-                "deps": list(self.deps),
-            },
-            indent=4,
-        )
+        return json.dumps({"name": self.name, "srcs": self.srcs, "deps": list(self.deps)}, indent=4)
 
     @property
     def cmake_target(self):

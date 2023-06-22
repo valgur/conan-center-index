@@ -25,7 +25,12 @@ class LibBigWigConan(ConanFile):
         "with_zlibng": [True, False],
     }
 
-    default_options = {"shared": False, "fPIC": True, "with_curl": True, "with_zlibng": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_curl": True,
+        "with_zlibng": False,
+    }
 
     def configure(self):
         if self.options.shared:
@@ -58,12 +63,7 @@ class LibBigWigConan(ConanFile):
                 )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -81,12 +81,7 @@ class LibBigWigConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

@@ -25,14 +25,7 @@ class MpfrConan(ConanFile):
     homepage = "https://www.mpfr.org/"
     license = "LGPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "exact_int": [
-            "mpir",
-            "gmp",
-        ],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "exact_int": ["mpir", "gmp"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -74,12 +67,7 @@ class MpfrConan(ConanFile):
             basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         if self.settings.os == "Windows":
@@ -162,18 +150,14 @@ class MpfrConan(ConanFile):
 
         if self.options.exact_int == "mpir":
             replace_in_file(self, os.path.join(self.source_folder, "configure"), "-lgmp", "-lmpir")
-            replace_in_file(
-                self, os.path.join(self.source_folder, "src", "mpfr.h"), "<gmp.h>", "<mpir.h>"
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "src", "mpfr.h"), "<gmp.h>", "<mpir.h>")
             save(self, "gmp.h", "#pragma once\n#include <mpir.h>\n")
 
         autotools = Autotools(self)
         autotools.configure()  # Need to generate Makefile to extract variables for CMake below
 
         if self.settings.os == "Windows":
-            cmakelists_in = load(
-                self, os.path.join(self.export_sources_folder, "CMakeLists.txt.in")
-            )
+            cmakelists_in = load(self, os.path.join(self.export_sources_folder, "CMakeLists.txt.in"))
             sources, headers, definitions = self._extract_mpfr_autotools_variables()
             sources = ["src/" + src for src in sources]
             headers = ["src/" + hdr for hdr in headers]
@@ -193,12 +177,7 @@ class MpfrConan(ConanFile):
             autotools.make(args=["V=0"])
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

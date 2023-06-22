@@ -9,7 +9,9 @@ required_conan_version = ">=1.33.0"
 
 class LzipConan(ConanFile):
     name = "lzip"
-    description = "Lzip is a lossless data compressor with a user interface similar to the one of gzip or bzip2"
+    description = (
+        "Lzip is a lossless data compressor with a user interface similar to the one of gzip or bzip2"
+    )
     topics = ("compressor", "lzma")
     license = "GPL-v2-or-later"
     homepage = "https://www.nongnu.org/lzip/"
@@ -59,9 +61,7 @@ class LzipConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @contextlib.contextmanager
@@ -94,7 +94,11 @@ class LzipConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
         with self._build_context():
             autotools = self._configure_autotools()
-            with tools.environment_append({"CONAN_CPU_COUNT": "1"}):
+            with tools.environment_append(
+                {
+                    "CONAN_CPU_COUNT": "1",
+                }
+            ):
                 autotools.install()
 
         tools.rmdir(os.path.join(self.package_folder, "share"))

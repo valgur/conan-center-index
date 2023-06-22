@@ -55,11 +55,6 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            copy(
-                self,
-                "qt.conf",
-                src=self.generators_folder,
-                dst=os.path.join(self.cpp.build.bindirs[0]),
-            )
+            copy(self, "qt.conf", src=self.generators_folder, dst=os.path.join(self.cpp.build.bindirs[0]))
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             self.run(bin_path, env="conanrun")

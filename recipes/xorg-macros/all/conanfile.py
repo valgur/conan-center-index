@@ -30,12 +30,7 @@ class XorgMacrosConan(ConanFile):
         export_conandata_patches(self)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -68,12 +63,7 @@ class XorgMacrosConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 
@@ -94,17 +84,12 @@ class XorgMacrosConan(ConanFile):
             pkgdatadir=${{datadir}}/${{PACKAGE}}
             docdir=${{pkgdatadir}}
         """
-            ).format(
-                datarootdir=self._datarootdir,
-                name="util-macros",
-            ),
+            ).format(datarootdir=self._datarootdir, name="util-macros"),
         )
 
         aclocal = os.path.join(self._datarootdir, "aclocal")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
 
         # TODO: remove once recipe only supports Conan >= 2.0 only
-        self.output.info(
-            "Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal)
-        )
+        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))

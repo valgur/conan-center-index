@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    load,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
 from conan.tools.scm import Version
 import os
 
@@ -38,12 +31,7 @@ class QrCodeGeneratorConan(ConanFile):
         return 11
 
     def export_sources(self):
-        copy(
-            self,
-            "CMakeLists.txt",
-            src=self.recipe_folder,
-            dst=self.export_sources_folder,
-        )
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -62,12 +50,7 @@ class QrCodeGeneratorConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,11 +73,7 @@ class QrCodeGeneratorConan(ConanFile):
         return license_contents
 
     def package(self):
-        save(
-            self,
-            os.path.join(self.package_folder, "licenses", "LICENSE"),
-            self._extract_license(),
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
 

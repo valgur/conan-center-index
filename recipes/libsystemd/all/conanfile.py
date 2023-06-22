@@ -4,13 +4,7 @@ import re
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -234,10 +228,7 @@ class LibsystemdConan(ConanFile):
 
         meson_build = os.path.join(self.source_folder, "meson.build")
         replace_in_file(
-            self,
-            meson_build,
-            "@CONAN_SRC_REL_PATH@",
-            "'../{}'".format(os.path.basename(self.source_folder)),
+            self, meson_build, "@CONAN_SRC_REL_PATH@", "'../{}'".format(os.path.basename(self.source_folder))
         )
 
     def build(self):
@@ -249,12 +240,7 @@ class LibsystemdConan(ConanFile):
         meson.build(target=f"version.h {target}")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.LGPL2.1",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.LGPL2.1", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h",

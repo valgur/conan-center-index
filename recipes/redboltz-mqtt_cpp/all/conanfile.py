@@ -43,23 +43,17 @@ class MqttCPPConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(
-                    self.name
-                )
+                "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):
         self.copy(pattern="LICENSE_1_0.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include")
-        )
+        self.copy(pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "mqtt_cpp")

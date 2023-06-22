@@ -78,15 +78,11 @@ class LibjpegTurboConan(ConanFile):
         if self.options.enable12bit and (
             self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility
         ):
-            raise ConanInvalidConfiguration(
-                "12-bit samples is not allowed with libjpeg v7/v8 API/ABI"
-            )
+            raise ConanInvalidConfiguration("12-bit samples is not allowed with libjpeg v7/v8 API/ABI")
         if self.options.get_safe("java") and not self.options.shared:
             raise ConanInvalidConfiguration("java wrapper requires shared libjpeg-turbo")
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} shared can't be built with static vc runtime"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} shared can't be built with static vc runtime")
 
     def build_requirements(self):
         if self.options.get_safe("SIMD") and self.settings.arch in ["x86", "x86_64"]:
@@ -158,12 +154,7 @@ class LibjpegTurboConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # remove unneeded directories
@@ -209,9 +200,7 @@ class LibjpegTurboConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "JPEG"
         self.cpp_info.names["cmake_find_package_multi"] = "libjpeg-turbo"
         self.cpp_info.components["jpeg"].names["cmake_find_package"] = "JPEG"
-        self.cpp_info.components["jpeg"].names[
-            "cmake_find_package_multi"
-        ] = f"jpeg{cmake_target_suffix}"
+        self.cpp_info.components["jpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
         if self.options.get_safe("turbojpeg"):
             self.cpp_info.components["turbojpeg"].names[
                 "cmake_find_package"

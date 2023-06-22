@@ -24,9 +24,7 @@ class MPCGeneratorConan(ConanFile):
 
     def package(self):
         self.copy(pattern="*", src=self._source_subfolder, dst="bin")
-        self.copy(
-            pattern="LICENSE", src=os.path.join(self._source_subfolder, "docs"), dst="licenses"
-        )
+        self.copy(pattern="LICENSE", src=os.path.join(self._source_subfolder, "docs"), dst="licenses")
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

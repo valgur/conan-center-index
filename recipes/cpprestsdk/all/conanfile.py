@@ -100,10 +100,7 @@ class CppRestSDKConan(ConanFile):
             "libstdc++11",
         ]:
             replace_in_file(
-                self,
-                os.path.join(self.source_folder, "Release", "CMakeLists.txt"),
-                "libc++",
-                "libstdc++",
+                self, os.path.join(self.source_folder, "Release", "CMakeLists.txt"), "libc++", "libstdc++"
             )
 
     def build(self):
@@ -114,12 +111,7 @@ class CppRestSDKConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "license.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "license.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -160,9 +152,7 @@ class CppRestSDKConan(ConanFile):
             if self.options.get_safe("http_client_impl") == "asio":
                 self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_CLIENT_ASIO")
             if self.options.get_safe("http_listener_impl") == "asio":
-                self.cpp_info.components["cpprest"].defines.append(
-                    "CPPREST_FORCE_HTTP_LISTENER_ASIO"
-                )
+                self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_LISTENER_ASIO")
         elif self.settings.os == "Macos":
             self.cpp_info.components["cpprest"].frameworks.extend(["CoreFoundation", "Security"])
         if not self.options.shared:

@@ -12,14 +12,15 @@ class TinyAlsaConan(ConanFile):
     homepage = "https://github.com/tinyalsa/tinyalsa"
     topics = ("tiny", "alsa", "sound", "audio", "tinyalsa")
     description = "A small library to interface with ALSA in the Linux kernel"
-    exports_sources = [
-        "patches/*",
-    ]
+    exports_sources = ["patches/*"]
     options = {
         "shared": [True, False],
         "with_utils": [True, False],
     }
-    default_options = {"shared": False, "with_utils": False}
+    default_options = {
+        "shared": False,
+        "with_utils": False,
+    }
     settings = "os", "compiler", "build_type", "arch"
 
     def validate(self):
@@ -32,9 +33,7 @@ class TinyAlsaConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):

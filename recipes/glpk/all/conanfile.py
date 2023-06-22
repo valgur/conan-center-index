@@ -74,9 +74,7 @@ class GlpkConan(ConanFile):
             Version(conan_version).major < "2"
             and self.settings.compiler == "Visual Studio"
             and Version(self.settings.compiler.version) >= "12"
-        ) or (
-            self.settings.compiler == "msvc" and Version(self.settings.compiler.version) >= "180"
-        ):
+        ) or (self.settings.compiler == "msvc" and Version(self.settings.compiler.version) >= "180"):
             tc.extra_cflags.append("-FS")
         tc.generate()
 
@@ -86,9 +84,7 @@ class GlpkConan(ConanFile):
             compile_wrapper = unix_path(
                 self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
             )
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
@@ -106,12 +102,7 @@ class GlpkConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

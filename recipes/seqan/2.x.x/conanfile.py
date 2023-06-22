@@ -29,7 +29,12 @@ SeqAn is easy to use and simplifies the development of new software tools with a
 
     @property
     def _compilers_minimum_version(self):
-        return {"gcc": "5", "Visual Studio": "14", "clang": "3.4", "apple-clang": "3.4"}
+        return {
+            "gcc": "5",
+            "Visual Studio": "14",
+            "clang": "3.4",
+            "apple-clang": "3.4",
+        }
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -41,9 +46,7 @@ SeqAn is easy to use and simplifies the development of new software tools with a
                     "seqan requires C++14, which your compiler does not fully support."
                 )
         else:
-            self.output.warn(
-                "seqan requires C++14. Your compiler is unknown. Assuming it supports C++14."
-            )
+            self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])
@@ -51,9 +54,7 @@ SeqAn is easy to use and simplifies the development of new software tools with a
         os.rename(extracted_dir, self._source_subfolder)
 
     def package(self):
-        self.copy(
-            "*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True
-        )
+        self.copy("*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
 
     def package_id(self):

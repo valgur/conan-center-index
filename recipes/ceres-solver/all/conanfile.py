@@ -65,7 +65,7 @@ class CeressolverConan(ConanFile):
                 "gcc": "5",
                 "msvc": "190",
                 "Visual Studio": "14",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -105,7 +105,7 @@ class CeressolverConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -114,9 +114,7 @@ class CeressolverConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["MINIGLOG"] = not self.options.use_glog
-        tc.variables[
-            "GFLAGS"
-        ] = False  # useless for the lib itself, gflags is not a direct dependency
+        tc.variables["GFLAGS"] = False  # useless for the lib itself, gflags is not a direct dependency
         tc.variables["SUITESPARSE"] = False
         tc.variables["CXSPARSE"] = False
         tc.variables["LAPACK"] = False
@@ -153,12 +151,7 @@ class CeressolverConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

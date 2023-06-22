@@ -14,15 +14,7 @@ class LibTinsConan(ConanFile):
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mfontanini/libtins"
-    topics = (
-        "pcap",
-        "packets",
-        "network",
-        "packet-analyser",
-        "packet-parsing",
-        "libpcap",
-        "sniffing",
-    )
+    topics = ("pcap", "packets", "network", "packet-analyser", "packet-parsing", "libpcap", "sniffing")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -81,9 +73,7 @@ class LibTinsConan(ConanFile):
         tc.variables["LIBTINS_BUILD_SHARED"] = self.options.shared
         tc.variables["LIBTINS_ENABLE_CXX11"] = True
         tc.variables["LIBTINS_ENABLE_ACK_TRACKER"] = self.options.with_ack_tracker
-        tc.variables[
-            "LIBTINS_ENABLE_TCP_STREAM_CUSTOM_DATA"
-        ] = self.options.with_tcp_stream_custom_data
+        tc.variables["LIBTINS_ENABLE_TCP_STREAM_CUSTOM_DATA"] = self.options.with_tcp_stream_custom_data
         tc.variables["LIBTINS_ENABLE_WPA2"] = self.options.with_wpa2
         tc.variables["LIBTINS_ENABLE_DOT11"] = self.options.with_dot11
         tc.variables["PCAP_LIBRARY"] = "libpcap::libpcap"
@@ -99,10 +89,7 @@ class LibTinsConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

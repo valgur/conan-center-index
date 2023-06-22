@@ -56,9 +56,7 @@ class LibCoapConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -99,8 +97,7 @@ class LibCoapConan(ConanFile):
         self.cpp_info.components["coap"].names["cmake_find_package"] = "coap"
         self.cpp_info.components["coap"].names["cmake_find_package_multi"] = "coap"
         pkgconfig_filename = "{}{}".format(
-            pkgconfig_name,
-            "-{}".format(self.options.dtls_backend) if self.options.dtls_backend else "",
+            pkgconfig_name, "-{}".format(self.options.dtls_backend) if self.options.dtls_backend else ""
         )
         self.cpp_info.components["coap"].names["pkg_config"] = pkgconfig_filename
         self.cpp_info.components["coap"].libs = [library_name]

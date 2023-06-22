@@ -65,9 +65,7 @@ class UtilLinuxLibuuidConan(ConanFile):
         return min_version.get(str(compiler), {}).get(str(build_type), "0")
 
     def validate(self):
-        min_version = self._minimum_compiler_version(
-            self.settings.compiler, self.settings.build_type
-        )
+        min_version = self._minimum_compiler_version(self.settings.compiler, self.settings.build_type)
         if Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
                 f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version requirement of version {min_version}"

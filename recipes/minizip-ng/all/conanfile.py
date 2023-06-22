@@ -167,12 +167,7 @@ class MinizipNgConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -195,9 +190,7 @@ class MinizipNgConan(ConanFile):
             self.cpp_info.components["minizip"].defines.append("HAVE_BZIP2")
 
         if Version(self.version) >= "4.0.0":
-            self.cpp_info.components["minizip"].includedirs.append(
-                os.path.join("include", "minizip-ng")
-            )
+            self.cpp_info.components["minizip"].includedirs.append(os.path.join("include", "minizip-ng"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "minizip"

@@ -33,9 +33,7 @@ class SerdeppConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package_id(self):
@@ -61,9 +59,7 @@ class SerdeppConan(ConanFile):
                 f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
         elif tools.Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++17"
-            )
+            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++17")
 
     def package(self):
         s = lambda x: os.path.join(self._source_subfolder, x)

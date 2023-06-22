@@ -11,8 +11,7 @@ required_conan_version = ">=1.53.0"
 class Gammaconan(ConanFile):
     name = "gamma"
     description = (
-        "Gamma is a cross-platform, C++ library for doing generic synthesis "
-        "and filtering of signals."
+        "Gamma is a cross-platform, C++ library for doing generic synthesis " "and filtering of signals."
     )
     license = "MIT"
     topics = ("signal-processing", "sound", "audio")
@@ -79,12 +78,7 @@ class Gammaconan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

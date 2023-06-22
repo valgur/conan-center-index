@@ -51,9 +51,7 @@ class ZyreConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -76,25 +74,9 @@ class ZyreConan(ConanFile):
         self.copy(pattern="LICENSE", src=self._source_subfolder, dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-        tools.rmdir(
-            os.path.join(
-                self.package_folder,
-                "lib",
-                "pkgconfig",
-            )
-        )
-        tools.rmdir(
-            os.path.join(
-                self.package_folder,
-                "share",
-            )
-        )
-        tools.rmdir(
-            os.path.join(
-                self.package_folder,
-                "cmake",
-            )
-        )
+        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        tools.rmdir(os.path.join(self.package_folder, "share"))
+        tools.rmdir(os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "libzyre"

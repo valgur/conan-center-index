@@ -33,7 +33,12 @@ class ICCConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "15", "apple-clang": "9.4", "clang": "3.3", "gcc": "4.9.4"}
+        return {
+            "Visual Studio": "15",
+            "apple-clang": "9.4",
+            "clang": "3.3",
+            "gcc": "4.9.4",
+        }
 
     def _configure_cmake(self):
         if self._cmake:
@@ -57,9 +62,9 @@ class ICCConan(ConanFile):
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
             if tools.Version(compiler.version) < min_version:
-                msg = (
-                    "{} requires C++{} features which are not supported by compiler {} {} !!"
-                ).format(self.name, self._minimum_cpp_standard, compiler, compiler.version)
+                msg = ("{} requires C++{} features which are not supported by compiler {} {} !!").format(
+                    self.name, self._minimum_cpp_standard, compiler, compiler.version
+                )
                 raise ConanInvalidConfiguration(msg)
         except KeyError:
             msg = (
@@ -83,9 +88,7 @@ class ICCConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):

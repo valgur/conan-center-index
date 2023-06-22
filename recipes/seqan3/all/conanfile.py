@@ -37,9 +37,7 @@ class Seqan3Conan(ConanFile):
                     "SeqAn3 requires C++20, which your compiler does not fully support."
                 )
         else:
-            self.output.warn(
-                "SeqAn3 requires C++20. Your compiler is unknown. Assuming it supports C++20."
-            )
+            self.output.warn("SeqAn3 requires C++20. Your compiler is unknown. Assuming it supports C++20.")
 
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
             self.output.warn(
@@ -48,15 +46,11 @@ class Seqan3Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):
-        self.copy(
-            "*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True
-        )
+        self.copy("*", dst="include", src=os.path.join(self._source_subfolder, "include"), keep_path=True)
         for submodule in ["range-v3", "cereal", "sdsl-lite"]:
             self.copy(
                 "*.hpp",

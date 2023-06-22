@@ -43,11 +43,7 @@ class OpenEXRConan(ConanFile):
         self.requires("zlib/1.2.13")
 
     def validate(self):
-        if (
-            Version(self.version) < "2.5.0"
-            and hasattr(self, "settings_build")
-            and cross_building(self)
-        ):
+        if Version(self.version) < "2.5.0" and hasattr(self, "settings_build") and cross_building(self):
             # cross-build supported since https://github.com/AcademySoftwareFoundation/openexr/pull/606
             raise ConanInvalidConfiguration("Cross-build not supported before openexr 2.5.0")
 
@@ -115,12 +111,7 @@ class OpenEXRConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -178,9 +169,7 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["openexr_ilmimfconfig"].includedirs.append(include_dir)
 
         # IlmImf
-        self.cpp_info.components["openexr_ilmimf"].set_property(
-            "cmake_target_name", "OpenEXR::IlmImf"
-        )
+        self.cpp_info.components["openexr_ilmimf"].set_property("cmake_target_name", "OpenEXR::IlmImf")
         self.cpp_info.components["openexr_ilmimf"].set_property("pkg_config_name", "OpenEXR")
         self.cpp_info.components["openexr_ilmimf"].includedirs.append(include_dir)
         self.cpp_info.components["openexr_ilmimf"].libs = [f"IlmImf{lib_suffix}"]
@@ -199,10 +188,7 @@ class OpenEXRConan(ConanFile):
         )
         self.cpp_info.components["openexr_ilmimfutil"].includedirs.append(include_dir)
         self.cpp_info.components["openexr_ilmimfutil"].libs = [f"IlmImfUtil{lib_suffix}"]
-        self.cpp_info.components["openexr_ilmimfutil"].requires = [
-            "openexr_ilmimfconfig",
-            "openexr_ilmimf",
-        ]
+        self.cpp_info.components["openexr_ilmimfutil"].requires = ["openexr_ilmimfconfig", "openexr_ilmimf"]
 
         # IlmBaseConfig
         self.cpp_info.components["ilmbase_ilmbaseconfig"].set_property(
@@ -223,20 +209,13 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["ilmbase_iex"].requires = ["ilmbase_ilmbaseconfig"]
 
         # IexMath
-        self.cpp_info.components["ilmbase_iexmath"].set_property(
-            "cmake_target_name", "IlmBase::IexMath"
-        )
+        self.cpp_info.components["ilmbase_iexmath"].set_property("cmake_target_name", "IlmBase::IexMath")
         self.cpp_info.components["ilmbase_iexmath"].includedirs.append(include_dir)
         self.cpp_info.components["ilmbase_iexmath"].libs = [f"IexMath{lib_suffix}"]
-        self.cpp_info.components["ilmbase_iexmath"].requires = [
-            "ilmbase_ilmbaseconfig",
-            "ilmbase_iex",
-        ]
+        self.cpp_info.components["ilmbase_iexmath"].requires = ["ilmbase_ilmbaseconfig", "ilmbase_iex"]
 
         # IMath
-        self.cpp_info.components["ilmbase_imath"].set_property(
-            "cmake_target_name", "IlmBase::IMath"
-        )
+        self.cpp_info.components["ilmbase_imath"].set_property("cmake_target_name", "IlmBase::IMath")
         self.cpp_info.components["ilmbase_imath"].includedirs.append(include_dir)
         self.cpp_info.components["ilmbase_imath"].libs = [f"Imath{lib_suffix}"]
         self.cpp_info.components["ilmbase_imath"].requires = [
@@ -246,22 +225,15 @@ class OpenEXRConan(ConanFile):
         ]
 
         # IlmThread
-        self.cpp_info.components["ilmbase_ilmthread"].set_property(
-            "cmake_target_name", "IlmBase::IlmThread"
-        )
+        self.cpp_info.components["ilmbase_ilmthread"].set_property("cmake_target_name", "IlmBase::IlmThread")
         self.cpp_info.components["ilmbase_ilmthread"].includedirs.append(include_dir)
         self.cpp_info.components["ilmbase_ilmthread"].libs = [f"IlmThread{lib_suffix}"]
-        self.cpp_info.components["ilmbase_ilmthread"].requires = [
-            "ilmbase_ilmbaseconfig",
-            "ilmbase_iex",
-        ]
+        self.cpp_info.components["ilmbase_ilmthread"].requires = ["ilmbase_ilmbaseconfig", "ilmbase_iex"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ilmbase_ilmthread"].system_libs.append("pthread")
 
         # Convenient component to model official IlmBase.pc
-        self.cpp_info.components["ilmbase_conan_pkgconfig"].set_property(
-            "pkg_config_name", "IlmBase"
-        )
+        self.cpp_info.components["ilmbase_conan_pkgconfig"].set_property("pkg_config_name", "IlmBase")
         self.cpp_info.components["ilmbase_conan_pkgconfig"].requires = [
             "ilmbase_ilmbaseconfig",
             "ilmbase_half",
@@ -284,30 +256,20 @@ class OpenEXRConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenEXR"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenEXR"
-        self.cpp_info.components["openexr_ilmimfconfig"].names[
-            "cmake_find_package"
-        ] = "IlmImfConfig"
-        self.cpp_info.components["openexr_ilmimfconfig"].names[
-            "cmake_find_package_multi"
-        ] = "IlmImfConfig"
+        self.cpp_info.components["openexr_ilmimfconfig"].names["cmake_find_package"] = "IlmImfConfig"
+        self.cpp_info.components["openexr_ilmimfconfig"].names["cmake_find_package_multi"] = "IlmImfConfig"
         self.cpp_info.components["openexr_ilmimf"].names["cmake_find_package"] = "IlmImf"
         self.cpp_info.components["openexr_ilmimf"].names["cmake_find_package_multi"] = "IlmImf"
         self.cpp_info.components["openexr_ilmimfutil"].names["cmake_find_package"] = "IlmImfUtil"
-        self.cpp_info.components["openexr_ilmimfutil"].names[
-            "cmake_find_package_multi"
-        ] = "IlmImfUtil"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].names[
-            "cmake_find_package"
-        ] = "IlmBaseConfig"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].names[
-            "cmake_find_package_multi"
-        ] = "IlmBaseConfig"
+        self.cpp_info.components["openexr_ilmimfutil"].names["cmake_find_package_multi"] = "IlmImfUtil"
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package"] = "IlmBaseConfig"
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package_multi"] = "IlmBaseConfig"
         self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules[
-            "cmake_find_package_multi"
-        ] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_half"].names["cmake_find_package"] = "Half"
         self.cpp_info.components["ilmbase_half"].names["cmake_find_package_multi"] = "Half"
         self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package"] = [
@@ -341,9 +303,7 @@ class OpenEXRConan(ConanFile):
             self._module_file_rel_path
         ]
         self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package"] = "IlmThread"
-        self.cpp_info.components["ilmbase_ilmthread"].names[
-            "cmake_find_package_multi"
-        ] = "IlmThread"
+        self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package_multi"] = "IlmThread"
         self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package"] = [
             self._module_file_rel_path
         ]

@@ -10,7 +10,9 @@ required_conan_version = ">=1.53.0"
 
 class TinyXmlConan(ConanFile):
     name = "tinyxml"
-    description = "TinyXML is a simple, small, C++ XML parser that can be easily integrated into other programs."
+    description = (
+        "TinyXML is a simple, small, C++ XML parser that can be easily integrated into other programs."
+    )
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.grinninglizard.com/tinyxml/"
@@ -68,9 +70,7 @@ class TinyXmlConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        save(
-            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license()
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
 

@@ -65,12 +65,7 @@ class PkgConfConan(ConanFile):
         self.tool_requires("meson/1.0.0")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -106,12 +101,7 @@ class PkgConfConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         meson = Meson(self)
         meson.install()
@@ -169,12 +159,8 @@ class PkgConfConan(ConanFile):
         self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", pkgconf_aclocal)
 
         # TODO: remove in conanv2
-        automake_extra_includes = unix_path_package_info_legacy(
-            self, pkgconf_aclocal.replace("\\", "/")
-        )
-        self.output.info(
-            "Appending AUTOMAKE_CONAN_INCLUDES env var: {}".format(automake_extra_includes)
-        )
+        automake_extra_includes = unix_path_package_info_legacy(self, pkgconf_aclocal.replace("\\", "/"))
+        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES env var: {}".format(automake_extra_includes))
         self.env_info.PKG_CONFIG = pkg_config
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(automake_extra_includes)
 

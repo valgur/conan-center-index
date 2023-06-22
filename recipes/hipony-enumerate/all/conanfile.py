@@ -94,12 +94,7 @@ class HiponyEnumerateConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
@@ -110,9 +105,7 @@ class HiponyEnumerateConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "hipony::enumerate")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.options.aggregates:
-            self.cpp_info.components["enumerate"].defines.append(
-                "HIPONY_ENUMERATE_AGGREGATES_ENABLED"
-            )
+            self.cpp_info.components["enumerate"].defines.append("HIPONY_ENUMERATE_AGGREGATES_ENABLED")
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "hipony-enumerate"
         self.cpp_info.filenames["cmake_find_package_multi"] = "hipony-enumerate"

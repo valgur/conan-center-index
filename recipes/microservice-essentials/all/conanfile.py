@@ -23,7 +23,12 @@ class MicroserviceEssentials(ConanFile):
         "with_tests": [True, False],
         "with_examples": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "with_tests": False, "with_examples": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_tests": False,
+        "with_examples": False,
+    }
 
     @property
     def _compilers_minimum_version(self):
@@ -76,9 +81,7 @@ class MicroserviceEssentials(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 "{} requires C++17, which your compiler does not support.".format(self.name)
             )
@@ -92,12 +95,7 @@ class MicroserviceEssentials(ConanFile):
             self.options.rm_safe("fPIC")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

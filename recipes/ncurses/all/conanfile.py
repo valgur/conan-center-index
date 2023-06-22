@@ -94,17 +94,13 @@ class NCursesConan(ConanFile):
         ) and tools.cross_building(self):
             # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
             # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
-            raise ConanInvalidConfiguration(
-                "Cross building to/from arm is (currently) not supported"
-            )
+            raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
         if (
             self.options.shared
             and self.settings.compiler == "Visual Studio"
             and "MT" in self.settings.compiler.runtime
         ):
-            raise ConanInvalidConfiguration(
-                "Cannot build shared libraries with static (MT) runtime"
-            )
+            raise ConanInvalidConfiguration("Cannot build shared libraries with static (MT) runtime")
         if self.settings.os == "Windows":
             if self._with_tinfo:
                 raise ConanInvalidConfiguration(
@@ -117,9 +113,7 @@ class NCursesConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -131,9 +125,7 @@ class NCursesConan(ConanFile):
             "--with-cxx-shared={}".format(yes_no(self.options.shared)),
             "--with-normal={}".format(yes_no(not self.options.shared)),
             "--enable-widec={}".format(yes_no(self.options.with_widec)),
-            "--enable-ext-colors={}".format(
-                yes_no(self.options.get_safe("with_extended_colors", False))
-            ),
+            "--enable-ext-colors={}".format(yes_no(self.options.get_safe("with_extended_colors", False))),
             "--enable-reentrant={}".format(yes_no(self.options.with_reentrant)),
             "--with-pcre2={}".format(yes_no(self.options.with_pcre2)),
             "--with-cxx-binding={}".format(yes_no(self.options.with_cxx)),
@@ -167,12 +159,7 @@ class NCursesConan(ConanFile):
             )
         if self.settings.compiler == "Visual Studio":
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
-            conf_args.extend(
-                [
-                    "ac_cv_func_getopt=yes",
-                    "ac_cv_func_setvbuf_reversed=no",
-                ]
-            )
+            conf_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
             autotools.cxx_flags.append("-EHsc")
             if tools.Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
@@ -184,9 +171,7 @@ class NCursesConan(ConanFile):
         if host:
             conf_args.append(f"ac_cv_host={host}")
             conf_args.append(f"ac_cv_target={host}")
-        autotools.configure(
-            args=conf_args, configure_dir=self._source_subfolder, host=host, build=build
-        )
+        autotools.configure(args=conf_args, configure_dir=self._source_subfolder, host=host, build=build)
         return autotools
 
     def _patch_sources(self):
@@ -255,9 +240,7 @@ class NCursesConan(ConanFile):
 
             os.unlink(
                 os.path.join(
-                    self.package_folder,
-                    "bin",
-                    "ncurses{}{}-config".format(self._suffix, self._major_version),
+                    self.package_folder, "bin", "ncurses{}{}-config".format(self._suffix, self._major_version)
                 )
             )
 
@@ -318,24 +301,15 @@ class NCursesConan(ConanFile):
 
         if self.settings.compiler == "Visual Studio":
             self.cpp_info.components["libcurses"].requires.extend(
-                [
-                    "getopt-for-visual-studio::getopt-for-visual-studio",
-                    "dirent::dirent",
-                ]
+                ["getopt-for-visual-studio::getopt-for-visual-studio", "dirent::dirent"]
             )
             if self.options.get_safe("with_extended_colors", False):
-                self.cpp_info.components["libcurses"].requires.append(
-                    "naive-tsearch::naive-tsearch"
-                )
+                self.cpp_info.components["libcurses"].requires.append("naive-tsearch::naive-tsearch")
 
         module_rel_path = os.path.join(self._module_subfolder, self._module_file)
         self.cpp_info.components["libcurses"].builddirs.append(self._module_subfolder)
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [
-            module_rel_path
-        ]
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [
-            module_rel_path
-        ]
+        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [module_rel_path]
+        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [module_rel_path]
 
         self.cpp_info.components["panel"].libs = ["panel" + self._lib_suffix]
         self.cpp_info.components["panel"].names["pkg_config"] = "panel" + self._lib_suffix
@@ -353,9 +327,7 @@ class NCursesConan(ConanFile):
 
         if self.options.with_cxx:
             self.cpp_info.components["curses++"].libs = ["ncurses++" + self._lib_suffix]
-            self.cpp_info.components["curses++"].names["pkg_config"] = (
-                "ncurses++" + self._lib_suffix
-            )
+            self.cpp_info.components["curses++"].names["pkg_config"] = "ncurses++" + self._lib_suffix
             self.cpp_info.components["curses++"].requires = ["libcurses"]
 
         if self._with_ticlib:

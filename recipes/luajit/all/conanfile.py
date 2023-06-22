@@ -69,12 +69,7 @@ class LuajitConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -100,10 +95,7 @@ class LuajitConan(ConanFile):
             # adjust mixed mode defaults to build either .so or .a, but not both
             if not self.options.shared:
                 replace_in_file(
-                    self,
-                    makefile,
-                    "TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)",
-                    "TARGET_T= $(LUAJIT_T) $(LUAJIT_A)",
+                    self, makefile, "TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)", "TARGET_T= $(LUAJIT_T) $(LUAJIT_A)"
                 )
                 replace_in_file(
                     self,
@@ -147,12 +139,7 @@ class LuajitConan(ConanFile):
                 autotools.make(args=self._make_arguments)
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         src_folder = os.path.join(self.source_folder, "src")
         include_folder = os.path.join(self.package_folder, "include", self._luajit_include_folder)
         if is_msvc(self):

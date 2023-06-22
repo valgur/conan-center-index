@@ -19,13 +19,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import (
-    is_msvc,
-    is_msvc_static_runtime,
-    MSBuildToolchain,
-    msvc_runtime_flag,
-    VCVars,
-)
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuildToolchain, msvc_runtime_flag, VCVars
 from conan.tools.scm import Version
 
 import glob
@@ -164,9 +158,7 @@ class BoostConan(ConanFile):
         "system_use_utf8": False,
     }
     default_options.update({f"without_{_name}": False for _name in CONFIGURE_OPTIONS})
-    default_options.update(
-        {f"without_{_name}": True for _name in ("graph_parallel", "mpi", "python")}
-    )
+    default_options.update({f"without_{_name}": True for _name in ("graph_parallel", "mpi", "python")})
 
     short_paths = True
     no_copy_source = True
@@ -174,10 +166,7 @@ class BoostConan(ConanFile):
 
     def export(self):
         copy(
-            self,
-            f"dependencies/{self._dependency_filename}",
-            src=self.recipe_folder,
-            dst=self.export_folder,
+            self, f"dependencies/{self._dependency_filename}", src=self.recipe_folder, dst=self.export_folder
         )
 
     def export_sources(self):
@@ -189,22 +178,16 @@ class BoostConan(ConanFile):
         if self.settings.compiler == "apple-clang":
             # For now, assume apple-clang will enable c++11 in the distant future
             return 99
-        return {
-            "gcc": 6,
-            "clang": 6,
-            "Visual Studio": 14,  # guess
-            "msvc": 190,  # guess
-        }.get(str(self.settings.compiler))
+        return {"gcc": 6, "clang": 6, "Visual Studio": 14, "msvc": 190}.get(  # guess  # guess
+            str(self.settings.compiler)
+        )
 
     @property
     def _min_compiler_version_nowide(self):
         # Nowide needs c++11 + swappable std::fstream
-        return {
-            "gcc": 5,
-            "clang": 5,
-            "Visual Studio": 14,  # guess
-            "msvc": 190,  # guess
-        }.get(str(self.settings.compiler))
+        return {"gcc": 5, "clang": 5, "Visual Studio": 14, "msvc": 190}.get(  # guess  # guess
+            str(self.settings.compiler)
+        )
 
     @property
     def _dependency_filename(self):
@@ -492,14 +475,10 @@ class BoostConan(ConanFile):
                 "atomic",
             ]:
                 if not self.options.get_safe(f"without_{lib}"):
-                    raise ConanInvalidConfiguration(
-                        f"Boost '{lib}' library requires multi threading"
-                    )
+                    raise ConanInvalidConfiguration(f"Boost '{lib}' library requires multi threading")
 
         if is_msvc(self) and self._shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                "Boost can not be built as shared library with MT runtime."
-            )
+            raise ConanInvalidConfiguration("Boost can not be built as shared library with MT runtime.")
 
         if (
             not self.options.without_locale
@@ -513,9 +492,7 @@ class BoostConan(ConanFile):
 
         if self._stacktrace_addr2line_available:
             if not os.path.isabs(str(self.options.addr2line_location)):
-                raise ConanInvalidConfiguration(
-                    "addr2line_location must be an absolute path to addr2line"
-                )
+                raise ConanInvalidConfiguration("addr2line_location must be an absolute path to addr2line")
 
         # Check, when a boost module is enabled, whether the boost modules it depends on are enabled as well.
         for mod_name, mod_deps in self._dependencies["dependencies"].items():
@@ -529,17 +506,11 @@ class BoostConan(ConanFile):
         if not self.options.get_safe("without_nowide", True):
             # nowide require a c++11-able compiler with movable std::fstream
             mincompiler_version = self._min_compiler_version_nowide
-            if (
-                mincompiler_version
-                and Version(self.settings.compiler.version) < mincompiler_version
-            ):
+            if mincompiler_version and Version(self.settings.compiler.version) < mincompiler_version:
                 raise ConanInvalidConfiguration("This compiler is too old to build Boost.nowide.")
 
         if any(
-            [
-                not self.options.get_safe(f"without_{library}", True)
-                for library in self._cxx11_boost_libraries
-            ]
+            [not self.options.get_safe(f"without_{library}", True) for library in self._cxx11_boost_libraries]
         ):
             if self.settings.compiler.get_safe("cppstd"):
                 check_min_cppstd(self, 11)
@@ -570,9 +541,7 @@ class BoostConan(ConanFile):
 
     @property
     def _with_bzip2(self):
-        return (
-            not self.options.header_only and self._with_dependency("bzip2") and self.options.bzip2
-        )
+        return not self.options.header_only and self._with_dependency("bzip2") and self.options.bzip2
 
     @property
     def _with_lzma(self):
@@ -600,9 +569,7 @@ class BoostConan(ConanFile):
 
     @property
     def _with_stacktrace_backtrace(self):
-        return not self.options.header_only and self.options.get_safe(
-            "with_stacktrace_backtrace", False
-        )
+        return not self.options.header_only and self.options.get_safe("with_stacktrace_backtrace", False)
 
     def requirements(self):
         if self._with_zlib:
@@ -614,9 +581,7 @@ class BoostConan(ConanFile):
         if self._with_zstd:
             self.requires("zstd/1.5.5")
         if self._with_stacktrace_backtrace:
-            self.requires(
-                "libbacktrace/cci.20210118", transitive_headers=True, transitive_libs=True
-            )
+            self.requires("libbacktrace/cci.20210118", transitive_headers=True, transitive_libs=True)
 
         if self._with_icu:
             self.requires("icu/72.1")
@@ -643,12 +608,7 @@ class BoostConan(ConanFile):
             self.tool_requires("b2/4.9.6")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
@@ -763,9 +723,7 @@ class BoostConan(ConanFile):
         :return: result of the "sysconfig.get_python_inc()" execution
         """
         return self._run_python_script(
-            "from __future__ import print_function; "
-            "import sysconfig; "
-            "print(sysconfig.get_python_inc())"
+            "from __future__ import print_function; " "import sysconfig; " "print(sysconfig.get_python_inc())"
         )
 
     @property
@@ -775,9 +733,7 @@ class BoostConan(ConanFile):
         :return: the value of python ABI flags
         """
         return self._run_python_script(
-            "from __future__ import print_function; "
-            "import sys; "
-            "print(getattr(sys, 'abiflags', ''))"
+            "from __future__ import print_function; " "import sys; " "print(getattr(sys, 'abiflags', ''))"
         )
 
     @property
@@ -800,9 +756,7 @@ class BoostConan(ConanFile):
                 if os.path.isfile(python_h):
                     self.output.info(f"found Python.h: {python_h}")
                     return candidate.replace("\\", "/")
-        raise Exception(
-            "couldn't locate Python.h - make sure you have installed python development files"
-        )
+        raise Exception("couldn't locate Python.h - make sure you have installed python development files")
 
     @property
     def _python_library_dir(self):
@@ -889,9 +843,7 @@ class BoostConan(ConanFile):
     def _build_bcp(self):
         folder = os.path.join(self.source_folder, "tools", "bcp")
         with chdir(self, folder):
-            command = (
-                f"{self._b2_exe} -j{build_jobs(self)} --abbreviate-paths toolset={self._toolset}"
-            )
+            command = f"{self._b2_exe} -j{build_jobs(self)} --abbreviate-paths toolset={self._toolset}"
             command += f" -d{self.options.debug_level}"
             self.output.warning(command)
             self.run(command)
@@ -902,7 +854,13 @@ class BoostConan(ConanFile):
             namespace = f"--namespace={self.options.namespace}"
             alias = "--namespace-alias" if self.options.namespace_alias else ""
             boostdir = f"--boost={self.source_folder}"
-            libraries = {"build", "boost-build.jam", "boostcpp.jam", "boost_install", "headers"}
+            libraries = {
+                "build",
+                "boost-build.jam",
+                "boostcpp.jam",
+                "boost_install",
+                "headers",
+            }
             for d in os.listdir(os.path.join(self.source_folder, "boost")):
                 if os.path.isdir(os.path.join(self.source_folder, "boost", d)):
                     libraries.add(d)
@@ -915,17 +873,11 @@ class BoostConan(ConanFile):
             self.run(command)
 
     def build(self):
-        stacktrace_jamfile = os.path.join(
-            self.source_folder, "libs", "stacktrace", "build", "Jamfile.v2"
-        )
+        stacktrace_jamfile = os.path.join(self.source_folder, "libs", "stacktrace", "build", "Jamfile.v2")
         if cross_building(self, skip_x64_x86=True):
             # When cross building, do not attempt to run the test-executable (assume they work)
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", 'echo "" > $(<)', strict=False)
-        if (
-            self._with_stacktrace_backtrace
-            and self.settings.os != "Windows"
-            and not cross_building(self)
-        ):
+        if self._with_stacktrace_backtrace and self.settings.os != "Windows" and not cross_building(self):
             # When libbacktrace is shared, give extra help to the test-executable
             linker_var = "DYLD_LIBRARY_PATH" if self.settings.os == "Macos" else "LD_LIBRARY_PATH"
             libbacktrace_libdir = (
@@ -934,25 +886,19 @@ class BoostConan(ConanFile):
             patched_run_rule = f"{linker_var}={libbacktrace_libdir} $(>) > $(<)"
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", patched_run_rule, strict=False)
             if self.dependencies["libbacktrace"].options.shared:
-                replace_in_file(
-                    self, stacktrace_jamfile, "<link>static", "<link>shared", strict=False
-                )
+                replace_in_file(self, stacktrace_jamfile, "<link>static", "<link>shared", strict=False)
 
         # Older clang releases require a thread_local variable to be initialized by a constant value
         replace_in_file(
             self,
-            os.path.join(
-                self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"
-            ),
+            os.path.join(self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
             "/* thread_local */",
             "thread_local",
             strict=False,
         )
         replace_in_file(
             self,
-            os.path.join(
-                self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"
-            ),
+            os.path.join(self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
             "/* static __thread */",
             "static __thread",
             strict=False,
@@ -962,17 +908,13 @@ class BoostConan(ConanFile):
         ):
             replace_in_file(
                 self,
-                os.path.join(
-                    self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"
-                ),
+                os.path.join(self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                 "thread_local",
                 "/* thread_local */",
             )
             replace_in_file(
                 self,
-                os.path.join(
-                    self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"
-                ),
+                os.path.join(self.source_folder, "boost", "stacktrace", "detail", "libbacktrace_impls.hpp"),
                 "static __thread",
                 "/* static __thread */",
             )
@@ -1024,9 +966,7 @@ class BoostConan(ConanFile):
         b2_flags = " ".join(self._build_flags)
         full_command = f"{self._b2_exe} {b2_flags}"
         # -d2 is to print more debug info and avoid travis timing out without output
-        sources = (
-            os.path.join(self.source_folder, self._bcp_dir) if self._use_bcp else self.source_folder
-        )
+        sources = os.path.join(self.source_folder, self._bcp_dir) if self._use_bcp else self.source_folder
         full_command += f' --debug-configuration --build-dir="{self.build_folder}"'
         self.output.warning(full_command)
 
@@ -1054,15 +994,7 @@ class BoostConan(ConanFile):
 
     @property
     def _b2_address_model(self):
-        if self.settings.arch in (
-            "x86_64",
-            "ppc64",
-            "ppc64le",
-            "mips64",
-            "armv8",
-            "armv8.3",
-            "sparcv9",
-        ):
+        if self.settings.arch in ("x86_64", "ppc64", "ppc64le", "mips64", "armv8", "armv8.3", "sparcv9"):
             return "64"
 
         return "32"
@@ -1253,11 +1185,7 @@ class BoostConan(ConanFile):
             flags.append("define=BOOST_SYSTEM_USE_UTF8=1")
         if self.options.segmented_stacks:
             flags.extend(
-                [
-                    "segmented-stacks=on",
-                    "define=BOOST_USE_SEGMENTED_STACKS=1",
-                    "define=BOOST_USE_UCONTEXT=1",
-                ]
+                ["segmented-stacks=on", "define=BOOST_USE_SEGMENTED_STACKS=1", "define=BOOST_USE_UCONTEXT=1"]
             )
         flags.append("pch=on" if self.options.pch else "pch=off")
 
@@ -1285,9 +1213,7 @@ class BoostConan(ConanFile):
             flags.append(f"-sICU_PATH={self.dependencies['icu'].package_folder}")
             if not self.dependencies["icu"].options.shared:
                 # Using ICU_OPTS to pass ICU system libraries is not possible due to Boost.Regex disallowing it.
-                icu_system_libs = (
-                    self.dependencies["icu"].cpp_info.aggregated_components().system_libs
-                )
+                icu_system_libs = self.dependencies["icu"].cpp_info.aggregated_components().system_libs
                 if is_msvc(self):
                     icu_ldflags = " ".join(f"{l}.lib" for l in icu_system_libs)
                 else:
@@ -1298,9 +1224,7 @@ class BoostConan(ConanFile):
         flags.append(link_flags)
 
         if self.options.get_safe("addr2line_location"):
-            cxx_flags.append(
-                f"-DBOOST_STACKTRACE_ADDR2LINE_LOCATION={self.options.addr2line_location}"
-            )
+            cxx_flags.append(f"-DBOOST_STACKTRACE_ADDR2LINE_LOCATION={self.options.addr2line_location}")
 
         cxx_flags = f'cxxflags="{" ".join(cxx_flags)}"'
         flags.append(cxx_flags)
@@ -1369,9 +1293,7 @@ class BoostConan(ConanFile):
 
     @property
     def _cxx(self):
-        compilers_by_conf = self.conf.get(
-            "tools.build:compiler_executables", default={}, check_type=dict
-        )
+        compilers_by_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         cxx = compilers_by_conf.get("cpp") or VirtualBuildEnv(self).vars().get("CXX")
         if cxx:
             return cxx
@@ -1452,16 +1374,11 @@ class BoostConan(ConanFile):
         if self._ranlib:
             ranlib_path = self._ranlib.replace("\\", "/")
             contents += f'<ranlib>"{ranlib_path}" '
-        cxxflags = (
-            " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
-        )
+        cxxflags = " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
         cflags = " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
         buildenv_vars = VirtualBuildEnv(self).vars()
         cppflags = buildenv_vars.get("CPPFLAGS", "") + " "
-        ldflags = (
-            " ".join(self.conf.get("tools.build:sharedlinkflags", default=[], check_type=list))
-            + " "
-        )
+        ldflags = " ".join(self.conf.get("tools.build:sharedlinkflags", default=[], check_type=list)) + " "
         asflags = buildenv_vars.get("ASFLAGS", "") + " "
 
         sysroot = self.conf.get("tools.build:sysroot")
@@ -1472,9 +1389,7 @@ class BoostConan(ConanFile):
             ldflags += f"--sysroot={sysroot} "
 
         if self._with_stacktrace_backtrace:
-            backtrace_aggregated_cpp_info = self.dependencies[
-                "libbacktrace"
-            ].cpp_info.aggregated_components()
+            backtrace_aggregated_cpp_info = self.dependencies["libbacktrace"].cpp_info.aggregated_components()
             cppflags += " ".join(f"-I{p}" for p in backtrace_aggregated_cpp_info.includedirs) + " "
             ldflags += " ".join(f"-L{p}" for p in backtrace_aggregated_cpp_info.libdirs) + " "
 
@@ -1510,9 +1425,7 @@ class BoostConan(ConanFile):
     @property
     def _toolset(self):
         if is_msvc(self):
-            return (
-                "clang-win" if self.settings.compiler.get_safe("toolset") == "ClangCL" else "msvc"
-            )
+            return "clang-win" if self.settings.compiler.get_safe("toolset") == "ClangCL" else "msvc"
         if self.settings.os == "Windows" and self.settings.compiler == "clang":
             return "clang-win"
         if self.settings.os == "Emscripten" and self.settings.compiler == "clang":
@@ -1570,10 +1483,7 @@ class BoostConan(ConanFile):
         # This stage/lib is in source_folder... Face palm, looks like it builds in build but then
         # copy to source with the good lib name
         copy(
-            self,
-            "LICENSE_1_0.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, "LICENSE_1_0.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.header_only:
@@ -1607,11 +1517,7 @@ class BoostConan(ConanFile):
         if dll_pdbs:
             mkdir(self, os.path.join(self.package_folder, "bin"))
             for bin_file in dll_pdbs:
-                rename(
-                    self,
-                    bin_file,
-                    os.path.join(self.package_folder, "bin", os.path.basename(bin_file)),
-                )
+                rename(self, bin_file, os.path.join(self.package_folder, "bin", os.path.basename(bin_file)))
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
@@ -1685,9 +1591,7 @@ class BoostConan(ConanFile):
             # as you passed to bjam.
             # For example if you built using bjam address-model=64 --buildid=amd64 then compile your code with
             # -DBOOST_LIB_BUILDID=amd64 to ensure the correct libraries are selected at link time.
-            self.cpp_info.components["headers"].defines.append(
-                f"BOOST_LIB_BUILDID={self.options.buildid}"
-            )
+            self.cpp_info.components["headers"].defines.append(f"BOOST_LIB_BUILDID={self.options.buildid}")
 
         if not self.options.header_only:
             if self.options.error_code_header_only:
@@ -1725,9 +1629,7 @@ class BoostConan(ConanFile):
             # and this definition triggers a print out of the library selected.  See notes below on autolink and headers.
             self.cpp_info.components["headers"].requires.append("diagnostic_definitions")
             if self.options.diagnostic_definitions:
-                self.cpp_info.components["diagnostic_definitions"].defines = [
-                    "BOOST_LIB_DIAGNOSTIC"
-                ]
+                self.cpp_info.components["diagnostic_definitions"].defines = ["BOOST_LIB_DIAGNOSTIC"]
 
             self.cpp_info.components["disable_autolinking"].libs = []
             self.cpp_info.components["disable_autolinking"].set_property(
@@ -1779,12 +1681,8 @@ class BoostConan(ConanFile):
             self.cpp_info.components["dynamic_linking"].set_property(
                 "cmake_target_name", "Boost::dynamic_linking"
             )
-            self.cpp_info.components["dynamic_linking"].names[
-                "cmake_find_package"
-            ] = "dynamic_linking"
-            self.cpp_info.components["dynamic_linking"].names[
-                "cmake_find_package_multi"
-            ] = "dynamic_linking"
+            self.cpp_info.components["dynamic_linking"].names["cmake_find_package"] = "dynamic_linking"
+            self.cpp_info.components["dynamic_linking"].names["cmake_find_package_multi"] = "dynamic_linking"
             self.cpp_info.components["dynamic_linking"].names[
                 "pkg_config"
             ] = "boost_dynamic_linking"  # FIXME: disable on pkg_config
@@ -1852,9 +1750,7 @@ class BoostConan(ConanFile):
                     libprefix = "lib"
                 return libprefix + n
 
-            all_detected_libraries = set(
-                l[:-4] if l.endswith(".dll") else l for l in collect_libs(self)
-            )
+            all_detected_libraries = set(l[:-4] if l.endswith(".dll") else l for l in collect_libs(self))
             all_expected_libraries = set()
             incomplete_components = []
 
@@ -1876,10 +1772,7 @@ class BoostConan(ConanFile):
                         and self.settings.os == "Windows"
                     ):
                         continue
-                    if (
-                        name == "boost_stacktrace_addr2line"
-                        and not self._stacktrace_addr2line_available
-                    ):
+                    if name == "boost_stacktrace_addr2line" and not self._stacktrace_addr2line_available:
                         continue
                     if (
                         name == "boost_stacktrace_backtrace"
@@ -1908,9 +1801,7 @@ class BoostConan(ConanFile):
                 if missing_depmodules:
                     continue
 
-                module_libraries = filter_transform_module_libraries(
-                    self._dependencies["libs"][module]
-                )
+                module_libraries = filter_transform_module_libraries(self._dependencies["libs"][module])
 
                 # Don't create components for modules that should have libraries, but don't have (because of filter)
                 if self._dependencies["libs"][module] and not module_libraries:
@@ -1929,12 +1820,10 @@ class BoostConan(ConanFile):
 
                 self.cpp_info.components[module].libs = module_libraries
 
-                self.cpp_info.components[module].requires = self._dependencies["dependencies"][
-                    module
-                ] + ["_libboost"]
-                self.cpp_info.components[module].set_property(
-                    "cmake_target_name", "Boost::" + module
-                )
+                self.cpp_info.components[module].requires = self._dependencies["dependencies"][module] + [
+                    "_libboost"
+                ]
+                self.cpp_info.components[module].set_property("cmake_target_name", "Boost::" + module)
                 self.cpp_info.components[module].names["cmake_find_package"] = module
                 self.cpp_info.components[module].names["cmake_find_package_multi"] = module
                 self.cpp_info.components[module].names["pkg_config"] = f"boost_{module}"
@@ -1999,17 +1888,13 @@ class BoostConan(ConanFile):
                         "libbacktrace::libbacktrace"
                     )
 
-                self.cpp_info.components["stacktrace_noop"].defines.append(
-                    "BOOST_STACKTRACE_USE_NOOP"
-                )
+                self.cpp_info.components["stacktrace_noop"].defines.append("BOOST_STACKTRACE_USE_NOOP")
 
                 if self.settings.os == "Windows":
                     self.cpp_info.components["stacktrace_windbg"].defines.append(
                         "BOOST_STACKTRACE_USE_WINDBG"
                     )
-                    self.cpp_info.components["stacktrace_windbg"].system_libs.extend(
-                        ["ole32", "dbgeng"]
-                    )
+                    self.cpp_info.components["stacktrace_windbg"].system_libs.extend(["ole32", "dbgeng"])
                     self.cpp_info.components["stacktrace_windbg_cached"].defines.append(
                         "BOOST_STACKTRACE_USE_WINDBG_CACHED"
                     )
@@ -2023,15 +1908,11 @@ class BoostConan(ConanFile):
 
             if not self.options.without_python:
                 pyversion = Version(self._python_version)
-                self.cpp_info.components[f"python{pyversion.major}{pyversion.minor}"].requires = [
-                    "python"
-                ]
+                self.cpp_info.components[f"python{pyversion.major}{pyversion.minor}"].requires = ["python"]
                 if not self._shared:
                     self.cpp_info.components["python"].defines.append("BOOST_PYTHON_STATIC_LIB")
 
-                self.cpp_info.components[f"numpy{pyversion.major}{pyversion.minor}"].requires = [
-                    "numpy"
-                ]
+                self.cpp_info.components[f"numpy{pyversion.major}{pyversion.minor}"].requires = ["numpy"]
 
             if is_msvc(self) or self._is_clang_cl:
                 # https://github.com/conan-community/conan-boost/issues/127#issuecomment-404750974

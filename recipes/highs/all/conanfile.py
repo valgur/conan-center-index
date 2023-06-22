@@ -2,13 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc
 from os.path import join
 
@@ -17,7 +11,9 @@ required_conan_version = ">=1.53.0"
 
 class HiGHSConan(ConanFile):
     name = "highs"
-    description = "high performance serial and parallel solver for large scale sparse linear optimization problems"
+    description = (
+        "high performance serial and parallel solver for large scale sparse linear optimization problems"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.highs.dev/"
@@ -76,24 +72,11 @@ class HiGHSConan(ConanFile):
         cmake.build(target="libhighs")
 
     def package(self):
+        copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=join(self.package_folder, "licenses"),
+            self, pattern="*.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include")
         )
-        copy(
-            self,
-            pattern="*.h",
-            src=join(self.source_folder, "src"),
-            dst=join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="HConfig.h",
-            src=self.build_folder,
-            dst=join(self.package_folder, "include"),
-        )
+        copy(self, pattern="HConfig.h", src=self.build_folder, dst=join(self.package_folder, "include"))
         if self.options.shared:
             copy(
                 self,
@@ -109,10 +92,7 @@ class HiGHSConan(ConanFile):
             )
         else:
             copy(
-                self,
-                pattern="*.a",
-                src=join(self.build_folder, "lib"),
-                dst=join(self.package_folder, "lib"),
+                self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib")
             )
             copy(
                 self,

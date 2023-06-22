@@ -1,12 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    rename,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rename
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os

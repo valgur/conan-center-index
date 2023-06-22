@@ -44,10 +44,7 @@ class FlatbuffersConan(ConanFile):
 
     def export_sources(self):
         copy(
-            self,
-            os.path.join("cmake", "FlatcTargets.cmake"),
-            self.recipe_folder,
-            self.export_sources_folder,
+            self, os.path.join("cmake", "FlatcTargets.cmake"), self.recipe_folder, self.export_sources_folder
         )
         export_conandata_patches(self)
 
@@ -85,15 +82,11 @@ class FlatbuffersConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["FLATBUFFERS_BUILD_TESTS"] = False
         tc.variables["FLATBUFFERS_INSTALL"] = True
-        tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = (
-            not self.options.header_only and not self.options.shared
-        )
+        tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = not self.options.header_only and not self.options.shared
         tc.variables["FLATBUFFERS_BUILD_FLATC"] = self._has_flatc()
         tc.variables["FLATBUFFERS_STATIC_FLATC"] = False
         tc.variables["FLATBUFFERS_BUILD_FLATHASH"] = False
-        tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = (
-            not self.options.header_only and self.options.shared
-        )
+        tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = not self.options.header_only and self.options.shared
         # Honor conan profile
         tc.variables["FLATBUFFERS_LIBCXX_WITH_CLANG"] = False
         # Mimic upstream CMake/Version.cmake removed in _patch_sources()
@@ -138,12 +131,7 @@ class FlatbuffersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -195,12 +183,8 @@ class FlatbuffersConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "flatbuffers"
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["libflatbuffers"].build_modules[
-            "cmake_find_package"
-        ] = build_modules
-        self.cpp_info.components["libflatbuffers"].build_modules[
-            "cmake_find_package_multi"
-        ] = build_modules
+        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package"] = build_modules
+        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package_multi"] = build_modules
         self.cpp_info.components["libflatbuffers"].set_property(
             "cmake_file_name", f"flatbuffers::{cmake_target}"
         )

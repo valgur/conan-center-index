@@ -12,9 +12,7 @@ required_conan_version = ">=1.52.0"
 
 class PfrConan(ConanFile):
     name = "pfr"
-    description = (
-        "std::tuple like methods for user defined types without any macro or boilerplate code"
-    )
+    description = "std::tuple like methods for user defined types without any macro or boilerplate code"
     topics = ("boost", "reflection", "magic_get")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/pfr"

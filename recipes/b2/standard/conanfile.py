@@ -65,7 +65,10 @@ class B2Conan(ConanFile):
             "vc143",
         ],
     }
-    default_options = {"use_cxx_env": False, "toolset": "auto"}
+    default_options = {
+        "use_cxx_env": False,
+        "toolset": "auto",
+    }
 
     def configure(self):
         if (
@@ -92,7 +95,12 @@ class B2Conan(ConanFile):
                 self.run(command)
             else:
                 # To avoid using the CXX env vars we clear them out for the build.
-                with tools.environment_append({"CXX": "", "CXXFLAGS": ""}):
+                with tools.environment_append(
+                    {
+                        "CXX": "",
+                        "CXXFLAGS": "",
+                    }
+                ):
                     self.run(command)
         os.chdir(build_dir)
         command = os.path.join(engine_dir, "b2.exe" if use_windows_commands else "b2")
@@ -102,9 +110,8 @@ class B2Conan(ConanFile):
                 " toolset={1} install".format(command, self.options.toolset)
             )
         else:
-            full_command = (
-                "{0} --ignore-site-config --prefix=../output --abbreviate-paths"
-                " install".format(command)
+            full_command = "{0} --ignore-site-config --prefix=../output --abbreviate-paths" " install".format(
+                command
             )
         self.run(full_command)
 
@@ -117,9 +124,7 @@ class B2Conan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = ["bin"]
         self.env_info.path = [os.path.join(self.package_folder, "bin")]
-        self.env_info.BOOST_BUILD_PATH = os.path.join(
-            self.package_folder, "bin", "b2_src", "src", "kernel"
-        )
+        self.env_info.BOOST_BUILD_PATH = os.path.join(self.package_folder, "bin", "b2_src", "src", "kernel")
 
     def package_id(self):
         del self.info.options.use_cxx_env

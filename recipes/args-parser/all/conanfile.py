@@ -46,7 +46,7 @@ class ArgsParserConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -56,12 +56,7 @@ class ArgsParserConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.hpp",

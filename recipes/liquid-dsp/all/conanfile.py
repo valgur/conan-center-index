@@ -71,15 +71,11 @@ class LiquidDspConan(ConanFile):
 
     def validate(self):
         if hasattr(self, "settings_build") and tools.cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Cross building is not yet supported. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -155,14 +151,8 @@ class LiquidDspConan(ConanFile):
         with self._build_context():
             with tools.chdir(self._source_subfolder):
                 self.run("./bootstrap.sh", win_bash=tools.os_info.is_windows)
-                self.run(
-                    "./configure {}".format(configure_args_str),
-                    win_bash=tools.os_info.is_windows,
-                )
-                self.run(
-                    "make {} -j{}".format(self._target_name, ncpus),
-                    win_bash=tools.os_info.is_windows,
-                )
+                self.run("./configure {}".format(configure_args_str), win_bash=tools.os_info.is_windows)
+                self.run("make {} -j{}".format(self._target_name, ncpus), win_bash=tools.os_info.is_windows)
         self._rename_libraries()
         with self._msvc_context():
             self._gen_link_library()

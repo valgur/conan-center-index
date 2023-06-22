@@ -20,9 +20,7 @@ required_conan_version = ">=1.52.0"
 
 class TmxliteConan(ConanFile):
     name = "tmxlite"
-    description = (
-        "A lightweight C++14 parsing library for tmx map files created with the Tiled map editor."
-    )
+    description = "A lightweight C++14 parsing library for tmx map files created with the Tiled map editor."
     license = "Zlib"
     topics = ("tmx", "tiled-map", "parser")
     homepage = "https://github.com/fallahn/tmxlite"
@@ -62,19 +60,11 @@ class TmxliteConan(ConanFile):
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14)
-        if (
-            self.info.settings.compiler == "gcc"
-            and Version(self.info.settings.compiler.version) < "5"
-        ):
+        if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 not supported")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -104,9 +94,7 @@ class TmxliteConan(ConanFile):
             "",
         )
         # Don't inject -O3 in compile flags
-        replace_in_file(
-            self, os.path.join(self.source_folder, "tmxlite", "CMakeLists.txt"), "-O3", ""
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "tmxlite", "CMakeLists.txt"), "-O3", "")
 
     def build(self):
         self._patch_sources()
@@ -115,12 +103,7 @@ class TmxliteConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

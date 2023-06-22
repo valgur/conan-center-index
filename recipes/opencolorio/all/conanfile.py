@@ -65,9 +65,7 @@ class OpenColorIOConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -112,8 +110,7 @@ class OpenColorIOConan(ConanFile):
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath"):
             tools.remove_files_by_mask(
-                os.path.join(self._source_subfolder, "share", "cmake", "modules"),
-                "Find" + module + ".cmake",
+                os.path.join(self._source_subfolder, "share", "cmake", "modules"), "Find" + module + ".cmake"
             )
 
     def build(self):

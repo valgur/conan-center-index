@@ -8,9 +8,7 @@ class DjinniSuppotLib(ConanFile):
     name = "djinni-support-lib"
     homepage = "https://djinni.xlcpp.dev"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "Djinni is a tool for generating cross-language type declarations and interface bindings"
-    )
+    description = "Djinni is a tool for generating cross-language type declarations and interface bindings"
     topics = ("java", "Objective-C", "Android", "iOS")
     license = "Apache-2.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -92,9 +90,7 @@ class DjinniSuppotLib(ConanFile):
             self.output.warn(
                 "The 'target' option is deprecated and will be removed soon. Use 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options instead."
             )
-        if not (
-            self._objc_support or self._jni_support or self._python_support or self._cppcli_support
-        ):
+        if not (self._objc_support or self._jni_support or self._python_support or self._cppcli_support):
             raise ConanInvalidConfiguration(
                 "Target language could not be determined automatically. Set at least one of 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options to `True`."
             )
@@ -104,13 +100,9 @@ class DjinniSuppotLib(ConanFile):
                     "C++/CLI has been enabled on a non-Windows operating system. This is not supported."
                 )
             if self.options.shared:
-                raise ConanInvalidConfiguration(
-                    "C++/CLI does not support building as shared library"
-                )
+                raise ConanInvalidConfiguration("C++/CLI does not support building as shared library")
             if self.settings.compiler.runtime == "MT" or self.settings.compiler.runtime == "MTd":
-                raise ConanInvalidConfiguration(
-                    "'/clr' and '/MT' command-line options are incompatible"
-                )
+                raise ConanInvalidConfiguration("'/clr' and '/MT' command-line options are incompatible")
             if self._objc_support or self._jni_support or self._python_support:
                 raise ConanInvalidConfiguration(
                     "C++/CLI is not yet supported with other languages enabled as well. Disable 'with_jni', 'with_objc' and 'with_python' options for a valid configuration."
@@ -123,9 +115,7 @@ class DjinniSuppotLib(ConanFile):
         if self.settings.get_safe("compiler.cppstd"):
             tools.check_min_cppstd(self, "17")
         try:
-            minimum_required_compiler_version = self._supported_compilers[
-                str(self.settings.compiler)
-            ]
+            minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
             if tools.Version(self.settings.compiler.version) < minimum_required_compiler_version:
                 raise ConanInvalidConfiguration(
                     "This package requires c++17 support. The current compiler does not support it."
@@ -137,9 +127,7 @@ class DjinniSuppotLib(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):

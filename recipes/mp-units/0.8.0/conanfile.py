@@ -41,7 +41,12 @@ class MPUnitsConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"gcc": "10.3", "clang": "12", "apple-clang": "13", "msvc": "192"}
+        return {
+            "gcc": "10.3",
+            "clang": "12",
+            "apple-clang": "13",
+            "msvc": "192",
+        }
 
     @property
     def _use_libfmt(self):
@@ -102,12 +107,7 @@ class MPUnitsConan(ConanFile):
         self.info.clear()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

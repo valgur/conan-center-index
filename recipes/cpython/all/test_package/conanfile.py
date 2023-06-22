@@ -19,9 +19,7 @@ class CmakePython3Abi(object):
     @property
     def suffix(self):
         return "{}{}{}".format(
-            "d" if self.debug else "",
-            "m" if self.pymalloc else "",
-            "u" if self.unicode else "",
+            "d" if self.debug else "", "m" if self.pymalloc else "", "u" if self.unicode else ""
         )
 
     @property
@@ -45,16 +43,10 @@ class TestPackageConan(ConanFile):
     def _cmake_abi(self):
         if self._py_version < tools.Version("3.8"):
             return CmakePython3Abi(
-                debug=self.settings.build_type == "Debug",
-                pymalloc=self._pymalloc,
-                unicode=False,
+                debug=self.settings.build_type == "Debug", pymalloc=self._pymalloc, unicode=False
             )
         else:
-            return CmakePython3Abi(
-                debug=self.settings.build_type == "Debug",
-                pymalloc=False,
-                unicode=False,
-            )
+            return CmakePython3Abi(debug=self.settings.build_type == "Debug", pymalloc=False, unicode=False)
 
     @property
     def _cmake_try_FindPythonX(self):
@@ -84,15 +76,9 @@ class TestPackageConan(ConanFile):
         cmake.definitions["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
         cmake.definitions["PYTHON_EXECUTABLE"] = self.deps_user_info["cpython"].python
         cmake.definitions["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
-        cmake.definitions["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info[
-            "cpython"
-        ].python
-        cmake.definitions["Python{}_ROOT_DIR".format(py_major)] = self.deps_cpp_info[
-            "cpython"
-        ].rootpath
-        cmake.definitions["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options[
-            "cpython"
-        ].shared
+        cmake.definitions["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info["cpython"].python
+        cmake.definitions["Python{}_ROOT_DIR".format(py_major)] = self.deps_cpp_info["cpython"].rootpath
+        cmake.definitions["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
         cmake.definitions["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
         cmake.definitions["Python{}_FIND_REGISTRY".format(py_major)] = "NEVER"
         cmake.definitions["Python{}_FIND_IMPLEMENTATIONS".format(py_major)] = "CPython"
@@ -112,9 +98,7 @@ class TestPackageConan(ConanFile):
                     self.settings
                 ) if self.settings.compiler == "Visual Studio" else tools.no_op():
                     modsrcfolder = (
-                        "py2"
-                        if tools.Version(self.deps_cpp_info["cpython"].version).major < "3"
-                        else "py3"
+                        "py2" if tools.Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
                     )
                     tools.mkdir(os.path.join(self.build_folder, modsrcfolder))
                     for fn in os.listdir(os.path.join(self.source_folder, modsrcfolder)):
@@ -126,7 +110,10 @@ class TestPackageConan(ConanFile):
                         os.path.join(self.source_folder, "setup.py"),
                         os.path.join(self.build_folder, "setup.py"),
                     )
-                    env = {"DISTUTILS_USE_SDK": "1", "MSSdk": "1"}
+                    env = {
+                        "DISTUTILS_USE_SDK": "1",
+                        "MSSdk": "1",
+                    }
                     env.update(**AutoToolsBuildEnvironment(self).vars)
                     with tools.environment_append(env):
                         setup_args = [
@@ -153,10 +140,7 @@ class TestPackageConan(ConanFile):
         try:
             self.run(
                 "{} {}/test_package.py -b {} -t {} ".format(
-                    self.deps_user_info["cpython"].python,
-                    self.source_folder,
-                    self.build_folder,
-                    module,
+                    self.deps_user_info["cpython"].python, self.source_folder, self.build_folder, module
                 ),
                 run_environment=True,
             )
@@ -209,7 +193,11 @@ class TestPackageConan(ConanFile):
                 self._test_module("bsddb", self._cpython_option("with_bsddb"))
                 self._test_module("lzma", self._cpython_option("with_lzma"))
                 self._test_module("tkinter", self._cpython_option("with_tkinter"))
-                with tools.environment_append({"TERM": "ansi"}):
+                with tools.environment_append(
+                    {
+                        "TERM": "ansi",
+                    }
+                ):
                     self._test_module("curses", self._cpython_option("with_curses"))
 
                 self._test_module("expat", True)
@@ -224,9 +212,7 @@ class TestPackageConan(ConanFile):
                 # FIXME: find out why cpython on apple does not allow to use modules linked against a static python
             else:
                 if self._supports_modules:
-                    with tools.environment_append(
-                        {"PYTHONPATH": [os.path.join(self.build_folder, "lib")]}
-                    ):
+                    with tools.environment_append({"PYTHONPATH": [os.path.join(self.build_folder, "lib")]}):
                         self.output.info("Testing module (spam) using cmake built module")
                         self._test_module("spam", True)
 
@@ -239,7 +225,5 @@ class TestPackageConan(ConanFile):
             # MSVC builds need PYTHONHOME set.
             with tools.environment_append(
                 {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome}
-            ) if self.deps_user_info[
-                "cpython"
-            ].module_requires_pythonhome == "True" else tools.no_op():
+            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else tools.no_op():
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

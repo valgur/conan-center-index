@@ -26,14 +26,7 @@ class LibGit2Conan(ConanFile):
         "with_iconv": [True, False],
         "with_libssh2": [True, False],
         "with_https": [False, "openssl", "mbedtls", "winhttp", "security"],
-        "with_sha1": [
-            "collisiondetection",
-            "commoncrypto",
-            "openssl",
-            "mbedtls",
-            "generic",
-            "win32",
-        ],
+        "with_sha1": ["collisiondetection", "commoncrypto", "openssl", "mbedtls", "generic", "win32"],
     }
     default_options = {
         "shared": False,
@@ -95,9 +88,7 @@ class LibGit2Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     _cmake_https = {

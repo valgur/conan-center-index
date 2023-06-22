@@ -14,11 +14,7 @@ class IslConan(ConanFile):
     homepage = "https://libisl.sourceforge.io"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_int": ["gmp", "imath", "imath-32"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "with_int": ["gmp", "imath", "imath-32"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -43,9 +39,7 @@ class IslConan(ConanFile):
                 "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)"
             )
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration(
-                "Apple M1 is not yet supported. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Apple M1 is not yet supported. Contributions are welcome")
         if self.options.with_int != "gmp":
             # FIXME: missing imath recipe
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
@@ -75,9 +69,7 @@ class IslConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     @contextmanager
@@ -120,9 +112,7 @@ class IslConan(ConanFile):
             conf_args.extend(
                 [
                     "--with-gmp=system",
-                    "--with-gmp-prefix={}".format(
-                        self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")
-                    ),
+                    "--with-gmp-prefix={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
                 ]
             )
         if self.settings.compiler == "Visual Studio":

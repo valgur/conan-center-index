@@ -65,7 +65,10 @@ class SasscConan(ConanFile):
 
     def _build_msbuild(self):
         msbuild = MSBuild(self)
-        platforms = {"x86": "Win32", "x86_64": "Win64"}
+        platforms = {
+            "x86": "Win32",
+            "x86_64": "Win64",
+        }
         msbuild.build("win/sassc.sln", platforms=platforms)
 
     def build(self):
@@ -83,10 +86,7 @@ class SasscConan(ConanFile):
         with chdir(self, self._source_subfolder):
             if is_msvc(self):
                 self.copy(
-                    "*.exe",
-                    dst="bin",
-                    src=os.path.join(self._source_subfolder, "bin"),
-                    keep_path=False,
+                    "*.exe", dst="bin", src=os.path.join(self._source_subfolder, "bin"), keep_path=False
                 )
             else:
                 autotools = self._configure_autotools()

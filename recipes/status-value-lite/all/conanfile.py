@@ -26,12 +26,7 @@ class StatusValueLiteConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
@@ -43,12 +38,7 @@ class StatusValueLiteConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "status-value-lite")
@@ -63,12 +53,8 @@ class StatusValueLiteConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "status-value-lite"
         self.cpp_info.names["cmake_find_package"] = "nonstd"
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["status_valuelite"].names[
-            "cmake_find_package"
-        ] = "status-value-lite"
-        self.cpp_info.components["status_valuelite"].names[
-            "cmake_find_package_multi"
-        ] = "status-value-lite"
+        self.cpp_info.components["status_valuelite"].names["cmake_find_package"] = "status-value-lite"
+        self.cpp_info.components["status_valuelite"].names["cmake_find_package_multi"] = "status-value-lite"
         self.cpp_info.components["status_valuelite"].set_property(
             "cmake_target_name", "nonstd::status-value-lite"
         )

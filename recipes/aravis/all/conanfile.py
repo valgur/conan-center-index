@@ -83,9 +83,7 @@ class AravisConan(ConanFile):
 
     def validate(self):
         if is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                "Static runtime is not supported on Windows due to GLib issues"
-            )
+            raise ConanInvalidConfiguration("Static runtime is not supported on Windows due to GLib issues")
         if self.options.shared and not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration("Shared Aravis cannot link to static GLib")
         if self.settings.os == "Macos" and self.dependencies["glib"].options.shared:
@@ -119,9 +117,7 @@ class AravisConan(ConanFile):
         tc.project_options["packet-socket"] = (
             "enabled" if self.options.get_safe("packet_socket") else "disabled"
         )
-        tc.project_options["introspection"] = (
-            "enabled" if self.options.introspection else "disabled"
-        )
+        tc.project_options["introspection"] = "enabled" if self.options.introspection else "disabled"
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False
         tc.project_options["documentation"] = "disabled"
@@ -148,12 +144,7 @@ class AravisConan(ConanFile):
                     rename(self, filename_old, filename_new)
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))

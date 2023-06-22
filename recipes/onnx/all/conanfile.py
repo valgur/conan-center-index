@@ -4,14 +4,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -97,9 +90,7 @@ class OnnxConan(ConanFile):
             env.generate(scope="build")
         tc = CMakeToolchain(self)
         tc.variables["ONNX_BUILD_BENCHMARKS"] = False
-        tc.variables["ONNX_USE_PROTOBUF_SHARED_LIBS"] = self.dependencies.host[
-            "protobuf"
-        ].options.shared
+        tc.variables["ONNX_USE_PROTOBUF_SHARED_LIBS"] = self.dependencies.host["protobuf"].options.shared
         tc.variables["BUILD_ONNX_PYTHON"] = False
         tc.variables["ONNX_GEN_PB_TYPE_STUBS"] = False
         tc.variables["ONNX_WERROR"] = False
@@ -130,12 +121,7 @@ class OnnxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -200,7 +186,9 @@ class OnnxConan(ConanFile):
                         "libs": ["onnxifi_loader"],
                         "requires": ["onnxifi"],
                     },
-                    "onnxifi_wrapper": {"target": "onnxifi_wrapper"},
+                    "onnxifi_wrapper": {
+                        "target": "onnxifi_wrapper",
+                    },
                 }
             )
         if Version(self.version) >= "1.11.0":
@@ -217,10 +205,7 @@ class OnnxConan(ConanFile):
                 defines = comp_values.get("defines", [])
                 requires = comp_values.get("requires", [])
                 system_libs = [
-                    l
-                    for cond, sys_libs in comp_values.get("system_libs", [])
-                    if cond
-                    for l in sys_libs
+                    l for cond, sys_libs in comp_values.get("system_libs", []) if cond for l in sys_libs
                 ]
                 self.cpp_info.components[comp_name].set_property("cmake_target_name", target)
                 self.cpp_info.components[comp_name].libs = libs

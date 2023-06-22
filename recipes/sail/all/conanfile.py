@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    copy,
-    get,
-    rename,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, rmdir
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -80,12 +73,7 @@ class SAILConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
 
     def generate(self):
         enable_codecs = []
@@ -135,18 +123,8 @@ class SAILConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "LICENSE.INIH.txt",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "LICENSE.MUNIT.txt",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.INIH.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.MUNIT.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
 
         cmake = CMake(self)
         cmake.install()
@@ -155,11 +133,7 @@ class SAILConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         # Move icons
-        rename(
-            self,
-            os.path.join(self.package_folder, "share"),
-            os.path.join(self.package_folder, "res"),
-        )
+        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Sail")
@@ -169,18 +143,14 @@ class SAILConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "SAIL"
         self.cpp_info.names["cmake_find_package_multi"] = "SAIL"
 
-        self.cpp_info.components["sail-common"].set_property(
-            "cmake_target_name", "SAIL::SailCommon"
-        )
+        self.cpp_info.components["sail-common"].set_property("cmake_target_name", "SAIL::SailCommon")
         self.cpp_info.components["sail-common"].set_property("pkg_config_name", "libsail-common")
         self.cpp_info.components["sail-common"].names["cmake_find_package"] = "SailCommon"
         self.cpp_info.components["sail-common"].names["cmake_find_package_multi"] = "SailCommon"
         self.cpp_info.components["sail-common"].includedirs = ["include/sail"]
         self.cpp_info.components["sail-common"].libs = ["sail-common"]
 
-        self.cpp_info.components["sail-codecs"].set_property(
-            "cmake_target_name", "SAIL::SailCodecs"
-        )
+        self.cpp_info.components["sail-codecs"].set_property("cmake_target_name", "SAIL::SailCodecs")
         self.cpp_info.components["sail-codecs"].names["cmake_find_package"] = "SailCodecs"
         self.cpp_info.components["sail-codecs"].names["cmake_find_package_multi"] = "SailCodecs"
         self.cpp_info.components["sail-codecs"].libs = ["sail-codecs"]
@@ -192,9 +162,7 @@ class SAILConan(ConanFile):
         if self.options.with_jpeg2000:
             self.cpp_info.components["sail-codecs"].requires.append("jasper::jasper")
         if self.options.with_jpeg:
-            self.cpp_info.components["sail-codecs"].requires.append(
-                "{0}::{0}".format(self.options.with_jpeg)
-            )
+            self.cpp_info.components["sail-codecs"].requires.append("{0}::{0}".format(self.options.with_jpeg))
         if self.options.with_png:
             self.cpp_info.components["sail-codecs"].requires.append("libpng::libpng")
         if self.options.with_tiff:

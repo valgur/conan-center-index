@@ -8,7 +8,11 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if self.settings.os != "Windows":
-            with tools.environment_append({"PKG_CONFIG_PATH": "."}):
+            with tools.environment_append(
+                {
+                    "PKG_CONFIG_PATH": ".",
+                }
+            ):
                 pkg_config = tools.PkgConfig("gobject-introspection-1.0")
                 for tool in ["g_ir_compiler", "g_ir_generate", "g_ir_scanner"]:
                     self.run("%s --version" % pkg_config.variables[tool], run_environment=True)

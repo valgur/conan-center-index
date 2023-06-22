@@ -24,7 +24,12 @@ class PlatformInterfacesConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {"gcc": "10", "Visual Studio": "16", "clang": "11", "apple-clang": "11"}
+        return {
+            "gcc": "10",
+            "Visual Studio": "16",
+            "clang": "11",
+            "apple-clang": "11",
+        }
 
     @property
     def _minimum_cpp_standard(self):
@@ -59,9 +64,7 @@ class PlatformInterfacesConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

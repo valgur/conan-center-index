@@ -37,9 +37,7 @@ class Re2CConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build_requirements(self):
@@ -51,15 +49,11 @@ class Re2CConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} -nologo".format(
-                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
-                    ),
+                    "CC": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
                     "CXX": "{} -nologo".format(
                         tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
                     ),
-                    "LD": "{} -nologo".format(
-                        tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
-                    ),
+                    "LD": "{} -nologo".format(tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))),
                     "CXXLD": "{} -nologo".format(
                         tools.unix_path(os.path.join(self.build_folder, "msvc_cl.sh"))
                     ),

@@ -52,9 +52,7 @@ class LibconfigConan(ConanFile):
     def build(self):
         if Version(self.version) == "1.7.2":
             # https://github.com/hyperrealm/libconfig/issues/119
-            replace_in_file(
-                self, os.path.join(self.source_folder, "lib", "CMakeLists.txt"), "_STDLIB_H", ""
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "lib", "CMakeLists.txt"), "_STDLIB_H", "")
         if Version(self.version) == "1.7.3":
             replace_in_file(
                 self,
@@ -69,16 +67,10 @@ class LibconfigConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         cmake = CMake(self)
@@ -91,16 +83,12 @@ class LibconfigConan(ConanFile):
         prefix = "lib" if Version(self.version) < "1.7.3" or self.settings.os == "Windows" else ""
 
         self.cpp_info.components["libconfig_"].set_property("cmake_file_name", "libconfig")
-        self.cpp_info.components["libconfig_"].set_property(
-            "cmake_target_name", "libconfig::libconfig"
-        )
+        self.cpp_info.components["libconfig_"].set_property("cmake_target_name", "libconfig::libconfig")
         self.cpp_info.components["libconfig_"].set_property("pkg_config_name", "libconfig")
         self.cpp_info.components["libconfig_"].libs = [f"{prefix}config"]
 
         self.cpp_info.components["libconfig++"].set_property("cmake_file_name", "libconfig")
-        self.cpp_info.components["libconfig++"].set_property(
-            "cmake_target_name", "libconfig::libconfig++"
-        )
+        self.cpp_info.components["libconfig++"].set_property("cmake_target_name", "libconfig::libconfig++")
         self.cpp_info.components["libconfig++"].set_property("pkg_config_name", "libconfig++")
         self.cpp_info.components["libconfig++"].libs = [f"{prefix}config++"]
         self.cpp_info.components["libconfig++"].requires = ["libconfig_"]

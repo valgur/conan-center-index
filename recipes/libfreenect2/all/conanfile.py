@@ -61,9 +61,7 @@ class Libfreenect2Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
@@ -107,6 +105,4 @@ class Libfreenect2Conan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
         elif self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend(
-                ["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"]
-            )
+            self.cpp_info.frameworks.extend(["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"])

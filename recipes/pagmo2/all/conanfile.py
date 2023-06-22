@@ -51,7 +51,12 @@ class Pagmo2Conan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {"Visual Studio": "15.7", "gcc": "7", "clang": "5.0", "apple-clang": "9.1"}
+        return {
+            "Visual Studio": "15.7",
+            "gcc": "7",
+            "clang": "5.0",
+            "apple-clang": "9.1",
+        }
 
     @property
     def _required_boost_components(self):
@@ -76,9 +81,7 @@ class Pagmo2Conan(ConanFile):
             )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                "{} {} requires C++17, which your compiler does not support.".format(
-                    self.name, self.version
-                )
+                "{} {} requires C++17, which your compiler does not support.".format(self.name, self.version)
             )
 
         # TODO: add ipopt support
@@ -98,9 +101,7 @@ class Pagmo2Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):

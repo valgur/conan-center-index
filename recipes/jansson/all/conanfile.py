@@ -64,12 +64,7 @@ class JanssonConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -80,7 +75,5 @@ class JanssonConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "jansson")
         self.cpp_info.set_property("cmake_target_name", "jansson::jansson")
         self.cpp_info.set_property("pkg_config_name", "jansson")
-        suffix = (
-            "_d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        )
+        suffix = "_d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [f"jansson{suffix}"]

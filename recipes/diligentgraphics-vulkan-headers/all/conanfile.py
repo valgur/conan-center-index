@@ -21,18 +21,12 @@ class VulkanHeadersConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):
         self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            "*",
-            dst="include",
-            src=os.path.join(self.source_folder, self._source_subfolder, "include"),
-        )
+        self.copy("*", dst="include", src=os.path.join(self.source_folder, self._source_subfolder, "include"))
         self.copy(
             "*",
             dst=os.path.join("res", "vulkan", "registry"),
@@ -50,8 +44,6 @@ class VulkanHeadersConan(ConanFile):
         self.cpp_info.components["vulkanheaders"].libdirs = []
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package"] = "Registry"
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package_multi"] = "Registry"
-        self.cpp_info.components["vulkanregistry"].includedirs = [
-            os.path.join("res", "vulkan", "registry")
-        ]
+        self.cpp_info.components["vulkanregistry"].includedirs = [os.path.join("res", "vulkan", "registry")]
         self.cpp_info.components["vulkanregistry"].bindirs = []
         self.cpp_info.components["vulkanregistry"].libdirs = []

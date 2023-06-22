@@ -94,12 +94,7 @@ class EasyhttpcppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -134,6 +129,4 @@ class EasyhttpcppConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "easyhttpcpp"
         self.cpp_info.components["easyhttp"].names["cmake_find_package"] = "easyhttp"
         self.cpp_info.components["easyhttp"].names["cmake_find_package_multi"] = "easyhttp"
-        self.cpp_info.components["easyhttp"].set_property(
-            "cmake_target_name", "easyhttpcpp::easyhttp"
-        )
+        self.cpp_info.components["easyhttp"].set_property("cmake_target_name", "easyhttpcpp::easyhttp")

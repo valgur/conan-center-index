@@ -8,9 +8,7 @@ required_conan_version = ">=1.43.0"
 
 class PlayrhoConan(ConanFile):
     name = "playrho"
-    description = (
-        "Real-time oriented physics engine and library that's currently best suited for 2D games. "
-    )
+    description = "Real-time oriented physics engine and library that's currently best suited for 2D games. "
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/louis-langholtz/PlayRho/"
@@ -61,16 +59,12 @@ class PlayrhoConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
-                    self.name
-                )
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)

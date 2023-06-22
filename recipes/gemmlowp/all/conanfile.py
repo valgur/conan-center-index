@@ -60,12 +60,7 @@ class GemmlowpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -77,9 +72,7 @@ class GemmlowpConan(ConanFile):
         self.cpp_info.components["eight_bit_int_gemm"].set_property(
             "cmake_target_name", "gemmlowp::eight_bit_int_gemm"
         )
-        self.cpp_info.components["eight_bit_int_gemm"].includedirs.append(
-            os.path.join("include", "gemmlowp")
-        )
+        self.cpp_info.components["eight_bit_int_gemm"].includedirs.append(os.path.join("include", "gemmlowp"))
         self.cpp_info.components["eight_bit_int_gemm"].libs = ["eight_bit_int_gemm"]
         if is_msvc(self):
             self.cpp_info.components["eight_bit_int_gemm"].defines = ["NOMINMAX"]

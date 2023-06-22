@@ -80,20 +80,13 @@ class SundialsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if self.settings.os == "Windows" and self.options.shared:
             mkdir(self, os.path.join(self.package_folder, "bin"))
             for dll_path in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-                shutil.move(
-                    dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path))
-                )
+                shutil.move(dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path)))
 
     def package_info(self):
         self.cpp_info.components["sundials_nvecmanyvector"].libs = ["sundials_nvecmanyvector"]
@@ -110,12 +103,8 @@ class SundialsConan(ConanFile):
         self.cpp_info.components["sundials_sunmatrixband"].libs = ["sundials_sunmatrixband"]
         self.cpp_info.components["sundials_sunmatrixdense"].libs = ["sundials_sunmatrixdense"]
         self.cpp_info.components["sundials_sunmatrixsparse"].libs = ["sundials_sunmatrixsparse"]
-        self.cpp_info.components["sundials_sunnonlinsolfixedpoint"].libs = [
-            "sundials_sunnonlinsolfixedpoint"
-        ]
-        self.cpp_info.components["sundials_sunnonlinsolnewton"].libs = [
-            "sundials_sunnonlinsolnewton"
-        ]
+        self.cpp_info.components["sundials_sunnonlinsolfixedpoint"].libs = ["sundials_sunnonlinsolfixedpoint"]
+        self.cpp_info.components["sundials_sunnonlinsolnewton"].libs = ["sundials_sunnonlinsolnewton"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["sundials_nvecmanyvector"].system_libs = ["m"]
             self.cpp_info.components["sundials_nvecserial"].system_libs = ["m"]

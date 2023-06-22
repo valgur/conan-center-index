@@ -112,9 +112,7 @@ class GrpcConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("re2/20230301")
         self.requires("zlib/1.2.13")
-        self.requires(
-            "protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self)
-        )
+        self.requires("protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def package_id(self):
         del self.info.options.secure
@@ -136,8 +134,7 @@ class GrpcConan(ConanFile):
 
         if self.options.shared and (not self.dependencies["protobuf"].options.shared):
             raise ConanInvalidConfiguration(
-                "If built as shared protobuf must be shared as well. "
-                "Please, use `protobuf:shared=True`.",
+                "If built as shared protobuf must be shared as well. " "Please, use `protobuf:shared=True`."
             )
 
     def build_requirements(self):
@@ -233,12 +230,7 @@ class GrpcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -391,10 +383,7 @@ class GrpcConan(ConanFile):
                 "requires": ["grpc++", "protobuf::libprotobuf"],
                 "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
             },
-            "upb": {
-                "lib": "upb",
-                "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
-            },
+            "upb": {"lib": "upb", "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32()},
             "grpc_plugin_support": {
                 "lib": "grpc_plugin_support",
                 "requires": ["protobuf::libprotoc", "protobuf::libprotobuf"],
@@ -458,9 +447,7 @@ class GrpcConan(ConanFile):
         for component, values in self._grpc_components.items():
             target = values.get("lib")
             lib = values.get("lib")
-            self.cpp_info.components[component].set_property(
-                "cmake_target_name", "gRPC::{}".format(target)
-            )
+            self.cpp_info.components[component].set_property("cmake_target_name", "gRPC::{}".format(target))
             # actually only gpr, grpc, grpc_unsecure, grpc++ and grpc++_unsecure should have a .pc file
             self.cpp_info.components[component].set_property("pkg_config_name", target)
             self.cpp_info.components[component].libs = [lib]
@@ -490,9 +477,5 @@ class GrpcConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "gRPC"
         self.cpp_info.names["cmake_find_package_multi"] = "gRPC"
         if grpc_modules:
-            self.cpp_info.components["grpc_execs"].build_modules[
-                "cmake_find_package"
-            ] = grpc_modules
-            self.cpp_info.components["grpc_execs"].build_modules[
-                "cmake_find_package_multi"
-            ] = grpc_modules
+            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package"] = grpc_modules
+            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package_multi"] = grpc_modules

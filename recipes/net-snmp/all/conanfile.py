@@ -126,14 +126,10 @@ class NetSnmpConan(ConanFile):
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
             tools.replace_in_file(
-                "configure",
-                'LIBCRYPTO="-l${CRYPTO}"',
-                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,),
+                "configure", 'LIBCRYPTO="-l${CRYPTO}"', 'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,)
             )
             tools.replace_in_file(
-                "configure",
-                'LIBS="-lcrypto  $LIBS"',
-                f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"',
+                "configure", 'LIBS="-lcrypto  $LIBS"', f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
             )
 
     def build(self):

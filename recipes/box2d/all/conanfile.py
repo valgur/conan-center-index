@@ -98,11 +98,7 @@ class Box2dConan(ConanFile):
             keep_path=False,
         )
         tools.files.copy(
-            self,
-            "*.a",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
+            self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False
         )
 
     def package_info(self):

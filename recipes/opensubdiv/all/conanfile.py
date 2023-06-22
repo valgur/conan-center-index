@@ -156,12 +156,7 @@ class OpenSubdivConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -192,10 +187,6 @@ class OpenSubdivConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "OpenSubdiv"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenSubdiv"
         self.cpp_info.components["osdcpu"].names["cmake_find_package"] = f"osdcpu{target_suffix}"
-        self.cpp_info.components["osdcpu"].names[
-            "cmake_find_package_multi"
-        ] = f"osdcpu{target_suffix}"
+        self.cpp_info.components["osdcpu"].names["cmake_find_package_multi"] = f"osdcpu{target_suffix}"
         self.cpp_info.components["osdgpu"].names["cmake_find_package"] = f"osdgpu{target_suffix}"
-        self.cpp_info.components["osdgpu"].names[
-            "cmake_find_package_multi"
-        ] = f"osdgpu{target_suffix}"
+        self.cpp_info.components["osdgpu"].names["cmake_find_package_multi"] = f"osdgpu{target_suffix}"

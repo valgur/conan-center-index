@@ -85,9 +85,7 @@ class WasmtimeConan(ConanFile):
         # This is packaging binaries so the download needs to be in build
         get(
             self,
-            **self.conan_data["sources"][self.version][self._sources_os_key][
-                str(self.settings.arch)
-            ],
+            **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
             destination=self.build_folder,
             strip_root=True,
         )
@@ -113,12 +111,7 @@ class WasmtimeConan(ConanFile):
             copy(self, "wasmtime.lib", dst=dstlibdir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.a", dst=dstlibdir, src=srclibdir, keep_path=False)
 
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.build_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.build_folder)
 
     def package_info(self):
         if self.options.shared:

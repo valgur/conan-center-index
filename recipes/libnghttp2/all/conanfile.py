@@ -162,10 +162,7 @@ class Nghttp2Conan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -179,9 +176,7 @@ class Nghttp2Conan(ConanFile):
             self.cpp_info.components["nghttp2"].defines.append("NGHTTP2_STATICLIB")
 
         if self.options.get_safe("with_asio"):
-            self.cpp_info.components["nghttp2_asio"].set_property(
-                "pkg_config_name", "libnghttp2_asio"
-            )
+            self.cpp_info.components["nghttp2_asio"].set_property("pkg_config_name", "libnghttp2_asio")
             self.cpp_info.components["nghttp2_asio"].libs = ["nghttp2_asio"]
             self.cpp_info.components["nghttp2_asio"].requires = [
                 "nghttp2",
@@ -209,6 +204,5 @@ class Nghttp2Conan(ConanFile):
 
         # trick for internal conan usage to pick up in downsteam pc files the pc file including all libs components
         self.cpp_info.set_property(
-            "pkg_config_name",
-            "libnghttp2_asio" if self.options.get_safe("with_asio") else "libnghttp2",
+            "pkg_config_name", "libnghttp2_asio" if self.options.get_safe("with_asio") else "libnghttp2"
         )

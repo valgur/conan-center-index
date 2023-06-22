@@ -52,9 +52,7 @@ class PangoConan(ConanFile):
         if self.options.with_xft and not self.settings.os in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Xft can only be used on Linux and FreeBSD")
 
-        if self.options.with_xft and (
-            not self.options.with_freetype or not self.options.with_fontconfig
-        ):
+        if self.options.with_xft and (not self.options.with_freetype or not self.options.with_fontconfig):
             raise ConanInvalidConfiguration("Xft requires freetype and fontconfig")
 
         if self.options.shared and (

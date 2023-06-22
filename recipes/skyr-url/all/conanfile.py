@@ -94,9 +94,7 @@ class SkyrUrlConan(ConanFile):
                 )
 
         if self.options.with_fs and self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration(
-                "apple-clang currently does not support with filesystem"
-            )
+            raise ConanInvalidConfiguration("apple-clang currently does not support with filesystem")
         if self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} supports only libstdc++'s new ABI")
 
@@ -143,10 +141,7 @@ class SkyrUrlConan(ConanFile):
         self.cpp_info.components["url"].libs = [
             "skyr-urld" if self.settings.build_type == "Debug" else "skyr-url"
         ]
-        self.cpp_info.components["url"].requires = [
-            "tl-expected::tl-expected",
-            "range-v3::range-v3",
-        ]
+        self.cpp_info.components["url"].requires = ["tl-expected::tl-expected", "range-v3::range-v3"]
         if self.options.with_json:
             self.cpp_info.components["url"].requires.append("nlohmann_json::nlohmann_json")
         if self.settings.os in ["Linux", "FreeBSD"]:

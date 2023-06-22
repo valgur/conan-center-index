@@ -23,7 +23,9 @@ required_conan_version = ">=1.53.0"
 
 class SDLConan(ConanFile):
     name = "sdl"
-    description = "Access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL, Direct3D and Vulkan"
+    description = (
+        "Access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL, Direct3D and Vulkan"
+    )
     topics = ("sdl2", "audio", "keyboard", "graphics", "opengl")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org"
@@ -199,20 +201,13 @@ class SDLConan(ConanFile):
             # or because CMake's platform configuration is corrupt.
             # FIXME: Remove once CMake on macOS/M1 CI runners is upgraded.
             self.tool_requires("cmake/3.25.3")
-        if self.settings.os == "Linux" and not self.conf.get(
-            "tools.gnu:pkg_config", check_type=str
-        ):
+        if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/1.9.3")
         if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
             self.build_requires("wayland/1.21.0")  # Provides wayland-scanner
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -225,9 +220,7 @@ class SDLConan(ConanFile):
             else:
                 # When no tusing conan-provided icon, don't check for iconv at all
                 replace_check = "#check_library_exists(iconv iconv_open"
-            replace_in_file(
-                self, cmakelists, "check_library_exists(iconv iconv_open", replace_check
-            )
+            replace_in_file(self, cmakelists, "check_library_exists(iconv iconv_open", replace_check)
 
         # Avoid assuming iconv is available if it is provided by the C runtime,
         # and let SDL build the fallback implementation
@@ -295,9 +288,7 @@ class SDLConan(ConanFile):
                 tc.variables["SDL_ESD_SHARED"] = self.options["esd"].shared
             tc.variables["SDL_PULSEAUDIO"] = self.options.pulse
             if self.options.pulse:
-                tc.variables["SDL_PULSEAUDIO_SHARED"] = self.dependencies[
-                    "pulseaudio"
-                ].options.shared
+                tc.variables["SDL_PULSEAUDIO_SHARED"] = self.dependencies["pulseaudio"].options.shared
                 for component in self.dependencies["pulseaudio"].cpp_info.components:
                     if self.dependencies["pulseaudio"].cpp_info.components[component].libs:
                         cmake_extra_libs += (
@@ -305,9 +296,7 @@ class SDLConan(ConanFile):
                         )
                         cmake_extra_ldflags += [
                             "-L{}".format(it)
-                            for it in self.dependencies["pulseaudio"]
-                            .cpp_info.components[component]
-                            .libdirs
+                            for it in self.dependencies["pulseaudio"].cpp_info.components[component].libdirs
                         ]
                 cmake_extra_ldflags += [
                     "-lxcb",
@@ -376,9 +365,7 @@ class SDLConan(ConanFile):
         tc.variables["EXTRA_LDFLAGS"] = ";".join(cmake_extra_ldflags)
         tc.variables["CMAKE_REQUIRED_INCLUDES"] = ";".join(cmake_required_includes)
         cmake_extra_cflags = [
-            "-I{}".format(path)
-            for _, dep in self.dependencies.items()
-            for path in dep.cpp_info.includedirs
+            "-I{}".format(path) for _, dep in self.dependencies.items() for path in dep.cpp_info.includedirs
         ]
         tc.variables["EXTRA_CFLAGS"] = ";".join(cmake_extra_cflags)
         tc.variables["EXTRA_LIBS"] = ";".join(cmake_extra_libs)
@@ -413,9 +400,7 @@ class SDLConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "SDL2"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2"
 
-        postfix = (
-            "d" if self.settings.os != "Android" and self.settings.build_type == "Debug" else ""
-        )
+        postfix = "d" if self.settings.os != "Android" and self.settings.build_type == "Debug" else ""
 
         # SDL2
         lib_postfix = postfix
@@ -424,9 +409,7 @@ class SDLConan(ConanFile):
 
         self.cpp_info.components["libsdl2"].set_property("cmake_target_name", "SDL2::SDL2")
         if not self.options.shared:
-            self.cpp_info.components["libsdl2"].set_property(
-                "cmake_target_aliases", ["SDL2::SDL2-static"]
-            )
+            self.cpp_info.components["libsdl2"].set_property("cmake_target_aliases", ["SDL2::SDL2-static"])
         self.cpp_info.components["libsdl2"].set_property("pkg_config_name", "sdl2")
 
         sdl2_cmake_target = "SDL2" if self.options.shared else "SDL2-static"
@@ -489,23 +472,12 @@ class SDLConan(ConanFile):
                 self.cpp_info.components["libsdl2"].frameworks.append("GameController")
             elif self.settings.os in ["iOS", "tvOS", "watchOS"]:
                 self.cpp_info.components["libsdl2"].frameworks.extend(
-                    [
-                        "UIKit",
-                        "OpenGLES",
-                        "GameController",
-                        "CoreMotion",
-                        "CoreGraphics",
-                        "CoreBluetooth",
-                    ]
+                    ["UIKit", "OpenGLES", "GameController", "CoreMotion", "CoreGraphics", "CoreBluetooth"]
                 )
 
             self.cpp_info.components["libsdl2"].frameworks.append("Metal")
-            self.cpp_info.components["libsdl2"].sharedlinkflags.append(
-                "-Wl,-weak_framework,CoreHaptics"
-            )
-            self.cpp_info.components["libsdl2"].exelinkflags.append(
-                "-Wl,-weak_framework,CoreHaptics"
-            )
+            self.cpp_info.components["libsdl2"].sharedlinkflags.append("-Wl,-weak_framework,CoreHaptics")
+            self.cpp_info.components["libsdl2"].exelinkflags.append("-Wl,-weak_framework,CoreHaptics")
         elif self.settings.os == "Windows":
             self.cpp_info.components["libsdl2"].system_libs = [
                 "user32",
@@ -540,6 +512,5 @@ class SDLConan(ConanFile):
 
         # Workaround to avoid unwanted sdl::sdl target in CMakeDeps generator
         self.cpp_info.set_property(
-            "cmake_target_name",
-            "SDL2::{}".format("SDL2main" if self.options.sdl2main else "SDL2"),
+            "cmake_target_name", "SDL2::{}".format("SDL2main" if self.options.sdl2main else "SDL2")
         )

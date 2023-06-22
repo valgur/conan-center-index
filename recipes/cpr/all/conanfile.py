@@ -52,7 +52,7 @@ class CprConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     @property
@@ -106,9 +106,7 @@ class CprConan(ConanFile):
         ssl_library = str(self.options.get_safe("with_ssl"))
         if not self._can_auto_ssl and ssl_library == CprConan._AUTO_SSL:
             if self._supports_openssl:
-                self.output.info(
-                    "Auto SSL is not available below version 1.6.0. Falling back to openssl"
-                )
+                self.output.info("Auto SSL is not available below version 1.6.0. Falling back to openssl")
                 self.options.with_ssl = "openssl"
             else:
                 self.output.info(
@@ -163,9 +161,7 @@ class CprConan(ConanFile):
         }
 
         if not self._uses_valid_abi_and_compiler:
-            raise ConanInvalidConfiguration(
-                f"Cannot compile {self.ref} with libstdc++ on clang < 9"
-            )
+            raise ConanInvalidConfiguration(f"Cannot compile {self.ref} with libstdc++ on clang < 9")
 
         ssl_library = str(self.options.with_ssl)
         if not self._supports_ssl_library(ssl_library):
@@ -184,9 +180,7 @@ class CprConan(ConanFile):
             )
 
         if ssl_library == "winssl" and self.dependencies["libcurl"].options.with_ssl != "schannel":
-            raise ConanInvalidConfiguration(
-                f"{self.ref}:with_ssl=winssl requires libcurl:with_ssl=schannel"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref}:with_ssl=winssl requires libcurl:with_ssl=schannel")
 
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
@@ -218,7 +212,9 @@ class CprConan(ConanFile):
             # Get the translated option if we can, or the original if one isn't defined.
             return CPR_1_6_CMAKE_OPTIONS_TO_OLD.get(option, option)
 
-        CPR_1_6_CMAKE_OPTIONS_TO_1_10 = {"CPR_FORCE_USE_SYSTEM_CURL": "CPR_USE_SYSTEM_CURL"}
+        CPR_1_6_CMAKE_OPTIONS_TO_1_10 = {
+            "CPR_FORCE_USE_SYSTEM_CURL": "CPR_USE_SYSTEM_CURL",
+        }
 
         if Version(self.version) >= "1.10.0":
             return CPR_1_6_CMAKE_OPTIONS_TO_1_10.get(option, option)
@@ -241,10 +237,7 @@ class CprConan(ConanFile):
         for cmake_option, value in SSL_OPTIONS.items():
             tc.variables[self._get_cmake_option(cmake_option)] = value
         # If we are on a version where disabling SSL requires a cmake option, disable it
-        if (
-            not self._uses_old_cmake_options
-            and str(self.options.get_safe("with_ssl")) == CprConan._NO_SSL
-        ):
+        if not self._uses_old_cmake_options and str(self.options.get_safe("with_ssl")) == CprConan._NO_SSL:
             tc.variables["CPR_ENABLE_SSL"] = False
 
         if self.options.get_safe("verbose_logging", False):
@@ -269,12 +262,7 @@ class CprConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

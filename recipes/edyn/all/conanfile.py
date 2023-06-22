@@ -18,11 +18,7 @@ class EdynConan(ConanFile):
     topics = ("physics", "game-development", "ecs")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "floating_type": ["float", "double"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "floating_type": ["float", "double"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -88,10 +84,7 @@ class EdynConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         cmake = CMake(self)
         cmake.install()

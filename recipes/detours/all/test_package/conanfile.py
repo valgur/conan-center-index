@@ -23,6 +23,4 @@ class TestPackageConan(ConanFile):
                 output=buffer,
             )
             print(buffer.getvalue())
-            assert (
-                "I found your message! It was 'A secret text'! I am 1337! :^)" in buffer.getvalue()
-            )
+            assert "I found your message! It was 'A secret text'! I am 1337! :^)" in buffer.getvalue()

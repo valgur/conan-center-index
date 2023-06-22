@@ -42,12 +42,7 @@ class ArduinojsonConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "*LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h",
@@ -64,7 +59,9 @@ class ArduinojsonConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"ArduinoJson": "ArduinoJson::ArduinoJson"},
+            {
+                "ArduinoJson": "ArduinoJson::ArduinoJson",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -48,9 +48,7 @@ class CppProjectFrameworkConan(ConanFile):
 
         min_version = self._minimum_compilers_version.get(str(compiler))
         if not min_version:
-            self.output.warn(
-                f"{self.name} recipe lacks information about the {compiler} compiler support."
-            )
+            self.output.warn(f"{self.name} recipe lacks information about the {compiler} compiler support.")
         else:
             if Version(compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
@@ -68,7 +66,5 @@ class CppProjectFrameworkConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(
-            "*.h",
-            dst=os.path.join("include", self.name),
-            src=os.path.join(self._source_subfolder, self.name),
+            "*.h", dst=os.path.join("include", self.name), src=os.path.join(self._source_subfolder, self.name)
         )

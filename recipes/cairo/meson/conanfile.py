@@ -201,12 +201,7 @@ class CairoConan(ConanFile):
 
         if is_apple_os(self) and Version(self.version) < "1.17.6":
             # This was fixed in the meson build from 1.17.6
-            meson.c_link_args += [
-                "-framework",
-                "ApplicationServices",
-                "-framework",
-                "CoreFoundation",
-            ]
+            meson.c_link_args += ["-framework", "ApplicationServices", "-framework", "CoreFoundation"]
 
         if not self.options.shared:
             meson.c_args.append("-DCAIRO_WIN32_STATIC_BUILD")
@@ -233,9 +228,7 @@ class CairoConan(ConanFile):
             for filename_old in glob.glob(os.path.join(path, "*.a")):
                 root, _ = os.path.splitext(filename_old)
                 folder, basename = os.path.split(root)
-                rename(
-                    self, filename_old, os.path.join(folder, basename.replace("lib", "") + ".lib")
-                )
+                rename(self, filename_old, os.path.join(folder, basename.replace("lib", "") + ".lib"))
 
     def package(self):
         meson = Meson(self)
@@ -247,7 +240,9 @@ class CairoConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        base_requirements = {"pixman::pixman"}
+        base_requirements = {
+            "pixman::pixman",
+        }
         base_system_libs = {}
 
         def add_component_and_base_requirements(component, requirements, system_libs=None):
@@ -309,9 +304,7 @@ class CairoConan(ConanFile):
             )
             self.cpp_info.components["cairo-quartz-image"].requires = ["cairo_"]
 
-            self.cpp_info.components["cairo-quartz-font"].set_property(
-                "pkg_config_name", "cairo-quartz-font"
-            )
+            self.cpp_info.components["cairo-quartz-font"].set_property("pkg_config_name", "cairo-quartz-font")
             self.cpp_info.components["cairo-quartz-font"].requires = ["cairo_"]
 
             self.cpp_info.components["cairo_"].frameworks += [
@@ -324,9 +317,7 @@ class CairoConan(ConanFile):
             self.cpp_info.components["cairo-win32"].set_property("pkg_config_name", "cairo-win32")
             self.cpp_info.components["cairo-win32"].requires = ["cairo_"]
 
-            self.cpp_info.components["cairo-win32-font"].set_property(
-                "pkg_config_name", "cairo-win32-font"
-            )
+            self.cpp_info.components["cairo-win32-font"].set_property("pkg_config_name", "cairo-win32-font")
             self.cpp_info.components["cairo-win32-font"].requires = ["cairo_"]
 
             self.cpp_info.components["cairo_"].system_libs.extend(["gdi32", "msimg32", "user32"])
@@ -373,9 +364,7 @@ class CairoConan(ConanFile):
 
         # util directory
         if self.options.with_glib:
-            self.cpp_info.components["cairo-gobject"].set_property(
-                "pkg_config_name", "cairo-gobject"
-            )
+            self.cpp_info.components["cairo-gobject"].set_property("pkg_config_name", "cairo-gobject")
             self.cpp_info.components["cairo-gobject"].libs = ["cairo-gobject"]
             self.cpp_info.components["cairo-gobject"].requires = [
                 "cairo_",

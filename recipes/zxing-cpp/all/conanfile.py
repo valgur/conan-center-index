@@ -70,9 +70,7 @@ class ZXingCppConan(ConanFile):
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, cpp_version)
-        min_version = self._compiler_cpp_support.get(str(cpp_version)).get(
-            str(self.settings.compiler)
-        )
+        min_version = self._compiler_cpp_support.get(str(cpp_version)).get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
                 f"This compiler is too old. {self.ref} needs a compiler with c++{cpp_version} support"
@@ -113,10 +111,7 @@ class ZXingCppConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

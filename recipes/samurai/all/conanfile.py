@@ -12,7 +12,9 @@ required_conan_version = ">=1.52.0"
 
 class PackageConan(ConanFile):
     name = "samurai"
-    description = "Intervals coupled with algebra of set to handle adaptive mesh refinement and operators on it"
+    description = (
+        "Intervals coupled with algebra of set to handle adaptive mesh refinement and operators on it"
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hpc-maths/samurai"
@@ -64,10 +66,7 @@ class PackageConan(ConanFile):
     # Copy all files to the package folder
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

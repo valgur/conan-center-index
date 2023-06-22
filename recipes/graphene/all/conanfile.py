@@ -132,10 +132,7 @@ class GrapheneConan(ConanFile):
             self.cpp_info.components["graphene-gobject-1.0"].includedirs = [
                 os.path.join("include", "graphene-1.0")
             ]
-            self.cpp_info.components["graphene-gobject-1.0"].requires = [
-                "graphene-1.0",
-                "glib::gobject-2.0",
-            ]
+            self.cpp_info.components["graphene-gobject-1.0"].requires = ["graphene-1.0", "glib::gobject-2.0"]
 
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
@@ -153,6 +150,4 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
                 libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
-                rename(
-                    conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib")
-                )
+                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

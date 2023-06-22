@@ -43,9 +43,7 @@ class LAConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires at least {compiler} {min_version}"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} requires at least {compiler} {min_version}")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -54,12 +52,7 @@ class LAConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))

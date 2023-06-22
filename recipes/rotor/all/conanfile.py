@@ -75,7 +75,12 @@ class RotorConan(ConanFile):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {"gcc": "7", "clang": "6", "apple-clang": "10", "Visual Studio": "15"}
+        minimal_version = {
+            "gcc": "7",
+            "clang": "6",
+            "apple-clang": "10",
+            "Visual Studio": "15",
+        }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
@@ -102,19 +107,11 @@ class RotorConan(ConanFile):
         cmake.build()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         cmake = CMake(self)
         cmake.install()
@@ -122,11 +119,7 @@ class RotorConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["core"].libs = ["rotor"]
-        self.cpp_info.components["core"].requires = [
-            "boost::date_time",
-            "boost::system",
-            "boost::regex",
-        ]
+        self.cpp_info.components["core"].requires = ["boost::date_time", "boost::system", "boost::regex"]
 
         if not self.options.multithreading:
             self.cpp_info.components["core"].defines.append("BUILD_THREAD_UNSAFE")

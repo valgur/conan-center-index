@@ -1,12 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 
 from conans import Meson
@@ -21,9 +15,7 @@ class AtSpi2CoreConan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-core/"
     license = "LGPL-2.1-or-later"
     generators = "pkg_config"
-    deprecated = (
-        "Consumers should migrate to at-spi2-core/[>=2.45.1], which includes atk and at-spi2-atk"
-    )
+    deprecated = "Consumers should migrate to at-spi2-core/[>=2.45.1], which includes atk and at-spi2-atk"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

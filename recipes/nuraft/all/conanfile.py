@@ -18,11 +18,7 @@ class NuRaftConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "asio": ["boost", "standalone"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "asio": ["boost", "standalone"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -70,12 +66,7 @@ class NuRaftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

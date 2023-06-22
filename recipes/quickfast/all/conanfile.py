@@ -25,7 +25,10 @@ class QuickfastConan(ConanFile):
         "fPIC": [True, False],
         "shared": [True, False],
     }
-    default_options = {"fPIC": True, "shared": False}
+    default_options = {
+        "fPIC": True,
+        "shared": False,
+    }
     requires = ["boost/1.75.0", "xerces-c/3.2.3"]
     generators = "cmake"
     exports_sources = "CMakeLists.txt", "patches/**"

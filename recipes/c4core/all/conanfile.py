@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    copy,
-    get,
-    rm,
-    rmdir,
-    apply_conandata_patches,
-    export_conandata_patches,
-)
+from conan.tools.files import copy, get, rm, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -19,16 +12,12 @@ required_conan_version = ">=1.53.0"
 class C4CoreConan(ConanFile):
     name = "c4core"
     description = (
-        "c4core is a library of low-level C++ utilities, written with "
-        "low-latency projects in mind."
+        "c4core is a library of low-level C++ utilities, written with " "low-latency projects in mind."
     )
     license = ("MIT",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/biojppm/c4core"
-    topics = (
-        "utilities",
-        "low-latency",
-    )
+    topics = ("utilities", "low-latency")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

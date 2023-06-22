@@ -17,9 +17,7 @@ required_conan_version = ">=1.53.0"
 
 class LibmikmodConan(ConanFile):
     name = "libmikmod"
-    description = (
-        "Module player and library supporting many formats, including mod, s3m, it, and xm."
-    )
+    description = "Module player and library supporting many formats, including mod, s3m, it, and xm."
     topics = ("audio",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mikmod.sourceforge.net"
@@ -107,10 +105,7 @@ class LibmikmodConan(ConanFile):
 
         # Ensure missing dependencies yields errors
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "MESSAGE(WARNING",
-            "MESSAGE(FATAL_ERROR",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "MESSAGE(WARNING", "MESSAGE(FATAL_ERROR"
         )
 
         replace_in_file(
@@ -128,10 +123,7 @@ class LibmikmodConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            "COPYING.LESSER",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, "COPYING.LESSER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         cmake = CMake(self)
         cmake.install()

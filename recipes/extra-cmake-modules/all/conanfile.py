@@ -34,9 +34,7 @@ class ExtracmakemodulesConan(ConanFile):
         self._cmake.definitions["BUILD_QTHELP_DOCS"] = False
         self._cmake.definitions["BUILD_MAN_DOCS"] = False
         self._cmake.definitions["SHARE_INSTALL_DIR"] = os.path.join(self.package_folder, "res")
-        self._cmake.configure(
-            source_folder=os.path.join(self.source_folder, self._source_subfolder)
-        )
+        self._cmake.configure(source_folder=os.path.join(self.source_folder, self._source_subfolder))
         return self._cmake
 
     def build(self):
@@ -52,9 +50,7 @@ class ExtracmakemodulesConan(ConanFile):
             dst="res/tests",
         )
         self.copy(
-            "*",
-            src=os.path.join(self.source_folder, self._source_subfolder, "LICENSES"),
-            dst="licenses",
+            "*", src=os.path.join(self.source_folder, self._source_subfolder, "LICENSES"), dst="licenses"
         )
 
     def package_info(self):

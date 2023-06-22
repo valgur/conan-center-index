@@ -45,12 +45,7 @@ class ExprTkConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(
-            self,
-            "exprtk.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, "exprtk.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -67,10 +67,7 @@ class ErkirConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if Version(self.version) < "2.0.0":
             copy(
@@ -123,7 +120,5 @@ class ErkirConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "erkir")
         self.cpp_info.set_property("cmake_target_name", "erkir::erkir")
-        postfix = (
-            "d" if Version(self.version) >= "2.0.0" and self.settings.build_type == "Debug" else ""
-        )
+        postfix = "d" if Version(self.version) >= "2.0.0" and self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [f"erkir{postfix}"]

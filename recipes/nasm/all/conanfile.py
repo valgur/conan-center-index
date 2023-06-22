@@ -87,18 +87,13 @@ class NASMConan(ConanFile):
             # FIXME: Revisit after https://github.com/conan-io/conan/issues/9069, using new Autotools integration
             # TODO it is time to revisit, not sure what to do here though...
             if str(self.version).startswith("2.13"):
-                replace_in_file(
-                    self, "Makefile", "$(CC) $(LDFLAGS) -o", "$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o"
-                )
+                replace_in_file(self, "Makefile", "$(CC) $(LDFLAGS) -o", "$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o")
                 replace_in_file(self, "Makefile", "$(INSTALLROOT)", "$(DESTDIR)")
             autotools.make()
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if is_msvc(self):
             copy(

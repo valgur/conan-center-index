@@ -17,10 +17,7 @@ class LunaSVGConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/sammycage/lunasvg"
-    topics = (
-        "svg",
-        "renderer",
-    )
+    topics = ("svg", "renderer")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -81,9 +78,7 @@ class LunaSVGConan(ConanFile):
     def validate(self):
         if self.info.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.info.settings.compiler), False
-        )
+        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -109,10 +104,7 @@ class LunaSVGConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

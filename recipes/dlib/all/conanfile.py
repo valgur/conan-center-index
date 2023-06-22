@@ -84,17 +84,13 @@ class DlibConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "dlib can not be built as a shared library with Visual Studio"
-            )
+            raise ConanInvalidConfiguration("dlib can not be built as a shared library with Visual Studio")
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("dlib doesn't support macOS M1")
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -105,18 +101,14 @@ class DlibConan(ConanFile):
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libjpeg.cmake"),
-            os.path.join(
-                self._source_subfolder, "dlib", "cmake_utils", "test_for_libjpeg", "CMakeLists.txt"
-            ),
+            os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libjpeg", "CMakeLists.txt"),
         ]:
             tools.replace_in_file(cmake_file, "${JPEG_LIBRARY}", "JPEG::JPEG")
         # robust libpng injection
         for cmake_file in [
             dlib_cmakelists,
             os.path.join(self._source_subfolder, "dlib", "cmake_utils", "find_libpng.cmake"),
-            os.path.join(
-                self._source_subfolder, "dlib", "cmake_utils", "test_for_libpng", "CMakeLists.txt"
-            ),
+            os.path.join(self._source_subfolder, "dlib", "cmake_utils", "test_for_libpng", "CMakeLists.txt"),
         ]:
             tools.replace_in_file(cmake_file, "${PNG_LIBRARIES}", "PNG::PNG")
         # robust sqlite3 injection
@@ -129,9 +121,7 @@ class DlibConan(ConanFile):
         # robust libwebp injection
         if self._has_with_webp_option:
             tools.replace_in_file(
-                dlib_cmakelists,
-                "include(cmake_utils/find_libwebp.cmake)",
-                "find_package(WebP REQUIRED)",
+                dlib_cmakelists, "include(cmake_utils/find_libwebp.cmake)", "find_package(WebP REQUIRED)"
             )
             tools.replace_in_file(dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
             tools.replace_in_file(dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
@@ -184,9 +174,7 @@ class DlibConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
-        self.copy(
-            "LICENSE.txt", "licenses", os.path.join(self._source_subfolder, "dlib"), keep_path=False
-        )
+        self.copy("LICENSE.txt", "licenses", os.path.join(self._source_subfolder, "dlib"), keep_path=False)
 
         # Remove configuration files
         for dir_to_remove in [

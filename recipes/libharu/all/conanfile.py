@@ -21,9 +21,7 @@ required_conan_version = ">=1.53.0"
 
 class LibharuConan(ConanFile):
     name = "libharu"
-    description = (
-        "Haru is a free, cross platform, open-sourced software library for generating PDF."
-    )
+    description = "Haru is a free, cross platform, open-sourced software library for generating PDF."
     topics = ("pdf", "generate", "generator")
     license = "Zlib"
     homepage = "http://libharu.org/"
@@ -61,12 +59,7 @@ class LibharuConan(ConanFile):
         self.requires("libpng/1.6.39")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -99,11 +92,7 @@ class LibharuConan(ConanFile):
             rm(self, "README", os.path.join(self.package_folder))
 
             rmdir(self, os.path.join(self.package_folder, "if"))
-            save(
-                self,
-                os.path.join(self.package_folder, "licenses", "LICENSE"),
-                self._v230_extract_license(),
-            )
+            save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._v230_extract_license())
         else:
             copy(
                 self,

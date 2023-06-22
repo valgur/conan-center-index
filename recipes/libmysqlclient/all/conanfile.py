@@ -99,9 +99,7 @@ class LibMysqlClientCConan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires {self.settings.compiler} {minimum_version} or newer"
             )
@@ -119,9 +117,7 @@ class LibMysqlClientCConan(ConanFile):
     def build_requirements(self):
         if is_apple_os(self):
             self.tool_requires("cmake/[>=3.18 <4]")
-        if self.settings.os == "FreeBSD" and not self.conf.get(
-            "tools.gnu:pkg_config", check_type=str
-        ):
+        if self.settings.os == "FreeBSD" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
@@ -174,9 +170,7 @@ class LibMysqlClientCConan(ConanFile):
             )
         rmdir(self, os.path.join(self.source_folder, "storage", "ndb"))
         for t in ["INCLUDE(cmake/boost.cmake)\n", "MYSQL_CHECK_EDITLINE()\n"]:
-            replace_in_file(
-                self, os.path.join(self.source_folder, "CMakeLists.txt"), t, "", strict=False
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), t, "", strict=False)
 
         # Upstream does not actually load lz4 directories for system, force it to
         replace_in_file(
@@ -236,10 +230,7 @@ class LibMysqlClientCConan(ConanFile):
         deps_shared = ["SSL", "KERBEROS", "SASL", "LDAP", "PROTOBUF", "CURL"]
         for dep in deps_shared:
             replace_in_file(
-                self,
-                os.path.join(self.source_folder, "CMakeLists.txt"),
-                f"MYSQL_CHECK_{dep}_DLLS()",
-                "",
+                self, os.path.join(self.source_folder, "CMakeLists.txt"), f"MYSQL_CHECK_{dep}_DLLS()", ""
             )
 
         if self.settings.os == "Macos":
@@ -284,18 +275,13 @@ class LibMysqlClientCConan(ConanFile):
 
         tc.cache_variables["WITH_ZSTD"] = "system"
         tc.cache_variables["ZSTD_INCLUDE_DIR"] = (
-            self.dependencies["zstd"]
-            .cpp_info.aggregated_components()
-            .includedirs[0]
-            .replace("\\", "/")
+            self.dependencies["zstd"].cpp_info.aggregated_components().includedirs[0].replace("\\", "/")
         )
 
         if is_msvc(self):
             tc.cache_variables["WINDOWS_RUNTIME_MD"] = not is_msvc_static_runtime(self)
 
-        tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace(
-            "\\", "/"
-        )
+        tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
 
         tc.cache_variables["WITH_ZLIB"] = "system"
         tc.generate()

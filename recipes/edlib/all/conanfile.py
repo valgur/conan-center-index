@@ -44,7 +44,7 @@ class EdlibConan(ConanFile):
                 "gcc": "5",
                 "clang": "5",
                 "apple-clang": "5.1",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -93,12 +93,7 @@ class EdlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

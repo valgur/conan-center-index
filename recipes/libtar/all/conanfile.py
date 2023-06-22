@@ -63,11 +63,7 @@ class LibTarConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--with-zlib" if self.options.with_zlib else "--without-zlib",
-            ]
-        )
+        tc.configure_args.extend(["--with-zlib" if self.options.with_zlib else "--without-zlib"])
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
@@ -91,12 +87,7 @@ class LibTarConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

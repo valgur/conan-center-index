@@ -8,7 +8,9 @@ required_conan_version = ">=1.53.0"
 
 class LibStudXmlConan(ConanFile):
     name = "libstudxml"
-    description = "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
+    description = (
+        "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
+    )
     topics = ("xml", "xml-parser", "serialization")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.codesynthesis.com/projects/libstudxml/"
@@ -41,12 +43,7 @@ class LibStudXmlConan(ConanFile):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,18 +69,11 @@ class LibStudXmlConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libstudxml")
         self.cpp_info.libs = ["studxml"]
-        self.cpp_info.defines = [
-            "LIBSTUDXML_SHARED" if self.options.shared else "LIBSTUDXML_STATIC"
-        ]
+        self.cpp_info.defines = ["LIBSTUDXML_SHARED" if self.options.shared else "LIBSTUDXML_STATIC"]

@@ -87,9 +87,7 @@ class CairommConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder,
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -124,22 +122,12 @@ class CairommConan(ConanFile):
             if not self.options.shared:
                 rename(
                     self,
-                    os.path.join(
-                        self.package_folder,
-                        "lib",
-                        f"libcairomm-{self._abi_version()}.a",
-                    ),
+                    os.path.join(self.package_folder, "lib", f"libcairomm-{self._abi_version()}.a"),
                     os.path.join(self.package_folder, "lib", f"cairomm-{self._abi_version()}.lib"),
                 )
 
         for header_file in glob.glob(
-            os.path.join(
-                self.package_folder,
-                "lib",
-                f"cairomm-{self._abi_version()}",
-                "include",
-                "*.h",
-            )
+            os.path.join(self.package_folder, "lib", f"cairomm-{self._abi_version()}", "include", "*.h")
         ):
             shutil.move(
                 header_file,
@@ -157,26 +145,16 @@ class CairommConan(ConanFile):
     def package_info(self):
         if self._abi_version() == "1.16":
             self.cpp_info.components["cairomm-1.16"].names["pkg_config"] = "cairomm-1.16"
-            self.cpp_info.components["cairomm-1.16"].includedirs = [
-                os.path.join("include", "cairomm-1.16")
-            ]
+            self.cpp_info.components["cairomm-1.16"].includedirs = [os.path.join("include", "cairomm-1.16")]
             self.cpp_info.components["cairomm-1.16"].libs = ["cairomm-1.16"]
-            self.cpp_info.components["cairomm-1.16"].requires = [
-                "libsigcpp::sigc++",
-                "cairo::cairo_",
-            ]
+            self.cpp_info.components["cairomm-1.16"].requires = ["libsigcpp::sigc++", "cairo::cairo_"]
             if tools.is_apple_os(self.settings.os):
                 self.cpp_info.components["cairomm-1.16"].frameworks = ["CoreFoundation"]
         else:
             self.cpp_info.components["cairomm-1.0"].names["pkg_config"] = "cairomm-1.0"
-            self.cpp_info.components["cairomm-1.0"].includedirs = [
-                os.path.join("include", "cairomm-1.0")
-            ]
+            self.cpp_info.components["cairomm-1.0"].includedirs = [os.path.join("include", "cairomm-1.0")]
             self.cpp_info.components["cairomm-1.0"].libs = ["cairomm-1.0"]
-            self.cpp_info.components["cairomm-1.0"].requires = [
-                "libsigcpp::sigc++-2.0",
-                "cairo::cairo_",
-            ]
+            self.cpp_info.components["cairomm-1.0"].requires = ["libsigcpp::sigc++-2.0", "cairo::cairo_"]
             if tools.is_apple_os(self.settings.os):
                 self.cpp_info.components["cairomm-1.0"].frameworks = ["CoreFoundation"]
 

@@ -1,12 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 import os
 
 required_conan_version = ">=1.53.0"
@@ -14,9 +8,7 @@ required_conan_version = ">=1.53.0"
 
 class LibsquishConan(ConanFile):
     name = "libsquish"
-    description = (
-        "The libSquish library compresses images with the DXT " "standard (also known as S3TC)."
-    )
+    description = "The libSquish library compresses images with the DXT " "standard (also known as S3TC)."
     license = "MIT"
     topics = ("image", "compression", "dxt", "s3tc")
     homepage = "https://sourceforge.net/projects/libsquish"
@@ -72,9 +64,7 @@ class LibsquishConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SQUISH_WITH_OPENMP"] = self.options.openmp
         tc.variables["BUILD_SQUISH_WITH_SSE2"] = self.options.get_safe("sse2_intrinsics") or False
-        tc.variables["BUILD_SQUISH_WITH_ALTIVEC"] = (
-            self.options.get_safe("altivec_intrinsics") or False
-        )
+        tc.variables["BUILD_SQUISH_WITH_ALTIVEC"] = self.options.get_safe("altivec_intrinsics") or False
         tc.variables["BUILD_SQUISH_EXTRA"] = False
         tc.generate()
 
@@ -85,12 +75,7 @@ class LibsquishConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

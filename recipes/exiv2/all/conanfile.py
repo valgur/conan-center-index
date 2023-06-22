@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.files import (
-    get,
-    copy,
-    rmdir,
-    save,
-    export_conandata_patches,
-    apply_conandata_patches,
-)
+from conan.tools.files import get, copy, rmdir, save, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 import textwrap
@@ -98,9 +91,7 @@ class Exiv2Conan(ConanFile):
         if is_msvc(self):
             tc.variables["EXIV2_ENABLE_DYNAMIC_RUNTIME"] = not is_msvc_static_runtime(self)
         # set PIC manually because of object target exiv2_int
-        tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = bool(
-            self.options.get_safe("fPIC", True)
-        )
+        tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = bool(self.options.get_safe("fPIC", True))
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -113,12 +104,7 @@ class Exiv2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -126,9 +112,15 @@ class Exiv2Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        targets = {"exiv2lib": "exiv2::exiv2lib"}
+        targets = {
+            "exiv2lib": "exiv2::exiv2lib",
+        }
         if self.options.with_xmp == "bundled":
-            targets.update({"exiv2-xmp": "exiv2::exiv2-xmp"})
+            targets.update(
+                {
+                    "exiv2-xmp": "exiv2::exiv2-xmp",
+                }
+            )
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path), targets
         )

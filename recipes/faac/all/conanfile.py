@@ -88,9 +88,7 @@ class FaacConan(ConanFile):
     def validate(self):
         if is_msvc(self):
             if self.settings.arch not in ["x86", "x86_64"]:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} only supports x86 and x86_64 with Visual Studio"
-                )
+                raise ConanInvalidConfiguration(f"{self.ref} only supports x86 and x86_64 with Visual Studio")
             if self.options.drm and not self.options.shared:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} with drm support can't be built as static with Visual Studio"
@@ -165,10 +163,7 @@ class FaacConan(ConanFile):
                     "libfaac_dll_drm.vcxproj",
                 ):
                     replace_in_file(
-                        self,
-                        os.path.join(self._sln_folder, vc_proj_file),
-                        "Win32",
-                        msbuild.platform,
+                        self, os.path.join(self._sln_folder, vc_proj_file), "Win32", msbuild.platform
                     )
             targets = ["faac"]
             if self.options.drm:
@@ -190,12 +185,7 @@ class FaacConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,
@@ -226,9 +216,7 @@ class FaacConan(ConanFile):
                 new_libname = "faac.lib"
             lib_folder = os.path.join(self.package_folder, "lib")
             copy(self, old_libname, src=output_folder, dst=lib_folder, keep_path=False)
-            rename(
-                self, os.path.join(lib_folder, old_libname), os.path.join(lib_folder, new_libname)
-            )
+            rename(self, os.path.join(lib_folder, old_libname), os.path.join(lib_folder, new_libname))
         else:
             autotools = Autotools(self)
             autotools.install()

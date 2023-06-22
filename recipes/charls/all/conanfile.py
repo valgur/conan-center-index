@@ -25,12 +25,7 @@ class CharlsConan(ConanFile):
         "and near-lossless image compression and decompression."
     )
     license = "BSD-3-Clause"
-    topics = (
-        "jpeg",
-        "JPEG-LS",
-        "compression",
-        "decompression",
-    )
+    topics = ("jpeg", "JPEG-LS", "compression", "decompression")
     homepage = "https://github.com/team-charls/charls"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -115,12 +110,7 @@ class CharlsConan(ConanFile):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -129,7 +119,9 @@ class CharlsConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"charls": "charls::charls"},
+            {
+                "charls": "charls::charls",
+            },
         )
 
     def package_info(self):

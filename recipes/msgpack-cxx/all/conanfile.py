@@ -64,7 +64,9 @@ class MsgpackCXXConan(ConanFile):
         )
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"msgpackc-cxx": "msgpackc-cxx::msgpackc-cxx"},
+            {
+                "msgpackc-cxx": "msgpackc-cxx::msgpackc-cxx",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

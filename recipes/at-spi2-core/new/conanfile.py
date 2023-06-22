@@ -104,10 +104,7 @@ class AtSpi2CoreConan(ConanFile):
             else "if x11_option == 'yes'",
         )
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "meson.build"),
-            "subdir('tests')",
-            "#subdir('tests')",
+            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
         )
         replace_in_file(
             self,
@@ -138,15 +135,8 @@ class AtSpi2CoreConan(ConanFile):
         self.cpp_info.components["atk"].set_property("pkg_config_name", "atk")
 
         self.cpp_info.components["atk-bridge"].libs = ["atk-bridge-2.0"]
-        self.cpp_info.components["atk-bridge"].includedirs = [
-            os.path.join("include", "at-spi2-atk", "2.0")
-        ]
-        self.cpp_info.components["atk-bridge"].requires = [
-            "dbus::dbus",
-            "atk",
-            "glib::glib",
-            "atspi",
-        ]
+        self.cpp_info.components["atk-bridge"].includedirs = [os.path.join("include", "at-spi2-atk", "2.0")]
+        self.cpp_info.components["atk-bridge"].requires = ["dbus::dbus", "atk", "glib::glib", "atspi"]
         self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", "atk-bridge-2.0")
 
     def package_id(self):

@@ -11,9 +11,7 @@ required_conan_version = ">=1.52.0"
 
 class CsLibguardedConan(ConanFile):
     name = "cs_libguarded"
-    description = (
-        "The libGuarded library is a standalone header-only library for multithreaded programming."
-    )
+    description = "The libGuarded library is a standalone header-only library for multithreaded programming."
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/copperspice/libguarded"
@@ -70,19 +68,11 @@ class CsLibguardedConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if Version(self.version) < "1.3":
             copy(

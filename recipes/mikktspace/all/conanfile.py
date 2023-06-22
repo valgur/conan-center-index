@@ -8,9 +8,7 @@ required_conan_version = ">=1.53.0"
 
 class MikkTSpaceConan(ConanFile):
     name = "mikktspace"
-    description = (
-        " A common standard for tangent space used in baking tools to produce normal maps."
-    )
+    description = " A common standard for tangent space used in baking tools to produce normal maps."
     homepage = "https://github.com/mmikk/MikkTSpace"
     url = "https://github.com/conan-io/conan-center-index"
     license = "Zlib"
@@ -42,12 +40,7 @@ class MikkTSpaceConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -68,9 +61,7 @@ class MikkTSpaceConan(ConanFile):
         return "\n".join(license_content)
 
     def package(self):
-        save(
-            self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license
-        )
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)
         cmake = CMake(self)
         cmake.install()
 

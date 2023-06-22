@@ -9,10 +9,7 @@ required_conan_version = ">=1.43.0"
 class LibslzConan(ConanFile):
     name = "libslz"
     description = "Simple, modern libpng alternative "
-    topics = (
-        "zlib",
-        "compression",
-    )
+    topics = ("zlib", "compression")
     license = "X11"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.libslz.org/"
@@ -48,9 +45,7 @@ class LibslzConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     @functools.lru_cache(1)
@@ -64,9 +59,7 @@ class LibslzConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False
-        )
+        self.copy("LICENSE", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
         cmake = self._configure_cmake()
         cmake.install()
 

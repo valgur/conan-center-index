@@ -16,15 +16,15 @@ class LogrConan(ConanFile):
     license = "BSD-3-Clause"
     homepage = "https://github.com/ngrodzitski/logr"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "Logger frontend substitution for spdlog, glog, etc " "for server/desktop applications"
-    )
+    description = "Logger frontend substitution for spdlog, glog, etc " "for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
 
     settings = "os", "compiler", "build_type", "arch"
 
     options = {"backend": ["spdlog", "glog", "log4cplus", "boostlog", None]}
-    default_options = {"backend": "spdlog"}
+    default_options = {
+        "backend": "spdlog",
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -86,20 +86,10 @@ class LogrConan(ConanFile):
         deps.generate()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "logr"))
         cmake.install()
@@ -119,25 +109,13 @@ class LogrConan(ConanFile):
 
         if self.options.backend == "spdlog":
             self.cpp_info.components["logr_spdlog"].includedirs = []
-            self.cpp_info.components["logr_spdlog"].requires = [
-                "logr_base",
-                "spdlog::spdlog",
-            ]
+            self.cpp_info.components["logr_spdlog"].requires = ["logr_base", "spdlog::spdlog"]
         elif self.options.backend == "glog":
             self.cpp_info.components["logr_glog"].includedirs = []
-            self.cpp_info.components["logr_glog"].requires = [
-                "logr_base",
-                "glog::glog",
-            ]
+            self.cpp_info.components["logr_glog"].requires = ["logr_base", "glog::glog"]
         elif self.options.backend == "log4cplus":
             self.cpp_info.components["logr_log4cplus"].includedirs = []
-            self.cpp_info.components["logr_log4cplus"].requires = [
-                "logr_base",
-                "log4cplus::log4cplus",
-            ]
+            self.cpp_info.components["logr_log4cplus"].requires = ["logr_base", "log4cplus::log4cplus"]
         elif self.options.backend == "boostlog":
             self.cpp_info.components["logr_boostlog"].includedirs = []
-            self.cpp_info.components["logr_boostlog"].requires = [
-                "logr_base",
-                "boost::log",
-            ]
+            self.cpp_info.components["logr_boostlog"].requires = ["logr_base", "boost::log"]

@@ -97,10 +97,7 @@ class WaylandConan(ConanFile):
 
     def _patch_sources(self):
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "meson.build"),
-            "subdir('tests')",
-            "#subdir('tests')",
+            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
         )
 
     def build(self):
@@ -110,21 +107,14 @@ class WaylandConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         pkg_config_dir = os.path.join(self.package_folder, "lib", "pkgconfig")
         rmdir(self, pkg_config_dir)
 
     def package_info(self):
-        self.cpp_info.components["wayland-scanner"].set_property(
-            "pkg_config_name", "wayland-scanner"
-        )
+        self.cpp_info.components["wayland-scanner"].set_property("pkg_config_name", "wayland-scanner")
         self.cpp_info.components["wayland-scanner"].resdirs = ["res"]
         self.cpp_info.components["wayland-scanner"].includedirs = []
         self.cpp_info.components["wayland-scanner"].libdirs = []
@@ -145,17 +135,13 @@ class WaylandConan(ConanFile):
 
         if self.options.enable_libraries:
             self.cpp_info.components["wayland-server"].libs = ["wayland-server"]
-            self.cpp_info.components["wayland-server"].set_property(
-                "pkg_config_name", "wayland-server"
-            )
+            self.cpp_info.components["wayland-server"].set_property("pkg_config_name", "wayland-server")
             self.cpp_info.components["wayland-server"].requires = ["libffi::libffi"]
             self.cpp_info.components["wayland-server"].system_libs = ["pthread", "m"]
             self.cpp_info.components["wayland-server"].resdirs = ["res"]
             if self.version >= Version("1.21.0") and self.settings.os == "Linux":
                 self.cpp_info.components["wayland-server"].system_libs += ["rt"]
-            self.cpp_info.components["wayland-server"].set_property(
-                "component_version", self.version
-            )
+            self.cpp_info.components["wayland-server"].set_property("component_version", self.version)
             pkgconfig_variables = {
                 "datarootdir": "${prefix}/res",
                 "pkgdatadir": "${datarootdir}/wayland",
@@ -166,17 +152,13 @@ class WaylandConan(ConanFile):
             )
 
             self.cpp_info.components["wayland-client"].libs = ["wayland-client"]
-            self.cpp_info.components["wayland-client"].set_property(
-                "pkg_config_name", "wayland-client"
-            )
+            self.cpp_info.components["wayland-client"].set_property("pkg_config_name", "wayland-client")
             self.cpp_info.components["wayland-client"].requires = ["libffi::libffi"]
             self.cpp_info.components["wayland-client"].system_libs = ["pthread", "m"]
             self.cpp_info.components["wayland-client"].resdirs = ["res"]
             if self.version >= Version("1.21.0") and self.settings.os == "Linux":
                 self.cpp_info.components["wayland-client"].system_libs += ["rt"]
-            self.cpp_info.components["wayland-client"].set_property(
-                "component_version", self.version
-            )
+            self.cpp_info.components["wayland-client"].set_property("component_version", self.version)
             pkgconfig_variables = {
                 "datarootdir": "${prefix}/res",
                 "pkgdatadir": "${datarootdir}/wayland",
@@ -187,13 +169,9 @@ class WaylandConan(ConanFile):
             )
 
             self.cpp_info.components["wayland-cursor"].libs = ["wayland-cursor"]
-            self.cpp_info.components["wayland-cursor"].set_property(
-                "pkg_config_name", "wayland-cursor"
-            )
+            self.cpp_info.components["wayland-cursor"].set_property("pkg_config_name", "wayland-cursor")
             self.cpp_info.components["wayland-cursor"].requires = ["wayland-client"]
-            self.cpp_info.components["wayland-cursor"].set_property(
-                "component_version", self.version
-            )
+            self.cpp_info.components["wayland-cursor"].set_property("component_version", self.version)
 
             self.cpp_info.components["wayland-egl"].libs = ["wayland-egl"]
             self.cpp_info.components["wayland-egl"].set_property("pkg_config_name", "wayland-egl")

@@ -9,9 +9,7 @@ required_conan_version = ">=1.53.0"
 
 class GflagsConan(ConanFile):
     name = "gflags"
-    description = (
-        "The gflags package contains a C++ library that implements commandline flags processing"
-    )
+    description = "The gflags package contains a C++ library that implements commandline flags processing"
     topics = ("cli", "flags", "commandline")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gflags/gflags"
@@ -68,12 +66,7 @@ class GflagsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -82,7 +75,9 @@ class GflagsConan(ConanFile):
         #  TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"gflags": "gflags::gflags"},
+            {
+                "gflags": "gflags::gflags",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

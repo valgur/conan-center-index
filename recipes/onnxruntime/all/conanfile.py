@@ -15,9 +15,7 @@ required_conan_version = ">=1.53.0"
 
 class OnnxRuntimeConan(ConanFile):
     name = "onnxruntime"
-    description = (
-        "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator"
-    )
+    description = "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     homepage = "https://onnxruntime.ai"
@@ -112,15 +110,9 @@ class OnnxRuntimeConan(ConanFile):
             )
 
     def validate_build(self):
-        if (
-            self.version >= Version("1.15.0")
-            and self.options.shared
-            and sys.version_info[:2] < (3, 8)
-        ):
+        if self.version >= Version("1.15.0") and self.options.shared and sys.version_info[:2] < (3, 8):
             # https://github.com/microsoft/onnxruntime/blob/638146b79ea52598ece514704d3f592c10fab2f1/cmake/CMakeLists.txt#LL500C12-L500C12
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires python 3.8+ to be built as shared."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} requires python 3.8+ to be built as shared.")
 
     def build_requirements(self):
         # Required by upstream https://github.com/microsoft/onnxruntime/blob/v1.14.1/cmake/CMakeLists.txt#L5
@@ -137,9 +129,7 @@ class OnnxRuntimeConan(ConanFile):
             tc.variables["Python_EXECUTABLE"] = sys.executable
 
         tc.variables["onnxruntime_BUILD_SHARED_LIB"] = self.options.shared
-        tc.variables["onnxruntime_USE_FULL_PROTOBUF"] = not self.dependencies[
-            "protobuf"
-        ].options.lite
+        tc.variables["onnxruntime_USE_FULL_PROTOBUF"] = not self.dependencies["protobuf"].options.lite
         tc.variables["onnxruntime_USE_XNNPACK"] = self.options.with_xnnpack
 
         tc.variables["onnxruntime_BUILD_UNIT_TESTS"] = False
@@ -241,10 +231,7 @@ class OnnxRuntimeConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

@@ -48,9 +48,7 @@ class LightPcapNgConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def build(self):
@@ -75,9 +73,7 @@ class LightPcapNgConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "light_pcapng"
         self.cpp_info.names["cmake_find_package_multi"] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].names["cmake_find_package"] = "light_pcapng"
-        self.cpp_info.components["liblight_pcapng"].names[
-            "cmake_find_package_multi"
-        ] = "light_pcapng"
+        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package_multi"] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].libs = ["light_pcapng"]
 
         if self.options.with_zstd:

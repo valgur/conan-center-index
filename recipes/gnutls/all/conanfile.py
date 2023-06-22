@@ -3,15 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 from conan.tools.gnu import AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -25,9 +17,7 @@ class GnuTLSConan(ConanFile):
     name = "gnutls"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnutls.org"
-    description = (
-        "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
-    )
+    description = "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
     topics = ("tls", "ssl", "secure communications")
     license = ("LGPL-2.1-or-later", "GPL-3-or-later")
     package_type = "library"
@@ -136,9 +126,7 @@ class GnuTLSConan(ConanFile):
                 "--with-brotli={}".format(yes_no(self.options.with_brotli)),
                 "--with-zstd={}".format(yes_no(self.options.with_zstd)),
                 "--enable-tools={}".format(yes_no(self.options.enable_tools)),
-                "--enable-openssl-compatibility={}".format(
-                    yes_no(self.options.enable_openssl_compatibility)
-                ),
+                "--enable-openssl-compatibility={}".format(yes_no(self.options.enable_openssl_compatibility)),
             ]
         )
         if is_apple_os(self):
@@ -163,21 +151,14 @@ class GnuTLSConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(

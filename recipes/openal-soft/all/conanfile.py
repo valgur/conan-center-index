@@ -87,7 +87,7 @@ class OpenALSoftConan(ConanFile):
             minimum_version = self._minimum_compilers_version.get(str(compiler), False)
             if minimum_version and Version(compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
 
             if (
@@ -96,7 +96,7 @@ class OpenALSoftConan(ConanFile):
                 and compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11")
             ):
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) c++ runtime",
+                    f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) c++ runtime"
                 )
 
     def source(self):
@@ -118,20 +118,13 @@ class OpenALSoftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(
@@ -168,9 +161,7 @@ class OpenALSoftConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])
         elif is_apple_os(self):
-            self.cpp_info.frameworks.extend(
-                ["AudioToolbox", "AudioUnit", "CoreAudio", "CoreFoundation"]
-            )
+            self.cpp_info.frameworks.extend(["AudioToolbox", "AudioUnit", "CoreAudio", "CoreFoundation"])
             if self.settings.os == "Macos":
                 self.cpp_info.frameworks.append("ApplicationServices")
         elif self.settings.os == "Windows":

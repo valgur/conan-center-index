@@ -61,9 +61,7 @@ class Hdf4Conan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -85,13 +83,9 @@ class Hdf4Conan(ConanFile):
         self._cmake.definitions[
             "HDF4_ENABLE_JPEG_LIB_SUPPORT"
         ] = True  # HDF can't compile without libjpeg or libjpeg-turbo
-        self._cmake.definitions[
-            "HDF4_ENABLE_Z_LIB_SUPPORT"
-        ] = True  # HDF can't compile without zlib
+        self._cmake.definitions["HDF4_ENABLE_Z_LIB_SUPPORT"] = True  # HDF can't compile without zlib
         self._cmake.definitions["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
-        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = (
-            self.options.get_safe("szip_encoding") or False
-        )
+        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
         self._cmake.definitions["HDF4_PACKAGE_EXTLIBS"] = False
         self._cmake.definitions["HDF4_BUILD_XDR_LIB"] = True
         self._cmake.definitions["BUILD_TESTING"] = False
@@ -156,11 +150,7 @@ class Hdf4Conan(ConanFile):
 
     def _get_decorated_lib(self, name):
         libname = name
-        if (
-            self.settings.os == "Windows"
-            and self.settings.compiler != "gcc"
-            and not self.options.shared
-        ):
+        if self.settings.os == "Windows" and self.settings.compiler != "gcc" and not self.options.shared:
             libname = "lib" + libname
         if self.settings.build_type == "Debug":
             libname += "_D" if self.settings.os == "Windows" else "_debug"

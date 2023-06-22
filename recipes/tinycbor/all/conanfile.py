@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
@@ -61,9 +54,7 @@ class TinycborConan(ConanFile):
 
     def validate(self):
         if self.options.shared and (self.settings.os == "Windows" or is_apple_os(self)):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} shared not supported on {self.settings.os}"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} shared not supported on {self.settings.os}")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not is_msvc(self):
@@ -98,12 +89,7 @@ class TinycborConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

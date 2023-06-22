@@ -25,7 +25,9 @@ class bimgConan(ConanFile):
     options = {
         "tools": [True, False],
     }
-    default_options = {"tools": False}
+    default_options = {
+        "tools": False,
+    }
 
     @property
     def _bx_folder(self):
@@ -83,7 +85,9 @@ class bimgConan(ConanFile):
 
     @property
     def _bx_version(self):  # mapping of bimg version to required/used bx version
-        return {"cci.20230114": "cci.20221116"}
+        return {
+            "cci.20230114": "cci.20221116",
+        }
 
     @property
     def _settings_build(self):
@@ -101,9 +105,7 @@ class bimgConan(ConanFile):
         check_min_vs(self, 191)
         if not is_msvc(self):
             try:
-                minimum_required_compiler_version = self._compiler_required[
-                    str(self.settings.compiler)
-                ]
+                minimum_required_compiler_version = self._compiler_required[str(self.settings.compiler)]
                 if Version(self.settings.compiler.version) < minimum_required_compiler_version:
                     raise ConanInvalidConfiguration(
                         "This package requires C++14 support. The current compiler does not support it."
@@ -169,8 +171,7 @@ class bimgConan(ConanFile):
             # use Win32 instead of the default value when building x86
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
             msbuild.build(
-                os.path.join(self._bimg_path, ".build", "projects", genie_VS, "bimg.sln"),
-                targets=self._projs,
+                os.path.join(self._bimg_path, ".build", "projects", genie_VS, "bimg.sln"), targets=self._projs
             )
         else:
             # Not sure if XCode can be spefically handled by conan for building through, so assume everything not VS is make
@@ -209,8 +210,14 @@ class bimgConan(ConanFile):
                 "iOS": True,
             }
 
-            build_type_to_make_config = {"Debug": "config=debug", "Release": "config=release"}
-            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64"}
+            build_type_to_make_config = {
+                "Debug": "config=debug",
+                "Release": "config=release",
+            }
+            arch_to_make_config_suffix = {
+                "x86": "32",
+                "x86_64": "64",
+            }
             os_to_use_make_config_suffix = {
                 "Windows": True,
                 "Linux": True,
@@ -268,12 +275,7 @@ class bimgConan(ConanFile):
                 break
 
         # Copy license
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self._bimg_path,
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._bimg_path)
         # Copy includes
         copy(
             self,
@@ -310,9 +312,7 @@ class bimgConan(ConanFile):
                 self,
                 os.path.join(self.package_folder, "lib", bimg_file.name),
                 os.path.join(
-                    self.package_folder,
-                    "lib",
-                    f"{package_lib_prefix}bimg{fExtra}{bimg_file.suffix}",
+                    self.package_folder, "lib", f"{package_lib_prefix}bimg{fExtra}{bimg_file.suffix}"
                 ),
             )
         if self.options.tools:

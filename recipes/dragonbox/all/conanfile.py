@@ -54,21 +54,14 @@ class DragonboxConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.info.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -95,9 +88,7 @@ class DragonboxConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_module_file_name", "dragonbox")
-        self.cpp_info.components["_dragonbox"].set_property(
-            "cmake_target_name", "dragonbox::dragonbox"
-        )
+        self.cpp_info.components["_dragonbox"].set_property("cmake_target_name", "dragonbox::dragonbox")
         self.cpp_info.components["dragonbox_to_chars_headers"].set_property(
             "cmake_target_name", "dragonbox::dragonbox_to_chars"
         )

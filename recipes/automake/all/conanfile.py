@@ -66,11 +66,7 @@ class AutomakeConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--datarootdir=${prefix}/res",
-            ]
-        )
+        tc.configure_args.extend(["--datarootdir=${prefix}/res"])
         tc.generate()
 
     def _patch_sources(self):
@@ -107,12 +103,7 @@ class AutomakeConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-        copy(
-            self,
-            "COPYING*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         rmdir(self, os.path.join(self._datarootdir, "info"))
         rmdir(self, os.path.join(self._datarootdir, "man"))

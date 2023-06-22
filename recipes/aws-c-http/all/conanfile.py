@@ -14,13 +14,7 @@ class AwsCHttp(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-http"
-    topics = (
-        "aws",
-        "amazon",
-        "cloud",
-        "http",
-        "http2",
-    )
+    topics = ("aws", "amazon", "cloud", "http", "http2")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -71,10 +65,7 @@ class AwsCHttp(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -83,7 +74,9 @@ class AwsCHttp(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-http": "aws-c-http::aws-c-http"},
+            {
+                "AWS::aws-c-http": "aws-c-http::aws-c-http",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

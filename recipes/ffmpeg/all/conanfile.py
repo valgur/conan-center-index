@@ -29,9 +29,7 @@ required_conan_version = ">=1.57.0"
 class FFMpegConan(ConanFile):
     name = "ffmpeg"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "A complete, cross-platform solution to record, convert and stream audio and video"
-    )
+    description = "A complete, cross-platform solution to record, convert and stream audio and video"
     # https://github.com/FFmpeg/FFmpeg/blob/master/LICENSE.md
     license = ("LGPL-2.1-or-later", "GPL-2.0-or-later")
     homepage = "https://ffmpeg.org"
@@ -397,10 +395,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_ssl == "openssl":
             # https://trac.ffmpeg.org/ticket/5675
             openssl_libraries = " ".join(
-                [
-                    f"-l{lib}"
-                    for lib in self.dependencies["openssl"].cpp_info.aggregated_components().libs
-                ]
+                [f"-l{lib}" for lib in self.dependencies["openssl"].cpp_info.aggregated_components().libs]
             )
             replace_in_file(
                 self,
@@ -416,11 +411,20 @@ class FFMpegConan(ConanFile):
     @property
     def _default_compilers(self):
         if self.settings.compiler == "gcc":
-            return {"cc": "gcc", "cxx": "g++"}
+            return {
+                "cc": "gcc",
+                "cxx": "g++",
+            }
         elif self.settings.compiler in ["clang", "apple-clang"]:
-            return {"cc": "clang", "cxx": "clang++"}
+            return {
+                "cc": "clang",
+                "cxx": "clang++",
+            }
         elif is_msvc(self):
-            return {"cc": "cl.exe", "cxx": "cl.exe"}
+            return {
+                "cc": "cl.exe",
+                "cxx": "cl.exe",
+            }
         return {}
 
     def _create_toolchain(self):
@@ -519,16 +523,11 @@ class FFMpegConan(ConanFile):
                 self.options.with_libfdk_aac
                 or (
                     self.options.with_ssl
-                    and (
-                        self.options.with_libx264
-                        or self.options.with_libx265
-                        or self.options.postproc
-                    )
+                    and (self.options.with_libx264 or self.options.with_libx265 or self.options.postproc)
                 ),
             ),
             opt_enable_disable(
-                "gpl",
-                self.options.with_libx264 or self.options.with_libx265 or self.options.postproc,
+                "gpl", self.options.with_libx264 or self.options.with_libx265 or self.options.postproc
             ),
         ]
 
@@ -547,88 +546,44 @@ class FFMpegConan(ConanFile):
         opt_append_disable_if_set(args, "outdevs", self.options.disable_all_output_devices)
         opt_append_disable_if_set(args, "filters", self.options.disable_all_filters)
 
+        args.extend(self._split_and_format_options_string("enable-encoder", self.options.enable_encoders))
+        args.extend(self._split_and_format_options_string("disable-encoder", self.options.disable_encoders))
+        args.extend(self._split_and_format_options_string("enable-decoder", self.options.enable_decoders))
+        args.extend(self._split_and_format_options_string("disable-decoder", self.options.disable_decoders))
         args.extend(
-            self._split_and_format_options_string("enable-encoder", self.options.enable_encoders)
-        )
-        args.extend(
-            self._split_and_format_options_string("disable-encoder", self.options.disable_encoders)
-        )
-        args.extend(
-            self._split_and_format_options_string("enable-decoder", self.options.enable_decoders)
-        )
-        args.extend(
-            self._split_and_format_options_string("disable-decoder", self.options.disable_decoders)
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "enable-hwaccel", self.options.enable_hardware_accelerators
-            )
+            self._split_and_format_options_string("enable-hwaccel", self.options.enable_hardware_accelerators)
         )
         args.extend(
             self._split_and_format_options_string(
                 "disable-hwaccel", self.options.disable_hardware_accelerators
             )
         )
+        args.extend(self._split_and_format_options_string("enable-muxer", self.options.enable_muxers))
+        args.extend(self._split_and_format_options_string("disable-muxer", self.options.disable_muxers))
+        args.extend(self._split_and_format_options_string("enable-demuxer", self.options.enable_demuxers))
+        args.extend(self._split_and_format_options_string("disable-demuxer", self.options.disable_demuxers))
+        args.extend(self._split_and_format_options_string("enable-parser", self.options.enable_parsers))
+        args.extend(self._split_and_format_options_string("disable-parser", self.options.disable_parsers))
         args.extend(
-            self._split_and_format_options_string("enable-muxer", self.options.enable_muxers)
+            self._split_and_format_options_string("enable-bsf", self.options.enable_bitstream_filters)
         )
         args.extend(
-            self._split_and_format_options_string("disable-muxer", self.options.disable_muxers)
+            self._split_and_format_options_string("disable-bsf", self.options.disable_bitstream_filters)
+        )
+        args.extend(self._split_and_format_options_string("enable-protocol", self.options.enable_protocols))
+        args.extend(self._split_and_format_options_string("disable-protocol", self.options.disable_protocols))
+        args.extend(self._split_and_format_options_string("enable-indev", self.options.enable_input_devices))
+        args.extend(
+            self._split_and_format_options_string("disable-indev", self.options.disable_input_devices)
         )
         args.extend(
-            self._split_and_format_options_string("enable-demuxer", self.options.enable_demuxers)
+            self._split_and_format_options_string("enable-outdev", self.options.enable_output_devices)
         )
         args.extend(
-            self._split_and_format_options_string("disable-demuxer", self.options.disable_demuxers)
+            self._split_and_format_options_string("disable-outdev", self.options.disable_output_devices)
         )
-        args.extend(
-            self._split_and_format_options_string("enable-parser", self.options.enable_parsers)
-        )
-        args.extend(
-            self._split_and_format_options_string("disable-parser", self.options.disable_parsers)
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "enable-bsf", self.options.enable_bitstream_filters
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "disable-bsf", self.options.disable_bitstream_filters
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string("enable-protocol", self.options.enable_protocols)
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "disable-protocol", self.options.disable_protocols
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string("enable-indev", self.options.enable_input_devices)
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "disable-indev", self.options.disable_input_devices
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "enable-outdev", self.options.enable_output_devices
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string(
-                "disable-outdev", self.options.disable_output_devices
-            )
-        )
-        args.extend(
-            self._split_and_format_options_string("enable-filter", self.options.enable_filters)
-        )
-        args.extend(
-            self._split_and_format_options_string("disable-filter", self.options.disable_filters)
-        )
+        args.extend(self._split_and_format_options_string("enable-filter", self.options.enable_filters))
+        args.extend(self._split_and_format_options_string("disable-filter", self.options.disable_filters))
 
         if self._version_supports_vulkan:
             args.append(opt_enable_disable("vulkan", self.options.get_safe("with_vulkan")))
@@ -637,20 +592,11 @@ class FFMpegConan(ConanFile):
             args.append("--install-name-dir=@rpath")
         args.append(f"--arch={self._target_arch}")
         if self.settings.build_type == "Debug":
-            args.extend(
-                [
-                    "--disable-optimizations",
-                    "--disable-mmx",
-                    "--disable-stripping",
-                    "--enable-debug",
-                ]
-            )
+            args.extend(["--disable-optimizations", "--disable-mmx", "--disable-stripping", "--enable-debug"])
         if not self.options.with_programs:
             args.append("--disable-programs")
         # since ffmpeg"s build system ignores CC and CXX
-        compilers_from_conf = self.conf.get(
-            "tools.build:compiler_executables", default={}, check_type=dict
-        )
+        compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         buildenv_vars = VirtualBuildEnv(self).vars()
         nm = buildenv_vars.get("NM")
         if nm:
@@ -665,14 +611,10 @@ class FFMpegConan(ConanFile):
         strip = buildenv_vars.get("STRIP")
         if strip:
             args.append(f"--strip={unix_path(self, strip)}")
-        cc = compilers_from_conf.get(
-            "c", buildenv_vars.get("CC", self._default_compilers.get("cc"))
-        )
+        cc = compilers_from_conf.get("c", buildenv_vars.get("CC", self._default_compilers.get("cc")))
         if cc:
             args.append(f"--cc={unix_path(self, cc)}")
-        cxx = compilers_from_conf.get(
-            "cpp", buildenv_vars.get("CXX", self._default_compilers.get("cxx"))
-        )
+        cxx = compilers_from_conf.get("cpp", buildenv_vars.get("CXX", self._default_compilers.get("cxx")))
         if cxx:
             args.append(f"--cxx={unix_path(self, cxx)}")
         ld = buildenv_vars.get("LD")
@@ -727,8 +669,7 @@ class FFMpegConan(ConanFile):
 
             env = Environment()
             env.append(
-                "CPPFLAGS",
-                [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines],
+                "CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines]
             )
             env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in libs])
             env.append("LDFLAGS", [f"-LIBPATH:{unix_path(self, p)}" for p in libdirs] + linkflags)
@@ -753,10 +694,7 @@ class FFMpegConan(ConanFile):
             return list(filter(None, "".join(options_string.split()).split(",")))
 
         options_string = str(options_list)
-        return [
-            _format_options_list_item(flag_name, item)
-            for item in _split_options_string(options_string)
-        ]
+        return [_format_options_list_item(flag_name, item) for item in _split_options_string(options_string)]
 
     def build(self):
         self._patch_sources()
@@ -769,12 +707,7 @@ class FFMpegConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -821,9 +754,7 @@ class FFMpegConan(ConanFile):
             # TODO: to remove once support of conan v1 dropped
             self.cpp_info.components[component_name].version = version
         else:
-            self.output.warning(
-                f"cannot determine version of lib{component_name} packaged with ffmpeg!"
-            )
+            self.output.warning(f"cannot determine version of lib{component_name} packaged with ffmpeg!")
 
     def package_info(self):
         if self.options.with_programs:
@@ -951,11 +882,7 @@ class FFMpegConan(ConanFile):
             if self.options.avfilter:
                 self.cpp_info.components["avfilter"].frameworks = ["CoreGraphics"]
             if self.options.avcodec:
-                self.cpp_info.components["avcodec"].frameworks = [
-                    "CoreFoundation",
-                    "CoreVideo",
-                    "CoreMedia",
-                ]
+                self.cpp_info.components["avcodec"].frameworks = ["CoreFoundation", "CoreVideo", "CoreMedia"]
             if self.settings.os == "Macos":
                 if self.options.avdevice:
                     self.cpp_info.components["avdevice"].frameworks.append("OpenGL")

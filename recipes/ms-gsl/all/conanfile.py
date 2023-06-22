@@ -21,7 +21,9 @@ class MicrosoftGslConan(ConanFile):
     no_copy_source = True
     settings = "os", "arch", "compiler", "build_type"
     options = {"on_contract_violation": ["terminate", "throw", "unenforced"]}
-    default_options = {"on_contract_violation": "terminate"}
+    default_options = {
+        "on_contract_violation": "terminate",
+    }
 
     @property
     def _minimum_cpp_standard(self):
@@ -57,9 +59,7 @@ class MicrosoftGslConan(ConanFile):
         check_min_vs(self, "190")
 
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version:
                 if Version(self.settings.compiler.version) < minimum_version:
                     raise ConanInvalidConfiguration(
@@ -75,12 +75,7 @@ class MicrosoftGslConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         pass

@@ -13,7 +13,11 @@ class RangesnextConan(ConanFile):
     settings = "compiler"
     no_copy_source = True
 
-    _compilers_minimum_version = {"gcc": "10", "Visual Studio": "19", "clang": "13"}
+    _compilers_minimum_version = {
+        "gcc": "10",
+        "Visual Studio": "19",
+        "clang": "13",
+    }
     _source_subfolder = "source_subfolder"
 
     def validate(self):
@@ -28,9 +32,7 @@ class RangesnextConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

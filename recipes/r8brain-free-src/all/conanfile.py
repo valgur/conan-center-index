@@ -17,15 +17,7 @@ class R8brainFreeSrcConan(ConanFile):
     homepage = "https://github.com/avaneev/r8brain-free-src"
     topics = ("audio", "sample-rate", "conversion", "audio-processing", "resampler")
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "fft": [
-            "ooura",
-            "pffft",
-            "pffft_double",
-        ],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "fft": ["ooura", "pffft", "pffft_double"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -76,10 +68,7 @@ class R8brainFreeSrcConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

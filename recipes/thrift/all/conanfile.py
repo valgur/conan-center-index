@@ -121,10 +121,7 @@ class ThriftConan(ConanFile):
         apply_conandata_patches(self)
         # No static code analysis (seems to trigger CMake warnings due to weird custom Find module file)
         replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "include(StaticCodeAnalysis)",
-            "",
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(StaticCodeAnalysis)", ""
         )
         # TODO: To remove in conan v2, but it's still needed if building with 1 profile.
         #       May also be removed if flex & bison recipes define cmake_find_mode property to "none" in their package_info()
@@ -138,12 +135,7 @@ class ThriftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # Copy generated headers from build tree
@@ -160,11 +152,23 @@ class ThriftConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         targets = {}
         if self.options.with_zlib:
-            targets.update({"thriftz::thriftz": "thrift::thriftz"})
+            targets.update(
+                {
+                    "thriftz::thriftz": "thrift::thriftz",
+                }
+            )
         if self.options.with_libevent:
-            targets.update({"thriftnb::thriftnb": "thrift::thriftnb"})
+            targets.update(
+                {
+                    "thriftnb::thriftnb": "thrift::thriftnb",
+                }
+            )
         if self.options.with_qt5:
-            targets.update({"thriftqt5::thriftqt5": "thrift::thriftqt5"})
+            targets.update(
+                {
+                    "thriftqt5::thriftqt5": "thrift::thriftqt5",
+                }
+            )
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path), targets
         )
@@ -211,17 +215,13 @@ class ThriftConan(ConanFile):
             self.cpp_info.components["libthrift"].requires.append("openssl::openssl")
 
         if self.options.with_zlib:
-            self.cpp_info.components["libthrift_z"].set_property(
-                "cmake_target_name", "thriftz::thriftz"
-            )
+            self.cpp_info.components["libthrift_z"].set_property("cmake_target_name", "thriftz::thriftz")
             self.cpp_info.components["libthrift_z"].set_property("pkg_config_name", "thrift-z")
             self.cpp_info.components["libthrift_z"].libs = [f"thriftz{libsuffix}"]
             self.cpp_info.components["libthrift_z"].requires = ["libthrift", "zlib::zlib"]
 
         if self.options.with_libevent:
-            self.cpp_info.components["libthrift_nb"].set_property(
-                "cmake_target_name", "thriftnb::thriftnb"
-            )
+            self.cpp_info.components["libthrift_nb"].set_property("cmake_target_name", "thriftnb::thriftnb")
             self.cpp_info.components["libthrift_nb"].set_property("pkg_config_name", "thrift-nb")
             self.cpp_info.components["libthrift_nb"].libs = [f"thriftnb{libsuffix}"]
             self.cpp_info.components["libthrift_nb"].requires = ["libthrift", "libevent::libevent"]
@@ -266,9 +266,7 @@ class ThriftConan(ConanFile):
             ]
         if self.options.with_qt5:
             self.cpp_info.components["libthrift_qt5"].names["cmake_find_package"] = "thriftqt5"
-            self.cpp_info.components["libthrift_qt5"].names[
-                "cmake_find_package_multi"
-            ] = "thriftqt5"
+            self.cpp_info.components["libthrift_qt5"].names["cmake_find_package_multi"] = "thriftqt5"
             self.cpp_info.components["libthrift_qt5"].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]

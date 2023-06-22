@@ -12,7 +12,9 @@ required_conan_version = ">=1.53.0"
 
 class PulseAudioConan(ConanFile):
     name = "pulseaudio"
-    description = "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
+    description = (
+        "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
+    )
     topics = ("sound",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pulseaudio.org/"
@@ -115,9 +117,7 @@ class PulseAudioConan(ConanFile):
             ]
         )
         for lib in ["alsa", "x11", "openssl", "dbus"]:
-            tc.configure_args.append(
-                f"--enable-{lib}={yes_no(getattr(self.options, f'with_{lib}'))}"
-            )
+            tc.configure_args.append(f"--enable-{lib}={yes_no(getattr(self.options, f'with_{lib}'))}")
         # TODO: to remove when automatically handled by AutotoolsToolchain
         tc.configure_args.append("--libexecdir=${prefix}/bin")
         tc.generate()
@@ -132,12 +132,7 @@ class PulseAudioConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "etc"))

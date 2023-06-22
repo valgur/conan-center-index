@@ -129,9 +129,7 @@ class LibdrmConan(ConanFile):
         defs["datadir"] = os.path.join(self.package_folder, "res")
         defs["mandir"] = os.path.join(self.package_folder, "res", "man")
 
-        meson.configure(
-            defs=defs, source_folder=self._source_subfolder, build_folder=self._build_subfolder
-        )
+        meson.configure(defs=defs, source_folder=self._source_subfolder, build_folder=self._build_subfolder)
         return meson
 
     def build(self):
@@ -150,9 +148,7 @@ class LibdrmConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["libdrm_libdrm"].libs = ["drm"]
-        self.cpp_info.components["libdrm_libdrm"].includedirs.append(
-            os.path.join("include", "libdrm")
-        )
+        self.cpp_info.components["libdrm_libdrm"].includedirs.append(os.path.join("include", "libdrm"))
         self.cpp_info.components["libdrm_libdrm"].set_property("pkg_config_name", "libdrm")
         if self.settings.os == "Linux":
             self.cpp_info.components["libdrm_libdrm"].requires = [
@@ -174,42 +170,28 @@ class LibdrmConan(ConanFile):
 
         if self.options.freedreno:
             self.cpp_info.components["libdrm_freedreno"].libs = ["drm_freedreno"]
-            self.cpp_info.components["libdrm_freedreno"].includedirs.append(
-                os.path.join("include", "libdrm")
-            )
+            self.cpp_info.components["libdrm_freedreno"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_freedreno"].includedirs.append(
                 os.path.join("include", "freedreno")
             )
             self.cpp_info.components["libdrm_freedreno"].requires = ["libdrm_libdrm"]
-            self.cpp_info.components["libdrm_freedreno"].set_property(
-                "pkg_config_name", "libdrm_freedreno"
-            )
+            self.cpp_info.components["libdrm_freedreno"].set_property("pkg_config_name", "libdrm_freedreno")
 
         if self.options.amdgpu:
             self.cpp_info.components["libdrm_amdgpu"].libs = ["drm_amdgpu"]
-            self.cpp_info.components["libdrm_amdgpu"].includedirs.append(
-                os.path.join("include", "libdrm")
-            )
+            self.cpp_info.components["libdrm_amdgpu"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_amdgpu"].requires = ["libdrm_libdrm"]
-            self.cpp_info.components["libdrm_amdgpu"].set_property(
-                "pkg_config_name", "libdrm_amdgpu"
-            )
+            self.cpp_info.components["libdrm_amdgpu"].set_property("pkg_config_name", "libdrm_amdgpu")
 
         if self.options.nouveau:
             self.cpp_info.components["libdrm_nouveau"].libs = ["drm_nouveau"]
-            self.cpp_info.components["libdrm_nouveau"].includedirs.append(
-                os.path.join("include", "libdrm")
-            )
+            self.cpp_info.components["libdrm_nouveau"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_nouveau"].requires = ["libdrm_libdrm"]
-            self.cpp_info.components["libdrm_nouveau"].set_property(
-                "pkg_config_name", "libdrm_nouveau"
-            )
+            self.cpp_info.components["libdrm_nouveau"].set_property("pkg_config_name", "libdrm_nouveau")
 
         if self.options.intel:
             self.cpp_info.components["libdrm_intel"].libs = ["drm_intel"]
-            self.cpp_info.components["libdrm_intel"].includedirs.append(
-                os.path.join("include", "libdrm")
-            )
+            self.cpp_info.components["libdrm_intel"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_intel"].requires = [
                 "libdrm_libdrm",
                 "libpciaccess::libpciaccess",
@@ -218,10 +200,6 @@ class LibdrmConan(ConanFile):
 
         if self.options.radeon:
             self.cpp_info.components["libdrm_radeon"].libs = ["drm_radeon"]
-            self.cpp_info.components["libdrm_radeon"].includedirs.append(
-                os.path.join("include", "libdrm")
-            )
+            self.cpp_info.components["libdrm_radeon"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_radeon"].requires = ["libdrm_libdrm"]
-            self.cpp_info.components["libdrm_radeon"].set_property(
-                "pkg_config_name", "libdrm_radeon"
-            )
+            self.cpp_info.components["libdrm_radeon"].set_property("pkg_config_name", "libdrm_radeon")

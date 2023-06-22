@@ -9,9 +9,7 @@ required_conan_version = ">=1.53.0"
 
 class AsmjitConan(ConanFile):
     name = "asmjit"
-    description = (
-        "AsmJit is a lightweight library for machine code " "generation written in C++ language."
-    )
+    description = "AsmJit is a lightweight library for machine code " "generation written in C++ language."
     license = "Zlib"
     topics = ("compiler", "assembler", "jit")
     homepage = "https://asmjit.com"
@@ -62,12 +60,7 @@ class AsmjitConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

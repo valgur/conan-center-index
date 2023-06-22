@@ -86,9 +86,7 @@ class SDLMixerConan(ConanFile):
         if self.options.modplug:
             self.requires("libmodplug/0.8.9.0")
         if self.options.fluidsynth:
-            self.requires(
-                "fluidsynth/2.2"
-            )  # TODO: this package is missing on the conan-center-index
+            self.requires("fluidsynth/2.2")  # TODO: this package is missing on the conan-center-index
         if self.settings.os == "Linux":
             if self.options.tinymidi:
                 self.requires("tinymidi/cci.20130325")
@@ -123,16 +121,12 @@ class SDLMixerConan(ConanFile):
             cmake.definitions["MID_TINYMIDI"] = False
             cmake.definitions["MID_NATIVE"] = self.options.nativemidi
 
-        cmake.definitions["FLAC_DYNAMIC"] = (
-            self.options["flac"].shared if self.options.flac else False
-        )
+        cmake.definitions["FLAC_DYNAMIC"] = self.options["flac"].shared if self.options.flac else False
         cmake.definitions["MP3_MPG123_DYNAMIC"] = (
             self.options["mpg123"].shared if self.options.mpg123 else False
         )
         cmake.definitions["OGG_DYNAMIC"] = self.options["ogg"].shared if self.options.ogg else False
-        cmake.definitions["OPUS_DYNAMIC"] = (
-            self.options["opus"].shared if self.options.opus else False
-        )
+        cmake.definitions["OPUS_DYNAMIC"] = self.options["opus"].shared if self.options.opus else False
         cmake.definitions["MOD_MIKMOD_DYNAMIC"] = (
             self.options["libmikmod"].shared if self.options.mikmod else False
         )

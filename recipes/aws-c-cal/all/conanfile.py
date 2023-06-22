@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -18,16 +11,8 @@ required_conan_version = ">=1.53.0"
 
 class AwsCCal(ConanFile):
     name = "aws-c-cal"
-    description = (
-        "Aws Crypto Abstraction Layer: Cross-Platform, C99 wrapper for cryptography primitives."
-    )
-    topics = (
-        "aws",
-        "amazon",
-        "cloud",
-        "cal",
-        "crypt",
-    )
+    description = "Aws Crypto Abstraction Layer: Cross-Platform, C99 wrapper for cryptography primitives."
+    topics = ("aws", "amazon", "cloud", "cal", "crypt")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-cal"
     license = "Apache-2.0"
@@ -91,12 +76,7 @@ class AwsCCal(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-cal"))
@@ -104,7 +84,9 @@ class AwsCCal(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-cal": "aws-c-cal::aws-c-cal"},
+            {
+                "AWS::aws-c-cal": "aws-c-cal::aws-c-cal",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -144,27 +126,11 @@ class AwsCCal(ConanFile):
                 # aws-c-cal does not statically link to openssl and searches dynamically for openssl symbols .
                 # Mark these as undefined so the linker will include them.
                 # This avoids dynamical look-up for a system crypto library.
-                crypto_symbols = [
-                    "HMAC_Update",
-                    "HMAC_Final",
-                    "HMAC_Init_ex",
-                ]
+                crypto_symbols = ["HMAC_Update", "HMAC_Final", "HMAC_Init_ex"]
                 if Version(self.dependencies["openssl"].ref.version) >= "1.1":
-                    crypto_symbols.extend(
-                        [
-                            "HMAC_CTX_new",
-                            "HMAC_CTX_free",
-                            "HMAC_CTX_reset",
-                        ]
-                    )
+                    crypto_symbols.extend(["HMAC_CTX_new", "HMAC_CTX_free", "HMAC_CTX_reset"])
                 else:
-                    crypto_symbols.extend(
-                        [
-                            "HMAC_CTX_init",
-                            "HMAC_CTX_cleanup",
-                            "HMAC_CTX_reset",
-                        ]
-                    )
+                    crypto_symbols.extend(["HMAC_CTX_init", "HMAC_CTX_cleanup", "HMAC_CTX_reset"])
                 crypto_link_flags = "-Wl," + ",".join(f"-u{symbol}" for symbol in crypto_symbols)
                 self.cpp_info.exelinkflags.append(crypto_link_flags)
                 self.cpp_info.sharedlinkflags.append(crypto_link_flags)

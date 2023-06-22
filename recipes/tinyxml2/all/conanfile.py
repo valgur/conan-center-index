@@ -10,8 +10,7 @@ required_conan_version = ">=1.54.0"
 class Tinyxml2Conan(ConanFile):
     name = "tinyxml2"
     description = (
-        "Simple, small, efficient, C++ XML parser that can be "
-        "easily integrated into other programs."
+        "Simple, small, efficient, C++ XML parser that can be " "easily integrated into other programs."
     )
     license = "Zlib"
     topics = ("xml", "parser")
@@ -61,12 +60,7 @@ class Tinyxml2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -76,9 +70,7 @@ class Tinyxml2Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "tinyxml2")
         self.cpp_info.set_property("cmake_target_name", "tinyxml2::tinyxml2")
         self.cpp_info.set_property("pkg_config_name", "tinyxml2")
-        postfix = (
-            "d" if self.settings.build_type == "Debug" and Version(self.version) < "8.1.0" else ""
-        )
+        postfix = "d" if self.settings.build_type == "Debug" and Version(self.version) < "8.1.0" else ""
         self.cpp_info.libs = [f"tinyxml2{postfix}"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("TINYXML2_IMPORT")

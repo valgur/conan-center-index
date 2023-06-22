@@ -74,12 +74,7 @@ class LibBsdConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         autotools = Autotools(self)
         autotools.install()
@@ -95,9 +90,7 @@ class LibBsdConan(ConanFile):
 
         self.cpp_info.components["libbsd-overlay"].libs = []
         self.cpp_info.components["libbsd-overlay"].requires = ["bsd"]
-        self.cpp_info.components["libbsd-overlay"].includedirs.append(
-            os.path.join("include", "bsd")
-        )
+        self.cpp_info.components["libbsd-overlay"].includedirs.append(os.path.join("include", "bsd"))
         self.cpp_info.components["libbsd-overlay"].defines = ["LIBBSD_OVERLAY"]
         self.cpp_info.components["libbsd-overlay"].set_property("pkg_config_name", "libbsd-overlay")
 

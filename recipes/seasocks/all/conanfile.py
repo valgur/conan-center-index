@@ -100,10 +100,7 @@ class SeasocksConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -125,8 +122,6 @@ class SeasocksConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Seasocks"
         self.cpp_info.components["libseasocks"].names["cmake_find_package"] = "seasocks"
         self.cpp_info.components["libseasocks"].names["cmake_find_package_multi"] = "seasocks"
-        self.cpp_info.components["libseasocks"].set_property(
-            "cmake_target_name", "Seasocks::seasocks"
-        )
+        self.cpp_info.components["libseasocks"].set_property("cmake_target_name", "Seasocks::seasocks")
         if self.options.with_zlib:
             self.cpp_info.components["libseasocks"].requires = ["zlib::zlib"]

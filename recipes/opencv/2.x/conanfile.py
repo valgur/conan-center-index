@@ -39,12 +39,7 @@ OPENCV_MAIN_MODULES_OPTIONS = (
     "videostab",
 )
 
-OPENCV_EXTRA_MODULES_OPTIONS = (
-    "androidcamera",
-    "nonfree",
-    "ocl",
-    "viz",
-)
+OPENCV_EXTRA_MODULES_OPTIONS = ("androidcamera", "nonfree", "ocl", "viz")
 
 
 class OpenCVConan(ConanFile):
@@ -160,14 +155,7 @@ class OpenCVConan(ConanFile):
             },
             "contrib": {
                 "is_built": self.options.contrib,
-                "mandatory_options": [
-                    "calib3d",
-                    "features2d",
-                    "imgproc",
-                    "ml",
-                    "objdetect",
-                    "video",
-                ],
+                "mandatory_options": ["calib3d", "features2d", "imgproc", "ml", "objdetect", "video"],
                 "requires": [
                     "opencv_calib3d",
                     "opencv_features2d",
@@ -196,20 +184,10 @@ class OpenCVConan(ConanFile):
                 "mandatory_options": ["flann", "imgproc"],
                 "requires": ["opencv_flann", "opencv_imgproc"] + opencv_highgui() + eigen() + tbb(),
             },
-            "flann": {
-                "is_built": self.options.flann,
-                "requires": ["opencv_core"] + eigen() + tbb(),
-            },
+            "flann": {"is_built": self.options.flann, "requires": ["opencv_core"] + eigen() + tbb()},
             "gpu": {
                 "is_built": self.options.get_safe("gpu"),
-                "mandatory_options": [
-                    "calib3d",
-                    "imgproc",
-                    "legacy",
-                    "objdetect",
-                    "photo",
-                    "video",
-                ],
+                "mandatory_options": ["calib3d", "imgproc", "legacy", "objdetect", "photo", "video"],
                 "requires": [
                     "opencv_calib3d",
                     "opencv_imgproc",
@@ -234,7 +212,7 @@ class OpenCVConan(ConanFile):
                     (
                         self.settings.os == "Windows",
                         ["comctl32", "gdi32", "ole32", "setupapi", "ws2_32", "vfw32"],
-                    ),
+                    )
                 ],
                 "frameworks": [
                     (
@@ -254,10 +232,7 @@ class OpenCVConan(ConanFile):
                     (self.settings.os == "Macos", ["AppKit", "Cocoa"]),
                 ],
             },
-            "imgproc": {
-                "is_built": self.options.imgproc,
-                "requires": ["opencv_core"] + eigen() + tbb(),
-            },
+            "imgproc": {"is_built": self.options.imgproc, "requires": ["opencv_core"] + eigen() + tbb()},
             "legacy": {
                 "is_built": self.options.legacy,
                 "mandatory_options": ["calib3d", "ml", "video"],
@@ -266,10 +241,7 @@ class OpenCVConan(ConanFile):
                 + eigen()
                 + tbb(),
             },
-            "ml": {
-                "is_built": self.options.ml,
-                "requires": ["opencv_core"] + eigen() + tbb(),
-            },
+            "ml": {"is_built": self.options.ml, "requires": ["opencv_core"] + eigen() + tbb()},
             "objdetect": {
                 "is_built": self.options.objdetect,
                 "mandatory_options": ["imgproc"],
@@ -283,12 +255,7 @@ class OpenCVConan(ConanFile):
             "stitching": {
                 "is_built": self.options.stitching,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "objdetect"],
-                "requires": [
-                    "opencv_calib3d",
-                    "opencv_features2d",
-                    "opencv_imgproc",
-                    "opencv_objdetect",
-                ]
+                "requires": ["opencv_calib3d", "opencv_features2d", "opencv_imgproc", "opencv_objdetect"]
                 + opencv_gpu()
                 + opencv_nonfree()
                 + eigen()
@@ -326,14 +293,7 @@ class OpenCVConan(ConanFile):
             },
             "videostab": {
                 "is_built": self.options.videostab,
-                "mandatory_options": [
-                    "calib3d",
-                    "features2d",
-                    "highgui",
-                    "imgproc",
-                    "photo",
-                    "video",
-                ],
+                "mandatory_options": ["calib3d", "features2d", "highgui", "imgproc", "photo", "video"],
                 "requires": [
                     "opencv_calib3d",
                     "opencv_features2d",
@@ -350,9 +310,7 @@ class OpenCVConan(ConanFile):
             "androidcamera": {
                 "is_built": self.options.get_safe("androidcamera"),
                 "requires": ["opencv_core"] + eigen() + tbb(),
-                "system_libs": [
-                    (self.settings.os == "Android", ["dl", "log"]),
-                ],
+                "system_libs": [(self.settings.os == "Android", ["dl", "log"])],
             },
             "nonfree": {
                 "is_built": self.options.nonfree,
@@ -365,14 +323,7 @@ class OpenCVConan(ConanFile):
             },
             "ocl": {
                 "is_built": self.options.ocl,
-                "mandatory_options": [
-                    "calib3d",
-                    "features2d",
-                    "imgproc",
-                    "ml",
-                    "objdetect",
-                    "video",
-                ],
+                "mandatory_options": ["calib3d", "features2d", "imgproc", "ml", "objdetect", "video"],
                 "requires": [
                     "opencv_calib3d",
                     "opencv_core",
@@ -384,14 +335,9 @@ class OpenCVConan(ConanFile):
                 ]
                 + eigen()
                 + tbb(),
-                "frameworks": [
-                    (self.settings.os == "Macos", ["OpenCL"]),
-                ],
+                "frameworks": [(self.settings.os == "Macos", ["OpenCL"])],
             },
-            "viz": {
-                "is_built": self.options.viz,
-                "requires": ["opencv_core", "vtk::vtk"] + eigen() + tbb(),
-            },
+            "viz": {"is_built": self.options.viz, "requires": ["opencv_core", "vtk::vtk"] + eigen() + tbb()},
         }
 
         return opencv_modules
@@ -407,9 +353,7 @@ class OpenCVConan(ConanFile):
             if not values.get("no_option") and self.options.get_safe(option)
         ]
         for base_option in base_options:
-            for mandatory_option in opencv_modules.get(base_option, {}).get(
-                "mandatory_options", []
-            ):
+            for mandatory_option in opencv_modules.get(base_option, {}).get("mandatory_options", []):
                 if not self.options.get_safe(mandatory_option):
                     direct_options_to_enable.setdefault(mandatory_option, set()).add(base_option)
 
@@ -426,10 +370,7 @@ class OpenCVConan(ConanFile):
         for base_option in base_options:
             collect_transitive_options(base_option, base_option)
 
-        return {
-            "direct": direct_options_to_enable,
-            "transitive": transitive_options_to_enable,
-        }
+        return {"direct": direct_options_to_enable, "transitive": transitive_options_to_enable}
 
     def _solve_internal_dependency_graph(self, opencv_modules):
         disabled_options = self._get_mandatory_disabled_options(opencv_modules)
@@ -522,9 +463,7 @@ class OpenCVConan(ConanFile):
                 direct = ", ".join(direct_disabled_mandatory_options.get(disabled_option, []))
                 if direct:
                     direct_and_transitive.append(f"direct dependency of {direct}")
-                transitive = ", ".join(
-                    transitive_disabled_mandatory_options.get(disabled_option, [])
-                )
+                transitive = ", ".join(transitive_disabled_mandatory_options.get(disabled_option, []))
                 if transitive:
                     direct_and_transitive.append(f"transitive dependency of {transitive}")
                 message += f"  - {disabled_option}: {' / '.join(direct_and_transitive)}\n"
@@ -570,9 +509,7 @@ class OpenCVConan(ConanFile):
         )
 
         # relocatable shared lib on macOS
-        replace_in_file(
-            self, cmakelists, "cmake_policy(SET CMP0042 OLD)", "cmake_policy(SET CMP0042 NEW)"
-        )
+        replace_in_file(self, cmakelists, "cmake_policy(SET CMP0042 OLD)", "cmake_policy(SET CMP0042 NEW)")
         # Cleanup RPATH
         replace_in_file(
             self,
@@ -663,12 +600,7 @@ class OpenCVConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -678,14 +610,16 @@ class OpenCVConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         targets_mapping = {
-            self._cmake_target(k): f"opencv::{self._cmake_target(k)}"
-            for k in self._opencv_modules.keys()
+            self._cmake_target(k): f"opencv::{self._cmake_target(k)}" for k in self._opencv_modules.keys()
         }
         if self.options.world:
-            targets_mapping.update({"opencv_world": "opencv::opencv_world"})
+            targets_mapping.update(
+                {
+                    "opencv_world": "opencv::opencv_world",
+                }
+            )
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            targets_mapping,
+            os.path.join(self.package_folder, self._module_file_rel_path), targets_mapping
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -719,9 +653,7 @@ class OpenCVConan(ConanFile):
 
         def add_components(components):
             if self.options.world:
-                self.cpp_info.components["opencv_world"].set_property(
-                    "cmake_target_name", "opencv_world"
-                )
+                self.cpp_info.components["opencv_world"].set_property("cmake_target_name", "opencv_world")
                 self.cpp_info.components["opencv_world"].libs = [get_lib_name("world")]
                 world_requires = set()
                 world_requires_exclude = set()
@@ -735,9 +667,7 @@ class OpenCVConan(ConanFile):
                 conan_component = cmake_target
                 # TODO: we should also define COMPONENTS names of each target for find_package() but not possible yet in CMakeDeps
                 #       see https://github.com/conan-io/conan/issues/10258
-                self.cpp_info.components[conan_component].set_property(
-                    "cmake_target_name", cmake_target
-                )
+                self.cpp_info.components[conan_component].set_property("cmake_target_name", cmake_target)
 
                 module_requires = values.get("requires", [])
                 module_system_libs = []
@@ -763,23 +693,17 @@ class OpenCVConan(ConanFile):
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
                 self.cpp_info.components[conan_component].names["cmake_find_package"] = cmake_target
-                self.cpp_info.components[conan_component].names[
-                    "cmake_find_package_multi"
-                ] = cmake_target
+                self.cpp_info.components[conan_component].names["cmake_find_package_multi"] = cmake_target
                 self.cpp_info.components[conan_component].build_modules["cmake_find_package"] = [
                     self._module_file_rel_path
                 ]
-                self.cpp_info.components[conan_component].build_modules[
-                    "cmake_find_package_multi"
-                ] = [self._module_file_rel_path]
+                self.cpp_info.components[conan_component].build_modules["cmake_find_package_multi"] = [
+                    self._module_file_rel_path
+                ]
                 if module != cmake_target:
                     conan_component_alias = conan_component + "_alias"
-                    self.cpp_info.components[conan_component_alias].names[
-                        "cmake_find_package"
-                    ] = module
-                    self.cpp_info.components[conan_component_alias].names[
-                        "cmake_find_package_multi"
-                    ] = module
+                    self.cpp_info.components[conan_component_alias].names["cmake_find_package"] = module
+                    self.cpp_info.components[conan_component_alias].names["cmake_find_package_multi"] = module
                     self.cpp_info.components[conan_component_alias].requires = [conan_component]
                     self.cpp_info.components[conan_component_alias].bindirs = []
                     self.cpp_info.components[conan_component_alias].includedirs = []
@@ -796,9 +720,9 @@ class OpenCVConan(ConanFile):
                 self.cpp_info.components["opencv_world"].build_modules["cmake_find_package"] = [
                     self._module_file_rel_path
                 ]
-                self.cpp_info.components["opencv_world"].build_modules[
-                    "cmake_find_package_multi"
-                ] = [self._module_file_rel_path]
+                self.cpp_info.components["opencv_world"].build_modules["cmake_find_package_multi"] = [
+                    self._module_file_rel_path
+                ]
 
         self.cpp_info.set_property("cmake_file_name", "OpenCV")
 

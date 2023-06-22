@@ -94,9 +94,7 @@ class AcadoConan(ConanFile):
         acado_template_paths = os.path.join(
             self.package_folder, "include", "acado", "code_generation", "templates"
         )
-        self.output.info(
-            "Setting ACADO_TEMPLATE_PATHS environment variable: {}".format(acado_template_paths)
-        )
+        self.output.info("Setting ACADO_TEMPLATE_PATHS environment variable: {}".format(acado_template_paths))
         self.env_info.ACADO_TEMPLATE_PATHS = acado_template_paths
 
         if self.options.shared:

@@ -79,9 +79,7 @@ class UnivalueConan(ConanFile):
         env = tc.environment()
         if is_msvc(self):
             automake_conf = self.dependencies.build["automake"].conf_info
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", "cl -nologo")
             env.define("CXX", "cl -nologo")
             env.define("CPP", "cl -nologo -EP")
@@ -109,12 +107,7 @@ class UnivalueConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

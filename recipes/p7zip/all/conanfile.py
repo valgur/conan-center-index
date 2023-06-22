@@ -37,19 +37,12 @@ class PSevenZipConan(ConanFile):
 
     def validate(self):
         if self.info.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported on Windows - use `7zip` instead"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows - use `7zip` instead")
         if self.info.settings.arch not in ("armv8", "x86_64"):
             raise ConanInvalidConfiguration(f"{self.ref} is only supported by x86_64 and armv8")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -64,12 +57,8 @@ class PSevenZipConan(ConanFile):
         if self.settings.compiler == "gcc":
             cxx = "g++"
         # Replace the hard-coded compilers instead of using the 40 different Makefile permutations
-        replace_in_file(
-            self, os.path.join(self.source_folder, "makefile.machine"), "CC=gcc", f"CC={cc}"
-        )
-        replace_in_file(
-            self, os.path.join(self.source_folder, "makefile.machine"), "CXX=g++", f"CXX={cxx}"
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"), "CC=gcc", f"CC={cc}")
+        replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"), "CXX=g++", f"CXX={cxx}")
         # Manually modify the -O flag here based on the build type
         optflags += " -O2" if self.settings.build_type == "Release" else " -O0"
         # Silence the warning about `-s` not being valid on clang

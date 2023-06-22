@@ -10,12 +10,7 @@ required_conan_version = ">=1.50.0"
 class FastPRNGConan(ConanFile):
     name = "fastprng"
     description = "FAST 32/64 bit PRNG (pseudo-random generator), highly optimized, based on xoshiro* / xoroshiro*, xorshift and other Marsaglia algorithms."
-    topics = (
-        "random",
-        "prng",
-        "xorshift",
-        "xoshiro",
-    )
+    topics = ("random", "prng", "xorshift", "xoshiro")
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/BrutPitt/fastPRNG"
@@ -33,12 +28,7 @@ class FastPRNGConan(ConanFile):
             check_min_cppstd(self, "11")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(self, "*.h", self.source_folder, os.path.join(self.package_folder, "include"))

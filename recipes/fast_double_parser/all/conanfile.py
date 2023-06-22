@@ -29,21 +29,11 @@ class FastDoubleParserConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         include_folder = os.path.join(self.source_folder, "include")
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=include_folder,
-        )
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=include_folder)
         copy(
             self,
             pattern="LICENSE*",

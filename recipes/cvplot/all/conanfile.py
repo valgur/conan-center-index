@@ -16,16 +16,12 @@ class CvPlotConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
-            pattern="*", dst="include", src=os.path.join(self._source_subfolder, "CvPlot", "inc")
-        )
+        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "CvPlot", "inc"))
 
     def package_id(self):
         self.info.header_only()

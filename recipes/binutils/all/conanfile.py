@@ -6,14 +6,7 @@ import unittest
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -104,9 +97,7 @@ class BinutilsConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "This recipe does not support building binutils by this compiler"
-            )
+            raise ConanInvalidConfiguration("This recipe does not support building binutils by this compiler")
 
         if self.options.target_os == "Macos":
             raise ConanInvalidConfiguration(
@@ -184,9 +175,7 @@ class BinutilsConan(ConanFile):
         tc.configure_args.append("--disable-nls")
         tc.configure_args.append(f"--target={self.options.target_triplet}")
         tc.configure_args.append(f"--enable-multilib={yes_no(self.options.multilib)}")
-        tc.configure_args.append(
-            f"--with-zlib={unix_path(self, self.dependencies['zlib'].package_folder)}"
-        )
+        tc.configure_args.append(f"--with-zlib={unix_path(self, self.dependencies['zlib'].package_folder)}")
         tc.configure_args.append(f"--program-prefix={self.options.prefix}")
         tc.configure_args.append("--exec_prefix=/bin/exec_prefix")
         tc.generate()
@@ -316,11 +305,7 @@ class _ArchOs:
 
 class _GNUTriplet:
     def __init__(
-        self,
-        machine: str,
-        vendor: typing.Optional[str],
-        os: typing.Optional[str],
-        abi: typing.Optional[str],
+        self, machine: str, vendor: typing.Optional[str], os: typing.Optional[str], abi: typing.Optional[str]
     ):
         self.machine = machine
         self.vendor = vendor
@@ -394,10 +379,7 @@ class _GNUTriplet:
     def calculate_gnu_machine(cls, archos: _ArchOs) -> str:
         return cls.ARCH_TO_GNU_MACHINE_LUT[archos.arch]
 
-    UNKNOWN_OS_ALIASES = (
-        "unknown",
-        "none",
-    )
+    UNKNOWN_OS_ALIASES = ("unknown", "none")
 
     OS_TO_GNU_OS_LUT = {
         "baremetal": "none",
@@ -411,19 +393,13 @@ class _GNUTriplet:
     @classmethod
     def calculate_gnu_os(cls, archos: _ArchOs) -> typing.Optional[str]:
         if archos.os in ("baremetal",):
-            if archos.arch in (
-                "x86",
-                "x86_64",
-            ):
+            if archos.arch in ("x86", "x86_64"):
                 return None
             elif archos.arch in ("riscv32", "riscv64"):
                 return "unknown"
         return cls.OS_TO_GNU_OS_LUT[archos.os]
 
-    OS_TO_GNU_VENDOR_LUT = {
-        "Windows": "w64",
-        "baremetal": None,
-    }
+    OS_TO_GNU_VENDOR_LUT = {"Windows": "w64", "baremetal": None}
 
     @classmethod
     def calculate_gnu_vendor(cls, archos: _ArchOs) -> typing.Optional[str]:
@@ -458,12 +434,7 @@ class _GNUTriplet:
 
         return abi_start + abi_suffix
 
-    KNOWN_GNU_ABIS = (
-        "android",
-        "gnu",
-        "eabi",
-        "elf",
-    )
+    KNOWN_GNU_ABIS = ("android", "gnu", "eabi", "elf")
 
     def __eq__(self, other: object) -> bool:
         if type(self) != type(other):
@@ -489,19 +460,11 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_linux_x86(self):
         archos = _ArchOs(arch="x86", os="Linux")
         self._test_osarch_to_gnutriplet(
-            archos,
-            _GNUTriplet(machine="i686", vendor="pc", os="linux", abi="gnu"),
-            "i686-pc-linux-gnu",
+            archos, _GNUTriplet(machine="i686", vendor="pc", os="linux", abi="gnu"), "i686-pc-linux-gnu"
         )
-        self.assertEqual(
-            _ArchOs("x86", "Linux"), _ArchOs.from_triplet(_GNUTriplet.from_text("i386-linux"))
-        )
-        self.assertEqual(
-            _ArchOs("x86", "Linux"), _ArchOs.from_triplet(_GNUTriplet.from_text("i686-linux"))
-        )
-        self.assertEqual(
-            _GNUTriplet("i486", None, "linux", None), _GNUTriplet.from_text("i486-linux")
-        )
+        self.assertEqual(_ArchOs("x86", "Linux"), _ArchOs.from_triplet(_GNUTriplet.from_text("i386-linux")))
+        self.assertEqual(_ArchOs("x86", "Linux"), _ArchOs.from_triplet(_GNUTriplet.from_text("i686-linux")))
+        self.assertEqual(_GNUTriplet("i486", None, "linux", None), _GNUTriplet.from_text("i486-linux"))
         self.assertTrue(archos.is_compatible(_GNUTriplet.from_text("i486-linux")))
         self.assertTrue(archos.is_compatible(_GNUTriplet.from_text("i486-linux-gnu")))
 
@@ -515,19 +478,12 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_linux_armv7(self):
         archos = _ArchOs(arch="armv7", os="Linux")
         self._test_osarch_to_gnutriplet(
-            archos,
-            _GNUTriplet(machine="arm", vendor="pc", os="linux", abi="gnueabi"),
-            "arm-pc-linux-gnueabi",
+            archos, _GNUTriplet(machine="arm", vendor="pc", os="linux", abi="gnueabi"), "arm-pc-linux-gnueabi"
         )
+        self.assertEqual(_GNUTriplet("arm", "pc", None, "gnueabi"), _GNUTriplet.from_text("arm-pc-gnueabi"))
+        self.assertEqual(_GNUTriplet("arm", "pc", None, "eabi"), _GNUTriplet.from_text("arm-pc-eabi"))
         self.assertEqual(
-            _GNUTriplet("arm", "pc", None, "gnueabi"), _GNUTriplet.from_text("arm-pc-gnueabi")
-        )
-        self.assertEqual(
-            _GNUTriplet("arm", "pc", None, "eabi"), _GNUTriplet.from_text("arm-pc-eabi")
-        )
-        self.assertEqual(
-            _ArchOs("armv7hf", "baremetal"),
-            _ArchOs.from_triplet(_GNUTriplet.from_text("arm-pc-gnueabihf")),
+            _ArchOs("armv7hf", "baremetal"), _ArchOs.from_triplet(_GNUTriplet.from_text("arm-pc-gnueabihf"))
         )
         self.assertTrue(archos.is_compatible(_GNUTriplet.from_text("arm-linux-gnueabi")))
         self.assertTrue(archos.is_compatible(_GNUTriplet.from_text("arm-linux-eabi")))
@@ -545,8 +501,7 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
             _GNUTriplet("arm", "pc", None, "gnueabihf"), _GNUTriplet.from_text("arm-pc-gnueabihf")
         )
         self.assertEqual(
-            _ArchOs("armv7", "baremetal"),
-            _ArchOs.from_triplet(_GNUTriplet.from_text("arm-pc-gnueabi")),
+            _ArchOs("armv7", "baremetal"), _ArchOs.from_triplet(_GNUTriplet.from_text("arm-pc-gnueabi"))
         )
         self.assertFalse(archos.is_compatible(_GNUTriplet.from_text("arm-linux-gnueabi")))
         self.assertFalse(archos.is_compatible(_GNUTriplet.from_text("arm-linux-eabi")))
@@ -627,39 +582,67 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
 
     def test_android_armv7(self):
         self._test_osarch_to_gnutriplet(
-            _ArchOs(arch="armv7", os="Android", extra={"os.api_level": "31"}),
+            _ArchOs(
+                arch="armv7",
+                os="Android",
+                extra={
+                    "os.api_level": "31",
+                },
+            ),
             _GNUTriplet(machine="arm", vendor=None, os="linux", abi="androideabi31"),
             "arm-linux-androideabi31",
         )
 
     def test_android_armv8(self):
         self._test_osarch_to_gnutriplet(
-            _ArchOs(arch="armv8", os="Android", extra={"os.api_level": "24"}),
+            _ArchOs(
+                arch="armv8",
+                os="Android",
+                extra={
+                    "os.api_level": "24",
+                },
+            ),
             _GNUTriplet(machine="aarch64", vendor=None, os="linux", abi="android24"),
             "aarch64-linux-android24",
         )
 
     def test_android_x86(self):
         self._test_osarch_to_gnutriplet(
-            _ArchOs(arch="x86", os="Android", extra={"os.api_level": "16"}),
+            _ArchOs(
+                arch="x86",
+                os="Android",
+                extra={
+                    "os.api_level": "16",
+                },
+            ),
             _GNUTriplet(machine="i686", vendor=None, os="linux", abi="android16"),
             "i686-linux-android16",
         )
 
     def test_android_x86_64(self):
         self._test_osarch_to_gnutriplet(
-            _ArchOs(arch="x86_64", os="Android", extra={"os.api_level": "29"}),
+            _ArchOs(
+                arch="x86_64",
+                os="Android",
+                extra={
+                    "os.api_level": "29",
+                },
+            ),
             _GNUTriplet(machine="x86_64", vendor=None, os="linux", abi="android29"),
             "x86_64-linux-android29",
         )
         self.assertEqual(
-            _ArchOs(arch="x86_64", os="Android", extra={"os.api_level": "25"}),
+            _ArchOs(
+                arch="x86_64",
+                os="Android",
+                extra={
+                    "os.api_level": "25",
+                },
+            ),
             _ArchOs.from_triplet(_GNUTriplet.from_text("x86_64-linux-android29")),
         )
 
-    def _test_osarch_to_gnutriplet(
-        self, archos: _ArchOs, gnuobj_ref: _GNUTriplet, triplet_ref: str
-    ):
+    def _test_osarch_to_gnutriplet(self, archos: _ArchOs, gnuobj_ref: _GNUTriplet, triplet_ref: str):
         gnuobj = _GNUTriplet.from_archos(archos)
         self.assertEqual(gnuobj_ref, gnuobj)
         self.assertEqual(triplet_ref, gnuobj.triplet)

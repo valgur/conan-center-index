@@ -14,9 +14,7 @@ class LibgcryptConan(ConanFile):
     name = "libgcrypt"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnupg.org/download/index.html#libgcrypt"
-    description = (
-        "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
-    )
+    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
     topics = ("gcrypt", "gnupg", "gpg", "crypto", "cryptography")
     license = "LGPL-2.1-or-later"
     package_type = "library"
@@ -75,12 +73,7 @@ class LibgcryptConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*la", os.path.join(self.package_folder, "lib"))

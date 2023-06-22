@@ -106,7 +106,12 @@ Examples = {folder}/datadir/examples""",
             with tools.environment_append(RunEnvironment(self).vars):
                 meson = Meson(self)
                 try:
-                    meson.configure(build_folder="meson_folder", defs={"cpp_std": "c++11"})
+                    meson.configure(
+                        build_folder="meson_folder",
+                        defs={
+                            "cpp_std": "c++11",
+                        },
+                    )
                 except ConanException:
                     self.output.info(open("meson_folder/meson-logs/meson-log.txt", "r").read())
                     raise

@@ -91,9 +91,7 @@ class GStPluginsGoodConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_meson(self):
@@ -127,9 +125,7 @@ class GStPluginsGoodConan(ConanFile):
         defs["tests"] = "disabled"
         defs["wrap_mode"] = "nofallback"
         defs["introspection"] = "enabled" if self.options.with_introspection else "disabled"
-        meson.configure(
-            build_folder=self._build_subfolder, source_folder=self._source_subfolder, defs=defs
-        )
+        meson.configure(build_folder=self._build_subfolder, source_folder=self._source_subfolder, defs=defs)
         return meson
 
     def build(self):

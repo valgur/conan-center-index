@@ -3,15 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, save
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -132,9 +124,7 @@ class GDCMConan(ConanFile):
             self, "[!U]*.cmake", os.path.join(self.package_folder, "lib", self._gdcm_subdir)
         )  # leave UseGDCM.cmake untouched
         rmdir(self, os.path.join(self.package_folder, "share"))
-        self._create_cmake_variables(
-            os.path.join(self.package_folder, self._gdcm_cmake_variables_path)
-        )
+        self._create_cmake_variables(os.path.join(self.package_folder, self._gdcm_cmake_variables_path))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets()
@@ -157,7 +147,7 @@ class GDCMConan(ConanFile):
             set(GDCM_CMAKE_DIR "")
 
             # The configuration options.
-            set(GDCM_BUILD_SHARED_LIBS "{"ON" if self.options.shared else "OFF"}")
+            set(GDCM_BUILD_SHARED_LIBS "{"ON" if self.options.shared else "OFF",}")
 
             set(GDCM_USE_VTK "OFF")
 
@@ -241,22 +231,14 @@ class GDCMConan(ConanFile):
             self.cpp_info.components[lib].builddirs.append(self._gdcm_builddir)
 
             # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            self.cpp_info.components[lib].build_modules["cmake"] = [
-                self._gdcm_cmake_module_aliases_path
-            ]
-            self.cpp_info.components[lib].build_modules[
-                "cmake_find_package"
-            ] = self._gdcm_build_modules
-            self.cpp_info.components[lib].build_modules[
-                "cmake_find_package_multi"
-            ] = self._gdcm_build_modules
+            self.cpp_info.components[lib].build_modules["cmake"] = [self._gdcm_cmake_module_aliases_path]
+            self.cpp_info.components[lib].build_modules["cmake_find_package"] = self._gdcm_build_modules
+            self.cpp_info.components[lib].build_modules["cmake_find_package_multi"] = self._gdcm_build_modules
 
         if self.options.with_openssl:
             self.cpp_info.components["gdcmCommon"].requires.append("openssl::openssl")
         self.cpp_info.components["gdcmDSED"].requires.extend(["gdcmCommon", "zlib::zlib"])
-        self.cpp_info.components["gdcmIOD"].requires.extend(
-            ["gdcmDSED", "gdcmCommon", "expat::expat"]
-        )
+        self.cpp_info.components["gdcmIOD"].requires.extend(["gdcmDSED", "gdcmCommon", "expat::expat"])
         self.cpp_info.components["gdcmMSFF"].requires.extend(
             ["gdcmIOD", "gdcmDSED", "gdcmDICT", "openjpeg::openjpeg"]
         )

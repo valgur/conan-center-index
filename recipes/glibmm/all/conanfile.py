@@ -135,9 +135,7 @@ class GlibmmConan(ConanFile):
             if not self.options.shared:
                 replace_in_file(
                     self,
-                    os.path.join(
-                        self.source_folder, "tools", "extra_defs_gen", "generate_extra_defs.h"
-                    ),
+                    os.path.join(self.source_folder, "tools", "extra_defs_gen", "generate_extra_defs.h"),
                     "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
                     "#if 0",
                 )
@@ -189,9 +187,7 @@ class GlibmmConan(ConanFile):
             for header_file in glob.glob(directory_path):
                 shutil.move(
                     header_file,
-                    os.path.join(
-                        self.package_folder, "include", directory, os.path.basename(header_file)
-                    ),
+                    os.path.join(self.package_folder, "include", directory, os.path.basename(header_file)),
                 )
 
         for dir_to_remove in ["pkgconfig", self._glibmm_lib, self._giomm_lib]:
@@ -202,18 +198,11 @@ class GlibmmConan(ConanFile):
         glibmm_component = f"glibmm-{self._abi_version}"
         self.cpp_info.components[glibmm_component].set_property("pkg_config_name", glibmm_component)
         self.cpp_info.components[glibmm_component].libs = [glibmm_component]
-        self.cpp_info.components[glibmm_component].includedirs = [
-            os.path.join("include", glibmm_component)
-        ]
-        self.cpp_info.components[glibmm_component].requires = [
-            "glib::gobject-2.0",
-            "libsigcpp::libsigcpp",
-        ]
+        self.cpp_info.components[glibmm_component].includedirs = [os.path.join("include", glibmm_component)]
+        self.cpp_info.components[glibmm_component].requires = ["glib::gobject-2.0", "libsigcpp::libsigcpp"]
 
         giomm_component = f"giomm-{self._abi_version}"
         self.cpp_info.components[giomm_component].set_property("pkg_config_name", giomm_component)
         self.cpp_info.components[giomm_component].libs = [giomm_component]
-        self.cpp_info.components[giomm_component].includedirs = [
-            os.path.join("include", giomm_component)
-        ]
+        self.cpp_info.components[giomm_component].includedirs = [os.path.join("include", giomm_component)]
         self.cpp_info.components[giomm_component].requires = [glibmm_component, "glib::gio-2.0"]

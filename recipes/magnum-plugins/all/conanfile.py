@@ -90,9 +90,7 @@ class MagnumConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
         tools.replace_in_file(
             os.path.join(self._source_subfolder, "CMakeLists.txt"),
@@ -103,9 +101,7 @@ class MagnumConan(ConanFile):
             self._source_subfolder, "src", "MagnumPlugins", "AssimpImporter", "CMakeLists.txt"
         )
         tools.replace_in_file(
-            assimp_importer_cmake_file,
-            "find_package(Assimp REQUIRED)",
-            "find_package(assimp REQUIRED)",
+            assimp_importer_cmake_file, "find_package(Assimp REQUIRED)", "find_package(assimp REQUIRED)"
         )
         tools.replace_in_file(assimp_importer_cmake_file, "Assimp::Assimp", "assimp::assimp")
 
@@ -113,9 +109,7 @@ class MagnumConan(ConanFile):
             self._source_subfolder, "src", "MagnumPlugins", "HarfBuzzFont", "CMakeLists.txt"
         )
         tools.replace_in_file(
-            harfbuzz_cmake_file,
-            "find_package(HarfBuzz REQUIRED)",
-            "find_package(harfbuzz REQUIRED)",
+            harfbuzz_cmake_file, "find_package(HarfBuzz REQUIRED)", "find_package(harfbuzz REQUIRED)"
         )
         tools.replace_in_file(harfbuzz_cmake_file, "HarfBuzz::HarfBuzz", "harfbuzz::harfbuzz")
 
@@ -155,9 +149,7 @@ class MagnumConan(ConanFile):
         if self.options.png_imageconverter:
             self.requires("libpng/1.6.37")
         if self.options.basis_imageconverter or self.options.basis_importer:
-            raise ConanInvalidConfiguration(
-                "Requires 'basisuniversal', not available in ConanCenter yet"
-            )
+            raise ConanInvalidConfiguration("Requires 'basisuniversal', not available in ConanCenter yet")
         if self.options.devil_imageimporter:
             raise ConanInvalidConfiguration("Requires 'DevIL', not available in ConanCenter yet")
         if self.options.faad2_audioimporter:
@@ -209,15 +201,11 @@ class MagnumConan(ConanFile):
         self._cmake.definitions["WITH_PNGIMPORTER"] = self.options.png_importer
         self._cmake.definitions["WITH_PRIMITIVEIMPORTER"] = self.options.primitive_importer
         self._cmake.definitions["WITH_STANFORDIMPORTER"] = self.options.stanford_importer
-        self._cmake.definitions[
-            "WITH_STANFORDSCENECONVERTER"
-        ] = self.options.stanford_sceneconverter
+        self._cmake.definitions["WITH_STANFORDSCENECONVERTER"] = self.options.stanford_sceneconverter
         self._cmake.definitions["WITH_STBIMAGECONVERTER"] = self.options.stb_imageconverter
         self._cmake.definitions["WITH_STBIMAGEIMPORTER"] = self.options.stb_imageimporter
         self._cmake.definitions["WITH_STBTRUETYPEFONT"] = self.options.stbtruetype_font
-        self._cmake.definitions[
-            "WITH_STBVORBISAUDIOIMPORTER"
-        ] = self.options.stbvorbis_audioimporter
+        self._cmake.definitions["WITH_STBVORBISAUDIOIMPORTER"] = self.options.stbvorbis_audioimporter
         self._cmake.definitions["WITH_STLIMPORTER"] = self.options.stl_importer
         self._cmake.definitions["WITH_TINYGLTFIMPORTER"] = self.options.tinygltf_importer
 
@@ -262,11 +250,7 @@ class MagnumConan(ConanFile):
                     )
 
         tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy(
-            "*.cmake",
-            src=os.path.join(self.source_folder, "cmake"),
-            dst=os.path.join("lib", "cmake"),
-        )
+        self.copy("*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):
@@ -274,9 +258,7 @@ class MagnumConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "MagnumPlugins"
 
         magnum_plugin_libdir = (
-            "magnum-d"
-            if self.settings.build_type == "Debug" and self.options.shared_plugins
-            else "magnum"
+            "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
         )
         plugin_lib_suffix = (
             "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
@@ -284,9 +266,7 @@ class MagnumConan(ConanFile):
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
 
         self.cpp_info.components["magnumopenddl"].names["cmake_find_package"] = "MagnumOpenDdl"
-        self.cpp_info.components["magnumopenddl"].names[
-            "cmake_find_package_multi"
-        ] = "MagnumOpenDdl"
+        self.cpp_info.components["magnumopenddl"].names["cmake_find_package_multi"] = "MagnumOpenDdl"
         self.cpp_info.components["magnumopenddl"].libs = ["MagnumOpenDdl{}".format(lib_suffix)]
         self.cpp_info.components["magnumopenddl"].requires = ["magnum::magnum"]
 
@@ -305,9 +285,7 @@ class MagnumConan(ConanFile):
 
         # The global target doesn't provide anything in this package. Null it.
         self.cpp_info.components["_global_target"].names["cmake_find_package"] = "MagnumPlugins"
-        self.cpp_info.components["_global_target"].names[
-            "cmake_find_package_multi"
-        ] = "MagnumPlugins"
+        self.cpp_info.components["_global_target"].names["cmake_find_package_multi"] = "MagnumPlugins"
         self.cpp_info.components["_global_target"].build_modules["cmake_find_package"].append(
             os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake")
         )
@@ -326,9 +304,7 @@ class MagnumConan(ConanFile):
                     os.path.join("lib", "cmake", "conan-magnum-plugins-{}.cmake".format(component))
                 )
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
-        self.user_info.plugins_basepath = os.path.join(
-            self.package_folder, plugin_dir, magnum_plugin_libdir
-        )
+        self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
 
     @property
     def _plugins(self):
@@ -346,10 +322,7 @@ class MagnumConan(ConanFile):
             ),
             ("basis_imageconverter", ("basis_imageconverter", "--", "--", "--", [])),
             ("basis_importer", ("basis_importer", "--", "--", "--", [])),
-            (
-                "dds_importer",
-                ("dds_importer", "DdsImporter", "DdsImporter", "importers", ["magnum::trade"]),
-            ),
+            ("dds_importer", ("dds_importer", "DdsImporter", "DdsImporter", "importers", ["magnum::trade"])),
             ("devil_imageimporter", ("devil_imageimporter", "--", "--", "--", [])),
             (
                 "drflac_audioimporter",
@@ -514,23 +487,11 @@ class MagnumConan(ConanFile):
             ),
             (
                 "stb_imageimporter",
-                (
-                    "stb_imageimporter",
-                    "StbImageImporter",
-                    "StbImageImporter",
-                    "importers",
-                    ["magnum::trade"],
-                ),
+                ("stb_imageimporter", "StbImageImporter", "StbImageImporter", "importers", ["magnum::trade"]),
             ),
             (
                 "stbtruetype_font",
-                (
-                    "stbtruetype_font",
-                    "StbTrueTypeFont",
-                    "StbTrueTypeFont",
-                    "fonts",
-                    ["magnum::text"],
-                ),
+                ("stbtruetype_font", "StbTrueTypeFont", "StbTrueTypeFont", "fonts", ["magnum::text"]),
             ),
             (
                 "stbvorbis_audioimporter",

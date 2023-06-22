@@ -52,9 +52,7 @@ class OpenblasConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     @functools.lru_cache(1)
@@ -85,9 +83,7 @@ class OpenblasConan(ConanFile):
     def build(self):
         if tools.Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
-            replace = (
-                """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
-            )
+            replace = """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
         else:
             search = "enable_language(Fortran)"
             replace = """include(CheckLanguage)
@@ -100,11 +96,7 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        tools.replace_in_file(
-            os.path.join(self._source_subfolder, "cmake", "f_check.cmake"),
-            search,
-            replace,
-        )
+        tools.replace_in_file(os.path.join(self._source_subfolder, "cmake", "f_check.cmake"), search, replace)
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -127,9 +119,7 @@ endif()"""
             "pthread" if self.options.use_thread else "serial"
         )  # TODO: ow to model this in CMakeDeps?
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", "openblas")
-        self.cpp_info.components["openblas_component"].includedirs.append(
-            os.path.join("include", "openblas")
-        )
+        self.cpp_info.components["openblas_component"].includedirs.append(os.path.join("include", "openblas"))
         self.cpp_info.components["openblas_component"].libs = tools.collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
@@ -138,17 +128,13 @@ endif()"""
             if self.options.build_lapack:
                 self.cpp_info.components["openblas_component"].system_libs.append("gfortran")
 
-        self.output.info(
-            "Setting OpenBLAS_HOME environment variable: {}".format(self.package_folder)
-        )
+        self.output.info("Setting OpenBLAS_HOME environment variable: {}".format(self.package_folder))
         self.env_info.OpenBLAS_HOME = self.package_folder
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
-        self.cpp_info.components["openblas_component"].names[
-            "cmake_find_package"
-        ] = cmake_component_name
+        self.cpp_info.components["openblas_component"].names["cmake_find_package"] = cmake_component_name
         self.cpp_info.components["openblas_component"].names[
             "cmake_find_package_multi"
         ] = cmake_component_name

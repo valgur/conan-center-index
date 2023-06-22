@@ -70,9 +70,7 @@ class PbcConan(ConanFile):
             if self.settings.os == "iOS":
                 min_ios = "-miphoneos-version-min={}".format(self.settings.os.version)
 
-            args.append(
-                "CC={} -isysroot {} -target {} {}".format(xcr.cc, xcr.sdk_path, target, min_ios)
-            )
+            args.append("CC={} -isysroot {} -target {} {}".format(xcr.cc, xcr.sdk_path, target, min_ios))
 
         self._autotools.configure(args=args)
         return self._autotools

@@ -7,7 +7,9 @@ required_conan_version = ">=1.33.0"
 
 class LibNlConan(ConanFile):
     name = "libnl"
-    description = "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
+    description = (
+        "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
+    )
     topics = "netlink"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.infradead.org/~tgr/libnl/"
@@ -17,16 +19,17 @@ class LibNlConan(ConanFile):
         "fPIC": [True, False],
         "shared": [True, False],
     }
-    default_options = {"fPIC": True, "shared": False}
+    default_options = {
+        "fPIC": True,
+        "shared": False,
+    }
     build_requires = ("flex/2.6.4", "bison/3.7.6")
 
     _autotools = None
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def configure(self):
@@ -43,9 +46,7 @@ class LibNlConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self)
-        config_args = [
-            "--prefix={}".format(tools.unix_path(self.package_folder)),
-        ]
+        config_args = ["--prefix={}".format(tools.unix_path(self.package_folder))]
         if self.options.shared:
             config_args.extend(["--enable-shared=yes", "--enable-static=no"])
         else:

@@ -77,11 +77,7 @@ class LibPcapConan(ConanFile):
             and is_apple_os(self)
         ):
             raise ConanInvalidConfiguration("cross-build of libpcap shared is broken on Apple")
-        if (
-            Version(self.version) < "1.10.1"
-            and self.settings.os == "Windows"
-            and not self.options.shared
-        ):
+        if Version(self.version) < "1.10.1" and self.settings.os == "Windows" and not self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built static on Windows")
 
     def build_requirements(self):
@@ -145,12 +141,7 @@ class LibPcapConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

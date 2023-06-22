@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, save
 from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
 from conan.tools.scm import Version
 import os
@@ -69,9 +61,7 @@ class EasyProfilerConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.settings.compiler), False
-            )
+            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
@@ -103,10 +93,7 @@ class EasyProfilerConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,
@@ -131,7 +118,9 @@ class EasyProfilerConan(ConanFile):
                 rm(self, "{}*.dll".format(dll_prefix), os.path.join(self.package_folder, "bin"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"easy_profiler": "easy_profiler::easy_profiler"},
+            {
+                "easy_profiler": "easy_profiler::easy_profiler",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -155,9 +144,7 @@ class EasyProfilerConan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(
-            self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name)
-        )
+        return os.path.join(self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "easy_profiler")

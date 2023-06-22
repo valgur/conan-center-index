@@ -64,20 +64,14 @@ class KissfftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         lib_name = "kissfft-{datatype}{openmp}".format(
-            datatype=self.options.datatype,
-            openmp="-openmp" if self.options.openmp else "",
+            datatype=self.options.datatype, openmp="-openmp" if self.options.openmp else ""
         )
 
         self.cpp_info.set_property("cmake_file_name", "kissfft")
@@ -85,16 +79,12 @@ class KissfftConan(ConanFile):
         self.cpp_info.set_property("cmake_target_aliases", [f"kissfft::{lib_name}"])
         self.cpp_info.set_property("pkg_config_name", lib_name)
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libkissfft"].includedirs.append(
-            os.path.join("include", "kissfft")
-        )
+        self.cpp_info.components["libkissfft"].includedirs.append(os.path.join("include", "kissfft"))
         self.cpp_info.components["libkissfft"].libs = [lib_name]
 
         # got to duplicate the logic from kissfft/CMakeLists.txt
         if self.options.datatype in ["float", "double"]:
-            self.cpp_info.components["libkissfft"].defines.append(
-                f"kiss_fft_scalar={self.options.datatype}"
-            )
+            self.cpp_info.components["libkissfft"].defines.append(f"kiss_fft_scalar={self.options.datatype}")
         elif self.options.datatype == "int16_t":
             self.cpp_info.components["libkissfft"].defines.append("FIXED_POINT=16")
         elif self.options.datatype == "int32_t":

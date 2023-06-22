@@ -15,15 +15,7 @@ class SobjectizerConan(ConanFile):
         "concurrent and event-driven applications in C++ "
         "by using Actor, Publish-Subscribe and CSP models."
     )
-    topics = (
-        "concurrency",
-        "actor-framework",
-        "actors",
-        "agents",
-        "actor-model",
-        "publish-subscribe",
-        "CSP",
-    )
+    topics = ("concurrency", "actor-framework", "actors", "agents", "actor-model", "publish-subscribe", "CSP")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -55,7 +47,12 @@ class SobjectizerConan(ConanFile):
         minimal_cpp_standard = "17"
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {"gcc": "7", "clang": "6", "apple-clang": "10", "Visual Studio": "15"}
+        minimal_version = {
+            "gcc": "7",
+            "clang": "6",
+            "apple-clang": "10",
+            "Visual Studio": "15",
+        }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
@@ -63,16 +60,14 @@ class SobjectizerConan(ConanFile):
                 % (self.name, compiler)
             )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
             return
 
         version = tools.Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s"
-                % (self.name, minimal_cpp_standard)
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
             )
 
     def _configure_cmake(self):
@@ -93,21 +88,13 @@ class SobjectizerConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
-        self.copy(
-            "license*",
-            src=self._source_subfolder,
-            dst="licenses",
-            ignore_case=True,
-            keep_path=False,
-        )
+        self.copy("license*", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
         tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

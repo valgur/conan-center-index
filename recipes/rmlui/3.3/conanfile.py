@@ -84,9 +84,7 @@ class RmluiConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):
@@ -99,12 +97,8 @@ class RmluiConan(ConanFile):
             ] = not self.options.enable_rtti_and_exceptions
             self._cmake.definitions["ENABLE_PRECOMPILED_HEADERS"] = True
             self._cmake.definitions["ENABLE_TRACY_PROFILING"] = False
-            self._cmake.definitions["NO_FONT_INTERFACE_DEFAULT"] = (
-                self.options.font_interface is None
-            )
-            self._cmake.definitions[
-                "NO_THIRDPARTY_CONTAINERS"
-            ] = not self.options.with_thirdparty_containers
+            self._cmake.definitions["NO_FONT_INTERFACE_DEFAULT"] = self.options.font_interface is None
+            self._cmake.definitions["NO_THIRDPARTY_CONTAINERS"] = not self.options.with_thirdparty_containers
 
             self._cmake.configure()
 

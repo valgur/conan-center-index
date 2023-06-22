@@ -81,12 +81,7 @@ class TaoCPPPEGTLConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             "*",
@@ -103,11 +98,7 @@ class TaoCPPPEGTLConan(ConanFile):
             self.cpp_info.components["_taocpp-pegtl"].defines.append("TAO_PEGTL_BOOST_FILESYSTEM")
         else:
             compiler_version = Version(self.settings.compiler.version)
-            if (
-                self.settings.compiler == "clang"
-                and compiler_version >= "10"
-                and compiler_version < "12"
-            ):
+            if self.settings.compiler == "clang" and compiler_version >= "10" and compiler_version < "12":
                 self.cpp_info.components["_taocpp-pegtl"].defines.append(
                     "TAO_PEGTL_STD_EXPERIMENTAL_FILESYSTEM"
                 )

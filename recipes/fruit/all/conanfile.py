@@ -63,7 +63,12 @@ class FruitConan(ConanFile):
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version.value)
 
-        minimal_version = {"gcc": "5", "clang": "3.5", "apple-clang": "7.3", "Visual Studio": "14"}
+        minimal_version = {
+            "gcc": "5",
+            "clang": "3.5",
+            "apple-clang": "7.3",
+            "Visual Studio": "14",
+        }
 
         if compiler in minimal_version and compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
@@ -86,17 +91,12 @@ class FruitConan(ConanFile):
                 # Exclude build as a workaround.
                 exclude_pattern = f"{extracted_dir}/extras/bazel_root/third_party/fruit/build"
                 members = list(
-                    filter(
-                        lambda m: not fnmatch(m.name, exclude_pattern),
-                        tarredgzippedFile.getmembers(),
-                    )
+                    filter(lambda m: not fnmatch(m.name, exclude_pattern), tarredgzippedFile.getmembers())
                 )
                 tarredgzippedFile.extractall(path=self.source_folder, members=members)
             allfiles = os.listdir(os.path.join(self.source_folder, extracted_dir))
             for file_name in allfiles:
-                shutil.move(
-                    os.path.join(self.source_folder, extracted_dir, file_name), self.source_folder
-                )
+                shutil.move(os.path.join(self.source_folder, extracted_dir, file_name), self.source_folder)
         else:
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -119,12 +119,7 @@ class FruitConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

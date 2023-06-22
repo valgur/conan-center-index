@@ -60,10 +60,7 @@ class CMinpackConan(ConanFile):
 
     def source(self):
         files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder
+            self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder
         )
 
     def build(self):
@@ -99,9 +96,7 @@ class CMinpackConan(ConanFile):
         # the double precision version
         self.cpp_info.components["cminpack-double"].libs = ["cminpack" + self._library_postfix()]
         self.cpp_info.components["cminpack-double"].includedirs.append(minpack_include_dir)
-        self.cpp_info.components["cminpack-double"].set_property(
-            "cmake_target_name", "cminpack::cminpack"
-        )
+        self.cpp_info.components["cminpack-double"].set_property("cmake_target_name", "cminpack::cminpack")
         self.cpp_info.components["cminpack-double"].names["cmake_find_package"] = "cminpack"
         self.cpp_info.components["cminpack-double"].names["cmake_find_package_multi"] = "cminpack"
         self.cpp_info.components["cminpack-double"].names["pkg_config"] = "cminpack"
@@ -110,9 +105,7 @@ class CMinpackConan(ConanFile):
         self.cpp_info.components["cminpack-single"].libs = ["cminpacks" + self._library_postfix()]
         self.cpp_info.components["cminpack-single"].includedirs.append(minpack_include_dir)
         self.cpp_info.components["cminpack-single"].defines.append("__cminpack_float__")
-        self.cpp_info.components["cminpack-single"].set_property(
-            "cmake_target_name", "cminpack::cminpacks"
-        )
+        self.cpp_info.components["cminpack-single"].set_property("cmake_target_name", "cminpack::cminpacks")
         self.cpp_info.components["cminpack-single"].names["cmake_find_package"] = "cminpacks"
         self.cpp_info.components["cminpack-single"].names["cmake_find_package_multi"] = "cminpacks"
         self.cpp_info.components["cminpack-single"].names["pkg_config"] = "cminpacks"

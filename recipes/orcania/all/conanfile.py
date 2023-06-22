@@ -1,12 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
 import os
@@ -17,12 +10,11 @@ required_conan_version = ">=1.52.0"
 
 class OrcaniaConan(ConanFile):
     name = "orcania"
-    description = "Potluck with different functions for different purposes that can be shared among C programs"
-    homepage = "https://github.com/babelouest/orcania"
-    topics = (
-        "utility",
-        "functions",
+    description = (
+        "Potluck with different functions for different purposes that can be shared among C programs"
     )
+    homepage = "https://github.com/babelouest/orcania"
+    topics = ("utility", "functions")
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -61,12 +53,7 @@ class OrcaniaConan(ConanFile):
             self.requires("getopt-for-visual-studio/20200201")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -93,12 +80,7 @@ class OrcaniaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            os.path.join(self.source_folder),
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -120,7 +102,11 @@ class OrcaniaConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Orcania::Orcania-static": "Orcania::Orcania"},
+            {}
+            if self.options.shared
+            else {
+                "Orcania::Orcania-static": "Orcania::Orcania",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

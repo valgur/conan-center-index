@@ -13,11 +13,7 @@ class AwsCEventStream(ConanFile):
     license = ("Apache-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-event-stream"
-    topics = (
-        "aws",
-        "eventstream",
-        "content",
-    )
+    topics = ("aws", "eventstream", "content")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -63,12 +59,7 @@ class AwsCEventStream(ConanFile):
                 self.requires("aws-c-io/0.13.4")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -87,10 +78,7 @@ class AwsCEventStream(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -100,9 +88,7 @@ class AwsCEventStream(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-event-stream")
         self.cpp_info.set_property("cmake_target_name", "AWS::aws-c-event-stream")
-        self.cpp_info.components["aws-c-event-stream-lib"].names[
-            "cmake_find_package"
-        ] = "aws-c-event-stream"
+        self.cpp_info.components["aws-c-event-stream-lib"].names["cmake_find_package"] = "aws-c-event-stream"
         self.cpp_info.components["aws-c-event-stream-lib"].names[
             "cmake_find_package_multi"
         ] = "aws-c-event-stream"
@@ -112,9 +98,7 @@ class AwsCEventStream(ConanFile):
             "aws-checksums::aws-checksums",
         ]
         if Version(self.version) >= "0.2":
-            self.cpp_info.components["aws-c-event-stream-lib"].requires.append(
-                "aws-c-io::aws-c-io-lib"
-            )
+            self.cpp_info.components["aws-c-event-stream-lib"].requires.append("aws-c-io::aws-c-io-lib")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "aws-c-event-stream"

@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.microsoft import check_min_vs
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
@@ -104,10 +97,7 @@ class ScnlibConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         if self.options.header_only:
             copy(
@@ -157,10 +147,7 @@ class ScnlibConan(ConanFile):
         if Version(self.version) >= "1.0":
             rm(self, "*.cmake", os.path.join(self.package_folder, "include", "scn", "detail"))
             rmdir(self, os.path.join(self.package_folder, "include", "scn", "detail", "CMakeFiles"))
-            rmdir(
-                self,
-                os.path.join(self.package_folder, "include", "scn", "detail", "deps", "CMakeFiles"),
-            )
+            rmdir(self, os.path.join(self.package_folder, "include", "scn", "detail", "deps", "CMakeFiles"))
 
     def package_info(self):
         target = "scn-header-only" if self.options.header_only else "scn"

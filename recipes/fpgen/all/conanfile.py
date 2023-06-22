@@ -8,14 +8,7 @@ class FpgenConan(ConanFile):
     name = "fpgen"
     description = " Functional programming in C++ using C++20 coroutines."
     license = ["MPL2"]
-    topics = (
-        "generators",
-        "coroutines",
-        "c++20",
-        "header-only",
-        "functional-programming",
-        "functional",
-    )
+    topics = ("generators", "coroutines", "c++20", "header-only", "functional-programming", "functional")
     homepage = "https://github.com/jay-tux/fpgen/"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "arch", "os", "compiler", "build_type"
@@ -37,9 +30,7 @@ class FpgenConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def validate(self):
@@ -47,9 +38,7 @@ class FpgenConan(ConanFile):
             raise ConanInvalidConfiguration(f"Use '{self.version}-clang' for Clang support.")
 
         if self.settings.compiler == "clang" and not self.settings.compiler.libcxx == "libc++":
-            raise ConanInvalidConfiguration(
-                f"Use 'compiler.libcxx=libc++' for {self.name} on Clang."
-            )
+            raise ConanInvalidConfiguration(f"Use 'compiler.libcxx=libc++' for {self.name} on Clang.")
 
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, self._min_cppstd)
@@ -62,9 +51,7 @@ class FpgenConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} is currently not available for your compiler."
-            )
+            raise ConanInvalidConfiguration(f"{self.name} is currently not available for your compiler.")
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++20, which your compiler does not support."
@@ -73,10 +60,7 @@ class FpgenConan(ConanFile):
     def package(self):
         self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
         self.copy(
-            pattern="*.hpp",
-            dst=os.path.join("include", "fpgen"),
-            src=self._source_subfolder,
-            keep_path=False,
+            pattern="*.hpp", dst=os.path.join("include", "fpgen"), src=self._source_subfolder, keep_path=False
         )
 
     def package_info(self):

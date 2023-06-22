@@ -46,9 +46,7 @@ class CppSortConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
 
         if is_msvc(self) and Version(self.version) < "1.10.0":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} versions older than 1.10.0 do not support MSVC"
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} versions older than 1.10.0 do not support MSVC")
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -74,12 +72,7 @@ class CppSortConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -99,10 +92,7 @@ class CppSortConan(ConanFile):
             license_files = ["LICENSE.txt", "NOTICE.txt"]
         for license_file in license_files:
             copy(
-                self,
-                license_file,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
 
         # Remove CMake config files (only files in lib)

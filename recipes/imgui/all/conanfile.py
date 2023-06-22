@@ -10,9 +10,7 @@ required_conan_version = ">=1.53.0"
 
 class IMGUIConan(ConanFile):
     name = "imgui"
-    description = (
-        "Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies"
-    )
+    description = "Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ocornut/imgui"
@@ -78,9 +76,7 @@ class IMGUIConan(ConanFile):
         )
         m = self._match_docking_branch()
         version = Version(m.group("version")) if m else Version(self.version)
-        backends_folder = os.path.join(
-            self.source_folder, "backends" if version >= "1.80" else "examples"
-        )
+        backends_folder = os.path.join(self.source_folder, "backends" if version >= "1.80" else "examples")
         copy(
             self,
             pattern="imgui_impl_*",

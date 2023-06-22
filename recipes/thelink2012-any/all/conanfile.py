@@ -6,7 +6,9 @@ required_conan_version = ">=1.33.0"
 class Thelink2012AnyConan(ConanFile):
     name = "thelink2012-any"
     license = "BSL-1.0"
-    description = "Implementation of std::experimental::any, including small object optimization, for C++11 compilers"
+    description = (
+        "Implementation of std::experimental::any, including small object optimization, for C++11 compilers"
+    )
     topics = ("any", "c++11", "data-structures")
     homepage = "https://github.com/thelink2012/any"
     url = "https://github.com/conan-io/conan-center-index"
@@ -20,9 +22,7 @@ class Thelink2012AnyConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

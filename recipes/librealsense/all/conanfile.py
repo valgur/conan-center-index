@@ -113,12 +113,7 @@ class LibrealsenseConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if self.options.shared:
@@ -140,9 +135,7 @@ class LibrealsenseConan(ConanFile):
             )
             self.cpp_info.components["realsense-file"].libs = [f"realsense-file{postfix}"]
 
-        self.cpp_info.components["realsense2"].set_property(
-            "cmake_target_name", "realsense2::realsense2"
-        )
+        self.cpp_info.components["realsense2"].set_property("cmake_target_name", "realsense2::realsense2")
         self.cpp_info.components["realsense2"].set_property("pkg_config_name", "realsense2")
         self.cpp_info.components["realsense2"].libs = [f"realsense2{postfix}"]
         self.cpp_info.components["realsense2"].requires = ["libusb::libusb"]

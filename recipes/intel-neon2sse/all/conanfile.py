@@ -30,12 +30,7 @@ class IntelNeon2sseConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -49,9 +44,7 @@ class IntelNeon2sseConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self, "LICENSE", dst=path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE", dst=path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, path.join(self.package_folder, "lib"))
 
     def package_id(self):

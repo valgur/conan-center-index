@@ -46,17 +46,10 @@ class LibaioConan(ConanFile):
 
     def validate(self):
         if self.info.settings.os != "Linux":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported on {self.info.settings.os}."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.info.settings.os}.")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         if not cross_building(self):
@@ -72,10 +65,7 @@ class LibaioConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         with chdir(self, self.source_folder):

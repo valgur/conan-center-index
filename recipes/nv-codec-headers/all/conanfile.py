@@ -30,9 +30,7 @@ class FFNvEncHeaders(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_autotools(self):
@@ -48,9 +46,7 @@ class FFNvEncHeaders(ConanFile):
 
     def _extract_license(self):
         # Extract the License/s from the header to a file
-        tmp = tools.load(
-            os.path.join(self._source_subfolder, "include", "ffnvcodec", "nvEncodeAPI.h")
-        )
+        tmp = tools.load(os.path.join(self._source_subfolder, "include", "ffnvcodec", "nvEncodeAPI.h"))
         license_contents = tmp[
             2 : tmp.find("*/", 1)
         ]  # The license begins with a C comment /* and ends with */

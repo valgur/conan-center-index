@@ -45,19 +45,12 @@ class NeargyeSemverConan(ConanFile):
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
                 "%s requires a compiler that supports at least C++%s. %s %s is not supported."
-                % (
-                    self.name,
-                    min_req_cppstd,
-                    compiler,
-                    tools.Version(self.settings.compiler.version.value),
-                )
+                % (self.name, min_req_cppstd, compiler, tools.Version(self.settings.compiler.version.value))
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

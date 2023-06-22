@@ -66,12 +66,7 @@ class QhullConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "doc"))
@@ -97,16 +92,12 @@ class QhullConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Qhull"
         self.cpp_info.names["pkg_config"] = self._qhull_pkgconfig_name
         self.cpp_info.components["libqhull"].names["cmake_find_package"] = self._qhull_cmake_name
-        self.cpp_info.components["libqhull"].names[
-            "cmake_find_package_multi"
-        ] = self._qhull_cmake_name
+        self.cpp_info.components["libqhull"].names["cmake_find_package_multi"] = self._qhull_cmake_name
         self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name
         self.cpp_info.components["libqhull"].set_property(
             "cmake_target_name", f"Qhull::{self._qhull_cmake_name}"
         )
-        self.cpp_info.components["libqhull"].set_property(
-            "pkg_config_name", self._qhull_pkgconfig_name
-        )
+        self.cpp_info.components["libqhull"].set_property("pkg_config_name", self._qhull_pkgconfig_name)
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
     @property

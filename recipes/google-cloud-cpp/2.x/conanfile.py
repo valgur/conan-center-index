@@ -57,17 +57,11 @@ class GoogleCloudCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports = [
-        "components_2_5_0.py",
-        "components_2_12_0.py",
-    ]
+    exports = ["components_2_5_0.py", "components_2_12_0.py"]
 
     short_paths = True
 
-    _GA_COMPONENTS = {
-        "2.5.0": components_2_5_0.COMPONENTS,
-        "2.12.0": components_2_12_0.COMPONENTS,
-    }
+    _GA_COMPONENTS = {"2.5.0": components_2_5_0.COMPONENTS, "2.12.0": components_2_12_0.COMPONENTS}
     _PROTO_COMPONENTS = {
         "2.5.0": components_2_5_0.PROTO_COMPONENTS,
         "2.12.0": components_2_12_0.PROTO_COMPONENTS,
@@ -112,14 +106,10 @@ class GoogleCloudCppConan(ConanFile):
             raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
         if self.version not in self._GA_COMPONENTS:
-            raise ConanInvalidConfiguration(
-                "The components are unknown for version %s" % self.version
-            )
+            raise ConanInvalidConfiguration("The components are unknown for version %s" % self.version)
 
         if self.version not in self._PROTO_COMPONENTS:
-            raise ConanInvalidConfiguration(
-                "The proto components are unknown for version %s" % self.version
-            )
+            raise ConanInvalidConfiguration("The proto components are unknown for version %s" % self.version)
 
         if self.version not in self._PROTO_COMPONENT_DEPENDENCIES:
             raise ConanInvalidConfiguration(
@@ -136,8 +126,7 @@ class GoogleCloudCppConan(ConanFile):
             raise ConanInvalidConfiguration("Building requires GCC >= 5.4")
 
         if self.info.options.shared and (
-            not self.dependencies["protobuf"].options.shared
-            or not self.dependencies["grpc"].options.shared
+            not self.dependencies["protobuf"].options.shared or not self.dependencies["grpc"].options.shared
         ):
             raise ConanInvalidConfiguration(
                 "If built as shared, protobuf, and grpc must be shared as well."
@@ -148,12 +137,7 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def requirements(self):
         self.requires("protobuf/3.21.9", transitive_headers=True)
@@ -242,12 +226,7 @@ class GoogleCloudCppConan(ConanFile):
         return result
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, path=os.path.join(self.package_folder, "lib", "cmake"))
@@ -351,12 +330,7 @@ class GoogleCloudCppConan(ConanFile):
         self._add_grpc_component(
             "spanner",
             "spanner_protos",
-            [
-                "abseil::absl_fixed_array",
-                "abseil::absl_numeric",
-                "abseil::absl_strings",
-                "abseil::absl_time",
-            ],
+            ["abseil::absl_fixed_array", "abseil::absl_numeric", "abseil::absl_strings", "abseil::absl_time"],
         )
 
         self.cpp_info.components["storage"].requires = [

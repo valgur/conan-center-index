@@ -18,11 +18,7 @@ class TestPackageConan(ConanFile):
         env_build = RunEnvironment(self)
         with tools.environment_append(env_build.vars):
             cmake = CMake(self)
-            cmake.configure(
-                defs={
-                    "CMAKE_CXX_STANDARD": self._cmake_cxx_standard,
-                }
-            )
+            cmake.configure(defs={"CMAKE_CXX_STANDARD": self._cmake_cxx_standard})
             cmake.build()
 
     @property

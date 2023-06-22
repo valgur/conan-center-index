@@ -61,11 +61,9 @@ class ZppThrowingConan(ConanFile):
         version = str(self.settings.compiler.version)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support."
             )
 
         if (
@@ -78,33 +76,17 @@ class ZppThrowingConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        if (
-            self.settings.compiler == "clang"
-            and self.settings.compiler.get_safe("libcxx") == "libc++"
-        ):
+        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             self.cpp_info.cxxflags.append("-fcoroutines-ts")

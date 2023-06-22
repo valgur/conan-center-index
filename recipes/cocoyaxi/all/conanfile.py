@@ -58,20 +58,13 @@ class CocoyaxiConan(ConanFile):
                     f"{self.name} requires libcurl:with_ssl='openssl' to be enabled"
                 )
             if not self.dependencies["libcurl"].options.with_zlib:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires libcurl:with_zlib=True to be enabled"
-                )
+                raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -89,12 +82,7 @@ class CocoyaxiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

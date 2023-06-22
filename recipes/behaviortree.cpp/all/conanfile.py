@@ -79,9 +79,7 @@ class BehaviorTreeCPPConan(ConanFile):
             check_min_cppstd(self, self._minimum_cppstd_required)
         check_min_vs(self, 191 if Version(self.version) < "4.0" else 192)
         if not is_msvc(self):
-            minimum_version = self._minimum_compilers_version.get(
-                str(self.info.settings.compiler), False
-            )
+            minimum_version = self._minimum_compilers_version.get(str(self.info.settings.compiler), False)
             if not minimum_version:
                 self.output.warn(
                     f"{self.ref} requires C++{self._minimum_cppstd_required}. Your compiler is unknown. Assuming it supports C++{self._minimum_cppstd_required}."
@@ -99,12 +97,7 @@ class BehaviorTreeCPPConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -133,10 +126,7 @@ class BehaviorTreeCPPConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -153,16 +143,10 @@ class BehaviorTreeCPPConan(ConanFile):
         libname = "behaviortree_cpp_v3" if Version(self.version) < "4.0" else "behaviortree_cpp"
         self.cpp_info.set_property("cmake_target_name", f"BT::{libname}")
 
-        postfix = (
-            "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        )
+        postfix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components[libname].libs = [f"{libname}{postfix}"]
-        self.cpp_info.components[libname].requires = [
-            "zeromq::zeromq",
-            "cppzmq::cppzmq",
-            "ncurses::ncurses",
-        ]
+        self.cpp_info.components[libname].requires = ["zeromq::zeromq", "cppzmq::cppzmq", "ncurses::ncurses"]
         if self.options.with_coroutines:
             self.cpp_info.components[libname].requires.append("boost::coroutine")
         if self.settings.os in ("Linux", "FreeBSD"):

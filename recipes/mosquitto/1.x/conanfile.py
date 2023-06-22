@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -83,10 +76,7 @@ class MosquittoConan(ConanFile):
     def package(self):
         for license_file in ("LICENSE.txt", "edl-v10", "epl-v10"):
             copy(
-                self,
-                license_file,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
         cmake = CMake(self)
         cmake.install()
@@ -108,9 +98,7 @@ class MosquittoConan(ConanFile):
             self.cpp_info.components["libmosquitto"].defines.append("LIBMOSQUITTO_STATIC")
         if self.options.with_tls:
             self.cpp_info.components["libmosquitto"].requires.append("openssl::openssl")
-            self.cpp_info.components["libmosquitto"].defines.extend(
-                ["WITH_TLS", "WITH_TLS_PSK", "WITH_EC"]
-            )
+            self.cpp_info.components["libmosquitto"].defines.extend(["WITH_TLS", "WITH_TLS_PSK", "WITH_EC"])
         if self.options.with_websockets:
             self.cpp_info.components["libmosquitto"].requires.append("libwebsockets::libwebsockets")
             self.cpp_info.components["libmosquitto"].defines.append("WITH_WEBSOCKETS")

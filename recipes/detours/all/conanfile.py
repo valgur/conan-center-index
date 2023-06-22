@@ -10,9 +10,7 @@ required_conan_version = ">=1.45.0"
 class DetoursConan(ConanFile):
     name = "detours"
     homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
-    description = (
-        "Detours is a software package for monitoring and instrumenting API calls on Windows"
-    )
+    description = "Detours is a software package for monitoring and instrumenting API calls on Windows"
     topics = ("monitoror", "instrumenting", "hook", "injection")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
@@ -40,9 +38,7 @@ class DetoursConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def export_sources(self):

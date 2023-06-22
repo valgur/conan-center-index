@@ -13,19 +13,7 @@ class LibfabricConan(ConanFile):
     homepage = "http://libfabric.org"
     license = "BSD-2-Clause", "GPL-2.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    _providers = [
-        "gni",
-        "psm",
-        "psm2",
-        "psm3",
-        "rxm",
-        "sockets",
-        "tcp",
-        "udp",
-        "usnic",
-        "verbs",
-        "bgq",
-    ]
+    _providers = ["gni", "psm", "psm2", "psm3", "rxm", "sockets", "tcp", "udp", "usnic", "verbs", "bgq"]
     options = {
         **{p: "ANY" for p in _providers},
         **{
@@ -38,13 +26,7 @@ class LibfabricConan(ConanFile):
     }
     default_options = {
         **{p: "auto" for p in _providers},
-        **{
-            "shared": False,
-            "fPIC": True,
-            "with_libnl": None,
-            "with_bgq_progress": None,
-            "with_bgq_mr": None,
-        },
+        **{"shared": False, "fPIC": True, "with_libnl": None, "with_bgq_progress": None, "with_bgq_mr": None},
     }
 
     _autotools = None
@@ -74,9 +56,7 @@ class LibfabricConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):

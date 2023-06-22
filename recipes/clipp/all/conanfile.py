@@ -16,18 +16,12 @@ class ClippConan(ConanFile):
 
     def source(self):
         tools.files.get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
+            self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True
         )
 
     def package(self):
         tools.files.copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         tools.files.copy(
             self,

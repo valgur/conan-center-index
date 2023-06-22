@@ -51,24 +51,16 @@ class HanaConan(ConanFile):
             )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                "{} {} requires C++14, which your compiler does not support.".format(
-                    self.name, self.version
-                )
+                "{} {} requires C++14, which your compiler does not support.".format(self.name, self.version)
             )
 
-        raise ConanInvalidConfiguration(
-            f"{self.ref} is deprecated of Boost. Please, use boost package."
-        )
+        raise ConanInvalidConfiguration(f"{self.ref} is deprecated of Boost. Please, use boost package.")
 
     def package_id(self):
         self.info.clear()
 
     def source(self):
-        get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
-        )
+        get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
 
     def package(self):
         self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
@@ -76,7 +68,9 @@ class HanaConan(ConanFile):
         self._create_cmake_module_alias_targets(
             self,
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"hana": "hana::hana"},
+            {
+                "hana": "hana::hana",
+            },
         )
 
     @staticmethod
@@ -101,9 +95,7 @@ class HanaConan(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join(
-            self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name)
-        )
+        return os.path.join(self._module_subfolder, "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "Hana"

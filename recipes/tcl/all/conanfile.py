@@ -128,9 +128,7 @@ class TclConan(ConanFile):
 
         unix_makefile_in = os.path.join(unix_config_dir, "Makefile.in")
         # Avoid building internal libraries as shared libraries
-        replace_in_file(
-            self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads"
-        )
+        replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
         # Avoid clearing CFLAGS and LDFLAGS in the makefile
         replace_in_file(self, unix_makefile_in, "\nCFLAGS\t", "\n#CFLAGS\t")
         replace_in_file(self, unix_makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
@@ -189,12 +187,7 @@ class TclConan(ConanFile):
                     )
 
     def package(self):
-        copy(
-            self,
-            "license.terms",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "license.terms", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             self._build_nmake(["install-binaries", "install-libraries"])
         else:
@@ -253,9 +246,7 @@ class TclConan(ConanFile):
             self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
 
         tcl_library = os.path.join(
-            self.package_folder,
-            "lib",
-            "{}{}".format(self.name, ".".join(self.version.split(".")[:2])),
+            self.package_folder, "lib", "{}{}".format(self.name, ".".join(self.version.split(".")[:2]))
         )
         self.output.info("Setting TCL_LIBRARY environment variable to {}".format(tcl_library))
         self.runenv_info.define_path("TCL_LIBRARY", tcl_library)
@@ -267,10 +258,7 @@ class TclConan(ConanFile):
         self.env_info.TCL_ROOT = tcl_root
 
         tclsh_list = list(
-            filter(
-                lambda fn: fn.startswith("tclsh"),
-                os.listdir(os.path.join(self.package_folder, "bin")),
-            )
+            filter(lambda fn: fn.startswith("tclsh"), os.listdir(os.path.join(self.package_folder, "bin")))
         )
         tclsh = os.path.join(self.package_folder, "bin", tclsh_list[0])
         self.output.info("Setting TCLSH environment variable to {}".format(tclsh))

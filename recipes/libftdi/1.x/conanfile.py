@@ -75,9 +75,7 @@ class LibFtdiConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.use_streaming:
-            raise ConanInvalidConfiguration(
-                "VS doesn't not compile with enabled option use_streaming"
-            )
+            raise ConanInvalidConfiguration("VS doesn't not compile with enabled option use_streaming")
 
     def build(self):
         apply_conandata_patches(self)
@@ -89,12 +87,7 @@ class LibFtdiConan(ConanFile):
         copy(self, "COPYING.LIB", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         if self.options.build_eeprom_tool or self.options.enable_cpp_wrapper:
-            copy(
-                self,
-                "COPYING.GPL",
-                self.source_folder,
-                os.path.join(self.package_folder, "licenses"),
-            )
+            copy(self, "COPYING.GPL", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         lib_folder = os.path.join(self.package_folder, "lib")

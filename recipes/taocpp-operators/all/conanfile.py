@@ -28,23 +28,13 @@ class TaoCPPOperatorsConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*",
@@ -64,11 +54,7 @@ class TaoCPPOperatorsConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "taocpp"
         self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
         self.cpp_info.components["_taocpp-operators"].names["cmake_find_package"] = "operators"
-        self.cpp_info.components["_taocpp-operators"].names[
-            "cmake_find_package_multi"
-        ] = "operators"
-        self.cpp_info.components["_taocpp-operators"].set_property(
-            "cmake_target_name", "taocpp::operators"
-        )
+        self.cpp_info.components["_taocpp-operators"].names["cmake_find_package_multi"] = "operators"
+        self.cpp_info.components["_taocpp-operators"].set_property("cmake_target_name", "taocpp::operators")
         self.cpp_info.components["_taocpp-operators"].bindirs = []
         self.cpp_info.components["_taocpp-operators"].libdirs = []

@@ -62,7 +62,7 @@ class LiefConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -103,11 +103,7 @@ class LiefConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if (
-            self.options.shared
-            and is_msvc(self)
-            and not check_min_vs(self, "191", raise_invalid=False)
-        ):
+        if self.options.shared and is_msvc(self) and not check_min_vs(self, "191", raise_invalid=False):
             raise ConanInvalidConfiguration(
                 f"{self.ref} does not support Visual Studio < 15 with shared:True"
             )
@@ -165,10 +161,7 @@ class LiefConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

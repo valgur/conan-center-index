@@ -13,7 +13,11 @@ class CoseCConan(ConanFile):
     exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "with_ssl": ["openssl", "mbedtls"]}
-    default_options = {"shared": False, "fPIC": True, "with_ssl": "openssl"}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_ssl": "openssl",
+    }
     generators = "cmake", "cmake_find_package"
 
     _cmake = None

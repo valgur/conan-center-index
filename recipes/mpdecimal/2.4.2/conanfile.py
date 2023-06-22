@@ -7,7 +7,9 @@ import shutil
 class MpdecimalConan(ConanFile):
     name = "mpdecimal"
     version = "2.4.2"
-    description = "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
+    description = (
+        "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
+    )
     license = "BSD-2-Clause"
     topics = ("multiprecision", "library")
     url = "https://github.com/conan-io/conan-center-index"
@@ -43,9 +45,7 @@ class MpdecimalConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     _shared_ext_mapping = {
@@ -82,9 +82,7 @@ class MpdecimalConan(ConanFile):
 
             makefile_in = os.path.join(self._source_subfolder, "Makefile.in")
             mpdec_makefile_in = os.path.join(self._source_subfolder, "libmpdec", "Makefile.in")
-            tools.replace_in_file(
-                makefile_in, "libdir = @libdir@", "libdir = @libdir@\n" "bindir = @bindir@"
-            )
+            tools.replace_in_file(makefile_in, "libdir = @libdir@", "libdir = @libdir@\n" "bindir = @bindir@")
             if self.options.shared:
                 if self.settings.os == "Windows":
                     tools.replace_in_file(
@@ -109,9 +107,7 @@ class MpdecimalConan(ConanFile):
                     )
                 else:
                     tools.replace_in_file(
-                        makefile_in,
-                        "\t$(INSTALL) -m 644 libmpdec/$(LIBSTATIC) $(DESTDIR)$(libdir)\n",
-                        "",
+                        makefile_in, "\t$(INSTALL) -m 644 libmpdec/$(LIBSTATIC) $(DESTDIR)$(libdir)\n", ""
                     )
                     tools.replace_in_file(
                         makefile_in,
@@ -122,9 +118,7 @@ class MpdecimalConan(ConanFile):
                     )
             else:
                 tools.replace_in_file(
-                    makefile_in,
-                    "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n",
-                    "",
+                    makefile_in, "\t$(INSTALL) -m 755 libmpdec/$(LIBSHARED) $(DESTDIR)$(libdir)\n", ""
                 )
                 tools.replace_in_file(
                     makefile_in,
@@ -152,9 +146,7 @@ class MpdecimalConan(ConanFile):
                     "CONFIGURE_LDFLAGS = -Wl,--out-implib,libmpdec{}".format(static_ext),
                 )
             else:
-                tools.replace_in_file(
-                    mpdec_makefile_in, "libmpdec.so", "libmpdec{}".format(shared_ext)
-                )
+                tools.replace_in_file(mpdec_makefile_in, "libmpdec.so", "libmpdec{}".format(shared_ext))
 
     def _build_msvc(self):
         libmpdec_folder = os.path.join(self.build_folder, self._source_subfolder, "libmpdec")
@@ -163,9 +155,7 @@ class MpdecimalConan(ConanFile):
         dist_folder = os.path.join(vcbuild_folder, "dist{}".format(arch_ext))
         os.mkdir(dist_folder)
 
-        shutil.copy(
-            os.path.join(libmpdec_folder, "Makefile.vc"), os.path.join(libmpdec_folder, "Makefile")
-        )
+        shutil.copy(os.path.join(libmpdec_folder, "Makefile.vc"), os.path.join(libmpdec_folder, "Makefile"))
 
         autotools = AutoToolsBuildEnvironment(self)
 

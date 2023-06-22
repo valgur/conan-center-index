@@ -15,12 +15,7 @@ class MathterConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "apple-clang": 10,
-            "clang": 6,
-            "gcc": 7,
-            "Visual Studio": 16,
-        }
+        return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16}
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -33,9 +28,7 @@ class MathterConan(ConanFile):
                     "mathter requires C++17, which your compiler does not support."
                 )
         else:
-            self.output.warn(
-                "mathter requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warn("mathter requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

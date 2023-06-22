@@ -75,9 +75,7 @@ class NsimdConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _configure_cmake(self):
@@ -88,9 +86,7 @@ class NsimdConan(ConanFile):
             self._cmake.definitions["simd"] = self.options.simd
         if self.settings.arch == "armv7hf":
             self._cmake.definitions["NSIMD_ARM32_IS_ARMEL"] = False
-        self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe(
-            "fPIC", True
-        )
+        self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake
 

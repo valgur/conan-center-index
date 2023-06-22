@@ -58,9 +58,7 @@ class GiflibConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -133,8 +131,7 @@ class GiflibConan(ConanFile):
 
     def build_configure(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB,
-            os.path.join(self._source_subfolder, "config.sub"),
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self._source_subfolder, "config.sub")
         )
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS,
@@ -150,9 +147,7 @@ class GiflibConan(ConanFile):
             if tools.is_apple_os(self.settings.os):
                 # relocatable shared lib on macOS
                 tools.replace_in_file(
-                    "configure",
-                    "-install_name \\$rpath/\\$soname",
-                    "-install_name \\@rpath/\\$soname",
+                    "configure", "-install_name \\$rpath/\\$soname", "-install_name \\@rpath/\\$soname"
                 )
 
             self.run("chmod +x configure")
@@ -162,11 +157,7 @@ class GiflibConan(ConanFile):
 
     def package(self):
         self.copy(
-            pattern="COPYING*",
-            dst="licenses",
-            src=self._source_subfolder,
-            ignore_case=True,
-            keep_path=False,
+            pattern="COPYING*", dst="licenses", src=self._source_subfolder, ignore_case=True, keep_path=False
         )
         tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
         tools.rmdir(os.path.join(self.package_folder, "share"))

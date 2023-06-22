@@ -10,7 +10,9 @@ required_conan_version = ">=1.50.0"
 class TslArrayHashConan(ConanFile):
     name = "tsl-array-hash"
     license = "MIT"
-    description = "C++ implementation of a fast and memory efficient hash map and hash set specialized for strings."
+    description = (
+        "C++ implementation of a fast and memory efficient hash map and hash set specialized for strings."
+    )
     topics = ("string", "structure", "hash map", "hash set")
     homepage = "https://github.com/Tessil/array-hash"
     url = "https://github.com/conan-io/conan-center-index"
@@ -28,23 +30,13 @@ class TslArrayHashConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h",

@@ -10,16 +10,8 @@ class CtmlLibrariesConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tinfoilboy/CTML"
-    topics = (
-        "generator",
-        "html",
-    )
-    settings = (
-        "os",
-        "arch",
-        "compiler",
-        "build_type",
-    )
+    topics = ("generator", "html")
+    settings = ("os", "arch", "compiler", "build_type")
     generators = ("cmake",)
     no_copy_source = True
 
@@ -32,9 +24,7 @@ class CtmlLibrariesConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

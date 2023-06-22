@@ -87,10 +87,7 @@ class AwsCrtCpp(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -101,9 +98,7 @@ class AwsCrtCpp(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "AWS::aws-crt-cpp")
 
         self.cpp_info.components["aws-crt-cpp-lib"].names["cmake_find_package"] = "aws-crt-cpp"
-        self.cpp_info.components["aws-crt-cpp-lib"].names[
-            "cmake_find_package_multi"
-        ] = "aws-crt-cpp"
+        self.cpp_info.components["aws-crt-cpp-lib"].names["cmake_find_package_multi"] = "aws-crt-cpp"
         self.cpp_info.components["aws-crt-cpp-lib"].libs = ["aws-crt-cpp"]
         self.cpp_info.components["aws-crt-cpp-lib"].requires = [
             "aws-c-event-stream::aws-c-event-stream-lib",

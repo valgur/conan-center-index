@@ -48,11 +48,17 @@ class ShadercConan(ConanFile):
 
     @property
     def _get_compatible_spirv_tools_version(self):
-        return {"2021.1": "2021.2", "2019.0": "2020.5"}.get(str(self.version), False)
+        return {
+            "2021.1": "2021.2",
+            "2019.0": "2020.5",
+        }.get(str(self.version), False)
 
     @property
     def _get_compatible_glslang_version(self):
-        return {"2021.1": "11.5.0", "2019.0": "8.13.3559"}.get(str(self.version), False)
+        return {
+            "2021.1": "11.5.0",
+            "2019.0": "8.13.3559",
+        }.get(str(self.version), False)
 
     def requirements(self):
         self.requires("glslang/{}".format(self._get_compatible_glslang_version))
@@ -66,9 +72,7 @@ class ShadercConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -81,9 +85,7 @@ class ShadercConan(ConanFile):
         if self._cmake:
             return self._cmake
         self._cmake = CMake(self)
-        self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe(
-            "fPIC", True
-        )
+        self._cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         self._cmake.definitions["SHADERC_ENABLE_SPVC"] = self.options.get_safe("spvc", False)
         self._cmake.definitions["SHADERC_SKIP_INSTALL"] = False
         self._cmake.definitions["SHADERC_SKIP_TESTS"] = True
@@ -107,9 +109,7 @@ class ShadercConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.set_property(
-            "pkg_config_name", "shaderc" if self.options.shared else "shaderc_static"
-        )
+        self.cpp_info.set_property("pkg_config_name", "shaderc" if self.options.shared else "shaderc_static")
         self.cpp_info.libs = self._get_ordered_libs()
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")

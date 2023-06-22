@@ -26,7 +26,11 @@ class UniAlgoConan(ConanFile):
         "fPIC": [True, False],
         "header_only": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True, "header_only": False}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "header_only": False,
+    }
 
     @property
     def _min_cppstd(self):

@@ -59,10 +59,7 @@ class LibvaultConan(ConanFile):
 
         minimum_cpp_standard = 17
 
-        if (
-            compiler in minimum_compiler_version
-            and compiler_version < minimum_compiler_version[compiler]
-        ):
+        if compiler in minimum_compiler_version and compiler_version < minimum_compiler_version[compiler]:
             raise ConanInvalidConfiguration(
                 f"{self.name} requires a compiler that supports at least C++{minimum_cpp_standard}. "
                 f"{compiler} {compiler_version} is not supported."
@@ -88,12 +85,7 @@ class LibvaultConan(ConanFile):
             check_min_cppstd(self, minimum_cpp_standard)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -118,12 +110,7 @@ class LibvaultConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

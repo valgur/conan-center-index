@@ -19,11 +19,7 @@ class WaveletBufferConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "jpeg": ["libjpeg-turbo", "libjpeg"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "jpeg": ["libjpeg-turbo", "libjpeg"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -78,9 +74,7 @@ class WaveletBufferConan(ConanFile):
             )
 
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared with Visual Studio."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared with Visual Studio.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
@@ -103,12 +97,7 @@ class WaveletBufferConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

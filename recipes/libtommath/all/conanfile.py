@@ -49,9 +49,7 @@ class LibTomMathConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _run_makefile(self, target=None):
@@ -64,11 +62,7 @@ class LibTomMathConan(ConanFile):
             # FIXME: should be handled by helper
             autotools.link_flags.append("-arch arm64")
         args = autotools.vars
-        args.update(
-            {
-                "PREFIX": self.package_folder,
-            }
-        )
+        args.update({"PREFIX": self.package_folder})
         if self.settings.compiler != "Visual Studio":
             if tools.get_env("CC"):
                 args["CC"] = tools.get_env("CC")
@@ -88,13 +82,7 @@ class LibTomMathConan(ConanFile):
                     else:
                         target = "tommath.lib"
                     with tools.vcvars(self):
-                        self.run(
-                            "nmake -f makefile.msvc {} {}".format(
-                                target,
-                                arg_str,
-                            ),
-                            run_environment=True,
-                        )
+                        self.run("nmake -f makefile.msvc {} {}".format(target, arg_str), run_environment=True)
                 else:
                     if self.settings.os == "Windows":
                         makefile = "makefile.mingw"

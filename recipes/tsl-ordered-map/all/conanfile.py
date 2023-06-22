@@ -28,23 +28,13 @@ class TslOrderedMapConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*.h",
@@ -66,9 +56,7 @@ class TslOrderedMapConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "tsl"
         self.cpp_info.components["ordered_map"].names["cmake_find_package"] = "ordered_map"
         self.cpp_info.components["ordered_map"].names["cmake_find_package_multi"] = "ordered_map"
-        self.cpp_info.components["ordered_map"].set_property(
-            "cmake_target_name", "tsl::ordered_map"
-        )
+        self.cpp_info.components["ordered_map"].set_property("cmake_target_name", "tsl::ordered_map")
         self.cpp_info.components["ordered_map"].bindirs = []
         self.cpp_info.components["ordered_map"].libdirs = []
         self.cpp_info.components["ordered_map"].resdirs = []

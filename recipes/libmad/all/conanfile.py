@@ -70,10 +70,7 @@ class LibmadConan(ConanFile):
     def package(self):
         for license_file in ("COPYRIGHT", "COPYING", "CREDITS"):
             copy(
-                self,
-                license_file,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "licenses"),
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
             )
         cmake = CMake(self)
         cmake.install()

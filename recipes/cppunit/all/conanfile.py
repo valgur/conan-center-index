@@ -85,9 +85,7 @@ class CppunitConan(ConanFile):
         )
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(
-                self, self.conf.get("user.automake:compile-wrapper", check_type=str)
-            )
+            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))
             ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
@@ -105,12 +103,7 @@ class CppunitConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         if is_msvc(self) and self.options.shared:

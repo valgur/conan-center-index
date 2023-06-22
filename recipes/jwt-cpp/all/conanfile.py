@@ -30,12 +30,7 @@ class JwtCppConan(ConanFile):
             self.requires("picojson/1.3.0")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -52,12 +47,7 @@ class JwtCppConan(ConanFile):
             src=header_dir,
             keep_path=True,
         )
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_id(self):
         self.info.clear()

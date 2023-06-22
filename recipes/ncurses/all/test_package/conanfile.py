@@ -13,5 +13,9 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self):
-            with tools.environment_append({"TERM": "dumb"}):
+            with tools.environment_append(
+                {
+                    "TERM": "dumb",
+                }
+            ):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

@@ -87,14 +87,7 @@ class Open62541Conan(ConanFile):
         # multicast: UA_ENABLE_DISCOVERY_MULTICAST=On
         # semaphore: UA_ENABLE_DISCOVERY_SEMAPHORE=On
         # multicast,semaphore: UA_ENABLE_DISCOVERY_MULTICAST=On and UA_ENABLE_DISCOVERY_SEMAPHORE=On
-        "discovery": [
-            True,
-            False,
-            "With Multicast",
-            "multicast",
-            "semaphore",
-            "multicast,semaphore",
-        ],
+        "discovery": [True, False, "With Multicast", "multicast", "semaphore", "multicast,semaphore"],
         # Deprecated. Use discovery=semaphore instead
         "discovery_semaphore": [True, False],
         # False: UA_ENABLE_QUERY=Off
@@ -187,14 +180,8 @@ class Open62541Conan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
 
         # Due to https://github.com/open62541/open62541/issues/4687 we cannot build with 1.2.2 + Windows + shared
-        if (
-            Version(self.version) >= "1.2.2"
-            and self.settings.os == "Windows"
-            and self.options.shared
-        ):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't properly support shared lib on Windows"
-            )
+        if Version(self.version) >= "1.2.2" and self.settings.os == "Windows" and self.options.shared:
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't properly support shared lib on Windows")
 
         if self.options.subscription == "With Events":
             # Deprecated in 1.2.2
@@ -231,9 +218,7 @@ class Open62541Conan(ConanFile):
 
         if Version(self.version) < "1.1.0":
             if self.options.encryption == "openssl":
-                raise ConanInvalidConfiguration(
-                    "Lower Open62541 versions than 1.1.0 do not support openssl"
-                )
+                raise ConanInvalidConfiguration("Lower Open62541 versions than 1.1.0 do not support openssl")
 
             if self.options.multithreading != "None":
                 raise ConanInvalidConfiguration(
@@ -252,19 +237,14 @@ class Open62541Conan(ConanFile):
 
         # FIXME: correct clang versions condition
         max_clang_version = "8" if Version(self.version) < "1.1.0" else "9"
-        if (
-            self.settings.compiler == "clang"
-            and Version(self.settings.compiler.version) > max_clang_version
-        ):
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) > max_clang_version:
             raise ConanInvalidConfiguration(
                 "Open62541 supports Clang up to {} compiler version".format(max_clang_version)
             )
 
         if self.settings.compiler == "clang":
             if Version(self.settings.compiler.version) < "5":
-                raise ConanInvalidConfiguration(
-                    "Older clang compiler version than 5.0 are not supported"
-                )
+                raise ConanInvalidConfiguration("Older clang compiler version than 5.0 are not supported")
 
         if self.options.pub_sub != False and self.settings.os != "Linux":
             raise ConanInvalidConfiguration("PubSub over Ethernet is not supported for your OS!")
@@ -276,12 +256,7 @@ class Open62541Conan(ConanFile):
                 )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
         submodule_filename = os.path.join(self.recipe_folder, "submoduledata.yml")
         with open(submodule_filename, "r") as submodule_stream:
@@ -311,9 +286,11 @@ class Open62541Conan(ConanFile):
         }.get(str(self.options.logging_level), "300")
 
     def _get_multithreading_option(self):
-        return {"None": "0", "Threadsafe": "100", "Internal threads": "200"}.get(
-            str(self.options.multithreading), "0"
-        )
+        return {
+            "None": "0",
+            "Threadsafe": "100",
+            "Internal threads": "200",
+        }.get(str(self.options.multithreading), "0")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -329,9 +306,7 @@ class Open62541Conan(ConanFile):
         if self.options.subscription != False:
             if "events" in str(self.options.subscription):
                 tc.variables["UA_ENABLE_SUBSCRIPTIONS_EVENTS"] = True
-            if "alarms" in str(self.options.subscription) and "conditions" in str(
-                self.options.subscription
-            ):
+            if "alarms" in str(self.options.subscription) and "conditions" in str(self.options.subscription):
                 tc.variables["UA_ENABLE_SUBSCRIPTIONS_ALARMS_CONDITIONS"] = True
 
         tc.variables["UA_ENABLE_METHODCALLS"] = self.options.methods
@@ -354,9 +329,7 @@ class Open62541Conan(ConanFile):
         if self.options.discovery != False:
             tc.variables[
                 "UA_ENABLE_DISCOVERY_MULTICAST"
-            ] = self.options.discovery == "With Multicast" or "multicast" in str(
-                self.options.discovery
-            )
+            ] = self.options.discovery == "With Multicast" or "multicast" in str(self.options.discovery)
             tc.variables[
                 "UA_ENABLE_DISCOVERY_SEMAPHORE"
             ] = self.options.discovery_semaphore or "semaphore" in str(self.options.discovery)
@@ -469,16 +442,11 @@ class Open62541Conan(ConanFile):
 
         # required for creating custom servers from ua-nodeset
         self.conf_info.define(
-            "user.open62541:tools_dir",
-            os.path.join(self.package_folder, "res", "tools").replace("\\", "/"),
+            "user.open62541:tools_dir", os.path.join(self.package_folder, "res", "tools").replace("\\", "/")
         )
         # v1 legacy support for tools_dir definition
-        self.user_info.tools_dir = os.path.join(self.package_folder, "res", "tools").replace(
-            "\\", "/"
-        )
-        self._chmod_plus_x(
-            os.path.join(self.package_folder, "res", "tools", "generate_nodeid_header.py")
-        )
+        self.user_info.tools_dir = os.path.join(self.package_folder, "res", "tools").replace("\\", "/")
+        self._chmod_plus_x(os.path.join(self.package_folder, "res", "tools", "generate_nodeid_header.py"))
 
         if self.options.single_header:
             self.cpp_info.defines.append("UA_ENABLE_AMALGAMATION")

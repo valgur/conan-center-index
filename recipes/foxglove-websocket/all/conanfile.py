@@ -50,12 +50,7 @@ class FoxgloveWebSocketConan(ConanFile):
 
     def source(self):
         tmp_folder = "tarball"
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=tmp_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=tmp_folder)
         copy(
             self,
             "*",

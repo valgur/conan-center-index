@@ -81,12 +81,7 @@ class LibtoolConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     @property
     def _datarootdir(self):
@@ -109,12 +104,7 @@ class LibtoolConan(ConanFile):
             tc.extra_cflags.append("-FS")
 
         tc.configure_args.extend(
-            [
-                "--datarootdir=${prefix}/res",
-                "--enable-shared",
-                "--enable-static",
-                "--enable-ltdl-install",
-            ]
+            ["--datarootdir=${prefix}/res", "--enable-shared", "--enable-static", "--enable-ltdl-install"]
         )
 
         env = tc.environment()
@@ -132,12 +122,8 @@ class LibtoolConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        config_guess = self.dependencies.build["gnu-config"].conf_info.get(
-            "user.gnu-config:config_guess"
-        )
-        config_sub = self.dependencies.build["gnu-config"].conf_info.get(
-            "user.gnu-config:config_sub"
-        )
+        config_guess = self.dependencies.build["gnu-config"].conf_info.get("user.gnu-config:config_guess")
+        config_sub = self.dependencies.build["gnu-config"].conf_info.get("user.gnu-config:config_sub")
         shutil.copy(config_sub, os.path.join(self.source_folder, "build-aux", "config.sub"))
         shutil.copy(config_guess, os.path.join(self.source_folder, "build-aux", "config.guess"))
 
@@ -169,21 +155,13 @@ class LibtoolConan(ConanFile):
             regex_out = re.compile(r".*\.({})($|\..*)".format(ext_exclusive))
         else:
             regex_out = re.compile("^$")
-        for directory in (
-            os.path.join(self.package_folder, "bin"),
-            os.path.join(self.package_folder, "lib"),
-        ):
+        for directory in (os.path.join(self.package_folder, "bin"), os.path.join(self.package_folder, "lib")):
             for file in os.listdir(directory):
                 if regex_in.match(file) and not regex_out.match(file):
                     os.unlink(os.path.join(directory, file))
 
     def package(self):
-        copy(
-            self,
-            "COPYING*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         fix_apple_shared_install_name(self)
@@ -211,14 +189,11 @@ class LibtoolConan(ConanFile):
             contents = open(file).read()
             for key, repl in replaces.items():
                 contents, nb1 = re.subn(
-                    '^{}="[^"]*"'.format(key),
-                    '{}="{}"'.format(key, repl),
-                    contents,
-                    flags=re.MULTILINE,
+                    '^{}="[^"]*"'.format(key), '{}="{}"'.format(key, repl), contents, flags=re.MULTILINE
                 )
                 contents, nb2 = re.subn(
                     '^: \\$\\{{{}="[^$"]*"\\}}'.format(key),
-                    ': ${{{}="{}"}}'.format(key, repl),
+                    ': ${{{}="{}",}}'.format(key, repl),
                     contents,
                     flags=re.MULTILINE,
                 )
@@ -228,9 +203,7 @@ class LibtoolConan(ConanFile):
 
         binpath = os.path.join(self.package_folder, "bin")
         if self.settings.os == "Windows":
-            rename(
-                self, os.path.join(binpath, "libtoolize"), os.path.join(binpath, "libtoolize.exe")
-            )
+            rename(self, os.path.join(binpath, "libtoolize"), os.path.join(binpath, "libtoolize.exe"))
             rename(self, os.path.join(binpath, "libtool"), os.path.join(binpath, "libtool.exe"))
 
         if is_msvc(self) and self.options.shared:
@@ -280,6 +253,4 @@ class LibtoolConan(ConanFile):
         self.env_info.PATH.append(bin_path)
 
         self.env_info.ACLOCAL_PATH.append(unix_path_package_info_legacy(self, libtool_aclocal_dir))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(
-            unix_path_package_info_legacy(self, libtool_aclocal_dir)
-        )
+        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, libtool_aclocal_dir))

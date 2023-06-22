@@ -20,10 +20,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     }
     generators = "cmake"
     exports = ["CMakeLists.txt", "patches/**"]
-    requires = (
-        "twitch-native-ipc/3.1.1",
-        "ms-gsl/2.0.0",
-    )
+    requires = ("twitch-native-ipc/3.1.1", "ms-gsl/2.0.0")
 
     _cmake = None
 
@@ -68,10 +65,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self._cmake.definitions["BUILD_TESTING"] = False
 
         if self.settings.compiler == "Visual Studio":
-            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in (
-                "MD",
-                "MDd",
-            )
+            self._cmake.definitions["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
 
         self._cmake.configure(build_folder=self._build_subfolder)
         return self._cmake

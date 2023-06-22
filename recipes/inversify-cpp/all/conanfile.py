@@ -36,16 +36,12 @@ class InversifyCppConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
-                    self.name
-                )
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def package(self):

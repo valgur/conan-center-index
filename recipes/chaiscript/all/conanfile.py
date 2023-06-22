@@ -59,9 +59,7 @@ class ChaiScriptConan(ConanFile):
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         if self.options.header_only:
-            self.copy(
-                pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include")
-            )
+            self.copy(pattern="*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
         else:
             cmake = self._configure_cmake()
             cmake.install()

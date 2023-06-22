@@ -10,9 +10,7 @@ required_conan_version = ">=1.53.0"
 
 class DiscountConan(ConanFile):
     name = "discount"
-    description = (
-        "DISCOUNT is a implementation of John Gruber & Aaron Swartz's Markdown markup language."
-    )
+    description = "DISCOUNT is a implementation of John Gruber & Aaron Swartz's Markdown markup language."
     license = "BSD-3-Clause"
     topics = ("markdown",)
     homepage = "http://www.pell.portland.or.us/~orc/Code/discount"
@@ -70,12 +68,7 @@ class DiscountConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYRIGHT",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

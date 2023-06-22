@@ -71,12 +71,7 @@ class OpenEXRConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -129,10 +124,7 @@ class OpenEXRConan(ConanFile):
         # OpenEXR::IlmThread
         IlmThread = self._add_component("IlmThread")
         IlmThread.libs = [f"IlmThread{lib_suffix}"]
-        IlmThread.requires = [
-            self._conan_comp("IlmThreadConfig"),
-            self._conan_comp("Iex"),
-        ]
+        IlmThread.requires = [self._conan_comp("IlmThreadConfig"), self._conan_comp("Iex")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             IlmThread.system_libs = ["pthread"]
 

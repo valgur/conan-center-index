@@ -118,12 +118,7 @@ class LibrdkafkaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSES.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSES.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -162,9 +157,7 @@ class LibrdkafkaConan(ConanFile):
             self.cpp_info.components["rdkafka"].defines.append("LIBRDKAFKA_STATICLIB")
 
         # rdkafka++
-        self.cpp_info.components["rdkafka++"].set_property(
-            "cmake_target_name", "RdKafka::rdkafka++"
-        )
+        self.cpp_info.components["rdkafka++"].set_property("cmake_target_name", "RdKafka::rdkafka++")
         self.cpp_info.components["rdkafka++"].set_property("pkg_config_name", "rdkafka++")
         self.cpp_info.components["rdkafka++"].libs = ["rdkafka++"]
         self.cpp_info.components["rdkafka++"].requires = ["rdkafka"]

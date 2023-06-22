@@ -71,9 +71,7 @@ class GoogleGuetzliConan(ConanFile):
             )
         else:
             self.copy(
-                os.path.join(self._source_subfolder, "bin", "Release", "guetzli"),
-                dst="bin",
-                keep_path=False,
+                os.path.join(self._source_subfolder, "bin", "Release", "guetzli"), dst="bin", keep_path=False
             )
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
 

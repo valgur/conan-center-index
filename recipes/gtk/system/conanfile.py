@@ -11,7 +11,9 @@ class ConanGTK(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-2.1-or-later"
     homepage = "https://www.gtk.org"
-    description = "A free and open-source cross-platform widget toolkit for creating graphical user interfaces"
+    description = (
+        "A free and open-source cross-platform widget toolkit for creating graphical user interfaces"
+    )
     topics = ("gui", "widget", "graphical")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -37,9 +39,7 @@ class ConanGTK(ConanFile):
 
         apt = package_manager.Apt(self)
         apt.install(
-            ["libgtk2.0-dev"] if self.options.version == 2 else ["libgtk-3-dev"],
-            update=True,
-            check=True,
+            ["libgtk2.0-dev"] if self.options.version == 2 else ["libgtk-3-dev"], update=True, check=True
         )
 
         pacman = package_manager.PacMan(self)

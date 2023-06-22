@@ -21,9 +21,7 @@ class Sol2Conan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    options = {
-        "with_lua": ["lua", "luajit"],
-    }
+    options = {"with_lua": ["lua", "luajit"]}
 
     default_options = {
         "with_lua": "lua",
@@ -84,9 +82,7 @@ class Sol2Conan(ConanFile):
             return lv1[:min_length] < lv2[:min_length]
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(
-            str(self.settings.compiler.version), minimum_version
-        ):
+        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -98,12 +94,7 @@ class Sol2Conan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
             copy(
                 self,
@@ -111,12 +102,7 @@ class Sol2Conan(ConanFile):
                 src=os.path.join(self.source_folder, "sol"),
                 dst=os.path.join(self.package_folder, "include", "sol"),
             )
-            copy(
-                self,
-                "sol.hpp",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, "sol.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
         else:
             copy(
                 self,

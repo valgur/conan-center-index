@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -94,12 +87,7 @@ class MozjpegConan(ConanFile):
             self.tool_requires("nasm/2.15.05")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)
@@ -243,9 +231,7 @@ class MozjpegConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "JPEG"
         self.cpp_info.names["cmake_find_package_multi"] = "mozjpeg"
         self.cpp_info.components["libjpeg"].names["cmake_find_package"] = "JPEG"
-        self.cpp_info.components["libjpeg"].names[
-            "cmake_find_package_multi"
-        ] = f"jpeg{cmake_target_suffix}"
+        self.cpp_info.components["libjpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
         if self.options.turbojpeg:
             self.cpp_info.components["libturbojpeg"].names[
                 "cmake_find_package"

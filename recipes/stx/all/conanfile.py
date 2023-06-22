@@ -79,12 +79,7 @@ class STXConan(ConanFile):
                 "which clang < 9 with libc++ lacks"
             )
 
-        if (
-            compiler == "clang"
-            and compiler.libcxx
-            and compiler.libcxx == "libc++"
-            and compiler_version < 10
-        ):
+        if compiler == "clang" and compiler.libcxx and compiler.libcxx == "libc++" and compiler_version < 10:
             raise ConanInvalidConfiguration(
                 "STX requires C++17 language and standard library features "
                 "which clang < 10 with libc++ lacks"
@@ -96,20 +91,14 @@ class STXConan(ConanFile):
                 "which apple-clang < 12 with libc++ lacks"
             )
 
-        if (
-            compiler == "Visual Studio"
-            and self.options.shared
-            and tools.Version(self.version) <= "1.0.1"
-        ):
+        if compiler == "Visual Studio" and self.options.shared and tools.Version(self.version) <= "1.0.1":
             raise ConanInvalidConfiguration(
                 "shared library build does not work on windows with " "STX version <= 1.0.1"
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):

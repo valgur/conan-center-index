@@ -45,18 +45,14 @@ class SiConan(ConanFile):
                     )
                 )
         else:
-            self.output.warn(
-                "'si' requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warn("'si' requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def package_id(self):
         self.info.header_only()
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

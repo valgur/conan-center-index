@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
 from conan.tools.scm import Version
 
 import os
@@ -108,9 +101,7 @@ class TesseractConan(ConanFile):
 
         if self.options.with_training:
             # do not enforce failure and allow user to build with system cairo, pango, fontconfig
-            self.output.warning(
-                "*** Build with training is not yet supported, continue on your own"
-            )
+            self.output.warning("*** Build with training is not yet supported, continue on your own")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -135,9 +126,7 @@ class TesseractConan(ConanFile):
             tc.variables["AUTO_OPTIMIZE"] = self.options.with_auto_optimize
 
         # Set Leptonica_DIR to ensure that find_package will be called in original CMake file
-        tc.variables["Leptonica_DIR"] = self.dependencies["leptonica"].package_folder.replace(
-            "\\", "/"
-        )
+        tc.variables["Leptonica_DIR"] = self.dependencies["leptonica"].package_folder.replace("\\", "/")
 
         if Version(self.version) >= "5.0.0":
             tc.variables["DISABLE_CURL"] = not self.options.with_libcurl
@@ -158,10 +147,7 @@ class TesseractConan(ConanFile):
         cmake.install()
 
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -170,7 +156,9 @@ class TesseractConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"libtesseract": "Tesseract::libtesseract"},
+            {
+                "libtesseract": "Tesseract::libtesseract",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

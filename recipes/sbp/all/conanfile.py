@@ -64,13 +64,7 @@ class SbpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE",
-            src=self._source_subfolder,
-            dst="licenses",
-            ignore_case=True,
-            keep_path=False,
-        )
+        self.copy("LICENSE", src=self._source_subfolder, dst="licenses", ignore_case=True, keep_path=False)
         cmake = self._configure_cmake()
         cmake.install()
 

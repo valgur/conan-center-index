@@ -89,12 +89,7 @@ class AggConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "copying",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "copying", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
@@ -112,9 +107,7 @@ class AggConan(ConanFile):
         self.cpp_info.components["agg"].includedirs = [os.path.join("include", "agg")]
 
         if self.options.with_freetype:
-            self.cpp_info.components["fontfreetype"].set_property(
-                "cmake_target_name", "agg::fontfreetype"
-            )
+            self.cpp_info.components["fontfreetype"].set_property("cmake_target_name", "agg::fontfreetype")
             self.cpp_info.components["fontfreetype"].libs = ["aggfontfreetype"]
             self.cpp_info.components["fontfreetype"].includedirs = [
                 os.path.join("include", "agg", "fontfreetype")
@@ -137,16 +130,12 @@ class AggConan(ConanFile):
         if self.options.with_platform:
             self.cpp_info.components["platform"].set_property("cmake_target_name", "agg::platform")
             self.cpp_info.components["platform"].libs = ["aggplatform"]
-            self.cpp_info.components["platform"].includedirs = [
-                os.path.join("include", "agg", "platform")
-            ]
+            self.cpp_info.components["platform"].includedirs = [os.path.join("include", "agg", "platform")]
             if self.settings.os in ["Linux"]:
                 self.cpp_info.components["platform"].requires = ["xorg::xorg", "agg"]
 
         if self.options.with_controls:
             self.cpp_info.components["controls"].set_property("cmake_target_name", "agg::controls")
             self.cpp_info.components["controls"].libs = ["aggctrl"]
-            self.cpp_info.components["controls"].includedirs = [
-                os.path.join("include", "agg", "ctrl")
-            ]
+            self.cpp_info.components["controls"].includedirs = [os.path.join("include", "agg", "ctrl")]
             self.cpp_info.components["controls"].requires = ["agg"]

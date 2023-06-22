@@ -10,8 +10,7 @@ required_conan_version = ">=1.50.0"
 class FastFloatConan(ConanFile):
     name = "fast_float"
     description = (
-        "Fast and exact implementation of the C++ from_chars "
-        "functions for float and double types."
+        "Fast and exact implementation of the C++ from_chars " "functions for float and double types."
     )
     license = ("Apache-2.0", "MIT", "BSL-1.0")
     topics = ("conversion", "from_chars", "header-only")
@@ -38,12 +37,7 @@ class FastFloatConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*",
@@ -62,6 +56,4 @@ class FastFloatConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "FastFloat"
         self.cpp_info.components["fastfloat"].names["cmake_find_package"] = "fast_float"
         self.cpp_info.components["fastfloat"].names["cmake_find_package_multi"] = "fast_float"
-        self.cpp_info.components["fastfloat"].set_property(
-            "cmake_target_name", "FastFloat::fast_float"
-        )
+        self.cpp_info.components["fastfloat"].set_property("cmake_target_name", "FastFloat::fast_float")

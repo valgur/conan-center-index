@@ -7,7 +7,9 @@ required_conan_version = ">=1.33.0"
 
 class GnuLibConanFile(ConanFile):
     name = "gnulib"
-    description = "Gnulib is a central location for common GNU code, intended to be shared among GNU packages."
+    description = (
+        "Gnulib is a central location for common GNU code, intended to be shared among GNU packages."
+    )
     homepage = "https://www.gnu.org/software/gnulib/"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("library", "gnu")

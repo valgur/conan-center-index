@@ -35,12 +35,7 @@ class OpenclHeadersConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*",
@@ -65,7 +60,9 @@ class OpenclHeadersConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._target_name: f"{self.name}::{self.name}"},
+            {
+                self._target_name: f"{self.name}::{self.name}",
+            },
         )
 
     @property

@@ -169,9 +169,7 @@ class OpenSceneGraphConanFile(ConanFile):
 
         for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
             # Prefer conan's find package scripts over osg's
-            os.unlink(
-                os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package))
-            )
+            os.unlink(os.path.join(self._source_subfolder, "CMakeModules", "Find{}.cmake".format(package)))
 
     @functools.lru_cache(1)
     def _configured_cmake(self):
@@ -191,17 +189,13 @@ class OpenSceneGraphConanFile(ConanFile):
         cmake.definitions[
             "OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"
         ] = self.options.enable_ref_ptr_implicit_output_conversion
-        cmake.definitions[
-            "OSG_USE_REF_PTR_SAFE_DEREFERENCE"
-        ] = self.options.enable_ref_ptr_safe_dereference
+        cmake.definitions["OSG_USE_REF_PTR_SAFE_DEREFERENCE"] = self.options.enable_ref_ptr_safe_dereference
         cmake.definitions["OSG_ENVVAR_SUPPORTED"] = self.options.enable_envvar_support
 
         if not self.options.enable_windowing_system:
             cmake.definitions["OSG_WINDOWING_SYSTEM"] = None
 
-        cmake.definitions[
-            "BUILD_OSG_DEPRECATED_SERIALIZERS"
-        ] = self.options.enable_deprecated_serializers
+        cmake.definitions["BUILD_OSG_DEPRECATED_SERIALIZERS"] = self.options.enable_deprecated_serializers
 
         cmake.definitions["OSG_TEXT_USE_FONTCONFIG"] = self.options.use_fontconfig
 
@@ -296,14 +290,7 @@ class OpenSceneGraphConanFile(ConanFile):
             if lib not in ("osgDB", "osgWidget", "osgPresentation"):
                 plugins.append("serializers_{}".format(lib.lower()))
             if self.options.enable_deprecated_serializers:
-                if lib not in (
-                    "osgUtil",
-                    "osgDB",
-                    "osgGA",
-                    "osgManipulator",
-                    "osgUI",
-                    "osgPresentation",
-                ):
+                if lib not in ("osgUtil", "osgDB", "osgGA", "osgManipulator", "osgUI", "osgPresentation"):
                     plugins.append("deprecated_{}".format(lib.lower()))
             for plugin in plugins:
                 setup_plugin(plugin).requires.append(lib)
@@ -360,21 +347,9 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.settings.os == "Windows":
             library.system_libs = ["gdi32"]
 
-        setup_library("osgAnimation").requires = [
-            "osg",
-            "osgText",
-            "osgGA",
-            "osgViewer",
-            "OpenThreads",
-        ]
+        setup_library("osgAnimation").requires = ["osg", "osgText", "osgGA", "osgViewer", "OpenThreads"]
         setup_library("osgFX").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
-        setup_library("osgManipulator").requires = [
-            "osgViewer",
-            "osgGA",
-            "osgUtil",
-            "osg",
-            "OpenThreads",
-        ]
+        setup_library("osgManipulator").requires = ["osgViewer", "osgGA", "osgUtil", "osg", "OpenThreads"]
         setup_library("osgParticle").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgUI").requires = [
             "osgDB",
@@ -389,13 +364,7 @@ class OpenSceneGraphConanFile(ConanFile):
         setup_library("osgShadow").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgSim").requires = ["osgText", "osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgTerrain").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
-        setup_library("osgWidget").requires = [
-            "osgText",
-            "osgViewer",
-            "osgDB",
-            "osg",
-            "OpenThreads",
-        ]
+        setup_library("osgWidget").requires = ["osgText", "osgViewer", "osgDB", "osg", "OpenThreads"]
         setup_library("osgPresentation").requires = [
             "osgViewer",
             "osgUI",
@@ -604,9 +573,7 @@ class OpenSceneGraphConanFile(ConanFile):
         # setup_plugin("sdl")
 
         if self.options.get_safe("with_asio", False):
-            setup_plugin("resthttp").requires.extend(
-                ("osgPresentation", "asio::asio", "boost::boost")
-            )
+            setup_plugin("resthttp").requires.extend(("osgPresentation", "asio::asio", "boost::boost"))
 
         # with_zeroconf
         # setup_plugin("zeroconf")

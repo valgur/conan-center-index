@@ -11,11 +11,7 @@ class AVIRConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     description = "High-quality pro image resizing / scaling C++ library, image resize"
-    topics = (
-        "image-processing",
-        "image-resizer",
-        "lanczos",
-    )
+    topics = ("image-processing", "image-resizer", "lanczos")
     homepage = "https://github.com/avaneev/avir"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -27,23 +23,13 @@ class AVIRConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):

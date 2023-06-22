@@ -73,9 +73,7 @@ class OpencoreAmrConan(ConanFile):
             compile_wrapper = unix_path(
                 self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
             )
-            ar_wrapper = unix_path(
-                self, automake_conf.get("user.automake:lib-wrapper", check_type=str)
-            )
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
@@ -93,10 +91,7 @@ class OpencoreAmrConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="NOTICE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         autotools.install()

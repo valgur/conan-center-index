@@ -5,11 +5,7 @@ from conans import ConanFile, tools, CMake
 class Rvo2Conan(ConanFile):
     name = "rvo2"
     description = "Optimal Reciprocal Collision Avoidance"
-    topics = (
-        "conan",
-        "collision",
-        "avoidance",
-    )
+    topics = ("conan", "collision", "avoidance")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/snape/RVO2"
     license = "Apache-2.0"
@@ -70,9 +66,7 @@ class Rvo2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(
-            "LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses"
-        )
+        self.copy("LICENSE", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
 

@@ -79,9 +79,7 @@ class LibxshmfenceConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             with tools.vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace(
-                        "\\", "/"
-                    ),
+                    "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace("\\", "/")
                 }
                 with tools.environment_append(env):
                     yield
@@ -91,9 +89,7 @@ class LibxshmfenceConan(ConanFile):
     def _configure_autotools(self):
         if self._autotools:
             return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(
-            self, win_bash=self._settings_build.os == "Windows"
-        )
+        self._autotools = AutoToolsBuildEnvironment(self, win_bash=self._settings_build.os == "Windows")
         self._autotools.libs = []
         yes_no = lambda v: "yes" if v else "no"
         configure_args = [

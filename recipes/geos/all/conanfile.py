@@ -76,12 +76,7 @@ class GeosConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         copy(
@@ -106,9 +101,7 @@ class GeosConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "GEOS"
 
         # GEOS::geos_cxx_flags
-        self.cpp_info.components["geos_cxx_flags"].set_property(
-            "cmake_target_name", "GEOS::geos_cxx_flags"
-        )
+        self.cpp_info.components["geos_cxx_flags"].set_property("cmake_target_name", "GEOS::geos_cxx_flags")
         self.cpp_info.components["geos_cxx_flags"].defines.append("USE_UNSTABLE_GEOS_CPP_API")
         if self.options.get_safe("inline"):
             self.cpp_info.components["geos_cxx_flags"].defines.append("GEOS_INLINE")

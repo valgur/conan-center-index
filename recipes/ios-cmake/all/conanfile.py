@@ -116,9 +116,7 @@ class IosCMakeConan(ConanFile):
             target_version = self.settings.os.version
         else:
             # hackingtosh ? hu
-            raise ConanInvalidConfiguration(
-                "Building for iOS on a non Mac platform? Please tell me how!"
-            )
+            raise ConanInvalidConfiguration("Building for iOS on a non Mac platform? Please tell me how!")
 
         if self.options.toolchain_target == "auto":
             toolchain_target = self._guess_toolchain_target(target_os, arch_flag)
@@ -147,17 +145,13 @@ class IosCMakeConan(ConanFile):
         cmake_wrapper = os.path.join(self.package_folder, "bin", "cmake-wrapper")
         self.output.info("Setting CONAN_CMAKE_PROGRAM to: {}".format(cmake_wrapper))
         self.env_info.CONAN_CMAKE_PROGRAM = cmake_wrapper
-        tool_chain = os.path.join(
-            self.package_folder, "lib", "cmake", "ios-cmake", "ios.toolchain.cmake"
-        )
+        tool_chain = os.path.join(self.package_folder, "lib", "cmake", "ios-cmake", "ios.toolchain.cmake")
         self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = tool_chain
         # add some more env_info, for the case users generate a toolchain file via conan and want to access that info
         self.env_info.CONAN_ENABLE_BITCODE_FLAG = str(self.options.enable_bitcode)
         self.env_info.CONAN_ENABLE_ARC_FLAG = str(self.options.enable_arc)
         self.env_info.CONAN_ENABLE_VISIBILITY_FLAG = str(self.options.enable_visibility)
-        self.env_info.CONAN_ENABLE_STRICT_TRY_COMPILE_FLAG = str(
-            self.options.enable_strict_try_compile
-        )
+        self.env_info.CONAN_ENABLE_STRICT_TRY_COMPILE_FLAG = str(self.options.enable_strict_try_compile)
         # the rest should be exported from profile info anyway
 
     def package_id(self):

@@ -45,30 +45,20 @@ class MortonndConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
             self,
             "*",
@@ -89,9 +79,7 @@ class MortonndConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "morton-nd"
         self.cpp_info.components["mortonnd"].names["cmake_find_package"] = "MortonND"
         self.cpp_info.components["mortonnd"].names["cmake_find_package_multi"] = "MortonND"
-        self.cpp_info.components["mortonnd"].set_property(
-            "cmake_target_name", "morton-nd::MortonND"
-        )
+        self.cpp_info.components["mortonnd"].set_property("cmake_target_name", "morton-nd::MortonND")
         self.cpp_info.components["mortonnd"].bindirs = []
         self.cpp_info.components["mortonnd"].frameworkdirs = []
         self.cpp_info.components["mortonnd"].libdirs = []

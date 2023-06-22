@@ -1,12 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rmdir,
-    chdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, chdir
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
@@ -89,11 +82,7 @@ class UsocketsConan(ConanFile):
         ):
             raise ConanInvalidConfiguration("eventloop=gcd is only supported on Linux with clang")
 
-        if Version(self.version) < "0.8.0" and self.options.eventloop not in (
-            "syscall",
-            "libuv",
-            "gcd",
-        ):
+        if Version(self.version) < "0.8.0" and self.options.eventloop not in ("syscall", "libuv", "gcd"):
             raise ConanInvalidConfiguration(
                 f"eventloop={self.options.eventloop} is not supported with {self.name}/{self.version}"
             )
@@ -104,9 +93,7 @@ class UsocketsConan(ConanFile):
             )
 
         if self.options.with_ssl == "wolfssl" and not self.options["wolfssl"].opensslextra:
-            raise ConanInvalidConfiguration(
-                "wolfssl needs opensslextra option enabled for usockets"
-            )
+            raise ConanInvalidConfiguration("wolfssl needs opensslextra option enabled for usockets")
 
         cppstd = self._minimum_cpp_standard
         if not cppstd:
@@ -115,15 +102,11 @@ class UsocketsConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, cppstd)
 
-        minimum_version = self._minimum_compilers_version(cppstd).get(
-            str(self.info.settings.compiler), False
-        )
+        minimum_version = self._minimum_compilers_version(cppstd).get(str(self.info.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{}, which your compiler does not support.".format(
-                        self.name, cppstd
-                    )
+                    "{} requires C++{}, which your compiler does not support.".format(self.name, cppstd)
                 )
         else:
             self.output.warn(
@@ -176,19 +159,20 @@ class UsocketsConan(ConanFile):
     def _build_msvc(self):
         with chdir(self, os.path.join(self._source_subfolder)):
             msbuild = MSBuild(self)
-            msbuild.build(project_file="uSockets.vcxproj", platforms={"x86": "Win32"})
+            msbuild.build(
+                project_file="uSockets.vcxproj",
+                platforms={
+                    "x86": "Win32",
+                },
+            )
 
     @contextlib.contextmanager
     def _build_context(self):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(
-                        unix_path(self.deps_user_info["automake"].compile)
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        unix_path(self.deps_user_info["automake"].compile)
-                    ),
+                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
                     "CFLAGS": "-{}".format(self.settings.compiler.runtime),
                     "LD": "link",
                     "NM": "dumpbin -symbols",
@@ -198,9 +182,7 @@ class UsocketsConan(ConanFile):
                 }
 
                 if self.options.eventloop == "libuv":
-                    env["CPPFLAGS"] = (
-                        "-I" + unix_path(self.deps_cpp_info["libuv"].include_paths[0]) + " "
-                    )
+                    env["CPPFLAGS"] = "-I" + unix_path(self.deps_cpp_info["libuv"].include_paths[0]) + " "
 
                 with environment_append(env):
                     yield

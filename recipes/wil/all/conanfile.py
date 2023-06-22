@@ -34,7 +34,10 @@ class WilConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592
-        return {"Visual Studio": "15", "msvc": "191"}
+        return {
+            "Visual Studio": "15",
+            "msvc": "191",
+        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -66,10 +69,7 @@ class WilConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

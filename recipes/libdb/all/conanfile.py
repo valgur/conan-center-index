@@ -96,13 +96,8 @@ class LibdbConan(ConanFile):
         if self.options.get_safe("with_cxx"):
             if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration(f"{self.ref} does no support clang<6 with_cxx=True")
-            if (
-                self.settings.compiler == "apple-clang"
-                and Version(self.settings.compiler.version) < "10"
-            ):
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} does no support apple-clang<10 with_cxx=True"
-                )
+            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "10":
+                raise ConanInvalidConfiguration(f"{self.ref} does no support apple-clang<10 with_cxx=True")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -140,9 +135,7 @@ class LibdbConan(ConanFile):
                             dst=os.path.join(self._source_subfolder, subdir),
                         )
 
-        for file in glob.glob(
-            os.path.join(self._source_subfolder, "build_windows", "VS10", "*.vcxproj")
-        ):
+        for file in glob.glob(os.path.join(self._source_subfolder, "build_windows", "VS10", "*.vcxproj")):
             replace_in_file(
                 self,
                 file,
@@ -190,8 +183,7 @@ class LibdbConan(ConanFile):
                 )
             )
         self._autotools.configure(
-            configure_dir=os.path.join(self.source_folder, self._source_subfolder, "dist"),
-            args=conf_args,
+            configure_dir=os.path.join(self.source_folder, self._source_subfolder, "dist"), args=conf_args
         )
         if self.settings.os == "Windows" and self.options.shared:
             replace_in_file(
@@ -226,9 +218,7 @@ class LibdbConan(ConanFile):
         upgraded = False
         for project in projects:
             msbuild.build(
-                os.path.join(
-                    self._source_subfolder, "build_windows", "VS10", "{}.vcxproj".format(project)
-                ),
+                os.path.join(self._source_subfolder, "build_windows", "VS10", "{}.vcxproj".format(project)),
                 build_type=self._msvc_build_type,
                 platforms=self._msvc_platforms,
                 upgrade_project=not upgraded,
@@ -244,12 +234,7 @@ class LibdbConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self._source_subfolder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
         bindir = os.path.join(self.package_folder, "bin")
         libdir = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
@@ -290,8 +275,7 @@ class LibdbConan(ConanFile):
                         os.remove(binpath)
                 if self.options.shared:
                     dlls = [
-                        "lib{}-{}.dll".format(lib, ".".join(self._major_minor_version))
-                        for lib in self._libs
+                        "lib{}-{}.dll".format(lib, ".".join(self._major_minor_version)) for lib in self._libs
                     ]
                     for fn in os.listdir(bindir):
                         if fn not in dlls:

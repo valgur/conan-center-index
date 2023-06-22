@@ -163,9 +163,7 @@ class DiligentToolsConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools"))
-        self.cpp_info.includedirs.append(
-            os.path.join("include", "DiligentTools", "AssetLoader", "interface")
-        )
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
 
         self.cpp_info.defines.append(f"{self._diligent_platform}=1")
 

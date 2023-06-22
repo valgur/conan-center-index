@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -98,9 +91,7 @@ class LibVertoConan(ConanFile):
             raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")
 
         if not self._backend_dict[str(self.options.default)]:
-            raise ConanInvalidConfiguration(
-                f"Default backend({self.options.default}) must be available"
-            )
+            raise ConanInvalidConfiguration(f"Default backend({self.options.default}) must be available")
 
         count = lambda iterable: sum(1 if it else 0 for it in iterable)
         count_builtins = count(str(opt) == "builtin" for opt in self._backend_dict.values())
@@ -135,7 +126,11 @@ class LibVertoConan(ConanFile):
         env.generate()
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        yes_no_builtin = lambda v: {"external": "yes", "False": "no", "builtin": "builtin"}[str(v)]
+        yes_no_builtin = lambda v: {
+            "external": "yes",
+            "False": "no",
+            "builtin": "builtin",
+        }[str(v)]
         tc.configure_args.extend(
             [
                 f"--with-pthread={yes_no(self.options.get_safe('pthread'))}",
@@ -157,12 +152,7 @@ class LibVertoConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 
@@ -188,24 +178,18 @@ class LibVertoConan(ConanFile):
         if self.options.with_libev == "builtin":
             self.cpp_info.components["verto"].requires.append("libev::libev")
         elif self.options.with_libev:
-            self.cpp_info.components["verto-libev"].set_property(
-                "pkg_config_name", "libverto-libev"
-            )
+            self.cpp_info.components["verto-libev"].set_property("pkg_config_name", "libverto-libev")
             self.cpp_info.components["verto-libev"].libs = ["verto-libev"]
             self.cpp_info.components["verto-libev"].requires = ["verto", "libev::libev"]
 
         if self.options.with_libevent == "builtin":
             self.cpp_info.components["verto"].requires.append("libevent::libevent")
         elif self.options.with_libevent:
-            self.cpp_info.components["verto-libevent"].set_property(
-                "pkg_config_name", "libverto-libevent"
-            )
+            self.cpp_info.components["verto-libevent"].set_property("pkg_config_name", "libverto-libevent")
             self.cpp_info.components["verto-libevent"].libs = ["verto-libevent"]
             self.cpp_info.components["verto-libevent"].requires = ["verto", "libevent::libevent"]
 
         if self.options.with_tevent:
-            self.cpp_info.components["verto-tevent"].set_property(
-                "pkg_config_name", "libverto-tevent"
-            )
+            self.cpp_info.components["verto-tevent"].set_property("pkg_config_name", "libverto-tevent")
             self.cpp_info.components["verto-tevent"].libs = ["verto-tevent"]
             self.cpp_info.components["verto-tevent"].requires = ["verto", "tevent::tevent"]

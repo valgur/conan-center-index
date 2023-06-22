@@ -54,9 +54,7 @@ class LibsecretConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(
-            "glib/2.76.0", transitive_headers=True, transitive_libs=True, run=can_run(self)
-        )
+        self.requires("glib/2.76.0", transitive_headers=True, transitive_libs=True, run=can_run(self))
         if self._use_gcrypt:
             self.requires("libgcrypt/1.8.4")
 
@@ -95,12 +93,7 @@ class LibsecretConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

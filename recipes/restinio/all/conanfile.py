@@ -16,9 +16,7 @@ class RestinioConan(ConanFile):
     license = "BSD-3-Clause"
     homepage = "https://github.com/Stiffstream/restinio"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "RESTinio is a header-only C++14 library that gives you an embedded HTTP/Websocket server."
-    )
+    description = "RESTinio is a header-only C++14 library that gives you an embedded HTTP/Websocket server."
     topics = ("http-server", "websockets", "rest", "tls-support")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,12 +26,7 @@ class RestinioConan(ConanFile):
         "with_zlib": [True, False],
         "with_pcre": [1, 2, None],
     }
-    default_options = {
-        "asio": "standalone",
-        "with_openssl": False,
-        "with_zlib": False,
-        "with_pcre": None,
-    }
+    default_options = {"asio": "standalone", "with_openssl": False, "with_zlib": False, "with_pcre": None}
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -110,12 +103,7 @@ class RestinioConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "dev", "restinio"))
         cmake.install()

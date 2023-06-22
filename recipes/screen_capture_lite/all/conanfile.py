@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -76,10 +69,7 @@ class ScreenCaptureLiteConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if (
-            self.settings.compiler == "clang"
-            and self.settings.compiler.get_safe("libcxx") == "libstdc++"
-        ):
+        if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} does not support clang with libstdc++")
 
         # Since 17.1.451, screen_capture_lite uses CGPreflightScreenCaptureAccess which is provided by macOS SDK 11 later.
@@ -120,10 +110,7 @@ class ScreenCaptureLiteConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -139,22 +126,9 @@ class ScreenCaptureLiteConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
-            self.cpp_info.requires.extend(
-                [
-                    "xorg::x11",
-                    "xorg::xinerama",
-                    "xorg::xext",
-                    "xorg::xfixes",
-                ]
-            )
+            self.cpp_info.requires.extend(["xorg::x11", "xorg::xinerama", "xorg::xext", "xorg::xfixes"])
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(
-                [
-                    "dwmapi",
-                    "d3d11",
-                    "dxgi",
-                ]
-            )
+            self.cpp_info.system_libs.extend(["dwmapi", "d3d11", "dxgi"])
         elif self.settings.os == "Macos":
             self.cpp_info.frameworks.extend(
                 [

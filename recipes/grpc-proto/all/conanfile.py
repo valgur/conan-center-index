@@ -17,7 +17,9 @@ required_conan_version = ">=1.53.0"
 class GRPCProto(ConanFile):
     name = "grpc-proto"
     package_type = "library"
-    description = "gRPC-defined protobufs for peripheral services such as health checking, load balancing, etc"
+    description = (
+        "gRPC-defined protobufs for peripheral services such as health checking, load balancing, etc"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/grpc/grpc-proto"
@@ -56,9 +58,7 @@ class GRPCProto(ConanFile):
     def requirements(self):
         # protobuf symbols are exposed from generated structures
         # https://github.com/conan-io/conan-center-index/pull/16185#issuecomment-1501174215
-        self.requires(
-            "protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self)
-        )
+        self.requires("protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self))
         self.requires("googleapis/cci.20230501")
 
     def validate(self):
@@ -66,8 +66,7 @@ class GRPCProto(ConanFile):
             check_min_cppstd(self, 11)
 
         if self.options.shared and not (
-            self.dependencies["protobuf"].options.shared
-            and self.dependencies["googleapis"].options.shared
+            self.dependencies["protobuf"].options.shared and self.dependencies["googleapis"].options.shared
         ):
             raise ConanInvalidConfiguration(
                 "If built as shared, protobuf and googleapis must be shared as well. "
@@ -88,9 +87,7 @@ class GRPCProto(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = CMakeToolchain(self)
-        googleapis_resdirs = (
-            self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
-        )
+        googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
         tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join(
             [p.replace("\\", "/") for p in googleapis_resdirs]
         )
@@ -127,12 +124,7 @@ class GRPCProto(ConanFile):
         return proto_libraries
 
     def build(self):
-        copy(
-            self,
-            "CMakeLists.txt",
-            src=os.path.join(self.source_folder, os.pardir),
-            dst=self.source_folder,
-        )
+        copy(self, "CMakeLists.txt", src=os.path.join(self.source_folder, os.pardir), dst=self.source_folder)
         proto_libraries = self._parse_proto_libraries()
         with open(os.path.join(self.source_folder, "CMakeLists.txt"), "a", encoding="utf-8") as f:
             for it in filter(lambda u: u.is_used, proto_libraries):
@@ -143,23 +135,10 @@ class GRPCProto(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
-        copy(
-            self,
-            pattern="*.proto",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "res"),
-        )
-        copy(
-            self,
-            pattern="*.pb.h",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+        copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
 
         copy(
             self,

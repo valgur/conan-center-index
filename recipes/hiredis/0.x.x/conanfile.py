@@ -35,15 +35,11 @@ class HiredisConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "hiredis {} is not supported on Windows.".format(self.version)
-            )
+            raise ConanInvalidConfiguration("hiredis {} is not supported on Windows.".format(self.version))
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -71,8 +67,7 @@ class HiredisConan(ConanFile):
                 }
             )
         tools.remove_files_by_mask(
-            os.path.join(self.package_folder, "lib"),
-            "*.a" if self.options.shared else "*.[so|dylib]*",
+            os.path.join(self.package_folder, "lib"), "*.a" if self.options.shared else "*.[so|dylib]*"
         )
         tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
 

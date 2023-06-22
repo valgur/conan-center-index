@@ -57,12 +57,7 @@ class Rangev3Conan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(
@@ -71,12 +66,7 @@ class Rangev3Conan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "include"),
         )
-        copy(
-            self,
-            "LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.components["range-v3-meta"].names["cmake_find_package"] = "meta"
@@ -85,9 +75,7 @@ class Rangev3Conan(ConanFile):
             self.cpp_info.components["range-v3-meta"].cxxflags = ["/permissive-"]
 
             if "0.9.0" <= Version(self.version) < "0.11.0":
-                self.cpp_info.components["range-v3-meta"].cxxflags.append(
-                    "/experimental:preprocessor"
-                )
+                self.cpp_info.components["range-v3-meta"].cxxflags.append("/experimental:preprocessor")
         self.cpp_info.components["range-v3-concepts"].names["cmake_find_package"] = "concepts"
         self.cpp_info.components["range-v3-concepts"].names["cmake_find_package_multi"] = "concepts"
         self.cpp_info.components["range-v3-concepts"].requires = ["range-v3-meta"]

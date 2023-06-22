@@ -36,12 +36,7 @@ class NpcapConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst=join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "*.h",
-            dst=join(self.package_folder, "include"),
-            src=join(self.source_folder, "Include"),
-        )
+        copy(self, "*.h", dst=join(self.package_folder, "include"), src=join(self.source_folder, "Include"))
 
         if self.settings.arch == "x86_64":
             copy(
@@ -58,12 +53,7 @@ class NpcapConan(ConanFile):
                 src=join(self.source_folder, "Lib", "ARM64"),
             )
         else:
-            copy(
-                self,
-                "*.lib",
-                dst=join(self.package_folder, "lib"),
-                src=join(self.source_folder, "Lib"),
-            )
+            copy(self, "*.lib", dst=join(self.package_folder, "lib"), src=join(self.source_folder, "Lib"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

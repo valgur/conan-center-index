@@ -18,12 +18,7 @@ class CajunJsonApiConan(ConanFile):
     no_copy_source = True
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -37,11 +32,7 @@ class CajunJsonApiConan(ConanFile):
         package_version = Version(self.version)
         if package_version < "2.1.0":
             # No dedicated LICENSE file in older versions, extracting license text from comments
-            save(
-                self,
-                os.path.join(self.package_folder, "licenses", "LICENSE"),
-                self._extract_license(),
-            )
+            save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
             # Prior to v2.1.0 there was no "cajun" subfolder in sources but it was present in RPM packages
             # (e.g. https://centos.pkgs.org/7/epel-x86_64/cajun-jsonapi-devel-2.0.3-2.el7.noarch.rpm.html)
             # For ease of migration from RPM dependencies to Conan creating intermediate "cajun" folder
@@ -71,12 +62,7 @@ class CajunJsonApiConan(ConanFile):
                 dst=os.path.join(self.package_folder, "include"),
                 src=os.path.join(self.source_folder, "include"),
             )
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_id(self):
         self.info.clear()

@@ -104,7 +104,12 @@ class NSSConan(ConanFile):
         args.append("NSPR_INCLUDE_DIR=%s" % self.deps_cpp_info["nspr"].include_paths[1])
         args.append("NSPR_LIB_DIR=%s" % self.deps_cpp_info["nspr"].lib_paths[0])
 
-        os_map = {"Linux": "Linux", "Macos": "Darwin", "Windows": "WINNT", "FreeBSD": "FreeBSD"}
+        os_map = {
+            "Linux": "Linux",
+            "Macos": "Darwin",
+            "Windows": "WINNT",
+            "FreeBSD": "FreeBSD",
+        }
 
         args.append("OS_TARGET=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
         args.append("OS_ARCH=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
@@ -181,9 +186,7 @@ class NSSConan(ConanFile):
         self.copy("COPYING", src=os.path.join(self._source_subfolder, "nss"), dst="licenses")
         with chdir(self, os.path.join(self._source_subfolder, "nss")):
             self.run("make install %s" % " ".join(self._make_args))
-        self.copy(
-            "*", src=os.path.join(self._source_subfolder, "dist", "public", "nss"), dst="include"
-        )
+        self.copy("*", src=os.path.join(self._source_subfolder, "dist", "public", "nss"), dst="include")
         for d in os.listdir(os.path.join(self._source_subfolder, "dist")):
             if d in ["private", "public"]:
                 continue
@@ -193,9 +196,7 @@ class NSSConan(ConanFile):
             self.copy("*", src=f)
 
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-            rename(
-                self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file))
-            )
+            rename(self, dll_file, os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
 
         if self.options.shared:
             rm(self, "*.a", os.path.join(self.package_folder, "lib"))

@@ -49,9 +49,7 @@ class MoltenVKConan(ConanFile):
     @property
     @functools.lru_cache(1)
     def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(
-            self.recipe_folder, "dependencies", self._dependencies_filename
-        )
+        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
         if not os.path.isfile(dependencies_filepath):
             raise ConanException(f"Cannot find {dependencies_filepath}")
         cached_dependencies = yaml.safe_load(open(dependencies_filepath))
@@ -66,12 +64,7 @@ class MoltenVKConan(ConanFile):
         return Version(self.version) >= "1.1.7"
 
     def export(self):
-        copy(
-            self,
-            f"dependencies/{self._dependencies_filename}",
-            self.recipe_folder,
-            self.export_folder,
-        )
+        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -113,9 +106,7 @@ class MoltenVKConan(ConanFile):
         if Version(self.settings.compiler.version) < "12.0":
             raise ConanInvalidConfiguration(f"{self.ref} requires XCode 12.0 or higher")
         spirv_cross = self.dependencies["spirv-cross"]
-        if spirv_cross.options.shared or not (
-            spirv_cross.options.msl and spirv_cross.options.reflect
-        ):
+        if spirv_cross.options.shared or not (spirv_cross.options.msl and spirv_cross.options.reflect):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires spirv-cross static with msl & reflect enabled"
             )
@@ -142,12 +133,7 @@ class MoltenVKConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

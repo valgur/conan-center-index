@@ -108,9 +108,7 @@ class IXWebSocketConan(ConanFile):
             replace_in_file(self, cmakelists, "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
         # Allow shared
         if Version(self.version) < "11.1.4":
-            replace_in_file(
-                self, cmakelists, "add_library( ixwebsocket STATIC", "add_library( ixwebsocket"
-            )
+            replace_in_file(self, cmakelists, "add_library( ixwebsocket STATIC", "add_library( ixwebsocket")
         if Version(self.version) < "9.8.5":
             replace_in_file(
                 self,
@@ -140,12 +138,7 @@ class IXWebSocketConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

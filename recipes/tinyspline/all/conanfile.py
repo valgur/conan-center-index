@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    copy,
-    get,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -65,21 +58,14 @@ class TinysplineConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["TINYSPLINE_BUILD_DOCS"] = False
         tc.variables["TINYSPLINE_BUILD_EXAMPLES"] = False
         tc.variables["TINYSPLINE_BUILD_TESTS"] = False
-        tc.variables["TINYSPLINE_FLOAT_PRECISION"] = (
-            self.options.floating_point_precision == "single"
-        )
+        tc.variables["TINYSPLINE_FLOAT_PRECISION"] = self.options.floating_point_precision == "single"
         tc.variables["TINYSPLINE_INSTALL_BINARY_DIR"] = "bin"
         tc.variables["TINYSPLINE_INSTALL_LIBRARY_DIR"] = "lib"
         if Version(self.version) < "0.3.0":
@@ -117,12 +103,7 @@ class TinysplineConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -132,7 +113,9 @@ class TinysplineConan(ConanFile):
         if self.options.cxx:
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {"tinysplinecxx::tinysplinecxx": "tinyspline::libtinysplinecxx"},
+                {
+                    "tinysplinecxx::tinysplinecxx": "tinyspline::libtinysplinecxx",
+                },
             )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -166,20 +149,12 @@ class TinysplineConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "tinyspline")
 
-        self.cpp_info.components["libtinyspline"].set_property(
-            "cmake_target_name", "tinyspline::tinyspline"
-        )
+        self.cpp_info.components["libtinyspline"].set_property("cmake_target_name", "tinyspline::tinyspline")
         self.cpp_info.components["libtinyspline"].set_property("pkg_config_name", "tinyspline")
-        self.cpp_info.components["libtinyspline"].libs = [
-            "{}tinyspline{}".format(lib_prefix, lib_suffix)
-        ]
+        self.cpp_info.components["libtinyspline"].libs = ["{}tinyspline{}".format(lib_prefix, lib_suffix)]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libtinyspline"].system_libs = ["m"]
-        if (
-            Version(self.version) >= "0.3.0"
-            and self.options.shared
-            and self.settings.os == "Windows"
-        ):
+        if Version(self.version) >= "0.3.0" and self.options.shared and self.settings.os == "Windows":
             self.cpp_info.components["libtinyspline"].defines.append("TINYSPLINE_SHARED")
 
         if self.options.cxx:
@@ -187,19 +162,13 @@ class TinysplineConan(ConanFile):
             self.cpp_info.components["libtinysplinecxx"].set_property(
                 "cmake_target_name", "tinysplinecxx::tinysplinecxx"
             )
-            self.cpp_info.components["libtinysplinecxx"].set_property(
-                "pkg_config_name", "tinysplinecxx"
-            )
+            self.cpp_info.components["libtinysplinecxx"].set_property("pkg_config_name", "tinysplinecxx")
             self.cpp_info.components["libtinysplinecxx"].libs = [
                 "{}tinyspline{}{}".format(lib_prefix, cpp_prefix, lib_suffix)
             ]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libtinysplinecxx"].system_libs = ["m"]
-            if (
-                Version(self.version) >= "0.3.0"
-                and self.options.shared
-                and self.settings.os == "Windows"
-            ):
+            if Version(self.version) >= "0.3.0" and self.options.shared and self.settings.os == "Windows":
                 self.cpp_info.components["libtinysplinecxx"].defines.append("TINYSPLINE_SHARED")
 
             # Workaround to always provide a global target or pkg-config file with all components
@@ -212,6 +181,6 @@ class TinysplineConan(ConanFile):
             self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components["libtinysplinecxx"].build_modules[
-                "cmake_find_package_multi"
-            ] = [self._module_file_rel_path]
+            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

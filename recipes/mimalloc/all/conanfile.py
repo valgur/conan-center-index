@@ -110,12 +110,7 @@ class MimallocConan(ConanFile):
             )
 
         # Shared overriding requires dynamic runtime for MSVC:
-        if (
-            self.options.override
-            and self.options.shared
-            and is_msvc(self)
-            and is_msvc_static_runtime(self)
-        ):
+        if self.options.override and self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
                 "Dynamic runtime (MD/MDd) is required when using mimalloc as a shared library for override"
             )
@@ -169,10 +164,7 @@ class MimallocConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()
@@ -213,7 +205,9 @@ class MimallocConan(ConanFile):
         cmake_target = "mimalloc" if self.options.shared else "mimalloc-static"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {cmake_target: "mimalloc::mimalloc"},
+            {
+                cmake_target: "mimalloc::mimalloc",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

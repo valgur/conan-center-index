@@ -60,9 +60,7 @@ class FoonathanMemoryConan(ConanFile):
         # during the build, newer versions do it differently.
         is_older = Version(self.version) < "0.7.2"
         if hasattr(self, "settings_build") and cross_building(self) and is_older:
-            raise ConanInvalidConfiguration(
-                "Cross building is not supported on versions older than 0.7.2"
-            )
+            raise ConanInvalidConfiguration("Cross building is not supported on versions older than 0.7.2")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -99,12 +97,7 @@ class FoonathanMemoryConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "foonathan_memory", "cmake"))
@@ -114,7 +107,9 @@ class FoonathanMemoryConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"foonathan_memory": "foonathan_memory::foonathan_memory"},
+            {
+                "foonathan_memory": "foonathan_memory::foonathan_memory",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -46,16 +46,11 @@ class PocoConan(ConanFile):
     }
 
     _PocoComponent = namedtuple(
-        "_PocoComponent",
-        ("option", "default_option", "dependencies", "external_dependencies", "is_lib"),
+        "_PocoComponent", ("option", "default_option", "dependencies", "external_dependencies", "is_lib")
     )
     _poco_component_tree = {
         "mod_poco": _PocoComponent(
-            "enable_apacheconnector",
-            False,
-            ["Util", "Net"],
-            ["apr::apr", "apr-util::apr-util"],
-            False,
+            "enable_apacheconnector", False, ["Util", "Net"], ["apr::apr", "apr-util::apr-util"], False
         ),
         "CppParser": _PocoComponent("enable_cppparser", False, ["Foundation"], [], False),
         # "CppUnit": _PocoComponent("enable_cppunit", False, ["Foundation"], [], False)),
@@ -67,12 +62,8 @@ class PocoConan(ConanFile):
         "DataODBC": _PocoComponent(
             "enable_data_odbc", False, ["Data"], [], True
         ),  # requires odbc but conditional, see package_info()
-        "DataPostgreSQL": _PocoComponent(
-            "enable_data_postgresql", True, ["Data"], ["libpq::libpq"], True
-        ),
-        "DataSQLite": _PocoComponent(
-            "enable_data_sqlite", True, ["Data"], ["sqlite3::sqlite3"], True
-        ),
+        "DataPostgreSQL": _PocoComponent("enable_data_postgresql", True, ["Data"], ["libpq::libpq"], True),
+        "DataSQLite": _PocoComponent("enable_data_sqlite", True, ["Data"], ["sqlite3::sqlite3"], True),
         "Encodings": _PocoComponent("enable_encodings", True, ["Foundation"], [], True),
         # "EncodingsCompiler": _PocoComponent("enable_encodingscompiler", False, ["Net", "Util"], [], False),
         "Foundation": _PocoComponent(None, "Foundation", [], ["pcre::pcre", "zlib::zlib"], True),
@@ -93,9 +84,7 @@ class PocoConan(ConanFile):
         "Util": _PocoComponent("enable_util", True, ["Foundation", "XML", "JSON"], [], True),
         "XML": _PocoComponent("enable_xml", True, ["Foundation"], ["expat::expat"], True),
         "Zip": _PocoComponent("enable_zip", True, ["Util", "XML"], [], True),
-        "ActiveRecord": _PocoComponent(
-            "enable_activerecord", True, ["Foundation", "Data"], [], True
-        ),
+        "ActiveRecord": _PocoComponent("enable_activerecord", True, ["Foundation", "Data"], [], True),
         "ActiveRecordCompiler": _PocoComponent(
             "enable_activerecord_compiler", False, ["Util", "XML"], [], False
         ),
@@ -138,16 +127,11 @@ class PocoConan(ConanFile):
                 dependencies=[x for x in util_dependencies if x != "JSON"]
             )
         if Version(self.version) >= "1.12.0":
-            foundation_external_dependencies = self._poco_component_tree[
-                "Foundation"
-            ].external_dependencies
-            self._poco_component_tree["Foundation"] = self._poco_component_tree[
-                "Foundation"
-            ]._replace(
+            foundation_external_dependencies = self._poco_component_tree["Foundation"].external_dependencies
+            self._poco_component_tree["Foundation"] = self._poco_component_tree["Foundation"]._replace(
                 external_dependencies=list(
                     map(
-                        lambda x: "pcre2::pcre2" if x == "pcre::pcre" else x,
-                        foundation_external_dependencies,
+                        lambda x: "pcre2::pcre2" if x == "pcre::pcre" else x, foundation_external_dependencies
                     )
                 )
             )
@@ -168,11 +152,7 @@ class PocoConan(ConanFile):
         if self.options.enable_apacheconnector:
             self.requires("apr/1.7.0")
             self.requires("apr-util/1.6.1")
-        if (
-            self.options.enable_netssl
-            or self.options.enable_crypto
-            or self.options.get_safe("enable_jwt")
-        ):
+        if self.options.enable_netssl or self.options.enable_crypto or self.options.get_safe("enable_jwt"):
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         if self.options.enable_data_odbc and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
@@ -215,17 +195,12 @@ class PocoConan(ConanFile):
     def _dep_include_paths(self, dep_name):
         dep = self.dependencies[dep_name]
         dep_cpp_info = dep.cpp_info.aggregated_components()
-        return [
-            os.path.join(dep.package_folder, dir).replace("\\", "/")
-            for dir in dep_cpp_info.includedirs
-        ]
+        return [os.path.join(dep.package_folder, dir).replace("\\", "/") for dir in dep_cpp_info.includedirs]
 
     def _dep_lib_paths(self, dep_name):
         dep = self.dependencies[dep_name]
         dep_cpp_info = dep.cpp_info.aggregated_components()
-        return [
-            os.path.join(dep.package_folder, dir).replace("\\", "/") for dir in dep_cpp_info.libdirs
-        ]
+        return [os.path.join(dep.package_folder, dir).replace("\\", "/") for dir in dep_cpp_info.libdirs]
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -238,36 +213,22 @@ class PocoConan(ConanFile):
         if is_msvc(self):
             tc.variables["POCO_MT"] = is_msvc_static_runtime(self)
         if self.options.get_safe("enable_data_postgresql", False):
-            tc.variables["PostgreSQL_ROOT_DIR"] = self.dependencies["libpq"].package_folder.replace(
-                "\\", "/"
-            )
-            tc.variables["PostgreSQL_ROOT_INCLUDE_DIRS"] = ";".join(
-                self._dep_include_paths("libpq")
-            )
+            tc.variables["PostgreSQL_ROOT_DIR"] = self.dependencies["libpq"].package_folder.replace("\\", "/")
+            tc.variables["PostgreSQL_ROOT_INCLUDE_DIRS"] = ";".join(self._dep_include_paths("libpq"))
             tc.variables["PostgreSQL_ROOT_LIBRARY_DIRS"] = ";".join(self._dep_lib_paths("libpq"))
         if self.options.get_safe("enable_data_mysql", False):
-            tc.variables["MYSQL_ROOT_DIR"] = self.dependencies[
-                "libmysqlclient"
-            ].package_folder.replace("\\", "/")
-            tc.variables["MYSQL_ROOT_INCLUDE_DIRS"] = ";".join(
-                self._dep_include_paths("libmysqlclient")
-            )
-            tc.variables["MYSQL_INCLUDE_DIR"] = ";".join(self._dep_include_paths("libmysqlclient"))
-            tc.variables["MYSQL_ROOT_LIBRARY_DIRS"] = ";".join(
-                self._dep_lib_paths("libmysqlclient")
-            )
-        if self.options.enable_apacheconnector:
-            tc.variables["APR_ROOT_DIR"] = self.dependencies["apr"].package_folder.replace(
+            tc.variables["MYSQL_ROOT_DIR"] = self.dependencies["libmysqlclient"].package_folder.replace(
                 "\\", "/"
             )
+            tc.variables["MYSQL_ROOT_INCLUDE_DIRS"] = ";".join(self._dep_include_paths("libmysqlclient"))
+            tc.variables["MYSQL_INCLUDE_DIR"] = ";".join(self._dep_include_paths("libmysqlclient"))
+            tc.variables["MYSQL_ROOT_LIBRARY_DIRS"] = ";".join(self._dep_lib_paths("libmysqlclient"))
+        if self.options.enable_apacheconnector:
+            tc.variables["APR_ROOT_DIR"] = self.dependencies["apr"].package_folder.replace("\\", "/")
             tc.variables["APR_ROOT_INCLUDE_DIRS"] = ";".join(self._dep_include_paths("apr"))
             tc.variables["APR_ROOT_LIBRARY_DIRS"] = ";".join(self._dep_lib_paths("apr"))
-            tc.variables["APRUTIL_ROOT_DIR"] = self.dependencies["apr-util"].package_folder.replace(
-                "\\", "/"
-            )
-            tc.variables["APRUTIL_ROOT_INCLUDE_DIRS"] = ";".join(
-                self._dep_include_paths("apr-util")
-            )
+            tc.variables["APRUTIL_ROOT_DIR"] = self.dependencies["apr-util"].package_folder.replace("\\", "/")
+            tc.variables["APRUTIL_ROOT_INCLUDE_DIRS"] = ";".join(self._dep_include_paths("apr-util"))
             tc.variables["APRUTIL_ROOT_LIBRARY_DIRS"] = ";".join(self._dep_lib_paths("apr-util"))
         # Disable fork
         if not self.options.get_safe("enable_fork", True):
@@ -337,12 +298,7 @@ class PocoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -375,9 +331,7 @@ class PocoConan(ConanFile):
                 )
                 self.cpp_info.components[conan_component].set_property("cmake_file_name", compname)
                 self.cpp_info.components[conan_component].names["cmake_find_package"] = compname
-                self.cpp_info.components[conan_component].names[
-                    "cmake_find_package_multi"
-                ] = compname
+                self.cpp_info.components[conan_component].names["cmake_find_package_multi"] = compname
                 if comp.is_lib:
                     self.cpp_info.components[conan_component].libs = [f"Poco{compname}{suffix}"]
                 self.cpp_info.components[conan_component].requires = requires
@@ -401,10 +355,6 @@ class PocoConan(ConanFile):
         self.cpp_info.components["poco_foundation"].defines.append("POCO_UNBUNDLED")
         if self.options.enable_util:
             if not self.options.enable_json:
-                self.cpp_info.components["poco_util"].defines.append(
-                    "POCO_UTIL_NO_JSONCONFIGURATION"
-                )
+                self.cpp_info.components["poco_util"].defines.append("POCO_UTIL_NO_JSONCONFIGURATION")
             if not self.options.enable_xml:
-                self.cpp_info.components["poco_util"].defines.append(
-                    "POCO_UTIL_NO_XMLCONFIGURATION"
-                )
+                self.cpp_info.components["poco_util"].defines.append("POCO_UTIL_NO_XMLCONFIGURATION")

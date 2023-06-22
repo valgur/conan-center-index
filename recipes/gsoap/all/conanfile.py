@@ -95,27 +95,18 @@ class GsoapConan(ConanFile):
             src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         defines = []
         if self.options.with_openssl:
-            libs = [
-                "gsoapssl++",
-            ]
+            libs = ["gsoapssl++"]
             defines.append("WITH_OPENSSL")
             defines.append("WITH_GZIP")
         else:
-            libs = [
-                "gsoap++",
-            ]
+            libs = ["gsoap++"]
         self.cpp_info.libs = libs
 
         if self.options.with_ipv6:

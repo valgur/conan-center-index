@@ -110,12 +110,7 @@ class FlannConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -129,9 +124,7 @@ class FlannConan(ConanFile):
                 rmdir(self, os.path.join(self.package_folder, "bin"))
         # Remove static/dynamic libraries depending on the build mode
         libs_pattern_to_remove = (
-            ["*flann_cpp_s.*", "*flann_s.*"]
-            if self.options.shared
-            else ["*flann_cpp.*", "*flann.*"]
+            ["*flann_cpp_s.*", "*flann_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*"]
         )
         for lib_pattern_to_remove in libs_pattern_to_remove:
             rm(self, lib_pattern_to_remove, os.path.join(self.package_folder, "lib"))
@@ -144,9 +137,7 @@ class FlannConan(ConanFile):
 
         # flann_cpp
         flann_cpp_lib = "flann_cpp" if self.options.shared else "flann_cpp_s"
-        self.cpp_info.components["flann_cpp"].set_property(
-            "cmake_target_name", f"flann::{flann_cpp_lib}"
-        )
+        self.cpp_info.components["flann_cpp"].set_property("cmake_target_name", f"flann::{flann_cpp_lib}")
         self.cpp_info.components["flann_cpp"].libs = [flann_cpp_lib]
         if not self.options.shared:
             libcxx = stdcpp_library(self)
@@ -156,9 +147,7 @@ class FlannConan(ConanFile):
 
         # flann
         flann_c_lib = "flann" if self.options.shared else "flann_s"
-        self.cpp_info.components["flann_c"].set_property(
-            "cmake_target_name", f"flann::{flann_c_lib}"
-        )
+        self.cpp_info.components["flann_c"].set_property("cmake_target_name", f"flann::{flann_c_lib}")
         self.cpp_info.components["flann_c"].libs = [flann_c_lib]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["flann_c"].system_libs.append("m")

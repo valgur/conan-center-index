@@ -34,7 +34,12 @@ class PlatformInterfacesConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {"gcc": "10", "Visual Studio": "16", "clang": "14", "apple-clang": "14"}
+        return {
+            "gcc": "10",
+            "Visual Studio": "16",
+            "clang": "14",
+            "apple-clang": "14",
+        }
 
     @property
     def _minimum_cpp_standard(self):
@@ -96,12 +101,8 @@ class PlatformInterfacesConan(ConanFile):
             }.get(str(self.settings.arch), "")
         self.user_info.suggested_flags = suggested_flags
 
-        if "-march" not in "{} {}".format(
-            os.environ.get("CPPFLAGS", ""), os.environ.get("CXXFLAGS", "")
-        ):
+        if "-march" not in "{} {}".format(os.environ.get("CPPFLAGS", ""), os.environ.get("CXXFLAGS", "")):
             self.output.warn(
                 "platform.hashing needs to have `-march=ARCH` added to CPPFLAGS/CXXFLAGS. "
-                "A suggestion is available in deps_user_info[{name}].suggested_flags.".format(
-                    name=self.name
-                )
+                "A suggestion is available in deps_user_info[{name}].suggested_flags.".format(name=self.name)
             )

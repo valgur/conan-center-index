@@ -93,18 +93,14 @@ class LzmaSdkConan(ConanFile):
     def _build_msvc(self):
         for make_dir, _ in self._msvc_build_dirs:
             self.run(
-                f"nmake /f makefile NEW_COMPILER=1 CPU={self._msvc_cpu} NO_BUFFEROVERFLOWU=1",
-                cwd=make_dir,
+                f"nmake /f makefile NEW_COMPILER=1 CPU={self._msvc_cpu} NO_BUFFEROVERFLOWU=1", cwd=make_dir
             )
 
     def _build_autotools(self):
         autotools = Autotools(self)
         for make_dir, _ in self._autotools_build_dirs:
             with chdir(self, make_dir):
-                args = [
-                    "-f",
-                    "makefile.gcc",
-                ]
+                args = ["-f", "makefile.gcc"]
                 if self.settings.os == "Windows":
                     args.append("IS_MINGW=1")
                 autotools.make(args=args)
@@ -123,9 +119,7 @@ class LzmaSdkConan(ConanFile):
                 "-MD\r",
                 "-" + str(self.settings.compiler.runtime),
             )
-            replace_in_file(
-                self, os.path.join(self.source_folder, "CPP", "Build.mak"), " -WX ", " "
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "CPP", "Build.mak"), " -WX ", " ")
 
         # Patches for other build systems
         replace_in_file(
@@ -161,18 +155,8 @@ class LzmaSdkConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(
-            self,
-            "lzma.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            "7zC.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "lzma.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "7zC.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             for make_dir, exe in self._msvc_build_dirs:
                 copy(

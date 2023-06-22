@@ -28,9 +28,7 @@ class CTPGConan(ConanFile):
     def validate(self):
         ## TODO: In ctpg<=1.3.5, Visual Studio C++ failed to compile ctpg with "error MSB6006: "CL.exe" exited with code -1073741571."
         if self.settings.compiler == "Visual Studio":
-            raise ConanInvalidConfiguration(
-                "{} does not support Visual Studio currently.".format(self.name)
-            )
+            raise ConanInvalidConfiguration("{} does not support Visual Studio currently.".format(self.name))
 
         if self.settings.get_safe("compiler.cppstd"):
             tools.check_min_cppstd(self, "17")
@@ -43,9 +41,7 @@ class CTPGConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
-                    self.name
-                )
+                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
             )
 
     def package_id(self):
@@ -53,9 +49,7 @@ class CTPGConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def package(self):

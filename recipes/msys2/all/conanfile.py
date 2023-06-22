@@ -73,10 +73,7 @@ class MSYS2Conan(ConanFile):
 
     def source(self):
         get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=False,
+            self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=False
         )  # Preserve tarball root dir (msys64/)
 
     def _update_pacman(self):

@@ -17,12 +17,8 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["ENABLE_DOUBLE_PRECISION"] = (
-            self.dependencies["fftw"].options.precision == "double"
-        )
-        tc.variables["ENABLE_SINGLE_PRECISION"] = (
-            self.dependencies["fftw"].options.precision == "single"
-        )
+        tc.variables["ENABLE_DOUBLE_PRECISION"] = self.dependencies["fftw"].options.precision == "double"
+        tc.variables["ENABLE_SINGLE_PRECISION"] = self.dependencies["fftw"].options.precision == "single"
         tc.variables["ENABLE_LONG_DOUBLE_PRECISION"] = (
             self.dependencies["fftw"].options.precision == "longdouble"
         )

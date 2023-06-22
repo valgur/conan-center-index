@@ -29,11 +29,7 @@ class UTConan(ConanFile):
 
     @property
     def _minimum_cpp_standard(self):
-        return (
-            17
-            if self.settings.compiler in ["clang", "gcc"] and Version(self.version) <= "1.1.8"
-            else 20
-        )
+        return 17 if self.settings.compiler in ["clang", "gcc"] and Version(self.version) <= "1.1.8" else 20
 
     @property
     def _minimum_compilers_version(self):
@@ -60,8 +56,7 @@ class UTConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         if Version(self.version) <= "1.1.8" and is_msvc(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} may not be built with MSVC. "
-                "Please use at least version 1.1.9 with MSVC."
+                f"{self.ref} may not be built with MSVC. " "Please use at least version 1.1.9 with MSVC."
             )
 
         if is_msvc(self):

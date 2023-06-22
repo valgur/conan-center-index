@@ -64,12 +64,8 @@ class Catch2Conan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
-        tc.cache_variables[
-            "CATCH_INSTALL_DOCS"
-        ] = False  # these are cmake options, so use cache_variables
-        tc.cache_variables[
-            "CATCH_INSTALL_HELPERS"
-        ] = "ON"  # these are cmake options, so use cache_variables
+        tc.cache_variables["CATCH_INSTALL_DOCS"] = False  # these are cmake options, so use cache_variables
+        tc.cache_variables["CATCH_INSTALL_HELPERS"] = "ON"  # these are cmake options, so use cache_variables
         tc.cache_variables["CATCH_BUILD_STATIC_LIBRARY"] = str(
             self.options.with_main
         )  # these are cmake options, so use cache_variables (str() is required for conan 1.52)
@@ -109,8 +105,7 @@ class Catch2Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Catch2")
         self.cpp_info.set_property(
-            "cmake_target_name",
-            "Catch2::Catch2{}".format("WithMain" if self.options.with_main else ""),
+            "cmake_target_name", "Catch2::Catch2{}".format("WithMain" if self.options.with_main else "")
         )
         self.cpp_info.set_property(
             "pkg_config_name", "catch2{}".format("-with-main" if self.options.with_main else "")
@@ -139,9 +134,7 @@ class Catch2Conan(ConanFile):
             self.cpp_info.components["catch2_with_main"].set_property(
                 "cmake_target_name", "Catch2::Catch2WithMain"
             )
-            self.cpp_info.components["catch2_with_main"].set_property(
-                "pkg_config_name", "catch2-with-main"
-            )
+            self.cpp_info.components["catch2_with_main"].set_property("pkg_config_name", "catch2-with-main")
             self.cpp_info.components["catch2_with_main"].defines = defines
         else:
             self.cpp_info.builddirs = [os.path.join("lib", "cmake", "Catch2")]
@@ -154,9 +147,5 @@ class Catch2Conan(ConanFile):
         if self.options.with_main:
             self.cpp_info.components["_catch2"].names["cmake_find_package"] = "Catch2"
             self.cpp_info.components["_catch2"].names["cmake_find_package_multi"] = "Catch2"
-            self.cpp_info.components["catch2_with_main"].names[
-                "cmake_find_package"
-            ] = "Catch2WithMain"
-            self.cpp_info.components["catch2_with_main"].names[
-                "cmake_find_package_multi"
-            ] = "Catch2WithMain"
+            self.cpp_info.components["catch2_with_main"].names["cmake_find_package"] = "Catch2WithMain"
+            self.cpp_info.components["catch2_with_main"].names["cmake_find_package_multi"] = "Catch2WithMain"

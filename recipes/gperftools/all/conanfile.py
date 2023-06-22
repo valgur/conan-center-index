@@ -116,9 +116,7 @@ class GperftoolsConan(ConanFile):
         args["enable-dynamic-sized-delete-support"] = self.options.dynamic_sized_delete_support
         args["enable-sized-delete"] = self.options.sized_delete
         args["enable-large-alloc-report"] = self.options.enable_large_alloc_report
-        args[
-            "enable-aggressive-decommit-by-default"
-        ] = self.options.enable_aggressive_decommit_by_default
+        args["enable-aggressive-decommit-by-default"] = self.options.enable_aggressive_decommit_by_default
         if self._build_minimal:
             # No stack trace support will be built
             args["enable-libunwind"] = False
@@ -164,10 +162,7 @@ class GperftoolsConan(ConanFile):
         # Disable building of tests and benchmarks in Makefile
         for pattern in ["noinst_PROGRAMS = ", "TESTS = "]:
             replace_in_file(
-                self,
-                os.path.join(self.source_folder, "Makefile.in"),
-                pattern,
-                f"{pattern}\n_{pattern}",
+                self, os.path.join(self.source_folder, "Makefile.in"), pattern, f"{pattern}\n_{pattern}"
             )
 
     def build(self):
@@ -178,10 +173,7 @@ class GperftoolsConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         autotools = Autotools(self)
         autotools.install()

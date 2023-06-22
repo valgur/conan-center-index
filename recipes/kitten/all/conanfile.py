@@ -7,9 +7,7 @@ required_conan_version = ">=1.43.0"
 
 class KittenConan(ConanFile):
     name = "kitten"
-    description = (
-        "A small C++ library inspired by Category Theory focused on functional composition."
-    )
+    description = "A small C++ library inspired by Category Theory focused on functional composition."
     homepage = "https://github.com/rvarago/kitten"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
@@ -52,9 +50,7 @@ class KittenConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_cmake(self):

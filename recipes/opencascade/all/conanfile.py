@@ -121,16 +121,12 @@ class OpenCascadeConan(ConanFile):
             and self.settings.build_type == "Release"
         ):
             raise ConanInvalidConfiguration(
-                "OpenCASCADE {} doesn't support Clang 6.0 if Release build type".format(
-                    self.version
-                )
+                "OpenCASCADE {} doesn't support Clang 6.0 if Release build type".format(self.version)
             )
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _patch_sources(self):
@@ -139,13 +135,9 @@ class OpenCascadeConan(ConanFile):
 
         cmakelists = os.path.join(self._source_subfolder, "CMakeLists.txt")
         cmakelists_tools = os.path.join(self._source_subfolder, "tools", "CMakeLists.txt")
-        occt_toolkit_cmake = os.path.join(
-            self._source_subfolder, "adm", "cmake", "occt_toolkit.cmake"
-        )
+        occt_toolkit_cmake = os.path.join(self._source_subfolder, "adm", "cmake", "occt_toolkit.cmake")
         occt_csf_cmake = os.path.join(self._source_subfolder, "adm", "cmake", "occt_csf.cmake")
-        occt_defs_flags_cmake = os.path.join(
-            self._source_subfolder, "adm", "cmake", "occt_defs_flags.cmake"
-        )
+        occt_defs_flags_cmake = os.path.join(self._source_subfolder, "adm", "cmake", "occt_defs_flags.cmake")
 
         # Inject conanbuildinfo, upstream build files are not ready for a CMake wrapper (too much modifications required)
         # Also inject compile flags
@@ -208,17 +200,13 @@ class OpenCascadeConan(ConanFile):
                 tools.replace_in_file(
                     occt_csf_cmake,
                     'set (CSF_fontconfig "fontconfig")',
-                    'set (CSF_fontconfig "{}")'.format(
-                        " ".join(self.deps_cpp_info["fontconfig"].libs)
-                    ),
+                    'set (CSF_fontconfig "{}")'.format(" ".join(self.deps_cpp_info["fontconfig"].libs)),
                 )
             else:
                 tools.replace_in_file(
                     occt_csf_cmake,
                     'set (CSF_fontconfig  "fontconfig")',
-                    'set (CSF_fontconfig  "{}")'.format(
-                        " ".join(self.deps_cpp_info["fontconfig"].libs)
-                    ),
+                    'set (CSF_fontconfig  "{}")'.format(" ".join(self.deps_cpp_info["fontconfig"].libs)),
                 )
         ## onetbb
         if self.options.with_tbb:
@@ -245,9 +233,7 @@ class OpenCascadeConan(ConanFile):
             tools.replace_in_file(
                 occt_csf_cmake,
                 'set (CSF_FreeImagePlus "freeimage")',
-                'set (CSF_FreeImagePlus "{}")'.format(
-                    " ".join(self.deps_cpp_info["freeimage"].libs)
-                ),
+                'set (CSF_FreeImagePlus "{}")'.format(" ".join(self.deps_cpp_info["freeimage"].libs)),
             )
         ## openvr
         if self.options.with_openvr:
@@ -302,9 +288,7 @@ class OpenCascadeConan(ConanFile):
         tools.replace_in_file(occt_defs_flags_cmake, "-std=gnu++0x", "")
         tools.replace_in_file(occt_defs_flags_cmake, "-stdlib=libc++", "")
         tools.replace_in_file(
-            occt_csf_cmake,
-            'set (CSF_ThreadLibs  "pthread rt stdc++")',
-            'set (CSF_ThreadLibs  "pthread rt")',
+            occt_csf_cmake, 'set (CSF_ThreadLibs  "pthread rt stdc++")', 'set (CSF_ThreadLibs  "pthread rt")'
         )
 
         # No hardcoded link through #pragma
@@ -382,11 +366,7 @@ class OpenCascadeConan(ConanFile):
     def _replace_package_folder(self, source, target):
         if os.path.isdir(os.path.join(self.package_folder, source)):
             tools.rmdir(os.path.join(self.package_folder, target))
-            rename(
-                self,
-                os.path.join(self.package_folder, source),
-                os.path.join(self.package_folder, target),
-            )
+            rename(self, os.path.join(self.package_folder, source), os.path.join(self.package_folder, target))
 
     def package(self):
         cmake = self._configure_cmake()
@@ -450,12 +430,8 @@ class OpenCascadeConan(ConanFile):
                 "externals": ["freeimage::freeimage"] if self.options.with_freeimage else []
             },
             "CSF_OpenVR": {"externals": ["openvr::openvr"] if self.options.with_openvr else []},
-            "CSF_RapidJSON": {
-                "externals": ["rapidjson::rapidjson"] if self.options.with_rapidjson else []
-            },
-            "CSF_Draco": {
-                "externals": ["draco::draco"] if self.options.get_safe("with_draco") else []
-            },
+            "CSF_RapidJSON": {"externals": ["rapidjson::rapidjson"] if self.options.with_rapidjson else []},
+            "CSF_Draco": {"externals": ["draco::draco"] if self.options.get_safe("with_draco") else []},
             "CSF_TBB": {"externals": ["onetbb::onetbb"] if self.options.with_tbb else []},
             "CSF_VTK": {},
             # Android system libs
@@ -504,11 +480,7 @@ class OpenCascadeConan(ConanFile):
                 # EXTERNLIB file stores dependencies of each component. External dependencies are prefixed with CSF_
                 externlib_content = tools.load(
                     os.path.join(
-                        self.build_folder,
-                        self._source_subfolder,
-                        "src",
-                        component_name,
-                        "EXTERNLIB",
+                        self.build_folder, self._source_subfolder, "src", component_name, "EXTERNLIB"
                     )
                 )
                 for dependency in externlib_content.splitlines():
@@ -551,8 +523,7 @@ class OpenCascadeConan(ConanFile):
                 for target_lib, target_deps in targets.items():
                     conan_component_target_name = _to_qualified_name(target_lib)
                     requires = [
-                        _to_qualified_name(internal)
-                        for internal in target_deps.get("internals", [])
+                        _to_qualified_name(internal) for internal in target_deps.get("internals", [])
                     ] + target_deps.get("externals", [])
                     system_libs = target_deps.get("system_libs", [])
                     frameworks = target_deps.get("frameworks", [])
@@ -588,9 +559,7 @@ class OpenCascadeConan(ConanFile):
                     ] = [self._cmake_module_file_rel_path]
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
-                self.cpp_info.components[conan_component_module_name].names[
-                    "cmake_find_package"
-                ] = module
+                self.cpp_info.components[conan_component_module_name].names["cmake_find_package"] = module
                 self.cpp_info.components[conan_component_module_name].names[
                     "cmake_find_package_multi"
                 ] = module

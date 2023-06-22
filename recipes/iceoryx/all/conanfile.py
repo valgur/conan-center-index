@@ -87,24 +87,18 @@ class IceoryxConan(ConanFile):
                 and self.options.shared
                 and self.settings.build_type == "Debug"
             ):
-                raise ConanInvalidConfiguration(
-                    "shared Debug with clang 7.0 and libc++ not supported"
-                )
+                raise ConanInvalidConfiguration("shared Debug with clang 7.0 and libc++ not supported")
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self._source_subfolder
+            **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder
         )
 
     def _patch_sources(self):
         for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         # Honor fPIC option
-        iceoryx_utils = (
-            "iceoryx_hoofs" if tools.Version(self.version) >= "2.0.0" else "iceoryx_utils"
-        )
+        iceoryx_utils = "iceoryx_hoofs" if tools.Version(self.version) >= "2.0.0" else "iceoryx_utils"
         for cmake_file in [
             os.path.join("iceoryx_binding_c", "CMakeLists.txt"),
             os.path.join("iceoryx_posh", "CMakeLists.txt"),
@@ -144,20 +138,11 @@ class IceoryxConan(ConanFile):
         tools.rmdir(os.path.join(self.package_folder, "etc"))
         # bring to default package structure
         if tools.Version(self.version) >= "2.0.0":
-            include_paths = [
-                "iceoryx_binding_c",
-                "iceoryx_hoofs",
-                "iceoryx_posh",
-                "iceoryx_versions.hpp",
-            ]
+            include_paths = ["iceoryx_binding_c", "iceoryx_hoofs", "iceoryx_posh", "iceoryx_versions.hpp"]
             for include_path in include_paths:
                 tools.rename(
                     os.path.join(
-                        self.package_folder,
-                        "include",
-                        "iceoryx",
-                        "v{}".format(self.version),
-                        include_path,
+                        self.package_folder, "include", "iceoryx", "v{}".format(self.version), include_path
                     ),
                     os.path.join(self.package_folder, "include", include_path),
                 )
@@ -166,18 +151,12 @@ class IceoryxConan(ConanFile):
         if tools.Version(self.version) >= "2.0.0":
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {
-                    v["target"]: "iceoryx::{}".format(k)
-                    for k, v in self._iceoryx_components["2.0.0"].items()
-                },
+                {v["target"]: "iceoryx::{}".format(k) for k, v in self._iceoryx_components["2.0.0"].items()},
             )
         else:
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {
-                    v["target"]: "iceoryx::{}".format(k)
-                    for k, v in self._iceoryx_components["1.0.X"].items()
-                },
+                {v["target"]: "iceoryx::{}".format(k) for k, v in self._iceoryx_components["1.0.X"].items()},
             )
 
     @property

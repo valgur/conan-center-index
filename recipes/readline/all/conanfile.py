@@ -20,11 +20,7 @@ class ReadLineConan(ConanFile):
     homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "with_library": ["termcap", "curses"],
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "with_library": ["termcap", "curses"]}
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -66,9 +62,7 @@ class ReadLineConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend(
-            [
-                "--with-curses={}".format("yes" if self.options.with_library == "curses" else "no"),
-            ]
+            ["--with-curses={}".format("yes" if self.options.with_library == "curses" else "no")]
         )
         if cross_building(self):
             tc.configure_args.append("bash_cv_wcwidth_broken=yes")
@@ -83,9 +77,7 @@ class ReadLineConan(ConanFile):
             "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS)",
             "-o $@ $(SHARED_OBJ) $(SHLIB_LIBS) -ltermcap",
         )
-        replace_in_file(
-            self, os.path.join(self.source_folder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap"
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "@TERMCAP_LIB@", "-ltermcap")
 
     def build(self):
         self._patch_sources()
@@ -94,12 +86,7 @@ class ReadLineConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 

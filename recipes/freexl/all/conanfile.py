@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
@@ -22,8 +14,7 @@ required_conan_version = ">=1.55.0"
 class FreexlConan(ConanFile):
     name = "freexl"
     description = (
-        "FreeXL is an open source library to extract valid data "
-        "from within an Excel (.xls) spreadsheet."
+        "FreeXL is an open source library to extract valid data " "from within an Excel (.xls) spreadsheet."
     )
     license = ["MPL-1.0", "GPL-2.0-only", "LGPL-2.1-only"]
     topics = ("excel", "xls")
@@ -94,9 +85,7 @@ class FreexlConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
-            args = (
-                "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
-            )
+            args = "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
             with chdir(self, self.source_folder):
                 self.run(f"nmake -f makefile.vc {args}")
         else:
@@ -116,12 +105,7 @@ class FreexlConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,

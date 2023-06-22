@@ -103,9 +103,9 @@ class MpppConan(ConanFile):
         if Version(self.version) >= "0.27":
             tc.variables["MPPP_WITH_FMT"] = self.options.with_fmt
         if not self.options.shared:
-            tc.variables[
-                "MPPP_BUILD_STATIC_LIBRARY_WITH_DYNAMIC_MSVC_RUNTIME"
-            ] = not is_msvc_static_runtime(self)
+            tc.variables["MPPP_BUILD_STATIC_LIBRARY_WITH_DYNAMIC_MSVC_RUNTIME"] = not is_msvc_static_runtime(
+                self
+            )
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -118,10 +118,7 @@ class MpppConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

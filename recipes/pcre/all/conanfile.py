@@ -94,9 +94,7 @@ class PCREConan(ConanFile):
                 "At least one of build_pcre_8, build_pcre_16 or build_pcre_32 must be enabled"
             )
         if self.options.build_pcrecpp and not self.options.build_pcre_8:
-            raise ConanInvalidConfiguration(
-                "build_pcre_8 must be enabled for the C++ library support"
-            )
+            raise ConanInvalidConfiguration("build_pcre_8 must be enabled for the C++ library support")
         if self.options.build_pcregrep and not self.options.build_pcre_8:
             raise ConanInvalidConfiguration("build_pcre_8 must be enabled for the pcregrep program")
 
@@ -137,9 +135,7 @@ class PCREConan(ConanFile):
         # Avoid man and share during install stage
         replace_in_file(self, cmake_file, "INSTALL(FILES ${man1} DESTINATION man/man1)", "")
         replace_in_file(self, cmake_file, "INSTALL(FILES ${man3} DESTINATION man/man3)", "")
-        replace_in_file(
-            self, cmake_file, "INSTALL(FILES ${html} DESTINATION share/doc/pcre/html)", ""
-        )
+        replace_in_file(self, cmake_file, "INSTALL(FILES ${html} DESTINATION share/doc/pcre/html)", "")
         # Do not override CMAKE_MODULE_PATH and do not add ${PROJECT_SOURCE_DIR}/cmake
         # because it contains a custom FindPackageHandleStandardArgs.cmake which
         # can break conan generators
@@ -159,20 +155,13 @@ class PCREConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENCE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENCE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        suffix = (
-            "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        )
+        suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
 
         if self.options.build_pcre_8:
             # pcre

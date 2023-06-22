@@ -22,10 +22,7 @@ class LibisalConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    build_requires = (
-        "libtool/2.4.6",
-        "nasm/2.15.05",
-    )
+    build_requires = ("libtool/2.4.6", "nasm/2.15.05")
 
     def validate(self):
         if self.settings.arch not in ["x86", "x86_64", "armv8"]:
@@ -41,9 +38,7 @@ class LibisalConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def build(self):
@@ -61,9 +56,7 @@ class LibisalConan(ConanFile):
     def package(self):
         self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
         self.copy("*/isa-l.h", dst="include/isa-l", keep_path=False)
-        self.copy(
-            "*.h", dst="include/isa-l", src="%s/include" % (self._source_subfolder), keep_path=False
-        )
+        self.copy("*.h", dst="include/isa-l", src="%s/include" % (self._source_subfolder), keep_path=False)
         if self.options.shared:
             self.copy("*.dll", dst="bin", keep_path=False)
             self.copy("*.so*", dst="lib", keep_path=False, symlinks=True)

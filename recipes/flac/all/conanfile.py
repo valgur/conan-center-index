@@ -11,11 +11,7 @@ required_conan_version = ">=1.54.0"
 class FlacConan(ConanFile):
     name = "flac"
     description = "Free Lossless Audio Codec"
-    topics = (
-        "flac",
-        "codec",
-        "audio",
-    )
+    topics = ("flac", "codec", "audio")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xiph/flac"
     license = ("BSD-3-Clause", "GPL-2.0-or-later", "LPGL-2.1-or-later", "GFDL-1.2")
@@ -52,12 +48,7 @@ class FlacConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

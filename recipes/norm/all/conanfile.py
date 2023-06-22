@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 import os
 
 required_conan_version = ">=1.53.0"
@@ -67,12 +60,7 @@ class NormConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -91,9 +79,7 @@ class NormConan(ConanFile):
 
         if self.settings.os == "Windows":
             # system libs of protolib actually
-            self.cpp_info.system_libs.extend(
-                ["ws2_32", "iphlpapi", "user32", "gdi32", "advapi32", "ntdll"]
-            )
+            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi", "user32", "gdi32", "advapi32", "ntdll"])
         elif self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["dl", "rt"])
         if self.settings.os in ["Linux", "FreeBSD"]:

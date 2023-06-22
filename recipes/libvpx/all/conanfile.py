@@ -70,19 +70,9 @@ class LibVPXConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Windows shared builds are not supported")
-        if str(self.settings.compiler) not in [
-            "Visual Studio",
-            "msvc",
-            "gcc",
-            "clang",
-            "apple-clang",
-        ]:
+        if str(self.settings.compiler) not in ["Visual Studio", "msvc", "gcc", "clang", "apple-clang"]:
             raise ConanInvalidConfiguration(f"Unsupported compiler {self.settings.compiler}")
-        if (
-            self.settings.os == "Macos"
-            and self.settings.arch == "armv8"
-            and Version(self.version) < "1.10.0"
-        ):
+        if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration("M1 only supported since 1.10, please upgrade")
 
     def build_requirements(self):
@@ -128,7 +118,7 @@ class LibVPXConan(ConanFile):
             tc.configure_args.extend(
                 [
                     # "--enable-debug_libs",
-                    "--enable-debug",
+                    "--enable-debug"
                 ]
             )
 
@@ -257,10 +247,7 @@ class LibVPXConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
         autotools = Autotools(self)
         autotools.install()

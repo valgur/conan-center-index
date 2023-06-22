@@ -82,18 +82,12 @@ class BackwardCppConan(ConanFile):
             check_min_cppstd(self, 11)
         if self._has_stack_walking("libunwind"):
             if Version(self.version) < "1.6":
-                raise ConanInvalidConfiguration(
-                    "Support for libunwind is only available as of 1.6."
-                )
+                raise ConanInvalidConfiguration("Support for libunwind is only available as of 1.6.")
             if self.settings.os == "Windows":
-                raise ConanInvalidConfiguration(
-                    "Support for libunwind is only available on Linux and macOS."
-                )
+                raise ConanInvalidConfiguration("Support for libunwind is only available on Linux and macOS.")
         if self.settings.os == "Macos":
             if self.settings.arch == "armv8" and Version(self.version) < "1.6":
-                raise ConanInvalidConfiguration(
-                    "Support for Apple Silicon is only available as of 1.6."
-                )
+                raise ConanInvalidConfiguration("Support for Apple Silicon is only available as of 1.6.")
             if not self._has_stack_details("backtrace_symbol"):
                 raise ConanInvalidConfiguration(
                     "Stack details other than backtrace_symbol are not supported on macOS."
@@ -126,12 +120,7 @@ class BackwardCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "backward"))
@@ -140,15 +129,9 @@ class BackwardCppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Backward")
         self.cpp_info.set_property("cmake_target_name", "Backward::Backward")
 
-        self.cpp_info.defines.append(
-            f"BACKWARD_HAS_UNWIND={int(self._has_stack_walking('unwind'))}"
-        )
-        self.cpp_info.defines.append(
-            f"BACKWARD_HAS_LIBUNWIND={int(self._has_stack_walking('libunwind'))}"
-        )
-        self.cpp_info.defines.append(
-            f"BACKWARD_HAS_BACKTRACE={int(self._has_stack_walking('backtrace'))}"
-        )
+        self.cpp_info.defines.append(f"BACKWARD_HAS_UNWIND={int(self._has_stack_walking('unwind'))}")
+        self.cpp_info.defines.append(f"BACKWARD_HAS_LIBUNWIND={int(self._has_stack_walking('libunwind'))}")
+        self.cpp_info.defines.append(f"BACKWARD_HAS_BACKTRACE={int(self._has_stack_walking('backtrace'))}")
 
         self.cpp_info.defines.append(
             f"BACKWARD_HAS_BACKTRACE_SYMBOL={int(self._has_stack_details('backtrace_symbol'))}"
@@ -156,9 +139,7 @@ class BackwardCppConan(ConanFile):
         self.cpp_info.defines.append(f"BACKWARD_HAS_DW={int(self._has_stack_details('dw'))}")
         self.cpp_info.defines.append(f"BACKWARD_HAS_BFD={int(self._has_stack_details('bfd'))}")
         self.cpp_info.defines.append(f"BACKWARD_HAS_DWARF={int(self._has_stack_details('dwarf'))}")
-        self.cpp_info.defines.append(
-            f"BACKWARD_HAS_PDB_SYMBOL={int(self.settings.os == 'Windows')}"
-        )
+        self.cpp_info.defines.append(f"BACKWARD_HAS_PDB_SYMBOL={int(self.settings.os == 'Windows')}")
 
         self.cpp_info.libs = ["backward"]
         if self.settings.os == "Linux":

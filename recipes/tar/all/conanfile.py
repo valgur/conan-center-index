@@ -7,7 +7,9 @@ required_conan_version = ">=1.33.0"
 
 class TarConan(ConanFile):
     name = "tar"
-    description = "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
+    description = (
+        "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
+    )
     topics = "archive"
     license = "GPL-3-or-later"
     homepage = "https://www.gnu.org/software/tar/"
@@ -42,9 +44,7 @@ class TarConan(ConanFile):
 
     def source(self):
         tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True
+            **self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True
         )
 
     def _configure_autotools(self):
