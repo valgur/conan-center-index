@@ -221,7 +221,13 @@ class DaggyConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses", keep_path=False)
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["DaggyCore"]

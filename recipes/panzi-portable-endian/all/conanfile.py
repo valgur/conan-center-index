@@ -100,8 +100,14 @@ class PanziPortableEndian(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "LICENSE", dst="licenses")
-        copy(self, pattern="*.h", dst="include", src=self.source_folder, keep_path=False)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+            keep_path=False,
+        )
 
     def package_id(self):
         self.info.header_only()

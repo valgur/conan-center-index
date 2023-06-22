@@ -138,7 +138,7 @@ class RgEtc1Conan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         self._extract_license()
-        copy(self, pattern="LICENSE", dst="licenses")
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

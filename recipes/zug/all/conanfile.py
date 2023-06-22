@@ -198,7 +198,9 @@ class ZugConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

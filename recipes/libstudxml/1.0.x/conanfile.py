@@ -232,26 +232,60 @@ class LibStudXmlConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "xml/value-traits", dst="include", src=self.source_folder)
-            copy(self, "xml/serializer", dst="include", src=self.source_folder)
-            copy(self, "xml/qname", dst="include", src=self.source_folder)
-            copy(self, "xml/parser", dst="include", src=self.source_folder)
-            copy(self, "xml/forward", dst="include", src=self.source_folder)
-            copy(self, "xml/exception", dst="include", src=self.source_folder)
-            copy(self, "xml/content", dst="include", src=self.source_folder)
-            copy(self, "xml/*.ixx", dst="include", src=self.source_folder)
-            copy(self, "xml/*.txx", dst="include", src=self.source_folder)
-            copy(self, "xml/*.hxx", dst="include", src=self.source_folder)
-            copy(self, "xml/*.h", dst="include", src=self.source_folder)
+            copy(
+                self,
+                "xml/value-traits",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.source_folder,
+            )
+            copy(
+                self,
+                "xml/serializer",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.source_folder,
+            )
+            copy(self, "xml/qname", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(self, "xml/parser", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(
+                self, "xml/forward", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
+            )
+            copy(
+                self,
+                "xml/exception",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.source_folder,
+            )
+            copy(
+                self, "xml/content", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
+            )
+            copy(self, "xml/*.ixx", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(self, "xml/*.txx", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(self, "xml/*.hxx", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(self, "xml/*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
             suffix = ""
             if self.settings.arch == "x86_64":
                 suffix = "64"
             if self.options.shared:
-                copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "lib" + suffix))
-                copy(self, "*.dll", dst="bin", src=os.path.join(self.source_folder, "bin" + suffix))
+                copy(
+                    self,
+                    "*.lib",
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=os.path.join(self.source_folder, "lib" + suffix),
+                )
+                copy(
+                    self,
+                    "*.dll",
+                    dst=os.path.join(self.package_folder, "bin"),
+                    src=os.path.join(self.source_folder, "bin" + suffix),
+                )
             else:
-                copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "bin" + suffix))
+                copy(
+                    self,
+                    "*.lib",
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=os.path.join(self.source_folder, "bin" + suffix),
+                )
         else:
             autotools = self._configure_autotools()
             autotools.install()

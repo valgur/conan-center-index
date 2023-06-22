@@ -162,7 +162,7 @@ class PbcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", dst="licenses")
+        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"))
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

@@ -128,7 +128,7 @@ class DiConan(ConanFile):
         os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        copy(self, "BSL-1.0.txt", src="", dst="licenses")
+        copy(self, "BSL-1.0.txt", src="", dst=os.path.join(self.package_folder, "licenses"))
         if self.options.with_extensions:
             copy(
                 self,

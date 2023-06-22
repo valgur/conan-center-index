@@ -208,7 +208,12 @@ class ElfutilsConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING*", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "etc"))

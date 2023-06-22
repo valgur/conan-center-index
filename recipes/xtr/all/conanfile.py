@@ -198,10 +198,10 @@ class XtrConan(ConanFile):
         autotools.make(vars=env_build_vars, target="xtrctl")
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses")
-        copy(self, "*.hpp", src="include", dst="include")
-        copy(self, "*/libxtr.a", src="build", dst="lib", keep_path=False)
-        copy(self, "*/xtrctl", src="build", dst="bin", keep_path=False)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.hpp", src="include", dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*/libxtr.a", src="build", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*/xtrctl", src="build", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
 
         rmdir(self, os.path.join(self.package_folder, "man"))
 

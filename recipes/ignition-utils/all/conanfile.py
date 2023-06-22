@@ -179,13 +179,18 @@ class IgnitionUitlsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cli_header_src = os.path.join(self.source_folder, "cli", "include")
         if int(Version(self.version).minor) == 0:
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")
         else:
             cli_header_src = os.path.join(cli_header_src, "external-cli", "ignition", "utils", "cli")
-        copy(self, "*.hpp", src=cli_header_src, dst="include/ignition/utils1/ignition/utils/cli")
+        copy(
+            self,
+            "*.hpp",
+            src=cli_header_src,
+            dst=os.path.join(self.package_folder, "include/ignition/utils1/ignition/utils/cli"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

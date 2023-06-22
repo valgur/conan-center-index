@@ -135,13 +135,32 @@ class EazylzmaConan(ConanFile):
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
-        copy(self, pattern="*.dylib*", dst="lib", src="lib", keep_path=False, symlinks=True)
-        copy(self, pattern="*.so*", dst="lib", src="lib", keep_path=False, symlinks=True)
-        copy(self, pattern="*.dll", dst="bin", src="bin", keep_path=False)
-        copy(self, pattern="*.a", dst="lib", src="lib", keep_path=False)
-        copy(self, pattern="*.lib", dst="lib", src="lib", keep_path=False)
+        copy(
+            self,
+            pattern="*.dylib*",
+            dst=os.path.join(self.package_folder, "lib"),
+            src="lib",
+            keep_path=False,
+            symlinks=True,
+        )
+        copy(
+            self,
+            pattern="*.so*",
+            dst=os.path.join(self.package_folder, "lib"),
+            src="lib",
+            keep_path=False,
+            symlinks=True,
+        )
+        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src="bin", keep_path=False)
+        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src="lib", keep_path=False)
+        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src="lib", keep_path=False)
 
-        copy(self, "easylzma/*", dst="include", src=os.path.join(self.source_folder, "src"))
+        copy(
+            self,
+            "easylzma/*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "src"),
+        )
 
     def package_info(self):
         self.cpp_info.libs = [self._libname]

@@ -148,8 +148,14 @@ class PciUtilsConan(ConanFile):
         with chdir(self.source_folder):
             self._make(["install", "install-pcilib"])
 
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
-        copy(self, "*.h", src=self.source_folder, dst="include", keep_path=True)
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
+        )
 
         if self.options.shared:
             rename(

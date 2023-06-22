@@ -198,9 +198,14 @@ class PremakeConan(ConanFile):
                 env_build.make(target="Premake5", args=["verbose=1", "config={}".format(self._gmake_config)])
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*premake5.exe", dst="bin", keep_path=False)
-        copy(self, pattern="*premake5", dst="bin", keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(self, pattern="*premake5.exe", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, pattern="*premake5", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

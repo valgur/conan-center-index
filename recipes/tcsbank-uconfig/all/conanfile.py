@@ -138,9 +138,19 @@ class TCSBankUconfigConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.ipp", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.ipp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "uconfig"

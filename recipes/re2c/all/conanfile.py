@@ -157,8 +157,20 @@ class Re2CConan(ConanFile):
             autotools.make(args=["V=1"])
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses", keep_path=False)
-        copy(self, "NO_WARRANTY", src=self.source_folder, dst="licenses", keep_path=False)
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "NO_WARRANTY",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()

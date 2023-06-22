@@ -324,7 +324,12 @@ class ogrecmakeconan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, pattern="License.md", dst="licenses", src=os.path.join(self.source_folder, "Docs"))
+        copy(
+            self,
+            pattern="License.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "Docs"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "OGRE", "cmake"))

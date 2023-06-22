@@ -140,13 +140,13 @@ class RectangleBinPackConan(ConanFile):
         tc.generate()
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses")
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", dst=os.path.join("include", self.name), src=self.source_folder, excludes="old/**")
-        copy(self, "*.dll", dst="bin", keep_path=False)
-        copy(self, "*.lib", dst="lib", keep_path=False)
-        copy(self, "*.so", dst="lib", keep_path=False)
-        copy(self, "*.dylib", dst="lib", keep_path=False)
-        copy(self, "*.a", dst="lib", keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.so", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["RectangleBinPack"]

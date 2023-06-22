@@ -110,9 +110,21 @@ class PprintConan(ConanFile):
         os.rename("{}-{}".format(self.name, self.version), self.source_folder)
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
-        copy(self, pattern="*.h", src=os.path.join(self.source_folder, "include"), dst="include")
-        copy(self, pattern="*.hpp", src=os.path.join(self.source_folder, "include"), dst="include")
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
+        copy(
+            self,
+            pattern="*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_id(self):
         self.info.header_only()

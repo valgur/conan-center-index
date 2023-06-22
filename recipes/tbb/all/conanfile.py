@@ -295,18 +295,58 @@ class TBBConan(ConanFile):
                 self.run("%s %s %s" % (make, extra, " ".join(targets)))
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*.h", dst="include", src="%s/include" % self.source_folder)
-        copy(self, pattern="*", dst="include/tbb/compat", src="%s/include/tbb/compat" % self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src="%s/include" % self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include/tbb/compat"),
+            src="%s/include/tbb/compat" % self.source_folder,
+        )
         build_folder = "%s/build/" % self.source_folder
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
-        copy(self, pattern="*%s*.lib" % build_type, dst="lib", src=build_folder, keep_path=False)
-        copy(self, pattern="*%s*.a" % build_type, dst="lib", src=build_folder, keep_path=False)
-        copy(self, pattern="*%s*.dll" % build_type, dst="bin", src=build_folder, keep_path=False)
-        copy(self, pattern="*%s*.dylib" % build_type, dst="lib", src=build_folder, keep_path=False)
+        copy(
+            self,
+            pattern="*%s*.lib" % build_type,
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*%s*.a" % build_type,
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*%s*.dll" % build_type,
+            dst=os.path.join(self.package_folder, "bin"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*%s*.dylib" % build_type,
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
         # Copy also .dlls to lib folder so consumers can link against them directly when using MinGW
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            copy(self, "*%s*.dll" % build_type, dst="lib", src=build_folder, keep_path=False)
+            copy(
+                self,
+                "*%s*.dll" % build_type,
+                dst=os.path.join(self.package_folder, "lib"),
+                src=build_folder,
+                keep_path=False,
+            )
 
         if self.settings.os == "Linux":
             extension = "so"

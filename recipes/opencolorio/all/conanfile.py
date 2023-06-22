@@ -191,7 +191,12 @@ class OpenColorIOConan(ConanFile):
         cmake.install()
 
         if not self.options.shared:
-            copy(self, "*", src=os.path.join(self.package_folder, "lib", "static"), dst="lib")
+            copy(
+                self,
+                "*",
+                src=os.path.join(self.package_folder, "lib", "static"),
+                dst=os.path.join(self.package_folder, "lib"),
+            )
             rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -203,7 +208,7 @@ class OpenColorIOConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
 
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenColorIO")

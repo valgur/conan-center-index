@@ -112,8 +112,14 @@ class PackageConan(ConanFile):
         if self.settings.os != "Windows":
             bin_path = os.path.join(self.source_folder, "objectbox-generator")
             os.chmod(bin_path, os.stat(bin_path).st_mode | 0o111)
-        copy(self, "objectbox-generator*", src=self.source_folder, dst="bin", keep_path=False)
-        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            "objectbox-generator*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         binpath = os.path.join(self.package_folder, "bin")

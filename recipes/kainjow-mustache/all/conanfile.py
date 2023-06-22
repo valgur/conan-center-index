@@ -96,7 +96,7 @@ class KainjowMustacheConan(ConanFile):
         os.rename("Mustache-{}".format(self.version), self.source_folder)
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "mustache.hpp", dst=os.path.join("include", "kainjow"), src=self.source_folder)
 
     def package_id(self):

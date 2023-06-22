@@ -157,15 +157,20 @@ class DetoursConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(
                 self,
                 "detours.lib",
                 src=os.path.join(self.source_folder, f"lib.{self._target_processor}"),
-                dst="lib",
+                dst=os.path.join(self.package_folder, "lib"),
             )
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst="include")
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
         else:
             cmake = CMake(self)
             cmake.install()

@@ -96,8 +96,13 @@ class LestConan(ConanFile):
         os.rename(self.name + "-" + self.version, self.source_folder)
 
     def package(self):
-        copy(self, "LICENSE.txt", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_id(self):
         self.info.header_only()

@@ -165,7 +165,7 @@ class DiligentFxConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "License.txt", dst="licenses", src=self.source_folder)
+        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rename(
             self,
             src=os.path.join(self.package_folder, "include", "source_subfolder"),
@@ -175,10 +175,34 @@ class DiligentFxConan(ConanFile):
             os.path.join(self.package_folder, "Shaders"), os.path.join(self.package_folder, "res", "Shaders")
         )
 
-        copy(self, pattern="*.dll", src=self.build_folder, dst="bin", keep_path=False)
-        copy(self, pattern="*.dylib", src=self.build_folder, dst="lib", keep_path=False)
-        copy(self, pattern="*.lib", src=self.build_folder, dst="lib", keep_path=False)
-        copy(self, pattern="*.a", src=self.build_folder, dst="lib", keep_path=False)
+        copy(
+            self,
+            pattern="*.dll",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.lib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

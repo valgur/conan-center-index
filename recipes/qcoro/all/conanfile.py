@@ -180,7 +180,12 @@ class QCoroConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "*", dst="licenses", src=os.path.join(self.source_folder, "LICENSES"))
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "LICENSES"),
+        )
         cmake = CMake(self)
         cmake.install()
 

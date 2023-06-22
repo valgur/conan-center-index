@@ -162,7 +162,9 @@ class StructoptConan(ConanFile):
         rmdir(self, os.path.join(self.source_folder, "include", "structopt", "third_party"))
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -138,16 +138,22 @@ class ForestDBConan(ConanFile):
         cmake.build(target=lib_target)
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses/", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses/"), src=self.source_folder)
         # Parent Build system does not support library type selection
         # and will only install the shared object from cmake; so we must
         # handpick our libraries.
-        copy(self, "*.a*", dst="lib", src="lib")
-        copy(self, "*.lib", dst="lib", src="lib")
-        copy(self, "*.so*", dst="lib", src="lib", symlinks=True)
-        copy(self, "*.dylib*", dst="lib", src="lib", symlinks=True)
-        copy(self, "*.dll*", dst="lib", src="lib")
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"), keep_path=True)
+        copy(self, "*.a*", dst=os.path.join(self.package_folder, "lib"), src="lib")
+        copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), src="lib")
+        copy(self, "*.so*", dst=os.path.join(self.package_folder, "lib"), src="lib", symlinks=True)
+        copy(self, "*.dylib*", dst=os.path.join(self.package_folder, "lib"), src="lib", symlinks=True)
+        copy(self, "*.dll*", dst=os.path.join(self.package_folder, "lib"), src="lib")
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+            keep_path=True,
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]

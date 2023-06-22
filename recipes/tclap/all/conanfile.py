@@ -95,9 +95,13 @@ class TclapConan(ConanFile):
         os.rename(self.name + "-" + self.version, self.source_folder)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
-            self, pattern="*", src=os.path.join(self.source_folder, "include"), dst="include", keep_path=True
+            self,
+            pattern="*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
         )
 
     def package_info(self):

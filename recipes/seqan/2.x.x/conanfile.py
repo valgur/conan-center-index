@@ -131,8 +131,14 @@ SeqAn is easy to use and simplifies the development of new software tools with a
         os.rename(extracted_dir, self.source_folder)
 
     def package(self):
-        copy(self, "*", dst="include", src=os.path.join(self.source_folder, "include"), keep_path=True)
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+            keep_path=True,
+        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

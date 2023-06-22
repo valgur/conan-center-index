@@ -155,9 +155,24 @@ class ConanXqilla(ConanFile):
             self.run(self._make_cmd)
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
-        copy(self, "GPLv2", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
-        copy(self, "FLOSSE", dst="licenses", src=os.path.join(self.source_folder, "xsd"))
+        copy(
+            self,
+            "LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "xsd"),
+        )
+        copy(
+            self,
+            "GPLv2",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "xsd"),
+        )
+        copy(
+            self,
+            "FLOSSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "xsd"),
+        )
 
         with chdir(self.source_folder):
             self.run(self._make_install_cmd)

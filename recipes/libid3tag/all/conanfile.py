@@ -186,12 +186,23 @@ class LibId3TagConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def package(self):
-        copy(self, "COPYRIGHT", dst="licenses", src=self.source_folder)
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
-        copy(self, "CREDITS", dst="licenses", src=self.source_folder)
+        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "CREDITS", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
-            copy(self, pattern="*.lib", dst="lib", src=self.source_folder, keep_path=False)
-            copy(self, pattern="id3tag.h", dst="include", src=self.source_folder)
+            copy(
+                self,
+                pattern="*.lib",
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.source_folder,
+                keep_path=False,
+            )
+            copy(
+                self,
+                pattern="id3tag.h",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.source_folder,
+            )
         else:
             self._install_autotools()
 

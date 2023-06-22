@@ -287,7 +287,7 @@ class PangommConan(ConanFile):
         return meson
 
     def package(self):
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = self._configure_meson()
         meson.install()
 

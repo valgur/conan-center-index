@@ -168,7 +168,7 @@ class LogrConan(ConanFile):
             raise ConanInvalidConfiguration("backend='log4cplus-unicode' requires log4cplus:unicode=True")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

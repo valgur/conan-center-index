@@ -62,17 +62,17 @@ class GoogleGuetzliConan(ConanFile):
             copy(
                 self,
                 os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
-                dst="bin",
+                dst=os.path.join(self.package_folder, "bin"),
                 keep_path=False,
             )
         else:
             copy(
                 self,
                 os.path.join(self.source_folder, "bin", "Release", "guetzli"),
-                dst="bin",
+                dst=os.path.join(self.package_folder, "bin"),
                 keep_path=False,
             )
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_id(self):
         del self.info.settings.compiler

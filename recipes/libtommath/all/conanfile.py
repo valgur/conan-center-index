@@ -189,13 +189,13 @@ class LibTomMathConan(ConanFile):
         self._run_makefile()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             # The mingw makefile uses `cmd`, which is only available on Windows
-            copy(self, "*.a", src=self.source_folder, dst="lib")
-            copy(self, "*.lib", src=self.source_folder, dst="lib")
-            copy(self, "*.dll", src=self.source_folder, dst="bin")
-            copy(self, "tommath.h", src=self.source_folder, dst="include")
+            copy(self, "*.a", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+            copy(self, "tommath.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
         else:
             self._run_makefile("install")
 

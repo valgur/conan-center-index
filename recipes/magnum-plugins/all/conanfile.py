@@ -410,7 +410,7 @@ class MagnumConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "MagnumPlugins"

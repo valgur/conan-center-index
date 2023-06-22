@@ -151,5 +151,5 @@ class PlatformExceptionsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*.h", dst="include", src=self._internal_cpp_subfolder)
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=self._internal_cpp_subfolder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

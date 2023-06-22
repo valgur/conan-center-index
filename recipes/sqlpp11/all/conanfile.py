@@ -132,9 +132,19 @@ class Sqlpp11Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*", dst="bin", src=os.path.join(self.source_folder, "scripts"))
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "scripts"),
+        )
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "Sqlpp11"

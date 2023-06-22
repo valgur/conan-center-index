@@ -204,10 +204,15 @@ class PDCursesConan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         if self.settings.os == "Windows":
-            copy(self, pattern="curses.h", src=self.source_folder, dst="include")
-            copy(self, pattern="*.dll", dst="bin", keep_path=False)
-            copy(self, pattern="*.lib", dst="lib", keep_path=False)
-            copy(self, pattern="*.a", dst="lib", keep_path=False)
+            copy(
+                self,
+                pattern="curses.h",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
             if self.settings.compiler != "Visual Studio":
                 os.rename(

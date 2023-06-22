@@ -234,7 +234,7 @@ class GiflibConan(ConanFile):
         copy(
             self,
             pattern="COPYING*",
-            dst="licenses",
+            dst=os.path.join(self.package_folder, "licenses"),
             src=self.source_folder,
             ignore_case=True,
             keep_path=False,

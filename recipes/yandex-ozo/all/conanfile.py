@@ -135,7 +135,7 @@ class YandexOzoConan(ConanFile):
             dst=os.path.join("include", "ozo"),
             src=os.path.join(self.source_folder, "include", "ozo"),
         )
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         main_comp = self.cpp_info.components["_ozo"]

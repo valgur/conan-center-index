@@ -200,10 +200,25 @@ class GodotCppConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE*", dst="licenses", src=self.source_folder)
-        copy(self, "*.hpp", dst="include/godot-cpp", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.a", dst="lib", src=os.path.join(self.source_folder, "bin"))
-        copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "bin"))
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include/godot-cpp"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "bin"),
+        )
+        copy(
+            self,
+            "*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "bin"),
+        )
 
     def package_info(self):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":

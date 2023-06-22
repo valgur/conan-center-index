@@ -123,8 +123,10 @@ class DepotToolsConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*", dst="bin", src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(self, pattern="*", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
         self._fix_permissions()
 
     def _fix_permissions(self):

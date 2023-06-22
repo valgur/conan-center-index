@@ -113,8 +113,13 @@ class ProCxxBoostExSimdConan(ConanFile):
         os.rename(extracted_folder, self.source_folder)
 
     def package(self):
-        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         # this technique was inspired by conan-center's "boost-ex-ut" recipe,

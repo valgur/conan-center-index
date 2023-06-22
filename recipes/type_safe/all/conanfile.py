@@ -111,8 +111,13 @@ class TypeSafe(ConanFile):
             check_min_cppstd(self, "11")
 
     def package(self):
-        copy(self, "*LICENSE", dst="licenses", keep_path=False)
-        copy(self, "*", src=os.path.join(self._repo_folder, "include"), dst="include/")
+        copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self,
+            "*",
+            src=os.path.join(self._repo_folder, "include"),
+            dst=os.path.join(self.package_folder, "include/"),
+        )
 
     def package_id(self):
         self.info.header_only()

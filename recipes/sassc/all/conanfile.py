@@ -155,11 +155,17 @@ class SasscConan(ConanFile):
     def package(self):
         with chdir(self, self.source_folder):
             if is_msvc(self):
-                copy(self, "*.exe", dst="bin", src=os.path.join(self.source_folder, "bin"), keep_path=False)
+                copy(
+                    self,
+                    "*.exe",
+                    dst=os.path.join(self.package_folder, "bin"),
+                    src=os.path.join(self.source_folder, "bin"),
+                    keep_path=False,
+                )
             else:
                 autotools = self._configure_autotools()
                 autotools.install()
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

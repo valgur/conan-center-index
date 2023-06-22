@@ -195,17 +195,49 @@ class LibsassConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def _install_mingw(self):
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.dll", dst="bin", src=os.path.join(self.source_folder, "lib"))
-        copy(self, "*.a", dst="lib", src=os.path.join(self.source_folder, "lib"))
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "lib"),
+        )
+        copy(
+            self,
+            "*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "lib"),
+        )
 
     def _install_visual_studio(self):
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.dll", dst="bin", src=os.path.join(self.source_folder, "win", "bin"), keep_path=False)
-        copy(self, "*.lib", dst="lib", src=os.path.join(self.source_folder, "win", "bin"), keep_path=False)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "win", "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "win", "bin"),
+            keep_path=False,
+        )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self._is_mingw:
             self._install_mingw()
         elif is_msvc(self):

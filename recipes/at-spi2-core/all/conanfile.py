@@ -169,7 +169,9 @@ class AtSpi2CoreConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         meson = self._configure_meson()
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

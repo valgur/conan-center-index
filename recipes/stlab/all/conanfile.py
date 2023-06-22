@@ -250,8 +250,8 @@ class Stlab(ConanFile):
         self.output.info("Stlab Task System: {}.".format(self.options.task_system))
 
     def package(self):
-        copy(self, "*LICENSE", dst="licenses", keep_path=False)
-        copy(self, "stlab/*", src=self.source_folder, dst="include/")
+        copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(self, "stlab/*", src=self.source_folder, dst=os.path.join(self.package_folder, "include/"))
 
     def package_id(self):
         self.info.header_only()

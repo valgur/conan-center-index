@@ -106,8 +106,8 @@ class UaNodeSetConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "*", dst="res", src=self.source_folder)
-        copy(self, "LICENSE", dst="licenses")
+        copy(self, "*", dst=os.path.join(self.package_folder, "res"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

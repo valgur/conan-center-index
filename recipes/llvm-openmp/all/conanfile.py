@@ -179,7 +179,12 @@ class LLVMOpenMpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", src=self.source_folder, dst="licenses")
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

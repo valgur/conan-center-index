@@ -146,7 +146,9 @@ class OpenMPIConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         with chdir(self.source_folder):
             autotools = self._configure_autotools()
             autotools.install()

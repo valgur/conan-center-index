@@ -199,9 +199,19 @@ class GnConan(ConanFile):
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
-        copy(self, "gn", src=os.path.join(self.source_folder, "out"), dst="bin")
-        copy(self, "gn.exe", src=os.path.join(self.source_folder, "out"), dst="bin")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "gn",
+            src=os.path.join(self.source_folder, "out"),
+            dst=os.path.join(self.package_folder, "bin"),
+        )
+        copy(
+            self,
+            "gn.exe",
+            src=os.path.join(self.source_folder, "out"),
+            dst=os.path.join(self.package_folder, "bin"),
+        )
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

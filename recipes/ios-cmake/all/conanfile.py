@@ -163,7 +163,7 @@ class IosCMakeConan(ConanFile):
         pass  # there is nothing to build
 
     def package(self):
-        copy(self, "cmake-wrapper", dst="bin")
+        copy(self, "cmake-wrapper", dst=os.path.join(self.package_folder, "bin"))
         copy(
             self,
             "ios.toolchain.cmake",
@@ -173,7 +173,13 @@ class IosCMakeConan(ConanFile):
         )
         self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
 
-        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder, keep_path=False)
+        copy(
+            self,
+            "LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+            keep_path=False,
+        )
         # satisfy KB-H014 (header_only recipes require headers)
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 

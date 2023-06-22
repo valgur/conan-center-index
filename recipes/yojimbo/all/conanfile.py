@@ -201,11 +201,18 @@ class YojimboConan(ConanFile):
                 env_build.make(args=["config=%s" % config])
 
     def package(self):
-        copy(self, pattern="LICENCE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="yojimbo.h", dst="include", src=self.source_folder)
+        copy(
+            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="yojimbo.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+        )
 
-        copy(self, pattern="*/yojimbo.lib", dst="lib", keep_path=False)
-        copy(self, pattern="*/libyojimbo.a", dst="lib", keep_path=False)
+        copy(self, pattern="*/yojimbo.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, pattern="*/libyojimbo.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

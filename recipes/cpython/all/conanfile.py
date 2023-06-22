@@ -747,7 +747,7 @@ class CPythonConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.compiler == "Visual Studio":
             if self._is_py2 or not self.options.shared:
                 self._msvc_package_copy()

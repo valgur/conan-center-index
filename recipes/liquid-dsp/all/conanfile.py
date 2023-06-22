@@ -234,15 +234,27 @@ class LiquidDspConan(ConanFile):
             self._gen_link_library()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         copy(
             self,
             pattern="liquid.h",
             dst=os.path.join("include", "liquid"),
             src=os.path.join(self.source_folder, "include"),
         )
-        copy(self, pattern="libliquid.dll", dst="bin", src=self.source_folder)
-        copy(self, pattern=self._lib_pattern, dst="lib", src=self.source_folder)
+        copy(
+            self,
+            pattern="libliquid.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern=self._lib_pattern,
+            dst=os.path.join(self.package_folder, "lib"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.libs = [self._libname]

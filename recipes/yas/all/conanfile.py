@@ -102,8 +102,13 @@ class YasConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "LICENSE", dst="licenses")
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst="include")
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_id(self):
         self.info.header_only()

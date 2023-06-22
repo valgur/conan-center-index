@@ -146,22 +146,42 @@ class AGSConan(ConanFile):
 
     def package(self):
         ags_lib_path = os.path.join(self.source_folder, "ags_lib")
-        copy(self, "LICENSE.txt", dst="licenses", src=ags_lib_path)
-        copy(self, "*.h", dst="include", src=os.path.join(ags_lib_path, "inc"))
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=ags_lib_path)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(ags_lib_path, "inc"),
+        )
 
         if self.settings.compiler == "Visual Studio":
             win_arch = self._convert_arch_to_win_arch(self.settings.arch)
             if self.options.shared:
                 shared_lib = "amd_ags_{arch}.dll".format(arch=win_arch)
                 symbol_lib = "amd_ags_{arch}.lib".format(arch=win_arch)
-                copy(self, shared_lib, dst="bin", src=os.path.join(ags_lib_path, "lib"))
-                copy(self, symbol_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
+                copy(
+                    self,
+                    shared_lib,
+                    dst=os.path.join(self.package_folder, "bin"),
+                    src=os.path.join(ags_lib_path, "lib"),
+                )
+                copy(
+                    self,
+                    symbol_lib,
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=os.path.join(ags_lib_path, "lib"),
+                )
             else:
                 vs_version = self._convert_msvc_version_to_vs_version(self.settings.compiler.version)
                 static_lib = "amd_ags_{arch}_{vs_version}_{runtime}.lib".format(
                     arch=win_arch, vs_version=vs_version, runtime=self.settings.compiler.runtime
                 )
-                copy(self, static_lib, dst="lib", src=os.path.join(ags_lib_path, "lib"))
+                copy(
+                    self,
+                    static_lib,
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=os.path.join(ags_lib_path, "lib"),
+                )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

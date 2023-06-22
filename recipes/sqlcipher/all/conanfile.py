@@ -285,12 +285,12 @@ class SqlcipherConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def _package_visual(self):
-        copy(self, "*.dll", dst="bin", keep_path=False)
-        copy(self, "*.lib", dst="lib", keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
         copy(self, "sqlite3.h", src=self.source_folder, dst=os.path.join("include", "sqlcipher"))
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             self._package_visual()
         else:

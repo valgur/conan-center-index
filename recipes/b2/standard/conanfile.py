@@ -194,10 +194,15 @@ class B2Conan(ConanFile):
         self.run(full_command)
 
     def package(self):
-        copy(self, "LICENSE.txt", dst="licenses", src="source")
-        copy(self, pattern="*b2", dst="bin", src="output/bin")
-        copy(self, pattern="*b2.exe", dst="bin", src="output/bin")
-        copy(self, pattern="*.jam", dst="bin/b2_src", src="output/share/boost-build")
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src="source")
+        copy(self, pattern="*b2", dst=os.path.join(self.package_folder, "bin"), src="output/bin")
+        copy(self, pattern="*b2.exe", dst=os.path.join(self.package_folder, "bin"), src="output/bin")
+        copy(
+            self,
+            pattern="*.jam",
+            dst=os.path.join(self.package_folder, "bin/b2_src"),
+            src="output/share/boost-build",
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = ["bin"]

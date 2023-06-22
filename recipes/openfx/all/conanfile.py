@@ -141,9 +141,11 @@ class openfx(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        copy(self, "*.symbols", src="symbols", dst="lib/symbols")
-        copy(self, "*.cmake", src="cmake", dst="lib/cmake")
-        copy(self, "LICENSE", src="source_subfolder/Support", dst="licenses")
+        copy(self, "*.symbols", src="symbols", dst=os.path.join(self.package_folder, "lib/symbols"))
+        copy(self, "*.cmake", src="cmake", dst=os.path.join(self.package_folder, "lib/cmake"))
+        copy(
+            self, "LICENSE", src="source_subfolder/Support", dst=os.path.join(self.package_folder, "licenses")
+        )
         copy(self, "readme.md")
 
     def package_info(self):

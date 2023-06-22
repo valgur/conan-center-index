@@ -131,7 +131,7 @@ class HiredisConan(ConanFile):
             autoTools.make()
 
     def package(self):
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with chdir(self.source_folder):
             autoTools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autoTools.install(

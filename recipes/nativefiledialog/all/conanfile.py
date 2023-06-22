@@ -145,11 +145,29 @@ class NativefiledialogConan(ConanFile):
     def package(self):
         libname = "nfd_d" if self.settings.build_type == "Debug" else "nfd"
         if self.settings.compiler == "Visual Studio":
-            copy(self, "*%s.lib" % libname, dst="lib", src=self.source_folder, keep_path=False)
+            copy(
+                self,
+                "*%s.lib" % libname,
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.source_folder,
+                keep_path=False,
+            )
         else:
-            copy(self, "*%s.a" % libname, dst="lib", src=self.source_folder, keep_path=False)
-        copy(self, "*nfd.h", dst="include", src=self.source_folder, keep_path=False)
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+            copy(
+                self,
+                "*%s.a" % libname,
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.source_folder,
+                keep_path=False,
+            )
+        copy(
+            self,
+            "*nfd.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+            keep_path=False,
+        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["nfd_d" if self.settings.build_type == "Debug" else "nfd"]

@@ -121,7 +121,7 @@ class TinyAlsaConan(ConanFile):
             env_build.make()
 
     def package(self):
-        copy(self, "NOTICE", dst="licenses", src=self.source_folder)
+        copy(self, "NOTICE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         with chdir(self.source_folder):
             env_build = AutoToolsBuildEnvironment(self)

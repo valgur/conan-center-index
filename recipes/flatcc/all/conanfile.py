@@ -175,7 +175,7 @@ class FlatccConan(ConanFile):
                 os.path.join(self.package_folder, "bin", "flatcc"),
             )
         # Copy license file
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

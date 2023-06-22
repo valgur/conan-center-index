@@ -190,7 +190,7 @@ class SubunitConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
             autotools = self._configure_autotools()
             # Avoid installing i18n + perl things in arch-dependent folders or in a `local` subfolder

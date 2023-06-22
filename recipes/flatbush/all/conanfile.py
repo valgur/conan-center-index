@@ -94,8 +94,8 @@ class FlatbushConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses")
-        copy(self, pattern="flatbush.h", dst="include")
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="flatbush.h", dst=os.path.join(self.package_folder, "include"))
 
     def package_id(self):
         self.info.header_only()

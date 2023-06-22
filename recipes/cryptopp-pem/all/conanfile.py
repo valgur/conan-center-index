@@ -197,7 +197,7 @@ class CryptoPPPEMConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="UNLICENSE", dst="licenses")
+        copy(self, pattern="UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

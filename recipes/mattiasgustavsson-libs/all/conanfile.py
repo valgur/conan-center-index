@@ -108,10 +108,10 @@ class MattiasgustavssonLibsConan(ConanFile):
         save(self, "LICENSE_UNLICENSE", unlicense_content)
 
     def package(self):
-        copy(self, pattern="*.h", dst="include", src=self.source_folder)
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         self._extract_licenses()
-        copy(self, "LICENSE_MIT", dst="licenses")
-        copy(self, "LICENSE_UNLICENSE", dst="licenses")
+        copy(self, "LICENSE_MIT", dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE_UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_id(self):
         self.info.header_only()

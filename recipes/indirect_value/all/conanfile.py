@@ -136,8 +136,13 @@ class IndirectValueConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="indirect_value.*", dst="include", src=self.source_folder)
-        copy(self, "*LICENSE*", dst="licenses", keep_path=False)
+        copy(
+            self,
+            pattern="indirect_value.*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+        )
+        copy(self, "*LICENSE*", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "indirect_value")

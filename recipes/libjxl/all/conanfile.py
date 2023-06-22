@@ -159,7 +159,7 @@ class LibjxlConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         if self.options.shared:
@@ -168,14 +168,14 @@ class LibjxlConan(ConanFile):
             rm(self, "*-static.lib", libs_dir, recursive=True)
 
             if self.settings.os == "Windows":
-                copy(self, "jxl_dec.dll", src="bin", dst="bin")
-                copy(self, "jxl_dec.lib", src="lib", dst="lib")
+                copy(self, "jxl_dec.dll", src="bin", dst=os.path.join(self.package_folder, "bin"))
+                copy(self, "jxl_dec.lib", src="lib", dst=os.path.join(self.package_folder, "lib"))
                 for dll_path in glob.glob(os.path.join(libs_dir, "*.dll")):
                     shutil.move(
                         dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path))
                     )
             else:
-                copy(self, "libjxl_dec.*", src="lib", dst="lib")
+                copy(self, "libjxl_dec.*", src="lib", dst=os.path.join(self.package_folder, "lib"))
 
     def _lib_name(self, name):
         if not self.options.shared and self.settings.os == "Windows":

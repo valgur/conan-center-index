@@ -380,7 +380,9 @@ class JemallocConan(ConanFile):
         return libname
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         if self.settings.compiler == "Visual Studio":
             arch_subdir = {
                 "x86_64": "x64",

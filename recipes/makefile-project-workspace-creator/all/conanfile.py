@@ -101,8 +101,13 @@ class MPCGeneratorConan(ConanFile):
         os.rename("MPC-MPC_" + self.version.replace(".", "_"), self.source_folder)
 
     def package(self):
-        copy(self, pattern="*", src=self.source_folder, dst="bin")
-        copy(self, pattern="LICENSE", src=os.path.join(self.source_folder, "docs"), dst="licenses")
+        copy(self, pattern="*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        copy(
+            self,
+            pattern="LICENSE",
+            src=os.path.join(self.source_folder, "docs"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

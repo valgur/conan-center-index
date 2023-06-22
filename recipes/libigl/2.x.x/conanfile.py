@@ -197,8 +197,8 @@ class LibiglConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE.GPL", dst="licenses", src=self.source_folder)
-        copy(self, "LICENSE.MPL2", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE.GPL", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.MPL2", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         if not self.options.header_only:

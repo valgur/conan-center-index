@@ -375,7 +375,12 @@ class MingwConan(ConanFile):
         self.output.info("Building done!")
 
     def package(self):
-        copy(self, "COPYING", src=os.path.join(self.build_folder, "sources", "mingw-w64"), dst="licenses")
+        copy(
+            self,
+            "COPYING",
+            src=os.path.join(self.build_folder, "sources", "mingw-w64"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))

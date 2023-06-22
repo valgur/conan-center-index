@@ -202,10 +202,25 @@ class OfeliConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "*libofeli.a", dst="lib", src=os.path.join(self.source_folder, "src"))
-        copy(self, "*.md", dst="res", src=os.path.join(self.source_folder, "material"))
-        copy(self, "COPYING", dst="licenses", src=self._doc_folder)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*libofeli.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "src"),
+        )
+        copy(
+            self,
+            "*.md",
+            dst=os.path.join(self.package_folder, "res"),
+            src=os.path.join(self.source_folder, "material"),
+        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self._doc_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["ofeli"]

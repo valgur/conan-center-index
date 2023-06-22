@@ -104,5 +104,10 @@ class MaddyConan(ConanFile):
         self.info.header_only()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
-        copy(self, pattern="maddy/*.h", src=os.path.join(self.source_folder, "include"), dst="include")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="maddy/*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )

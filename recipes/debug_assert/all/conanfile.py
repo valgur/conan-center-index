@@ -108,8 +108,10 @@ class DebugAssert(ConanFile):
             check_min_cppstd(self, "11")
 
     def package(self):
-        copy(self, "*LICENSE", dst="licenses", keep_path=False)
-        copy(self, "debug_assert.hpp", src=self._repo_folder, dst="include/")
+        copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self, "debug_assert.hpp", src=self._repo_folder, dst=os.path.join(self.package_folder, "include/")
+        )
 
     def package_id(self):
         self.info.header_only()

@@ -100,8 +100,13 @@ class Jpcre2Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
-        copy(self, "jpcre2.hpp", dst="include", src=os.path.join(self.source_folder, "src"))
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "jpcre2.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "src"),
+        )
 
     def package_id(self):
         self.info.header_only()

@@ -364,7 +364,7 @@ class CernRootConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)

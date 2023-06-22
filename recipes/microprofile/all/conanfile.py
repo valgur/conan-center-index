@@ -223,7 +223,7 @@ class MicroprofileConan(ConanFile):
         tc.generate()
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses")
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

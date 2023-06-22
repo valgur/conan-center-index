@@ -135,7 +135,7 @@ class ResourcePool(ConanFile):
             dst=os.path.join("include", "yamail"),
             src=os.path.join(self.source_folder, "include", "yamail"),
         )
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         main_comp = self.cpp_info.components["_resource_pool"]

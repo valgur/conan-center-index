@@ -544,11 +544,11 @@ class AwsSdkCppConan(ConanFile):
             )
 
     def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         if is_msvc(self):
-            copy(self, pattern="*.lib", dst="lib", keep_path=False)
+            copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             rm(self, "*.lib", os.path.join(self.package_folder, "bin"), recursive=True)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

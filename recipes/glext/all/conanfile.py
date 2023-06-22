@@ -106,7 +106,7 @@ class GlextConan(ConanFile):
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
         save(self, "LICENSE", license_data)
-        copy(self, "LICENSE", dst="licenses")
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_id(self):
         self.info.header_only()

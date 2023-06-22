@@ -271,7 +271,12 @@ class TkConan(ConanFile):
             autotools.make(args=make_args)
 
     def package(self):
-        copy(self, pattern="license.terms", src=self.source_folder, dst="licenses")
+        copy(
+            self,
+            pattern="license.terms",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.settings.compiler == "Visual Studio":
             self._build_nmake("install")
         else:

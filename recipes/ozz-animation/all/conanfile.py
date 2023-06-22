@@ -143,7 +143,12 @@ class OzzAnimationConan(ConanFile):
         os.remove(os.path.join(self.package_folder, "CHANGES.md"))
         os.remove(os.path.join(self.package_folder, "LICENSE.md"))
         os.remove(os.path.join(self.package_folder, "README.md"))
-        copy(self, pattern="LICENSE.md", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

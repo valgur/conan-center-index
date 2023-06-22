@@ -176,10 +176,22 @@ class AwsCdiSdkConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
         config = "debug" if self.settings.build_type == "Debug" else "release"
-        copy(self, pattern="*", dst="lib", src=os.path.join(self.source_folder, "build", config, "lib"))
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "build", config, "lib"),
+        )
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

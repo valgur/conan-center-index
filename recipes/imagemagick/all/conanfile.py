@@ -437,12 +437,14 @@ class ImageMagicConan(ConanFile):
             rmdir(self, "share")
             rm(self, "*.la", "lib", recursive=True)
 
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if is_msvc(self):
             copy(
                 self,
                 pattern="*CORE_*.lib",
-                dst="lib",
+                dst=os.path.join(self.package_folder, "lib"),
                 src=os.path.join("VisualMagick", "lib"),
                 keep_path=False,
             )
@@ -450,14 +452,14 @@ class ImageMagicConan(ConanFile):
             copy(
                 self,
                 pattern="*CORE_*.dll",
-                dst="bin",
+                dst=os.path.join(self.package_folder, "bin"),
                 src=os.path.join("VisualMagick", "bin"),
                 keep_path=False,
             )
             copy(
                 self,
                 pattern="*IM_MOD_*.dll",
-                dst="bin",
+                dst=os.path.join(self.package_folder, "bin"),
                 src=os.path.join("VisualMagick", "bin"),
                 keep_path=False,
             )

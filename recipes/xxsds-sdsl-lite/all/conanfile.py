@@ -106,8 +106,13 @@ class XXSDSSDSLLite(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "*.hpp", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

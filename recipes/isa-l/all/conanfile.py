@@ -132,15 +132,21 @@ class LibisalConan(ConanFile):
             env_build.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
-        copy(self, "*/isa-l.h", dst="include/isa-l", keep_path=False)
-        copy(self, "*.h", dst="include/isa-l", src="%s/include" % (self.source_folder), keep_path=False)
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*/isa-l.h", dst=os.path.join(self.package_folder, "include/isa-l"), keep_path=False)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include/isa-l"),
+            src="%s/include" % (self.source_folder),
+            keep_path=False,
+        )
         if self.options.shared:
-            copy(self, "*.dll", dst="bin", keep_path=False)
-            copy(self, "*.so*", dst="lib", keep_path=False, symlinks=True)
-            copy(self, "*.dylib", dst="lib", keep_path=False)
+            copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.so*", dst=os.path.join(self.package_folder, "lib"), keep_path=False, symlinks=True)
+            copy(self, "*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
         else:
-            copy(self, "*.a", dst="lib", keep_path=False)
+            copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

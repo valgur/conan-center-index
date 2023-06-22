@@ -192,15 +192,20 @@ class STXConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
-        copy(self, "*.lib", dst="lib", keep_path=False)
-        copy(self, "*.dll", dst="bin", keep_path=False)
-        copy(self, "*.so", dst="lib", keep_path=False)
-        copy(self, "*.dylib", dst="lib", keep_path=False)
-        copy(self, "*.a", dst="lib", keep_path=False)
+        copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, "*.so", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

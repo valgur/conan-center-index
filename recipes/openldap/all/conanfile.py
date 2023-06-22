@@ -161,8 +161,8 @@ class OpenldapConan(ConanFile):
     def package(self):
         autotools = self._configure_autotools()
         autotools.install(vars=self._configure_vars)
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, "COPYRIGHT", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
             rmdir(self, os.path.join(self.package_folder, folder))
         rm(self, "*.la", self.package_folder, recursive=True)

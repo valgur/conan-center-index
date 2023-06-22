@@ -104,12 +104,12 @@ class Djinni(ConanFile):
     def package(self):
         if detected_os(self) == "Windows":
             os.rename("djinni", "djinni.bat")
-            copy(self, "djinni.bat", dst="bin", keep_path=False)
+            copy(self, "djinni.bat", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
         else:
-            copy(self, "djinni", dst="bin", keep_path=False)
+            copy(self, "djinni", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
             executable = os.path.join(self.package_folder, "bin", "djinni")
             os.chmod(executable, os.stat(executable).st_mode | 0o111)
-        copy(self, "LICENSE", dst="licenses", keep_path=False)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.includedirs = []

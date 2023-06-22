@@ -77,8 +77,13 @@ class PackioConan(ConanFile):
             self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def package(self):
-        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
-        copy(self, "*.h", dst="include", src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_id(self):
         self.info.header_only()

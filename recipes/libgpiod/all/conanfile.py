@@ -147,7 +147,7 @@ class LibgpiodConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         autotools = self._configure_autotools()
         autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)

@@ -127,13 +127,15 @@ class libuiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*.h", dst="include", src=self.source_folder)
-        copy(self, pattern="*.dll", dst="bin", keep_path=False)
-        copy(self, pattern="*.lib", dst="lib", keep_path=False)
-        copy(self, pattern="*.a", dst="lib", keep_path=False)
-        copy(self, pattern="*.so*", dst="lib", keep_path=False)
-        copy(self, pattern="*.dylib", dst="lib", keep_path=False)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, pattern="*.so*", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

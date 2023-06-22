@@ -149,13 +149,30 @@ class CargsConan(ConanFile):
         lib_dir = os.path.join(self.build_folder, "lib")
         bin_dir = os.path.join(self.build_folder, "bin")
 
-        copy(self, "LICENSE.md", dst="licenses", src=self.source_folder)
-        copy(self, "cargs.h", dst="include", src=include_dir)
-        copy(self, pattern="*.a", dst="lib", src=lib_dir, keep_path=False)
-        copy(self, pattern="*.lib", dst="lib", src=lib_dir, keep_path=False)
-        copy(self, pattern="*.dylib", dst="lib", src=lib_dir, keep_path=False)
-        copy(self, pattern="*.so*", dst="lib", src=lib_dir, keep_path=False, symlinks=True)
-        copy(self, pattern="*.dll", dst="bin", src=bin_dir, keep_path=False)
+        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "cargs.h", dst=os.path.join(self.package_folder, "include"), src=include_dir)
+        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=lib_dir, keep_path=False)
+        copy(
+            self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=lib_dir, keep_path=False
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=lib_dir,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.so*",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=lib_dir,
+            keep_path=False,
+            symlinks=True,
+        )
+        copy(
+            self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=bin_dir, keep_path=False
+        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

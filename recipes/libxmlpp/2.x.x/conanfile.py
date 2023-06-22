@@ -256,7 +256,7 @@ class LibXMLPlusPlus(ConanFile):
     def package(self):
         lib_version = "2.6" if Version(self.version) <= "2.42.1" else "5.0"
 
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = self._configure_meson()
         meson.install()
 

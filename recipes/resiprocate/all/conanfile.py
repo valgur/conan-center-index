@@ -158,7 +158,7 @@ class ResiprocateConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = self._configure_autotools()
         autotools.install()
         rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))

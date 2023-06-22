@@ -125,7 +125,7 @@ class MathterConan(ConanFile):
             dst=os.path.join("include", "Mathter"),
             src=os.path.join(self.source_folder, "Mathter"),
         )
-        copy(self, "LICENCE", dst="licenses", src=self.source_folder)
+        copy(self, "LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_id(self):
         self.info.header_only()

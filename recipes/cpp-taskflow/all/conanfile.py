@@ -141,8 +141,15 @@ class CppTaskflowConan(ConanFile):
         os.rename("taskflow-" + self.version, self.source_folder)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*", dst="include/taskflow", src=os.path.join(self.source_folder, "taskflow"))
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include/taskflow"),
+            src=os.path.join(self.source_folder, "taskflow"),
+        )
 
     def package_id(self):
         self.info.header_only()

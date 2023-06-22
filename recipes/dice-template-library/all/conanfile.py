@@ -137,9 +137,16 @@ class DiceTemplateLibrary(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
-        copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_id(self):
         self.info.header_only()

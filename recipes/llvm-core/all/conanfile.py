@@ -329,7 +329,7 @@ class LLVMCoreConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE.TXT", dst="licenses", src=self.source_folder)
+        copy(self, "LICENSE.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         lib_path = os.path.join(self.package_folder, "lib")
         cmake = CMake(self)
         cmake.install()
@@ -337,9 +337,9 @@ class LLVMCoreConan(ConanFile):
         if not self.options.shared:
             for ext in [".a", ".lib"]:
                 lib = "**/lib/*LLVMTableGenGlobalISel{}".format(ext)
-                copy(self, lib, dst="lib", keep_path=False)
+                copy(self, lib, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
                 lib = "*LLVMTableGenGlobalISel{}".format(ext)
-                copy(self, lib, dst="lib", src="lib")
+                copy(self, lib, dst=os.path.join(self.package_folder, "lib"), src="lib")
 
             CMake(self).configure(args=["--graphviz=graph/llvm.dot"], source_dir=".", build_dir=".")
             with chdir(self, "graph"):

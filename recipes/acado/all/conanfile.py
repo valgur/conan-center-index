@@ -159,12 +159,12 @@ class AcadoConan(ConanFile):
         return os.path.join("lib", "cmake", "qpoases")
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "*", src="lib", dst="lib")
-        copy(self, "qpoases.cmake", src="cmake", dst="lib/cmake")
+        copy(self, "*", src="lib", dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "qpoases.cmake", src="cmake", dst=os.path.join(self.package_folder, "lib/cmake"))
         qpoases_sources_from = os.path.join(
             self.package_folder, "share", "acado", "external_packages", "qpoases"
         )

@@ -105,7 +105,7 @@ class CuteHeadersConan(ConanFile):
         copy(
             self,
             pattern="*.h",
-            dst="include",
+            dst=os.path.join(self.package_folder, "include"),
             src=self.source_folder,
             excludes=("examples_cute_*", "test_cute_*"),
         )

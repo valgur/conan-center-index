@@ -206,15 +206,51 @@ class DiligentToolsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "*.hpp", src=self.source_folder, dst="include/DiligentTools", keep_path=True)
-        copy(self, pattern="*.dll", src=self.build_folder, dst="bin", keep_path=False)
-        copy(self, pattern="*.dylib", src=self.build_folder, dst="lib", keep_path=False)
-        copy(self, pattern="*.lib", src=self.build_folder, dst="lib", keep_path=False)
-        copy(self, pattern="*.a", src=self.build_folder, dst="lib", keep_path=False)
-        copy(self, "*", src=os.path.join(self.build_folder, "bin"), dst="bin", keep_path=False)
+        copy(
+            self,
+            "*.hpp",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include/DiligentTools"),
+            keep_path=True,
+        )
+        copy(
+            self,
+            pattern="*.dll",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.lib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.build_folder, "bin"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
         rmdir(self, os.path.join(self.package_folder, "Licenses"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        copy(self, "License.txt", dst="licenses", src=self.source_folder)
+        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

@@ -160,7 +160,14 @@ class SobjectizerConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "license*", src=self.source_folder, dst="licenses", ignore_case=True, keep_path=False)
+        copy(
+            self,
+            "license*",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            ignore_case=True,
+            keep_path=False,
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

@@ -150,10 +150,16 @@ class OpenvrConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, pattern="openvr_api*.dll", dst="bin", src="bin", keep_path=False)
+        copy(
+            self,
+            pattern="openvr_api*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src="bin",
+            keep_path=False,
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

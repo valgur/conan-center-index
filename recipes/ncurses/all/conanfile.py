@@ -311,7 +311,7 @@ class NCursesConan(ConanFile):
 
     def package(self):
         # return
-        copy(self, "COPYING", src=self.source_folder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
             autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
             autotools.install()

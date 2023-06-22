@@ -224,7 +224,7 @@ class GfCompleteConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", dst="licenses", src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install()

@@ -276,14 +276,18 @@ class GtkConan(ConanFile):
             meson.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         meson = self._configure_meson()
         with environment_append(
             self, {"PKG_CONFIG_PATH": self.install_folder, "PATH": [os.path.join(self.package_folder, "bin")]}
         ):
             meson.install()
 
-        copy(self, pattern="COPYING", src=self.source_folder, dst="licenses")
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)

@@ -146,15 +146,44 @@ class TcpWrappersConan(ConanFile):
         return ".so"
 
     def package(self):
-        copy(self, pattern="DISCLAIMER", src=self.source_folder, dst="licenses")
+        copy(
+            self,
+            pattern="DISCLAIMER",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
-            copy(self, exe, src=self.source_folder, dst="bin", keep_path=False)
-        copy(self, "tcpd.h", src=self.source_folder, dst="include", keep_path=False)
+            copy(
+                self,
+                exe,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+        copy(
+            self,
+            "tcpd.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=False,
+        )
         if self.options.shared:
-            copy(self, "libwrap{}".format(self._shext), src=self.source_folder, dst="lib", keep_path=False)
+            copy(
+                self,
+                "libwrap{}".format(self._shext),
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         else:
-            copy(self, "libwrap.a", src=self.source_folder, dst="lib", keep_path=False)
+            copy(
+                self,
+                "libwrap.a",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["wrap"]
