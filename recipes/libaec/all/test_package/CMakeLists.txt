@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.15)
 project(test_package C)
 
 find_package(libaec CONFIG REQUIRED)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 find_package(BISON REQUIRED)
@@ -18,3 +18,4 @@ endforeach()
 
 bison_target(McParser mc_parser.yy "${CMAKE_CURRENT_BINARY_DIR}/mc_parser.cpp")
 add_library(${PROJECT_NAME} STATIC ${BISON_McParser_OUTPUTS})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

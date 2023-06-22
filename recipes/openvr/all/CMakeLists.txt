@@ -4,6 +4,6 @@ project(cmake_wrapper)
 include(conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-link_libraries(CONAN_PKG::jsoncpp)
+link_libraries(jsoncpp::jsoncpp)
 
 add_subdirectory(source_subfolder)

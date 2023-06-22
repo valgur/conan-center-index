@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+find_package(cgltf REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE cgltf::cgltf)
 if(MSVC)
   target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

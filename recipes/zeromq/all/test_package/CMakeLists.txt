@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 option(WITH_LIBSODIUM "zeromq is built with libsodium")
@@ -20,3 +20,4 @@ endif()
 if(WITH_NORM)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "WITH_NORM")
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

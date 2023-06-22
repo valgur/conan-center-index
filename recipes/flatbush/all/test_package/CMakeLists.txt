@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.12)
-
+cmake_minimum_required(VERSION 3.15)
 project(test_package VERSION 1.0.0 LANGUAGES CXX)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
-find_package(flatbush CONFIG REQUIRED)
+
+find_package(flatbush REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} "test_package.cpp")
 

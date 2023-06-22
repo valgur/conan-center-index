@@ -1,10 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(PackageTest CXX)
 
-include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-conan_basic_setup(TARGETS)
-
-find_package(verilator REQUIRED)
+find_package(verilator REQUIRED CONFIG)
 
 add_executable(blinky
     blinky.cpp
@@ -18,5 +15,6 @@ if(BUILD_SYSTEMC)
         blinky_sc.cpp
     )
     verilate(blinky_sc SOURCES blinky.v SYSTEMC)
-    target_link_libraries(blinky_sc PRIVATE CONAN_PKG::systemc)
+    target_link_libraries(blinky_sc PRIVATE systemc::systemc)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

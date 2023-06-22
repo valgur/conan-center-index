@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package C CXX)
 
 find_package(nsync REQUIRED CONFIG)
@@ -8,3 +8,4 @@ target_link_libraries(${PROJECT_NAME} nsync::nsync_c)
 
 add_executable(${PROJECT_NAME}_cpp example_cpp.cpp)
 target_link_libraries(${PROJECT_NAME}_cpp nsync::nsync_cpp)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
