@@ -435,8 +435,7 @@ class OpenSSLConan(ConanFile):
                     {shared_cflag}
                     {shared_extension}
                     {perlasm_scheme}
-                }},
-            );
+                }});
         """
         )
 

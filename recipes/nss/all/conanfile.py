@@ -153,12 +153,7 @@ class NSSConan(ConanFile):
                 raise ConanInvalidConfiguration("nss < 3.74 requires clang < 13 .")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _make_args(self):
@@ -252,9 +247,7 @@ class NSSConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with chdir(self, os.path.join(self.source_folder, "nss")):
-            with vcvars(self) if self.settings.compiler == "Visual Studio" else no_op(
-                self,
-            ):
+            with vcvars(self) if self.settings.compiler == "Visual Studio" else no_op(self):
                 self.run("make %s" % " ".join(self._make_args), run_environment=True)
 
     def package(self):

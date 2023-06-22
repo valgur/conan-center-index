@@ -132,7 +132,7 @@ class ConanXqilla(ConanFile):
         if self.settings.compiler == "gcc":
             flags.append("-std=c++11")
         make_ccpflags = "CPPFLAGS='{}'".format(" ".join(flags))
-        make_cmd = f"{make_ldflags} {make_ccpflags} {self._make_program} -j{cpu_count(self, )}"
+        make_cmd = f"{make_ldflags} {make_ccpflags} {self._make_program} -j{cpu_count(self)}"
         return make_cmd
 
     def validate(self):

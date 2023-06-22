@@ -155,12 +155,10 @@ class IslConan(ConanFile):
                 env = {
                     "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
                     "CC": "{} cl -nologo -{}".format(
-                        unix_path(self.deps_user_info["automake"].compile),
-                        self.settings.compiler.runtime,
+                        unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime
                     ),
                     "CXX": "{} cl -nologo -{}".format(
-                        unix_path(self.deps_user_info["automake"].compile),
-                        self.settings.compiler.runtime,
+                        unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime
                     ),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",

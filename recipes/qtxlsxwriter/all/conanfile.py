@@ -58,11 +58,7 @@ class QtXlsxWriterConan(ConanFile):
             self.tool_requires("qt/5.15.7")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version]["source"],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
         download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
 
     def generate(self):

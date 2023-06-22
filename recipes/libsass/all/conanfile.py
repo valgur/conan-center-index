@@ -120,11 +120,7 @@ class LibsassConan(ConanFile):
             self.tool_requires("libtool/2.4.7")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:

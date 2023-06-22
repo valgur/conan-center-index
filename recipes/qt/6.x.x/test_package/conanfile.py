@@ -72,9 +72,7 @@ Examples = {folder}/datadir/examples""",
         with chdir(self, "qmake_folder"):
             self.output.info("Building with qmake")
 
-            with vcvars(self.settings) if is_msvc(self) else no_op(
-                self,
-            ):
+            with vcvars(self.settings) if is_msvc(self) else no_op(self):
                 args = [self.source_folder, "DESTDIR=bin"]
 
                 def _getenvpath(var):

@@ -154,12 +154,7 @@ class OneTBBConan(ConanFile):
                 self.tool_requires("make/4.2.1")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         def add_flag(name, value):

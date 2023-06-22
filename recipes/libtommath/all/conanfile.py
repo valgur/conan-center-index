@@ -178,9 +178,7 @@ class LibTomMathConan(ConanFile):
                             makefile,
                             target,
                             arg_str,
-                            cpu_count(
-                                self,
-                            ),
+                            cpu_count(self),
                         ),
                         run_environment=True,
                     )

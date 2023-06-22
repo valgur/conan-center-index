@@ -143,11 +143,7 @@ class LibStudXmlConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -234,12 +230,7 @@ class LibStudXmlConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(self, "xml/value-traits", dst="include", src=self.source_folder)
             copy(self, "xml/serializer", dst="include", src=self.source_folder)

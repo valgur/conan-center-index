@@ -32,11 +32,7 @@ class CMakeConan(ConanFile):
 
     def build(self):
         arch = str(self.settings.arch) if self.settings.os != "Macos" else "universal"
-        get(
-            self,
-            **self.conan_data["sources"][self.version][str(self.settings.os)][arch],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch], strip_root=True)
 
     def package_id(self):
         if self.info.settings.os == "Macos":

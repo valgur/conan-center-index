@@ -343,10 +343,7 @@ class CernRootConan(ConanFile):
 
     def _move_findcmake_conan_to_root_dir(self):
         for f in ["opengl_system", "GLEW", "glu", "TBB", "LibXml2", "ZLIB", "SQLite3"]:
-            shutil.copy(
-                "Find{}.cmake".format(f),
-                os.path.join(self.source_folder, "cmake", "modules"),
-            )
+            shutil.copy(f"Find{f}.cmake", os.path.join(self.source_folder, "cmake", "modules"))
 
     @property
     def _cmake_cxx_standard(self):

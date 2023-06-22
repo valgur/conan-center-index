@@ -121,11 +121,7 @@ class SystemcComponentsConan(ConanFile):
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/3.24.0")

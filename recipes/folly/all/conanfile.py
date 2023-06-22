@@ -261,11 +261,7 @@ class FollyConan(ConanFile):
         self.build_requires("cmake/3.16.9")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

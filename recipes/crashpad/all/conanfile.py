@@ -309,10 +309,7 @@ class CrashpadConan(ConanFile):
                     targets.append("crashpad_handler_com")
                 self.run(
                     "ninja -C out/Default {targets} -j{parallel}".format(
-                        targets=" ".join(targets),
-                        parallel=cpu_count(
-                            self,
-                        ),
+                        targets=" ".join(targets), parallel=cpu_count(self)
                     ),
                     run_environment=True,
                 )

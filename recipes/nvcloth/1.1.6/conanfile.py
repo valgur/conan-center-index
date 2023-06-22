@@ -134,12 +134,7 @@ class NvclothConan(ConanFile):
         replace_in_file(
             self,
             os.path.join(
-                self.build_folder,
-                self.source_folder,
-                "PxShared",
-                "include",
-                "foundation",
-                "PxPreprocessor.h",
+                self.build_folder, self.source_folder, "PxShared", "include", "foundation", "PxPreprocessor.h"
             ),
             "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
             "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!",

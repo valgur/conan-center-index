@@ -181,12 +181,7 @@ class PangoConan(ConanFile):
         self.requires("fribidi/1.0.12")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_meson(self):
         defs = {}
@@ -214,7 +209,7 @@ class PangoConan(ConanFile):
         replace_in_file(self, meson_build, "subdir('utils')", "")
         replace_in_file(self, meson_build, "subdir('examples')", "")
         with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self,
+            self
         ):
             meson = self._configure_meson()
             meson.build()
@@ -222,7 +217,7 @@ class PangoConan(ConanFile):
     def package(self):
         copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
         with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self,
+            self
         ):
             meson = self._configure_meson()
             meson.install()

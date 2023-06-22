@@ -560,9 +560,7 @@ class CPythonConan(ConanFile):
         projects = self._solution_projects
         self.output.info("Building {} Visual Studio projects: {}".format(len(projects), projects))
 
-        with no_op(
-            self,
-        ):
+        with no_op(self):
             for project_i, project in enumerate(projects, 1):
                 self.output.info("[{}/{}] Building project '{}'...".format(project_i, len(projects), project))
                 project_file = os.path.join(self.source_folder, "PCbuild", project + ".vcxproj")

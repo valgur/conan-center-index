@@ -47,11 +47,7 @@ class YASMConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version][0],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
 
     def _generate_autotools(self):
         env = VirtualBuildEnv(self)

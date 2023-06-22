@@ -150,12 +150,7 @@ class CoinCbcConan(ConanFile):
             raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextmanager
     def _build_context(self):
@@ -215,8 +210,7 @@ class CoinCbcConan(ConanFile):
             self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS,
-            os.path.join(self.source_folder, "config.guess"),
+            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
         )
         with self._build_context():
             autotools = self._configure_autotools()

@@ -114,12 +114,7 @@ class DiligentToolsConan(ConanFile):
         copy(self, "BuildUtils.cmake")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package_id(self):
         if self.settings.compiler == "Visual Studio":

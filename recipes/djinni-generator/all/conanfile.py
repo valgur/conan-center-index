@@ -102,12 +102,7 @@ class Djinni(ConanFile):
         pass  # avoid warning for missing build steps
 
     def package(self):
-        if (
-            detected_os(
-                self,
-            )
-            == "Windows"
-        ):
+        if detected_os(self) == "Windows":
             os.rename("djinni", "djinni.bat")
             copy(self, "djinni.bat", dst="bin", keep_path=False)
         else:

@@ -194,11 +194,7 @@ class GnConan(ConanFile):
                 build_args = [
                     "-C",
                     "out",
-                    "-j{}".format(
-                        cpu_count(
-                            self,
-                        )
-                    ),
+                    "-j{}".format(cpu_count(self)),
                 ]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 

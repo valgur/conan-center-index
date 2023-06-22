@@ -470,15 +470,10 @@ class ImageMagicConan(ConanFile):
     def _libname(self, library):
         if is_msvc(self):
             infix = "DB" if self.settings.build_type == "Debug" else "RL"
-            return "CORE_%s_%s_" % (infix, library)
+            return f"CORE_{infix}_{library}_"
         else:
             suffix = "HDRI" if self.options.hdri else ""
-            return "%s-%s.Q%s%s" % (
-                library,
-                Version(self.version).major,
-                self.options.quantum_depth,
-                suffix,
-            )
+            return f"{library}-{Version(self.version).major}.Q{self.options.quantum_depth}{suffix}"
 
     def package_info(self):
         # FIXME model official FindImageMagick https://cmake.org/cmake/help/latest/module/FindImageMagick.html

@@ -125,12 +125,7 @@ class UvmSystemC(ConanFile):
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         autotools = AutoToolsBuildEnvironment(self)

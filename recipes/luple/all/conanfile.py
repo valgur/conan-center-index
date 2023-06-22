@@ -55,11 +55,7 @@ class LupleConan(ConanFile):
             )
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version][0],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
         download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def build(self):

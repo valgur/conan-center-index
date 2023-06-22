@@ -285,9 +285,7 @@ class TBBConan(ConanFile):
                 add_flag("CXXFLAGS", "-mrtm")
 
             targets = ["tbb", "tbbmalloc", "tbbproxy"]
-            context = no_op(
-                self,
-            )
+            context = no_op(self)
             if self.settings.compiler == "intel":
                 context = intel_compilervars(self)
             elif is_msvc(self):

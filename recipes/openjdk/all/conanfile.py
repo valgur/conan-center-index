@@ -36,11 +36,7 @@ class OpenJDK(ConanFile):
         key = self.settings.os
         if self.settings.os == "Macos":
             key = f"{self.settings.os}_{self.settings.arch}"
-        get(
-            self,
-            **self.conan_data["sources"][self.version][str(key)],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version][str(key)], strip_root=True)
 
     def package(self):
         if self.settings.os == "Macos":

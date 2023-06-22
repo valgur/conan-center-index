@@ -127,12 +127,7 @@ class ExtracmakemodulesConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "testhelper.h",
-            src=os.path.join(self.source_folder, "tests/ECMAddTests"),
-            dst="res/tests",
-        )
+        copy(self, "testhelper.h", src=os.path.join(self.source_folder, "tests/ECMAddTests"), dst="res/tests")
         copy(self, "*", src=os.path.join(self.source_folder, "LICENSES"), dst="licenses")
 
     def package_info(self):

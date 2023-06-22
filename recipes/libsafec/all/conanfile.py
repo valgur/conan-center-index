@@ -143,11 +143,7 @@ class LibSafeCConan(ConanFile):
             raise ConanException(f"{self.ref} option 'strmax' must be a valid integer number.")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:

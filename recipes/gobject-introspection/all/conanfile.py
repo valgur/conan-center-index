@@ -175,7 +175,7 @@ class GobjectIntrospectionConan(ConanFile):
     def package(self):
         copy(self, pattern="COPYING", dst="licenses", src=self.source_folder)
         with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self,
+            self
         ):
             meson = self._configure_meson()
             meson.install()

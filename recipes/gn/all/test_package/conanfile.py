@@ -74,14 +74,7 @@ class TestPackageConan(ConanFile):
                 ]
                 self.run("gn gen {}".format(" ".join(gn_args)), env="conanrun")
             with self._build_context():
-                self.run(
-                    "ninja -v -j{} -C bin".format(
-                        cpu_count(
-                            self,
-                        )
-                    ),
-                    env="conanrun",
-                )
+                self.run("ninja -v -j{} -C bin".format(cpu_count(self)), env="conanrun")
 
     def test(self):
         if can_run(self):

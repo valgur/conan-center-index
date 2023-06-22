@@ -63,9 +63,7 @@ class TestPackageConan(ConanFile):
                     run_environment=True,
                 )
             # m4 built with Visual Studio does not support executing *nix utils (e.g. `test`)
-            with environment_append(self, {"M4": None}) if self.settings.os == "Windows" else no_op(
-                self,
-            ):
+            with environment_append(self, {"M4": None}) if self.settings.os == "Windows" else no_op(self):
                 self.run(
                     "{} -fiv".format(os.environ["AUTORECONF"]),
                     win_bash=tools.os_info.is_windows,

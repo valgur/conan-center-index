@@ -75,11 +75,7 @@ class RuntimeQml(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires option qt:qtdeclarative=True")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][str(self.version)],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

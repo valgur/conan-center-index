@@ -240,8 +240,7 @@ class LibUSBCompatConan(ConanFile):
             self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS,
-            os.path.join(self.source_folder, "config.guess"),
+            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
         )
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""

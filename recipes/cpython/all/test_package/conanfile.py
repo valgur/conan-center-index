@@ -171,9 +171,7 @@ class TestPackageConan(ConanFile):
 
         if not cross_building(self, skip_x64_x86=True):
             if self._supports_modules:
-                with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
-                    self,
-                ):
+                with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
                     modsrcfolder = (
                         "py2" if Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
                     )
@@ -303,7 +301,5 @@ class TestPackageConan(ConanFile):
             # MSVC builds need PYTHONHOME set.
             with environment_append(
                 self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome}
-            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else no_op(
-                self,
-            ):
+            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else no_op(self):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

@@ -164,11 +164,7 @@ class MoldConan(ConanFile):
         self.requires("mimalloc/2.0.6")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         self._patch_sources()

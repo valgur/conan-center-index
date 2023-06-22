@@ -151,9 +151,7 @@ class SerfConan(ConanFile):
                 "{}.lib".format(lib) for lib in self.deps_cpp_info["openssl"].libs
             )
         with environment_append(self, extra_env):
-            with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
-                self,
-            ):
+            with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
                 yield
 
     def build(self):
@@ -219,10 +217,7 @@ class SerfConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst="licenses")
         with chdir(self.source_folder):
             with self._build_context():
-                self.run(
-                    'scons install -Y "{}"'.format(self.source_folder),
-                    run_environment=True,
-                )
+                self.run('scons install -Y "{}"'.format(self.source_folder), run_environment=True)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":

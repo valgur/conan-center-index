@@ -116,11 +116,7 @@ class libxftConan(ConanFile):
         self.build_requires("libtool/2.4.7")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

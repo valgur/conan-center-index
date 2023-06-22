@@ -31,9 +31,7 @@ class TestPackageConan(ConanFile):
             waf_path = waf_path.replace("\\", "/")
             assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
 
-        with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(
-            self,
-        ):
+        with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
             self.run("waf -h")
             self.run("waf configure")
             self.run("waf")
