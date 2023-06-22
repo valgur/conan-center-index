@@ -91,7 +91,6 @@ class rpclibConan(ConanFile):
     topics = ("rpc", "ipc", "rpc-server")
     homepage = "https://github.com/rpclib/rpclib/"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/*"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,6 +100,9 @@ class rpclibConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,6 +119,7 @@ class rpclibConan(ConanFile):
         tc = CMakeToolchain(self)
         if "MT" in str(msvc_runtime_flag(self)):
             tc.variables["RPCLIB_MSVC_STATIC_RUNTIME"] = True
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

@@ -95,9 +95,6 @@ class ImGuizmoConan(ConanFile):
     topics = ("imgui", "3d", "graphics", "guizmo")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
-
-    exports_sources = ["CMakeLists.txt"]
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -106,6 +103,9 @@ class ImGuizmoConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

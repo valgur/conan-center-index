@@ -178,7 +178,6 @@ class PangommConan(ConanFile):
     }
 
     generators = "pkg_config"
-    exports_sources = "patches/**"
 
     @property
     def _is_2_48_api(self):
@@ -191,6 +190,9 @@ class PangommConan(ConanFile):
     @property
     def _api_version(self):
         return "2.48" if self._is_2_48_api else "1.4"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):

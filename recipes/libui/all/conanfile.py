@@ -93,7 +93,6 @@ class libuiConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andlabs/libui"
     license = "MIT"
-    exports_sources = ["CMakeLists.txt"]
     generators = "cmake", "pkg_config"
     settings = "os", "arch", "compiler", "build_type"
     options = {

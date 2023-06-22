@@ -142,7 +142,6 @@ class ImageMagicConan(ConanFile):
         "with_djvu": False,
         "utilities": True,
     }
-    exports_sources = "patches/*"
 
     _autotools = None
 
@@ -159,6 +158,9 @@ class ImageMagicConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Windows builds of ImageMagick require MFC which cannot currently be sourced from CCI."
             )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -216,7 +218,7 @@ class ImageMagicConan(ConanFile):
                 self,
                 **self.conan_data["sources"][self.version]["visualmagick"][visualmagick_version],
                 destination="VisualMagick",
-                strip_root=True
+                strip_root=True,
             )
 
     def build(self):

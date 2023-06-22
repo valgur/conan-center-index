@@ -140,7 +140,6 @@ class JsonnetConan(ConanFile):
             )
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def source(self):
@@ -148,6 +147,7 @@ class JsonnetConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["BUILD_SHARED_BINARIES"] = False

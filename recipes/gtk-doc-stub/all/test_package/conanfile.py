@@ -8,13 +8,15 @@ from conan.tools.layout import basic_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "configure.ac"
     test_type = "explicit"
     win_bash = True  # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export_sources(self):
+        copy(self, "configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self)

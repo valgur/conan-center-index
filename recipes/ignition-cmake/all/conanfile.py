@@ -96,11 +96,13 @@ class IgnitionCmakeConan(ConanFile):
     description = "A set of CMake modules that are used by the C++-based Ignition projects."
     topics = ("ignition", "robotics", "cmake")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
     def _module_file_rel_path(self):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def package_id(self):
         self.info.header_only()

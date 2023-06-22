@@ -98,8 +98,6 @@ class PdfiumConan(ConanFile):
         "with_libjpeg": "libjpeg",
     }
 
-    exports_sources = "CMakeLists.txt", "pkg_config"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -156,15 +154,12 @@ class PdfiumConan(ConanFile):
         tc.variables["PDFIUM_ROOT"] = self.source_folder.replace("\\", "/")
         tc.variables["PDF_LIBJPEG_TURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
-        cmake.configure()
+        cmake.configure(build_script_folder="pdfium-cmake/cmake")
         cmake.build()
 
     def package(self):

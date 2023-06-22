@@ -98,8 +98,6 @@ class CoConan(ConanFile):
 
     deprecated = "cocoyaxi"
 
-    exports_sources = "CMakeLists.txt", "patches/*"
-
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -113,6 +111,9 @@ class CoConan(ConanFile):
         "with_libcurl": False,
         "with_openssl": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

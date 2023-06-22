@@ -106,12 +106,15 @@ class NetSnmpConan(ConanFile):
         "fPIC": True,
         "with_ipv6": True,
     }
-    requires = "openssl/1.1.1m"
-    exports_sources = "patches/*"
+    def requirements(self):
+        self.requires("openssl/1.1.1m")
 
     @property
     def _is_msvc(self):
         return self.settings.compiler in ("Visual Studio", "msvc")
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self):

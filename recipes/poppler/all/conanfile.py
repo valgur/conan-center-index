@@ -137,7 +137,8 @@ class PopplerConan(ConanFile):
         "float": False,
     }
 
-    exports_sources = "CMakeLists.txt", "patches/**", "pkg_config"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -295,6 +296,11 @@ class PopplerConan(ConanFile):
         if cross_building(self):
             tc.variables["CMAKE_FIND_ROOT_PATH_MODE_INCLUDE"] = "BOTH"
             tc.variables["CMAKE_FIND_ROOT_PATH_MODE_LIBRARY"] = "BOTH"
+
+        if self.options.shared:
+            tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        else:
+            tc.preprocessor_definitions["POPPLER_STATIC"] = ""
 
         tc.generate()
 

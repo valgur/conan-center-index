@@ -98,8 +98,6 @@ class Rvo2Conan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -110,13 +108,13 @@ class Rvo2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "RVO2-{}".format(self.version)
+        extracted_dir = f"RVO2-{self.version}"
         os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

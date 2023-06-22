@@ -93,7 +93,6 @@ class LibCoapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = """A CoAP (RFC 7252) implementation in C"""
     topics = "coap"
-    exports_sources = "CMakeLists.txt"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

@@ -96,7 +96,6 @@ class GetDnsConan(ConanFile):
     homepage = "https://getdnsapi.net/"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "CMakeLists.txt", "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -117,7 +116,9 @@ class GetDnsConan(ConanFile):
         "with_libuv": True,
         "with_libidn2": True,
     }
-    generators = "cmake", "pkg_config", "cmake_find_package"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _with_libev(self):
@@ -172,6 +173,8 @@ class GetDnsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self.settings.os == "Windows":
+            tc.variables["CMAKE_REQUIRED_LIBRARIES"] = "ws2_32"
         tc.variables["OPENSSL_USE_STATIC_LIBS"] = not self.options["openssl"].shared
         tc.variables["ENABLE_SHARED"] = self.options.shared
         tc.variables["ENABLE_STATIC"] = not self.options.shared
@@ -183,8 +186,9 @@ class GetDnsConan(ConanFile):
         tc.variables["USE_GNUTLS"] = self.options.tls == "gnutls"
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
-
         tc = CMakeDeps(self)
+        tc.generate()
+        tc = PkgConfigDeps(self)
         tc.generate()
 
     def build(self):

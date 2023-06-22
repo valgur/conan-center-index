@@ -97,10 +97,9 @@ class FlatcConan(ConanFile):
     topics = ("flatbuffers", "serialization", "rpc", "json-parser", "installer")
     description = "Memory Efficient Serialization Library"
     settings = "os", "arch"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -109,6 +108,8 @@ class FlatcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if is_msvc(self) and self.options.shared:
+            tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["FLATBUFFERS_BUILD_TESTS"] = False
         tc.variables["FLATBUFFERS_BUILD_SHAREDLIB"] = False
         tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = True
@@ -116,7 +117,7 @@ class FlatcConan(ConanFile):
         tc.variables["FLATBUFFERS_BUILD_FLATHASH"] = True
 
     def build(self):
-        self._patch_sources()
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -94,7 +94,8 @@ class TypeSafe(ConanFile):
     no_copy_source = True
     _source_subfolder = "source_subfolder"
 
-    requires = "debug_assert/1.3.3"
+    def requirements(self):
+        self.requires("debug_assert/1.3.3")
 
     @property
     def _repo_folder(self):

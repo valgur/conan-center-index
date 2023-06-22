@@ -90,7 +90,6 @@ class MicroprofileConan(ConanFile):
     homepage = "https://github.com/jonasmr/microprofile"
     description = "Microprofile is a embeddable profiler in a few files, written in C++"
     topics = ("profiler", "embedded", "timer")
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -138,6 +137,9 @@ class MicroprofileConan(ConanFile):
         "enable_gpu_timer_callbacks": False,
         "enable_timer": None,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

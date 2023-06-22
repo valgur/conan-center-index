@@ -105,8 +105,12 @@ class LibXpmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "windows/*"
     no_copy_source = True
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        if self.settings.os == "Windows":
+            copy(self, "windows", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def validate(self):
         if self.settings.os not in ("Windows", "Linux", "FreeBSD"):
@@ -133,7 +137,6 @@ class LibXpmConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CONAN_libXpm_VERSION"] = self.version
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -145,7 +148,8 @@ class LibXpmConan(ConanFile):
     def package(self):
         copy(self, "COPYING", "licenses")
         copy(self, "COPYRIGHT", "licenses")
-        self._configure_cmake().install()
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["Xpm"]

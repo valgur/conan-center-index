@@ -94,7 +94,6 @@ class ChaiScriptConan(ConanFile):
     topics = ("embedded-scripting-language", "language")
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "fPIC": [True, False],
@@ -122,6 +121,7 @@ class ChaiScriptConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.variables["BUILD_SAMPLES"] = False
         tc.variables["BUILD_MODULES"] = True

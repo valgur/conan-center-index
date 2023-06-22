@@ -103,11 +103,13 @@ class LibpropertiesConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
     def _source_package_tag(self):
-        return "{}-{}".format(self.name, self.version)
+        return f"{self.name}-{self.version}"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -101,7 +101,6 @@ class LibunifexConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     no_copy_source = True
-    exports_sources = ["CMakeLists.txt"]
 
     @property
     def _compilers_minimum_version(self):

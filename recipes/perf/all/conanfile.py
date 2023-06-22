@@ -91,7 +91,9 @@ class Perf(ConanFile):
     homepage = "https://perf.wiki.kernel.org/index.php"
     license = "GPL-2.0 WITH Linux-syscall-note"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "patches/*"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.os != "Linux":

@@ -90,7 +90,6 @@ class TinyAlsaConan(ConanFile):
     homepage = "https://github.com/tinyalsa/tinyalsa"
     topics = ("tiny", "alsa", "sound", "audio", "tinyalsa")
     description = "A small library to interface with ALSA in the Linux kernel"
-    exports_sources = ["patches/*"]
     options = {
         "shared": [True, False],
         "with_utils": [True, False],
@@ -100,6 +99,9 @@ class TinyAlsaConan(ConanFile):
         "with_utils": False,
     }
     settings = "os", "compiler", "build_type", "arch"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.os != "Linux":

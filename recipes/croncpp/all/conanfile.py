@@ -99,9 +99,6 @@ class CroncppConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = ("cmake",)
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt")
-
     def package_id(self):
         self.info.header_only()
 
@@ -114,8 +111,8 @@ class CroncppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_CXX_STANDARD"] = 11
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

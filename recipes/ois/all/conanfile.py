@@ -88,7 +88,6 @@ class OisConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wgois/OIS"
     license = "Zlib"
-    exports_sources = ["CMakeLists.txt", "patches/*"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -98,6 +97,9 @@ class OisConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         if self.settings.os == "Linux":

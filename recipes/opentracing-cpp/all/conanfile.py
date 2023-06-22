@@ -87,7 +87,6 @@ class OpenTracingConan(ConanFile):
     topics = "opentracing"
     homepage = "https://github.com/opentracing/opentracing-cpp"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/*.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,6 +100,9 @@ class OpenTracingConan(ConanFile):
         "enable_mocktracer": False,
         "enable_dynamic_load": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

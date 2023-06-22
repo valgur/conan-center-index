@@ -98,8 +98,8 @@ class SplunkOpentelemetryConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    requires = "opentelemetry-cpp/1.0.1"
-    exports_sources = "CMakeLists.txt"
+    def requirements(self):
+        self.requires("opentelemetry-cpp/1.0.1")
 
     def validate(self):
         if self.settings.arch != "x86_64":

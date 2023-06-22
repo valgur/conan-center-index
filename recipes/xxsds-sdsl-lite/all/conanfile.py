@@ -90,8 +90,10 @@ class XXSDSSDSLLite(ConanFile):
     license = "BSD-3-Clause"
     topics = ("sdsl", "succint", "data-structures")
     settings = "compiler"
-    exports_sources = "patches/*"
     provides = "sdsl-lite"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

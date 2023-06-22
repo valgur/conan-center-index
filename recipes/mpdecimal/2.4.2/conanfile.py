@@ -93,7 +93,6 @@ class MpdecimalConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.bytereef.org/mpdecimal"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -104,6 +103,9 @@ class MpdecimalConan(ConanFile):
     }
 
     _autotools = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if is_msvc(self) and self.settings.arch not in ("x86", "x86_64"):

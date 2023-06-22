@@ -34,7 +34,6 @@ class GoogleAPIS(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports = "helpers.py"
 
     @property
     def _protobuf_version(self):
@@ -47,6 +46,7 @@ class GoogleAPIS(ConanFile):
             src=self.recipe_folder,
             dst=os.path.join(self.export_sources_folder, "src"),
         )
+        copy(self, "helpers.py", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

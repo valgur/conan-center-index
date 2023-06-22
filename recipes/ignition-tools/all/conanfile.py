@@ -104,7 +104,6 @@ class IgnitionToolsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
     def _minimum_cpp_standard(self):
@@ -118,6 +117,9 @@ class IgnitionToolsConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -150,9 +152,9 @@ class IgnitionToolsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

@@ -29,7 +29,9 @@ class LibRawConan(ConanFile):
         "with_lcms": True,
         "with_jasper": True,
     }
-    exports_sources = ["CMakeLists.txt"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     @property
     def _min_cppstd(self):

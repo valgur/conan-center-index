@@ -88,12 +88,14 @@ class Cc65Conan(ConanFile):
     description = "A freeware C compiler for 6502 based systems"
     license = "Zlib"
     topics = ("compiler", "cmos", "6502", "8bit")
-    exports_sources = "patches/**"
 
     settings = "os", "arch", "compiler", "build_type"
 
     _autotools = None
     _source_subfolder = "source_subfolder"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

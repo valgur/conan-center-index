@@ -92,7 +92,6 @@ class RubyConan(ConanFile):
     homepage = "https://www.ruby-lang.org"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -118,6 +117,9 @@ class RubyConan(ConanFile):
             return "-O2b2xg-"
         else:
             return "-O2sy-"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("zlib/1.2.12")

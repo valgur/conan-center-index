@@ -87,7 +87,6 @@ class ConanRecipe(ConanFile):
     homepage = "http://wjwwood.io/serial/"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    exports_sources = ["CMakeLists.txt", "Findcatkin.cmake"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -97,6 +96,10 @@ class ConanRecipe(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "Findcatkin.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -108,12 +111,11 @@ class ConanRecipe(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("{}-{}".format(self.name, self.version), self.source_folder)
+        os.rename(f"{self.name}-{self.version}", self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

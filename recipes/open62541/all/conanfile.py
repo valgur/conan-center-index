@@ -8,7 +8,7 @@ from conan.tools.files import (
     rename,
     rm,
     rmdir,
-    get,
+    get, copy,
 )
 from conan.errors import ConanInvalidConfiguration
 import glob
@@ -157,9 +157,8 @@ class Open62541Conan(ConanFile):
         "readable_statuscodes": True,
     }
 
-    exports = "submoduledata.yml"
-
     def export_sources(self):
+        copy(self, "submoduledata.py", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

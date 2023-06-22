@@ -36,7 +36,10 @@ class DrflacConan(ConanFile):
         "no_stdio": False,
         "no_wchar": False,
     }
-    exports_sources = ["CMakeLists.txt", "dr_flac.c"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dr_flac.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

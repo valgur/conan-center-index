@@ -17,7 +17,8 @@ class CsmConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

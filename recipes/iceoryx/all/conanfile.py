@@ -111,7 +111,6 @@ class IceoryxConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -191,14 +190,13 @@ class IceoryxConan(ConanFile):
         if Version(self.version) >= "2.0.0":
             tc.variables["DOWNLOAD_TOML_LIB"] = False
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder="iceoryx_meta")
         cmake.build()
 
     def package(self):

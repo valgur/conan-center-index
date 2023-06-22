@@ -89,7 +89,6 @@ class EazylzmaConan(ConanFile):
                     Igor Pavlov's work that can be used to compress and extract lzma files"
     settings = "os", "arch", "compiler", "build_type"
     topics = ("eazylzma", "lzma")
-    exports_sources = ["CMakeLists.txt", "patches/*"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -98,6 +97,9 @@ class EazylzmaConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _license_text(self):

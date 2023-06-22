@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.env import Environment, VirtualRunEnv, VirtualBuildEnv
+from conan.tools.files import copy
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -8,9 +9,11 @@ from conan.tools.microsoft import is_msvc
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ("configure.ac",)
     test_type = "explicit"
     win_bash = True
+
+    def export_sources(self):
+        copy(self, "src/configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
 
     @property
     def _settings_build(self):

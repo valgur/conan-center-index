@@ -91,7 +91,6 @@ class EasyloggingppConan(ConanFile):
     description = "Single header C++ logging library."
     topics = ("logging", "stacktrace", "efficient-logging")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = ("CMakeLists.txt",)
     options = {
         "enable_crash_log": [True, False],
         "enable_thread_safe": [True, False],
@@ -120,6 +119,9 @@ class EasyloggingppConan(ConanFile):
         "disable_verbose_logs": False,
         "disable_trace_logs": False,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -116,7 +116,6 @@ class GoogleCloudCppConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -169,6 +168,10 @@ class GoogleCloudCppConan(ConanFile):
             and self.version in ["1.31.1", "1.30.1"]
         )
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
+        if is_msvc(self):
+            tc.preprocessor_definitions["_SILENCE_CXX20_REL_OPS_DEPRECATION_WARNING"] = ""
+            tc.preprocessor_definitions["_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING"] = ""
         tc.variables["BUILD_TESTING"] = 0
         tc.variables["GOOGLE_CLOUD_CPP_ENABLE_MACOS_OPENSSL_CHECK"] = False
         tc.variables["GOOGLE_CLOUD_CPP_ENABLE_BIGTABLE"] = True

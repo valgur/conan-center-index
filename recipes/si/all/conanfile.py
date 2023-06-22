@@ -88,10 +88,11 @@ class SiConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bernedom/SI"
-    description = "A header only c++ library that provides type safety and user defined literals \
-         for handling pyhsical values defined in the International System of Units."
+    description = (
+        "A header only c++ library that provides type safety and user defined literals for"
+        " handling physical values defined in the International System of Units."
+    )
     topics = ("physical units", "SI-unit-conversion", "cplusplus-library", "cplusplus-17")
-    exports_sources = "CMakeLists.txt"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -125,17 +126,21 @@ class SiConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def package(self):
-        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+    def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["SI_BUILD_TESTING"] = False
         tc.variables["SI_BUILD_DOC"] = False
         tc.variables["SI_INSTALL_LIBRARY"] = True
         tc.generate()
+
+    def package(self):
+        copy(self, "LICENSE", dst="licenses", src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "SI")
         self.cpp_info.set_property("cmake_target_name", "SI::SI")
 
         self.cpp_info.names["cmake_find_package"] = "SI"

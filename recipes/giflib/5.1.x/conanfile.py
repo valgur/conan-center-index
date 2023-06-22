@@ -102,10 +102,6 @@ class GiflibConan(ConanFile):
         "fPIC": True,
     }
 
-    # The exported files I took them from https://github.com/bjornblissing/osg-3rdparty-cmake/tree/master/giflib
-    # refactored a little
-    exports_sources = ["unistd.h", "gif_lib.h"]
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -113,6 +109,13 @@ class GiflibConan(ConanFile):
     @property
     def _user_info_build(self):
         return getattr(self, "user_info_build", self.deps_user_info)
+
+    def export_sources(self):
+        # The exported files I took them from
+        # https://github.com/bjornblissing/osg-3rdparty-cmake/tree/master/giflib
+        # refactored a little
+        copy(self, "unistd.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "gif_lib.h", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

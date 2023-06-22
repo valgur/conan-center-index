@@ -96,8 +96,8 @@ class SshtConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    requires = "fftw/3.3.9", "cmake_paths"
-    exports_sources = ["CMakeLists.txt"]
+    def requirements(self):
+        self.requires("fftw/3.3.9", "cmake_paths")
 
     def config_options(self):
         self.settings.rm_safe("compiler.cppstd")

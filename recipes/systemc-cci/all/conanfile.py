@@ -88,7 +88,7 @@ required_conan_version = ">=1.43.0"
 
 class SystemccciConan(ConanFile):
     name = "systemc-cci"
-    description = """SystemC Configuration, Control and Inspection library"""
+    description = "SystemC Configuration, Control and Inspection library"
     homepage = "https://www.accellera.org/"
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
@@ -104,7 +104,7 @@ class SystemccciConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -121,7 +121,7 @@ class SystemccciConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos":
-            raise ConanInvalidConfiguration(f"{self.name} is not suppported on {self.settings.os}.")
+            raise ConanInvalidConfiguration(f"{self.name} is not supported on {self.settings.os}.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

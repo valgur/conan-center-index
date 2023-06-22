@@ -14,7 +14,6 @@ class EasyExifConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mayanklahiri/easyexif"
     license = "BSD-2-Clause"
-    exports_sources = "CMakeLists.txt"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -24,6 +23,9 @@ class EasyExifConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

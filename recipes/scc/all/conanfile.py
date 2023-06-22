@@ -103,11 +103,6 @@ class SystemcComponentsConan(ConanFile):
         "enable_phase_callbacks_tracing": False,
     }
 
-    # no exports_sources attribute, but export_sources(self) method instead
-    # this allows finer grain exportation of patches per version
-    def export_sources(self):
-        copy(self, "CMakeLists.txt")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC

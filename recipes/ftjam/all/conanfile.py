@@ -90,10 +90,12 @@ class FtjamConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org/jam/"
     license = "BSD-3-Clause"
-    exports_sources = "patches/*"
     settings = "os", "arch", "compiler", "build_type"
 
     _autotools = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

@@ -91,7 +91,9 @@ class TroldalZippyConan(ConanFile):
     homepage = "https://github.com/troldal/Zippy"
     license = "MIT"
     settings = "compiler"
-    exports_sources = "patches/*"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("miniz/2.2.0")

@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan.tools.files import get, load, save, copy
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -78,11 +78,12 @@ class Sqlite3Conan(ConanFile):
         "enable_dbpage_vtab": False,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _has_enable_math_function_option(self):
         return Version(self.version) >= "3.35.0"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

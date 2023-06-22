@@ -98,7 +98,6 @@ class S2let(ConanFile):
         "fPIC": True,
         "with_cfitsio": False,
     }
-    exports_sources = ["CMakeLists.txt"]
 
     def config_options(self):
         if self.settings.os == "Windows":

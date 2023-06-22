@@ -104,8 +104,9 @@ class LibelfinConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt", "patches/*"
-    _source_subfolder = "source_subfolder"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -114,9 +115,7 @@ class LibelfinConan(ConanFile):
     def configure(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration(
-                "libelfin doesn't support compiler: {} on OS: {}.".format(
-                    self.settings.compiler, self.settings.os
-                )
+                f"libelfin doesn't support compiler: {self.settings.compiler} on OS: {self.settings.os}."
             )
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -131,7 +130,6 @@ class LibelfinConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

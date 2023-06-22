@@ -92,7 +92,6 @@ class RectangleBinPackConan(ConanFile):
         "The code can be used to solve the problem of packing a set of 2D rectangles into a larger bin."
     )
     topics = ("rectangle", "packing", "bin")
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -102,6 +101,9 @@ class RectangleBinPackConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -132,8 +134,8 @@ class RectangleBinPackConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

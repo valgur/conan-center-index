@@ -110,7 +110,6 @@ class CryptoPPPEMConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -176,6 +175,7 @@ class CryptoPPPEMConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.variables["BUILD_SHARED"] = self.options.shared
         tc.variables["BUILD_TESTING"] = False
@@ -187,7 +187,6 @@ class CryptoPPPEMConan(ConanFile):
         if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) <= "8.4.0":
             tc.variables["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

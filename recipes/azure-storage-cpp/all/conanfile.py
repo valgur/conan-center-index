@@ -96,7 +96,6 @@ class AzureStorageCppConan(ConanFile):
     description = "Microsoft Azure Storage Client Library for C++"
     topics = ("azure", "cpp", "cross-platform", "microsoft", "cloud")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -105,6 +104,10 @@ class AzureStorageCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "cmake-wrapper.cmd", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     @property
     def _minimum_cpp_standard(self):
@@ -183,7 +186,6 @@ class AzureStorageCppConan(ConanFile):
         if self.settings.os == "Macos":
             tc.variables["GETTEXT_LIB_DIR"] = self.deps_cpp_info["libgettext"].lib_paths[0]
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

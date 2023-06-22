@@ -91,13 +91,21 @@ class KcovConan(ConanFile):
     license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index/"
     homepage = "http://simonkagstrom.github.io/kcov/index.html"
-    description = "Code coverage tool for compiled programs, Python and Bash\
-        which uses debugging information to collect and report data without\
-            special compilation options"
+    description = (
+        "Code coverage tool for compiled programs, Python and Bash which uses "
+        "debugging information to collect and report data without special compilation options"
+    )
     topics = ("coverage", "linux", "debug")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "CMakeLists.txt", "patches/**"
-    requires = ["zlib/1.2.12", "libiberty/9.1.0", "libcurl/7.83.1", "elfutils/0.180"]
+
+    def requirements(self):
+        self.requires("zlib/1.2.12")
+        self.requires("libiberty/9.1.0")
+        self.requires("libcurl/7.83.1")
+        self.requires("elfutils/0.180")
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -105,7 +113,7 @@ class KcovConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = self.name + "-" + self.version
+        extracted_dir = f"{self.name}-{self.version}"
         os.rename(extracted_dir, self.source_folder)
 
     def generate(self):

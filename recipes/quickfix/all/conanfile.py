@@ -105,7 +105,9 @@ class QuickfixConan(ConanFile):
         "with_postgres": False,
         "with_mysql": None,
     }
-    exports_sources = "patches/**"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         if self.options.with_ssl:

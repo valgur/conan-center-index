@@ -95,7 +95,6 @@ class LogrConan(ConanFile):
     description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = ["CMakeLists.txt"]
 
     options = {"backend": ["spdlog", "glog", "log4cplus", "log4cplus-unicode", None]}
     default_options = {

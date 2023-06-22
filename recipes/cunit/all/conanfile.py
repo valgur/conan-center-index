@@ -109,9 +109,11 @@ class CunitConan(ConanFile):
         "enable_console": True,
         "with_curses": False,
     }
-    exports_sources = "patches/**"
 
     _autotools = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

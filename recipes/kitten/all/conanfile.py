@@ -96,11 +96,8 @@ class KittenConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     topics = ("category-theory", "composition", "monadic-interface", "declarative-programming")
-
     settings = "os", "arch", "compiler", "build_type"
-
     no_copy_source = True
-    exports_sources = "CMakeLists.txt"
 
     @property
     def _minimum_compilers_version(self):

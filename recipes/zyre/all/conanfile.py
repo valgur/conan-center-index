@@ -106,7 +106,6 @@ class ZyreConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -132,6 +131,9 @@ class ZyreConan(ConanFile):
         if Version(self.version) >= "2.0.1":
             tc.variables["ZYRE_BUILD_SHARED"] = self.options.shared
             tc.variables["ZYRE_BUILD_STATIC"] = not self.options.shared
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        if not self.options.shared:
+            tc.preprocessor_definitions["ZYRE_STATIC"] = ""
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

@@ -148,7 +148,6 @@ class ICCConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def source(self):

@@ -160,7 +160,10 @@ class MagnumConan(ConanFile):
         "stl_importer": True,
         "tinygltf_importer": True,
     }, "cmake_find_package_multi"
-    exports_sources = ["CMakeLists.txt", "cmake/*", "patches/*"]
+
+    def export_sources(self):
+        copy(self, "cmake/*", self.export_sources_folder)
+        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -276,6 +279,97 @@ class MagnumConan(ConanFile):
         tc.variables["WITH_STBVORBISAUDIOIMPORTER"] = self.options.stbvorbis_audioimporter
         tc.variables["WITH_STLIMPORTER"] = self.options.stl_importer
         tc.variables["WITH_TINYGLTFIMPORTER"] = self.options.tinygltf_importer
+
+        tc.variables["CONAN_CMAKE_SILENT_OUTPUT"] = True
+        # TODO: convert to CMakeToolchain variables
+        # The original project uses the path to the 'magnum' package, in Conan we cannot modify existing package
+        tc.variables[
+            "MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/magnum-d"
+        tc.variables[
+            "MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/magnum-d"
+        tc.variables[
+            "MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/magnum"
+        tc.variables[
+            "MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/magnum"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONT_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/fonts"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONT_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR}/fonts"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONT_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR}/fonts"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONT_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/fonts"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONTCONVERTER_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/fontconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_FONTCONVERTER_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/fontconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMAGECONVERTER_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/imageconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMAGECONVERTER_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR}/imageconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMAGECONVERTER_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/imageconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMAGECONVERTER_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR}/imageconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMPORTER_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/importers"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMPORTER_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR}/importers"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMPORTER_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR}/importers"
+        tc.variables[
+            "MAGNUM_PLUGINS_IMPORTER_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/importers"
+        tc.variables[
+            "MAGNUM_PLUGINS_SCENECONVERTER_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/sceneconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_SCENECONVERTER_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR}/sceneconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_SCENECONVERTER_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/sceneconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_SCENECONVERTER_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR}/sceneconverters"
+        tc.variables[
+            "MAGNUM_PLUGINS_AUDIOIMPORTER_DEBUG_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_BINARY_INSTALL_DIR}/audioimporters"
+        tc.variables[
+            "MAGNUM_PLUGINS_AUDIOIMPORTER_DEBUG_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_DEBUG_LIBRARY_INSTALL_DIR}/audioimporters"
+        tc.variables[
+            "MAGNUM_PLUGINS_AUDIOIMPORTER_RELEASE_BINARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_BINARY_INSTALL_DIR}/audioimporters"
+        tc.variables[
+            "MAGNUM_PLUGINS_AUDIOIMPORTER_RELEASE_LIBRARY_INSTALL_DIR"
+        ] = "${MAGNUM_PLUGINS_RELEASE_LIBRARY_INSTALL_DIR}/audioimporters"
+        tc.variables[
+            "MAGNUM_INCLUDE_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/Magnum"
+        tc.variables[
+            "MAGNUM_EXTERNAL_INCLUDE_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/MagnumExternal"
+        tc.variables[
+            "MAGNUM_PLUGINS_INCLUDE_INSTALL_DIR"
+        ] = "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/MagnumPlugins"
         tc.generate()
 
         tc = CMakeDeps(self)

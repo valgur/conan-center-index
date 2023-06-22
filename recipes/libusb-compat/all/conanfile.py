@@ -99,7 +99,6 @@ class LibUSBCompatConan(ConanFile):
     license = ("LGPL-2.1", "BSD-3-Clause")
     homepage = "https://github.com/libusb/libusb-compat-0.1"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = "patches/**", "CMakeLists.txt.in"
     topics = ("libusb", "compatibility", "usb")
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -112,6 +111,12 @@ class LibUSBCompatConan(ConanFile):
         "fPIC": True,
         "enable_logging": False,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

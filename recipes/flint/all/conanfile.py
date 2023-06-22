@@ -95,7 +95,6 @@ class FlintConan(ConanFile):
     topics = ("math", "numerical")
     homepage = "https://www.flintlib.org"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -105,6 +104,9 @@ class FlintConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -88,7 +88,6 @@ class PoshlibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("posh", "framework", "cross-platform")
     license = "BSD-2-Clause"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -98,6 +97,9 @@ class PoshlibConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -117,7 +119,6 @@ class PoshlibConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

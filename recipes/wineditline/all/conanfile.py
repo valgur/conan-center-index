@@ -98,7 +98,9 @@ class WineditlineConan(ConanFile):
     default_options = {
         "shared": False,
     }
-    exports_sources = ("patches/*", "CMakeLists.txt")
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.os != "Windows":

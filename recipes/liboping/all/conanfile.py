@@ -91,7 +91,6 @@ class LibopingConan(ConanFile):
     homepage = "https://noping.cc"
     license = ["LGPL-2.1", "GPL-2.0"]
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["patches/**"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -106,6 +105,9 @@ class LibopingConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

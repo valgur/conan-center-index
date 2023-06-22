@@ -130,7 +130,8 @@ class CernRootConan(ConanFile):
         "python": PythonOption.OFF,
     }
 
-    exports_sources = "patches/*"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _minimum_cpp_standard(self):

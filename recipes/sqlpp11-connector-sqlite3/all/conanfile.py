@@ -89,7 +89,6 @@ class sqlpp11Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rbock/sqlpp11-connector-sqlite3"
     license = "BSD-2-Clause"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -100,6 +99,9 @@ class sqlpp11Conan(ConanFile):
         "fPIC": True,
         "with_sqlcipher": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

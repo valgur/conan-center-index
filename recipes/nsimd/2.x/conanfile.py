@@ -103,7 +103,6 @@ class NsimdConan(ConanFile):
     )
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    exports_sources = ["CMakeLists.txt", "patches/*"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -132,6 +131,9 @@ class NsimdConan(ConanFile):
         ],
     }
     default_options = {"shared": False, "fPIC": True, "simd": None}
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

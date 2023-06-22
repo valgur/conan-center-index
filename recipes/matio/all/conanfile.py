@@ -91,7 +91,6 @@ class MatioConan(ConanFile):
     description = "Matio is a C library for reading and writing binary MATLAB MAT files."
     topics = ("matlab", "mat-file", "file-format", "hdf5")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "CMakeLists.txt", "patches/*"
     options = {
         "shared": [True, False],
         "extended_sparse": [True, False],
@@ -108,6 +107,9 @@ class MatioConan(ConanFile):
         "with_hdf5": True,
         "with_zlib": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

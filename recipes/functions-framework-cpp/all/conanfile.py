@@ -108,7 +108,6 @@ class FunctionsFrameworkCppConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):

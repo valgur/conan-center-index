@@ -96,7 +96,6 @@ class KcpConan(ConanFile):
     homepage = "https://github.com/skywind3000/kcp"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    exports_sources = "CMakeLists.txt", "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -106,6 +105,9 @@ class KcpConan(ConanFile):
         "fPIC": True,
     }
     settings = "os", "arch", "compiler", "build_type"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -122,9 +124,9 @@ class KcpConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

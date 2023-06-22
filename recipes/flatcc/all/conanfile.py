@@ -124,7 +124,6 @@ class FlatccConan(ConanFile):
         "fast_double": False,
         "ignore_const_condition": False,
     }
-    exports_sources = ["CMakeLists.txt"]
 
     def config_options(self):
         if self.settings.os == "Windows":

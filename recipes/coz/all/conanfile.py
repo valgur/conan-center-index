@@ -99,10 +99,8 @@ class CozConan(ConanFile):
 
     settings = "os", "arch", "compiler", "build_type"
 
-    requires = "libelfin/0.3"
-    exports_sources = "CMakeLists.txt"
-
-    _source_subfolder = "source_subfolder"
+    def requirements(self):
+        self.requires("libelfin/0.3")
 
     def validate(self):
         compiler = self.settings.compiler

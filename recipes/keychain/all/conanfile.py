@@ -95,7 +95,6 @@ class KeychainConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt"]
     generators = "cmake", "pkg_config"
     options = {"fPIC": [False, True]}
     default_options = {

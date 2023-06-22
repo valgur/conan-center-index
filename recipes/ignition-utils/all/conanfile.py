@@ -107,7 +107,6 @@ class IgnitionUitlsConan(ConanFile):
         "fPIC": True,
         "ign_utils_vendor_cli11": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
     def _minimum_cpp_standard(self):
@@ -121,6 +120,9 @@ class IgnitionUitlsConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

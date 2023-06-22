@@ -97,12 +97,19 @@ class DirectShowBaseClassesConan(ConanFile):
     homepage = "https://docs.microsoft.com/en-us/windows/desktop/directshow/directshow-base-classes"
     topics = ("directshow", "dshow")
     license = "MIT"
-    exports_sources = ["CMakeLists.txt"]
-    settings = {"os": ["Windows"], "arch": ["x86", "x86_64"], "compiler": None, "build_type": None}
+    settings = {
+        "os": ["Windows"],
+        "arch": ["x86", "x86_64"],
+        "compiler": None,
+        "build_type": None,
+    }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("Windows-classic-samples-%s" % self.version, self.source_folder)
+        os.rename(f"Windows-classic-samples-{self.version}", self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)

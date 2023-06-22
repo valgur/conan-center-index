@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, save
+from conan.tools.files import get, save, copy
 import os
 
 required_conan_version = ">=1.53.0"
@@ -35,7 +35,13 @@ class FftConan(ConanFile):
         "threads_begin_n": 65536,
     }
 
-    exports_sources = ["CMakeLists.txt", "fft_build.c", "fft.h", "fft2.h", "fft3.h", "dct.h"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft_build.c", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft2.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft3.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dct.h", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

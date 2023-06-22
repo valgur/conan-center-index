@@ -104,12 +104,14 @@ class CrashpadConan(ConanFile):
         "http_transport": None,
         "with_tls": "openssl",
     }
-    exports_sources = "patches/*"
 
     def _minimum_compiler_cxx14(self):
         return {"apple-clang": 10, "gcc": 5, "clang": "3.9", "Visual Studio": 14}.get(
             str(self.settings.compiler)
         )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -101,8 +101,6 @@ class SpirvheadersConan(ConanFile):
 
     settings = "os", "compiler", "arch", "build_type"
 
-    exports_sources = "CMakeLists.txt"
-
     def package_id(self):
         self.info.header_only()
 

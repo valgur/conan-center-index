@@ -95,7 +95,6 @@ class LibBasisUniversalConan(ConanFile):
     topics = ("basis", "textures", "compression")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
-    exports_sources = ["CMakeLists.txt", "patches/*"]
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "fPIC": [True, False],
@@ -118,6 +117,9 @@ class LibBasisUniversalConan(ConanFile):
         return self.options.get_safe(
             "custom_iterator_debug_level", default=self.default_options["custom_iterator_debug_level"]
         )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

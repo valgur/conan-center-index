@@ -107,8 +107,6 @@ class LightPcapNgConan(ConanFile):
         "fPIC": True,
         "with_zstd": True,
     }
-    generators = "cmake", "cmake_paths", "cmake_find_package"
-    exports_sources = "CMakeLists.txt"
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -97,7 +97,6 @@ class DuktapeConan(ConanFile):
     topics = ("javascript", "engine", "embeddable", "compact")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://duktape.org"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -107,6 +106,9 @@ class DuktapeConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

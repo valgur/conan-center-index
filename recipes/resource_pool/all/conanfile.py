@@ -93,7 +93,8 @@ class ResourcePool(ConanFile):
     license = "MIT"
 
     settings = "os", "arch", "compiler", "build_type"
-    requires = "boost/1.75.0"
+    def requirements(self):
+        self.requires("boost/1.75.0")
     generators = "cmake_find_package"
     no_copy_source = True
 

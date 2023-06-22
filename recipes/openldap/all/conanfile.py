@@ -89,7 +89,6 @@ class OpenldapConan(ConanFile):
     homepage = "https://www.openldap.org/"
     license = "OLDAP-2.8"
     topics = ("ldap", "load-balancer", "directory-access")
-    exports_sources = ["patches/*"]
     settings = settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -103,6 +102,9 @@ class OpenldapConan(ConanFile):
     }
     _autotools = None
     _configure_vars = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:

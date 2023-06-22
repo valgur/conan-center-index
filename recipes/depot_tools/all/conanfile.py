@@ -90,7 +90,9 @@ class DepotToolsConan(ConanFile):
     license = "BSD-3-Clause"
     no_copy_source = True
     settings = "os", "arch", "build_type", "compiler"
-    exports_sources = ["patches/**"]
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _source_subfolder(self):

@@ -102,7 +102,6 @@ class PlayrhoConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -143,6 +142,7 @@ class PlayrhoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["PLAYRHO_BUILD_SHARED"] = self.options.shared
         tc.variables["PLAYRHO_BUILD_STATIC"] = not self.options.shared
         tc.variables["PLAYRHO_INSTALL"] = True

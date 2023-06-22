@@ -97,7 +97,9 @@ class UsrsctpConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = ["CMakeLists.txt", "patches/*"]
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -114,22 +116,19 @@ class UsrsctpConan(ConanFile):
         extracted_dir = "usrsctp-{}".format(self.version)
         os.rename(extracted_dir, self.source_folder)
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["sctp_debug"] = False
         tc.variables["sctp_werror"] = False
         tc.variables["sctp_build_shared_lib"] = self.options.shared
         tc.variables["sctp_build_programs"] = False
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
-        self._patch_sources()
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

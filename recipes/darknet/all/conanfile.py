@@ -98,7 +98,6 @@ class DarknetConan(ConanFile):
         "fPIC": True,
         "with_opencv": False,
     }
-    exports_sources = ["patches/*"]
     generators = "pkg_config"
 
     @property
@@ -129,6 +128,9 @@ class DarknetConan(ConanFile):
             "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
             "all: obj backup results " + self._lib_to_compile,
         )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:

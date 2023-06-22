@@ -88,11 +88,13 @@ class DiConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "DI: C++14 Dependency Injection Library."
     topics = ("dependency-injection", "metaprogramming", "design-patterns")
-    exports_sources = ["BSL-1.0.txt"]
     settings = "compiler"
     options = {"with_extensions": [True, False], "diagnostics_level": [0, 1, 2]}
     default_options = {"with_extensions": False, "diagnostics_level": 1}
     no_copy_source = True
+
+    def export_sources(self):
+        copy(self, "BSL-1.0.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
         minimal_cpp_standard = "14"

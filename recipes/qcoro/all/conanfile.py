@@ -101,18 +101,16 @@ class QCoroConan(ConanFile):
         "fPIC": True,
         "asan": False,
     }
-    exports_sources = ["CMakeLists.txt"]
 
     @property
     def _compilers_minimum_version(self):
-        minimum_versions = {
+        return {
             "gcc": "10",
             "Visual Studio": "17",
             "msvc": "19.29",
             "clang": "8",
             "apple-clang": "13",
         }
-        return minimum_versions
 
     def config_options(self):
         if self.settings.os == "Windows":

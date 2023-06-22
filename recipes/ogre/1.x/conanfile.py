@@ -93,8 +93,6 @@ class ogrecmakeconan(ConanFile):
 
     settings = "os", "compiler", "build_type", "arch"
 
-    exports_sources = "CMakeLists.txt", "patches/**"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -178,7 +176,9 @@ class ogrecmakeconan(ConanFile):
         "set_double": False,
         "glsupport_use_egl": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("cppunit/1.15.1")

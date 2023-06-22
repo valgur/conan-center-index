@@ -114,8 +114,6 @@ class MagnumIntegrationConan(ConanFile):
         "with_ovr": False,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -152,14 +150,14 @@ class MagnumIntegrationConan(ConanFile):
         tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_GL_TESTS"] = False
-
         tc.variables["WITH_BULLET"] = self.options.with_bullet
         tc.variables["WITH_DART"] = self.options.with_dart
         tc.variables["WITH_EIGEN"] = self.options.with_eigen
         tc.variables["WITH_GLM"] = self.options.with_glm
         tc.variables["WITH_IMGUI"] = self.options.with_imgui
         tc.variables["WITH_OVR"] = self.options.with_ovr
-
+        tc.variables["MAGNUM_INCLUDE_INSTALL_DIR"] = "include/Magnum"
+        tc.variables["MAGNUM_EXTERNAL_INCLUDE_INSTALL_DIR"] = "include/MagnumExternal"
         tc.generate()
 
         tc = CMakeDeps(self)

@@ -104,7 +104,6 @@ class Gm2calcConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = ["CMakeLists.txt"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -127,6 +126,7 @@ class Gm2calcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

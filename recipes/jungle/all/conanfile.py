@@ -102,9 +102,7 @@ class JungleConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
-        for patch_file in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, patch_file["patch_file"])
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("forestdb/cci.20220727")

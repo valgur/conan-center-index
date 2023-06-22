@@ -96,7 +96,6 @@ class LibDispatchConan(ConanFile):
     topics = ("apple", "GCD", "concurrency")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "compiler", "build_type", "arch"
 
     options = {

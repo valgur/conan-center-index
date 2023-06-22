@@ -88,7 +88,6 @@ class YojimboConan(ConanFile):
     topics = ("conan", "yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
     description = "A network library for client/server games written in C++"
     license = "BSD-3-Clause"
-    exports = "submoduledata.yml"
     build_requires = "premake/5.0.0-alpha15"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -97,6 +96,9 @@ class YojimboConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "submoduledata.yml", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
         if self.settings.arch != "x86_64":

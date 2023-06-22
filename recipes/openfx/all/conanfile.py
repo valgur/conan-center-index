@@ -98,8 +98,15 @@ class openfx(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    requires = ("opengl/system", "expat/2.4.8")
-    exports_sources = "CMakeLists.txt", "cmake/*", "symbols/*"
+
+    def requirements(self):
+        self.requires("opengl/system")
+        self.requires("expat/2.4.8")
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "symbols", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)

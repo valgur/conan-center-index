@@ -101,7 +101,9 @@ class PbcConan(ConanFile):
         "fPIC": True,
     }
     _autotools = None
-    exports_sources = "patches/**"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

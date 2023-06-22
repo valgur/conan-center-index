@@ -97,8 +97,8 @@ class TwitchNativeIpcConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports = ["CMakeLists.txt", "patches/**"]
-    requires = "libuv/1.40.0"
+    def requirements(self):
+        self.requires("libuv/1.40.0")
 
     @property
     def _compilers_min_version(self):
@@ -108,6 +108,9 @@ class TwitchNativeIpcConan(ConanFile):
             "apple-clang": "10",
             "Visual Studio": "15",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

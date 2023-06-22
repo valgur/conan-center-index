@@ -105,8 +105,6 @@ class SobjectizerConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -153,7 +151,7 @@ class SobjectizerConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder="dev/so_5")
         cmake.build()
 
     def source(self):

@@ -108,8 +108,14 @@ class QuickfastConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    requires = ["boost/1.75.0", "xerces-c/3.2.3"]
-    exports_sources = "CMakeLists.txt", "patches/**"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
+
+    def requirements(self):
+        self.requires("boost/1.75.0")
+        self.requires("xerces-c/3.2.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

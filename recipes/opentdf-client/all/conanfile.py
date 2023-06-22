@@ -120,9 +120,7 @@ class OpenTDFConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
-        for data in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, data["patch_file"])
+        export_conandata_patches(self)
 
     def validate(self):
         # check minimum cpp standard supported by compiler
@@ -165,6 +163,7 @@ class OpenTDFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

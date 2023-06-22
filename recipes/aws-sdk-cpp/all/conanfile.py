@@ -400,7 +400,6 @@ class AwsSdkCppConan(ConanFile):
         return Version(self.version) >= "1.9"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -491,6 +490,10 @@ class AwsSdkCppConan(ConanFile):
             tc.variables["CURL_HAS_H2_EXITCODE__TRYRUN_OUTPUT"] = ""
             tc.variables["CURL_HAS_TLS_PROXY_EXITCODE"] = "0"
             tc.variables["CURL_HAS_TLS_PROXY_EXITCODE__TRYRUN_OUTPUT"] = ""
+
+        if is_msvc(self):
+            tc.preprocessor_definitions["_SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING"] = ""
+
         tc.generate()
 
         tc = CMakeDeps(self)

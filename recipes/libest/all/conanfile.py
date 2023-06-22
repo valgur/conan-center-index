@@ -88,7 +88,6 @@ class LibEstConan(ConanFile):
     homepage = "https://github.com/cisco/libest"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,6 +98,9 @@ class LibEstConan(ConanFile):
     }
 
     _autotools = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

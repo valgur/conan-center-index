@@ -90,7 +90,6 @@ class TweetnaclConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "TweetNaCl is the world's first auditable high-security cryptographic library"
     topics = ("nacl", "encryption", "signature", "hashing")
-    exports_sources = "CMakeLists.txt"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -100,6 +99,9 @@ class TweetnaclConan(ConanFile):
         "fPIC": True,
     }
     settings = "os", "compiler", "build_type", "arch"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -94,7 +94,6 @@ class AcadoConan(ConanFile):
     topics = ("control", "optimization", "mpc")
     homepage = "https://github.com/acado/acado"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "cmake/qpoases.cmake", "patches/**"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -106,6 +105,10 @@ class AcadoConan(ConanFile):
         "fPIC": True,
         "codegen_only": True,
     }
+
+    def export_sources(self):
+        copy(self, "cmake/qpoases.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -122,6 +125,8 @@ class AcadoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+
+        tc.variables["CMAKE_CXX_STANDARD"] = 11
 
         tc.variables["ACADO_BUILD_SHARED"] = self.options.shared
         tc.variables["ACADO_BUILD_STATIC"] = not self.options.shared

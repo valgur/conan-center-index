@@ -1,18 +1,21 @@
 import os
 
 from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.files import copy
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import is_msvc
-from conan.tools.build import can_run
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "Imakefile", "test_package.c"
     test_type = "explicit"
+
+    def export_sources(self):
+        copy(self, "Imakefile", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "test_package.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

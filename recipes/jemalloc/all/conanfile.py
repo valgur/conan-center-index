@@ -203,9 +203,11 @@ class JemallocConan(ConanFile):
         "enable_libdl": True,
         "enable_prof": False,
     }
-    exports_sources = ["patches/**"]
 
     _autotools = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

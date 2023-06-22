@@ -105,7 +105,6 @@ class IgnitionMathConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
 
     @property
     def _minimum_cpp_standard(self):
@@ -119,6 +118,9 @@ class IgnitionMathConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

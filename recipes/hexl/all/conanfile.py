@@ -104,8 +104,6 @@ class HexlConan(ConanFile):
     description = "Intel Homomorphic Encryption (HE) Acceleration Library"
     topics = ("homomorphic", "encryption", "privacy")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -113,7 +111,6 @@ class HexlConan(ConanFile):
         "fpga_compatibility_dyadic_multiply": [True, False],
         "fpga_compatibility_keyswitch": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -121,6 +118,9 @@ class HexlConan(ConanFile):
         "fpga_compatibility_dyadic_multiply": False,
         "fpga_compatibility_keyswitch": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

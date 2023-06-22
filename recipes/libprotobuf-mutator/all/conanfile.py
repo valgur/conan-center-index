@@ -97,7 +97,6 @@ class LibProtobufMutatorConan(ConanFile):
     description = "A library to randomly mutate protobuffers."
     topics = ("test", "fuzzing", "protobuf")
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = ["CMakeLists.txt"]
 
     def requirements(self):
         self.requires("protobuf/3.17.1")
@@ -140,6 +139,10 @@ class LibProtobufMutatorConan(ConanFile):
         tc.variables["LIB_PROTO_MUTATOR_WITH_ASAN"] = "OFF"
         tc.variables["LIB_PROTO_MUTATOR_FUZZER_LIBRARIES"] = ""
         # todo: check option(LIB_PROTO_MUTATOR_MSVC_STATIC_RUNTIME "Link static runtime libraries" ON)
+        if is_msvc(self):
+            # Should be added because of
+            # https://docs.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-initonceexecuteonce
+            tc.preprocessor_definitions["_WIN32_WINNT"] = "0x0600"
         tc.generate()
 
         tc = CMakeDeps(self)

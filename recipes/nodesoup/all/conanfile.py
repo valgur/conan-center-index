@@ -100,7 +100,8 @@ class NodesoupConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt", "patches/*"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -127,8 +128,8 @@ class NodesoupConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -142,7 +143,6 @@ class NodesoupConan(ConanFile):
         copy(self, pattern="LICENSE", dst="licenses", src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

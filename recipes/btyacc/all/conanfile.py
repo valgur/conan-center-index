@@ -104,7 +104,6 @@ class BtyaccConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt"
     no_copy_source = True
 
     def config_options(self):

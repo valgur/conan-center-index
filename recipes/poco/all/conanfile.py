@@ -323,9 +323,8 @@ class PocoConan(ConanFile):
         for compname, comp in self._poco_component_tree.items():
             if comp.option is None or self.options.get_safe(comp.option):
                 conan_component = f"poco_{compname.lower()}"
-                requires = [
-                    f"poco_{dependency.lower()}" for dependency in comp.dependencies
-                ] + comp.external_dependencies
+                requires = [f"poco_{dependency.lower()}" for dependency in comp.dependencies]
+                requires += comp.external_dependencies
                 self.cpp_info.components[conan_component].set_property(
                     "cmake_target_name", f"Poco::{compname}"
                 )

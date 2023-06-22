@@ -2,96 +2,28 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.microsoft.visual import vs_ide_version
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
 required_conan_version = ">=1.28.0"
 
 
 class ContinuableConan(ConanFile):
     name = "continuable"
-    description = "C++14 asynchronous allocation aware futures (supporting then, exception handling, coroutines and connections)"
+    description = (
+        "C++14 asynchronous allocation aware futures (supporting then, exception handling,"
+        " coroutines and connections)"
+    )
     topics = ("asynchronous", "future", "coroutines", "header-only")
+    package_type = "header-library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Naios/continuable"
     license = "MIT"
     settings = "os", "compiler"
     no_copy_source = True
-    requires = ("function2/4.1.0",)
     options = {
         # Exceptions are disabled and `std::error_condition` is used as error_type. See tutorial-chaining-continuables-fail for details.
         "no_exceptions": [True, False],
@@ -113,8 +45,11 @@ class ContinuableConan(ConanFile):
         "immediate_types": False,
     }
 
+    def requirements(self):
+        self.requires("function2/4.1.0")
+
     def validate(self):
-        minimal_cpp_standard = "14"
+        minimal_cpp_standard = 14
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
@@ -126,22 +61,22 @@ class ContinuableConan(ConanFile):
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler standard version support"
-                % (self.name, compiler)
+                f"{self.name} recipe lacks information about the {compiler} "
+                "compiler standard version support"
             )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
             return
         version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "continuable-" + self.version
+        extracted_dir = f"continuable-{self.version}"
         os.rename(extracted_dir, self.source_folder)
 
     def package(self):
@@ -166,6 +101,3 @@ class ContinuableConan(ConanFile):
             self.cpp_info.defines.append("CONTINUABLE_WITH_CUSTOM_FINAL_CALLBACK")
         if self.options.immediate_types:
             self.cpp_info.defines.append("CONTINUABLE_WITH_IMMEDIATE_TYPES")
-
-    def package_id(self):
-        self.info.header_only()

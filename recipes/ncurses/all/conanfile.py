@@ -120,7 +120,6 @@ class NCursesConan(ConanFile):
     }
 
     generators = "pkg_config"
-    exports_sources = "patches/*"
 
     @property
     def _settings_build(self):
@@ -139,6 +138,9 @@ class NCursesConan(ConanFile):
             return self.settings.os != "Windows"
         else:
             return self.options.with_tinfo
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

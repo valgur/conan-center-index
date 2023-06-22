@@ -91,13 +91,15 @@ class PremakeConan(ConanFile):
     homepage = "https://premake.github.io"
     license = "BSD-3-Clause"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "patches/**"
     options = {
         "lto": [True, False],
     }
     default_options = {
         "lto": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

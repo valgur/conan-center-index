@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan.tools.files import get, load, save, copy
 import os
 
 required_conan_version = ">=1.53.0"
@@ -25,11 +25,12 @@ class SofaConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _sofa_src_dir(self):
         return os.path.join(self.source_folder, self.version, "c", "src")
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

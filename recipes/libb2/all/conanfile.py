@@ -96,8 +96,6 @@ class libb2Conan(ConanFile):
                     SHA-1, SHA-2, and SHA-3, yet is at least as secure as the latest standard SHA-3"
     settings = "os", "arch", "compiler", "build_type"
     topics = ("blake2", "hash")
-    exports_sources = ["CMakeLists.txt"]
-    generators = ["cmake"]
     options = {
         "fPIC": [True, False],
         "shared": [True, False],
@@ -110,6 +108,9 @@ class libb2Conan(ConanFile):
         "use_sse": False,
         "use_neon": False,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")

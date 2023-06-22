@@ -92,7 +92,6 @@ class LiquidDspConan(ConanFile):
     homepage = "https://github.com/jgaeddert/liquid-dsp"
     license = ("MIT",)
     settings = "os", "arch", "build_type", "compiler"
-    exports_sources = ["generate_link_library.bat"]
     options = {
         "shared": [True, False],
         "simdoverride": [True, False],
@@ -127,6 +126,9 @@ class LiquidDspConan(ConanFile):
         if self.settings.os != "Windows":
             return self._target_name
         return "libliquid.lib"
+
+    def export_sources(self):
+        copy(self, "generate_link_library.bat", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")

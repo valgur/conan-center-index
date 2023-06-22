@@ -100,12 +100,13 @@ class EnchantConan(ConanFile):
     topics = ("enchant", "spell", "spell-check")
     license = "LGPL-2.1-or-later"
     settings = "os", "arch", "compiler", "build_type"
-    requires = "glib/2.71.3", "hunspell/1.7.0"
+    def requirements(self):
+        self.requires("glib/2.71.3", "hunspell/1.7.0")
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
-        copy(self, "configmake.h")
-        copy(self, "configure.cmake")
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configmake.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configure.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def source(self):

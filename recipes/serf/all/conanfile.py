@@ -91,7 +91,6 @@ class SerfConan(ConanFile):
     topics = ("apache", "http", "library")
     homepage = "https://serf.apache.org/"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = "patches/**"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,6 +100,9 @@ class SerfConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

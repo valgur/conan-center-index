@@ -91,7 +91,6 @@ class LibiglConan(ConanFile):
     description = "Simple C++ geometry processing library"
     topics = ("geometry", "matrices", "algorithms")
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     homepage = "https://libigl.github.io/"
     license = "MPL-2.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -103,7 +102,8 @@ class LibiglConan(ConanFile):
         "header_only": True,
         "fPIC": True,
     }
-    requires = "eigen/3.3.9"
+    def requirements(self):
+        self.requires("eigen/3.3.9")
 
     @property
     def _minimum_cpp_standard(self):
@@ -117,6 +117,10 @@ class LibiglConan(ConanFile):
             "clang": "3.4",
             "apple-clang": "5.1",
         }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

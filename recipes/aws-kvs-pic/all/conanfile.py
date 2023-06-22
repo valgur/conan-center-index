@@ -104,7 +104,9 @@ class awskvspicConan(ConanFile):
         "fPIC": True,
     }
     topics = ("aws", "kvs", "kinesis", "video", "stream")
-    exports_sources = ["CMakeLists.txt", "patches/*"]
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.os != "Linux" and self.options.shared:

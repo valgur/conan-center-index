@@ -98,19 +98,19 @@ class GameNetworkingSocketsConan(ConanFile):
     license = "BSD-3-Clause"
     generators = "cmake", "pkg_config"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "encryption": ["openssl", "libsodium", "bcrypt"],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
         "encryption": "openssl",
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

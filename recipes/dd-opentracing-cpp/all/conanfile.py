@@ -116,7 +116,6 @@ class DatadogOpenTracingConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -154,6 +153,8 @@ class DatadogOpenTracingConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "4.0":
+            tc.variables["CMAKE_CXX_FLAGS"] = "-ftemplate-depth=1024"
         tc.variables["BUILD_PLUGIN"] = False
         tc.variables["BUILD_SHARED"] = self.options.shared
         tc.variables["BUILD_STATIC"] = not self.options.shared

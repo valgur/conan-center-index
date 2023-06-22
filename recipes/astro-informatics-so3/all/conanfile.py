@@ -104,8 +104,6 @@ class AstroInformaticsSO3(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -136,11 +134,14 @@ class AstroInformaticsSO3(ConanFile):
         tc.generate()
 
     def build(self):
-        self.cmake.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
         copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-        self.cmake.install()
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["astro-informatics-so3"]

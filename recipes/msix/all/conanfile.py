@@ -112,13 +112,14 @@ class MsixConan(ConanFile):
         "xml_parser": "msxml6",
     }
 
-    exports_sources = "CMakeLists.txt", "patches/**"
-
     @property
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "15",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)

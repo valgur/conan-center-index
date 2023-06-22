@@ -605,41 +605,27 @@ class OpenCascadeConan(ConanFile):
 
                 for target_lib, target_deps in targets.items():
                     conan_component_target_name = _to_qualified_name(target_lib)
-                    requires = [
-                        _to_qualified_name(internal) for internal in target_deps.get("internals", [])
-                    ] + target_deps.get("externals", [])
+                    requires = [_to_qualified_name(internal) for internal in target_deps.get("internals", [])]
+                    requires += target_deps.get("externals", [])
                     system_libs = target_deps.get("system_libs", [])
                     frameworks = target_deps.get("frameworks", [])
 
-                    self.cpp_info.components[conan_component_target_name].set_property(
-                        "cmake_target_name", target_lib
-                    )
-                    self.cpp_info.components[conan_component_target_name].libs = [target_lib]
-                    self.cpp_info.components[conan_component_target_name].requires = requires
-                    self.cpp_info.components[conan_component_target_name].system_libs = system_libs
-                    self.cpp_info.components[conan_component_target_name].frameworks = frameworks
+                    component = self.cpp_info.components[conan_component_target_name]
+                    component.set_property("cmake_target_name", target_lib)
+                    component.libs = [target_lib]
+                    component.requires = requires
+                    component.system_libs = system_libs
+                    component.frameworks = frameworks
                     if self.settings.os == "Windows" and not self.options.shared:
-                        self.cpp_info.components[conan_component_target_name].defines.append(
-                            "OCCT_STATIC_BUILD"
-                        )
+                        component.defines.append("OCCT_STATIC_BUILD")
 
-                    self.cpp_info.components[conan_component_module_name].requires.append(
-                        conan_component_target_name
-                    )
+                    component.requires.append(conan_component_target_name)
 
                     # TODO: to remove in conan v2 once cmake_find_package* generators removed
-                    self.cpp_info.components[conan_component_target_name].names[
-                        "cmake_find_package"
-                    ] = target_lib
-                    self.cpp_info.components[conan_component_target_name].names[
-                        "cmake_find_package_multi"
-                    ] = target_lib
-                    self.cpp_info.components[conan_component_target_name].build_modules[
-                        "cmake_find_package"
-                    ] = [self._cmake_module_file_rel_path]
-                    self.cpp_info.components[conan_component_target_name].build_modules[
-                        "cmake_find_package_multi"
-                    ] = [self._cmake_module_file_rel_path]
+                    component.names["cmake_find_package"] = target_lib
+                    component.names["cmake_find_package_multi"] = target_lib
+                    component.build_modules["cmake_find_package"] = [self._cmake_module_file_rel_path]
+                    component.build_modules["cmake_find_package_multi"] = [self._cmake_module_file_rel_path]
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
                 self.cpp_info.components[conan_component_module_name].names["cmake_find_package"] = module

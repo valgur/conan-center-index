@@ -95,7 +95,6 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    exports = ["CMakeLists.txt", "patches/**"]
     requires = ("twitch-native-ipc/3.1.1", "ms-gsl/2.0.0")
 
     @property
@@ -106,6 +105,9 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
             "apple-clang": "10",
             "Visual Studio": "15",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

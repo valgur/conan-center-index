@@ -118,7 +118,7 @@ class DetoursConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     @property
     def _target_processor(self):

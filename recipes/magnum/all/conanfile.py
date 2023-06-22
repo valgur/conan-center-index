@@ -226,7 +226,9 @@ class MagnumConan(ConanFile):
         "wav_audio_importer": True,
     }
 
-    exports_sources = ["CMakeLists.txt", "cmake/*"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         # Doc says that 'distance_field_converter' is only available with "desktop GL" (the same is said for 'font_converter', but it builds)

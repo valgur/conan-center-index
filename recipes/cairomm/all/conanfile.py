@@ -180,7 +180,9 @@ class CairommConan(ConanFile):
     }
 
     generators = "pkg_config"
-    exports_sources = "patches/**"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def _abi_version(self):
         return "1.16" if Version(self.version) >= "1.16.0" else "1.0"

@@ -5,13 +5,20 @@ from contextlib import contextmanager
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
-    exports_sources = "a.cpp", "b.cpp", "main.c", "main.cpp", "wscript"
+
+    def export_sources(self):
+        copy(self, "a.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "b.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "main.c", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "main.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "wscript", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def requirements(self):
         self.requires(self.tested_reference_str)

@@ -114,7 +114,6 @@ class DjinniSuppotLib(ConanFile):
         "with_cppcli": "auto",
         "system_java": False,
     }
-    exports_sources = ["CMakeLists.txt"]
 
     @property
     def _objc_support(self):
@@ -209,6 +208,7 @@ class DjinniSuppotLib(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["DJINNI_WITH_OBJC"] = self._objc_support
         tc.variables["DJINNI_WITH_JNI"] = self._jni_support
         tc.variables["DJINNI_WITH_PYTHON"] = self._python_support

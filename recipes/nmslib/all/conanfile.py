@@ -96,7 +96,9 @@ class Nmslib(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "patches/**"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
@@ -130,7 +132,7 @@ class Nmslib(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder="similarity_search")
         cmake.build()
 
     def package(self):

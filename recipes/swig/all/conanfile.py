@@ -92,7 +92,6 @@ class SwigConan(ConanFile):
     homepage = "http://www.swig.org"
     license = "GPL-3.0-or-later"
     topics = ("python", "java", "wrapper")
-    exports_sources = "patches/**", "cmake/*"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -102,6 +101,10 @@ class SwigConan(ConanFile):
     @property
     def _use_pcre2(self):
         return self.version not in ["4.0.1", "4.0.2"]
+
+    def export_sources(self):
+        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def requirements(self):
         if self._use_pcre2:

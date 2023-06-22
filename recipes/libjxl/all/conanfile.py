@@ -109,7 +109,8 @@ class LibjxlConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt", "patches/**"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

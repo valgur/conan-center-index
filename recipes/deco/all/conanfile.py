@@ -86,11 +86,17 @@ class DecoConan(ConanFile):
     license = "Apache-2.0-WITH-LLVM-exception"
     description = "Delimiter Collision Free Format"
     topics = "serialization"
+    package_type = "header-library"
     homepage = "https://github.com/Enhex/Deco"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True
     settings = ("compiler", "build_type", "os", "arch")
-    requires = ("enhex-generic_serialization/1.0.0", "enhex-strong_type/1.0.0", "boost/1.79.0", "rang/3.2")
+
+    def requirements(self):
+        self.requires("enhex-generic_serialization/1.0.0")
+        self.requires("enhex-strong_type/1.0.0")
+        self.requires("boost/1.79.0")
+        self.requires("rang/3.2")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -106,15 +112,14 @@ class DecoConan(ConanFile):
         compiler_version = Version(self.settings.compiler.version)
 
         if compiler not in minimal_version:
-            self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
+            self.output.info(f"{self.name} requires a compiler that supports at least C++17")
             return
 
         # Exclude compilers not supported
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++17. {} {} is not".format(
-                    self.name, compiler, Version(self.settings.compiler.version.value)
-                )
+                f"{self.name} requires a compiler that supports at least C++17."
+                f" {compiler} {Version(self.settings.compiler.version.value)} is not"
             )
 
     def source(self):
@@ -123,6 +128,3 @@ class DecoConan(ConanFile):
     def package(self):
         copy(self, pattern="LICENSE.txt", dst="licenses", src=self.source_folder)
         copy(self, pattern="*", dst="include", src=os.path.join(self.source_folder, "include"))
-
-    def package_id(self):
-        self.info.header_only()

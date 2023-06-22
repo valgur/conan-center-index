@@ -117,7 +117,6 @@ class MagnumExtrasConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -162,11 +161,10 @@ class MagnumExtrasConan(ConanFile):
         tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_GL_TESTS"] = False
-
         tc.variables["WITH_PLAYER"] = self.options.player
         tc.variables["WITH_UI"] = self.options.ui
         tc.variables["WITH_UI_GALLERY"] = self.options.ui_gallery
-
+        tc.variables["MAGNUM_INCLUDE_INSTALL_DIR"] = os.path.join("include", "Magnum")
         tc.generate()
 
         tc = CMakeDeps(self)

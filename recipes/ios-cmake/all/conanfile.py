@@ -121,16 +121,14 @@ class IosCMakeConan(ConanFile):
     }
     description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
     topics = ("apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos")
-    exports_sources = "cmake-wrapper"
-
-    @property
-    def _source_subfolder(self):
-        return os.path.join(self.source_folder, "source_subfolder")
 
     @staticmethod
     def _chmod_plus_x(filename):
         if os.name == "posix":
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
+
+    def export_sources(self):
+        copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
         if not is_apple_os(self.settings.os):
@@ -159,7 +157,7 @@ class IosCMakeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("ios-cmake-{}".format(self.version), self.source_folder)
+        os.rename(f"ios-cmake-{self.version}", self.source_folder)
 
     def build(self):
         pass  # there is nothing to build

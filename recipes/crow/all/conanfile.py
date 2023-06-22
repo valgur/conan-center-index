@@ -88,8 +88,10 @@ class CrowConan(ConanFile):
     topics = ("web", "microframework", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "arch", "build_type"
-    exports_sources = ["patches/*"]
     license = "BSD-3-Clause"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("boost/1.69.0")

@@ -4,16 +4,8 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    get,
-)
-from conan.tools.microsoft import (
-    MSBuild,
-    is_msvc,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, get, export_conandata_patches
+from conan.tools.microsoft import MSBuild, is_msvc
 
 
 class GoogleGuetzliConan(ConanFile):
@@ -23,17 +15,20 @@ class GoogleGuetzliConan(ConanFile):
     homepage = "https://opensource.google/projects/guetzli"
     description = "Perceptual JPEG encoder"
     topics = ("jpeg", "compression")
-    exports_sources = "patches/**"
     settings = "os", "compiler", "arch"
     generators = "pkg_config"
-    requires = ["libpng/1.6.37"]
 
-    def configure(self):
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def requirements(self):
+        self.requires("libpng/1.6.37")
+
+    def validate(self):
         if self.settings.os not in ["Linux", "Windows"]:
             raise ConanInvalidConfiguration(
                 f"conan recipe for guetzli v{self.version} is not available in {self.settings.os}."
             )
-
         if self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(
                 f"conan recipe for guetzli v{self.version} cannot be built with libc++"
@@ -66,7 +61,9 @@ class GoogleGuetzliConan(ConanFile):
         if is_msvc(self):
             copy(
                 self,
-                os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
+                os.path.join(
+                    self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"
+                ),
                 dst="bin",
                 keep_path=False,
             )
@@ -84,5 +81,5 @@ class GoogleGuetzliConan(ConanFile):
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
+        self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

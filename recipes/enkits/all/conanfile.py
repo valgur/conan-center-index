@@ -95,8 +95,6 @@ class EnkiTSConan(ConanFile):
     license = "Zlib"
     settings = "os", "arch", "compiler", "build_type"
 
-    exports_sources = "CMakeLists.txt", "patches/*"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -105,6 +103,9 @@ class EnkiTSConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

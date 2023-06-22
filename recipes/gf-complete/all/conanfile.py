@@ -108,12 +108,14 @@ class GfCompleteConan(ConanFile):
         "avx": "auto",
     }
 
-    exports_sources = "patches/**"
     _autotools = None
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

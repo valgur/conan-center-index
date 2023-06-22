@@ -97,7 +97,6 @@ class PbtoolsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt"
 
     def configure(self):
         if self.options.shared:
@@ -115,7 +114,7 @@ class PbtoolsConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder="lib")
         cmake.build()
 
     def package(self):

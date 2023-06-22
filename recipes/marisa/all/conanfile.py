@@ -89,7 +89,6 @@ class MarisaConan(ConanFile):
     description = "Matching Algorithm with Recursively Implemented StorAge "
     license = ("BSD-2-Clause", "LGPL-2.1")
     topics = ("algorithm", "dictionary", "marisa")
-    exports_sources = "patches/**", "CMakeLists.txt"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -101,6 +100,9 @@ class MarisaConan(ConanFile):
         "fPIC": True,
         "tools": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

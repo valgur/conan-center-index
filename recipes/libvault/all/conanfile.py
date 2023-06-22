@@ -20,7 +20,6 @@ class LibvaultConan(ConanFile):
     description = "A C++ library for Hashicorp Vault"
     topics = ("vault", "secrets", "passwords")
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -33,6 +32,9 @@ class LibvaultConan(ConanFile):
     @property
     def _mac_os_minimum_required_version(self):
         return "10.15"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

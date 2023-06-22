@@ -88,7 +88,6 @@ class RgEtc1Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("etc1", "packer", "unpacker")
     license = "Zlib"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -98,6 +97,9 @@ class RgEtc1Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -93,7 +93,6 @@ class LibgtaConan(ConanFile):
     topics = "gta"
     homepage = "https://marlam.de/gta"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = "CMakeLists.txt"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

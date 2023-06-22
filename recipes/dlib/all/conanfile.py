@@ -126,11 +126,12 @@ class DlibConan(ConanFile):
         "with_openblas": True,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _has_with_webp_option(self):
         return Version(self.version) >= "19.24"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

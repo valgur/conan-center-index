@@ -96,7 +96,6 @@ class JerryScriptStackConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Ultra-lightweight JavaScript engine for the Internet of Things"
     topics = ["javascript", "iot", "javascript-engine"]
-    exports_sources = "CMakeLists.txt", "patches/**"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -175,6 +174,9 @@ class JerryScriptStackConan(ConanFile):
     @property
     def _jerry_math(self):
         return self.options.get_safe("jerry_math", False)
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

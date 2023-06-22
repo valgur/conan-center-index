@@ -97,7 +97,10 @@ class AwsCdiSdkConan(ConanFile):
     homepage = "https://github.com/aws/aws-cdi-sdk"
     license = "BSD-2-Clause"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("aws-libfabric/1.9.1amzncdi1.0")

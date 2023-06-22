@@ -96,7 +96,6 @@ class SbpConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt", "c"
 
     def config_options(self):
         if self.settings.os == "Windows":

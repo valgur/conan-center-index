@@ -108,8 +108,6 @@ class Pagmo2Conan(ConanFile):
         "with_ipopt": False,
     }
 
-    exports_sources = "CMakeLists.txt", "cmake_find_package_multi"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC

@@ -106,7 +106,6 @@ class CargsConan(ConanFile):
         "arguments",
         "argument-parser",
     )
-    exports_sources = ["CMakeLists.txt"]
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

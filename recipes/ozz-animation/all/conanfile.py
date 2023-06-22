@@ -87,7 +87,6 @@ class OzzAnimationConan(ConanFile):
     topics = ("ozz", "animation", "skeletal")
     homepage = "https://github.com/guillaumeblanc/ozz-animation"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],

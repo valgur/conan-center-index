@@ -120,9 +120,6 @@ class EnjinCppSdk(ConanFile):
             "clang": "10",
         }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC

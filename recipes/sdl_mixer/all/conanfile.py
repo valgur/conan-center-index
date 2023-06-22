@@ -91,7 +91,6 @@ class SDLMixerConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org/projects/SDL_mixer/"
     license = "Zlib"
-    exports_sources = ["CMakeLists.txt"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -125,6 +124,9 @@ class SDLMixerConan(ConanFile):
         "nativemidi": True,
         "tinymidi": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

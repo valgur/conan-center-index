@@ -93,7 +93,8 @@ class ConanXqilla(ConanFile):
     license = ("GPL-2.0", "FLOSSE")
     settings = "os", "arch", "compiler", "build_type"
 
-    exports_sources = "patches/**"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         self.requires("xerces-c/3.2.3")

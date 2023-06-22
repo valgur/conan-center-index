@@ -97,9 +97,7 @@ class LightGBMConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/LightGBM"
     license = "MIT"
-
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -110,6 +108,9 @@ class LightGBMConan(ConanFile):
         "fPIC": True,
         "with_openmp": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

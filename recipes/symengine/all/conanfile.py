@@ -1,7 +1,16 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, get, rm, rmdir
-import os
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    get,
+    rm,
+    rmdir,
+    export_conandata_patches,
+)
 
 required_conan_version = ">=1.54.0"
 
@@ -13,7 +22,6 @@ class SymengineConan(ConanFile):
     topics = ("symbolic", "algebra")
     homepage = "https://symengine.org/"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "integer_class": ["boostmp", "gmp"]}
     default_options = {
@@ -21,6 +29,9 @@ class SymengineConan(ConanFile):
         "fPIC": True,
         "integer_class": "gmp",
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def requirements(self):
         if self.options.integer_class == "boostmp":

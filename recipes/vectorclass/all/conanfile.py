@@ -29,8 +29,6 @@ class VectorclassConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _min_cppstd(self):
         return "17"
@@ -43,6 +41,9 @@ class VectorclassConan(ConanFile):
             "clang": "4.0",
             "apple-clang": "9.1",
         }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

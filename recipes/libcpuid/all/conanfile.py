@@ -108,7 +108,6 @@ class LibCpuidConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -130,6 +129,7 @@ class LibCpuidConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["ENABLE_DOCS"] = False
         tc.generate()
         tc = CMakeDeps(self)

@@ -88,7 +88,6 @@ class MysqlConnectorCConan(ConanFile):
     topics = ("mysql", "sql", "connector", "database")
     homepage = "https://dev.mysql.com/downloads/connector/c/"
     license = "GPL-2.0"
-    exports_sources = ["CMakeLists.txt", "patches/*.patch"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -102,6 +101,10 @@ class MysqlConnectorCConan(ConanFile):
     }
 
     deprecated = "libmysqlclient"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def requirements(self):
         if self.options.with_ssl:

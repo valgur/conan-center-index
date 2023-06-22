@@ -120,7 +120,6 @@ class LibIptConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def generate(self):

@@ -92,7 +92,8 @@ class MsdfAtlasGenConan(ConanFile):
     topics = ("msdf", "font", "atlas")
     settings = "os", "arch", "compiler", "build_type"
 
-    exports_sources = ["CMakeLists.txt"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def requirements(self):
         self.requires("artery-font-format/1.0")

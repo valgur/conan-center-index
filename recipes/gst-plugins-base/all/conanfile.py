@@ -132,13 +132,15 @@ class GStPluginsBaseConan(ConanFile):
     }
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
-    exports_sources = ["patches/*.patch"]
 
     generators = "pkg_config"
 
     _gl_api = None
     _gl_platform = None
     _gl_winsys = None
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if not self.options["glib"].shared and self.options.shared:

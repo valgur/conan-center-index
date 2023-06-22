@@ -106,7 +106,6 @@ class RmluiConan(ConanFile):
         "with_thirdparty_containers": True,
     }
     build_requires = ["cmake/3.23.2"]
-    exports_sources = ["CMakeLists.txt"]
     generators = ["cmake", "cmake_find_package"]
 
     @property

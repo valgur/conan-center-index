@@ -108,7 +108,6 @@ class ImaglConan(ConanFile):
         "with_png": True,
         "with_jpeg": True,
     }
-    exports_sources = ["CMakeLists.txt", "patches/**"]
 
     @property
     def _compilers_minimum_version(self):
@@ -127,6 +126,9 @@ class ImaglConan(ConanFile):
     @property
     def _supports_jpeg(self):
         return Version(self.version) >= "0.2.0"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

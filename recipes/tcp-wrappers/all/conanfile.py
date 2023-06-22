@@ -87,7 +87,6 @@ class TcpWrappersConan(ConanFile):
     topics = ("tcp", "ip", "daemon", "wrapper")
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD"
-    exports_sources = "patches/**"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -97,6 +96,9 @@ class TcpWrappersConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

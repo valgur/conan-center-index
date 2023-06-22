@@ -95,7 +95,9 @@ class BoostDepConan(ConanFile):
     homepage = "https://github.com/boostorg/boostdep"
     license = "BSL-1.0"
     topics = ("dependency", "tree")
-    exports_sources = "CMakeLists.txt"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def requirements(self):
         self.requires("boost/1.75.0")

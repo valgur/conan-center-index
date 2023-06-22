@@ -105,9 +105,11 @@ class HunspellConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    # FIXME: Remove once the pending upstream PR for CMake support is merged
-    exports_sources = "CMakeLists.txt"
     no_copy_source = True
+
+    def export_sources(self):
+        # FIXME: Remove once the pending upstream PR for CMake support is merged
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

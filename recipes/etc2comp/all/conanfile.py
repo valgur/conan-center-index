@@ -94,7 +94,6 @@ class Etc2compConan(ConanFile):
     topics = ("texture", "etc2", "compressor")
     homepage = "https://github.com/google/etc2comp"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -104,6 +103,9 @@ class Etc2compConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

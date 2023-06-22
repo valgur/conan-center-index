@@ -99,11 +99,6 @@ class TinyDnnConan(ConanFile):
         "with_tbb": False,
     }
 
-    exports_sources = "CMakeLists.txt"
-    # TODO: if you move this recipe to CMakeDeps, be aware that tiny-dnn
-    #       relies on CMake variables which are not defined in CMakeDeps, only
-    #       in cmake_find_package. So patch it before.
-
     @property
     def _min_cppstd(self):
         return "14"
@@ -140,6 +135,17 @@ class TinyDnnConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        # TODO: if you move this recipe to CMakeDeps, be aware that tiny-dnn
+        #       relies on CMake variables which are not defined in CMakeDeps, only
+        #       in cmake_find_package. So patch it before.
+        tc = CMakeToolchain(self)
+        tc.variables["USE_TBB"] = self.options.with_tbb
+        tc.variables["USE_GEMMLOWP"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def build(self):
         replace_in_file(
             self, os.path.join(self.source_folder, "tiny_dnn", "util", "image.h"), "third_party/", ""
@@ -147,10 +153,7 @@ class TinyDnnConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst="licenses", src=self.source_folder)
-        tc = CMakeToolchain(self)
-        tc.variables["USE_TBB"] = self.options.with_tbb
-        tc.variables["USE_GEMMLOWP"] = False
-        cmake.configure()
+        cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 

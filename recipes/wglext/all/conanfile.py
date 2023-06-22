@@ -90,7 +90,8 @@ class WglextConan(ConanFile):
     description = "WGL extension interfaces"
     topics = ("opengl", "gl", "wgl", "wglext")
     no_copy_source = True
-    requires = "opengl/system"
+    def requirements(self):
+        self.requires("opengl/system")
     settings = ("os",)
 
     def validate(self):

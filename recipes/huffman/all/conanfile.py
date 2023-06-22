@@ -105,15 +105,14 @@ class HuffmanConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = ["CMakeLists.txt"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt")
-        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:

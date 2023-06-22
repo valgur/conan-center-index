@@ -111,7 +111,6 @@ class NvclothConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def validate(self):
@@ -184,7 +183,7 @@ class NvclothConan(ConanFile):
             self._patch_sources()
             self._remove_samples()
             cmake = CMake(self)
-            cmake.configure()
+            cmake.configure(build_script_folder=f"NvCloth/compiler/cmake/{self._get_target_build_platform()}")
             cmake.build()
 
     def _get_build_type(self):

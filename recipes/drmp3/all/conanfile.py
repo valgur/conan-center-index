@@ -27,7 +27,10 @@ class Drmp3Conan(ConanFile):
         "no_simd": False,
         "no_stdio": False,
     }
-    exports_sources = ["CMakeLists.txt", "dr_mp3.c"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dr_mp3.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

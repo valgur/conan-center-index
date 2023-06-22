@@ -190,13 +190,11 @@ class Opene57Conan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-
         if self.options.with_tools:
             self.options["boost"].multithreading = True
 

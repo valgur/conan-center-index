@@ -94,7 +94,6 @@ class LibFtdi(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.intra2net.com/en/developer/libftdi"
     license = "LGPL-2.0"
-    exports_sources = "CMakeLists.txt", "patches/**"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -106,6 +105,12 @@ class LibFtdi(ConanFile):
         "fPIC": True,
         "enable_cpp_wrapper": True,
     }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

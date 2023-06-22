@@ -104,8 +104,6 @@ class UchardetConan(ConanFile):
         "check_sse2": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -154,6 +152,7 @@ class UchardetConan(ConanFile):
         tc.variables[
             "BUILD_STATIC"
         ] = False  # disable building static libraries when self.options.shared is True
+        tc.generate()
 
     def build(self):
         self._patch_sources()

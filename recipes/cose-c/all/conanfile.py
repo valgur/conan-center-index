@@ -95,7 +95,6 @@ class CoseCConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = """Implementation of COSE in C using cn-cbor and openssl"""
     topics = "cbor"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "with_ssl": ["openssl", "mbedtls"]}
     default_options = {
@@ -103,6 +102,9 @@ class CoseCConan(ConanFile):
         "fPIC": True,
         "with_ssl": "openssl",
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -128,6 +130,7 @@ class CoseCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["COSE_C_COVERALLS"] = False
         tc.variables["COSE_C_BUILD_TESTS"] = False
         tc.variables["COSE_C_BUILD_DOCS"] = False

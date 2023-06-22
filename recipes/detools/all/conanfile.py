@@ -103,8 +103,14 @@ class DetoolsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = "CMakeLists.txt"
-    requires = ["heatshrink/0.4.1", "lz4/1.9.3", "xz_utils/5.2.5"]
+
+    def requirements(self):
+        self.requires("heatshrink/0.4.1")
+        self.requires("lz4/1.9.3")
+        self.requires("xz_utils/5.2.5")
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -121,6 +127,9 @@ class DetoolsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

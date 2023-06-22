@@ -90,7 +90,6 @@ class NanodbcConan(ConanFile):
     homepage = "https://github.com/nanodbc/nanodbc/"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "CMakeLists.txt", "patches/**"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -105,6 +104,9 @@ class NanodbcConan(ConanFile):
         "unicode": False,
         "with_boost": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -145,16 +147,15 @@ class NanodbcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["NANODBC_DISABLE_ASYNC"] = not self.options.get_safe("async")
         tc.variables["NANODBC_ENABLE_UNICODE"] = self.options.unicode
         tc.variables["NANODBC_ENABLE_BOOST"] = self.options.with_boost
         tc.variables["NANODBC_DISABLE_LIBCXX"] = self.settings.get_safe("compiler.libcxx") != "libc++"
-
         tc.variables["NANODBC_DISABLE_INSTALL"] = False
         tc.variables["NANODBC_DISABLE_EXAMPLES"] = True
         tc.variables["NANODBC_DISABLE_TESTS"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

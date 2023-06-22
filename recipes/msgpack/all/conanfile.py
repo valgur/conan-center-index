@@ -88,7 +88,6 @@ class MsgpackConan(ConanFile):
     homepage = "https://github.com/msgpack/msgpack-c"
     topics = ("message-pack", "serialization")
     license = "BSL-1.0"
-    exports_sources = "CMakeLists.txt"
     settings = "os", "arch", "build_type", "compiler"
     options = {
         "fPIC": [True, False],

@@ -97,7 +97,6 @@ class CglmConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ("CMakeLists.txt",)
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

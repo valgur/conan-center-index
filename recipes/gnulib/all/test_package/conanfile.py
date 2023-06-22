@@ -5,17 +5,22 @@ import shutil
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
-    exports_sources = "configure.ac", "Makefile.am", "test_package.c"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export_sources(self):
+        copy(self, "configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "Makefile.am", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "test_package.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def requirements(self):
         self.requires(self.tested_reference_str)

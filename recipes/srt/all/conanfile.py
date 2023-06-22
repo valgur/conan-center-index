@@ -100,8 +100,6 @@ class SrtConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = ["CMakeLists.txt", "patches/*"]
-
     @property
     def _has_stdcxx_sync(self):
         return Version(self.version) >= "1.4.2"
@@ -115,6 +113,9 @@ class SrtConan(ConanFile):
                 or (self.settings.compiler == "gcc" and self.settings.compiler.get_safe("threads") == "win32")
             )
         )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -155,6 +156,11 @@ class SrtConan(ConanFile):
             # required to avoid warnings when srt shared, even if openssl shared,
             # otherwise upstream CMakeLists would add /DELAYLOAD:libeay32.dll to link flags
             tc.variables["OPENSSL_USE_STATIC_LIBS"] = True
+        if not self._has_posix_threads and not self._has_stdcxx_sync:
+            # TODO
+            # set(PTHREAD_LIBRARY "${CONAN_LIBS_PTHREADS4W}")
+            # set(PTHREAD_INCLUDE_DIR "${CONAN_INCLUDE_DIRS_PTHREADS4W}")
+            pass
         tc.generate()
 
         tc = CMakeDeps(self)

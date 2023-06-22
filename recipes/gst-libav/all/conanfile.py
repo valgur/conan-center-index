@@ -107,9 +107,11 @@ class GStLibAVConan(ConanFile):
     }
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
-    exports_sources = ["patches/*.patch"]
 
     generators = "pkg_config"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def validate(self):
         if (

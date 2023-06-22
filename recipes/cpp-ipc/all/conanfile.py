@@ -96,7 +96,6 @@ class CppIPCConan(ConanFile):
     homepage = "https://github.com/mutouyun/cpp-ipc"
     license = ("MIT",)
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

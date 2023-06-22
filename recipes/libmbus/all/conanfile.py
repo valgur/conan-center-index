@@ -93,7 +93,6 @@ class LibMbusConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = """Meter-bus library and utility programs"""
     topics = ("mbus", "metering", "iot", "meter", "bus", "protocol")
-    exports_sources = "CMakeLists.txt"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

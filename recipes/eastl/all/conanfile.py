@@ -125,7 +125,6 @@ class EastlConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -156,8 +155,8 @@ class EastlConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["EASTL_BUILD_BENCHMARK"] = False
         tc.variables["EASTL_BUILD_TESTS"] = False
+        tc.variables["CMAKE_CXX_STANDARD"] = 14
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

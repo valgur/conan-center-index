@@ -1,10 +1,10 @@
 from os import path
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, cmake_layout
-from conan.tools.files import patch, copy, get
-from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
+from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.47.0"
 
@@ -16,9 +16,6 @@ class SamariumConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index/"
     license = "MIT"
     topics = ("cpp20", "physics", "2d", "simulation")
-    generators = "CMakeDeps", "CMakeToolchain"
-    requires = ("fmt/9.0.0", "sfml/2.5.1", "range-v3/0.12.0", "stb/cci.20210910", "tl-expected/20190710")
-
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
@@ -38,16 +35,26 @@ class SamariumConan(ConanFile):
             "apple-clang": "13",
         }
 
-    def source(self):
-        get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("fmt/9.0.0")
+        self.requires("sfml/2.5.1")
+        self.requires("range-v3/0.12.0")
+        self.requires("stb/cci.20210910")
+        self.requires("tl-expected/20190710")
 
     def validate(self):
         if self.version == "1.0.0" and self.settings.os == "Macos":
@@ -60,13 +67,18 @@ class SamariumConan(ConanFile):
 
         version = Version(self.settings.compiler.version)
         if version < self._compilers_minimum_version[compiler]:
-            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++20")
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires a compiler that supports at least C++20"
+            )
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def source(self):
+        get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
 
-    def export_sources(self):
-        export_conandata_patches(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -76,9 +88,11 @@ class SamariumConan(ConanFile):
 
     def package(self):
         copy(
-            self, "LICENSE.md", src=self.folders.source_folder, dst=path.join(self.package_folder, "licenses")
+            self,
+            "LICENSE.md",
+            src=self.folders.source_folder,
+            dst=path.join(self.package_folder, "licenses"),
         )
-
         cmake = CMake(self)
         cmake.install()
 

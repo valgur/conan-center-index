@@ -107,7 +107,6 @@ class QxmppConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt")
         export_conandata_patches(self)
 
     def config_options(self):
@@ -129,6 +128,7 @@ class QxmppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["BUILD_DOCUMENTATION"] = "OFF"
         tc.variables["BUILD_TESTS"] = "OFF"
         tc.variables["BUILD_EXAMPLES"] = "OFF"

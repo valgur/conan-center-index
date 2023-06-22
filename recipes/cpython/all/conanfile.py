@@ -94,8 +94,7 @@ class CPythonConan(ConanFile):
         "Python is a programming language that lets you work quickly and integrate systems more effectively."
     )
     topics = ("python", "language", "script")
-    license = ("Python-2.0",)
-    exports_sources = "patches/**"
+    license = "Python-2.0"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -169,6 +168,9 @@ class CPythonConan(ConanFile):
     @property
     def _is_py2(self):
         return Version(self._version_number_only).major == "2"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

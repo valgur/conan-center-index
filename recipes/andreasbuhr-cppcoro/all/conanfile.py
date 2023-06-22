@@ -98,8 +98,6 @@ class AndreasbuhrCppCoroConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     provides = "cppcoro"
 
-    exports_sources = "CMakeLists.txt"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
