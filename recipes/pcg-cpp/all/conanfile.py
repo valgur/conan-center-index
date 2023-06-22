@@ -11,7 +11,7 @@ class PcgcppConan(ConanFile):
     name = "pcg-cpp"
     description = "C++ implementation of the PCG family of random number generators."
     license = ("MIT", "Apache-2.0")
-    topics = ("pcg-cpp", "pcg", "rng", "random", "header-only")
+    topics = ("pcg", "rng", "random", "header-only")
     homepage = "https://github.com/imneme/pcg-cpp"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"

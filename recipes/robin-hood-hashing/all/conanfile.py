@@ -12,7 +12,7 @@ class RobinHoodHashingConan(ConanFile):
     description = (
         "Faster and more efficient replacement for std::unordered_map / std::unordered_set"
     )
-    topics = ("robin-hood-hashing", "header-only", "containers")
+    topics = ("header-only", "containers")
     homepage = "https://github.com/martinus/robin-hood-hashing"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"

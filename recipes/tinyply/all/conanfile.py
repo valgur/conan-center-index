@@ -11,7 +11,7 @@ class TinyplyConan(ConanFile):
     name = "tinyply"
     description = "C++11 ply 3d mesh format importer & exporter."
     license = ["Unlicense", "BSD-2-Clause"]
-    topics = ("tinyply", "ply", "geometry", "mesh", "file-format")
+    topics = ("ply", "geometry", "mesh", "file-format")
     homepage = "https://github.com/ddiakopoulos/tinyply"
     url = "https://github.com/conan-io/conan-center-index"
 

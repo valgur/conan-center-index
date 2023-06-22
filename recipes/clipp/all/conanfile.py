@@ -8,7 +8,7 @@ required_conan_version = ">=1.50.0"
 class ClippConan(ConanFile):
     name = "clipp"
     description = """Easy to use, powerful & expressive command line argument parsing for modern C++ / single header / usage & doc generation."""
-    topics = ("clipp", "argparse", "cli", "usage", "options", "subcommands")
+    topics = ("argparse", "cli", "usage", "options", "subcommands")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/muellan/clipp"
     license = "MIT"

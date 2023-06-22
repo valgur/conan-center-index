@@ -20,7 +20,7 @@ class Libxml2Conan(ConanFile):
     package_type = "library"
     url = "https://github.com/conan-io/conan-center-index"
     description = "libxml2 is a software library for parsing XML documents"
-    topics = "xml", "parser", "validation"
+    topics = ("xml", "parser", "validation")
     homepage = "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"

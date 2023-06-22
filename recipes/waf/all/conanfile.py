@@ -5,7 +5,7 @@ import os
 class WafConan(ConanFile):
     name = "waf"
     description = "The Waf build system"
-    topics = ("conan", "waf", "builsystem")
+    topics = "builsystem"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://waf.io"
     license = "BSD-3-Clause"

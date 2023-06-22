@@ -13,7 +13,7 @@ class EnchantConan(ConanFile):
     )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://abiword.github.io/enchant/"
-    topics = "enchant", "spell", "spell-check"
+    topics = ("enchant", "spell", "spell-check")
     license = "LGPL-2.1-or-later"
     settings = "os", "arch", "compiler", "build_type"
     generators = "cmake", "cmake_find_package_multi"

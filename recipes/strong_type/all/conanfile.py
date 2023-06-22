@@ -15,7 +15,7 @@ class StrongTypeConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rollbear/strong_type"
-    topics = ("cpp14", "cpp17", "strong_type", "header-only")
+    topics = ("cpp14", "cpp17", "header-only")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

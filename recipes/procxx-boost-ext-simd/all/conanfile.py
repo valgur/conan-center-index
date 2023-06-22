@@ -8,7 +8,7 @@ class ProCxxBoostExSimdConan(ConanFile):
     name = "procxx-boost-ext-simd"
     description = "Portable SIMD computation library - was proposed as a " "Boost library"
     homepage = "https://github.com/procxx/boost.simd"
-    topics = ("conan", "boost", "simd")
+    topics = ("boost", "simd")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

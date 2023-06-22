@@ -14,7 +14,7 @@ class CAFConan(ConanFile):
     description = "An open source implementation of the Actor Model in C++"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/actor-framework/actor-framework"
-    topics = "actor-framework", "actor-model", "pattern-matching", "actors"
+    topics = ("actor-framework", "actor-model", "pattern-matching", "actors")
     license = "BSD-3-Clause", "BSL-1.0"
 
     package_type = "library"

@@ -11,7 +11,7 @@ class Crc_CppConan(ConanFile):
     description = (
         "A header only constexpr / compile time small-table based CRC library for C++17 and newer"
     )
-    topics = "crc_cpp", "crc", "constexpr", "cpp17", "cpp20", "header-only"
+    topics = ("crc_cpp", "crc", "constexpr", "cpp17", "cpp20", "header-only")
     settings = "compiler", "os"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AshleyRoll/crc_cpp"

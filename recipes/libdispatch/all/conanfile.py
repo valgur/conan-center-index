@@ -9,7 +9,7 @@ class LibDispatchConan(ConanFile):
     name = "libdispatch"
     homepage = "https://github.com/apple/swift-corelibs-libdispatch"
     description = "Grand Central Dispatch (GCD or libdispatch) provides comprehensive support for concurrent code execution on multicore hardware."
-    topics = ("conan", "libdispatch", "apple", "GCD", "concurrency")
+    topics = ("apple", "GCD", "concurrency")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
     exports_sources = ["CMakeLists.txt"]

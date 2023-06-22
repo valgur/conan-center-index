@@ -13,7 +13,7 @@ class UncrustifyConan(ConanFile):
     name = "uncrustify"
     description = "Code beautifier"
     license = "GPL-2.0-or-later"
-    topics = "beautifier", "command-line"
+    topics = ("beautifier", "command-line")
     homepage = "https://github.com/uncrustify/uncrustify"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

@@ -11,7 +11,7 @@ class JerryScriptStackConan(ConanFile):
     homepage = "https://github.com/jerryscript-project/jerryscript"
     url = "https://github.com/conan-io/conan-center-index"
     description = "Ultra-lightweight JavaScript engine for the Internet of Things"
-    topics = ["javascript", "iot", "jerryscript", "javascript-engine"]
+    topics = ["javascript", "iot", "javascript-engine"]
     exports_sources = "CMakeLists.txt", "patches/**"
     settings = "os", "compiler", "build_type", "arch"
     options = {

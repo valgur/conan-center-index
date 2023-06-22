@@ -10,7 +10,7 @@ class NuklearConan(ConanFile):
     name = "nuklear"
     description = "A single-header ANSI C immediate mode cross-platform GUI library."
     license = ["MIT", "Unlicense"]
-    topics = ("nuklear", "gui", "header-only")
+    topics = ("gui", "header-only")
     homepage = "https://github.com/Immediate-Mode-UI/Nuklear"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

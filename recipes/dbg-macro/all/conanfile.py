@@ -9,7 +9,7 @@ class DbgMacroConan(ConanFile):
     homepage = "https://github.com/sharkdp/dbg-macro"
     license = "MIT"
     description = "A dbg(...) macro for C++"
-    topics = ("conan", "debugging", "macro", "pretty-printing", "header-only")
+    topics = ("debugging", "macro", "pretty-printing", "header-only")
     settings = ("compiler",)
     no_copy_source = True
 

@@ -17,7 +17,7 @@ class OpenGrmConan(ConanFile):
         "The OpenGrm Thrax tools compile grammars expressed as regular expressions "
         "and context-dependent rewrite rules into weighted finite-state transducers."
     )
-    topics = ("fst", "wfst", "opengrm", "thrax")
+    topics = ("fst", "wfst", "thrax")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.opengrm.org/twiki/bin/view/GRM/Thrax"
     license = "Apache-2.0"

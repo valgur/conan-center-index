@@ -10,7 +10,7 @@ required_conan_version = ">=1.53.0"
 class EasyExifConan(ConanFile):
     name = "easyexif"
     description = "Tiny ISO-compliant C++ EXIF parsing library, third-party dependency free."
-    topics = ("conan", "exif", "image", "multimedia", "format", "graphics")
+    topics = ("exif", "image", "multimedia", "format", "graphics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mayanklahiri/easyexif"
     license = "BSD-2-Clause"

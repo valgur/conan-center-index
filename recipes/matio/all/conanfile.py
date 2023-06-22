@@ -11,7 +11,7 @@ class MatioConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/matio/"
     description = "Matio is a C library for reading and writing binary MATLAB MAT files."
-    topics = ("conan", "matlab", "mat-file", "file-format", "hdf5")
+    topics = ("matlab", "mat-file", "file-format", "hdf5")
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "cmake_find_package"
     exports_sources = "CMakeLists.txt", "patches/*"

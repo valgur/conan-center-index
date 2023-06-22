@@ -11,7 +11,7 @@ class SleefConan(ConanFile):
         "SLEEF is a library that implements vectorized versions " "of C standard math functions."
     )
     license = "BSL-1.0"
-    topics = ("conan", "sleef", "vectorization", "simd")
+    topics = ("vectorization", "simd")
     homepage = "https://sleef.org"
     url = "https://github.com/conan-io/conan-center-index"
 

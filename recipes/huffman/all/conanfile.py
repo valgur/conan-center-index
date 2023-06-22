@@ -10,7 +10,7 @@ class HuffmanConan(ConanFile):
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/drichardson/huffman"
-    topics = ["huffman", "encoder", "decoder", "compression"]
+    topics = ["encoder", "decoder", "compression"]
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -8,7 +8,7 @@ required_conan_version = ">=1.43.0"
 class LibCpuidConan(ConanFile):
     name = "libcpuid"
     description = "libcpuid  is a small C library for x86 CPU detection and feature extraction"
-    topics = ("libcpuid", "detec", "cpu", "intel", "amd", "x86_64")
+    topics = ("detec", "cpu", "intel", "amd", "x86_64")
     license = "https://github.com/anrieff/libcpuid"
     homepage = "https://github.com/anrieff/libcpuid"
     url = "https://github.com/conan-io/conan-center-index"

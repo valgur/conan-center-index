@@ -26,7 +26,7 @@ required_conan_version = ">=1.53.0"
 class GdkPixbufConan(ConanFile):
     name = "gdk-pixbuf"
     description = "toolkit for image loading and pixel buffer manipulation"
-    topics = ("gdk-pixbuf", "image")
+    topics = "image"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://developer.gnome.org/gdk-pixbuf/"
     license = "LGPL-2.1-or-later"

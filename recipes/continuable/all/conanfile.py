@@ -10,7 +10,7 @@ required_conan_version = ">=1.28.0"
 class ContinuableConan(ConanFile):
     name = "continuable"
     description = "C++14 asynchronous allocation aware futures (supporting then, exception handling, coroutines and connections)"
-    topics = "asynchronous", "future", "coroutines", "header-only"
+    topics = ("asynchronous", "future", "coroutines", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Naios/continuable"
     license = "MIT"

@@ -23,7 +23,7 @@ class SzipConan(ConanFile):
         "algorithm, suitable for use with scientific data."
     )
     license = "Szip License"
-    topics = "compression", "decompression"
+    topics = ("compression", "decompression")
     homepage = "https://support.hdfgroup.org/doc_resource/SZIP/"
     url = "https://github.com/conan-io/conan-center-index"
 

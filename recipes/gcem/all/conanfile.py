@@ -12,7 +12,7 @@ class GcemConan(ConanFile):
     name = "gcem"
     description = "A C++ compile-time math library using generalized " "constant expressions."
     license = "Apache-2.0"
-    topics = ("gcem", "math", "header-only")
+    topics = ("math", "header-only")
     homepage = "https://github.com/kthohr/gcem"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True

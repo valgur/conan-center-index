@@ -12,7 +12,7 @@ class libb2Conan(ConanFile):
     description = "libb2 is a library that implemets the BLAKE2 cryptographic hash function, which is faster than MD5, \
                     SHA-1, SHA-2, and SHA-3, yet is at least as secure as the latest standard SHA-3"
     settings = "os", "arch", "compiler", "build_type"
-    topics = ("conan", "blake2", "hash")
+    topics = ("blake2", "hash")
     exports_sources = ["CMakeLists.txt"]
     generators = ["cmake"]
     options = {

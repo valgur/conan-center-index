@@ -9,7 +9,7 @@ class QDBMConan(ConanFile):
     description = "QDBM is a library of routines for managing a database."
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://fallabs.com/qdbm/"
-    topics = ("qdbm", "database", "db")
+    topics = ("database", "db")
     license = "LGPL-2.1-or-later"
     settings = ("os", "arch", "compiler", "build_type")
     options = {

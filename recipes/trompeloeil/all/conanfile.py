@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class TrompeloeilConan(ConanFile):
     name = "trompeloeil"
     description = "Header only C++14 mocking framework"
-    topics = ("trompeloeil", "header-only", "mocking")
+    topics = ("header-only", "mocking")
     homepage = "https://github.com/rollbear/trompeloeil"
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"

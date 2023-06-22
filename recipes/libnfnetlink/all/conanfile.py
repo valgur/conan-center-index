@@ -12,7 +12,7 @@ class LibnfnetlinkConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnfnetlink/index.html"
     description = "low-level library for netfilter related kernel/userspace communication"
-    topics = ("libnfnetlink", "netlink", "netfilter")
+    topics = ("netlink", "netfilter")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

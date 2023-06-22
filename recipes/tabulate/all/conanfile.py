@@ -15,7 +15,7 @@ class Tabulate(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/tabulate"
-    topics = ("header-only", "cpp17", "tabulate", "table", "cli")
+    topics = ("header-only", "cpp17", "table", "cli")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

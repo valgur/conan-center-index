@@ -21,7 +21,7 @@ class MoltenVKConan(ConanFile):
         "on iOS and macOS."
     )
     license = "Apache-2.0"
-    topics = ("moltenvk", "khronos", "vulkan", "metal")
+    topics = ("khronos", "vulkan", "metal")
     homepage = "https://github.com/KhronosGroup/MoltenVK"
     url = "https://github.com/conan-io/conan-center-index"
 

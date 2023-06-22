@@ -13,7 +13,7 @@ class CPythonConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.python.org"
     description = "Python is a programming language that lets you work quickly and integrate systems more effectively."
-    topics = ("python", "cpython", "language", "script")
+    topics = ("python", "language", "script")
     license = ("Python-2.0",)
     exports_sources = "patches/**"
     settings = "os", "arch", "compiler", "build_type"

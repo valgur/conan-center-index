@@ -14,7 +14,7 @@ class TheoraConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xiph/theora"
     description = "Theora is a free and open video compression format from the Xiph.org Foundation"
-    topics = "video", "video-compressor", "video-format"
+    topics = ("video", "video-compressor", "video-format")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {

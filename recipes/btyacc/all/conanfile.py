@@ -12,7 +12,7 @@ class BtyaccConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ChrisDodd/btyacc"
     description = "Backtracking yacc"
-    topics = "yacc", "parser"
+    topics = ("yacc", "parser")
     license = "Unlicense"
     settings = "os", "arch", "compiler", "build_type"
     options = {

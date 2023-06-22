@@ -24,7 +24,7 @@ class LibharuConan(ConanFile):
     description = (
         "Haru is a free, cross platform, open-sourced software library for generating PDF."
     )
-    topics = "pdf", "generate", "generator"
+    topics = ("pdf", "generate", "generator")
     license = "Zlib"
     homepage = "http://libharu.org/"
     url = "https://github.com/conan-io/conan-center-index"

@@ -9,7 +9,7 @@ class Cc65Conan(ConanFile):
     homepage = "https://cc65.github.io/"
     description = "A freeware C compiler for 6502 based systems"
     license = "Zlib"
-    topics = ("conan", "cc65", "compiler", "cmos", "6502", "8bit")
+    topics = ("compiler", "cmos", "6502", "8bit")
     exports_sources = "patches/**"
 
     settings = "os", "arch", "compiler", "build_type"

@@ -7,7 +7,7 @@ import re
 
 class PremakeConan(ConanFile):
     name = "premake"
-    topics = ("conan", "premake", "build", "build-systems")
+    topics = ("build", "build-systems")
     description = "Describe your software project just once, using Premake's simple and easy to read syntax, and build it everywhere"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://premake.github.io"

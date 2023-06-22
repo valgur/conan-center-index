@@ -11,7 +11,7 @@ class OnigurumaConan(ConanFile):
     name = "oniguruma"
     description = "Oniguruma is a modern and flexible regular expressions library."
     license = "BSD-2-Clause"
-    topics = ("oniguruma", "regex")
+    topics = "regex"
     homepage = "https://github.com/kkos/oniguruma"
     url = "https://github.com/conan-io/conan-center-index"
 

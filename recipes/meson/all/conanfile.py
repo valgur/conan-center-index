@@ -13,7 +13,7 @@ class MesonConan(ConanFile):
     name = "meson"
     package_type = "application"
     description = "Meson is a project to create the best possible next-generation build system"
-    topics = ("meson", "mesonbuild", "build-system")
+    topics = ("mesonbuild", "build-system")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mesonbuild/meson"
     license = "Apache-2.0"

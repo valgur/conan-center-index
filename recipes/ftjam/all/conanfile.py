@@ -10,7 +10,7 @@ class FtjamConan(ConanFile):
     description = (
         "Jam (ftjam) is a small open-source build tool that can be used as a replacement for Make."
     )
-    topics = ("conan", "ftjam", "build", "make")
+    topics = ("build", "make")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org/jam/"
     license = "BSD-3-Clause"

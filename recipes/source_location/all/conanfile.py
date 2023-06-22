@@ -11,7 +11,7 @@ class SourceLocationConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Rechip/source_location"
     description = "source_location header for some older compilers"
-    topics = ("cpp", "source_location", "header-only")
+    topics = ("cpp", "header-only")
     settings = ["compiler"]
     no_copy_source = True
 

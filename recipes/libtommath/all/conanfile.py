@@ -7,7 +7,7 @@ required_conan_version = ">=1.33.0"
 class LibTomMathConan(ConanFile):
     name = "libtommath"
     description = "LibTomMath is a free open source portable number theoretic multiple-precision integer library written entirely in C."
-    topics = "libtommath", "math", "multiple", "precision"
+    topics = ("libtommath", "math", "multiple", "precision")
     license = "Unlicense"
     homepage = "https://www.libtom.net/"
     url = "https://github.com/conan-io/conan-center-index"

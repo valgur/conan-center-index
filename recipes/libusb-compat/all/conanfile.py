@@ -18,7 +18,7 @@ class LibUSBCompatConan(ConanFile):
     homepage = "https://github.com/libusb/libusb-compat-0.1"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = "patches/**", "CMakeLists.txt.in"
-    topics = ("conan", "libusb", "compatibility", "usb")
+    topics = ("libusb", "compatibility", "usb")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

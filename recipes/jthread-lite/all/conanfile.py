@@ -14,7 +14,7 @@ class JthreadLiteConan(ConanFile):
     description = (
         "jthread lite - C++20's jthread for C++11 and later in a single-file header-only library "
     )
-    topics = ("jthread-lite", "jthread", "cpp11")
+    topics = ("jthread", "cpp11")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

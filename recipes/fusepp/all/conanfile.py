@@ -6,7 +6,7 @@ class FuseppConan(ConanFile):
     name = "fusepp"
     description = "A simple C++ wrapper for the FUSE filesystem."
     license = "MIT"
-    topics = ("fuse", "fusepp", "wrapper", "filesystem")
+    topics = ("fuse", "wrapper", "filesystem")
     homepage = "https://github.com/jachappell/Fusepp"
     url = "https://github.com/conan-io/conan-center-index"
 

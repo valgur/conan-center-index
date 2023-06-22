@@ -9,7 +9,7 @@ required_conan_version = ">=1.33.0"
 class IslConan(ConanFile):
     name = "isl"
     description = "isl is a library for manipulating sets and relations of integer points bounded by linear constraints."
-    topics = ("isl", "integer", "set", "library")
+    topics = ("integer", "set", "library")
     license = "MIT"
     homepage = "https://libisl.sourceforge.io"
     url = "https://github.com/conan-io/conan-center-index"

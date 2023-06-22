@@ -11,7 +11,7 @@ class OpenfbxConan(ConanFile):
     name = "openfbx"
     description = "Lightweight open source FBX importer."
     license = "MIT"
-    topics = ("openfbx", "fbx", "importer")
+    topics = ("fbx", "importer")
     homepage = "https://github.com/nem0/OpenFBX"
     url = "https://github.com/conan-io/conan-center-index"
 

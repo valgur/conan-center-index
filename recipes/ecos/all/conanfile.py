@@ -12,7 +12,7 @@ class EcosConan(ConanFile):
         "ECOS is a numerical software for solving convex second-order cone programs (SOCPs)."
     )
     license = "GPL-3.0-or-later"
-    topics = ("ecos", "conic-solver")
+    topics = "conic-solver"
     homepage = "https://github.com/embotech/ecos"
     url = "https://github.com/conan-io/conan-center-index"
 

@@ -13,7 +13,7 @@ class Rectpack2dConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TeamHypersomnia/rectpack2D"
     description = "C++17 rectangle packing library"
-    topics = ("header-only", "rectpack2d", "graphical", "cpp17")
+    topics = ("header-only", "graphical", "cpp17")
     license = "MIT"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"

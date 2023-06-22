@@ -12,7 +12,7 @@ class CppZmqConan(ConanFile):
     description = "C++ binding for 0MQ"
     homepage = "https://github.com/zeromq/cppzmq"
     license = "MIT"
-    topics = ("cppzmq", "zmq-cpp", "zmq", "cpp-bind")
+    topics = ("zmq-cpp", "zmq", "cpp-bind")
     url = "https://github.com/conan-io/conan-center-index"
 
     settings = "os", "arch", "compiler", "build_type"

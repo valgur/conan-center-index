@@ -7,7 +7,7 @@ required_conan_version = ">=1.29.1"
 class CglmConan(ConanFile):
     name = "cglm"
     description = "Highly Optimized Graphics Math (glm) for C "
-    topics = ("cglm", "graphics", "opengl", "simd", "vector", "glm")
+    topics = ("graphics", "opengl", "simd", "vector", "glm")
     homepage = "https://github.com/recp/cglm"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

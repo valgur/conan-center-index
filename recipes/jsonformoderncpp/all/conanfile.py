@@ -8,7 +8,7 @@ class JsonformoderncppConan(ConanFile):
     name = "jsonformoderncpp"
     homepage = "https://github.com/nlohmann/json"
     description = "JSON for Modern C++ parser and generator."
-    topics = ("conan", "jsonformoderncpp", "json", "header-only")
+    topics = ("json", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "arch", "build_type"
     no_copy_source = True

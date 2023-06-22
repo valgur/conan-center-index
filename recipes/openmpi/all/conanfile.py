@@ -9,7 +9,7 @@ class OpenMPIConan(ConanFile):
     name = "openmpi"
     homepage = "https://www.open-mpi.org"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "mpi", "openmpi")
+    topics = ("mpi", "openmpi")
     description = "A High Performance Message Passing Library"
     license = "BSD-3-Clause"
     settings = "os", "arch", "compiler", "build_type"

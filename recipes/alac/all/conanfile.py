@@ -14,7 +14,7 @@ class AlacConan(ConanFile):
         "codec developed by Apple and deployed on all of its platforms and devices."
     )
     license = "Apache-2.0"
-    topics = ("alac", "audio-codec")
+    topics = "audio-codec"
     homepage = "https://macosforge.github.io/alac"
     url = "https://github.com/conan-io/conan-center-index"
 

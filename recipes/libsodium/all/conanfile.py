@@ -25,7 +25,7 @@ class LibsodiumConan(ConanFile):
     license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://doc.libsodium.org/"
-    topics = "encryption", "signature", "hashing"
+    topics = ("encryption", "signature", "hashing")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

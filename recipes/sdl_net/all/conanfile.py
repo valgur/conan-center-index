@@ -12,7 +12,7 @@ class SdlnetConan(ConanFile):
     name = "sdl_net"
     description = "A networking library for SDL"
     license = "Zlib"
-    topics = ("sdl2", "sdl2_net", "sdl", "sdl_net", "net", "networking")
+    topics = ("sdl2", "sdl2_net", "sdl", "net", "networking")
     homepage = "https://www.libsdl.org/projects/SDL_net"
     url = "https://github.com/conan-io/conan-center-index"
 

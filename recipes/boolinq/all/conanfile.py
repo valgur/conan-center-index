@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class BoolinqConan(ConanFile):
     name = "boolinq"
     description = "Super tiny C++11 single-file header-only LINQ template library"
-    topics = ("boolinq", "linq", "header-only")
+    topics = ("linq", "header-only")
     license = "MIT"
     homepage = "https://github.com/k06a/boolinq"
     url = "https://github.com/conan-io/conan-center-index"

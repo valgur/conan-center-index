@@ -8,7 +8,7 @@ class DebugAssert(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://foonathan.net/blog/2016/09/16/assertions.html"
     license = "Zlib"
-    topics = "conan", "assert", "debugging", "utilities"
+    topics = ("assert", "debugging", "utilities")
 
     settings = "compiler"
 

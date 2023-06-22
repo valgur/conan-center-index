@@ -11,7 +11,7 @@ class STXConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     description = "C++17 & C++ 20 error-handling and utility extensions."
-    topics = "error-handling", "result", "option", "backtrace", "panic"
+    topics = ("error-handling", "result", "option", "backtrace", "panic")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {

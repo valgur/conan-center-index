@@ -6,7 +6,7 @@ from conans.errors import ConanInvalidConfiguration
 class LibiglConan(ConanFile):
     name = "libigl"
     description = "Simple C++ geometry processing library"
-    topics = ("conan", "libigl", "geometry", "matrices", "algorithms")
+    topics = ("geometry", "matrices", "algorithms")
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]
     homepage = "https://libigl.github.io/"

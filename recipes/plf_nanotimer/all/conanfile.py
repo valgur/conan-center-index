@@ -12,7 +12,7 @@ class PlfnanotimerConan(ConanFile):
         "A simple C++ 03/11/etc timer class for ~microsecond-precision cross-platform benchmarking."
     )
     license = "Zlib"
-    topics = ("plf_nanotimer", "timer", "benchmark")
+    topics = ("timer", "benchmark")
     homepage = "https://plflib.org/nanotimer.htm"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

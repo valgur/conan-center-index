@@ -16,7 +16,7 @@ class CistaConan(ConanFile):
         "compatible way of (de-)serializing C++ data structures."
     )
     license = "MIT"
-    topics = ("cista", "serialization", "deserialization", "reflection")
+    topics = ("serialization", "deserialization", "reflection")
     homepage = "https://github.com/felixguendling/cista"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

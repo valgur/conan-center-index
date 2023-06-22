@@ -7,7 +7,7 @@ class RandomConan(ConanFile):
     name = "effolkronium-random"
     description = "Random for modern C++ with convenient API."
     license = "MIT"
-    topics = ("conan", "random", "header-only")
+    topics = ("random", "header-only")
     homepage = "https://github.com/effolkronium/random"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True

@@ -6,7 +6,7 @@ import glob
 class KainjowMustacheConan(ConanFile):
     name = "kainjow-mustache"
     description = "Mustache text templates for modern C++"
-    topics = ("conan", "mustache", "template")
+    topics = ("mustache", "template")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kainjow/Mustache"
     license = "BSL-1.0"

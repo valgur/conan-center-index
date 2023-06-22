@@ -9,7 +9,7 @@ required_conan_version = ">=1.50.0"
 class GhcFilesystemRecipe(ConanFile):
     name = "ghc-filesystem"
     description = "A header-only single-file std::filesystem compatible helper library"
-    topics = ("ghc-filesystem", "header-only", "filesystem")
+    topics = ("header-only", "filesystem")
     homepage = "https://github.com/gulrak/filesystem"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"

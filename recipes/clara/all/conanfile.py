@@ -10,7 +10,7 @@ class ClaraConan(ConanFile):
     name = "clara"
     description = "A simple to use, composable, command line parser for C++ 11 and beyond"
     homepage = "https://github.com/catchorg/Clara"
-    topics = ("clara", "cli", "cpp11", "command-parser")
+    topics = ("cli", "cpp11", "command-parser")
     settings = "os", "arch", "compiler", "build_type"
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"

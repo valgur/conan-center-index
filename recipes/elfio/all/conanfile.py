@@ -13,7 +13,7 @@ class ElfioConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://elfio.sourceforge.net"
     description = "A header-only C++ library that provides a simple interface for reading and generating files in ELF binary format."
-    topics = ("elfio", "elf")
+    topics = "elf"
     license = "MIT"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"

@@ -7,7 +7,7 @@ class LibgtaConan(ConanFile):
     name = "libgta"
     description = "Library that reads and writes GTA (Generic Tagged Arrays) files."
     license = "LGPL-2.1-or-later"
-    topics = ("conan", "libgta", "gta")
+    topics = "gta"
     homepage = "https://marlam.de/gta"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = "CMakeLists.txt"

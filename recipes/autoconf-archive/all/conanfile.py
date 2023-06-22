@@ -16,7 +16,7 @@ class AutoconfArchiveConan(ConanFile):
     description = (
         "The GNU Autoconf Archive is a collection of more than 500 macros for GNU Autoconf"
     )
-    topics = ("conan", "GNU", "autoconf", "autoconf-archive", "macro")
+    topics = ("GNU", "autoconf", "macro")
     settings = "os"
 
     @property

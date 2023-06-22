@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class GlmConan(ConanFile):
     name = "glm"
     description = "OpenGL Mathematics (GLM)"
-    topics = ("glm", "opengl", "mathematics")
+    topics = ("opengl", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/g-truc/glm"
     license = "MIT"

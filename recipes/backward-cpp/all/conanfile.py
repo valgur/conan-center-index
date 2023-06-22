@@ -14,7 +14,7 @@ class BackwardCppConan(ConanFile):
     description = "A beautiful stack trace pretty printer for C++"
     homepage = "https://github.com/bombela/backward-cpp"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("backward-cpp", "stack-trace")
+    topics = "stack-trace"
     license = "MIT"
 
     package_type = "library"

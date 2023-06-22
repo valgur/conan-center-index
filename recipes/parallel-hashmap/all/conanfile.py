@@ -14,7 +14,7 @@ class ParallelHashmapConan(ConanFile):
         "A family of header-only, very fast and memory-friendly hashmap and btree containers."
     )
     license = "Apache-2.0"
-    topics = ("parallel-hashmap", "parallel", "hashmap", "btree")
+    topics = ("parallel", "hashmap", "btree")
     homepage = "https://github.com/greg7mdp/parallel-hashmap"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

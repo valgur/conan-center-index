@@ -15,7 +15,7 @@ class SerdConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://drobilla.net/software/serd.html"
     description = "A lightweight C library for RDF syntax"
-    topics = "linked-data", "semantic-web", "rdf", "turtle", "trig", "ntriples", "nquads"
+    topics = ("linked-data", "semantic-web", "rdf", "turtle", "trig", "ntriples", "nquads")
     license = "ISC"
 
     package_type = "library"

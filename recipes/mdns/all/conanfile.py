@@ -10,7 +10,7 @@ class MdnsConan(ConanFile):
     homepage = "https://github.com/mjansson/mdns"
     url = "https://github.com/conan-io/conan-center-index"
     description = "Public domain mDNS/DNS-SD library in C"
-    topics = ("mdns", "dns", "dns-sd", "multicast discovery", "discovery")
+    topics = ("dns", "dns-sd", "multicast discovery", "discovery")
     settings = "os", "compiler", "build_type", "arch"
     no_copy_source = True
 

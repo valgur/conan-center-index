@@ -14,7 +14,7 @@ class SConsConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index/"
     homepage = "https://scons.org"
-    topics = ("scons", "build", "configuration", "development")
+    topics = ("build", "configuration", "development")
     settings = "os"
     package_type = "application"
     no_copy_source = True

@@ -9,7 +9,7 @@ required_conan_version = ">=1.50.0"
 class BackportCppRecipe(ConanFile):
     name = "backport-cpp"
     description = "An ongoing effort to bring modern C++ utilities to be compatible with C++11"
-    topics = ("backport-cpp", "header-only", "backport")
+    topics = ("header-only", "backport")
     homepage = "https://github.com/bitwizeshift/BackportCpp"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"

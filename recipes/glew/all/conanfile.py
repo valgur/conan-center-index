@@ -18,7 +18,7 @@ class GlewConan(ConanFile):
     description = "The GLEW library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://github.com/nigels-com/glew"
-    topics = ("glew", "opengl", "wrangler", "loader", "binding")
+    topics = ("opengl", "wrangler", "loader", "binding")
     license = "MIT"
 
     settings = "os", "arch", "compiler", "build_type"

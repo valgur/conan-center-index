@@ -13,7 +13,7 @@ class LibwebpConan(ConanFile):
     description = "Library to encode and decode images in WebP format"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/webm/libwebp"
-    topics = ("image", "libwebp", "webp", "decoding", "encoding")
+    topics = ("image", "webp", "decoding", "encoding")
     license = "BSD-3-Clause"
 
     settings = "os", "arch", "compiler", "build_type"

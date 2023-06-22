@@ -10,7 +10,7 @@ class XXSDSSDSLLite(ConanFile):
     homepage = "https://github.com/xxsds/sdsl-lite"
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    topics = ("conan", "sdsl", "succint", "data-structures")
+    topics = ("sdsl", "succint", "data-structures")
     settings = "compiler"
     exports_sources = "patches/*"
     provides = "sdsl-lite"

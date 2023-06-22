@@ -17,7 +17,7 @@ class UtilLinuxLibuuidConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/util-linux/util-linux.git"
     license = "BSD-3-Clause"
-    topics = "id", "identifier", "unique", "uuid"
+    topics = ("id", "identifier", "unique", "uuid")
     package_type = "library"
     provides = "libuuid"
     settings = "os", "arch", "compiler", "build_type"

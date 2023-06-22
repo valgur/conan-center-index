@@ -20,7 +20,7 @@ class CgnsConan(ConanFile):
     description = (
         "Standard for data associated with the numerical solution " "of fluid dynamics equations."
     )
-    topics = "data", "cfd", "fluids"
+    topics = ("data", "cfd", "fluids")
     homepage = "http://cgns.org/"
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"

@@ -9,7 +9,7 @@ class MaddyConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/progsource/maddy"
     description = "open-source, maddy is a C++ Markdown to HTML header-only parser library."
-    topics = ("maddy", "markdown", "header-only")
+    topics = ("markdown", "header-only")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

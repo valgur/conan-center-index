@@ -12,7 +12,7 @@ required_conan_version = ">=1.52.0"
 class VincentlaucsbCsvParserConan(ConanFile):
     name = "vincentlaucsb-csv-parser"
     description = "Vince's CSV Parser with simple and intuitive syntax"
-    topics = ("conan", "csv-parser", "csv", "rfc 4180", "parser", "generator")
+    topics = ("csv-parser", "csv", "rfc 4180", "parser", "generator")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/vincentlaucsb/csv-parser"
     license = "MIT"

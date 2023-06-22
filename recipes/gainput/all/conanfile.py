@@ -11,7 +11,7 @@ class GainputConan(ConanFile):
     name = "gainput"
     description = "Cross-platform C++ input library supporting gamepads, keyboard, mouse, touch."
     license = "MIT"
-    topics = ("gainput", "input", "keyboard", "gamepad", "mouse", "multi-touch")
+    topics = ("input", "keyboard", "gamepad", "mouse", "multi-touch")
     homepage = "https://gainput.johanneskuhlmann.de"
     url = "https://github.com/conan-io/conan-center-index"
 

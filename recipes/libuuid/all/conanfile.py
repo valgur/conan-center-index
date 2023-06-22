@@ -23,7 +23,7 @@ class LibuuidConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/libuuid/"
     license = "BSD-3-Clause"
-    topics = "id", "identifier", "unique", "uuid"
+    topics = ("id", "identifier", "unique", "uuid")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

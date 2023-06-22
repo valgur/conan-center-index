@@ -15,7 +15,7 @@ class SpscqueueConan(ConanFile):
         "A bounded single-producer single-consumer wait-free and lock-free queue written in C++11."
     )
     license = "MIT"
-    topics = ("spscqueue", "thread", "queue")
+    topics = ("thread", "queue")
     homepage = "https://github.com/rigtorp/SPSCQueue"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

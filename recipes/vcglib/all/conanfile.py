@@ -11,7 +11,7 @@ class VcglibConan(ConanFile):
     name = "vcglib"
     description = "Library for manipulation, processing, cleaning, simplifying triangle meshes."
     license = "GPL-3.0-only"
-    topics = ("vcglib", "mesh-processing")
+    topics = "mesh-processing"
     homepage = "https://github.com/cnr-isti-vclab/vcglib"
     url = "https://github.com/conan-io/conan-center-index"
 

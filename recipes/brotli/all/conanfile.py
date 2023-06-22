@@ -9,7 +9,7 @@ required_conan_version = ">=1.53.0"
 class BrotliConan(ConanFile):
     name = "brotli"
     description = "Brotli compression format"
-    topics = ("brotli", "compression")
+    topics = "compression"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/brotli"
     license = ("MIT",)

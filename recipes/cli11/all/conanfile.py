@@ -11,7 +11,7 @@ class CLI11Conan(ConanFile):
     name = "cli11"
     homepage = "https://github.com/CLIUtils/CLI11"
     description = "A command line parser for C++11 and beyond."
-    topics = "cli-parser", "cpp11", "no-dependencies", "cli", "header-only"
+    topics = ("cli-parser", "cpp11", "no-dependencies", "cli", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
     settings = "os", "compiler", "build_type", "arch"

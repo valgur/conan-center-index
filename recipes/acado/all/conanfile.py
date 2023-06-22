@@ -9,7 +9,7 @@ class AcadoConan(ConanFile):
     name = "acado"
     description = "ACADO Toolkit is a software environment and algorithm collection for automatic control and dynamic optimization."
     license = "LGPL-3.0"
-    topics = ("conan", "acado", "control", "optimization", "mpc")
+    topics = ("control", "optimization", "mpc")
     homepage = "https://github.com/acado/acado"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "cmake/qpoases.cmake", "patches/**"]

@@ -14,7 +14,7 @@ class AGSConan(ConanFile):
         "systems or graphics APIs."
     )
     homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK"
-    topics = ("conan", "amd", "gpu")
+    topics = ("amd", "gpu")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
     license = "MIT"

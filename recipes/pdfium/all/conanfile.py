@@ -9,7 +9,7 @@ class PdfiumConan(ConanFile):
     name = "pdfium"
     description = "PDF generation and rendering library."
     license = "BSD-3-Clause"
-    topics = ("conan", "pdfium", "generate", "generation", "rendering", "pdf", "document", "print")
+    topics = ("generate", "generation", "rendering", "pdf", "document", "print")
     homepage = "https://opensource.google/projects/pdfium"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

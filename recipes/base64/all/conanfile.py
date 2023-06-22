@@ -26,7 +26,7 @@ class Base64Conan(ConanFile):
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aklomp/base64"
-    topics = ("base64", "codec", "encoder", "decoder")
+    topics = ("codec", "encoder", "decoder")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -17,7 +17,7 @@ class VectorclassConan(ConanFile):
         "Windows, Linux, and Mac platforms."
     )
     license = "Apache-2.0"
-    topics = ("vectorclass", "vector", "simd")
+    topics = ("vector", "simd")
     homepage = "https://github.com/vectorclass/version2"
     url = "https://github.com/conan-io/conan-center-index"
 

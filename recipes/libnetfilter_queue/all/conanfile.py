@@ -11,7 +11,7 @@ class Libnetfilter_queueConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnetfilter_queue/index.html"
     description = "userspace library that provides an API to packets that have been queued by the kernel packet filter"
-    topics = ("libnetfilter_queue", "netfilter")
+    topics = "netfilter"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

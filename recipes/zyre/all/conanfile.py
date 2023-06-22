@@ -12,7 +12,7 @@ class ZyreConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zeromq/zyre"
     description = "Local Area Clustering for Peer-to-Peer Applications."
-    topics = ("zyre", "czmq", "zmq", "zeromq", "message-queue", "asynchronous")
+    topics = ("czmq", "zmq", "zeromq", "message-queue", "asynchronous")
     settings = "os", "arch", "compiler", "build_type"
     generators = ["cmake", "cmake_find_package"]
     options = {

@@ -8,7 +8,7 @@ required_conan_version = ">=1.28.0"
 class CppTaskflowConan(ConanFile):
     name = "cpp-taskflow"
     description = "A fast C++ header-only library to help you quickly write parallel programs with complex task dependencies."
-    topics = ("conan", "cpp-taskflow", "taskflow", "tasking", "parallelism")
+    topics = ("taskflow", "tasking", "parallelism")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cpp-taskflow/cpp-taskflow"
     license = "MIT"

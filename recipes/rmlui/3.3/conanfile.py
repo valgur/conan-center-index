@@ -9,7 +9,7 @@ class RmluiConan(ConanFile):
     homepage = "https://github.com/mikke89/RmlUi"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    topics = ("conan", "css", "gui", "html", "lua", "rmlui")
+    topics = ("css", "gui", "html", "lua", "rmlui")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "enable_rtti_and_exceptions": [True, False],

@@ -9,7 +9,7 @@ required_conan_version = ">=1.52.0"
 class VorbisConan(ConanFile):
     name = "vorbis"
     description = "The VORBIS audio codec library"
-    topics = ("vorbis", "audio", "codec")
+    topics = ("audio", "codec")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://xiph.org/vorbis/"
     license = "BSD-3-Clause"

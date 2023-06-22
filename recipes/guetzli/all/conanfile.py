@@ -9,7 +9,7 @@ class GoogleGuetzliConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://opensource.google/projects/guetzli"
     description = "Perceptual JPEG encoder"
-    topics = "jpeg", "compression"
+    topics = ("jpeg", "compression")
     exports_sources = "patches/**"
     settings = "os", "compiler", "arch"
     generators = "pkg_config"

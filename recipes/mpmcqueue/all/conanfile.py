@@ -13,7 +13,7 @@ class MpmcqueueConan(ConanFile):
     name = "mpmcqueue"
     description = "A bounded multi-producer multi-consumer concurrent queue written in C++11."
     license = "MIT"
-    topics = ("mpmcqueue", "queue", "concurrency")
+    topics = ("queue", "concurrency")
     homepage = "https://github.com/rigtorp/MPMCQueue"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

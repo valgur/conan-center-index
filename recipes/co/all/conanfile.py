@@ -10,7 +10,7 @@ class CoConan(ConanFile):
     homepage = "https://github.com/idealvin/co"
     license = "MIT"
     description = "A go-style coroutine library in C++11 and more."
-    topics = ("co", "coroutine", "c++11")
+    topics = ("coroutine", "c++11")
 
     deprecated = "cocoyaxi"
 

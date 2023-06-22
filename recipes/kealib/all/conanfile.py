@@ -9,7 +9,7 @@ class KealibConan(ConanFile):
     name = "kealib"
     description = "C++ library providing complete access to the KEA image format."
     license = "MIT"
-    topics = ("conan", "kealib", "image", "raster")
+    topics = ("image", "raster")
     homepage = "https://github.com/ubarsc/kealib"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]

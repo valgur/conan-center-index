@@ -23,7 +23,7 @@ class RubyConan(ConanFile):
     name = "ruby"
     description = "The Ruby Programming Language"
     license = "Ruby"
-    topics = ("ruby", "c", "language", "object-oriented", "ruby-language")
+    topics = ("c", "language", "object-oriented", "ruby-language")
     homepage = "https://www.ruby-lang.org"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

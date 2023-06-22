@@ -12,7 +12,7 @@ class SdfConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/memononen/SDF"
-    topics = ("sdf", "signed", "distance", "field", "contour")
+    topics = ("signed", "distance", "field", "contour")
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

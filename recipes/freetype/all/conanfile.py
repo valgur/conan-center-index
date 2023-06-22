@@ -26,7 +26,7 @@ class FreetypeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org"
     license = "FTL"
-    topics = ("freetype", "fonts")
+    topics = "fonts"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -10,7 +10,7 @@ class RgEtc1Conan(ConanFile):
     )
     homepage = "https://github.com/richgel999/rg-etc1"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "etc1", "packer", "unpacker")
+    topics = ("etc1", "packer", "unpacker")
     license = "Zlib"
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"

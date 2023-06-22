@@ -31,7 +31,7 @@ class DbusConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freedesktop.org/wiki/Software/dbus"
     description = "D-Bus is a simple system for interprocess communication and coordination."
-    topics = "bus", "interprocess", "message"
+    topics = ("bus", "interprocess", "message")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     short_paths = True

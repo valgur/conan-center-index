@@ -11,7 +11,7 @@ class Tinyutf8Conan(ConanFile):
     name = "tiny-utf8"
     description = "Tiny-utf8 is a library for extremely easy integration of Unicode into an arbitrary C++11 project."
     license = "BSD-3-Clause"
-    topics = ("tiny-utf8", "utf8")
+    topics = "utf8"
     homepage = "https://github.com/DuffsDevice/tiny-utf8"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

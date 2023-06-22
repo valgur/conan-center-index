@@ -10,7 +10,7 @@ class PdqsortConan(ConanFile):
     name = "pdqsort"
     description = "Pattern-defeating quicksort."
     license = "Zlib"
-    topics = ("pdqsort", "sort")
+    topics = "sort"
     homepage = "https://github.com/orlp/pdqsort"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

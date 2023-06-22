@@ -10,7 +10,7 @@ required_conan_version = ">=1.33.0"
 class LzipConan(ConanFile):
     name = "lzip"
     description = "Lzip is a lossless data compressor with a user interface similar to the one of gzip or bzip2"
-    topics = ("lzip", "compressor", "lzma")
+    topics = ("compressor", "lzma")
     license = "GPL-v2-or-later"
     homepage = "https://www.nongnu.org/lzip/"
     url = "https://github.com/conan-io/conan-center-index"

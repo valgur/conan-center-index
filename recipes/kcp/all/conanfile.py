@@ -7,7 +7,7 @@ required_conan_version = ">=1.33.0"
 class KcpConan(ConanFile):
     name = "kcp"
     description = "A Fast and Reliable ARQ Protocol"
-    topics = ("conan", "kcp", "ARQ", "TCP", "protocol")
+    topics = ("ARQ", "TCP", "protocol")
     homepage = "https://github.com/skywind3000/kcp"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"

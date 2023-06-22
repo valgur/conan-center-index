@@ -15,7 +15,7 @@ class EmSDKConan(ConanFile):
     description = "Emscripten SDK. Emscripten is an Open Source LLVM to JavaScript compiler"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kripken/emscripten"
-    topics = ("emsdk", "emscripten", "sdk")
+    topics = ("emscripten", "sdk")
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
 

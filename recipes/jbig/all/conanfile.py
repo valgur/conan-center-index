@@ -12,7 +12,7 @@ class JBigConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ImageMagick/jbig"
     description = "jbig for the Windows build of ImageMagick"
-    topics = ("jbig", "imagemagick", "window", "graphic")
+    topics = ("imagemagick", "window", "graphic")
     license = "GPL-2.0"
 
     settings = "os", "arch", "compiler", "build_type"

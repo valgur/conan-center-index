@@ -12,7 +12,7 @@ class LibisalConan(ConanFile):
     license = "BSD-3"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/intel/isa-l"
-    topics = ("isa-l", "compression")
+    topics = "compression"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

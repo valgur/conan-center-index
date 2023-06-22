@@ -8,7 +8,7 @@ class CuteHeadersConan(ConanFile):
     description = (
         "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
     )
-    topics = ("conan", "various", "pure-c")
+    topics = ("various", "pure-c")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/RandyGaul/cute_headers"
     license = "Unlicense"

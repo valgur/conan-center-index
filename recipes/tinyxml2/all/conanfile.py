@@ -14,7 +14,7 @@ class Tinyxml2Conan(ConanFile):
         "easily integrated into other programs."
     )
     license = "Zlib"
-    topics = ("tinyxml2", "xml", "parser")
+    topics = ("xml", "parser")
     homepage = "https://github.com/leethomason/tinyxml2"
     url = "https://github.com/conan-io/conan-center-index"
 

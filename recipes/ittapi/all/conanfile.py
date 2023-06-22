@@ -16,7 +16,7 @@ class IttApiConan(ConanFile):
         " to generate and control the collection of trace data during its execution"
         " across different Intel tools."
     )
-    topics = ("itt", "ittapi", "vtune", "profiler", "profiling")
+    topics = ("itt", "vtune", "profiler", "profiling")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -7,7 +7,7 @@ class B2Conan(ConanFile):
     name = "b2"
     homepage = "https://www.bfgroup.xyz/b2/"
     description = "B2 makes it easy to build C++ projects, everywhere."
-    topics = ("conan", "installer", "builder")
+    topics = ("installer", "builder")
     license = "BSL-1.0"
     settings = "os", "arch"
     url = "https://github.com/conan-io/conan-center-index"

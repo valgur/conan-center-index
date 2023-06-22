@@ -10,7 +10,7 @@ class FlatcConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://google.github.io/flatbuffers/"
-    topics = ("conan", "flatbuffers", "serialization", "rpc", "json-parser", "installer")
+    topics = ("flatbuffers", "serialization", "rpc", "json-parser", "installer")
     description = "Memory Efficient Serialization Library"
     settings = "os", "arch"
     exports_sources = ["CMakeLists.txt", "patches/**"]

@@ -10,7 +10,7 @@ class PopplerDataConan(ConanFile):
     name = "poppler-data"
     description = "encoding files for use with poppler, enable CJK and Cyrrilic"
     homepage = "https://poppler.freedesktop.org/"
-    topics = "poppler", "pdf", "rendering"
+    topics = ("poppler", "pdf", "rendering")
     license = "BSD-3-Clause", "GPL-2.0-or-later", "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

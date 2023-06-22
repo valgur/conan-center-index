@@ -11,7 +11,7 @@ class TranswarpConan(ConanFile):
     name = "transwarp"
     description = "A header-only C++ library for task concurrency."
     license = "MIT"
-    topics = ("transwarp", "concurrency", "asynchronous")
+    topics = ("concurrency", "asynchronous")
     homepage = "https://github.com/bloomen/transwarp"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

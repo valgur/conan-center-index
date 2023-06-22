@@ -9,7 +9,7 @@ class LibelfinConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aclements/libelfin"
     license = "MIT"
-    topics = ("conan", "elf", "dwarf", "libelfin")
+    topics = ("elf", "dwarf", "libelfin")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

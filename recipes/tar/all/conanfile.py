@@ -8,7 +8,7 @@ required_conan_version = ">=1.33.0"
 class TarConan(ConanFile):
     name = "tar"
     description = "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
-    topics = ("tar", "archive")
+    topics = "archive"
     license = "GPL-3-or-later"
     homepage = "https://www.gnu.org/software/tar/"
     url = "https://github.com/conan-io/conan-center-index"

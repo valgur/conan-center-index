@@ -12,7 +12,7 @@ class BigintConan(ConanFile):
     name = "bigint"
     description = "C++ Big Integer Library"
     license = "Unlicense"
-    topics = ("bigint", "integer")
+    topics = "integer"
     homepage = "https://mattmccutchen.net/bigint"
     url = "https://github.com/conan-io/conan-center-index"
 

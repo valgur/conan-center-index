@@ -25,7 +25,7 @@ class LibGphoto2(ConanFile):
     description = "The libgphoto2 camera access and control library."
     homepage = "http://www.gphoto.org/"
     license = "LGPL-2.1"
-    topics = ("gphoto2", "libgphoto2", "libgphoto", "photo")
+    topics = ("gphoto2", "libgphoto", "photo")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

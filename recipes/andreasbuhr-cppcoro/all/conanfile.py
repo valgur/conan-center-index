@@ -8,7 +8,7 @@ required_conan_version = ">=1.33.0"
 class AndreasbuhrCppCoroConan(ConanFile):
     name = "andreasbuhr-cppcoro"
     description = "A library of C++ coroutine abstractions for the coroutines TS"
-    topics = ("conan", "cpp", "async", "coroutines")
+    topics = ("cpp", "async", "coroutines")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andreasbuhr/cppcoro"
     license = "MIT"

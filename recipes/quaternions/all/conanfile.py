@@ -6,7 +6,7 @@ from conans import ConanFile, tools
 class QuaternionsConan(ConanFile):
     name = "quaternions"
     description = "A blazingly fast C++ library to work with quaternions."
-    topics = ("conan", "quaternions", "mathematics")
+    topics = "mathematics"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ferd36/quaternions"
     license = "MIT"

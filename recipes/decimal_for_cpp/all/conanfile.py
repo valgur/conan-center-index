@@ -12,7 +12,7 @@ class DecimalforcppConan(ConanFile):
         "Decimal data type support, for COBOL-like fixed-point operations on currency values."
     )
     license = "BSD-3-Clause"
-    topics = ("decimal_for_cpp", "currency", "money-library", "decimal-numbers")
+    topics = ("currency", "money-library", "decimal-numbers")
     homepage = "https://github.com/vpiotr/decimal_for_cpp"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

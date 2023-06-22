@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class ProtozeroConan(ConanFile):
     name = "protozero"
     description = "Minimalist protocol buffer decoder and encoder in C++."
-    topics = ("protozero", "protobuf")
+    topics = "protobuf"
     license = "BSD-2-Clause"
     homepage = "https://github.com/mapbox/protozero"
     url = "https://github.com/conan-io/conan-center-index"

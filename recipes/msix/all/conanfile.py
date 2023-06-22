@@ -11,7 +11,7 @@ class MsixConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/msix-packaging"
     description = "An SDK for creating MSIX packages"
-    topics = ("msix", "sdk", "packaging", "conan-recipe")
+    topics = ("sdk", "packaging", "conan-recipe")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {

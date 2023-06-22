@@ -26,7 +26,7 @@ class ProjConan(ConanFile):
     name = "proj"
     description = "Cartographic Projections and Coordinate Transformations Library."
     license = "MIT"
-    topics = "dsp", "proj", "proj4", "projections", "gis", "geospatial"
+    topics = ("dsp", "proj4", "projections", "gis", "geospatial")
     homepage = "https://proj.org"
     url = "https://github.com/conan-io/conan-center-index"
 

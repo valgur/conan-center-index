@@ -7,7 +7,7 @@ class TcpWrappersConan(ConanFile):
     name = "tcp-wrappers"
     homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
     description = "A security tool which acts as a wrapper for TCP daemons"
-    topics = ("conan", "tcp", "ip", "daemon", "wrapper")
+    topics = ("tcp", "ip", "daemon", "wrapper")
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD"
     exports_sources = "patches/**"

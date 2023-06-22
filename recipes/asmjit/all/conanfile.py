@@ -13,7 +13,7 @@ class AsmjitConan(ConanFile):
         "AsmJit is a lightweight library for machine code " "generation written in C++ language."
     )
     license = "Zlib"
-    topics = ("asmjit", "compiler", "assembler", "jit")
+    topics = ("compiler", "assembler", "jit")
     homepage = "https://asmjit.com"
     url = "https://github.com/conan-io/conan-center-index"
 

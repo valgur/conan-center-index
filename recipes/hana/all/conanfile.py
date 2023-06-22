@@ -14,7 +14,7 @@ class HanaConan(ConanFile):
     homepage = "http://boostorg.github.io/hana/"
     description = "Hana is a header-only library for C++ metaprogramming suited for computations on both types and values."
     license = "BSL-1.0"
-    topics = ("hana", "metaprogramming", "boost")
+    topics = ("metaprogramming", "boost")
     settings = "compiler"
     no_copy_source = True
     deprecated = "boost"

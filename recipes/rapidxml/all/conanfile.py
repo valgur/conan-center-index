@@ -10,7 +10,7 @@ class RapiXMLConan(ConanFile):
     name = "rapidxml"
     description = "RapidXml is an attempt to create the fastest XML parser possible."
     license = ["BSL-1.0", "MIT"]
-    topics = ("rapidxml", "xml", "parser")
+    topics = ("xml", "parser")
     homepage = "http://rapidxml.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

@@ -5,7 +5,7 @@ class HapplyConan(ConanFile):
     name = "happly"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nmwsharp/happly"
-    topics = ("conan", "happly", "ply", "3D")
+    topics = ("ply", "3D")
     license = "MIT"
     description = "A C++ header-only parser for the PLY file format. Parse .ply happily!"
     settings = "compiler"

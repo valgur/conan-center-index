@@ -17,7 +17,7 @@ class OsgearthConan(ConanFile):
                    and go! osgEarth supports all kinds of data and comes with \
                    lots of examples to help you get up and running quickly \
                    and easily."
-    topics = "openscenegraph", "graphics"
+    topics = ("openscenegraph", "graphics")
     settings = "os", "compiler", "build_type", "arch"
     homepage = "http://osgearth.org/"
     options = {

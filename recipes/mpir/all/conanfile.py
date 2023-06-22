@@ -17,7 +17,7 @@ class MpirConan(ConanFile):
         "MPIR is a highly optimised library for bignum arithmetic"
         "forked from the GMP bignum library."
     )
-    topics = ("mpir", "multiprecision", "math", "mathematics")
+    topics = ("multiprecision", "math", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mpir.org/"
     license = "LGPL-3.0-or-later"

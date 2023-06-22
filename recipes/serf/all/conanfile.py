@@ -10,7 +10,7 @@ class SerfConan(ConanFile):
     name = "serf"
     description = "The serf library is a high performance C-based HTTP client library built upon the Apache Portable Runtime (APR) library."
     license = "Apache-2.0"
-    topics = ("conan", "serf", "apache", "http", "library")
+    topics = ("apache", "http", "library")
     homepage = "https://serf.apache.org/"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = "patches/**"

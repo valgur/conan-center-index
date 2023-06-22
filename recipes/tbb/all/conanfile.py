@@ -20,7 +20,7 @@ class TBBConan(ConanFile):
         "performance, that are portable and composable, and that have "
         "future-proof scalability"
     )
-    topics = ("tbb", "threading", "parallelism", "tbbmalloc")
+    topics = ("threading", "parallelism", "tbbmalloc")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -13,7 +13,7 @@ class XbyakConan(ConanFile):
         "assemble x86(IA32), x64(AMD64, x86-64) mnemonic."
     )
     license = "BSD-3-Clause"
-    topics = ("xbyak", "jit", "assembler")
+    topics = ("jit", "assembler")
     homepage = "https://github.com/herumi/xbyak"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

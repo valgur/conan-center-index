@@ -11,7 +11,7 @@ class NlohmannJsonConan(ConanFile):
     name = "nlohmann_json"
     homepage = "https://github.com/nlohmann/json"
     description = "JSON for Modern C++ parser and generator."
-    topics = "json", "header-only"
+    topics = ("json", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"

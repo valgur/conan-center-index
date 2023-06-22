@@ -9,7 +9,7 @@ required_conan_version = ">=1.50.0"
 class VectorialConan(ConanFile):
     name = "vectorial"
     description = "Vector math library with NEON/SSE support"
-    topics = ("vectorial", "math", "vector")
+    topics = ("math", "vector")
     license = "BSD-2-Clause"
     homepage = "https://github.com/scoopr/vectorial"
     url = "https://github.com/conan-io/conan-center-index"

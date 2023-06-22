@@ -10,7 +10,7 @@ class EglHeadersConan(ConanFile):
     name = "egl-headers"
     description = "EGL Header files."
     license = "Apache-2.0"
-    topics = ("egl-headers", "egl")
+    topics = "egl"
     homepage = "https://github.com/KhronosGroup/EGL-Registry"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

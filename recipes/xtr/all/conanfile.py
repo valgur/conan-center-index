@@ -7,7 +7,7 @@ import os
 class XtrConan(ConanFile):
     name = "xtr"
     description = "C++ Logging Library for Low-latency or Real-time Environments"
-    topics = ("xtr", "logging", "logger")
+    topics = ("logging", "logger")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/choll/xtr"
     license = "MIT"

@@ -15,7 +15,7 @@ class OpenTDFConan(ConanFile):
     name = "opentdf-client"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.virtru.com"
-    topics = ("opentdf", "opentdf-client", "tdf", "virtru")
+    topics = ("opentdf", "tdf", "virtru")
     description = "openTDF core c++ client library for creating and accessing TDF protected data"
     license = "BSD-3-Clause-Clear"
     generators = "cmake", "cmake_find_package"

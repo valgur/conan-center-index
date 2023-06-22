@@ -21,7 +21,7 @@ class Argtable3Conan(ConanFile):
     license = "BSD-3-clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.argtable.org/"
-    topics = ("conan", "argtable3", "command", "line", "argument", "parse", "parsing", "getopt")
+    topics = ("command", "line", "argument", "parse", "parsing", "getopt")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

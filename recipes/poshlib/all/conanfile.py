@@ -8,7 +8,7 @@ class PoshlibConan(ConanFile):
     description = "Posh is a software framework used in cross-platform software development."
     homepage = "https://github.com/PhilipLudington/poshlib"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "posh", "framework", "cross-platform")
+    topics = ("posh", "framework", "cross-platform")
     license = "BSD-2-Clause"
     exports_sources = ["CMakeLists.txt"]
     generators = "cmake"

@@ -12,7 +12,7 @@ class BlazeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/blaze-lib/blaze"
     description = "open-source, high-performance C++ math library for dense and sparse arithmetic"
-    topics = ("blaze", "math", "algebra", "linear algebra", "high-performance")
+    topics = ("math", "algebra", "linear algebra", "high-performance")
     license = "BSD-3-Clause"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

@@ -14,7 +14,7 @@ class LibsassConan(ConanFile):
     homepage = "libsass.org"
     url = "https://github.com/conan-io/conan-center-index"
     description = "A C/C++ implementation of a Sass compiler"
-    topics = ("Sass", "LibSass", "compiler")
+    topics = ("Sass", "compiler")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

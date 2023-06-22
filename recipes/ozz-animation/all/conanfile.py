@@ -6,7 +6,7 @@ class OzzAnimationConan(ConanFile):
     name = "ozz-animation"
     description = "Open source c++ skeletal animation library and toolset."
     license = "MIT"
-    topics = ("conan", "ozz", "animation", "skeletal")
+    topics = ("ozz", "animation", "skeletal")
     homepage = "https://github.com/guillaumeblanc/ozz-animation"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt"]

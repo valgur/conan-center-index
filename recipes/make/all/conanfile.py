@@ -14,7 +14,7 @@ class MakeConan(ConanFile):
         "GNU Make is a tool which controls the generation of executables and "
         "other non-source files of a program from the program's source files"
     )
-    topics = ("make", "build", "makefile")
+    topics = ("build", "makefile")
     homepage = "https://www.gnu.org/software/make/"
     url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-or-later"

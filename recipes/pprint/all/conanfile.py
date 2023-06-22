@@ -10,7 +10,7 @@ class PprintConan(ConanFile):
     description = "Pretty Printer for Modern C++"
     license = "MIT"
     settings = "os", "compiler"
-    topics = ("conan", "pprint", "pretty", "printer")
+    topics = ("pretty", "printer")
     no_copy_source = True
 
     def configure(self):

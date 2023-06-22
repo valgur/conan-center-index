@@ -7,7 +7,7 @@ class LibEstConan(ConanFile):
     name = "libest"
     license = "BSD-3-Clause"
     description = "EST is used for secure certificate enrollment"
-    topics = ("conan", "EST", "RFC 7030", "certificate enrollment")
+    topics = ("EST", "RFC 7030", "certificate enrollment")
     homepage = "https://github.com/cisco/libest"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"

@@ -26,7 +26,7 @@ class GmpConan(ConanFile):
         "on signed integers, rational numbers, and floating-point numbers."
     )
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("gmp", "math", "arbitrary", "precision", "integer")
+    topics = ("math", "arbitrary", "precision", "integer")
     license = ("LGPL-3.0", "GPL-2.0")
     homepage = "https://gmplib.org"
 

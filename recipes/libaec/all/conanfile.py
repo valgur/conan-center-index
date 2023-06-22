@@ -23,7 +23,7 @@ class LibaecConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.dkrz.de/k202009/libaec"
     description = "Adaptive Entropy Coding library"
-    topics = "dsp", "encoding", "decoding"
+    topics = ("dsp", "encoding", "decoding")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

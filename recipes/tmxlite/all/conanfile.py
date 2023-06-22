@@ -24,7 +24,7 @@ class TmxliteConan(ConanFile):
         "A lightweight C++14 parsing library for tmx map files created with the Tiled map editor."
     )
     license = "Zlib"
-    topics = ("tmxlite", "tmx", "tiled-map", "parser")
+    topics = ("tmx", "tiled-map", "parser")
     homepage = "https://github.com/fallahn/tmxlite"
     url = "https://github.com/conan-io/conan-center-index"
 

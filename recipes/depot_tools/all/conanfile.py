@@ -8,7 +8,7 @@ class DepotToolsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/chromium/tools/depot_tools"
     description = "Tools for working with Chromium development."
-    topics = ("depot_tools", "chromium")
+    topics = "chromium"
     license = "BSD-3-Clause"
     short_paths = True
     no_copy_source = True

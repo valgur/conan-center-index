@@ -10,7 +10,7 @@ class MsdfAtlasGenConan(ConanFile):
     homepage = "https://github.com/Chlumsky/msdf-atlas-gen"
     url = "https://github.com/conan-io/conan-center-index"
     description = "MSDF font atlas generator"
-    topics = ("msdf-atlas-gen", "msdf", "font", "atlas")
+    topics = ("msdf", "font", "atlas")
     settings = "os", "arch", "compiler", "build_type"
 
     generators = "cmake", "cmake_find_package_multi"

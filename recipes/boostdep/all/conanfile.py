@@ -9,7 +9,7 @@ class BoostDepConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/boostdep"
     license = "BSL-1.0"
-    topics = ("conan", "boostdep", "dependency", "tree")
+    topics = ("dependency", "tree")
     exports_sources = "CMakeLists.txt"
     generators = "cmake", "cmake_find_package"
 

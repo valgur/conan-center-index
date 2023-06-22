@@ -8,7 +8,7 @@ class PargConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jibsen/parg"
     description = "Parser for argv that works similarly to getopt"
-    topics = ("conan", "getopt", "c")
+    topics = ("getopt", "c")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

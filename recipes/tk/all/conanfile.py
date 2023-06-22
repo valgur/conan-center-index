@@ -12,7 +12,7 @@ required_conan_version = ">=1.33.0"
 class TkConan(ConanFile):
     name = "tk"
     description = "Tk is a graphical user interface toolkit that takes developing desktop applications to a higher level than conventional approaches."
-    topics = ("conan", "tk", "gui", "tcl", "scripting", "programming")
+    topics = ("gui", "tcl", "scripting", "programming")
     homepage = "https://tcl.tk"
     license = "TCL"
     url = "https://github.com/conan-io/conan-center-index"

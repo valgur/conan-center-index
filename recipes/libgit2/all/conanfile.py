@@ -13,7 +13,7 @@ class LibGit2Conan(ConanFile):
         "libgit2 is a portable, pure C implementation of the Git core methods "
         "provided as a re-entrant linkable library with a solid API"
     )
-    topics = ("libgit2", "git", "scm")
+    topics = ("git", "scm")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libgit2.org/"
     license = "GPL-2.0-linking-exception"

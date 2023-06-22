@@ -14,7 +14,7 @@ class LupleConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alexpolt/luple"
     description = "Home to luple, nuple, C++ String Interning, Struct Reader and C++ Type Loophole"
-    topics = ("loophole", "luple", "nuple", "struct", "intern")
+    topics = ("loophole", "nuple", "struct", "intern")
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

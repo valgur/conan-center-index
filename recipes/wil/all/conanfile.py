@@ -20,7 +20,7 @@ class WilConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/wil"
-    topics = ("win", "wil", "header-only")
+    topics = ("win", "header-only")
     package_type = "header-library"
     # only arch is aplicable, windows library
     settings = "os", "arch", "compiler", "build_type"

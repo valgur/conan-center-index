@@ -12,7 +12,7 @@ class EastlConan(ConanFile):
         "It is an extensive and robust implementation that has an "
         "emphasis on high performance."
     )
-    topics = ("eastl", "stl", "high-performance")
+    topics = ("stl", "high-performance")
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/electronicarts/EASTL"

@@ -6,7 +6,7 @@ class CgltfConan(ConanFile):
     name = "cgltf"
     description = "Single-file glTF 2.0 loader and writer written in C99."
     license = "MIT"
-    topics = ("conan", "cgltf", "gltf", "header-only")
+    topics = ("gltf", "header-only")
     homepage = "https://github.com/jkuhlmann/cgltf"
     url = "https://github.com/conan-io/conan-center-index"
 

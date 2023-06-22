@@ -10,7 +10,7 @@ class VulkanHeadersConan(ConanFile):
     name = "vulkan-headers"
     description = "Vulkan Header files."
     license = "Apache-2.0"
-    topics = ("vulkan-headers", "vulkan")
+    topics = "vulkan"
     homepage = "https://github.com/KhronosGroup/Vulkan-Headers"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"

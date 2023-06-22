@@ -7,7 +7,7 @@ class Etc2compConan(ConanFile):
     name = "etc2comp"
     description = "Open source c++ skeletal animation library and toolset."
     license = ("Apache-2.0",)
-    topics = ("conan", "texture", "etc2", "compressor")
+    topics = ("texture", "etc2", "compressor")
     homepage = "https://github.com/google/etc2comp"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]

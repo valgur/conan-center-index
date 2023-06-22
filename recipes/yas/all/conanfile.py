@@ -7,7 +7,7 @@ required_conan_version = ">=1.33.0"
 class YasConan(ConanFile):
     name = "yas"
     description = "Yet Another Serialization"
-    topics = ("yas", "serialization", "header-only")
+    topics = ("serialization", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/niXman/yas"
     license = "BSL-1.0"

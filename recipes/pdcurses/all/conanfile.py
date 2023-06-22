@@ -9,7 +9,7 @@ class PDCursesConan(ConanFile):
     description = (
         "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
     )
-    topics = ("conan", "pdcurses", "curses", "ncurses")
+    topics = ("curses", "ncurses")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pdcurses.org/"
     license = "Unlicense", "MITX", "CC-BY-4.0", "GPL", "FSFUL"

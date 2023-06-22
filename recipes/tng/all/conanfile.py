@@ -10,7 +10,7 @@ class tngConan(ConanFile):
     name = "tng"
     description = "External GROMACS library for loading tng files."
     license = "BSD-3-Clause"
-    topics = ("tng", "gromacs")
+    topics = "gromacs"
     homepage = "https://gitlab.com/gromacs/tng/"
     url = "https://github.com/conan-io/conan-center-index"
 

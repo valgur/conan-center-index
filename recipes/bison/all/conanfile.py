@@ -22,7 +22,7 @@ class BisonConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/bison/"
     description = "Bison is a general-purpose parser generator"
-    topics = ("bison", "parser")
+    topics = "parser"
     license = "GPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
     options = {

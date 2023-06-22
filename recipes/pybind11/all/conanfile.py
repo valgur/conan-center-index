@@ -11,7 +11,7 @@ required_conan_version = ">=1.52.0"
 class PyBind11Conan(ConanFile):
     name = "pybind11"
     description = "Seamless operability between C++11 and Python"
-    topics = "pybind11", "python", "binding"
+    topics = ("pybind11", "python", "binding")
     homepage = "https://github.com/pybind/pybind11"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"

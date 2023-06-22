@@ -22,7 +22,7 @@ required_conan_version = ">=1.54.0"
 class OpusFileConan(ConanFile):
     name = "opusfile"
     description = "stand-alone decoder library for .opus streams"
-    topics = ("opus", "opusfile", "audio", "decoder", "decoding", "multimedia", "sound")
+    topics = ("opus", "audio", "decoder", "decoding", "multimedia", "sound")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xiph/opusfile"
     license = "BSD-3-Clause"

@@ -12,7 +12,7 @@ class ArgparseConan(ConanFile):
     name = "argh"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/adishavit/argh"
-    topics = ("argh", "argument", "parsing")
+    topics = ("argument", "parsing")
     license = "BSD-3"
     description = "Frustration-free command line processing"
     settings = "os", "arch", "compiler", "build_type"

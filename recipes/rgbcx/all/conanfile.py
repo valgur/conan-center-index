@@ -8,7 +8,7 @@ class RgbcxConan(ConanFile):
     description = "High-performance scalar BC1-5 encoders."
     homepage = "https://github.com/richgel999/bc7enc"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "BC1", "BC5", "BCx", "encoding")
+    topics = ("BC1", "BC5", "BCx", "encoding")
     license = "MIT", "Unlicense"
 
     def source(self):

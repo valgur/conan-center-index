@@ -27,7 +27,7 @@ class LibVPXConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.webmproject.org/code"
     description = "WebM VP8/VP9 Codec SDK"
-    topics = "vpx", "codec", "web", "VP8", "VP9"
+    topics = ("vpx", "codec", "web", "VP8", "VP9")
     license = "BSD-3-Clause"
 
     package_type = "library"

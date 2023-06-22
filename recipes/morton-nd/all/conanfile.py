@@ -16,7 +16,7 @@ class MortonndConan(ConanFile):
         "of encoding from and decoding to N-dimensional space."
     )
     license = "MIT"
-    topics = ("morton-nd", "morton", "encoding", "decoding", "n-dimensional")
+    topics = ("morton", "encoding", "decoding", "n-dimensional")
     homepage = "https://github.com/kevinhartman/morton-nd"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

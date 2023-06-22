@@ -17,7 +17,7 @@ class LibelfConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://directory.fsf.org/wiki/Libelf"
     license = "LGPL-2.0"
-    topics = ("elf", "fsf", "libelf", "object-file")
+    topics = ("elf", "fsf", "object-file")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

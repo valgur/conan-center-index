@@ -7,7 +7,7 @@ import os
 class GetDnsConan(ConanFile):
     name = "getdns"
     description = "A modern asynchronous DNS API"
-    topics = "conan", "getdns", "asynchronous", "event"
+    topics = ("asynchronous", "event")
     license = "BSD-3-Clause"
     homepage = "https://getdnsapi.net/"
     url = "https://github.com/conan-io/conan-center-index"

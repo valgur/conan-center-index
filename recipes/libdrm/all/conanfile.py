@@ -11,7 +11,7 @@ from conans import Meson
 class LibdrmConan(ConanFile):
     name = "libdrm"
     description = "User space library for accessing the Direct Rendering Manager, on operating systems that support the ioctl interface"
-    topics = ("libdrm", "graphics")
+    topics = "graphics"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/mesa/drm"
     license = "MIT"

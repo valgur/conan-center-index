@@ -43,7 +43,7 @@ class IosCMakeConan(ConanFile):
         "toolchain_target": "auto",
     }
     description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
-    topics = "conan", "apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos"
+    topics = ("apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos")
     exports_sources = "cmake-wrapper"
 
     @property

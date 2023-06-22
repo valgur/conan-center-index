@@ -7,7 +7,7 @@ required_conan_version = ">=1.43.0"
 class LibCheckConan(ConanFile):
     name = "libcheck"
     description = "A unit testing framework for C"
-    topics = ("libcheck", "unit", "testing", "framework", "C")
+    topics = ("unit", "testing", "framework", "C")
     license = "LGPL-2.1-or-later"
     homepage = "https://github.com/libcheck/check"
     url = "https://github.com/conan-io/conan-center-index"

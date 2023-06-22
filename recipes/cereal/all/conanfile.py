@@ -11,7 +11,7 @@ class CerealConan(ConanFile):
     name = "cereal"
     description = "Serialization header-only library for C++11."
     license = "BSD-3-Clause"
-    topics = ("cereal", "header-only", "serialization", "cpp11")
+    topics = ("header-only", "serialization", "cpp11")
     homepage = "https://github.com/USCiLab/cereal"
     url = "https://github.com/conan-io/conan-center-index"
 

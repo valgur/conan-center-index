@@ -11,7 +11,7 @@ class EazylzmaConan(ConanFile):
                     Igor Pavlov's work that can be used to compress and extract lzma files"
     settings = "os", "arch", "compiler", "build_type"
     generators = "cmake"
-    topics = ("conan", "eazylzma", "lzma")
+    topics = ("eazylzma", "lzma")
     exports_sources = ["CMakeLists.txt", "patches/*"]
     options = {
         "shared": [True, False],

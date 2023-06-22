@@ -11,7 +11,7 @@ class QuickfixConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.quickfixengine.org"
     description = "QuickFIX is a free and open source implementation of the FIX protocol"
-    topics = ("conan", "QuickFIX", "FIX", "Financial Information Exchange", "libraries", "cpp")
+    topics = ("FIX", "Financial Information Exchange", "libraries", "cpp")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "fPIC": [True, False],

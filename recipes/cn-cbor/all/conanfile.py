@@ -9,7 +9,7 @@ class CnCborStackConan(ConanFile):
     homepage = "https://github.com/jimsch/cn-cbor/"
     url = "https://github.com/conan-io/conan-center-index"
     description = "A constrained node implementation of CBOR in C"
-    topics = "cbor", "nodes", "messaging"
+    topics = ("cbor", "nodes", "messaging")
     exports_sources = ["CMakeLists.txt"]
     settings = "os", "compiler", "build_type", "arch"
     options = {

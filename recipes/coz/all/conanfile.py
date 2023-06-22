@@ -12,7 +12,7 @@ class CozConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://coz-profiler.org"
     license = "BSD-2-Clause"
-    topics = ("conan", "coz", "profiler", "causal")
+    topics = ("profiler", "causal")
 
     settings = "os", "arch", "compiler", "build_type"
 

@@ -7,7 +7,7 @@ from conans.errors import ConanInvalidConfiguration
 class OisConan(ConanFile):
     name = "ois"
     description = "Object oriented Input System."
-    topics = ("conan", "ois", "input")
+    topics = "input"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wgois/OIS"
     license = "Zlib"

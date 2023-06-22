@@ -18,7 +18,7 @@ class GenieConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bkaradzic/GENie"
     description = "Project generator tool"
-    topics = ("genie", "project", "generator", "build", "build-systems")
+    topics = ("project", "generator", "build", "build-systems")
     settings = "os", "arch", "compiler", "build_type"
 
     @property

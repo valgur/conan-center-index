@@ -18,7 +18,7 @@ class CMakeConan(ConanFile):
     name = "cmake"
     package_type = "application"
     description = "Conan installer for CMake"
-    topics = ("cmake", "build", "installer")
+    topics = ("build", "installer")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Kitware/CMake"
     license = "BSD-3-Clause"

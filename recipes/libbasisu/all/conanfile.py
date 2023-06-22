@@ -9,7 +9,7 @@ class LibBasisUniversalConan(ConanFile):
     name = "libbasisu"
     description = "Basis Universal Supercompressed GPU Texture Codec"
     homepage = "https://github.com/BinomialLLC/basis_universal"
-    topics = ("conan", "basis", "textures", "compression")
+    topics = ("basis", "textures", "compression")
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
     exports_sources = ["CMakeLists.txt", "patches/*"]

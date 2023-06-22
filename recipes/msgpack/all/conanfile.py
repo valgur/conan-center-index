@@ -8,7 +8,7 @@ class MsgpackConan(ConanFile):
     description = "The official C++ library for MessagePack"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/msgpack/msgpack-c"
-    topics = ("conan", "msgpack", "message-pack", "serialization")
+    topics = ("message-pack", "serialization")
     license = "BSL-1.0"
     exports_sources = "CMakeLists.txt"
     generators = "cmake"

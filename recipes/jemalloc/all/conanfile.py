@@ -18,7 +18,7 @@ class JemallocConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-2-Clause"
     homepage = "http://jemalloc.net/"
-    topics = ("conan", "jemalloc", "malloc", "free")
+    topics = ("malloc", "free")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

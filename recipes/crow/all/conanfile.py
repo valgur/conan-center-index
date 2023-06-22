@@ -7,7 +7,7 @@ class CrowConan(ConanFile):
     name = "crow"
     homepage = "https://github.com/ipkn/crow"
     description = "Crow is C++ microframework for web. (inspired by Python Flask)"
-    topics = ("conan", "web", "microframework", "header-only")
+    topics = ("web", "microframework", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "arch", "build_type"
     exports_sources = ["patches/*"]

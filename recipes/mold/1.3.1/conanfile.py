@@ -15,7 +15,7 @@ class MoldConan(ConanFile):
     homepage = "https://github.com/rui314/mold/"
     license = "AGPL-3.0"
     description = "mold is a faster drop-in replacement for existing Unix linkers. It is several times faster than the LLVM lld linker"
-    topics = ("mold", "ld", "linkage", "compilation")
+    topics = ("ld", "linkage", "compilation")
 
     settings = "os", "arch", "compiler", "build_type"
 

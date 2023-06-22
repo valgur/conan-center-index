@@ -7,7 +7,7 @@ class LestConan(ConanFile):
     name = "lest"
     description = "A modern, C++11-native, single-file header-only, tiny framework for unit-tests, TDD and BDD."
     license = "BSL-1.0"
-    topics = ("conan", "testing", "testing-framework", "unit-testing", "header-only")
+    topics = ("testing", "testing-framework", "unit-testing", "header-only")
     homepage = "https://github.com/martinmoene/lest"
     url = "https://github.com/conan-io/conan-center-index"
     no_copy_source = True

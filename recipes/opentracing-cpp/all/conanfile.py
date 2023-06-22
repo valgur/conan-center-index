@@ -7,7 +7,7 @@ class OpenTracingConan(ConanFile):
     name = "opentracing-cpp"
     description = "C++ implementation of the OpenTracing API http://opentracing.io"
     license = "Apache-2.0"
-    topics = ("conan", "opentracing")
+    topics = "opentracing"
     homepage = "https://github.com/opentracing/opentracing-cpp"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/*.patch"]

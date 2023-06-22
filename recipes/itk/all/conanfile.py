@@ -9,7 +9,7 @@ required_conan_version = ">=1.43.0"
 
 class ITKConan(ConanFile):
     name = "itk"
-    topics = ("itk", "scientific", "image", "processing")
+    topics = ("scientific", "image", "processing")
     homepage = "http://www.itk.org/"
     url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"

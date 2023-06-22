@@ -16,7 +16,7 @@ class PatchElfConan(ConanFile):
     name = "patchelf"
     package_type = "application"
     description = "A small utility to modify the dynamic linker and RPATH of ELF executables"
-    topics = ("conan", "elf", "linker", "interpreter", "RPATH", "binaries")
+    topics = ("elf", "linker", "interpreter", "RPATH", "binaries")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/NixOS/patchelf"
     license = "GPL-3.0-or-later"

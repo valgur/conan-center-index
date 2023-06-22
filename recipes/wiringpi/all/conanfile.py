@@ -12,7 +12,7 @@ class WiringpiConan(ConanFile):
     license = "LGPL-3.0"
     description = "GPIO Interface library for the Raspberry Pi"
     homepage = "http://wiringpi.com"
-    topics = ("wiringpi", "gpio", "raspberrypi")
+    topics = ("gpio", "raspberrypi")
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "compiler", "build_type", "arch"
     options = {

@@ -21,7 +21,7 @@ class OdbcConan(ConanFile):
     name = "odbc"
     package_type = "library"
     description = "Package providing unixODBC"
-    topics = ("odbc", "database", "dbms", "data-access")
+    topics = ("database", "dbms", "data-access")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.unixodbc.org"
     license = ("LGPL-2.1", "GPL-2.1")

@@ -20,7 +20,7 @@ required_conan_version = ">=1.53.0"
 class Catch2Conan(ConanFile):
     name = "catch2"
     description = "A modern, C++-native, header-only, framework for unit-tests, TDD and BDD"
-    topics = ("catch2", "unit-test", "tdd", "bdd")
+    topics = ("unit-test", "tdd", "bdd")
     license = "BSL-1.0"
     homepage = "https://github.com/catchorg/Catch2"
     url = "https://github.com/conan-io/conan-center-index"

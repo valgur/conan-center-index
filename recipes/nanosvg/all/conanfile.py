@@ -10,7 +10,7 @@ class NanosvgConan(ConanFile):
     name = "nanosvg"
     description = "NanoSVG is a simple stupid single-header-file SVG parser."
     license = "Zlib"
-    topics = ("nanosvg", "svg", "parser", "header-only")
+    topics = ("svg", "parser", "header-only")
     homepage = "https://github.com/memononen/nanosvg"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

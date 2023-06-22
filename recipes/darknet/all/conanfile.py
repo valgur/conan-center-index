@@ -9,7 +9,7 @@ class DarknetConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pjreddie.com/darknet/"
     description = "Darknet is a neural network frameworks written in C"
-    topics = ("darknet", "neural network", "deep learning")
+    topics = ("neural network", "deep learning")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

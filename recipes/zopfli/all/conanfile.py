@@ -16,7 +16,7 @@ class ZopfliConan(ConanFile):
         "Zopfli Compression Algorithm is a compression library programmed in C "
         "to perform very good, but slow, deflate or zlib compression."
     )
-    topics = ("zopfli", "compression", "deflate", "gzip", "zlib")
+    topics = ("compression", "deflate", "gzip", "zlib")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -6,7 +6,7 @@ class KeychainConan(ConanFile):
     name = "keychain"
     homepage = "https://github.com/hrantzsch/keychain"
     description = "A cross-platform wrapper for the operating system's credential storage"
-    topics = ("conan", "keychain", "security", "credentials", "password", "cpp11")
+    topics = ("security", "credentials", "password", "cpp11")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"

@@ -16,7 +16,7 @@ class RocksDB(ConanFile):
     description = (
         "A library that provides an embeddable, persistent key-value store for fast storage"
     )
-    topics = ("rocksdb", "database", "leveldb", "facebook", "key-value")
+    topics = ("database", "leveldb", "facebook", "key-value")
 
     settings = "os", "compiler", "build_type", "arch"
     options = {

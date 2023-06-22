@@ -11,7 +11,7 @@ class LibmnlConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libmnl/index.html"
     description = "Minimalistic Netlink communication library"
-    topics = ("libmnl", "netlink")
+    topics = "netlink"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

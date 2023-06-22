@@ -14,7 +14,7 @@ class SwigConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.swig.org"
     license = "GPL-3.0-or-later"
-    topics = ("swig", "python", "java", "wrapper")
+    topics = ("python", "java", "wrapper")
     exports_sources = "patches/**", "cmake/*"
     settings = "os", "arch", "compiler", "build_type"
 

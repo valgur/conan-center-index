@@ -11,7 +11,7 @@ class LibgpiodConan(ConanFile):
     homepage = "https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/"
     license = "LGPL-2.1-or-later"
     description = "C library and tools for interacting with the linux GPIO character device"
-    topics = ("gpio", "libgpiod", "libgpiodcxx", "linux")
+    topics = ("gpio", "libgpiodcxx", "linux")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

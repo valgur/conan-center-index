@@ -11,7 +11,7 @@ class FoxiConan(ConanFile):
     name = "foxi"
     description = "ONNXIFI with Facebook Extension."
     license = "MIT"
-    topics = ("foxi", "onnxifi")
+    topics = "onnxifi"
     homepage = "https://github.com/houseroad/foxi"
     url = "https://github.com/conan-io/conan-center-index"
 

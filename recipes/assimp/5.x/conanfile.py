@@ -26,7 +26,7 @@ class AssimpConan(ConanFile):
         "A library to import and export various 3d-model-formats including "
         "scene-post-processing to generate missing render data."
     )
-    topics = ("assimp", "3d", "game development", "3mf", "collada")
+    topics = ("3d", "game development", "3mf", "collada")
     license = "BSD-3-Clause"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

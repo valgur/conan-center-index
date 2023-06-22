@@ -15,7 +15,7 @@ class CocoyaxiConan(ConanFile):
     homepage = "https://github.com/idealvin/cocoyaxi"
     license = "MIT"
     description = "A go-style coroutine library in C++11 and more."
-    topics = ("cocoyaxi", "coroutine", "c++11")
+    topics = ("coroutine", "c++11")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

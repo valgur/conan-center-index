@@ -9,7 +9,7 @@ class NativefiledialogConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mlabbe/nativefiledialog"
     description = "A tiny, neat C library that portably invokes native file open and save dialogs."
-    topics = ("conan", "dialog", "gui")
+    topics = ("dialog", "gui")
     settings = "os", "compiler", "build_type", "arch"
     generators = ("pkg_config",)
 

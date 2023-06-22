@@ -9,7 +9,7 @@ required_conan_version = ">=1.33.0"
 class LibId3TagConan(ConanFile):
     name = "libid3tag"
     description = "ID3 tag manipulation library."
-    topics = ("conan", "mad", "id3", "MPEG", "audio", "decoder")
+    topics = ("mad", "id3", "MPEG", "audio", "decoder")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.underbit.com/products/mad/"
     license = "GPL-2.0-or-later"

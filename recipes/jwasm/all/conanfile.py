@@ -10,7 +10,7 @@ class JwasmConan(ConanFile):
     name = "jwasm"
     description = "JWasm is intended to be a free Masm-compatible assembler."
     license = "Watcom-1.0"
-    topics = ("jwasm", "masm", "assembler")
+    topics = ("masm", "assembler")
     homepage = "https://github.com/JWasm/JWasm"
     url = "https://github.com/conan-io/conan-center-index"
 

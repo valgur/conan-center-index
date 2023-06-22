@@ -14,7 +14,7 @@ class SasscConan(ConanFile):
     homepage = "https://sass-lang.com/libsass"
     url = "https://github.com/conan-io/conan-center-index"
     description = "libsass command line driver"
-    topics = ("Sass", "sassc", "compiler")
+    topics = ("Sass", "compiler")
     settings = "os", "compiler", "build_type", "arch"
     generators = "visual_studio"
 

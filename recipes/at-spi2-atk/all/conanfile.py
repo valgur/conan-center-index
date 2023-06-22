@@ -11,7 +11,7 @@ required_conan_version = ">=1.33.0"
 class AtSPI2AtkConan(ConanFile):
     name = "at-spi2-atk"
     description = "library that bridges ATK to At-Spi2 D-Bus service."
-    topics = ("conan", "atk", "accessibility")
+    topics = ("atk", "accessibility")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-atk"
     license = "LGPL-2.1-or-later"

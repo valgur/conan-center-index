@@ -7,7 +7,7 @@ class ExtracmakemodulesConan(ConanFile):
     license = ("MIT", "BSD-2-Clause", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://api.kde.org/ecm/"
-    topics = ("conan", "cmake", "toolchain", "build-settings")
+    topics = ("cmake", "toolchain", "build-settings")
     description = "KDE's CMake modules"
     generators = "cmake"
     no_copy_source = False

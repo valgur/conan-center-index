@@ -11,7 +11,7 @@ required_conan_version = ">=1.33.0"
 class NCursesConan(ConanFile):
     name = "ncurses"
     description = "The ncurses (new curses) library is a free software emulation of curses in System V Release 4.0 (SVr4), and more"
-    topics = ("ncurses", "terminal", "screen", "tui")
+    topics = ("terminal", "screen", "tui")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/ncurses"
     license = "X11"

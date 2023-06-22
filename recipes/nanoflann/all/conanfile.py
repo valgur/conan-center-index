@@ -13,7 +13,7 @@ class NanoflannConan(ConanFile):
                     of datasets with different topologies: R2, R3 (point clouds),
                     SO(2) and SO(3) (2D and 3D rotation groups).
                     """
-    topics = ("nanoflann", "nearest-neighbor", "kd-trees")
+    topics = ("nearest-neighbor", "kd-trees")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jlblancoc/nanoflann"
     license = "BSD-2-Clause"

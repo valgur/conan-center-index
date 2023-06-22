@@ -8,7 +8,7 @@ class MPCGeneratorConan(ConanFile):
     license = "BSD-3-Clause"
     homepage = "https://objectcomputing.com/"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "makefile-project-workspace-creator", "objectcomputing", "installer")
+    topics = ("objectcomputing", "installer")
     settings = "os"
 
     def requirements(self):

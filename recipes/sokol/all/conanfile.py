@@ -9,7 +9,7 @@ required_conan_version = ">=1.50.0"
 class SokolConan(ConanFile):
     name = "sokol"
     description = "Simple STB-style cross-platform libraries for C and C++, written in C."
-    topics = ("sokol", "graphics", "3d")
+    topics = ("graphics", "3d")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/floooh/sokol"
     license = "Zlib"

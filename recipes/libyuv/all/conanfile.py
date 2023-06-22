@@ -15,7 +15,7 @@ class LibyuvConan(ConanFile):
     description = (
         "libyuv is an open source project that includes YUV scaling and conversion functionality."
     )
-    topics = ["YUV", "libyuv", "google", "chromium"]
+    topics = ["YUV", "google", "chromium"]
     license = "BSD-3-Clause"
 
     settings = "os", "arch", "compiler", "build_type"

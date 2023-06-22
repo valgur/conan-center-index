@@ -6,7 +6,7 @@ class HippomocksConan(ConanFile):
     name = "hippomocks"
     _libname = "HippoMocks"
     description = "Single-header mocking framework."
-    topics = ("conan", "hippomocks", "mock", "framework")
+    topics = ("mock", "framework")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dascandy/hippomocks"
     license = "LGPL-2.1"

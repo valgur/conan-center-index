@@ -12,7 +12,7 @@ class HunspellConan(ConanFile):
     description = "Hunspell is a free spell checker and morphological analyzer library"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://hunspell.github.io/"
-    topics = "spell", "spell-check"
+    topics = ("spell", "spell-check")
     license = "MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later"
     settings = "os", "arch", "compiler", "build_type"
     options = {

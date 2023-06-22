@@ -8,7 +8,7 @@ class SrtConan(ConanFile):
     name = "srt"
     homepage = "https://github.com/Haivision/srt"
     description = "Secure Reliable Transport (SRT) is an open source transport technology that optimizes streaming performance across unpredictable networks, such as the Internet."
-    topics = ("conan", "srt", "ip", "transport")
+    topics = ("ip", "transport")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MPL-2.0"
     settings = "os", "compiler", "build_type", "arch"

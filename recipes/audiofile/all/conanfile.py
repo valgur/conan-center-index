@@ -11,7 +11,7 @@ required_conan_version = ">=1.50.0"
 class AudiofileConan(ConanFile):
     name = "audiofile"
     description = "A simple C++11 library for reading and writing audio files."
-    topics = ("audiofile", "audio", "file-format", "wav", "aif")
+    topics = ("audio", "file-format", "wav", "aif")
     license = "MIT"
     homepage = "https://github.com/adamstark/AudioFile"
     url = "https://github.com/conan-io/conan-center-index"

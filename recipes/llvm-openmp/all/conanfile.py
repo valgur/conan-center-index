@@ -18,7 +18,7 @@ class LLVMOpenMpConan(ConanFile):
         "implementation."
     )
     license = "Apache-2.0 WITH LLVM-exception"
-    topics = ("conan", "llvm", "openmp", "parallelism")
+    topics = ("llvm", "openmp", "parallelism")
     homepage = "https://github.com/llvm/llvm-project/tree/master/openmp"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

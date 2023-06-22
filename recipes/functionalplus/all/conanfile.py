@@ -12,7 +12,7 @@ class FunctionalPlusConan(ConanFile):
     name = "functionalplus"
     description = "Functional Programming Library for C++."
     license = "BSL-1.0"
-    topics = ("functionalplus", "fplus", "functional programming")
+    topics = ("fplus", "functional programming")
     homepage = "https://github.com/Dobiasd/FunctionalPlus"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

@@ -20,7 +20,7 @@ class WolfSSLConan(ConanFile):
         "wolfSSL (formerly CyaSSL) is a small, fast, portable implementation "
         "of TLS/SSL for embedded devices to the cloud."
     )
-    topics = ("wolfssl", "tls", "ssl", "iot", "fips", "secure", "cryptology", "secret")
+    topics = ("tls", "ssl", "iot", "fips", "secure", "cryptology", "secret")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -13,7 +13,7 @@ class FFTWConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.fftw.org/"
     license = "GPL-2.0"
-    topics = ("fftw", "dft", "dct", "dst")
+    topics = ("dft", "dct", "dst")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

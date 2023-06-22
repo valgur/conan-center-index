@@ -11,7 +11,7 @@ class Libnetfilter_conntrackConan(ConanFile):
     description = (
         "userspace library that provides an API to the in-kernel connection tracking state table"
     )
-    topics = ("libnetfilter_conntrack", "netfilter")
+    topics = "netfilter"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

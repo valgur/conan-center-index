@@ -12,7 +12,7 @@ class GiflibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     homepage = "http://giflib.sourceforge.net"
-    topics = ("giflib", "image", "multimedia", "format", "graphics")
+    topics = ("image", "multimedia", "format", "graphics")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {

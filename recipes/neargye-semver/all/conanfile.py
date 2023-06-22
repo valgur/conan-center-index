@@ -9,7 +9,7 @@ required_conan_version = ">=1.33.0"
 class NeargyeSemverConan(ConanFile):
     name = "neargye-semver"
     description = "Semantic Versioning for modern C++"
-    topics = ("conan", "semver", "semantic", "versioning")
+    topics = ("semver", "semantic", "versioning")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Neargye/semver"
     license = "MIT"

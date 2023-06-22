@@ -6,7 +6,7 @@ from conans.errors import ConanInvalidConfiguration, ConanException
 class ConanRecipe(ConanFile):
     name = "serial"
     description = "Cross-platform library for interfacing with rs-232 serial like ports"
-    topics = ("serial", "rs-232", "com")
+    topics = ("rs-232", "com")
     homepage = "http://wjwwood.io/serial/"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"

@@ -7,7 +7,7 @@ class PanziPortableEndian(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gist.github.com/panzi/6856583"
     description = "This provides the endian conversion functions form endian.h on Windows, Linux, *BSD, and Mac OS X"
-    topics = ("conan", "endian")
+    topics = "endian"
     license = "Unlicense"
 
     def source(self):

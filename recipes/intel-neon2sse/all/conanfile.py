@@ -11,7 +11,7 @@ class IntelNeon2sseConan(ConanFile):
     homepage = "https://github.com/intel/ARM_NEON_2_x86_SSE"
     description = "Header only library intended to simplify ARM->IA32 porting"
     license = "BSD-2-Clause"
-    topics = "neon", "sse", "port", "translation", "intrinsics"
+    topics = ("neon", "sse", "port", "translation", "intrinsics")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "SSE4": [True, False],

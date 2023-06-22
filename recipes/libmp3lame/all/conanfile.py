@@ -28,7 +28,7 @@ class LibMP3LameConan(ConanFile):
         "LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL."
     )
     homepage = "http://lame.sourceforge.net"
-    topics = "multimedia", "audio", "mp3", "decoder", "encoding", "decoding"
+    topics = ("multimedia", "audio", "mp3", "decoder", "encoding", "decoding")
     license = "LGPL-2.0"
 
     settings = "os", "arch", "compiler", "build_type"

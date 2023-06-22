@@ -10,7 +10,7 @@ class Minimp3Conan(ConanFile):
     name = "minimp3"
     description = "Minimalistic MP3 decoder single header library."
     license = "CC0-1.0"
-    topics = ("minimp3", "decoder", "mp3", "header-only")
+    topics = ("decoder", "mp3", "header-only")
     homepage = "https://github.com/lieff/minimp3"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

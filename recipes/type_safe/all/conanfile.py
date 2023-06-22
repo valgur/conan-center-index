@@ -8,7 +8,7 @@ class TypeSafe(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://foonathan.net/type_safe"
     license = "MIT"
-    topics = "conan", "c++", "strong typing", "vocabulary-types"
+    topics = ("c++", "strong typing", "vocabulary-types")
 
     settings = "compiler"
 

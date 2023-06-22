@@ -16,7 +16,7 @@ required_conan_version = ">=1.52.0"
 class libxftConan(ConanFile):
     name = "libxft"
     description = "X FreeType library"
-    topics = ("libxft", "x11", "xorg")
+    topics = ("x11", "xorg")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.x.org/wiki/"
     license = "X11"

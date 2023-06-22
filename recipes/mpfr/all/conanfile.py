@@ -20,7 +20,7 @@ class MpfrConan(ConanFile):
         "The MPFR library is a C library for multiple-precision floating-point computations with "
         "correct rounding"
     )
-    topics = ("mpfr", "multiprecision", "math", "mathematics")
+    topics = ("multiprecision", "math", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.mpfr.org/"
     license = "LGPL-3.0-or-later"

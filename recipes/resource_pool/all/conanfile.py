@@ -8,7 +8,7 @@ import glob
 class ResourcePool(ConanFile):
     name = "resource_pool"
     description = "C++ header only library purposed to create pool of some resources like keepalive connections"
-    topics = ("conan", "resource pool", "resource_pool", "asio", "elsid", "c++17", "cpp17")
+    topics = ("resource pool", "asio", "elsid", "c++17", "cpp17")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://github.com/elsid/resource_pool"
     license = "MIT"

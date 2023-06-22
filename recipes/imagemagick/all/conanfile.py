@@ -12,7 +12,7 @@ class ImageMagicConan(ConanFile):
         "ImageMagick is a free and open-source software suite for displaying, converting, and editing "
         "raster image and vector image files"
     )
-    topics = ("imagemagick", "images", "manipulating")
+    topics = ("images", "manipulating")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://imagemagick.org"
     license = "ImageMagick"

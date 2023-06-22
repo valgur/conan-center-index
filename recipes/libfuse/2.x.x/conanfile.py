@@ -14,7 +14,7 @@ class LibfuseConan(ConanFile):
     homepage = "https://github.com/libfuse/libfuse"
     license = "LGPL-2.1"
     description = "The reference implementation of the Linux FUSE interface"
-    topics = ("fuse", "libfuse", "filesystem", "linux")
+    topics = ("fuse", "filesystem", "linux")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

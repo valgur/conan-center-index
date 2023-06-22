@@ -11,7 +11,7 @@ class BooleanLiteConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/boolean-lite"
     description = "boolean lite - A strong boolean type for C++98 and later in a single-file header-only library"
-    topics = ("boolean-lite", "strong bool", "cpp98/11/17")
+    topics = ("strong bool", "cpp98/11/17")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

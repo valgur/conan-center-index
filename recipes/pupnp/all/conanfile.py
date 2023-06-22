@@ -15,7 +15,7 @@ class PupnpConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/pupnp/pupnp"
-    topics = ("conan", "upnp", "networking")
+    topics = ("upnp", "networking")
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],

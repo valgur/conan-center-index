@@ -7,7 +7,7 @@ import os
 class NanodbcConan(ConanFile):
     name = "nanodbc"
     description = "A small C++ wrapper for the native C ODBC API"
-    topics = ("conan", "nanodbc", "odbc", "database")
+    topics = ("odbc", "database")
     license = "MIT"
     homepage = "https://github.com/nanodbc/nanodbc/"
     url = "https://github.com/conan-io/conan-center-index"

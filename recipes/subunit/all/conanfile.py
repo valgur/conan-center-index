@@ -10,7 +10,7 @@ required_conan_version = ">=1.33.0"
 class SubunitConan(ConanFile):
     name = "subunit"
     description = "A streaming protocol for test results"
-    topics = "subunit", "streaming", "protocol", "test", "results"
+    topics = ("subunit", "streaming", "protocol", "test", "results")
     license = "Apache-2.0", "BSD-3-Clause"
     homepage = "https://launchpad.net/subunit"
     url = "https://github.com/conan-io/conan-center-index"

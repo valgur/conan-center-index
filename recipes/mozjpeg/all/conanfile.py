@@ -26,7 +26,7 @@ class MozjpegConan(ConanFile):
     license = ("BSD", "BSD-3-Clause", "ZLIB")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mozilla/mozjpeg"
-    topics = ("image", "format", "mozjpeg", "jpg", "jpeg", "picture", "multimedia", "graphics")
+    topics = ("image", "format", "jpg", "jpeg", "picture", "multimedia", "graphics")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

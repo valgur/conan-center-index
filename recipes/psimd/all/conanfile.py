@@ -10,7 +10,7 @@ class PsimdConan(ConanFile):
     name = "psimd"
     description = "Portable 128-bit SIMD intrinsics."
     license = "MIT"
-    topics = ("psimd", "simd")
+    topics = "simd"
     homepage = "https://github.com/Maratyszcza/psimd"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"

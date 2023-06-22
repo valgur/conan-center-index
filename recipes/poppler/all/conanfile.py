@@ -9,7 +9,7 @@ class PopplerConan(ConanFile):
     name = "poppler"
     description = "Poppler is a PDF rendering library based on the xpdf-3.0 code base"
     homepage = "https://poppler.freedesktop.org/"
-    topics = ("conan", "poppler", "pdf", "rendering")
+    topics = ("pdf", "rendering")
     license = "GPL-2.0-or-later", "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
 

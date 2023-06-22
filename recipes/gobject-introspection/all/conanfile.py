@@ -10,7 +10,7 @@ required_conan_version = ">=1.36.0"
 class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
     description = "GObject introspection is a middleware layer between C libraries (using GObject) and language bindings"
-    topics = ("conan", "gobject-instrospection")
+    topics = "gobject-instrospection"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
     license = "LGPL-2.1"

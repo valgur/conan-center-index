@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class StbConan(ConanFile):
     name = "stb"
     description = "single-file public domain libraries for C/C++"
-    topics = ("stb", "single-file")
+    topics = "single-file"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nothings/stb"
     license = ("Unlicense", "MIT")

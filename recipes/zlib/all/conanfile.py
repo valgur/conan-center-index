@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
@@ -9,7 +11,6 @@ from conan.tools.files import (
     save,
 )
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -24,7 +25,7 @@ class ZlibConan(ConanFile):
         "A Massively Spiffy Yet Delicately Unobtrusive Compression Library "
         "(Also Free, Not to Mention Unencumbered by Patents)"
     )
-    topics = ("zlib", "compression")
+    topics = ("compression",)
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -61,7 +62,7 @@ class ZlibConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             destination=self.source_folder,
-            strip_root=True
+            strip_root=True,
         )
 
     def generate(self):
@@ -88,13 +89,13 @@ class ZlibConan(ConanFile):
                 replace_in_file(
                     self,
                     filepath,
-                    "#ifdef HAVE_UNISTD_H    " "/* may be set to #if 1 by ./configure */",
+                    "#ifdef HAVE_UNISTD_H    /* may be set to #if 1 by ./configure */",
                     "#if defined(HAVE_UNISTD_H) && (1-HAVE_UNISTD_H-1 != 0)",
                 )
                 replace_in_file(
                     self,
                     filepath,
-                    "#ifdef HAVE_STDARG_H    " "/* may be set to #if 1 by ./configure */",
+                    "#ifdef HAVE_STDARG_H    /* may be set to #if 1 by ./configure */",
                     "#if defined(HAVE_STDARG_H) && (1-HAVE_STDARG_H-1 != 0)",
                 )
 

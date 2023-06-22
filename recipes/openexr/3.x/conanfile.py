@@ -14,7 +14,7 @@ class OpenEXRConan(ConanFile):
         "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & "
         "Magic for use in computer imaging applications."
     )
-    topics = ("openexr", "hdr", "image", "picture")
+    topics = ("hdr", "image", "picture")
     license = "BSD-3-Clause"
     homepage = "https://github.com/AcademySoftwareFoundation/openexr"
     url = "https://github.com/conan-io/conan-center-index"

@@ -18,7 +18,7 @@ class WaylandConan(ConanFile):
         "Wayland is a project to define a protocol for a compositor to talk to "
         "its clients as well as a library implementation of the protocol"
     )
-    topics = "protocol", "compositor", "display"
+    topics = ("protocol", "compositor", "display")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://wayland.freedesktop.org"
     license = "MIT"

@@ -8,7 +8,7 @@ class TypeSafe(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/meekrosoft/fff"
     license = "MIT"
-    topics = "conan", "c", "c++", "embedded", "tdd", "micro-framework", "fake-functions"
+    topics = ("c", "c++", "embedded", "tdd", "micro-framework", "fake-functions")
 
     no_copy_source = True
 

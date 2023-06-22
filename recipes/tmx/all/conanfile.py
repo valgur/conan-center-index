@@ -11,7 +11,7 @@ class TmxConan(ConanFile):
     name = "tmx"
     description = "A portable C library to load tiled maps in your games."
     license = "BSD-2-Clause"
-    topics = ("tmx", "tiled-map", "loader")
+    topics = ("tiled-map", "loader")
     homepage = "https://github.com/baylej/tmx"
     url = "https://github.com/conan-io/conan-center-index"
 
