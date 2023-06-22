@@ -1,5 +1,6 @@
-#include "fff.h"
-#include <stdint.h>
+#include <fff.h>
+
+#include <cstdint>
 
 DEFINE_FFF_GLOBALS;
 
