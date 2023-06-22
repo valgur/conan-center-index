@@ -24,7 +24,9 @@ int main() {
 
     std::error_code error;
     mio::mmap_sink rw_mmap = mio::make_mmap_sink(path, 0, mio::map_entire_file, error);
-    if (error) { return handle_error(error); }
+    if (error) {
+        return handle_error(error);
+    }
 
     std::fill(rw_mmap.begin(), rw_mmap.end(), 'a');
 
@@ -36,13 +38,17 @@ int main() {
     rw_mmap[answer_index] = 42;
 
     rw_mmap.sync(error);
-    if (error) { return handle_error(error); }
+    if (error) {
+        return handle_error(error);
+    }
 
     rw_mmap.unmap();
 
     mio::mmap_source ro_mmap;
     ro_mmap.map(path, error);
-    if (error) { return handle_error(error); }
+    if (error) {
+        return handle_error(error);
+    }
 
     const int the_answer_to_everything = ro_mmap[answer_index];
     assert(the_answer_to_everything == 42);

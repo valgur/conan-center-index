@@ -1,12 +1,6 @@
-#include <systemc>
 #include <iostream>
+#include <systemc>
 
-int sc_main(int argc, char *argv[])
-{
-	return 0;
-}
+int sc_main(int argc, char *argv[]) { return 0; }
 
-int main()
-{
-	::sc_core::sc_version();
-}
+int main() { ::sc_core::sc_version(); }

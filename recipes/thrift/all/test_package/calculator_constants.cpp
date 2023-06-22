@@ -6,12 +6,6 @@
  */
 #include "calculator_constants.h"
 
-
-
 const calculatorConstants g_calculator_constants;
 
-calculatorConstants::calculatorConstants() {
-}
-
-
-
+calculatorConstants::calculatorConstants() {}

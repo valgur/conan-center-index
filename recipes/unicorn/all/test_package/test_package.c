@@ -14,8 +14,8 @@ static int emul_x86() {
 
     printf("Emulate i386 code\n");
 
-    int r_ecx = 0x1234;     // ECX register
-    int r_edx = 0x7890;     // EDX register
+    int r_ecx = 0x1234; // ECX register
+    int r_edx = 0x7890; // EDX register
 
     printf("CPU context before:\n", r_ecx);
     printf(">>> ECX = 0x%x\n", r_ecx);
@@ -44,8 +44,7 @@ static int emul_x86() {
     // emulate code in infinite time & unlimited instructions
     err = uc_emu_start(uc, ADDRESS, ADDRESS + sizeof(X86_CODE32) - 1, 0, 0);
     if (err) {
-        printf("Failed on uc_emu_start() with error returned %u: %s\n",
-            err, uc_strerror(err));
+        printf("Failed on uc_emu_start() with error returned %u: %s\n", err, uc_strerror(err));
     }
 
     // now print out some registers
@@ -59,7 +58,6 @@ static int emul_x86() {
     uc_close(uc);
     return 0;
 }
-
 
 int main() {
     unsigned int major, minor;

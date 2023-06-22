@@ -2,8 +2,7 @@
 
 #include <inja/inja.hpp>
 
-int main()
-{
+int main() {
     nlohmann::json data;
     data["name"] = "world";
     std::cout << inja::render("Hello {{ name }}!", data) << "\n";

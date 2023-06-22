@@ -1,12 +1,12 @@
-#include <opentracing/tracer.h>
 #include <opentracing/noop.h>
+#include <opentracing/tracer.h>
 
 using namespace opentracing;
 
 int main() {
-  auto tracer = MakeNoopTracer();
+    auto tracer = MakeNoopTracer();
 
-  auto span1 = tracer->StartSpan("a");
-  
-  return 0;
+    auto span1 = tracer->StartSpan("a");
+
+    return 0;
 }

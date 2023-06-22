@@ -1,11 +1,10 @@
 #include "Iir.h"
 
-int main()
-{
-	const int order = 8;
+int main() {
+    const int order = 8;
 
-	// Butterworth lowpass
-	Iir::Butterworth::LowPass<order> f;
+    // Butterworth lowpass
+    Iir::Butterworth::LowPass<order> f;
 
-	return 0;
+    return 0;
 }

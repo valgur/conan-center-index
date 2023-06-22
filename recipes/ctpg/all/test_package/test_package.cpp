@@ -1,7 +1,7 @@
 #ifdef CTPG_PLACED_CPTG_FOLDER
-#  include "ctpg/ctpg.hpp"
+#include "ctpg/ctpg.hpp"
 #else
-#  include "ctpg.hpp"
+#include "ctpg.hpp"
 #endif
 
 #include <iostream>
@@ -18,17 +18,13 @@ int to_int(std::string_view sv) {
     return i;
 }
 
-constexpr ctpg::parser p(
-    list,
-    terms(',', number),
-    nterms(list),
-    rules(
-        list(number) >= to_int,
-        list(list, ',', number) >= [](int sum, char, const auto& n){ return sum + to_int(n); }
-    )
-);
+constexpr ctpg::parser p(list, terms(',', number), nterms(list),
+                         rules(
+                             list(number) >= to_int,
+                             list(list, ',', number) >=
+                                 [](int sum, char, const auto &n) { return sum + to_int(n); }));
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     auto res = p.parse(ctpg::buffers::string_buffer("10, 20, 30"), std::cerr);
     bool success = res.has_value();
     if (success)

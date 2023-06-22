@@ -6,29 +6,29 @@
 int main(void) {
     int r;
     unsigned char *start, *range, *end;
-    regex_t* reg;
+    regex_t *reg;
     OnigErrorInfo einfo;
     OnigRegion *region;
     OnigEncoding use_encs[1];
 
-    static UChar* pattern = (UChar* )"a(.*)b|[e-f]+";
-    static UChar* str     = (UChar* )"zzzzaffffffffb";
+    static UChar *pattern = (UChar *)"a(.*)b|[e-f]+";
+    static UChar *str = (UChar *)"zzzzaffffffffb";
 
     use_encs[0] = ONIG_ENCODING_ASCII;
-    onig_initialize(use_encs, sizeof(use_encs)/sizeof(use_encs[0]));
+    onig_initialize(use_encs, sizeof(use_encs) / sizeof(use_encs[0]));
 
-    r = onig_new(&reg, pattern, pattern + strlen((char* )pattern),
-                 ONIG_OPTION_DEFAULT, ONIG_ENCODING_ASCII, ONIG_SYNTAX_DEFAULT, &einfo);
+    r = onig_new(&reg, pattern, pattern + strlen((char *)pattern), ONIG_OPTION_DEFAULT,
+                 ONIG_ENCODING_ASCII, ONIG_SYNTAX_DEFAULT, &einfo);
     if (r != ONIG_NORMAL) {
         char s[ONIG_MAX_ERROR_MESSAGE_LEN];
-        onig_error_code_to_str((UChar* )s, r, &einfo);
+        onig_error_code_to_str((UChar *)s, r, &einfo);
         fprintf(stderr, "ERROR: %s\n", s);
         return -1;
     }
 
     region = onig_region_new();
 
-    end   = str + strlen((char* )str);
+    end = str + strlen((char *)str);
     start = str;
     range = end;
     r = onig_search(reg, str, end, start, range, region, ONIG_OPTION_NONE);
@@ -43,7 +43,7 @@ int main(void) {
         fprintf(stderr, "search fail\n");
     } else { /* error */
         char s[ONIG_MAX_ERROR_MESSAGE_LEN];
-        onig_error_code_to_str((UChar* )s, r);
+        onig_error_code_to_str((UChar *)s, r);
         fprintf(stderr, "ERROR: %s\n", s);
         onig_region_free(region, 1 /* 1:free self, 0:free contents only */);
         onig_free(reg);

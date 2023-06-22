@@ -1,28 +1,24 @@
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
 
-
-#include <fmt/format.h>
-#include <fmt/printf.h>
-#include <fmt/ostream.h>
 #include <fmt/color.h>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <fmt/printf.h>
 
+void vreport(const char *format, fmt::format_args args) { fmt::vprint(format, args); }
 
-void vreport(const char *format, fmt::format_args args) {
-    fmt::vprint(format, args);
-}
-
-template <typename... Args>
-void report(const char *format, const Args & ... args) {
+template <typename... Args> void report(const char *format, const Args &...args) {
     vreport(format, fmt::make_format_args(args...));
 }
 
 class Date {
     int year_, month_, day_;
+
   public:
     Date(int year, int month, int day) : year_(year), month_(month), day_(day) {}
 
@@ -33,8 +29,8 @@ class Date {
 
 #if FMT_VERSION >= 90000
 namespace fmt {
-    template <> struct formatter<Date> : ostream_formatter {};
-}
+template <> struct formatter<Date> : ostream_formatter {};
+} // namespace fmt
 #endif
 
 int main() {

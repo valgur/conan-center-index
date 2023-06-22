@@ -3,8 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     UniValue package1(UniValue::VOBJ);
     package1.pushKV("name", "univalue");
     package1.pushKV("number", 1337);

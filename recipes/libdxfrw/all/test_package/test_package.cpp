@@ -1,5 +1,3 @@
 #include <libdxfrw/libdxfrw.h>
 
-int main() {
-	dxfRW dxfW("");
-}
+int main() { dxfRW dxfW(""); }

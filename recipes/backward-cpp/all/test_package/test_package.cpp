@@ -27,19 +27,18 @@
 
 using namespace backward;
 
-void d(StackTrace& st) { st.load_here(); }
-void c(StackTrace& st) { return d(st); }
-void b(StackTrace& st) { return c(st); }
-void a(StackTrace& st) { return b(st); }
+void d(StackTrace &st) { st.load_here(); }
+void c(StackTrace &st) { return d(st); }
+void b(StackTrace &st) { return c(st); }
+void a(StackTrace &st) { return b(st); }
 
-int main()
-{
-  Printer printer;
+int main() {
+    Printer printer;
 
-  StackTrace st;
-  a(st);
+    StackTrace st;
+    a(st);
 
-  printer.print(st, std::cout);
-  
-  return 0;
+    printer.print(st, std::cout);
+
+    return 0;
 }

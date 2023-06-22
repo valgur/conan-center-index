@@ -9,26 +9,16 @@
 #include "client/crashpad_client.h"
 #include "client/settings.h"
 
-bool startCrashpad(const base::FilePath &db,
-                   const base::FilePath &handler) {
-    std::string              url("http://localhost");
+bool startCrashpad(const base::FilePath &db, const base::FilePath &handler) {
+    std::string url("http://localhost");
     std::map<std::string, std::string> annotations;
-    std::vector<std::string>      arguments;
+    std::vector<std::string> arguments;
 
     crashpad::CrashpadClient client;
-    return client.StartHandler(
-        handler,
-        db,
-        db,
-        url,
-        annotations,
-        arguments,
-        true,
-        false
-    );
+    return client.StartHandler(handler, db, db, url, annotations, arguments, true, false);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 3) {
         return 2;
     }

@@ -1,17 +1,16 @@
-#include <iostream>
-#include <atlbase.h>
 #include <atlapp.h>
+#include <atlbase.h>
+#include <iostream>
 
 class TestHandler : public CIdleHandler {
-	public:
-		virtual BOOL OnIdle() override
-		{
-			std::cout << "Package test completed successfully";
-			return FALSE;
-		}
+  public:
+    virtual BOOL OnIdle() override {
+        std::cout << "Package test completed successfully";
+        return FALSE;
+    }
 };
 
 int main() {
-	TestHandler handler;
-	return handler.OnIdle();
+    TestHandler handler;
+    return handler.OnIdle();
 }

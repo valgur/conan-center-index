@@ -6,14 +6,13 @@
 
 #include <cassert>
 #include <iostream>
-#include <unordered_set>
 #include <set>
+#include <unordered_set>
 
 #include <boost/pfr.hpp>
 
 // boost-no-inspect
-void test_examples()
-{
+void test_examples() {
 
 #if BOOST_PFR_USE_CPP17
     {
@@ -21,14 +20,12 @@ void test_examples()
         // Assert equality.
         // Note that the equality operator for structure is not defined.
 
-        struct test
-        {
+        struct test {
             std::string f1;
             std::string_view f2;
         };
 
-        assert(
-            boost::pfr::eq(test{"aaa", "zomg"}, test{"aaa", "zomg"}));
+        assert(boost::pfr::eq(test{"aaa", "zomg"}, test{"aaa", "zomg"}));
         //]
     }
 #endif
@@ -38,16 +35,14 @@ void test_examples()
         // Increment each field of the variable on 1 and
         // output the content of the variable.
 
-        struct test
-        {
+        struct test {
             int f1;
             long f2;
         };
 
         test var{42, 43};
 
-        boost::pfr::for_each_field(var, [](auto &field)
-                                   { field += 1; });
+        boost::pfr::for_each_field(var, [](auto &field) { field += 1; });
 
         // Outputs: {43, 44}
         std::cout << boost::pfr::io(var);
@@ -58,8 +53,7 @@ void test_examples()
         //[pfr_quick_examples_tuple_size
         // Getting fields count of some structure
 
-        struct some
-        {
+        struct some {
             int a, b, c, d, e;
         };
 
@@ -73,8 +67,7 @@ void test_examples()
         //[pfr_quick_examples_get
         // Get field by index and assign new value to that field
 
-        struct sample
-        {
+        struct sample {
             char c;
             float f;
         };
@@ -91,12 +84,10 @@ void test_examples()
         //[pfr_quick_examples_structure_to_tuple
         // Getting a std::tuple of values from structures fields
 
-        struct foo
-        {
+        struct foo {
             int a, b;
         };
-        struct other
-        {
+        struct other {
             char c;
             foo nested;
         };
@@ -104,8 +95,7 @@ void test_examples()
         other var{'A', {3, 4}};
         std::tuple<char, foo> t = boost::pfr::structure_to_tuple(var);
         assert(std::get<0>(t) == 'A');
-        assert(
-            boost::pfr::eq(std::get<1>(t), foo{3, 4}));
+        assert(boost::pfr::eq(std::get<1>(t), foo{3, 4}));
         //]
     }
 #endif
@@ -115,12 +105,10 @@ void test_examples()
         //[pfr_quick_examples_structure_tie
         // Getting a std::tuple of references to structure fields
 
-        struct foo
-        {
+        struct foo {
             int a, b;
         };
-        struct other
-        {
+        struct other {
             char c;
             foo f;
         };
@@ -142,15 +130,13 @@ void test_examples()
 
 #include <boost/pfr/functions_for.hpp>
 
-namespace my_namespace
-{
-    struct my_structure
-    {
-        int a, b, c, d, e, f, g;
-        // ...
-    };
-    BOOST_PFR_FUNCTIONS_FOR(my_structure)
-}
+namespace my_namespace {
+struct my_structure {
+    int a, b, c, d, e, f, g;
+    // ...
+};
+BOOST_PFR_FUNCTIONS_FOR(my_structure)
+} // namespace my_namespace
 //]
 
 //[pfr_quick_examples_eq_fields
@@ -158,27 +144,20 @@ namespace my_namespace
 
 #include <boost/pfr/functions_for.hpp>
 
-namespace my_namespace
-{
-    struct my_eq_ne_structure
-    {
-        float a, b, c, d, e, f, g;
-        // ...
-    };
+namespace my_namespace {
+struct my_eq_ne_structure {
+    float a, b, c, d, e, f, g;
+    // ...
+};
 
-    inline bool operator==(const my_eq_ne_structure &x, const my_eq_ne_structure &y)
-    {
-        return boost::pfr::eq_fields(x, y);
-    }
-
-    inline bool operator!=(const my_eq_ne_structure &x, const my_eq_ne_structure &y)
-    {
-        return boost::pfr::ne_fields(x, y);
-    }
+inline bool operator==(const my_eq_ne_structure &x, const my_eq_ne_structure &y) {
+    return boost::pfr::eq_fields(x, y);
 }
+
+inline bool operator!=(const my_eq_ne_structure &x, const my_eq_ne_structure &y) {
+    return boost::pfr::ne_fields(x, y);
+}
+} // namespace my_namespace
 //]
 
-int main()
-{
-    test_examples();
-}
+int main() { test_examples(); }

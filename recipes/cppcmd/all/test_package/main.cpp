@@ -11,8 +11,8 @@ int main() {
 
     stringstream input;
     auto interpreter = CommandInterpreter(input, std::cout);
-    interpreter.registerCommand("foo", [&](const auto&, auto&) { fooCalls++; });
-    interpreter.registerCommand("bar", [&](const auto&, auto&) { barCalls++; });
+    interpreter.registerCommand("foo", [&](const auto &, auto &) { fooCalls++; });
+    interpreter.registerCommand("bar", [&](const auto &, auto &) { barCalls++; });
 
     input << "foo\nbar\nundefined\nfoo\n";
     interpreter.run();

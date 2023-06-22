@@ -21,16 +21,15 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <assert.h>
 #include "epoxy/gl.h"
+#include <assert.h>
+#include <stdio.h>
 
 GLenum mock_enum;
 const char *mock_gl_version;
 const char *mock_glsl_version;
 
-static const GLubyte * EPOXY_CALLSPEC override_glGetString(GLenum name)
-{
+static const GLubyte *EPOXY_CALLSPEC override_glGetString(GLenum name) {
     switch (name) {
     case GL_VERSION:
         return (GLubyte *)mock_gl_version;
@@ -42,10 +41,8 @@ static const GLubyte * EPOXY_CALLSPEC override_glGetString(GLenum name)
     }
 }
 
-static bool
-test_version(const char *gl_string, int gl_version,
-             const char *glsl_string, int glsl_version)
-{
+static bool test_version(const char *gl_string, int gl_version, const char *glsl_string,
+                         int glsl_version) {
     int epoxy_version;
 
     mock_gl_version = gl_string;
@@ -55,35 +52,31 @@ test_version(const char *gl_string, int gl_version,
     if (epoxy_version != gl_version) {
         fprintf(stderr,
                 "glGetString(GL_VERSION) = \"%s\" returned epoxy_gl_version() "
-                "%d instead of %d\n", gl_string, epoxy_version, gl_version);
+                "%d instead of %d\n",
+                gl_string, epoxy_version, gl_version);
         return false;
     }
-
 
     epoxy_version = epoxy_glsl_version();
     if (epoxy_version != glsl_version) {
         fprintf(stderr,
                 "glGetString() = \"%s\" returned epoxy_glsl_version() "
-                "%d instead of %d\n", glsl_string, epoxy_version, glsl_version);
+                "%d instead of %d\n",
+                glsl_string, epoxy_version, glsl_version);
         return false;
     }
 
     return true;
 }
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     epoxy_glGetString = override_glGetString;
 
-    if(!test_version("3.0 Mesa 13.0.6", 30,
-                                "1.30", 130))
+    if (!test_version("3.0 Mesa 13.0.6", 30, "1.30", 130))
         return -1;
-    if(!test_version("OpenGL ES 3.2 Mesa 18.3.0-devel", 32,
-                                "OpenGL ES GLSL ES 3.20", 320))
+    if (!test_version("OpenGL ES 3.2 Mesa 18.3.0-devel", 32, "OpenGL ES GLSL ES 3.20", 320))
         return -1;
-    if(!test_version("4.5.0 NVIDIA 384.130", 45,
-                                "4.50", 450))
+    if (!test_version("4.5.0 NVIDIA 384.130", 45, "4.50", 450))
         return -1;
 
     return 0;

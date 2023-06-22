@@ -1,5 +1,5 @@
-#include <msdfgen.h>
 #include <msdfgen-ext.h>
+#include <msdfgen.h>
 
 #include <iostream>
 

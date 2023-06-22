@@ -1,9 +1,9 @@
 #include <Platform.Hashing.h>
 
 #include <any>
+#include <array>
 #include <iostream>
 #include <vector>
-#include <array>
 
 using namespace Platform::Hashing;
 

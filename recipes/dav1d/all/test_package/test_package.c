@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     printf("dav1d version: %s\n", dav1d_version());
     return 0;
 }

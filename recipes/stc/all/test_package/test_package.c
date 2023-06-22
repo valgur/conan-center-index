@@ -12,8 +12,7 @@ int main(void) {
     cvec_i_push_back(&vec, 20);
     cvec_i_push_back(&vec, 30);
 
-    c_foreach (i, cvec_i, vec)
-        printf(" %d", *i.ref);
+    c_foreach(i, cvec_i, vec) printf(" %d", *i.ref);
 
     cvec_i_del(&vec);
 
@@ -32,8 +31,7 @@ int main(void) {
     cvec_i_push_back(&vec, 20);
     cvec_i_push_back(&vec, 30);
 
-    c_foreach (i, cvec_i, vec)
-        printf(" %d", *i.ref);
+    c_foreach(i, cvec_i, vec) printf(" %d", *i.ref);
 
     cvec_i_drop(&vec);
 

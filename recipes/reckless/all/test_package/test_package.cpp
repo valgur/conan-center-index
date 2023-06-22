@@ -3,18 +3,13 @@
 
 #include <string>
 
-using log_t = reckless::severity_log<
-    reckless::indent<4>,
-    ' ',
-    reckless::severity_field,
-    reckless::timestamp_field
-    >;
+using log_t = reckless::severity_log<reckless::indent<4>, ' ', reckless::severity_field,
+                                     reckless::timestamp_field>;
 
 reckless::file_writer writer("log.txt");
 log_t g_log(&writer);
 
-int main()
-{
+int main() {
     std::string s("Hello World!");
 
     g_log.debug("Pointer: %p", s.c_str());

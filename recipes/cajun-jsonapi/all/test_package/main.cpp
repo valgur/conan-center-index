@@ -5,8 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-int main()
-{
+int main() {
     using namespace json;
 
     Object objAPA;

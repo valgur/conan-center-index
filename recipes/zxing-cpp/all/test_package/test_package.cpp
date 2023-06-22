@@ -1,7 +1,7 @@
 #include "ZXing/BarcodeFormat.h"
-#include "ZXing/MultiFormatWriter.h"
 #include "ZXing/BitMatrix.h"
 #include "ZXing/ByteMatrix.h"
+#include "ZXing/MultiFormatWriter.h"
 #include "ZXing/TextUtfEncoding.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -12,8 +12,7 @@
 
 using namespace ZXing;
 
-int main()
-{
+int main() {
     auto format = BarcodeFormat::QR_CODE;
     int width = 100, height = 100;
     int margin = 10;
@@ -26,7 +25,8 @@ int main()
         writer.setMargin(margin);
         writer.setEccLevel(eccLevel);
         auto bitmap = writer.encode(TextUtfEncoding::FromUtf8(text), width, height).toByteMatrix();
-        int success = stbi_write_png(outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
+        int success =
+            stbi_write_png(outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
         if (!success) {
             std::cerr << "Failed to write image: " << outPath << '\n';
             return EXIT_FAILURE;

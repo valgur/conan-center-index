@@ -4,8 +4,7 @@
 #include <string>
 #include <vector>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 3) {
         std::cerr << "Need at least two arguments" << std::endl;
         return 1;
@@ -25,12 +24,11 @@ int main(int argc, char **argv)
     std::string warn;
 #endif
     std::string err;
-    bool ret = tinyobj::LoadObj(
-        &attrib, &shapes, &materials,
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials,
 #ifdef TINYOBJLOADER_GE_1_0_7
-        &warn,
+                                &warn,
 #endif
-        &err, argv[1], argv[2]);
+                                &err, argv[1], argv[2]);
 
 #ifdef TINYOBJLOADER_GE_1_0_7
     if (!warn.empty()) {

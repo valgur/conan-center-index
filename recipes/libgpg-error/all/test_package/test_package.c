@@ -1,6 +1,6 @@
 #include "gpg-error.h"
 
 int main() {
-  gpgrt_printf("");
-  return 0;
+    gpgrt_printf("");
+    return 0;
 }

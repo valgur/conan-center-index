@@ -1,11 +1,7 @@
 #include "mc_parser.hpp"
 
 static const int VARS[] = {
-    NUM,
-    OPA,
-    NUM,
-    STOP,
-    0,
+    NUM, OPA, NUM, STOP, 0,
 };
 
 int yylex() {

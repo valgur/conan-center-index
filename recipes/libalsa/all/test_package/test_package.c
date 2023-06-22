@@ -1,8 +1,7 @@
-#include <stdio.h>
 #include <alsa/global.h>
+#include <stdio.h>
 
-int main()
-{
-  printf("libalsa version %s\n", snd_asoundlib_version());
-  return 0;
+int main() {
+    printf("libalsa version %s\n", snd_asoundlib_version());
+    return 0;
 }

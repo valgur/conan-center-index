@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main (int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     ASN1_TYPE PKIX1Implicit88 = ASN1_TYPE_EMPTY;
     if (argc != 2) {
         fprintf(stderr, "Need an argument\n");
@@ -15,10 +14,10 @@ int main (int argc, char *argv[])
     result = asn1_parser2tree(argv[1], &PKIX1Implicit88, errorDescription);
 
     if (result != ASN1_SUCCESS) {
-        asn1_perror (result);
+        asn1_perror(result);
         fprintf(stderr, "asn1error: %s\n", errorDescription);
         return 1;
     }
 
-  return 0;
+    return 0;
 }

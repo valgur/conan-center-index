@@ -1,10 +1,7 @@
 #include <gainput/gainput.h>
 
 int main() {
-    enum Button
-    {
-        ButtonConfirm
-    };
+    enum Button { ButtonConfirm };
 
     gainput::InputManager manager;
     manager.SetDisplaySize(800, 600);

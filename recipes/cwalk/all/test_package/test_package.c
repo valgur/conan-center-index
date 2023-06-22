@@ -3,10 +3,9 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-  char result[FILENAME_MAX];
+    char result[FILENAME_MAX];
 
-  cwk_path_normalize("/var/log/weird/////path/.././..///", result,
-                     sizeof(result));
+    cwk_path_normalize("/var/log/weird/////path/.././..///", result, sizeof(result));
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

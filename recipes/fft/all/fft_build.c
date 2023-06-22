@@ -1,6 +1,6 @@
 /* 2D-array Allocation */
-#include "alloc.h"
 #include "alloc.c"
+#include "alloc.h"
 
 /* 1D FFT Package in C       - Fast Version (Split-Radix) */
 #include "fft.h"

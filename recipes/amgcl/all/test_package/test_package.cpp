@@ -1,5 +1,5 @@
-#include <cstdlib>
 #include <amgcl/profiler.hpp>
+#include <cstdlib>
 
 int main() {
     amgcl::profiler<> profile;

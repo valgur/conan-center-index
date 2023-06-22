@@ -3,18 +3,15 @@
 //
 // [1] https://github.com/libigl/libigl/blob/master/tutorial/202_GaussianCurvature/main.cpp
 #include <igl/gaussian_curvature.h>
-#include <igl/massmatrix.h>
 #include <igl/invert_diag.h>
+#include <igl/massmatrix.h>
 #include <igl/readOFF.h>
 
-int main()
-{
+int main() {
     using namespace Eigen;
     MatrixXd V(3, 3);
 
-    V << 0, 0, 0,
-        1, 1, 0,
-        -1, 1, 0;
+    V << 0, 0, 0, 1, 1, 0, -1, 1, 0;
 
     MatrixXi F(1, 3);
     F << 0, 1, 2;

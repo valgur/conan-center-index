@@ -15,8 +15,8 @@ int main() {
     while (iter != devices_found.end()) {
         serial::PortInfo device = *iter++;
 
-        printf("(%s, %s, %s)\n", device.port.c_str(),
-               device.description.c_str(), device.hardware_id.c_str());
+        printf("(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(),
+               device.hardware_id.c_str());
     }
 
     return 0;

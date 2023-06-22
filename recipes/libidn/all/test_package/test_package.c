@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     printf("Locale charset: %s\n", stringprep_locale_charset());
     return 0;
 }

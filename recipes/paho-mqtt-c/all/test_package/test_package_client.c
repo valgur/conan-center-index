@@ -14,22 +14,20 @@
  *    Ian Craggs - initial contribution
  *******************************************************************************/
 
+#include "MQTTClient.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "MQTTClient.h"
 
-#define CLIENTID    "conanpahoc"
-#define ADDRESS     "tcp://iot.eclipse.org:1883"
+#define CLIENTID "conanpahoc"
+#define ADDRESS "tcp://iot.eclipse.org:1883"
 
-void connlost(void *context, char *cause)
-{
+void connlost(void *context, char *cause) {
     printf("\nConnection lost\n");
     printf("     cause: %s\n", cause);
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     MQTTClient client;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     int rc;

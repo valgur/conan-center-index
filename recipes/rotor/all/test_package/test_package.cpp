@@ -1,6 +1,5 @@
-#include <rotor/supervisor.h>
 #include <iostream>
-
+#include <rotor/supervisor.h>
 
 namespace {
 namespace to {
@@ -10,8 +9,9 @@ struct on_timer_trigger {};
 
 namespace rotor {
 template <>
-inline auto rotor::actor_base_t::access<to::on_timer_trigger, request_id_t, bool>(request_id_t request_id,
-                                                                                  bool cancelled) noexcept {
+inline auto
+rotor::actor_base_t::access<to::on_timer_trigger, request_id_t, bool>(request_id_t request_id,
+                                                                      bool cancelled) noexcept {
     on_timer_trigger(request_id, cancelled);
 }
 } // namespace rotor
@@ -22,7 +22,8 @@ struct dummy_supervisor_t : public rotor::supervisor_t {
 
     timers_map_t timers_map;
 
-    void do_start_timer(const rotor::pt::time_duration &, rotor::timer_handler_base_t &handler) noexcept override {
+    void do_start_timer(const rotor::pt::time_duration &,
+                        rotor::timer_handler_base_t &handler) noexcept override {
         timers_map.emplace(handler.request_id, &handler);
     }
 
@@ -55,4 +56,3 @@ int main() {
     sup->do_process();
     return 0;
 }
-

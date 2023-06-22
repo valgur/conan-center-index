@@ -18,23 +18,21 @@
   <http://www.gnu.org/licenses/>.
 ***/
 
-#include <signal.h>
 #include <errno.h>
+#include <signal.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/unistd.h>
 #include <sys/select.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/unistd.h>
 
+#include <libdaemon/dexec.h>
 #include <libdaemon/dfork.h>
-#include <libdaemon/dsignal.h>
 #include <libdaemon/dlog.h>
 #include <libdaemon/dpid.h>
-#include <libdaemon/dexec.h>
+#include <libdaemon/dsignal.h>
 
-const char *daemon_pid_file_proc_tmp(void) {
-    return "/tmp/test_package.pid";
-}
+const char *daemon_pid_file_proc_tmp(void) { return "/tmp/test_package.pid"; }
 
 int main(int argc, char *argv[]) {
     daemon_pid_file_proc = daemon_pid_file_proc_tmp;
@@ -93,7 +91,8 @@ int main(int argc, char *argv[]) {
 
         /* Wait for 20 seconds for the return value passed from the daemon process */
         if ((ret = daemon_retval_wait(20)) < 0) {
-            daemon_log(LOG_ERR, "Could not recieve return value from daemon process: %s", strerror(errno));
+            daemon_log(LOG_ERR, "Could not recieve return value from daemon process: %s",
+                       strerror(errno));
             return 255;
         }
 
@@ -128,7 +127,6 @@ int main(int argc, char *argv[]) {
         }
 
         /*... do some further init work here */
-
 
         /* Send OK to parent process */
         daemon_retval_send(0);
@@ -167,24 +165,23 @@ int main(int argc, char *argv[]) {
                 /* Dispatch signal */
                 switch (sig) {
 
-                    case SIGINT:
-                    case SIGQUIT:
-                    case SIGTERM:
-                        daemon_log(LOG_WARNING, "Got SIGINT, SIGQUIT or SIGTERM.");
-                        quit = 1;
-                        break;
+                case SIGINT:
+                case SIGQUIT:
+                case SIGTERM:
+                    daemon_log(LOG_WARNING, "Got SIGINT, SIGQUIT or SIGTERM.");
+                    quit = 1;
+                    break;
 
-                    case SIGHUP:
-                        daemon_log(LOG_INFO, "Got a HUP");
-                        daemon_exec("/", NULL, "/bin/ls", "ls", (char*) NULL);
-                        break;
-
+                case SIGHUP:
+                    daemon_log(LOG_INFO, "Got a HUP");
+                    daemon_exec("/", NULL, "/bin/ls", "ls", (char *)NULL);
+                    break;
                 }
             }
         }
 
         /* Do a cleanup */
-finish:
+    finish:
         daemon_log(LOG_INFO, "Exiting...");
         daemon_retval_send(255);
         daemon_signal_done();

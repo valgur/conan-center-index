@@ -1,36 +1,28 @@
-#include "threads/thread.h"
-#include "system/uuid.h"
-#include "system/environment.h"
-#include "time/timespan.h"
 #include "system/dll.h"
+#include "system/environment.h"
 #include "system/stack_trace.h"
 #include "system/stack_trace_manager.h"
+#include "system/uuid.h"
+#include "threads/thread.h"
+#include "time/timespan.h"
 
 #include "interface/interface.h"
 
-#include <sstream>
-#include <locale>
 #include <iostream>
+#include <locale>
+#include <sstream>
 #include <thread>
 
-void function1()
-{
+void function1() {
     std::cout << "Thread Id: " << __THREAD__ << std::endl;
     std::cout << "Stack trace: " << std::endl << __STACK__ << std::endl;
 }
 
-void function2()
-{
-    function1();
-}
+void function2() { function1(); }
 
-void function3()
-{
-    function2();
-}
+void function3() { function2(); }
 
-int main()
-{
+int main() {
     // Initialize stack trace manager of the current process
     CppCommon::StackTraceManager::Initialize();
 

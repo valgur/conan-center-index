@@ -10,7 +10,3 @@
 #include <ostream>
 
 #include <thrift/TToString.h>
-
-
-
-

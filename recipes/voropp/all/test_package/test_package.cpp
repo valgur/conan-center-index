@@ -1,11 +1,9 @@
 #include <voro++/voro++.hh>
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
-double rnd() {
-    return double(rand()) / RAND_MAX;
-}
+double rnd() { return double(rand()) / RAND_MAX; }
 
 int main() {
     voro::voronoicell v;

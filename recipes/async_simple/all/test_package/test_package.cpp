@@ -1,12 +1,10 @@
-#include <cstdlib>
-#include <iostream>
 #include "async_simple/coro/Lazy.h"
 #include "async_simple/coro/SyncAwait.h"
+#include <cstdlib>
+#include <iostream>
 using namespace async_simple::coro;
 
-Lazy<int> foo() {
-    co_return 1;
-}
+Lazy<int> foo() { co_return 1; }
 
 int main(void) {
     std::cout << "test async_simple" << std::endl;

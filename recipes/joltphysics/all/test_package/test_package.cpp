@@ -1,16 +1,15 @@
-#include <Jolt/Jolt.h>
-#include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
-#include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/RegisterTypes.h>
 
 #include <cstdarg>
 #include <iostream>
 #include <thread>
 
-static void TraceImpl(const char *inFMT, ...)
-{
+static void TraceImpl(const char *inFMT, ...) {
     va_list list;
     va_start(list, inFMT);
     char buffer[1024];
@@ -21,15 +20,15 @@ static void TraceImpl(const char *inFMT, ...)
 }
 
 #ifdef JPH_ENABLE_ASSERTS
-static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, JPH::uint inLine)
-{
-    std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr? inMessage : "") << std::endl;
+static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile,
+                             JPH::uint inLine) {
+    std::cout << inFile << ":" << inLine << ": (" << inExpression << ") "
+              << (inMessage != nullptr ? inMessage : "") << std::endl;
     return true;
 };
 #endif
 
-int main()
-{
+int main() {
     JPH::RegisterDefaultAllocator();
 
     JPH::Trace = TraceImpl;
@@ -42,7 +41,8 @@ int main()
     JPH::RegisterTypes();
 
     JPH::TempAllocatorImpl temp_allocator(10 * 1024 * 1024);
-    JPH::JobSystemThreadPool job_system(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
+    JPH::JobSystemThreadPool job_system(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
+                                        std::thread::hardware_concurrency() - 1);
 
     delete JPH::Factory::sInstance;
     JPH::Factory::sInstance = nullptr;

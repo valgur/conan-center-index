@@ -1,8 +1,7 @@
 #include <fribidi/fribidi.h>
 
-int main(int argc,char** argv)
-{
-	fribidi_get_type('c');
+int main(int argc, char **argv) {
+    fribidi_get_type('c');
 
-	return 0;
+    return 0;
 }

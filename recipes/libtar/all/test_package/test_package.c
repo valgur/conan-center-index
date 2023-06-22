@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 #if defined(_MSC_VER)
-# include <io.h>
+#include <io.h>
 #else
-# include <fcntl.h>
+#include <fcntl.h>
 #endif
 
 int main(int argc, const char *argv[]) {

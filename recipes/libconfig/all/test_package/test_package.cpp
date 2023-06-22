@@ -2,13 +2,11 @@
 #include <iostream>
 #include <libconfig.h++>
 
-int main()
-{
+int main() {
     libconfig::Config cfg;
 
-    cfg.setOptions(libconfig::Config::OptionFsync
-    | libconfig::Config::OptionSemicolonSeparators
-    | libconfig::Config::OptionColonAssignmentForGroups
-    | libconfig::Config::OptionOpenBraceOnSeparateLine);
+    cfg.setOptions(libconfig::Config::OptionFsync | libconfig::Config::OptionSemicolonSeparators |
+                   libconfig::Config::OptionColonAssignmentForGroups |
+                   libconfig::Config::OptionOpenBraceOnSeparateLine);
     return EXIT_SUCCESS;
 }

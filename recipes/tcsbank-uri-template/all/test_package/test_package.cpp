@@ -1,10 +1,11 @@
-#include <uri-template/uri-template.h>
 #include <iostream>
+#include <uri-template/uri-template.h>
 
 int main() {
     const std::string uri = "http://example.com/search?q=cat&lang=en";
     // Parse the template
-    const URI::Template::Template uri_template = URI::Template::ParseTemplate("http://example.com/search{?q,lang}");
+    const URI::Template::Template uri_template =
+        URI::Template::ParseTemplate("http://example.com/search{?q,lang}");
 
     // Match it to the URI
     // &matched_values can be nullptr if you don't care about values.
@@ -14,7 +15,7 @@ int main() {
     // Print results
     std::cout << std::boolalpha;
     std::cout << "Template matched: " << matched << std::endl;
-    for (const auto& [name, value] : matched_values) {
+    for (const auto &[name, value] : matched_values) {
         std::cout << name << "=" << value << std::endl;
     }
 

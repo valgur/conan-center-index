@@ -2,7 +2,7 @@
 
 #include "PerlinNoise.hpp"
 
-int main(int argc, const char** argv) {
+int main(int argc, const char **argv) {
     auto frequency = 32.f;
     auto octaves = 9;
     auto seed = siv::PerlinNoise::seed_type{74524};

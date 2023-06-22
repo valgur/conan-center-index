@@ -1,7 +1,7 @@
 #include <csv.hpp>
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 int main() {
     using namespace csv;
@@ -16,8 +16,8 @@ int main() {
         std::cout << name << ", ";
 
     CSVRow row;
-    if (reader.read_row(row)){
-        for (auto& field : row)
+    if (reader.read_row(row)) {
+        for (auto &field : row)
             std::cout << std::string(field) << ", ";
     }
 

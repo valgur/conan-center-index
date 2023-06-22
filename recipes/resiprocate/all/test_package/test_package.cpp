@@ -1,7 +1,7 @@
-#include <resip/stack/SipMessage.hxx>
-#include <resip/stack/Helper.hxx>
-#include <rutil/Logger.hxx>
 #include <iostream>
+#include <resip/stack/Helper.hxx>
+#include <resip/stack/SipMessage.hxx>
+#include <rutil/Logger.hxx>
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
@@ -36,36 +36,31 @@ std::string sipRawData = "INVITE sip:nikolia@example.ru SIP/2.0\r\n"
                          "a=silenceSupp:off - - - -\r\n"
                          "a=sendrecv\r\n";
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     Log::initialize(Log::Cout, Log::Warning, argv[0]);
 
-    SipMessage* msg = SipMessage::make(Data(Data::Share, sipRawData.data()), true);
-    if (!msg)
-    {
+    SipMessage *msg = SipMessage::make(Data(Data::Share, sipRawData.data()), true);
+    if (!msg) {
         return 1;
     }
 
     std::cout << std::string(msg->methodStr().data()) << std::endl;
     std::string headers = "";
-    for (int i = 0; i < Headers::Type::MAX_HEADERS; i++)
-    {
+    for (int i = 0; i < Headers::Type::MAX_HEADERS; i++) {
         auto rawHeader = msg->getRawHeader(static_cast<Headers::Type>(i));
-        if (!rawHeader)
-        {
+        if (!rawHeader) {
             continue;
         }
-        for (auto value : *rawHeader)
-        {
+        for (auto value : *rawHeader) {
             headers += std::string(value.getBuffer(), value.getLength());
         }
         headers += "\r\n";
     }
 
     std::cout << headers << std::endl;
-    std::cout << std::string(msg->getRawBody().getBuffer(), msg->getRawBody().getLength()) << std::endl;
+    std::cout << std::string(msg->getRawBody().getBuffer(), msg->getRawBody().getLength())
+              << std::endl;
 
     delete msg;
     return 0;
 }
-

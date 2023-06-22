@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-#include <iostream>
 #include <boost/container/vector.hpp>
+#include <iostream>
 
 #include <metall/metall.hpp> // Only one header file is required to be included
 
@@ -17,13 +17,13 @@ int main() {
     {
         // Construct a manager object
         // A process can allocate multiple manager objects
-        metall::manager manager(metall::create_only,  // Create a new one
-                                "/tmp/dir");          // The directory to store backing datastore
+        metall::manager manager(metall::create_only, // Create a new one
+                                "/tmp/dir");         // The directory to store backing datastore
 
         // Allocate and construct a vector object in the persistent memory with a name "vec"
-        auto pvec = manager.construct<vector_t>                    // Allocate and construct an object of vector_t
-                ("vec")              // Name of the allocated object
-                (manager.get_allocator()); // Arguments passed to vector_t's constructor
+        auto pvec = manager.construct<vector_t> // Allocate and construct an object of vector_t
+                    ("vec")                     // Name of the allocated object
+                    (manager.get_allocator());  // Arguments passed to vector_t's constructor
 
         pvec->push_back(5); // Can use containers normally
 

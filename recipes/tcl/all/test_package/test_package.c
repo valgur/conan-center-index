@@ -5,12 +5,10 @@
 
 // from https://wiki.tcl-lang.org/page/How+to+embed+Tcl+in+C+applications
 
-static int
-StringCatCmd(
-    ClientData dummy,                /* Not used. */
-    Tcl_Interp *interp,                /* Current interpreter. */
-    int objc,                        /* Number of arguments. */
-    Tcl_Obj *const objv[])        /* Argument objects. */
+static int StringCatCmd(ClientData dummy,      /* Not used. */
+                        Tcl_Interp *interp,    /* Current interpreter. */
+                        int objc,              /* Number of arguments. */
+                        Tcl_Obj *const objv[]) /* Argument objects. */
 {
     int i;
     Tcl_Obj *objResultPtr;
@@ -33,7 +31,7 @@ StringCatCmd(
     if (Tcl_IsShared(objResultPtr)) {
         objResultPtr = Tcl_DuplicateObj(objResultPtr);
     }
-    for(i = 2;i < objc;i++) {
+    for (i = 2; i < objc; i++) {
         Tcl_AppendObjToObj(objResultPtr, objv[i]);
     }
     Tcl_SetObjResult(interp, objResultPtr);
@@ -41,16 +39,15 @@ StringCatCmd(
     return TCL_OK;
 }
 
-Tcl_Command ExtendTcl (Tcl_Interp *interp) {
-    return Tcl_CreateObjCommand(
-        interp, "stringcat", StringCatCmd, NULL, NULL);
+Tcl_Command ExtendTcl(Tcl_Interp *interp) {
+    return Tcl_CreateObjCommand(interp, "stringcat", StringCatCmd, NULL, NULL);
 }
 
-int main (int argc ,char *argv[]) {
+int main(int argc, char *argv[]) {
     Tcl_FindExecutable(argv[0]);
     Tcl_Interp *interp = Tcl_CreateInterp();
     if (Tcl_Init(interp) != TCL_OK) {
-        fprintf(stderr ,"Tcl_Init error: %s\n" ,Tcl_GetStringResult(interp));
+        fprintf(stderr, "Tcl_Init error: %s\n", Tcl_GetStringResult(interp));
         return EXIT_FAILURE;
     }
     Tcl_Command cmdToken = ExtendTcl(interp);

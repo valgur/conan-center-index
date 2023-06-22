@@ -1,7 +1,6 @@
 #include "gumbo.h"
 
-int main()
-{
+int main() {
     (void)gumbo_tag_enum("div");
     return 0;
 }

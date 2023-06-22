@@ -1,18 +1,16 @@
-#include <libelfin/elf/elf++.hh>
-#include <iostream>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+#include <libelfin/elf/elf++.hh>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-int
-main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     using elf::to_string;
 
-    int      fd = open(argv[1], O_RDONLY);
+    int fd = open(argv[1], O_RDONLY);
     elf::elf f(elf::create_mmap_loader(fd));
 
-    auto& hdr = f.get_hdr();
+    auto &hdr = f.get_hdr();
     std::cout << "ELF Header:\n";
     std::cout << "  Magic: " << std::hex;
     for (auto c : hdr.ei_magic)

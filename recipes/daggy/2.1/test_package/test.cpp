@@ -24,14 +24,14 @@ SOFTWARE.
 
 #include <DaggyCore/Core.hpp>
 #include <DaggyCore/Sources.hpp>
-#include <DaggyCore/aggregators/CFile.hpp>
 #include <DaggyCore/aggregators/CConsole.hpp>
+#include <DaggyCore/aggregators/CFile.hpp>
 
 #include <QCoreApplication>
 #include <QTimer>
 
 namespace {
-constexpr const char* json_data = R"JSON(
+constexpr const char *json_data = R"JSON(
 {
     "sources": {
         "localhost" : {
@@ -52,8 +52,7 @@ constexpr const char* json_data = R"JSON(
 )JSON";
 }
 
-int main(int argc, char** argv) 
-{
+int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
     daggy::Core core(*daggy::sources::convertors::json(json_data));
 
@@ -63,21 +62,14 @@ int main(int argc, char** argv)
     core.connectAggregator(&file_aggregator);
     core.connectAggregator(&console_aggregator);
 
-    QObject::connect(&core, &daggy::Core::stateChanged, &core,
-    [&](DaggyStates state){
-        if(state == DaggyFinished)
-            app.quit();      
+    QObject::connect(&core, &daggy::Core::stateChanged, &core, [&](DaggyStates state) {
+        if (state == DaggyFinished)
+            app.quit();
     });
 
-    QTimer::singleShot(2000, &core, [&]()
-    {
-        core.stop();
-    });
+    QTimer::singleShot(2000, &core, [&]() { core.stop(); });
 
-    QTimer::singleShot(5000, &core, [&]()
-    {
-        app.exit(-1);
-    });
+    QTimer::singleShot(5000, &core, [&]() { app.exit(-1); });
 
     core.prepare();
     core.start();

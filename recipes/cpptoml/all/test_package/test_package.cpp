@@ -1,12 +1,10 @@
+#include <cpptoml.h>
 #include <cstdlib>
 #include <iostream>
-#include <cpptoml.h>
 
-int main()
-{
+int main() {
     std::cout << "Bincrafters\n";
-    
-    
+
     std::shared_ptr<cpptoml::table> root = cpptoml::make_table();
     root->insert("Integer", 1234L);
     root->insert("Double", 1.234);

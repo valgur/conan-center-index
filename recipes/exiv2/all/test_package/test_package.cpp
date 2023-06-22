@@ -2,6 +2,6 @@
 #include <iostream>
 
 int main() {
-  std::cout << Exiv2::versionString() << std::endl;
-  return 0;
+    std::cout << Exiv2::versionString() << std::endl;
+    return 0;
 }

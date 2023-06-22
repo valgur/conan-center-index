@@ -5,17 +5,17 @@
 #include "slz.h"
 
 int main(void) {
-	struct slz_stream strm;
-	unsigned char *outbuf;
+    struct slz_stream strm;
+    unsigned char *outbuf;
 
-	slz_make_crc_table();
-	slz_prepare_dist_table();
+    slz_make_crc_table();
+    slz_prepare_dist_table();
 
-	slz_init(&strm, 3, SLZ_FMT_GZIP);
+    slz_init(&strm, 3, SLZ_FMT_GZIP);
 
-	outbuf = calloc(1, 1024 * 1024 * 2 + 4096);
+    outbuf = calloc(1, 1024 * 1024 * 2 + 4096);
 
-	slz_finish(&strm, outbuf);
+    slz_finish(&strm, outbuf);
 
-	return 0;
+    return 0;
 }

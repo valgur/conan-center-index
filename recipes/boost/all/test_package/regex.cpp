@@ -5,10 +5,9 @@
 namespace boost = BOOST_NAMESPACE;
 #endif
 
-int main(int argc, const char * const argv[])
-{
+int main(int argc, const char *const argv[]) {
     std::string line;
-    boost::regex pat( "^Subject: (Re: |Aw: )*(.*)" );
+    boost::regex pat("^Subject: (Re: |Aw: )*(.*)");
 
     std::vector<int> values;
     for (int i = 1; i < argc; ++i) {

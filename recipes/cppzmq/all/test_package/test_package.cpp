@@ -2,13 +2,12 @@
 
 #include <string>
 
-int main ()
-{
+int main() {
     //  Prepare our context and socket
-    zmq::context_t context (1);
-    zmq::socket_t socket (context, ZMQ_REQ);
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, ZMQ_REQ);
 
-    socket.connect ("tcp://localhost:5555");
+    socket.connect("tcp://localhost:5555");
 
     return 0;
 }

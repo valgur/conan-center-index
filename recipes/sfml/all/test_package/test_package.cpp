@@ -13,8 +13,7 @@
 #include <SFML/Audio.hpp>
 #endif
 
-int main()
-{
+int main() {
     sf::Clock clock;
     clock.getElapsedTime().asSeconds();
 

@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
-{
+int main() {
     AuServer *aud = NULL;
     printf("NAS test_package\n");
     aud = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);

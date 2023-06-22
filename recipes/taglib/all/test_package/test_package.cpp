@@ -1,5 +1,5 @@
-#include <taglib/tlist.h>
 #include <taglib/fileref.h>
+#include <taglib/tlist.h>
 
 int main() {
     TagLib::List<TagLib::FileRef> fileList;

@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "dr_mp3.h"
+#include <stdio.h>
 
 int main(void) {
     const char *version = drmp3_version_string();

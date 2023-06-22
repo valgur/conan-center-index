@@ -3,16 +3,12 @@
 #include "soapcalcProxy.h" // the proxy class, also #includes "soapH.h" and "soapStub.h"
 #include <iostream>
 
-int main()
-{
+int main() {
     calcProxy calc;
     double sum;
-    if (calc.add(1.23, 4.56, sum) == SOAP_OK)
-    {
+    if (calc.add(1.23, 4.56, sum) == SOAP_OK) {
         std::cout << "Sum = " << sum << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << "Cannot sum" << std::endl;
         calc.soap_stream_fault(std::cerr);
     }

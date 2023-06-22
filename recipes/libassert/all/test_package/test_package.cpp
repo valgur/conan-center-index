@@ -1,14 +1,13 @@
+#include <assert/assert/assert.hpp>
 #include <cstdlib>
 #include <iostream>
-#include <assert/assert/assert.hpp>
 
 int main(void) {
     std::cout << "Testing libassert\n";
 
-    try{
+    try {
         VERIFY(1 != 1);
-    }
-    catch (...){
+    } catch (...) {
         return EXIT_SUCCESS;
     }
 

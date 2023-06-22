@@ -1,6 +1,6 @@
+#include "fmt/ranges.h"
 #include <cstdlib>
 #include <vector>
-#include "fmt/ranges.h"
 
 int main() {
     std::vector<char> numbers;

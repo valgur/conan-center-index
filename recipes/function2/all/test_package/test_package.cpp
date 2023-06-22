@@ -2,9 +2,9 @@
 
 int main(int, char **) {
 
-  fu2::unique_function<void(int, int)> fun = [](int /*a*/, int /*b*/) {};
+    fu2::unique_function<void(int, int)> fun = [](int /*a*/, int /*b*/) {};
 
-  (void) fun;
+    (void)fun;
 
-  return 0;
+    return 0;
 }

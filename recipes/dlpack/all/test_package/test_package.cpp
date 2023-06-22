@@ -1,9 +1,8 @@
+#include <cstdlib>
 #include <dlpack/dlpack.h>
 #include <iostream>
-#include <cstdlib>
 
-int main()
-{
+int main() {
 #if DLPACK_VERSION < 60
     int major = (DLPACK_VERSION >> 6) & 7;
     int minor = (DLPACK_VERSION >> 3) & 7;

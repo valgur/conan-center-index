@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 
-
 int main(int argc, char *argv[]) {
     usb_init();
     usb_find_busses();

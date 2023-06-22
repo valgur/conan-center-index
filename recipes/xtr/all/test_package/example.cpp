@@ -1,7 +1,6 @@
 #include <xtr/logger.hpp>
 
-int main()
-{
+int main() {
     xtr::logger log;
     auto s = log.get_sink("Test");
     XTR_LOG(s, "Hello world");

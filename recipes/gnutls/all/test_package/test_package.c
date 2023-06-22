@@ -1,7 +1,7 @@
-#include <stdlib.h>
 #include <gnutls/gnutls.h>
+#include <stdlib.h>
 
-int main (void) {
+int main(void) {
     int result = 0;
     gnutls_session_t session;
 

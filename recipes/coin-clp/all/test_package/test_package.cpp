@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main (int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Need an argument\n");
         return 1;

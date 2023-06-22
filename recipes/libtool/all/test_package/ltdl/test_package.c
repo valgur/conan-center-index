@@ -5,13 +5,12 @@
 
 typedef int (*liba_func_t)(int);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Need an argument\n");
         return EXIT_FAILURE;
     }
-    const char* libname = argv[1];
+    const char *libname = argv[1];
     lt_dlinit();
 
     fprintf(stderr, "lt_dlopenext(\"%s\")\n", libname);
@@ -21,7 +20,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    liba_func_t liba_func = (liba_func_t) lt_dlsym(ltdl_liba, "liba_function");
+    liba_func_t liba_func = (liba_func_t)lt_dlsym(ltdl_liba, "liba_function");
     int res = liba_func(21);
     printf("Result is %d\n", res);
     if (res != 42) {

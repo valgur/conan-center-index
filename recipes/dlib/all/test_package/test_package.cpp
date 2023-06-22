@@ -5,8 +5,7 @@
 // which is what I am doing here.  The following statement creates a logger that is named example.
 dlib::logger dlog("conan-test");
 
-int main()
-{
+int main() {
     // Every logger has a logging level (given by dlog.level()).  Each log message is tagged with a
     // level and only levels equal to or higher than dlog.level() will be printed.  By default all
     // loggers start with level() == LERROR.  In this case I'm going to set the lowest level LALL

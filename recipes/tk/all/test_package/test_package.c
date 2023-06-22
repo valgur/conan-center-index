@@ -4,11 +4,11 @@
 #include <tcl.h>
 #include <tk.h>
 
-int main (int argc ,char *argv[]) {
+int main(int argc, char *argv[]) {
     Tcl_FindExecutable(argv[0]);
     Tcl_Interp *interp = Tcl_CreateInterp();
     if (Tcl_Init(interp) != TCL_OK) {
-        fprintf(stderr ,"Tcl_Init error: %s\n" ,Tcl_GetStringResult(interp));
+        fprintf(stderr, "Tcl_Init error: %s\n", Tcl_GetStringResult(interp));
         return EXIT_FAILURE;
     }
 

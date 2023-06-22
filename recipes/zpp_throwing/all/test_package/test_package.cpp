@@ -14,15 +14,19 @@ zpp::throwing<int> foo(bool success) {
 }
 
 int main() {
-    return zpp::try_catch([]() -> zpp::throwing<int> {
-        std::cout << "Hello World\n";
-        std::cout << co_await foo(false) << '\n';;
-        co_return 0;
-    }, [&](const std::exception & error) {
-        std::cout << "std exception caught: " << error.what() << '\n';
-        return 0;
-    }, [&]() {
-        std::cout << "Unknown exception\n";
-        return 0;
-    });
+    return zpp::try_catch(
+        []() -> zpp::throwing<int> {
+            std::cout << "Hello World\n";
+            std::cout << co_await foo(false) << '\n';
+            ;
+            co_return 0;
+        },
+        [&](const std::exception &error) {
+            std::cout << "std exception caught: " << error.what() << '\n';
+            return 0;
+        },
+        [&]() {
+            std::cout << "Unknown exception\n";
+            return 0;
+        });
 }

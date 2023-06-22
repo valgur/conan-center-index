@@ -3,17 +3,15 @@
 
 #ifdef GST_PLUGINS_BAD_STATIC
 
-extern "C"
-{
-    GST_PLUGIN_STATIC_DECLARE(mpegpsdemux);
+extern "C" {
+GST_PLUGIN_STATIC_DECLARE(mpegpsdemux);
 }
 
 #endif
 
 #include <iostream>
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
 #ifdef GST_PLUGINS_BAD_STATIC
@@ -22,7 +20,7 @@ int main(int argc, char * argv[])
 
 #endif
 
-    GstElement * mpegpsdemux = gst_element_factory_make("mpegpsdemux", NULL);
+    GstElement *mpegpsdemux = gst_element_factory_make("mpegpsdemux", NULL);
     if (!mpegpsdemux) {
         std::cerr << "failed to create mpegpsdemux element" << std::endl;
         return -1;

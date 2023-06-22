@@ -6,8 +6,7 @@
 using namespace log4cxx;
 using namespace log4cxx::xml;
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char *argv[]) {
     LoggerPtr logger(Logger::getLogger("TEST"));
     if (argc < 2) {
         std::cerr << "Expected path to config xml\n";

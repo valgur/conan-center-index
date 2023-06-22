@@ -1,8 +1,7 @@
-#include <stdio.h>
 #include "com/amazonaws/kinesis/video/client/Include.h"
+#include <stdio.h>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
     CLIENT_HANDLE clientHandle = INVALID_CLIENT_HANDLE_VALUE;
     PDeviceInfo pDeviceInfo = NULL;

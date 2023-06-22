@@ -4,7 +4,7 @@
 #include "spng.h"
 
 int main(void) {
-  fprintf(stderr, " Compiled with libspng %s.\n", spng_version_string());
+    fprintf(stderr, " Compiled with libspng %s.\n", spng_version_string());
 
-  return 0;
+    return 0;
 }

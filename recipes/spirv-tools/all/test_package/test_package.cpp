@@ -27,39 +27,40 @@
 #include "spirv-tools/optimizer.hpp"
 
 int main() {
-  const std::string source =
-      "         OpCapability Linkage "
-      "         OpCapability Shader "
-      "         OpMemoryModel Logical GLSL450 "
-      "         OpSource GLSL 450 "
-      "         OpDecorate %spec SpecId 1 "
-      "  %int = OpTypeInt 32 1 "
-      " %spec = OpSpecConstant %int 0 "
-      "%const = OpConstant %int 42";
+    const std::string source = "         OpCapability Linkage "
+                               "         OpCapability Shader "
+                               "         OpMemoryModel Logical GLSL450 "
+                               "         OpSource GLSL 450 "
+                               "         OpDecorate %spec SpecId 1 "
+                               "  %int = OpTypeInt 32 1 "
+                               " %spec = OpSpecConstant %int 0 "
+                               "%const = OpConstant %int 42";
 
-  spvtools::SpirvTools core(SPV_ENV_UNIVERSAL_1_3);
-  spvtools::Optimizer opt(SPV_ENV_UNIVERSAL_1_3);
+    spvtools::SpirvTools core(SPV_ENV_UNIVERSAL_1_3);
+    spvtools::Optimizer opt(SPV_ENV_UNIVERSAL_1_3);
 
-  auto print_msg_to_stderr = [](spv_message_level_t, const char*,
-                                const spv_position_t&, const char* m) {
-    std::cerr << "error: " << m << std::endl;
-  };
-  core.SetMessageConsumer(print_msg_to_stderr);
-  opt.SetMessageConsumer(print_msg_to_stderr);
+    auto print_msg_to_stderr = [](spv_message_level_t, const char *, const spv_position_t &,
+                                  const char *m) { std::cerr << "error: " << m << std::endl; };
+    core.SetMessageConsumer(print_msg_to_stderr);
+    opt.SetMessageConsumer(print_msg_to_stderr);
 
-  std::vector<uint32_t> spirv;
-  if (!core.Assemble(source, &spirv)) return 1;
-  if (!core.Validate(spirv)) return 1;
+    std::vector<uint32_t> spirv;
+    if (!core.Assemble(source, &spirv))
+        return 1;
+    if (!core.Validate(spirv))
+        return 1;
 
-  opt.RegisterPass(spvtools::CreateSetSpecConstantDefaultValuePass({{1, "42"}}))
-      .RegisterPass(spvtools::CreateFreezeSpecConstantValuePass())
-      .RegisterPass(spvtools::CreateUnifyConstantPass())
-      .RegisterPass(spvtools::CreateStripDebugInfoPass());
-  if (!opt.Run(spirv.data(), spirv.size(), &spirv)) return 1;
+    opt.RegisterPass(spvtools::CreateSetSpecConstantDefaultValuePass({{1, "42"}}))
+        .RegisterPass(spvtools::CreateFreezeSpecConstantValuePass())
+        .RegisterPass(spvtools::CreateUnifyConstantPass())
+        .RegisterPass(spvtools::CreateStripDebugInfoPass());
+    if (!opt.Run(spirv.data(), spirv.size(), &spirv))
+        return 1;
 
-  std::string disassembly;
-  if (!core.Disassemble(spirv, &disassembly)) return 1;
-  std::cout << disassembly << "\n";
+    std::string disassembly;
+    if (!core.Disassemble(spirv, &disassembly))
+        return 1;
+    std::cout << disassembly << "\n";
 
-  return 0;
+    return 0;
 }

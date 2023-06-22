@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CHECK(V) if ((V) != GETDNS_RETURN_GOOD) {   \
-    fprintf(stderr, "Fail: " #V "!\n");             \
-    return 1;                                       \
-}
+#define CHECK(V)                                                                                   \
+    if ((V) != GETDNS_RETURN_GOOD) {                                                               \
+        fprintf(stderr, "Fail: " #V "!\n");                                                        \
+        return 1;                                                                                  \
+    }
 
-int main()
-{
+int main() {
     getdns_context *context;
     CHECK(getdns_context_create(&context, 1));
     getdns_dict *info = getdns_context_get_api_information(context);

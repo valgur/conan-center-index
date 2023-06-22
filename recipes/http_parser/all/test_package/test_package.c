@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     unsigned long version = http_parser_version();
     unsigned major = (version >> 16) & 255;
     unsigned minor = (version >> 8) & 255;

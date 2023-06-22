@@ -1,5 +1,5 @@
-#include "EbSvtAv1Enc.h"
 #include "EbSvtAv1Dec.h"
+#include "EbSvtAv1Enc.h"
 
 #include <iostream>
 

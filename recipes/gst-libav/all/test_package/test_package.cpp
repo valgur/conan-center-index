@@ -3,17 +3,15 @@
 
 #ifdef GST_LIBAV_STATIC
 
-extern "C"
-{
-    GST_PLUGIN_STATIC_DECLARE(libav);
+extern "C" {
+GST_PLUGIN_STATIC_DECLARE(libav);
 }
 
 #endif
 
 #include <iostream>
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
 #ifdef GST_LIBAV_STATIC
@@ -22,7 +20,7 @@ int main(int argc, char * argv[])
 
 #endif
 
-    GstElement * avdec_mjpeg = gst_element_factory_make("avdec_mjpeg", NULL);
+    GstElement *avdec_mjpeg = gst_element_factory_make("avdec_mjpeg", NULL);
     if (!avdec_mjpeg) {
         std::cerr << "failed to create avdec_mjpeg element" << std::endl;
         return -1;

@@ -9,8 +9,8 @@ static struct cag_option options[] = {{.identifier = 's',
                                        .description = "Simple flag"}};
 
 int main(int argc, char *argv[]) {
-  cag_option_context context;
-  cag_option_prepare(&context, options, CAG_ARRAY_SIZE(options), argc, argv);
+    cag_option_context context;
+    cag_option_prepare(&context, options, CAG_ARRAY_SIZE(options), argc, argv);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

@@ -1,8 +1,7 @@
-#include <sys/types.h>
 #include <attr/attributes.h>
+#include <sys/types.h>
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     char value[255];
     int len = sizeof(value);
     const char *path = "file_not_exist.txt";

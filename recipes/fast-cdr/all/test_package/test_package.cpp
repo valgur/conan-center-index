@@ -15,9 +15,9 @@
 #include <fastcdr/Cdr.h>
 #include <fastcdr/FastCdr.h>
 
-#include <stdio.h>
-#include <limits>
 #include <iostream>
+#include <limits>
+#include <stdio.h>
 
 #define N_ARR_ELEMENTS 5
 
@@ -28,11 +28,9 @@ using namespace eprosima::fastcdr;
 
 #define BUFFER_LENGTH 2000
 
-
-void check_good_case()
-{
+void check_good_case() {
     char buffer[BUFFER_LENGTH];
-    const std::wstring& input_value = wstring_t;
+    const std::wstring &input_value = wstring_t;
 
     // Serialization.
     {
@@ -51,9 +49,7 @@ void check_good_case()
     }
 }
 
-
-int main()
-{
+int main() {
     check_good_case();
 
     char buffer[BUFFER_LENGTH];
@@ -66,7 +62,8 @@ int main()
     // Deserialization.
     Cdr cdr_des(cdrbuffer);
 
-    char* char_seq_value = NULL; size_t char_seq_len = 0;
+    char *char_seq_value = NULL;
+    size_t char_seq_len = 0;
 
     cdr_des.deserializeSequence(char_seq_value, char_seq_len);
 

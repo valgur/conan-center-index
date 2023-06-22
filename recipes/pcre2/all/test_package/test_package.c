@@ -5,13 +5,12 @@
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 
-
 int main() {
     pcre2_code *re;
     int rc;
     PCRE2_SIZE erroffset;
     int errcode;
-    PCRE2_SIZE* ovector;
+    PCRE2_SIZE *ovector;
     const char *pattern = "\\w+";
     size_t pattern_size = strlen(pattern);
     const char *subject = "conan";
@@ -26,7 +25,7 @@ int main() {
     ovector = pcre2_get_ovector_pointer(match_data);
     PCRE2_SPTR start = subject + ovector[0];
     PCRE2_SIZE slen = ovector[1] - ovector[0];
-    printf("match: %.*s\n", (int)slen, (char *)start );
+    printf("match: %.*s\n", (int)slen, (char *)start);
     pcre2_match_data_free(match_data);
     pcre2_code_free(re);
 

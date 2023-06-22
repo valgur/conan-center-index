@@ -5,7 +5,7 @@
 int main(int argc, char **argv) {
     int count{0};
     int v{0};
-    double value{0.0};  // = 3.14;
+    double value{0.0}; // = 3.14;
     std::string file;
     CLI::App app("K3Pi goofit fitter");
 

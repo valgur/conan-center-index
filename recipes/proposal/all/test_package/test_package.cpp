@@ -1,10 +1,9 @@
-#include "PROPOSAL/PROPOSAL.h"
 #include "PROPOSAL/Logging.h"
+#include "PROPOSAL/PROPOSAL.h"
 #include <iostream>
 #include <memory>
 
-int main()
-{
+int main() {
     auto particle = PROPOSAL::MuMinusDef();
     auto target = PROPOSAL::Ice();
     auto cut = std::make_shared<PROPOSAL::EnergyCutSettings>(500, 0.05, false);
@@ -15,9 +14,9 @@ int main()
         auto type = c->GetInteractionType();
         auto name = PROPOSAL::Type_Interaction_Name_Map.at(type);
         auto dEdx = c->CalculatedEdx(energy);
-        std::cout << "The " << name << " average loss for a " << energy << " MeV "
-                  << particle.name << " in " << target.GetName()
-                  << " is: " << dEdx << " MeV * cm^2 / g" << std::endl;
+        std::cout << "The " << name << " average loss for a " << energy << " MeV " << particle.name
+                  << " in " << target.GetName() << " is: " << dEdx << " MeV * cm^2 / g"
+                  << std::endl;
     }
 
     PROPOSAL::Logging::Get("proposal.conan_test_package")->warn("logging test");

@@ -1,9 +1,8 @@
 #include <GLFW/glfw3.h>
 
-int main (void)
-{
-    GLFWwindow* window;
-    GLFWmonitor* monitor = NULL;
+int main(void) {
+    GLFWwindow *window;
+    GLFWmonitor *monitor = NULL;
 
     monitor = glfwGetPrimaryMonitor();
 

@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     printf("vpx version %s\n", vpx_codec_version_str());
     return 0;
 }

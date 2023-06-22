@@ -15,18 +15,18 @@ int main() {
 
     // When template parameter StoreNullTerminator is true (default) and there is no
     // null character in the strings.
-    for(auto it = map.begin(); it != map.end(); ++it) {
+    for (auto it = map.begin(); it != map.end(); ++it) {
         std::cout << "{" << it.key() << ", " << it.value() << "}" << std::endl;
     }
 
-    // If StoreNullTerminator is false for space efficiency or you are storing null characters, 
+    // If StoreNullTerminator is false for space efficiency or you are storing null characters,
     // you can access to the size of the key.
-    for(auto it = map.begin(); it != map.end(); ++it) {
+    for (auto it = map.begin(); it != map.end(); ++it) {
         (std::cout << "{").write(it.key(), it.key_size()) << ", " << it.value() << "}" << std::endl;
     }
 
     // Or if you just want the values.
-    for(int value: map) {
+    for (int value : map) {
         std::cout << "{" << value << "}" << std::endl;
     }
 
@@ -38,7 +38,7 @@ int main() {
     tsl::array_set<char> set = {"one", "two", "three"};
     set.insert({"four", "five"});
 
-    for(auto it = set.begin(); it != set.end(); ++it) {
+    for (auto it = set.begin(); it != set.end(); ++it) {
         std::cout << "{" << it.key() << "}" << std::endl;
     }
 }

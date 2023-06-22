@@ -5,14 +5,12 @@
 ACADOvariables acadoVariables;
 ACADOworkspace acadoWorkspace;
 
-int main()
-{
+int main() {
     acado_initializeSolver();
 
     acado_preparationStep();
 
-    for (std::size_t iter{0}; iter < 10U; ++iter)
-    {
+    for (std::size_t iter{0}; iter < 10U; ++iter) {
         // Perform the feedback step
         acado_feedbackStep();
 

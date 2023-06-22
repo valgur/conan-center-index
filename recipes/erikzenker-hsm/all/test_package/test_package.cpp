@@ -1,33 +1,29 @@
 #include "hsm/hsm.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 // States
-struct Locked {
-};
-struct Unlocked {
-};
+struct Locked {};
+struct Unlocked {};
 
 // Events
-struct Push {
-};
-struct Coin {
-};
+struct Push {};
+struct Coin {};
 
 // Guards
 const auto noError = [](auto /*event*/, auto /*source*/, auto /*target*/) { return true; };
 
 // Actions
-constexpr auto beep
-    = [](auto /*event*/, auto /*source*/, auto /*target*/) { std::cout << "beep!" << std::endl; };
+constexpr auto beep = [](auto /*event*/, auto /*source*/, auto /*target*/) {
+    std::cout << "beep!" << std::endl;
+};
 constexpr auto blink = [](auto /*event*/, auto /*source*/, auto /*target*/) {
     std::cout << "blink, blink, blink!" << std::endl;
 };
 
 struct Turnstile {
-    static constexpr auto make_transition_table()
-    {
+    static constexpr auto make_transition_table() {
         // clang-format off
         return hsm::transition_table(
             // Source              + Event            [Guard]   / Action = Target
@@ -43,19 +39,18 @@ struct Turnstile {
     }
 };
 
-auto main() -> int
-{
+auto main() -> int {
     hsm::sm<Turnstile> turnstileSm;
 
     // The turnstile is initially locked
     assert(turnstileSm.is(hsm::state<Locked>));
 
     // Inserting a coin unlocks it
-    turnstileSm.process_event(Coin {});
+    turnstileSm.process_event(Coin{});
     assert(turnstileSm.is(hsm::state<Unlocked>));
 
     // Entering the turnstile will lock it again
-    turnstileSm.process_event(Push {});
+    turnstileSm.process_event(Push{});
     assert(turnstileSm.is(hsm::state<Locked>));
 
     return 0;

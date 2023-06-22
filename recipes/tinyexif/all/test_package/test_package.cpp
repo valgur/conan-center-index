@@ -1,5 +1,5 @@
-#include <iostream>
 #include "TinyEXIF.h"
+#include <iostream>
 
 int main() {
     TinyEXIF::EXIFInfo exif;

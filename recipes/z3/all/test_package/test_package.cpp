@@ -8,8 +8,7 @@
 /**
    \brief Simpler error handler.
  */
-static void error_handler(Z3_context c, Z3_error_code e)
-{
+static void error_handler(Z3_context c, Z3_error_code e) {
     fprintf(stderr, "Error code: %d\n", e);
     fprintf(stderr, "incorrect use of Z3\n");
     exit(1);
@@ -22,8 +21,7 @@ static void error_handler(Z3_context c, Z3_error_code e)
 
    Also enable tracing to stderr and register custom error handler.
 */
-static Z3_context mk_context_custom(Z3_config cfg, Z3_error_handler err)
-{
+static Z3_context mk_context_custom(Z3_config cfg, Z3_error_handler err) {
     Z3_context ctx;
 
     Z3_set_param_value(cfg, "model", "true");
@@ -40,9 +38,8 @@ static Z3_context mk_context_custom(Z3_config cfg, Z3_error_handler err)
 
    Also enable tracing to stderr and register standard error handler.
 */
-static Z3_context mk_context()
-{
-    Z3_config  cfg;
+static Z3_context mk_context() {
+    Z3_config cfg;
     Z3_context ctx;
     cfg = Z3_mk_config();
     ctx = mk_context_custom(cfg, error_handler);
@@ -50,17 +47,13 @@ static Z3_context mk_context()
     return ctx;
 }
 
-Z3_solver mk_solver(Z3_context ctx)
-{
-  Z3_solver s = Z3_mk_solver(ctx);
-  Z3_solver_inc_ref(ctx, s);
-  return s;
+Z3_solver mk_solver(Z3_context ctx) {
+    Z3_solver s = Z3_mk_solver(ctx);
+    Z3_solver_inc_ref(ctx, s);
+    return s;
 }
 
-static void del_solver(Z3_context ctx, Z3_solver s)
-{
-  Z3_solver_dec_ref(ctx, s);
-}
+static void del_solver(Z3_context ctx, Z3_solver s) { Z3_solver_dec_ref(ctx, s); }
 
 /**
    @name Examples
@@ -69,8 +62,7 @@ static void del_solver(Z3_context ctx, Z3_solver s)
 /**
    \brief "Hello world" example: create a Z3 logical context, and delete it.
 */
-void simple_example()
-{
+void simple_example() {
     Z3_context ctx;
     printf("\nsimple_example\n");
 
@@ -84,8 +76,7 @@ void simple_example()
   Demonstration of how Z3 can be used to prove validity of
   De Morgan's Duality Law: {e not(x and y) <-> (not x) or ( not y) }
 */
-void demorgan()
-{
+void demorgan() {
     Z3_config cfg;
     Z3_context ctx;
     Z3_solver s;
@@ -96,27 +87,27 @@ void demorgan()
 
     printf("\nDeMorgan\n");
 
-    cfg                = Z3_mk_config();
-    ctx                = Z3_mk_context(cfg);
+    cfg = Z3_mk_config();
+    ctx = Z3_mk_context(cfg);
     Z3_del_config(cfg);
-    bool_sort          = Z3_mk_bool_sort(ctx);
-    symbol_x           = Z3_mk_int_symbol(ctx, 0);
-    symbol_y           = Z3_mk_int_symbol(ctx, 1);
-    x                  = Z3_mk_const(ctx, symbol_x, bool_sort);
-    y                  = Z3_mk_const(ctx, symbol_y, bool_sort);
+    bool_sort = Z3_mk_bool_sort(ctx);
+    symbol_x = Z3_mk_int_symbol(ctx, 0);
+    symbol_y = Z3_mk_int_symbol(ctx, 1);
+    x = Z3_mk_const(ctx, symbol_x, bool_sort);
+    y = Z3_mk_const(ctx, symbol_y, bool_sort);
 
     /* De Morgan - with a negation around */
     /* !(!(x && y) <-> (!x || !y)) */
-    not_x              = Z3_mk_not(ctx, x);
-    not_y              = Z3_mk_not(ctx, y);
-    args[0]            = x;
-    args[1]            = y;
-    x_and_y            = Z3_mk_and(ctx, 2, args);
-    ls                 = Z3_mk_not(ctx, x_and_y);
-    args[0]            = not_x;
-    args[1]            = not_y;
-    rs                 = Z3_mk_or(ctx, 2, args);
-    conjecture         = Z3_mk_iff(ctx, ls, rs);
+    not_x = Z3_mk_not(ctx, x);
+    not_y = Z3_mk_not(ctx, y);
+    args[0] = x;
+    args[1] = y;
+    x_and_y = Z3_mk_and(ctx, 2, args);
+    ls = Z3_mk_not(ctx, x_and_y);
+    args[0] = not_x;
+    args[1] = not_y;
+    rs = Z3_mk_or(ctx, 2, args);
+    conjecture = Z3_mk_iff(ctx, ls, rs);
     negated_conjecture = Z3_mk_not(ctx, conjecture);
 
     s = mk_solver(ctx);

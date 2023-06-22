@@ -1,12 +1,11 @@
 #include <avif/avif.h>
 #include <stddef.h>
 
-int main(int argc, char const* argv[])
-{
-  (void)argc;
-  (void)argv;
+int main(int argc, char const *argv[]) {
+    (void)argc;
+    (void)argv;
 
-  avifFree(NULL);
+    avifFree(NULL);
 
-  return 0;
+    return 0;
 }

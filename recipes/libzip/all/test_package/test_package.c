@@ -37,15 +37,13 @@
 
 #include "zip.h"
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     zip_source_t *src;
     zip_t *za;
     zip_error_t error;
-    const char data [] = {"conan-center-index"};
+    const char data[] = {"conan-center-index"};
     const size_t size = sizeof(data);
-    char buffer [256] = {0};
+    char buffer[256] = {0};
 
     zip_error_init(&error);
     /* create source from buffer */
@@ -64,18 +62,15 @@ main(int argc, char *argv[])
     /* we'll want to read the data back after zip_close */
     zip_source_keep(src);
 
-
     /* close archive */
     if (zip_close(za) < 0) {
         return 1;
     }
 
-
     /* copy new archive to buffer */
 
     if (zip_source_is_deleted(src)) {
-    }
-    else {
+    } else {
         zip_stat_t zst;
 
         if (zip_source_stat(src, &zst) < 0) {

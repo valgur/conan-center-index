@@ -1,13 +1,13 @@
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
 
 #ifndef LIBDWARF_NEW_STRUCTURE
-    #include "dwarf.h"
-    #include "libdwarf.h"
+#include "dwarf.h"
+#include "libdwarf.h"
 #else
-    #include "libdwarf/libdwarf.h"
+#include "libdwarf/libdwarf.h"
 #endif
 
 void example1(Dwarf_Die somedie) {
@@ -23,12 +23,11 @@ void example1(Dwarf_Die somedie) {
             dwarf_dealloc(dbg, atlist[i], DW_DLA_ATTR);
         }
         dwarf_dealloc(dbg, atlist, DW_DLA_LIST);
-    }
-    else if(errv == DW_DLV_ERROR){
+    } else if (errv == DW_DLV_ERROR) {
         dwarf_dealloc(dbg, error, DW_DLA_ERROR);
     }
 }
-int main(void){
+int main(void) {
     Dwarf_Die somedie;
     memset(&somedie, 0, sizeof(somedie));
     example1(somedie);

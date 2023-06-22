@@ -1,11 +1,10 @@
 #include <cstdlib>
 
-#include "EtcImage.h"
 #include "EtcColorFloatRGBA.h"
+#include "EtcImage.h"
 
-int main()
-{
-    Etc::ColorFloatRGBA* pafrgbaPixels = new Etc::ColorFloatRGBA[256 * 256];
+int main() {
+    Etc::ColorFloatRGBA *pafrgbaPixels = new Etc::ColorFloatRGBA[256 * 256];
 
     Etc::Image::EncodingStatus encStatus = Etc::Image::EncodingStatus::SUCCESS;
 

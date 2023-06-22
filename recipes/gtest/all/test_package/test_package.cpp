@@ -6,19 +6,18 @@
 #include <sstream>
 using namespace std;
 
-class Salutation
-{
-public:
-  static string greet(const string& name);
+class Salutation {
+  public:
+    static string greet(const string &name);
 };
 
 ///////////////////////////////////////
 // In the class implementation file
 
-string Salutation::greet(const string& name) {
-  ostringstream s;
-  s << "Hello " << name << "!";
-  return s.str();
+string Salutation::greet(const string &name) {
+    ostringstream s;
+    s << "Hello " << name << "!";
+    return s.str();
 }
 
 ///////////////////////////////////////////
@@ -28,15 +27,13 @@ string Salutation::greet(const string& name) {
 #ifdef WITH_GMOCK
 #include <gmock/gmock.h>
 
-class Example
-{
-public:
+class Example {
+  public:
     virtual void foo() = 0;
 };
 
-class MockExample : public Example
-{
-public:
+class MockExample : public Example {
+  public:
     MOCK_METHOD0(foo, void());
 };
 
@@ -45,8 +42,8 @@ public:
 TEST(SalutationTest, Static) {
 
 #ifdef WITH_GMOCK
-  MockExample m;
+    MockExample m;
 #endif
 
-  EXPECT_EQ(string("Hello World!"), Salutation::greet("World"));
+    EXPECT_EQ(string("Hello World!"), Salutation::greet("World"));
 }

@@ -1,7 +1,6 @@
+#include "nanomsg/nn.h"
 #include <cstdlib>
 #include <iostream>
-#include "nanomsg/nn.h"
-
 
 int main(void) {
     void *msg = nn_allocmsg(32, 0);

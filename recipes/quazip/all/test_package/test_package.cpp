@@ -1,8 +1,7 @@
 #include <iostream>
 #include <quazip/quazip.h>
 
-int main(int argc, char* argv[]) {
-
+int main(int argc, char *argv[]) {
 
     std::cout << "Quazip test_package" << std::endl;
 

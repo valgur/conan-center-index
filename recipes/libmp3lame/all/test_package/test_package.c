@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
-{
+int main() {
     printf("%s\n", get_lame_version());
     return EXIT_SUCCESS;
 }

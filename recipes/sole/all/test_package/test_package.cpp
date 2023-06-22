@@ -1,5 +1,5 @@
-#include <iostream>
 #include "sole.hpp"
+#include <iostream>
 
 int main() {
     sole::uuid u0 = sole::uuid0(), u1 = sole::uuid1(), u4 = sole::uuid4();
@@ -17,10 +17,8 @@ int main() {
     std::cout << "uuid v4 pretty : " << u4.pretty() << std::endl << std::endl;
 
     u1 = sole::rebuild("F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6");
-    std::cout << "uuid v1 rebuilt: " << u1 << " -> " << u1.pretty()
-              << std::endl;
+    std::cout << "uuid v1 rebuilt: " << u1 << " -> " << u1.pretty() << std::endl;
 
     u4 = sole::rebuild("GITheR4tLlg-BagIW20DGja");
-    std::cout << "uuid v4 rebuilt: " << u4 << " -> " << u4.pretty()
-              << std::endl;
+    std::cout << "uuid v4 rebuilt: " << u4 << " -> " << u4.pretty() << std::endl;
 }

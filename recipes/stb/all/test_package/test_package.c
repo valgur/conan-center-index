@@ -11,16 +11,14 @@
 
 float hdr_data[200][200][3];
 
-void dummy_write(void* context, void* data, int len)
-{
+void dummy_write(void *context, void *data, int len) {
     static char dummy[1024];
     if (len > 1024)
         len = 1024;
     memcpy(dummy, data, len);
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     int w, h;
 
     if (argc > 1) {
@@ -29,7 +27,7 @@ int main(int argc, char** argv)
         for (i = 1; i < argc; ++i) {
             int res;
             int w2, h2, n2;
-            unsigned char* data;
+            unsigned char *data;
             printf("%s\n", argv[i]);
             res = stbi_info(argv[i], &w2, &h2, &n2);
             data = stbi_load(argv[i], &w, &h, &n, 0);
@@ -77,14 +75,14 @@ int main(int argc, char** argv)
     } else {
         int i;
 #ifdef PNGSUITE_PRIMARY
-        char** files = stb_readdir_files("pngsuite/primary");
+        char **files = stb_readdir_files("pngsuite/primary");
 #else
-        char** files = stb_readdir_files("images");
+        char **files = stb_readdir_files("images");
 #endif
         for (i = 0; i < stb_arr_len(files); ++i) {
             int n;
-            char** failed = NULL;
-            unsigned char* data;
+            char **failed = NULL;
+            unsigned char *data;
             printf(".");
             data = stbi_load(files[i], &w, &h, &n, 0);
             if (data)
@@ -116,7 +114,7 @@ int main(int argc, char** argv)
 
 #ifdef PNGSUITE_PRIMARY
                 int w2, h2;
-                unsigned char* data2;
+                unsigned char *data2;
                 stb_splitpath(fname, files[i], STB_FILE_EXT);
                 data2 = stbi_load(stb_sprintf("pngsuite/primary_check/%s", fname), &w2, &h2, 0, 4);
                 if (!data2)
@@ -128,8 +126,10 @@ int main(int argc, char** argv)
                             for (y = 0; y < h; ++y)
                                 for (x = 0; x < w; ++x)
                                     for (c = 0; c < 4; ++c)
-                                        assert(data[y * w * 4 + x * 4 + c] == data2[y * w * 4 + x * 4 + c]);
-                        printf("FAILED: %s loaded but didn't match PRIMARY_check 32-bit version\n", files[i]);
+                                        assert(data[y * w * 4 + x * 4 + c] ==
+                                               data2[y * w * 4 + x * 4 + c]);
+                        printf("FAILED: %s loaded but didn't match PRIMARY_check 32-bit version\n",
+                               files[i]);
                     }
                     free(data2);
                 }

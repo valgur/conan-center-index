@@ -1,5 +1,5 @@
-#include <mapbox/polylabel.hpp>
 #include <mapbox/geometry.hpp>
+#include <mapbox/polylabel.hpp>
 
 int main() {
     mapbox::geometry::linear_ring<double> ring{

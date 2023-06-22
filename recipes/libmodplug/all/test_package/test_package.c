@@ -1,15 +1,14 @@
+#include <libmodplug/modplug.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <libmodplug/modplug.h>
 
 /* https://github.com/lclevy/unmo3/blob/master/spec/xm.txt */
 
 #pragma pack(push, 1)
 
-typedef struct xm_t
-{
+typedef struct xm_t {
     char id_text[17];
     char module_name[20];
     char nl;
@@ -25,24 +24,22 @@ typedef struct xm_t
     uint16_t default_tempo;
     uint16_t default_bmp;
     uint8_t pattern_order_table[256];
-}
-xm_t;
+} xm_t;
 
 #pragma pack(pop)
 
 #define SIZE 0x200
 
-int main(int argc, char * const argv[])
-{
+int main(int argc, char *const argv[]) {
     unsigned char b[SIZE];
-    FILE * f = NULL;
+    FILE *f = NULL;
     long fsize = 0;
-    ModPlugFile * m = NULL;
-    xm_t * xm = (xm_t*) b;
+    ModPlugFile *m = NULL;
+    xm_t *xm = (xm_t *)b;
     memset(b, 0, SIZE);
 
     memcpy(xm->id_text, "Extended Module:", 17);
-    memcpy(xm->module_name,  "My Module           ", 20);
+    memcpy(xm->module_name, "My Module           ", 20);
     xm->nl = 0x1A;
     memcpy(xm->tracker_name, "FastTracker II      ", 20);
     xm->version = 0x0103;
@@ -57,12 +54,11 @@ int main(int argc, char * const argv[])
     xm->default_bmp = 1;
 
     m = ModPlug_Load(b, SIZE);
-    if (!m)
-    {
+    if (!m) {
         return -4;
     }
     printf("name: %s\n", ModPlug_GetName(m));
-    printf("length: %d ms\n", (int) ModPlug_GetLength(m));
+    printf("length: %d ms\n", (int)ModPlug_GetLength(m));
 
     ModPlug_Unload(m);
     return 0;

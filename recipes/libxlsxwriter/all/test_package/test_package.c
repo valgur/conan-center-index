@@ -1,9 +1,8 @@
 #include "xlsxwriter.h"
 
-int main() 
-{
+int main() {
     /* Create a new workbook and add a worksheet. */
-    lxw_workbook  *workbook  = workbook_new("demo.xlsx");
+    lxw_workbook *workbook = workbook_new("demo.xlsx");
     lxw_worksheet *worksheet = workbook_add_worksheet(workbook, NULL);
 
     /* Add a format. */
@@ -22,7 +21,7 @@ int main()
     worksheet_write_string(worksheet, 1, 0, "World", format);
 
     /* Write some numbers. */
-    worksheet_write_number(worksheet, 2, 0, 123,     NULL);
+    worksheet_write_number(worksheet, 2, 0, 123, NULL);
     worksheet_write_number(worksheet, 3, 0, 123.456, NULL);
 
     workbook_close(workbook);

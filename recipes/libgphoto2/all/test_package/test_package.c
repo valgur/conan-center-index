@@ -1,10 +1,10 @@
-#include <gphoto2-camera.h>
 #include <gphoto2-abilities-list.h>
+#include <gphoto2-camera.h>
 
 int main() {
-    GPContext* context;
-    CameraAbilitiesList* list;
-    Camera* camera;
+    GPContext *context;
+    CameraAbilitiesList *list;
+    Camera *camera;
     int ret;
 
     context = gp_context_new();

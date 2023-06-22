@@ -2,6 +2,6 @@
 #include <stdio.h>
 
 int main() {
-  printf("numa available: %d\n", numa_available());
-  return 0;
+    printf("numa available: %d\n", numa_available());
+    return 0;
 }

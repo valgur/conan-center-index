@@ -1,10 +1,9 @@
-#include <QDebug>
 #include <QDateTime>
+#include <QDebug>
 
 #include <qwt_date.h>
 
-int main()
-{
+int main() {
     qDebug() << QwtDate::toString(QwtDate::toDateTime(10), "MMM dd hh:mm ", QwtDate::FirstThursday);
     return 0;
 }

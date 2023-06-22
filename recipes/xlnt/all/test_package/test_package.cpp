@@ -1,7 +1,6 @@
 #include <xlnt/xlnt.hpp>
 
-int main()
-{
+int main() {
     xlnt::workbook wb;
     xlnt::worksheet ws = wb.active_sheet();
     ws.cell("A1").value(5);

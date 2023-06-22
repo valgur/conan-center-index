@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "jpeglib.h"
 #include "jpegint.h"
+#include "jpeglib.h"
 #include "transupp.h"
 
 struct error_data {
@@ -11,17 +11,15 @@ struct error_data {
     const char *name;
 };
 
-
-static void
-my_error_handler(j_common_ptr cinfo) {
-    struct error_data *data = (struct error_data *) cinfo;
-    while(1) {
+static void my_error_handler(j_common_ptr cinfo) {
+    struct error_data *data = (struct error_data *)cinfo;
+    while (1) {
         fprintf(stderr, "-");
     }
     fprintf(stderr, "%s:\n", data->name);
     fflush(stdout);
     fflush(stderr);
-    (*cinfo->err->output_message) (cinfo);
+    (*cinfo->err->output_message)(cinfo);
     exit(2);
 }
 
@@ -73,7 +71,6 @@ int main(int argc, char *argv[]) {
     jpeg_copy_critical_parameters(&src, &dst);
 
     jvirt_barray_ptr *dst_coefs = jtransform_adjust_parameters(&src, &dst, src_coeffs, &transform);
-
 
     FILE *fout = fopen(argv[2], "wb");
     jpeg_stdio_dest(&dst, fout);

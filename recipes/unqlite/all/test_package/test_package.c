@@ -7,13 +7,16 @@ int main(void) {
     unqlite *pDb;
 
     rc = unqlite_open(&pDb, "test.db", UNQLITE_OPEN_CREATE);
-    if (rc != UNQLITE_OK) return -1;
+    if (rc != UNQLITE_OK)
+        return -1;
 
     rc = unqlite_kv_store(pDb, "test", -1, "Hello World", 11);
-    if (rc != UNQLITE_OK) return -1;
+    if (rc != UNQLITE_OK)
+        return -1;
 
-    rc = unqlite_kv_store_fmt(pDb, "date", -1, "Current date: %d:%d:%d", 2013,06,07);
-    if (rc != UNQLITE_OK) return -1;
+    rc = unqlite_kv_store_fmt(pDb, "date", -1, "Current date: %d:%d:%d", 2013, 06, 07);
+    if (rc != UNQLITE_OK)
+        return -1;
 
     rc = unqlite_kv_append(pDb, "msg", -1, "Hello, ", 7);
     if (rc == UNQLITE_OK) {
@@ -25,14 +28,15 @@ int main(void) {
 
     unqlite_kv_delete(pDb, "test", -1);
 
-    for (i = 0 ; i < 20 ; ++i) {
+    for (i = 0; i < 20; ++i) {
         char zKey[12];
         char zData[34];
 
         unqlite_util_random_string(pDb, zKey, sizeof(zKey));
 
         rc = unqlite_kv_store(pDb, zKey, sizeof(zKey), zData, sizeof(zData));
-        if (rc != UNQLITE_OK) break;
+        if (rc != UNQLITE_OK)
+            break;
     }
 
     if (rc != UNQLITE_OK) {

@@ -4,13 +4,9 @@
 namespace boost = BOOST_NAMESPACE;
 #endif
 
-char const* greet()
-{
-   return "hello, world!!!!!";
-}
+char const *greet() { return "hello, world!!!!!"; }
 
-BOOST_PYTHON_MODULE(hello_ext)
-{
+BOOST_PYTHON_MODULE(hello_ext) {
     using namespace boost::python;
     def("greet", greet);
 }

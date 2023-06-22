@@ -3,6 +3,8 @@
 #include <iostream>
 
 int main() {
-  std::cout << "VK_FORMAT_D16_UNORM " << (FormatIsDepthOnly(VK_FORMAT_D16_UNORM) ? "is" : "is not") << " depth only" << std::endl;
-  return 0;
+    std::cout << "VK_FORMAT_D16_UNORM "
+              << (FormatIsDepthOnly(VK_FORMAT_D16_UNORM) ? "is" : "is not") << " depth only"
+              << std::endl;
+    return 0;
 }

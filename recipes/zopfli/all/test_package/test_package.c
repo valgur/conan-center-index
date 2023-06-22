@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <zopfli.h>
 
-int main()
-{
+int main() {
     ZopfliOptions options;
     ZopfliInitOptions(&options);
     return EXIT_SUCCESS;

@@ -4,11 +4,11 @@
 #include <dime/Model.h>
 #include <dime/State.h>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc < 2) {
         return 1;
     }
-    const char* filename = argv[1];
+    const char *filename = argv[1];
 
     dimeInput in;
 

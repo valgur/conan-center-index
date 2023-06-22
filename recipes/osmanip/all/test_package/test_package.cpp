@@ -10,7 +10,7 @@
 
 // Since 4.1.0, options.hpp for `osm::OPTION` is added.
 #if __has_include("osmanip/utility/options.hpp")
-#  include "osmanip/utility/options.hpp"
+#include "osmanip/utility/options.hpp"
 #endif
 
 // STD headers
@@ -21,8 +21,7 @@
 //====================================================
 //     Percentage bar
 //====================================================
-void
-perc_bars() {
+void perc_bars() {
     std::cout << "\n"
               << "======================================================"
               << "\n"
@@ -103,7 +102,7 @@ int main() {
 
     osm::OPTION(osm::CURSOR::OFF);
 
-    perc_bars();         // Percentage bar.
+    perc_bars(); // Percentage bar.
 
     osm::OPTION(osm::CURSOR::ON);
 

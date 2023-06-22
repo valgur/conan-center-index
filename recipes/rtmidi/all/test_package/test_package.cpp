@@ -2,7 +2,7 @@
 
 #include <RtMidi.h>
 
-int main (void) {
+int main(void) {
     std::cout << "Version: " << RtMidi::getVersion() << std::endl;
 
     return 0;

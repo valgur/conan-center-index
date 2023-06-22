@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <perfmon/err.h>
 #include <perfmon/pfmlib.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(void) {
     int version = 0;

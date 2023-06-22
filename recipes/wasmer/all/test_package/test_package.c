@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 int main() {
-    wasm_engine_t* engine = wasm_engine_new();
+    wasm_engine_t *engine = wasm_engine_new();
 
     if (engine == NULL) {
         fprintf(stderr, "wasm_engine_new failed\n");

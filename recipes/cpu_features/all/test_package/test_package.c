@@ -11,11 +11,10 @@
 #include <ccpuinfo_ppc.h>
 #endif
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-int main()
-{
+int main() {
 #if defined(CPU_FEATURES_ARCH_X86)
     X86Features features = GetX86Info().features;
 #elif defined(CPU_FEATURES_ARCH_ARM)
@@ -28,7 +27,8 @@ int main()
     PPCFeatures features = GetPPCInfo().features;
 #endif
 
-#if defined(CPU_FEATURES_ARCH_X86) || defined(CPU_FEATURES_ARCH_ARM) || defined(CPU_FEATURES_ARCH_AARCH64)
+#if defined(CPU_FEATURES_ARCH_X86) || defined(CPU_FEATURES_ARCH_ARM) ||                            \
+    defined(CPU_FEATURES_ARCH_AARCH64)
     printf("AES is%s available\n", features.aes ? "" : "n't");
 #elif defined(CPU_FEATURES_ARCH_MIPS)
     printf("EVA is%s available\n", features.eva ? "" : "n't");

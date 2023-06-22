@@ -6,24 +6,21 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Need at least one argument\n");
         return 1;
     }
 
     int width, height, bpp;
-    unsigned char* img_data = stbi_load(argv[1], &width, &height, &bpp, 0);
-    if(img_data == NULL)
-    {
+    unsigned char *img_data = stbi_load(argv[1], &width, &height, &bpp, 0);
+    if (img_data == NULL) {
         fprintf(stderr, "Could not load image: %s\n", stbi_failure_reason());
         return 1;
     }
 
-    unsigned char* dest_data = malloc(width * height * bpp);
-    if(dest_data == NULL)
-    {
+    unsigned char *dest_data = malloc(width * height * bpp);
+    if (dest_data == NULL) {
         stbi_image_free(img_data);
         return 1;
     }

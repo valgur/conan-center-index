@@ -14,7 +14,7 @@
  ********************************************************************/
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#include <config.h>
 #endif
 
 #include <stdio.h>
@@ -22,17 +22,14 @@
 
 #include "theora/theoraenc.h"
 
-
 /* Print the library's bitstream version number
    This is the highest supported bitstream version number,
    not the version number of the implementation itself. */
-int print_version(void)
-{
+int print_version(void) {
     unsigned version = th_version_number();
 
-    fprintf(stdout, "Bitstream: %d.%d.%d (0x%06X)\n",
-        (version >> 16) & 0xff, (version >> 8) & 0xff, (version) & 0xff,
-        version);
+    fprintf(stdout, "Bitstream: %d.%d.%d (0x%06X)\n", (version >> 16) & 0xff, (version >> 8) & 0xff,
+            (version)&0xff, version);
 
     return 0;
 }
@@ -40,13 +37,12 @@ int print_version(void)
 /* Print the library's own version string
    This is generally the same at the vendor string embedded
    in encoded files. */
-int print_version_string(void)
-{
+int print_version_string(void) {
     const char *version = th_version_string();
 
     if (version == NULL) {
-      fprintf(stderr, "Error querying libtheora version string.\n");
-      return -1;
+        fprintf(stderr, "Error querying libtheora version string.\n");
+        return -1;
     }
 
     fprintf(stdout, "Version: %s\n", version);
@@ -55,17 +51,16 @@ int print_version_string(void)
 }
 
 /* Generate a dummy encoder context for use in th_encode_ctl queries */
-th_enc_ctx *dummy_encode_ctx(void)
-{
+th_enc_ctx *dummy_encode_ctx(void) {
     th_enc_ctx *ctx;
     th_info info;
 
     /* set the minimal video parameters */
     th_info_init(&info);
-    info.frame_width=320;
-    info.frame_height=240;
-    info.fps_numerator=1;
-    info.fps_denominator=1;
+    info.frame_width = 320;
+    info.frame_height = 240;
+    info.fps_numerator = 1;
+    info.fps_denominator = 1;
 
     /* allocate and initialize a context object */
     ctx = th_encode_alloc(&info);
@@ -82,8 +77,7 @@ th_enc_ctx *dummy_encode_ctx(void)
 /* Query the current and maximum values for the 'speed level' setting.
    This can be used to ask the encoder to trade off encoding quality
    vs. performance cost, for example to adapt to realtime constraints. */
-int check_speed_level(th_enc_ctx *ctx, int *current, int *max)
-{
+int check_speed_level(th_enc_ctx *ctx, int *current, int *max) {
     int ret;
 
     /* query the current speed level */
@@ -103,8 +97,7 @@ int check_speed_level(th_enc_ctx *ctx, int *current, int *max)
 }
 
 /* Print the current and maximum speed level settings */
-int print_speed_level(th_enc_ctx *ctx)
-{
+int print_speed_level(th_enc_ctx *ctx) {
     int current = -1;
     int max = -1;
     int ret;

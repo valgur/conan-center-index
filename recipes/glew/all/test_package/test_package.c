@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main ()
-{
+int main() {
     assert(glewGetString(GLEW_VERSION));
     printf("GLEW %s\n", glewGetString(GLEW_VERSION));
     return EXIT_SUCCESS;

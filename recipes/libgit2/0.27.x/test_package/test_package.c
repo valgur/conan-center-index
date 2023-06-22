@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     git_libgit2_init();
     int versionMajor, versionMinor, versionRev;
     git_libgit2_version(&versionMajor, &versionMinor, &versionRev);

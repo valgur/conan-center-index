@@ -1,10 +1,9 @@
-#include <stdlib.h>
 #include "detools.h"
+#include <stdlib.h>
 
 #define EXPECTED_PATCHED_FILE_SIZE 2780
 
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     int res;
 
     if (argc != 4) {

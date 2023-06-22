@@ -3,24 +3,22 @@
 
 #include "semimap.h"
 
-#define ID(x) \
-    []() constexpr { return x; }
+#define ID(x) []() constexpr { return x; }
 
 int main() {
 
     // Test compile-time only load/store
     {
-        struct Tag {
-        };
+        struct Tag {};
         using map = semi::static_map<std::string, std::string, Tag>;
 
-        auto& food = map::get(ID("food"));
+        auto &food = map::get(ID("food"));
         assert(food.empty());
 
         food = "pizza";
         assert(map::get(ID("food")) == "pizza");
 
-        auto& drink = map::get(ID("drink"));
+        auto &drink = map::get(ID("drink"));
         assert(drink.empty());
 
         drink = "beer";

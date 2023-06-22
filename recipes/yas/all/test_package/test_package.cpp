@@ -14,23 +14,14 @@ int main() {
     float c = 3.14;
     float cc{};
 
-    constexpr std::size_t flags =
-        yas::mem // IO type
-        |yas::json; // IO format
+    constexpr std::size_t flags = yas::mem     // IO type
+                                  | yas::json; // IO format
 
-    auto buf = yas::save<flags>(
-        YAS_OBJECT("myobject", a, b, c)
-    );
+    auto buf = yas::save<flags>(YAS_OBJECT("myobject", a, b, c));
 
-    yas::load<flags>(buf,
-        YAS_OBJECT_NVP("myobject"
-            ,("a", aa)
-            ,("b", bb)
-            ,("c", cc)
-        )
-    );
+    yas::load<flags>(buf, YAS_OBJECT_NVP("myobject", ("a", aa), ("b", bb), ("c", cc)));
 
-    if(a == aa && b == bb && c == cc) {
+    if (a == aa && b == bb && c == cc) {
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;

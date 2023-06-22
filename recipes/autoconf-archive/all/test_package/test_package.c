@@ -2,5 +2,5 @@
 
 int main() {
     printf("Hello world from test_package.c\n");
-	return 0;
+    return 0;
 }

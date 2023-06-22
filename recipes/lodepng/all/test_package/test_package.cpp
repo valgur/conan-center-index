@@ -1,17 +1,17 @@
-#include <iostream>
-#include <vector>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
+#include <vector>
 
 #include "lodepng.h"
 
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     if (argc < 2) {
         std::cerr << "Need at least one argument\n";
     }
     std::ifstream stream(argv[1], std::ios::in | std::ios::binary);
-    std::vector<uint8_t> data((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(stream)),
+                              std::istreambuf_iterator<char>());
 
     std::cout << "file name " << argv[1] << "\n";
     std::cout << "file size " << data.size() << " bytes\n";

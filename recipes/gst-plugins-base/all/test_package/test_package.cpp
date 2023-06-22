@@ -3,18 +3,16 @@
 
 #ifdef GST_PLUGINS_BASE_STATIC
 
-extern "C"
-{
-    GST_PLUGIN_STATIC_DECLARE(audiotestsrc);
-    GST_PLUGIN_STATIC_DECLARE(videotestsrc);
+extern "C" {
+GST_PLUGIN_STATIC_DECLARE(audiotestsrc);
+GST_PLUGIN_STATIC_DECLARE(videotestsrc);
 }
 
 #endif
 
 #include <iostream>
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
 #ifdef GST_PLUGINS_BASE_STATIC
@@ -24,7 +22,7 @@ int main(int argc, char * argv[])
 
 #endif
 
-    GstElement * audiotestsrc = gst_element_factory_make("audiotestsrc", NULL);
+    GstElement *audiotestsrc = gst_element_factory_make("audiotestsrc", NULL);
     if (!audiotestsrc) {
         std::cerr << "failed to create audiotestsrc element" << std::endl;
         return -1;
@@ -32,7 +30,7 @@ int main(int argc, char * argv[])
         std::cout << "audiotestsrc has been created successfully" << std::endl;
     }
     gst_object_unref(GST_OBJECT(audiotestsrc));
-    GstElement * videotestsrc = gst_element_factory_make("videotestsrc", NULL);
+    GstElement *videotestsrc = gst_element_factory_make("videotestsrc", NULL);
     if (!videotestsrc) {
         std::cerr << "failed to create videotestsrc element" << std::endl;
         return -1;

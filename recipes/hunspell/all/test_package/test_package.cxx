@@ -1,12 +1,11 @@
 #include <hunspell/hunspell.h>
 #include <stddef.h>
 
-int main(int argc, char const* argv[])
-{
-  (void)argc;
-  (void)argv;
+int main(int argc, char const *argv[]) {
+    (void)argc;
+    (void)argv;
 
-  Hunspell_destroy(NULL);
+    Hunspell_destroy(NULL);
 
-  return 0;
+    return 0;
 }

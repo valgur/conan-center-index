@@ -7,15 +7,14 @@
 #include <iostream>
 #include <stdexcept>
 
-void displayUsage(char** argv)
-{
+void displayUsage(char **argv) {
     std::cout << "Usage: " << argv[0] << " <url>" << std::endl;
-    std::cout << "       Fetches the resource identified by <url> and prints it to the standard output"
-              << std::endl;
+    std::cout
+        << "       Fetches the resource identified by <url> and prints it to the standard output"
+        << std::endl;
 }
 
-void dumpResponse(easyhttpcpp::Response::Ptr pResponse)
-{
+void dumpResponse(easyhttpcpp::Response::Ptr pResponse) {
     std::cout << "Http status code: " << pResponse->getCode() << std::endl;
     std::cout << "Http status message: " << pResponse->getMessage() << std::endl;
     std::cout << "Http response headers:\n" << pResponse->getHeaders()->toString() << std::endl;
@@ -27,8 +26,7 @@ void dumpResponse(easyhttpcpp::Response::Ptr pResponse)
     }
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     // need a url to execute easyhttpcpp http client
     if (argc < 2) {
         displayUsage(argv);
@@ -41,15 +39,16 @@ int main(int argc, char** argv)
 
     try {
         // cache dir = current working dir; cache size = 100 KB
-        easyhttpcpp::HttpCache::Ptr pCache = easyhttpcpp::HttpCache::createCache(Poco::Path::current(), 1024 * 100);
+        easyhttpcpp::HttpCache::Ptr pCache =
+            easyhttpcpp::HttpCache::createCache(Poco::Path::current(), 1024 * 100);
 
         // a default http connection pool
-        easyhttpcpp::ConnectionPool::Ptr pConnectionPool = easyhttpcpp::ConnectionPool::createConnectionPool();
+        easyhttpcpp::ConnectionPool::Ptr pConnectionPool =
+            easyhttpcpp::ConnectionPool::createConnectionPool();
 
         // configure http cache and connection pool instance (optional but recommended)
         easyhttpcpp::EasyHttp::Builder httpClientBuilder;
-        httpClientBuilder.setCache(pCache)
-                .setConnectionPool(pConnectionPool);
+        httpClientBuilder.setCache(pCache).setConnectionPool(pConnectionPool);
 
         // create http client
         easyhttpcpp::EasyHttp::Ptr pHttpClient = httpClientBuilder.build();
@@ -68,7 +67,7 @@ int main(int argc, char** argv)
 
         // dump response
         dumpResponse(pResponse);
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cout << "Error occurred: " << e.what() << std::endl;
     }
 

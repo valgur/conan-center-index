@@ -7,8 +7,7 @@ HWY_BEFORE_NAMESPACE();
 namespace {
 namespace HWY_NAMESPACE {
 
-void test()
-{
+void test() {
     const HWY_FULL(uint32_t) d;
 
     const size_t count = 5 * Lanes(d);
@@ -38,8 +37,7 @@ void test()
 } // namespace
 HWY_AFTER_NAMESPACE();
 
-int main()
-{
+int main() {
     HWY_NAMESPACE::test();
     return 0;
 }

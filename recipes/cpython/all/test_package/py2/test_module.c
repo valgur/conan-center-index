@@ -4,9 +4,7 @@
 
 static PyObject *SpamError;
 
-static PyObject *
-spam_system(PyObject *self, PyObject *args)
-{
+static PyObject *spam_system(PyObject *self, PyObject *args) {
     const char *command;
     int sts;
 
@@ -23,13 +21,11 @@ spam_system(PyObject *self, PyObject *args)
 const char spam_doc[] = "This is an example spam doc.";
 
 static PyMethodDef SpamMethods[] = {
-    {"system",  spam_system, METH_VARARGS, "Execute a shell command."},
-    {NULL, NULL, 0, NULL}        /* Sentinel */
+    {"system", spam_system, METH_VARARGS, "Execute a shell command."},
+    {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
-PyMODINIT_FUNC
-initspam(void)
-{
+PyMODINIT_FUNC initspam(void) {
     PyObject *m;
 
     m = Py_InitModule("spam", SpamMethods);

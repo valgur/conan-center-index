@@ -1,8 +1,8 @@
 #include <snappy.h>
 
 #include <cstdlib>
-#include <string>
 #include <iostream>
+#include <string>
 
 int main() {
     std::string input("conan-enter-index");

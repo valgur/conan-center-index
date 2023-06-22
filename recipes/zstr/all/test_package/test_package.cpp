@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-int main()
-{
+int main() {
     zstr::ostream os(std::cout);
     return 0;
 }

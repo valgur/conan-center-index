@@ -1,8 +1,8 @@
 #include <trantor/net/EventLoopThread.h>
 
-#include <iostream>
 #include <atomic>
 #include <future>
+#include <iostream>
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -19,8 +19,7 @@ int main() {
 
     if (flag == false) {
         std::cerr << "Test failed\n";
-    }
-    else {
+    } else {
         std::cout << "Success\n";
     }
 

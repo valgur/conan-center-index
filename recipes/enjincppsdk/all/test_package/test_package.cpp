@@ -36,36 +36,40 @@ void test_model_deserialization() {
     AccessToken access_token;
     access_token.deserialize(json);
 
-    const std::optional <std::string>& token_opt = access_token.get_token();
+    const std::optional<std::string> &token_opt = access_token.get_token();
     if (!token_opt.has_value()) {
         throw std::runtime_error(R"(Field "token" was not serialized)");
     }
 
-    const std::optional<long>& expiration_opt = access_token.get_expires_in();
+    const std::optional<long> &expiration_opt = access_token.get_expires_in();
     if (!expiration_opt.has_value()) {
         throw std::runtime_error(R"(Field "expiresIn" was not serialized)");
     }
 
     std::cout << "AccessToken result:"
               << "\n* token: [" << token_opt.value() << "] (expected: [" << token << "])"
-              << "\n* expiresIn: [" << expiration_opt.value() << "] (expected: [" << expiration << "])"
-              << "\n" << std::endl;
+              << "\n* expiresIn: [" << expiration_opt.value() << "] (expected: [" << expiration
+              << "])"
+              << "\n"
+              << std::endl;
 }
 
 void test_query_registry() {
     const GraphqlQueryRegistry registry;
     const AuthProject req;
 
-    const std::string& req_namespace = req.get_namespace();
+    const std::string &req_namespace = req.get_namespace();
     const bool has_operation = registry.has_operation_for_name(req_namespace);
 
     if (!has_operation) {
-        throw std::runtime_error("Could not find operation for namespace \"" + req_namespace + "\"");
+        throw std::runtime_error("Could not find operation for namespace \"" + req_namespace +
+                                 "\"");
     }
 
     std::cout << "GraphqlQueryRegistry result:"
               << "\n* Found operation for namespace \"" << req_namespace << "\""
-              << "\n" << std::endl;
+              << "\n"
+              << std::endl;
 }
 
 void test_request_serialization() {
@@ -84,7 +88,7 @@ void test_request_serialization() {
     }
 
     std::cout << "AuthProject result:"
-              << "\n* Request JSON: " << req_json
-              << "\n* Found UUID and secret in serialized JSON"
-              << "\n" << std::endl;
+              << "\n* Request JSON: " << req_json << "\n* Found UUID and secret in serialized JSON"
+              << "\n"
+              << std::endl;
 }

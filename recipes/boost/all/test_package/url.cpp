@@ -9,6 +9,6 @@
 #include <cassert>
 
 int main() {
-  assert(sizeof(boost::urls::url) > 0);
-  return 0;
+    assert(sizeof(boost::urls::url) > 0);
+    return 0;
 }

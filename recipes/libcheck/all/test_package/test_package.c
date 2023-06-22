@@ -2,24 +2,17 @@
 
 #include <stdio.h>
 
-static int f(void) {
-    return 5;
-}
+static int f(void) { return 5; }
 
-static const char *s(void) {
-    return "EUR";
-}
+static const char *s(void) { return "EUR"; }
 
-
-START_TEST (test_name)
-{
+START_TEST(test_name) {
     ck_assert_int_eq(f(), 5);
     ck_assert_str_eq(s(), "USD");
 }
 END_TEST
 
-Suite *test_package_suite(void)
-{
+Suite *test_package_suite(void) {
     Suite *s;
     TCase *tc_core;
 

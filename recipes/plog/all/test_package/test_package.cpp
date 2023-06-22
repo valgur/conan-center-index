@@ -2,7 +2,7 @@
 
 #include <plog/Log.h>
 #ifdef PLOG_EXPLICIT_INIT
-#  include <plog/Initializers/RollingFileInitializer.h>
+#include <plog/Initializers/RollingFileInitializer.h>
 #endif
 
 int main() {
@@ -10,4 +10,3 @@ int main() {
     PLOG(plog::info) << "Hello world!";
     return 0;
 }
-

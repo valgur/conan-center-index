@@ -9,7 +9,7 @@
 #include <bsoncxx/json.hpp>
 
 int main() {
-    const mongocxx::instance instance_;  // This should be done only once.
+    const mongocxx::instance instance_; // This should be done only once.
     mongocxx::client client{mongocxx::uri{}};
     return EXIT_SUCCESS;
 }

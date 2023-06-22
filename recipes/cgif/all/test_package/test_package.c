@@ -7,10 +7,8 @@
 #define WIDTH 1024
 #define HEIGHT 1024
 
-static void initGIFConfig(CGIF_Config *pConfig, char *path, uint16_t width,
-                          uint16_t height, uint8_t *pPalette,
-                          uint16_t numColors)
-{
+static void initGIFConfig(CGIF_Config *pConfig, char *path, uint16_t width, uint16_t height,
+                          uint8_t *pPalette, uint16_t numColors) {
     memset(pConfig, 0, sizeof(CGIF_Config));
     pConfig->width = width;
     pConfig->height = height;
@@ -19,21 +17,17 @@ static void initGIFConfig(CGIF_Config *pConfig, char *path, uint16_t width,
     pConfig->path = path;
 }
 
-static void initFrameConfig(CGIF_FrameConfig *pConfig, uint8_t *pImageData)
-{
+static void initFrameConfig(CGIF_FrameConfig *pConfig, uint8_t *pImageData) {
     memset(pConfig, 0, sizeof(CGIF_FrameConfig));
     pConfig->pImageData = pImageData;
 }
 
-int main()
-{
+int main() {
     CGIF *pGIF;
     CGIF_Config gConfig;
     CGIF_FrameConfig fConfig;
     uint8_t *pImageData;
-    uint8_t aPalette[] = {0xFF, 0x00, 0x00,
-                          0x00, 0xFF, 0x00,
-                          0x00, 0x00, 0xFF};
+    uint8_t aPalette[] = {0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF};
     uint16_t numColors = 3;
 
     initGIFConfig(&gConfig, "example_cgif.gif", WIDTH, HEIGHT, aPalette, numColors);

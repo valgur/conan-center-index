@@ -1,18 +1,18 @@
-#include <iostream>
-#include <vector>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <string>
+#include <vector>
 
 #include <astc-codec/astc-codec.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 4) {
         std::cerr << "Need at least three argument\n";
     }
     std::ifstream stream(argv[1], std::ios::in | std::ios::binary);
-    std::vector<uint8_t> astc_data((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    std::vector<uint8_t> astc_data((std::istreambuf_iterator<char>(stream)),
+                                   std::istreambuf_iterator<char>());
 
     const size_t width = std::stoi(argv[2]);
     const size_t height = std::stoi(argv[3]);
@@ -26,5 +26,5 @@ int main(int argc, char **argv)
 
     stream.close();
 
-	return 0;
+    return 0;
 }

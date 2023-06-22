@@ -1,11 +1,11 @@
-#include <iostream>
 #include "muparserx/mpParser.h"
+#include <iostream>
 
 using namespace mup;
 
 int main() {
     // Create the parser instance
-    ParserX  p;
+    ParserX p;
 
     // Create an array of mixed type
     Value arr(3, 0);

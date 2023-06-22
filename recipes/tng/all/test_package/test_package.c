@@ -15,14 +15,12 @@
 #include <inttypes.h>
 #endif
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     tng_trajectory_t traj;
-    if(tng_trajectory_init(&traj) != TNG_SUCCESS)
-    {
+    if (tng_trajectory_init(&traj) != TNG_SUCCESS) {
         tng_trajectory_destroy(&traj);
         exit(1);
     }

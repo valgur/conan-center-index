@@ -1,6 +1,6 @@
+#include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
 
 #ifdef USE_EMPTY_VFS
 #define DB_NAME ":memory:"
@@ -9,8 +9,8 @@
 #endif
 
 int main() {
-    sqlite3* db_instance = NULL;
-    char* errmsg = NULL;
+    sqlite3 *db_instance = NULL;
+    char *errmsg = NULL;
     int result = 0;
 
     printf("SQLite Version: %s\n", sqlite3_libversion());
@@ -25,8 +25,10 @@ int main() {
     printf("Done!\n");
 
     printf("Creating new table...\n");
-    result = sqlite3_exec(db_instance, "CREATE TABLE IF NOT EXISTS package(ID INT PRIMARY KEY NOT NULL);", NULL, 0, &errmsg);
-    if(result != SQLITE_OK) {
+    result = sqlite3_exec(db_instance,
+                          "CREATE TABLE IF NOT EXISTS package(ID INT PRIMARY KEY NOT NULL);", NULL,
+                          0, &errmsg);
+    if (result != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", errmsg);
         sqlite3_free(errmsg);
         return EXIT_FAILURE;
@@ -35,7 +37,7 @@ int main() {
 
     printf("Closing connection ...\n");
     sqlite3_close(db_instance);
-    if(result != SQLITE_OK) {
+    if (result != SQLITE_OK) {
         fprintf(stderr, "Connection error: %s\n", errmsg);
         sqlite3_free(errmsg);
         return EXIT_FAILURE;

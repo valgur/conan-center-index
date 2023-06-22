@@ -3,9 +3,7 @@
 #include <iostream>
 
 bool f_called = false;
-void f() {
-    f_called = true;
-}
+void f() { f_called = true; }
 
 int main() {
     std::cout << f_called << std::endl;

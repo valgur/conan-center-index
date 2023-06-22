@@ -13,10 +13,10 @@ static void check(const char *s, int v) {
 #define STR(V) #V
 #define CHECK(V) check(STR(V), (V))
 
-int main () {
+int main() {
     const int ne = 4;
-    const int inx[ne] =   {  1,   4,  0,   2 };
-    const double el[ne] = { 10., 40., 1., 50. };
+    const int inx[ne] = {1, 4, 0, 2};
+    const double el[ne] = {10., 40., 1., 50.};
 
     CoinPackedVector r(ne, inx, el);
 

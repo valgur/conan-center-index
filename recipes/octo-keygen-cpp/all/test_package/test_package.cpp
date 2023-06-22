@@ -10,37 +10,36 @@
  */
 
 #include "octo-keygen-cpp/openssl/ssl-keygen.hpp"
-#include "octo-keygen-cpp/openssl/ssl-keypair.hpp"
 #include "octo-keygen-cpp/openssl/ssl-keypair-certificate-chain.hpp"
 #include "octo-keygen-cpp/openssl/ssl-keypair-certificate.hpp"
-#include <octo-logger-cpp/manager.hpp>
-#include <iostream>
+#include "octo-keygen-cpp/openssl/ssl-keypair.hpp"
 #include <fstream>
-
+#include <iostream>
+#include <octo-logger-cpp/manager.hpp>
 
 constexpr auto ROOTCA = "-----BEGIN CERTIFICATE-----\n"
-                    "MIID4DCCAsigAwIBAgIUSdyfMTrtlHmyB8Jr3/q0YjizVCQwDQYJKoZIhvcNAQEN\n"
-                    "BQAwfDELMAkGA1UEBhMCSUwxDzANBgNVBAgMBklzcmFlbDEUMBIGA1UEBwwLUGV0\n"
-                    "YWggVGlrdmExETAPBgNVBAoMCEN5YmVyQXJrMREwDwYDVQQLDAhDeWJlckFyazEg\n"
-                    "MB4GA1UEAwwXY29tcHV0ZS0xLmFtYXpvbmF3cy5jb20wHhcNMjIwNDI4MTQxMzI0\n"
-                    "WhcNMjIwNTI4MTQxMzI0WjB8MQswCQYDVQQGEwJJTDEPMA0GA1UECAwGSXNyYWVs\n"
-                    "MRQwEgYDVQQHDAtQZXRhaCBUaWt2YTERMA8GA1UECgwIQ3liZXJBcmsxETAPBgNV\n"
-                    "BAsMCEN5YmVyQXJrMSAwHgYDVQQDDBdjb21wdXRlLTEuYW1hem9uYXdzLmNvbTCC\n"
-                    "ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJP1+lRasxk7eBieEW+ctdcY\n"
-                    "fTTSiiVUfG0aLO1vm4ZuawTaXkQM5NVN/Cp0N2iNcCZqtSza28WqNCfomRrwIhAG\n"
-                    "VIlDFr+7O/ajorNA0GyD7+jBrzicNn5dPZMfpRXsNEePhlUYg04e970BIVpLT8dR\n"
-                    "t0z0FAeyMu1fR2GCg3y1M2d9aF7AmwZECzjyPCUk7dpHVphK2Hvvrd5+mkmxn7v2\n"
-                    "8N2p4+gSG6+khKUW+E4X/zWxjBDnn3EdVFwn7d6BHw2z7Xdw4wkk5RbB0lb0W/DW\n"
-                    "8kd0ZVdq6BhwLvOLBGaDhuh+rqIiRI+QNJmCJoKf9uUOZNm9/FajKYv8uF0ZQ90C\n"
-                    "AwEAAaNaMFgwDgYDVR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wFgYDVR0l\n"
-                    "AQH/BAwwCgYIKwYBBQUHAwEwHQYDVR0OBBYEFH3dUC27VCMzARsItn7XkHE+ITx3\n"
-                    "MA0GCSqGSIb3DQEBDQUAA4IBAQAsP4xc0WgKqKM10Ng8bMlLvZ5M7p7aOCIO5U5C\n"
-                    "jKLE0sitD86jQzJNfFz2gfVG/L/hRVejMaRtiOoc/CbAEeJk4zGPf+UKNzkzgi53\n"
-                    "jWe4qd6FXMERymMDWRDW222TVyqhVE4wRLkkDPZVyK3sq8C70AnsI2S5JCzU9+en\n"
-                    "OwnpXXMkP7hRqeLa70FM/yqRZyv4Ys0XvjdMdtRh2zAEOq82rU3cRQA8P4uEzpPh\n"
-                    "5ugeJKLdqERLsnOshBr+M2AcmXSx1lY92rX+Bk7LntazHDe6ql0J4HtjY2+DL5od\n"
-                    "EB4MfKwH5Hh+LLVDvZablJHTHHhLahp8VT57xaxGUBwpNsnI\n"
-                    "-----END CERTIFICATE-----";
+                        "MIID4DCCAsigAwIBAgIUSdyfMTrtlHmyB8Jr3/q0YjizVCQwDQYJKoZIhvcNAQEN\n"
+                        "BQAwfDELMAkGA1UEBhMCSUwxDzANBgNVBAgMBklzcmFlbDEUMBIGA1UEBwwLUGV0\n"
+                        "YWggVGlrdmExETAPBgNVBAoMCEN5YmVyQXJrMREwDwYDVQQLDAhDeWJlckFyazEg\n"
+                        "MB4GA1UEAwwXY29tcHV0ZS0xLmFtYXpvbmF3cy5jb20wHhcNMjIwNDI4MTQxMzI0\n"
+                        "WhcNMjIwNTI4MTQxMzI0WjB8MQswCQYDVQQGEwJJTDEPMA0GA1UECAwGSXNyYWVs\n"
+                        "MRQwEgYDVQQHDAtQZXRhaCBUaWt2YTERMA8GA1UECgwIQ3liZXJBcmsxETAPBgNV\n"
+                        "BAsMCEN5YmVyQXJrMSAwHgYDVQQDDBdjb21wdXRlLTEuYW1hem9uYXdzLmNvbTCC\n"
+                        "ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJP1+lRasxk7eBieEW+ctdcY\n"
+                        "fTTSiiVUfG0aLO1vm4ZuawTaXkQM5NVN/Cp0N2iNcCZqtSza28WqNCfomRrwIhAG\n"
+                        "VIlDFr+7O/ajorNA0GyD7+jBrzicNn5dPZMfpRXsNEePhlUYg04e970BIVpLT8dR\n"
+                        "t0z0FAeyMu1fR2GCg3y1M2d9aF7AmwZECzjyPCUk7dpHVphK2Hvvrd5+mkmxn7v2\n"
+                        "8N2p4+gSG6+khKUW+E4X/zWxjBDnn3EdVFwn7d6BHw2z7Xdw4wkk5RbB0lb0W/DW\n"
+                        "8kd0ZVdq6BhwLvOLBGaDhuh+rqIiRI+QNJmCJoKf9uUOZNm9/FajKYv8uF0ZQ90C\n"
+                        "AwEAAaNaMFgwDgYDVR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wFgYDVR0l\n"
+                        "AQH/BAwwCgYIKwYBBQUHAwEwHQYDVR0OBBYEFH3dUC27VCMzARsItn7XkHE+ITx3\n"
+                        "MA0GCSqGSIb3DQEBDQUAA4IBAQAsP4xc0WgKqKM10Ng8bMlLvZ5M7p7aOCIO5U5C\n"
+                        "jKLE0sitD86jQzJNfFz2gfVG/L/hRVejMaRtiOoc/CbAEeJk4zGPf+UKNzkzgi53\n"
+                        "jWe4qd6FXMERymMDWRDW222TVyqhVE4wRLkkDPZVyK3sq8C70AnsI2S5JCzU9+en\n"
+                        "OwnpXXMkP7hRqeLa70FM/yqRZyv4Ys0XvjdMdtRh2zAEOq82rU3cRQA8P4uEzpPh\n"
+                        "5ugeJKLdqERLsnOshBr+M2AcmXSx1lY92rX+Bk7LntazHDe6ql0J4HtjY2+DL5od\n"
+                        "EB4MfKwH5Hh+LLVDvZablJHTHHhLahp8VT57xaxGUBwpNsnI\n"
+                        "-----END CERTIFICATE-----";
 
 constexpr auto SUBCA = "-----BEGIN CERTIFICATE-----\n"
                        "MIIDeTCCAmGgAwIBAgIBADANBgkqhkiG9w0BAQ0FADB8MQswCQYDVQQGEwJJTDEP\n"
@@ -84,13 +83,12 @@ constexpr auto TARGET_CERT = "-----BEGIN CERTIFICATE-----\n"
                              "LJOZq84H9k4ERbZD/tWZSFd3HqvfV++1o4C+7/GZMV4j1DgWKHMrQv/fvh2X\n"
                              "-----END CERTIFICATE-----";
 
-
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     octo::logger::Logger logger("PSKeygen");
     std::shared_ptr<octo::logger::ManagerConfig> config =
         std::make_shared<octo::logger::ManagerConfig>();
-    octo::logger::SinkConfig console_writer_sink("Console", octo::logger::SinkConfig::SinkType::CONSOLE_SINK);
+    octo::logger::SinkConfig console_writer_sink("Console",
+                                                 octo::logger::SinkConfig::SinkType::CONSOLE_SINK);
     config->add_sink(console_writer_sink);
     octo::logger::Manager::instance()
         .editable_channel("PSKeygen")
@@ -98,17 +96,13 @@ int main(int argc, char** argv)
     octo::logger::Manager::instance().configure(config);
 
     auto ca = octo::keygen::ssl::SSLKeypairCertificateChain::load_certificate_chain(
-        std::make_unique<octo::encryption::SecureString>(ROOTCA)
-    );
+        std::make_unique<octo::encryption::SecureString>(ROOTCA));
     auto target = octo::keygen::ssl::SSLKeypairCertificate::load_certificate(
-        std::make_unique<octo::encryption::SecureString>(TARGET_CERT)
-    );
+        std::make_unique<octo::encryption::SecureString>(TARGET_CERT));
     auto chain = octo::keygen::ssl::SSLKeypairCertificateChain::load_certificate_chain(
-        std::make_unique<octo::encryption::SecureString>(SUBCA)
-    );
+        std::make_unique<octo::encryption::SecureString>(SUBCA));
     logger.info() << "IS CA = " << ca->is_any_ca();
-    logger.info() << "IS VALID CERT = " << ca->is_valid_chain(target.get(),
-                                                              chain.get());
+    logger.info() << "IS VALID CERT = " << ca->is_valid_chain(target.get(), chain.get());
 
     octo::keygen::KeygenPtr ssl_key_gen = std::make_shared<octo::keygen::ssl::SSLKeygen>();
     octo::keygen::KeygenOptions ssl_opts;
@@ -117,7 +111,8 @@ int main(int argc, char** argv)
     logger.info() << "\n" << ssl_key_pair->public_key();
 
     octo::keygen::KeygenOptions ssl_sign_opts;
-    octo::keygen::KeypairCertificatePtr ssl_cert = ssl_key_gen->sign_key_pair(ssl_key_pair, ssl_sign_opts);
+    octo::keygen::KeypairCertificatePtr ssl_cert =
+        ssl_key_gen->sign_key_pair(ssl_key_pair, ssl_sign_opts);
     logger.info() << "\n" << ssl_cert->certificate();
     logger.info() << "\n" << ssl_cert->pretty_print_certificate_info();
 }

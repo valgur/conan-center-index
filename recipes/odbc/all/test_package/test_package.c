@@ -12,6 +12,5 @@ SQLRETURN driver_connect() {
     SQLHDBC dbc;
     SQLCHAR *connect_string = (unsigned char *)"DSN=mydsn;";
 
-    return SQLDriverConnect(dbc, NULL, connect_string, SQL_NTS,
-                            NULL, 0, NULL, SQL_DRIVER_COMPLETE);
+    return SQLDriverConnect(dbc, NULL, connect_string, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
 }

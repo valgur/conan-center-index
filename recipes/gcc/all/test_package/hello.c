@@ -1,8 +1,6 @@
 #include <stdio.h>
 
-int main()
-{
+int main() {
     puts(" gcc: Hello, World!");
     return 0;
 }
-

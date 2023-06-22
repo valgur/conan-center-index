@@ -1,11 +1,10 @@
-#include <fdk-aac/aacenc_lib.h>
 #include <fdk-aac/aacdecoder_lib.h>
+#include <fdk-aac/aacenc_lib.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
-int main()
-{
+int main() {
     LIB_INFO info[FDK_MODULE_LAST];
     memset(&info, 0, sizeof(info));
     int ret = aacDecoder_GetLibInfo(info);

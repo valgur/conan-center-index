@@ -1,8 +1,7 @@
-#include <iostream>
 #include <ThreadPool.h>
+#include <iostream>
 
-int main(void)
-{
+int main(void) {
     // create thread pool with 4 worker threads
     ThreadPool pool(4);
 
