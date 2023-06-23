@@ -1,85 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.microsoft.visual import vs_ide_version
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.cmake import CMake, CMakeToolchain
+from conan.tools.files import collect_libs, copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-import functools
 
 required_conan_version = ">=1.43.0"
 
@@ -135,7 +61,9 @@ class OpenblasConan(ConanFile):
         # Required for safe concurrent calls to OpenBLAS routines
         tc.variables["USE_LOCKING"] = not self.options.use_thread
 
-        tc.variables["MSVC_STATIC_CRT"] = False  # don't, may lie to consumer, /MD or /MT is managed by conan
+        tc.variables["MSVC_STATIC_CRT"] = (
+            False  # don't, may lie to consumer, /MD or /MT is managed by conan
+        )
 
         # This is a workaround to add the libm dependency on linux,
         # which is required to successfully compile on older gcc versions.
@@ -146,7 +74,9 @@ class OpenblasConan(ConanFile):
     def build(self):
         if Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
-            replace = """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
+            replace = (
+                """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
+            )
         else:
             search = "enable_language(Fortran)"
             replace = """include(CheckLanguage)
@@ -159,14 +89,19 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "f_check.cmake"), search, replace)
+        replace_in_file(
+            self, os.path.join(self.source_folder, "cmake", "f_check.cmake"), search, replace
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
         copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
         )
         cmake = CMake(self)
         cmake.install()
@@ -183,9 +118,11 @@ endif()"""
         self.cpp_info.set_property("pkg_config_name", "openblas")
         cmake_component_name = (
             "pthread" if self.options.use_thread else "serial"
-        )  # TODO: ow to model this in CMakeDeps?
+        )  # TODO: how to model this in CMakeDeps?
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", "openblas")
-        self.cpp_info.components["openblas_component"].includedirs.append(os.path.join("include", "openblas"))
+        self.cpp_info.components["openblas_component"].includedirs.append(
+            os.path.join("include", "openblas")
+        )
         self.cpp_info.components["openblas_component"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
@@ -194,13 +131,17 @@ endif()"""
             if self.options.build_lapack:
                 self.cpp_info.components["openblas_component"].system_libs.append("gfortran")
 
-        self.output.info("Setting OpenBLAS_HOME environment variable: {}".format(self.package_folder))
+        self.output.info(
+            f"Setting OpenBLAS_HOME environment variable: {self.package_folder}"
+        )
         self.env_info.OpenBLAS_HOME = self.package_folder
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
-        self.cpp_info.components["openblas_component"].names["cmake_find_package"] = cmake_component_name
+        self.cpp_info.components["openblas_component"].names[
+            "cmake_find_package"
+        ] = cmake_component_name
         self.cpp_info.components["openblas_component"].names[
             "cmake_find_package_multi"
         ] = cmake_component_name
