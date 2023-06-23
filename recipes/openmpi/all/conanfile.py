@@ -134,8 +134,8 @@ class OpenMPIConan(ConanFile):
             args.extend(["--enable-static", "--disable-shared"])
         args.append("--with-pic" if self.options.get_safe("fPIC", True) else "--without-pic")
         args.append("--enable-mpi-fortran={}".format(str(self.options.fortran)))
-        args.append("--with-zlib={}".format(self.deps_cpp_info["zlib"].rootpath))
-        args.append("--with-zlib-libdir={}".format(self.deps_cpp_info["zlib"].lib_paths[0]))
+        args.append("--with-zlib={}".format(self.dependencies["zlib"].cpp_info.rootpath))
+        args.append("--with-zlib-libdir={}".format(self.dependencies["zlib"].cpp_info.libdirs[0]))
         args.append("--datarootdir=${prefix}/res")
         self._autotools.configure(args=args)
         return self._autotools

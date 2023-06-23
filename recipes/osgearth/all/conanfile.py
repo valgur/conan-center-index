@@ -316,7 +316,7 @@ class OsgearthConan(ConanFile):
         tc.variables["WITH_EXTERNAL_DUKTAPE"] = False
         tc.variables["WITH_EXTERNAL_TINYXML"] = False
         tc.variables["CURL_IS_STATIC"] = not self.options["libcurl"].shared
-        tc.variables["CURL_INCLUDE_DIR"] = self.deps_cpp_info["libcurl"].include_paths[0]
+        tc.variables["CURL_INCLUDE_DIR"] = self.dependencies["libcurl"].cpp_info.includedirs[0]
         tc.variables["OSGEARTH_INSTALL_SHADERS"] = self.options.install_shaders
         tc.variables["OSGEARTH_ENABLE_NVTT_CPU_MIPMAPS"] = self.options.enable_nvtt_cpu_mipmaps
         tc.variables["OSGEARTH_ENABLE_WININET_FOR_HTTP"] = self.options.enable_wininet_for_http
@@ -419,7 +419,7 @@ class OsgearthConan(ConanFile):
             plugin_library.requires = ["osgEarth"]
             if not self.options.shared:
                 plugin_library.libdirs = [
-                    os.path.join("lib", "osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version))
+                    os.path.join("lib", "osgPlugins-{}".format(self.dependencies["openscenegraph"].cpp_info.version))
                 ]
             return plugin_library
 
@@ -465,7 +465,7 @@ class OsgearthConan(ConanFile):
             self.env_info.PATH.append(
                 os.path.join(
                     self.package_folder,
-                    "bin/osgPlugins-{}".format(self.deps_cpp_info["openscenegraph"].version),
+                    "bin/osgPlugins-{}".format(self.dependencies["openscenegraph"].cpp_info.version),
                 )
             )
         elif self.settings.os == "Linux":

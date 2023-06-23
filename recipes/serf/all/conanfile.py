@@ -150,7 +150,7 @@ class SerfConan(ConanFile):
         extra_env = {}
         if self.settings.compiler == "Visual Studio":
             extra_env["OPENSSL_LIBS"] = ";".join(
-                "{}.lib".format(lib) for lib in self.deps_cpp_info["openssl"].libs
+                "{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs
             )
         with environment_append(self, extra_env):
             with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
@@ -161,12 +161,12 @@ class SerfConan(ConanFile):
         autotools = AutoToolsBuildEnvironment(self)
         args = ["-Y", self.source_folder]
         kwargs = {
-            "APR": self.deps_cpp_info["apr"].rootpath.replace("\\", "/"),
-            "APU": self.deps_cpp_info["apr-util"].rootpath.replace("\\", "/"),
-            "OPENSSL": self.deps_cpp_info["openssl"].rootpath.replace("\\", "/"),
+            "APR": self.dependencies["apr"].cpp_info.rootpath.replace("\\", "/"),
+            "APU": self.dependencies["apr-util"].cpp_info.rootpath.replace("\\", "/"),
+            "OPENSSL": self.dependencies["openssl"].cpp_info.rootpath.replace("\\", "/"),
             "PREFIX": self.package_folder.replace("\\", "/"),
             "LIBDIR": os.path.join(self.package_folder, "lib").replace("\\", "/"),
-            "ZLIB": self.deps_cpp_info["zlib"].rootpath.replace("\\", "/"),
+            "ZLIB": self.dependencies["zlib"].cpp_info.rootpath.replace("\\", "/"),
             "DEBUG": self.settings.build_type == "Debug",
             "APR_STATIC": not self.options["apr"].shared,
             "CFLAGS": " ".join(
@@ -176,10 +176,10 @@ class SerfConan(ConanFile):
             ),
             "LINKFLAGS": " ".join(self.deps_cpp_info.sharedlinkflags)
             + " "
-            + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.lib_paths),
+            + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.libdirs),
             "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines)
             + " "
-            + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.include_paths),
+            + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.includedirs),
             "CC": self._cc,
             "SOURCE_LAYOUT": "False",
         }

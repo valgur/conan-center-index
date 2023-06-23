@@ -146,14 +146,14 @@ class MoldConan(ConanFile):
             self,
             "source_subfolder/Makefile",
             "MOLD_LDFLAGS += -ltbb",
-            "MOLD_LDFLAGS += -L{} -ltbb".format(self.deps_cpp_info["onetbb"].lib_paths[0]),
+            "MOLD_LDFLAGS += -L{} -ltbb".format(self.dependencies["onetbb"].cpp_info.libdirs[0]),
         )
 
         replace_in_file(
             self,
             "source_subfolder/Makefile",
             "MOLD_LDFLAGS += -lmimalloc",
-            "MOLD_LDFLAGS += -L{} -lmimalloc".format(self.deps_cpp_info["mimalloc"].lib_paths[0]),
+            "MOLD_LDFLAGS += -L{} -lmimalloc".format(self.dependencies["mimalloc"].cpp_info.libdirs[0]),
         )
 
     def requirements(self):

@@ -190,15 +190,15 @@ class CoinCbcConan(ConanFile):
                         unix_path(
                             self,
                             os.path.join(
-                                self.deps_cpp_info["pthreads4w"].lib_paths[0],
-                                self.deps_cpp_info["pthreads4w"].libs[0] + ".lib",
+                                self.dependencies["pthreads4w"].cpp_info.libdirs[0],
+                                self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib",
                             ),
                         )
                     )
                 )
                 configure_args.append(
                     "--with-pthreadsw32-incdir={}".format(
-                        unix_path(self.deps_cpp_info["pthreads4w"].include_paths[0])
+                        unix_path(self.dependencies["pthreads4w"].cpp_info.includedirs[0])
                     )
                 )
         self._autotools.configure(configure_dir=self.source_folder, args=configure_args)

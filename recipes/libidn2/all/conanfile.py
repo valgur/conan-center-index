@@ -164,13 +164,13 @@ class LibIdn(ConanFile):
             if Version(self.settings.compiler.version) >= "12":
                 self._autotools.flags.append("-FS")
             self._autotools.link_flags.extend(
-                "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.lib_paths
+                "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs
             )
         yes_no = lambda v: "yes" if v else "no"
         conf_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--with-libiconv-prefix={}".format(unix_path(self.deps_cpp_info["libiconv"].rootpath)),
+            "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]

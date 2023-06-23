@@ -15,7 +15,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            lzip = os.path.join(self.deps_cpp_info["lzip"].bin_paths[0], "lzip")
+            lzip = os.path.join(self.dependencies["lzip"].cpp_info.bindirs[0], "lzip")
             self.run(f"{lzip} --version")
 
             shutil.copy(os.path.join(self.source_folder, "conanfile.py"), "conanfile.py")

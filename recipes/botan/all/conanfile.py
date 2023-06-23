@@ -323,9 +323,9 @@ class BotanConan(ConanFile):
         return (
             [
                 "--with-external-includedir={}".format(include_path)
-                for include_path in dep_cpp_info.include_paths
+                for include_path in dep_cpp_info.includedirs
             ]
-            + ["--with-external-libdir={}".format(lib_path) for lib_path in dep_cpp_info.lib_paths]
+            + ["--with-external-libdir={}".format(lib_path) for lib_path in dep_cpp_info.libdirs]
             + ["--define-build-macro={}".format(define) for define in dep_cpp_info.defines]
         )
 

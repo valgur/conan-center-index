@@ -138,12 +138,12 @@ class YojimboConan(ConanFile):
         # Generate the list of dependency include and library paths as strings
         include_path_str = ", ".join(
             f'"{p}"'
-            for p in self.deps_cpp_info["libsodium"].include_paths
-            + self.deps_cpp_info["mbedtls"].include_paths
+            for p in self.dependencies["libsodium"].cpp_info.includedirs
+            + self.dependencies["mbedtls"].cpp_info.includedirs
         )
         lib_path_str = ", ".join(
             f'"{p}"'
-            for p in self.deps_cpp_info["libsodium"].lib_paths + self.deps_cpp_info["mbedtls"].lib_paths
+            for p in self.dependencies["libsodium"].lib_paths + self.deps_cpp_info["mbedtls"].cpp_info.libdirs
         )
 
         premake_path = os.path.join(self.source_folder, "premake5.lua")

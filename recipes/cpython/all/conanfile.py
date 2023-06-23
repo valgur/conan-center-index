@@ -313,7 +313,7 @@ class CPythonConan(ConanFile):
             conf_args.extend(
                 [
                     "--with-system-libmpdec",
-                    "--with-openssl={}".format(self.deps_cpp_info["openssl"].rootpath),
+                    "--with-openssl={}".format(self.dependencies["openssl"].cpp_info.rootpath),
                     "--enable-loadable-sqlite-extensions={}".format(
                         yes_no(not self.options["sqlite3"].omit_load_extension)
                     ),
@@ -388,7 +388,7 @@ class CPythonConan(ConanFile):
                 os.path.join(self.source_folder, "setup.py"),
                 "curses_libs = ",
                 "curses_libs = {} #".format(
-                    repr(self.deps_cpp_info["ncurses"].libs + self.deps_cpp_info["ncurses"].system_libs)
+                    repr(self.dependencies["ncurses"].libs + self.deps_cpp_info["ncurses"].cpp_info.system_libs)
                 ),
             )
 
@@ -579,19 +579,19 @@ class CPythonConan(ConanFile):
         # FIXME: these checks belong in validate, but the versions of dependencies are not available there yet
         if self._supports_modules:
             if Version(self._version_number_only) < "3.8.0":
-                if Version(self.deps_cpp_info["mpdecimal"].version) >= "2.5.0":
+                if Version(self.dependencies["mpdecimal"].cpp_info.version) >= "2.5.0":
                     raise ConanInvalidConfiguration(
                         "cpython versions lesser then 3.8.0 require a mpdecimal lesser then 2.5.0"
                     )
             elif Version(self._version_number_only) >= "3.9.0":
-                if Version(self.deps_cpp_info["mpdecimal"].version) < "2.5.0":
+                if Version(self.dependencies["mpdecimal"].cpp_info.version) < "2.5.0":
                     raise ConanInvalidConfiguration(
                         "cpython 3.9.0 (and newer) requires (at least) mpdecimal 2.5.0"
                     )
 
         if self._with_libffi:
             if (
-                Version(self.deps_cpp_info["libffi"].version) >= "3.3"
+                Version(self.dependencies["libffi"].cpp_info.version) >= "3.3"
                 and self.settings.compiler == "Visual Studio"
                 and "d" in str(self.settings.compiler.runtime)
             ):
@@ -632,11 +632,11 @@ class CPythonConan(ConanFile):
             # These dll's are required when running the layout tool using the newly built python executable.
             dest_path = os.path.join(self.build_folder, self._msvc_artifacts_path)
             if self._with_libffi:
-                for bin_path in self.deps_cpp_info["libffi"].bin_paths:
+                for bin_path in self.dependencies["libffi"].cpp_info.bindirs:
                     copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.deps_cpp_info["expat"].bin_paths:
+            for bin_path in self.dependencies["expat"].cpp_info.bindirs:
                 copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.deps_cpp_info["zlib"].bin_paths:
+            for bin_path in self.dependencies["zlib"].cpp_info.bindirs:
                 copy(self, "*.dll", src=bin_path, dst=dest_path)
 
     def _msvc_package_layout(self):

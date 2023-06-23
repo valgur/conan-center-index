@@ -149,7 +149,7 @@ class LibUSBCompatConan(ConanFile):
 
     def _iterate_lib_paths_win(self, lib):
         """Return all possible library paths for lib"""
-        for lib_path in self.deps_cpp_info.lib_paths:
+        for lib_path in self.deps_cpp_info.libdirs:
             for prefix in "", "lib":
                 for suffix in "", ".a", ".dll.a", ".lib", ".dll.lib":
                     fn = os.path.join(lib_path, "{}{}{}".format(prefix, lib, suffix))

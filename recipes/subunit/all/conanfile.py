@@ -174,11 +174,11 @@ class SubunitConan(ConanFile):
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(
-                " ".join("-I{}".format(inc) for inc in self.deps_cpp_info["cppunit"].include_paths).replace(
+                " ".join("-I{}".format(inc) for inc in self.dependencies["cppunit"].cpp_info.includedirs).replace(
                     "\\", "/"
                 )
             ),
-            "CPPUNIT_LIBS='{}'".format(" ".join(self.deps_cpp_info["cppunit"].libs)),
+            "CPPUNIT_LIBS='{}'".format(" ".join(self.dependencies["cppunit"].cpp_info.libs)),
         ]
         self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
         return self._autotools

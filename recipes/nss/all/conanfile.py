@@ -169,8 +169,8 @@ class NSSConan(ConanFile):
             args.append("CPU_ARCH=aarch64")
         if self.settings.compiler == "gcc":
             args.append("XCFLAGS=-Wno-array-parameter")
-        args.append("NSPR_INCLUDE_DIR=%s" % self.deps_cpp_info["nspr"].include_paths[1])
-        args.append("NSPR_LIB_DIR=%s" % self.deps_cpp_info["nspr"].lib_paths[0])
+        args.append("NSPR_INCLUDE_DIR=%s" % self.dependencies["nspr"].cpp_info.includedirs[1])
+        args.append("NSPR_LIB_DIR=%s" % self.dependencies["nspr"].cpp_info.libdirs[0])
 
         os_map = {
             "Linux": "Linux",
@@ -187,7 +187,7 @@ class NSSConan(ConanFile):
             args.append("NSPR31_LIB_PREFIX=$(NULL)")
 
         args.append("USE_SYSTEM_ZLIB=1")
-        args.append("ZLIB_INCLUDE_DIR=%s" % self.deps_cpp_info["zlib"].include_paths[0])
+        args.append("ZLIB_INCLUDE_DIR=%s" % self.dependencies["zlib"].cpp_info.includedirs[0])
 
         def adjust_path(path, settings):
             """
@@ -231,14 +231,14 @@ class NSSConan(ConanFile):
         args.append(
             '"ZLIB_LIBS=%s"'
             % " ".join(
-                _format_libraries(self.deps_cpp_info["zlib"].libs, self.settings)
-                + _format_library_paths(self.deps_cpp_info["zlib"].lib_paths, self.settings)
+                _format_libraries(self.dependencies["zlib"].cpp_info.libs, self.settings)
+                + _format_library_paths(self.dependencies["zlib"].cpp_info.libdirs, self.settings)
             )
         )
         args.append("NSS_DISABLE_GTESTS=1")
         args.append("NSS_USE_SYSTEM_SQLITE=1")
-        args.append("SQLITE_INCLUDE_DIR=%s" % self.deps_cpp_info["sqlite3"].include_paths[0])
-        args.append("SQLITE_LIB_DIR=%s" % self.deps_cpp_info["sqlite3"].lib_paths[0])
+        args.append("SQLITE_INCLUDE_DIR=%s" % self.dependencies["sqlite3"].cpp_info.includedirs[0])
+        args.append("SQLITE_LIB_DIR=%s" % self.dependencies["sqlite3"].cpp_info.libdirs[0])
         args.append("NSDISTMODE=copy")
         if cross_building(self):
             args.append("CROSS_COMPILE=1")

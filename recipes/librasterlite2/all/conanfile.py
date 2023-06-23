@@ -185,7 +185,7 @@ class Librasterlite2Conan(ConanFile):
             self,
             os.path.join(self.source_folder, "configure.ac"),
             "AC_CHECK_LIB(z,",
-            "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]),
+            "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.libs[0]),
         )
 
     @functools.lru_cache(1)
@@ -213,7 +213,7 @@ class Librasterlite2Conan(ConanFile):
             replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
             if is_apple_os(self.settings.os):
-                libpaths = ":".join(self.deps_cpp_info.lib_paths)
+                libpaths = ":".join(self.deps_cpp_info.libdirs)
                 replace_in_file(
                     self,
                     "configure",
