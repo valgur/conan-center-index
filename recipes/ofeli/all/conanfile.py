@@ -197,7 +197,7 @@ class OfeliConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 

@@ -121,7 +121,7 @@ class TcpWrappersConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools = AutoToolsBuildEnvironment(self)
             make_args = [
                 "REAL_DAEMON_DIR={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),

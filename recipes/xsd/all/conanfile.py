@@ -151,7 +151,7 @@ class ConanXqilla(ConanFile):
     def build(self):
         apply_conandata_patches(self)
 
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run(self._make_cmd)
 
     def package(self):
@@ -174,7 +174,7 @@ class ConanXqilla(ConanFile):
             src=os.path.join(self.source_folder, "xsd"),
         )
 
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run(self._make_install_cmd)
 
         rmdir(self, os.path.join(self.package_folder, "share"))

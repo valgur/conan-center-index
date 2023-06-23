@@ -225,7 +225,7 @@ class ImageMagicConan(ConanFile):
         if is_msvc(self):
             self._build_msvc()
         else:
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 env_build = self._build_configure()
                 env_build.make()
 
@@ -426,11 +426,11 @@ class ImageMagicConan(ConanFile):
         return self._autotools
 
     def package(self):
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             env_build = self._build_configure()
             env_build.install()
 
-        with chdir(self.package_folder):
+        with chdir(self, self.package_folder):
             # remove undesired files
             rmdir(self, os.path.join("lib", "pkgconfig"))  # pc files
             rmdir(self, "etc")

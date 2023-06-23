@@ -46,11 +46,11 @@ class GoogleGuetzliConan(ConanFile):
         self._patch_sources()
         if is_msvc(self):
             msbuild = MSBuild(self)
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 msbuild.build("guetzli.sln", build_type="Release")
         else:
             autotools = AutoToolsBuildEnvironment(self)
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 env_vars = {"PKG_CONFIG_PATH": self.build_folder}
                 env_vars.update(autotools.vars)
                 with environment_append(self, env_vars):

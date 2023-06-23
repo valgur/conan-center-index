@@ -57,7 +57,7 @@ class TestPackageConan(ConanFile):
     def build(self):
         for src in self.exports_sources:
             shutil.copy(os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src))
-        with chdir(self.build_folder):
+        with chdir(self, self.build_folder):
             for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
                 save(self, fn, "\n")
             with run_environment(self):

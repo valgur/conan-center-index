@@ -278,7 +278,7 @@ class TBBConan(ConanFile):
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")

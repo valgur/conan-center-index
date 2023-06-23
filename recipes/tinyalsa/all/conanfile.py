@@ -116,14 +116,14 @@ class TinyAlsaConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build.make()
 
     def package(self):
         copy(self, "NOTICE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build_vars = env_build.vars
             env_build_vars["PREFIX"] = self.package_folder

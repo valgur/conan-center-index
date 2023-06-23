@@ -271,7 +271,7 @@ class BotanConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run(self._configure_cmd)
             self.run(self._make_cmd)
 
@@ -282,7 +282,7 @@ class BotanConan(ConanFile):
             dst=os.path.join(self.package_folder, "licenses"),
             src=self.source_folder,
         )
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run(self._make_install_cmd)
 
     def package_info(self):

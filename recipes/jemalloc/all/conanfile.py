@@ -345,7 +345,7 @@ class JemallocConan(ConanFile):
                         "CXX": "cl",
                     }
                 ) if self.settings.compiler == "Visual Studio" else tools_legacy.no_op():
-                    with tools_legacy.chdir(self.source_folder):
+                    with tools_legacy.chdir(self, self.source_folder):
                         # Do not use AutoToolsBuildEnvironment because we want to run configure as ./configure
                         self.run(
                             "./configure {}".format(" ".join(self._autotools_args)),

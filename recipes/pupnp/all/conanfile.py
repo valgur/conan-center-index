@@ -183,7 +183,7 @@ class PupnpConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         autotools = self._configure_autotools()
         autotools.make()

@@ -138,7 +138,7 @@ class I2cConan(ConanFile):
         self._patch_sources()
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools.make(args=self._make_args)
 
     def package(self):
@@ -146,7 +146,7 @@ class I2cConan(ConanFile):
         copy(self, "COPYING.LGPL", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = AutoToolsBuildEnvironment(self)
         autotools.flags += [f"-I{path}" for path in autotools.include_paths]
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools.install(args=self._make_args)
         rmdir(self, os.path.join(self.package_folder, "share"))
 

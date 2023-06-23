@@ -119,12 +119,12 @@ class ScdocInstallerConan(ConanFile):
 
     def build(self):
         autotools = self._configure_autotools()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools.make()
 
     def package(self):
         autotools = self._configure_autotools()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools.install(args=[f"PREFIX={self.package_folder}"])
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder

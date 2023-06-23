@@ -126,7 +126,7 @@ class DarknetConan(ConanFile):
             self,
             os.path.join(self.source_folder, "Makefile"),
             "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
-            "all: obj backup results " + self._lib_to_compile,
+            f"all: obj backup results {self._lib_to_compile}",
         )
 
     def export_sources(self):
@@ -151,7 +151,7 @@ class DarknetConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             with environment_append(self, {"PKG_CONFIG_PATH": self.build_folder}):
                 args = ["OPENCV={}".format("1" if self.options.with_opencv else "0")]
                 env_build = AutoToolsBuildEnvironment(self)

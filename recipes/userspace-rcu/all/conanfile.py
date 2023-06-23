@@ -213,7 +213,7 @@ class UserspaceRCUConan(ConanFile):
         return self._autotools
 
     def build(self):
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run("./bootstrap")
         autotools = self._configure_autotools()
         autotools.make()

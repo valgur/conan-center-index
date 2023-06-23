@@ -140,7 +140,7 @@ class CunitConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
 
@@ -198,7 +198,7 @@ class CunitConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
                 autotools = self._configure_autotools()
                 autotools.make()
@@ -206,7 +206,7 @@ class CunitConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 autotools = self._configure_autotools()
                 autotools.install()
 

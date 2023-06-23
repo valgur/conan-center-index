@@ -202,7 +202,7 @@ class ElfutilsConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run("autoreconf -fiv")
         autotools = self._configure_autotools()
         autotools.make()

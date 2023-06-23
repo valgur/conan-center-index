@@ -176,13 +176,13 @@ class LibRHashConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             autotools = self._configure_autotools()
             autotools.install()
             autotools.make(target="install-lib-headers")

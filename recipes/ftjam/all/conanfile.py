@@ -141,7 +141,7 @@ class FtjamConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             if self.settings.os == "Windows":
                 # toolset name of the system building ftjam
                 jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
@@ -176,7 +176,7 @@ class FtjamConan(ConanFile):
                     dst=os.path.join(self.package_folder, "bin"),
                 )
         else:
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 autotools = self._configure_autotools()
                 autotools.install()
 

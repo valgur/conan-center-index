@@ -217,7 +217,7 @@ class GfCompleteConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = self._configure_autotools()

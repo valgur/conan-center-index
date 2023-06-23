@@ -303,7 +303,7 @@ class CrashpadConan(ConanFile):
             'extra_cflags_cc=\\"{}\\"'.format(" ".join(extra_cflags_cc)),
             'extra_ldflags=\\"{}\\"'.format(" ".join(extra_ldflags)),
         ]
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             with self._build_context():
                 self.run('gn gen out/Default --args="{}"'.format(" ".join(gn_args)), run_environment=True)
                 targets = ["client", "minidump", "crashpad_handler", "snapshot"]

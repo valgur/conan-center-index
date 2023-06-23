@@ -153,7 +153,7 @@ class AwsCdiSdkConan(ConanFile):
         cmake.build()
 
         autotools = self._configure_autotools()
-        with chdir(self.source_folder):
+        with chdir(self, self.source_folder):
             # configure autotools to find aws-cpp-sdk-cdi
             autotools.include_paths.append(
                 os.path.join(self.build_folder, self.source_folder, "aws-cpp-sdk-cdi", "include")

@@ -65,7 +65,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if not cross_building(self.settings):
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 gn_args = [
                     os.path.relpath(os.path.join(self.build_folder, "bin"), os.getcwd()).replace("\\", "/"),
                     '--args="target_os=\\"{os_}\\" target_cpu=\\"{cpu}\\""'.format(

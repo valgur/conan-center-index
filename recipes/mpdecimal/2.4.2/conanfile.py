@@ -288,7 +288,7 @@ class MpdecimalConan(ConanFile):
         if is_msvc(self):
             self._build_msvc()
         else:
-            with chdir(self.source_folder):
+            with chdir(self, self.source_folder):
                 autotools = self._configure_autotools()
                 autotools.make()
 
