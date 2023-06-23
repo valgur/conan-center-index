@@ -1,94 +1,25 @@
 # TODO: verify the Conan v2 migration
 
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.microsoft.visual import vs_ide_version
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import glob
 import os
 import shutil
 import stat
 import textwrap
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
 )
+from conan.tools.scm import Version
 
 
 class PythonOption:
@@ -151,25 +82,25 @@ class CernRootConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires("cfitsio/4.0.0")
-        self.requires("fftw/3.3.9")
+        self.requires("cfitsio/4.2.0")
+        self.requires("fftw/3.3.10")
         self.requires("giflib/5.2.1")
         self.requires("glew/2.2.0")
         self.requires("glu/system")
-        self.requires("libcurl/7.78.0")
-        self.requires("libjpeg/9d")
-        self.requires("libpng/1.6.37")
-        self.requires("libxml2/2.9.12")
-        self.requires("lz4/1.9.3")
+        self.requires("libcurl/8.1.2")
+        self.requires("libjpeg/9e")
+        self.requires("libpng/1.6.39")
+        self.requires("libxml2/2.11.4")
+        self.requires("lz4/1.9.4")
         self.requires("opengl/system")
-        self.requires("openssl/1.1.1l")
-        self.requires("pcre/8.44")
-        self.requires("sqlite3/3.36.0")
-        self.requires("tbb/2020.3")
+        self.requires("openssl/[>=1.1 <4]")
+        self.requires("pcre/8.45")
+        self.requires("sqlite3/3.42.0")
+        self.requires("onetbb/2021.9.0")
         self.requires("xorg/system")
-        self.requires("xxhash/0.8.0")
-        self.requires("xz_utils/5.2.5")
-        self.requires("zstd/1.5.0")
+        self.requires("xxhash/0.8.1")
+        self.requires("xz_utils/5.4.2")
+        self.requires("zstd/1.5.5")
 
     def validate(self):
         self._enforce_minimum_compiler_version()
@@ -188,7 +119,8 @@ class CernRootConan(ConanFile):
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
+                    "{} requires C++{} support. The current compiler {} {} does not support it."
+                    .format(
                         self.name,
                         self._minimum_cpp_standard,
                         self.settings.compiler,
@@ -197,21 +129,17 @@ class CernRootConan(ConanFile):
                 )
 
     def _enforce_libcxx_requirements(self):
-        compiler = self.settings.compiler
-        libcxx = compiler.get_safe("libcxx")
+        libcxx = self.settings.get_safe("compiler.libcxx")
         # ROOT doesn't currently build with libc++.
         # This restriction may be lifted in future if the problems are fixed upstream
         if libcxx and libcxx == "libc++":
-            raise ConanInvalidConfiguration('{} is incompatible with libc++".'.format(self.name))
+            raise ConanInvalidConfiguration(f'{self.name} is incompatible with libc++".')
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_source_cmake(self):
-        try:
-            os.remove(os.path.join(self.source_folder, "cmake", "modules", "FindTBB.cmake"))
-        except OSError:
-            pass
+        rm(self, "FindTBB.cmake", os.path.join(self.source_folder, "cmake", "modules"))
         # Conan generated cmake_find_packages names differ from
         # names ROOT expects (usually only due to case differences)
         # There is currently no way to change these names
@@ -221,22 +149,18 @@ class CernRootConan(ConanFile):
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
             "project(ROOT)",
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
                     project(ROOT)
                     # sets the current C runtime on MSVC (MT vs MD vd MTd vs MDd)
-                    include("{install_folder}/conanbuildinfo.cmake")
-                    conan_basic_setup(NO_OUTPUT_DIRS)
                     find_package(OpenSSL REQUIRED)
-                    set(OPENSSL_VERSION ${{OpenSSL_VERSION}})
+                    set(OPENSSL_VERSION ${OpenSSL_VERSION})
                     find_package(LibXml2 REQUIRED)
-                    set(LIBXML2_INCLUDE_DIR ${{LibXml2_INCLUDE_DIR}})
-                    set(LIBXML2_LIBRARIES ${{LibXml2_LIBRARIES}})
+                    set(LIBXML2_INCLUDE_DIR ${LibXml2_INCLUDE_DIR})
+                    set(LIBXML2_LIBRARIES ${LibXml2_LIBRARIES})
                     find_package(SQLite3 REQUIRED)
-                    set(SQLITE_INCLUDE_DIR ${{SQLITE3_INCLUDE_DIRS}})
+                    set(SQLITE_INCLUDE_DIR ${SQLITE3_INCLUDE_DIRS})
                     set(SQLITE_LIBRARIES SQLite::SQLite3)
-            """
-            ).format(install_folder=self.install_folder.replace("\\", "/")),
+            """),
         )
         replace_in_file(
             self,
@@ -271,72 +195,70 @@ class CernRootConan(ConanFile):
         os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
     def generate(self):
+        lib_paths = []
+        include_paths = []
+        for dep in self.dependencies.values():
+            lib_paths += dep.cpp_info.libdirs
+            include_paths += dep.cpp_info.includedirs
+
         tc = CMakeToolchain(self)
-        cmakelibpath = ";".join(self.deps_cpp_info.lib_paths)
-        cmakeincludepath = ";".join(self.deps_cpp_info.include_paths)
-        tc.variables.update(
-            {
-                "BUILD_SHARED_LIBS": True,
-                "fail-on-missing": True,
-                "CMAKE_CXX_STANDARD": self._cmake_cxx_standard,
-                "gnuinstall": True,
-                "soversion": True,
-                # Disable builtins and use Conan deps where available
-                "builtin_cfitsio": False,
-                "builtin_davix": False,
-                "builtin_fftw3": False,
-                "builtin_freetype": False,
-                "builtin_glew": False,
-                "builtin_lz4": False,
-                "builtin_lzma": False,
-                "builtin_openssl": False,
-                "builtin_pcre": False,
-                "builtin_tbb": False,
-                "builtin_xxhash": False,
-                "builtin_zlib": False,
-                "builtin_zstd": False,
-                # Enable builtins where there is no Conan package
-                "builtin_afterimage": True,  # FIXME : replace with afterimage CCI package when available
-                "builtin_gsl": True,  # FIXME : replace with gsl CCI package when available
-                "builtin_gl2ps": True,  # FIXME : replace with gl2ps CCI package when available
-                "builtin_ftgl": True,  # FIXME : replace with ftgl CCI package when available
-                "builtin_vdt": True,  # FIXME : replace with vdt CCI package when available
-                # No Conan packages available for these dependencies yet
-                "davix": False,  # FIXME : switch on if davix CCI package available
-                "pythia6": False,  # FIXME : switch on if pythia6 CCI package available
-                "pythia8": False,  # FIXME : switch on if pythia8 CCI package available
-                "mysql": False,  # FIXME : switch on if mysql CCI package available
-                "oracle": False,
-                "pgsql": False,  # FIXME: switch on if PostgreSQL CCI package available
-                "gfal": False,  # FIXME: switch on if gfal CCI package available
-                "tmva-pymva": False,  # FIXME: switch on if Python CCI package available
-                "xrootd": False,  # FIXME: switch on if xrootd CCI package available
-                "pyroot": self._cmake_pyrootopt,
-                # clad is built with ExternalProject_Add and its
-                # COMPILE_DEFINITIONS property is not propagated causing the build to
-                # fail on some systems if libcxx != libstdc++11
-                "clad": False,
-                # Tell CMake where to look for Conan provided depedencies
-                "CMAKE_LIBRARY_PATH": cmakelibpath.replace("\\", "/"),
-                "CMAKE_INCLUDE_PATH": cmakeincludepath.replace("\\", "/"),
-                # Configure install directories
-                # Conan CCI hooks restrict the allowed install directory
-                # names but ROOT is very picky about where build/runtime
-                # resources get installed.
-                # Set install prefix to work around these limitations
-                # Following: https://github.com/conan-io/conan/issues/3695
-                "CMAKE_INSTALL_CMAKEDIR": "lib/cmake",
-                "CMAKE_INSTALL_DATAROOTDIR": "res/share",
-                "CMAKE_INSTALL_SYSCONFDIR": "res/etc",
-                # Fix some Conan-ROOT CMake variable naming differences
-                "PNG_PNG_INCLUDE_DIR": ";".join(self.deps_cpp_info["libpng"].include_paths).replace(
-                    "\\", "/"
-                ),
-                "LIBLZMA_INCLUDE_DIR": ";".join(self.deps_cpp_info["xz_utils"].include_paths).replace(
-                    "\\", "/"
-                ),
-            }
-        )
+        tc.variables.update({
+            "BUILD_SHARED_LIBS": True,
+            "fail-on-missing": True,
+            "CMAKE_CXX_STANDARD": self._cmake_cxx_standard,
+            "gnuinstall": True,
+            "soversion": True,
+            # Disable builtins and use Conan deps where available
+            "builtin_cfitsio": False,
+            "builtin_davix": False,
+            "builtin_fftw3": False,
+            "builtin_freetype": False,
+            "builtin_glew": False,
+            "builtin_lz4": False,
+            "builtin_lzma": False,
+            "builtin_openssl": False,
+            "builtin_pcre": False,
+            "builtin_tbb": False,
+            "builtin_xxhash": False,
+            "builtin_zlib": False,
+            "builtin_zstd": False,
+            # Enable builtins where there is no Conan package
+            "builtin_afterimage": True,  # FIXME : replace with afterimage CCI package when available
+            "builtin_gsl": True,  # FIXME : replace with gsl CCI package when available
+            "builtin_gl2ps": True,  # FIXME : replace with gl2ps CCI package when available
+            "builtin_ftgl": True,  # FIXME : replace with ftgl CCI package when available
+            "builtin_vdt": True,  # FIXME : replace with vdt CCI package when available
+            # No Conan packages available for these dependencies yet
+            "davix": False,  # FIXME : switch on if davix CCI package available
+            "pythia6": False,  # FIXME : switch on if pythia6 CCI package available
+            "pythia8": False,  # FIXME : switch on if pythia8 CCI package available
+            "mysql": False,  # FIXME : switch on if mysql CCI package available
+            "oracle": False,
+            "pgsql": False,  # FIXME: switch on if PostgreSQL CCI package available
+            "gfal": False,  # FIXME: switch on if gfal CCI package available
+            "tmva-pymva": False,  # FIXME: switch on if Python CCI package available
+            "xrootd": False,  # FIXME: switch on if xrootd CCI package available
+            "pyroot": self._cmake_pyrootopt,
+            # clad is built with ExternalProject_Add and its
+            # COMPILE_DEFINITIONS property is not propagated causing the build to
+            # fail on some systems if libcxx != libstdc++11
+            "clad": False,
+            # Tell CMake where to look for Conan provided dependencies
+            "CMAKE_LIBRARY_PATH": ";".join(lib_paths).replace("\\", "/"),
+            "CMAKE_INCLUDE_PATH": ";".join(include_paths).replace("\\", "/"),
+            # Configure install directories
+            # Conan CCI hooks restrict the allowed install directory
+            # names but ROOT is very picky about where build/runtime
+            # resources get installed.
+            # Set install prefix to work around these limitations
+            # Following: https://github.com/conan-io/conan/issues/3695
+            "CMAKE_INSTALL_CMAKEDIR": "lib/cmake",
+            "CMAKE_INSTALL_DATAROOTDIR": "res/share",
+            "CMAKE_INSTALL_SYSCONFDIR": "res/etc",
+            # Fix some Conan-ROOT CMake variable naming differences
+            "PNG_PNG_INCLUDE_DIR": ";".join(self.dependencies["libpng"].cpp_info.includedirs).replace("\\", "/"),
+            "LIBLZMA_INCLUDE_DIR": ";".join(self.dependencies["xz_utils"].cpp_info.includedirs).replace("\\", "/"),
+        })
         tc.generate()
 
         tc = CMakeDeps(self)
@@ -348,7 +270,7 @@ class CernRootConan(ConanFile):
 
     @property
     def _cmake_cxx_standard(self):
-        return str(self.settings.compiler.get_safe("cppstd", "11"))
+        return str(self.settings.get_safe("compiler.cppstd", "11"))
 
     @property
     def _cmake_pyrootopt(self):
@@ -364,11 +286,21 @@ class CernRootConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
-        rm(self, "*Config*.cmake", os.path.join(self.package_folder, "lib", "cmake"), recursive=True)
+        rm(
+            self,
+            "*Config*.cmake",
+            os.path.join(self.package_folder, "lib", "cmake"),
+            recursive=True,
+        )
         rmdir(self, os.path.join(self.package_folder, "res", "README"))
         rmdir(self, os.path.join(self.package_folder, "res", "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
@@ -401,10 +333,8 @@ class CernRootConan(ConanFile):
             "ROOTDataFrame",
         ]
         self.cpp_info.builddirs = [os.path.join("lib", "cmake")]
-        self.cpp_info.build_modules.extend(
-            [
-                os.path.join("lib", "cmake", "RootMacros.cmake"),
-                # os.path.join("lib", "cmake", "ROOTUseFile.cmake"),
-            ]
-        )
+        self.cpp_info.build_modules += [
+            os.path.join("lib", "cmake", "RootMacros.cmake"),
+            # os.path.join("lib", "cmake", "ROOTUseFile.cmake"),
+        ]
         self.cpp_info.resdirs = ["res"]
