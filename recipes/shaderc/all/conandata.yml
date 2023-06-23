@@ -8,9 +8,6 @@ sources:
 patches:
   "2021.1":
     - patch_file: "patches/2021.1/fix-cmake.patch"
-      base_path: "source_subfolder"
   "2019.0":
     - patch_file: "patches/2019.0/fix-cmake.patch"
-      base_path: "source_subfolder"
     - patch_file: "patches/2019.0/fix-spvc.patch"
-      base_path: "source_subfolder"

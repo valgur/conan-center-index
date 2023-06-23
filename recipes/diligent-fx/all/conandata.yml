@@ -17,16 +17,11 @@ sources:
 patches:
   "api.252009":
     - patch_file: "patches/0001-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
   "api.252005":
     - patch_file: "patches/0001-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
   "2.5.2":
     - patch_file: "patches/0001-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
   "cci.20211112":
     - patch_file: "patches/0001-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
   "cci.20220219":
     - patch_file: "patches/0001-use-conan-dependencies.diff"
-      base_path: "source_subfolder"

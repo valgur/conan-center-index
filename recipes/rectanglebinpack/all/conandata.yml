@@ -7,4 +7,3 @@ sources:
 patches:
   "cci.20210901":
     - patch_file: "patches/0001_fix_win32_build.patch"
-      base_path: "source_subfolder"

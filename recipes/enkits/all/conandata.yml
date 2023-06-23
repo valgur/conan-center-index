@@ -11,10 +11,7 @@ sources:
 patches:
   "1.11":
     - patch_file: "patches/cmake-install-lib-location.patch"
-      base_path: "source_subfolder"
   "1.10":
     - patch_file: "patches/cmake-install-lib-location.patch"
-      base_path: "source_subfolder"
   "1.8":
     - patch_file: "patches/cmake-install-lib-location.patch"
-      base_path: "source_subfolder"

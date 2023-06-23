@@ -8,11 +8,7 @@ sources:
 patches:
   "3.3.2":
     - patch_file: "patches/0001-fix-includes.patch"
-      base_path: "source_subfolder"
     - patch_file: "patches/0002-fix-openmp-clang.patch"
-      base_path: "source_subfolder"
   "3.3.5":
     - patch_file: "patches/0001-fix-includes.patch"
-      base_path: "source_subfolder"
     - patch_file: "patches/0003-fix-openmp-clang.patch"
-      base_path: "source_subfolder"
