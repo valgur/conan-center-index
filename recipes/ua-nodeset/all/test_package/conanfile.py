@@ -12,5 +12,7 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     def test(self):
-        bin_path = os.path.join(self.deps_user_info["ua-nodeset"].nodeset_dir, "PLCopen")
+        # self.dependencies["ua-nodeset"] does not work for some reason
+        res_dir = list(self.dependencies.values())[0].cpp_info.resdirs[0]
+        bin_path = os.path.join(res_dir, "PLCopen")
         assert os.path.exists(bin_path)
