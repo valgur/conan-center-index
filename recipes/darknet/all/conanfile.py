@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
 from conan.tools.files import (
     apply_conandata_patches,
@@ -11,14 +12,15 @@ from conan.tools.files import (
     replace_in_file,
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.layout import basic_layout
 
 
 class DarknetConan(ConanFile):
     name = "darknet"
+    description = "Darknet is a neural network frameworks written in C"
     license = "YOLO"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pjreddie.com/darknet/"
-    description = "Darknet is a neural network frameworks written in C"
     topics = ("neural network", "deep learning")
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -70,13 +72,16 @@ class DarknetConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def validate(self):
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("This library is not compatible with Windows")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_opencv:
             self.requires("opencv/2.4.13.7")
+
+    def validate(self):
+        if self.settings.os == "Windows":
+            raise ConanInvalidConfiguration("This library is not compatible with Windows")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -114,6 +119,7 @@ class DarknetConan(ConanFile):
                 dst=os.path.join(self.package_folder, "lib"),
                 keep_path=False,
             )
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["darknet"]
