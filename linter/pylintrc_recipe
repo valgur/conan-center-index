@@ -19,6 +19,7 @@ disable=fixme,
         unused-import,
         reimported,
         consider-using-f-string,
+        not-callable,
         wrong-import-order,  # TODO: Remove
         import-outside-toplevel  # TODO: Remove
 
