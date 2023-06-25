@@ -8,6 +8,7 @@ from pathlib import Path
 
 import black
 from conan import ConanFile
+from conans.model.version import Version
 
 
 class ConanFileDetails:
@@ -150,6 +151,7 @@ def tidy_conanfile(conanfile_path, write=True):
 
     is_header_only = details.is_header_only
     is_application = details.is_application
+    assert not (is_header_only and is_application)
 
     # tuple of (attr, is_required)
     attr_order = [
@@ -292,8 +294,22 @@ def tidy_conanfile(conanfile_path, write=True):
 
     result = io.StringIO()
 
-    result.write(details.head)
+    head = re.sub(r"required_conan_version.+", "", details.head)
+    result.write(head)
+    if is_header_only:
+        min_conan_version = "1.52.0"
+    elif is_application:
+        min_conan_version = "1.47.0"
+    else:
+        min_conan_version = "1.53.0"
+    if m := re.search(r'required_conan_version = ">=(\d+\.\d+\.\d+)"', details.head):
+        cur_min = m.group(1)
+        if Version(cur_min) > Version(min_conan_version):
+            min_conan_version = cur_min
+    result.write(f'\nrequired_conan_version = ">={min_conan_version}"\n')
+
     result.write(f"class {details.class_name}(ConanFile):\n")
+
     for attr, is_required in attr_order:
         if attr in details.attrs:
             value = details.attrs[attr]
