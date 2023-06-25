@@ -3,8 +3,8 @@ import io
 import os
 import re
 import sys
+import textwrap
 from pathlib import Path
-from textwrap import indent
 
 import black
 from conan import ConanFile
@@ -30,9 +30,13 @@ class ConanFileDetails:
                 continue
             # Get the source file this attribute was defined in
             if hasattr(value, "__call__") and Path(inspect.getsourcefile(value)) == conanfile_path:
-                methods[attr] = inspect.getsource(value)
+                source = inspect.getsource(value)
+                if f"# TODO: fill in {attr}" not in source:
+                    methods[attr] = source
             elif isinstance(value, property) and Path(inspect.getsourcefile(value.fget)) == conanfile_path:
-                props[attr] = inspect.getsource(value.fget)
+                source = inspect.getsource(value.fget)
+                if f"# TODO: fill in {attr}" not in source:
+                    props[attr] = source
             elif value is not None:
                 attrs[attr] = value
 
@@ -52,7 +56,7 @@ class ConanFileDetails:
     @property
     def is_header_only(self):
         if "package_type" in self.attrs:
-            return self.attrs["package_type"] == "header-only"
+            return self.attrs["package_type"] == "header-library"
         if self.attrs.get("no_copy_source") is True:
             return True
         if "package_id" in self.methods:
@@ -116,11 +120,21 @@ class ConanFileDetails:
 
 
 def _format_source(source):
+    mode = black.Mode(
+        target_versions={black.TargetVersion.PY311},
+        line_length=110,
+        magic_trailing_comma=True,
+        preview=True,
+    )
     try:
-        return black.format_file_contents(source, fast=False, mode=black.FileMode())
+        return black.format_file_contents(source, fast=False, mode=mode)
     except black.report.NothingChanged:
         pass
     return source
+
+
+def _indent(text, level=1):
+    return textwrap.indent(text, "    " * level)
 
 
 def tidy_conanfile(conanfile_path, write=True):
@@ -202,23 +216,23 @@ def tidy_conanfile(conanfile_path, write=True):
     ]
 
     def prepend_to_method(method, prepend):
-        return method.replace("self):\n", f"self):\n{indent(prepend, '    ')}\n")
+        return method.replace("self):\n", f"self):\n{_indent(prepend, 2)}\n")
 
     if is_header_only:
-        details.attrs["package_type"] = "header-only"
+        details.attrs["package_type"] = "header-library"
         details.attrs["no_copy_source"] = True
         if "header-only" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["header-only"])
         if "self.cpp_info.bindirs = []" not in details.methods["package_info"]:
             details.methods["package_info"] = prepend_to_method(
-                details.methods["package_info"], "self.cpp_info.bindirs = []\nself.cpp_info.libdirs = []"
+                details.methods["package_info"], "self.cpp_info.bindirs = []\nself.cpp_info.libdirs = []\n"
             )
         if "package_id" in details.methods:
             details.methods["package_id"] = details.methods["package_id"].replace(
                 "self.info.header_only()", "self.info.clear()"
             )
         else:
-            details.methods["package_id"] = indent("def package_id(self):\n    self.info.clear()\n", "    ")
+            details.methods["package_id"] = _indent("def package_id(self):\n    self.info.clear()\n")
     elif is_application:
         details.attrs["package_type"] = "application"
         details.attrs["no_copy_source"] = None
@@ -230,21 +244,18 @@ def tidy_conanfile(conanfile_path, write=True):
                     details.methods["package_info"], f"self.cpp_info.{d} = []"
                 )
         if "self.env_info.PATH" not in details.methods["package_info"]:
-            details.methods["package_info"] += indent(
+            details.methods["package_info"] += _indent(
                 (
                     'bin_folder = os.path.join(self.package_folder, "bin")\n'
                     "self.env_info.PATH.append(bin_folder)\n"
                 ),
-                "        ",
+                level=2,
             )
         if "package_id" not in details.methods or "settings.compiler" not in details.methods["package_id"]:
-            details.methods["package_id"] = indent(
-                (
-                    "def package_id(self):\n"
-                    "    del self.info.settings.compiler\n"
-                    "    del self.info.settings.build_type"
-                ),
-                "    ",
+            details.methods["package_id"] = _indent(
+                "def package_id(self):\n"
+                "    del self.info.settings.compiler\n"
+                "    del self.info.settings.build_type"
             )
         if details.is_method_empty("build") and not details.is_method_empty("source"):
             details.methods["build"] = details.methods["source"].replace("def source", "def build")
@@ -330,21 +341,21 @@ def tidy_conanfile(conanfile_path, write=True):
 
     if "layout" not in methods:
         if is_application:
-            methods["layout"] = indent("def layout(self):\n    pass\n", "    ")
+            methods["layout"] = _indent("def layout(self):\n    pass\n")
         elif details.build_system == "CMake":
-            methods["layout"] = indent(
-                'def layout(self):\n    cmake_layout(self, src_folder="src")\n', "    "
-            )
+            methods["layout"] = _indent('def layout(self):\n    cmake_layout(self, src_folder="src")\n')
         else:
-            methods["layout"] = indent(
-                'def layout(self):\n    basic_layout(self, src_folder="src")\n', "    "
-            )
+            methods["layout"] = _indent('def layout(self):\n    basic_layout(self, src_folder="src")\n')
+
+    if "_minimum_compilers_version" in methods:
+        methods["_compilers_minimum_version"] = methods["_minimum_compilers_version"]
+        del methods["_minimum_compilers_version"]
 
     result.write("\n")
-    for method, body in methods.items():
+    for method in sorted(methods):
         if method not in expected_methods:
             warn(f"Unexpected method '{method}'")
-            result.write(body)
+            result.write(methods[method])
             result.write("\n")
 
     for method, is_required in methods_order:
@@ -353,7 +364,7 @@ def tidy_conanfile(conanfile_path, write=True):
             result.write("\n")
         elif is_required:
             warn(f"Missing required method '{method}'")
-            result.write(indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n", "    "))
+            result.write(_indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n"))
 
     processed_source = result.getvalue()
     processed_source = re.sub(r"^# Warnings:\n(?:# +.+\n)+", "", processed_source)
