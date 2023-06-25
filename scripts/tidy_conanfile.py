@@ -3,7 +3,6 @@ import io
 import os
 import re
 import sys
-import warnings
 from pathlib import Path
 from textwrap import indent
 
@@ -15,7 +14,7 @@ class ConanFileDetails:
     def __init__(self, conanfile_path):
         conanfile_path = Path(conanfile_path)
         conanfile = conanfile_path.read_text(encoding="utf-8")
-        conanfile = black.format_file_contents(conanfile, fast=False, mode=black.FileMode())
+        conanfile = _format_source(conanfile)
         eval(compile(conanfile, str(conanfile_path), "exec"), globals(), locals())
         conanfile_class = [
             value
@@ -43,6 +42,13 @@ class ConanFileDetails:
         self.props: dict[str, str] = props
         self.methods: dict[str, str] = methods
 
+    def is_method_empty(self, method):
+        if method not in self.methods:
+            return True
+        body = self.methods[method]
+        body = re.sub(r"#.*", "", body)
+        return re.match(r":\s+pass\s*$", body) is not None
+
     @property
     def is_header_only(self):
         if "package_type" in self.attrs:
@@ -54,6 +60,34 @@ class ConanFileDetails:
                 "self.info.header_only()" in self.methods["package_id"]
                 or "self.info.clear()" in self.methods["package_id"]
             )
+        return False
+
+    @property
+    def is_application(self):
+        if self.is_header_only:
+            return False
+        if "package_type" in self.attrs:
+            return self.attrs["package_type"] == "application"
+        if "layout" in self.methods and self.is_method_empty("layout"):
+            return True
+        if "source" in self.methods and self.is_method_empty("source"):
+            return True
+        if "build" in self.methods and (
+            self.is_method_empty("build")
+            or '**self.conan_data["sources"][self.version]' in self.methods["build"]
+        ):
+            return True
+        if "package_id" in self.methods and (
+            "del self.info.settings.compiler" in self.methods["package_id"]
+            or 'self.info.settings.rm_safe("compiler")' in self.methods["package_id"]
+        ):
+            return True
+        if "package_info" in self.methods and (
+            "self.cpp_info.libdirs = []" in self.methods["package_info"]
+            or "self.cpp_info.includedirs = []" in self.methods["package_info"]
+            or "self.env_info.PATH" in self.methods["package_info"]
+        ):
+            return True
         return False
 
     @property
@@ -81,12 +115,27 @@ class ConanFileDetails:
         return None
 
 
+def _format_source(source):
+    try:
+        return black.format_file_contents(source, fast=False, mode=black.FileMode())
+    except black.report.NothingChanged:
+        pass
+    return source
+
+
 def tidy_conanfile(conanfile_path, write=True):
     conanfile_path = Path(conanfile_path)
-    rel_conanfile_path = str(conanfile_path).split(f"recipes{os.sep}", 1)[-1]
     details = ConanFileDetails(conanfile_path)
 
+    warnings = []
+
+    def warn(msg):
+        rel_conanfile_path = str(conanfile_path).split(f"recipes{os.sep}", 1)[-1]
+        print(f"Warning: {msg} in {rel_conanfile_path}", file=sys.stderr)
+        warnings.append(msg)
+
     is_header_only = details.is_header_only
+    is_application = details.is_application
 
     # tuple of (attr, is_required)
     attr_order = [
@@ -98,8 +147,8 @@ def tidy_conanfile(conanfile_path, write=True):
         ("topics", True),
         ("package_type", True),
         ("settings", True),
-        ("options", not is_header_only),
-        ("default_options", not is_header_only),
+        ("options", not is_header_only and not is_application),
+        ("default_options", not is_header_only and not is_application),
         ("options_description", False),
         ("no_copy_source", is_header_only),
         ("provides", False),
@@ -160,16 +209,46 @@ def tidy_conanfile(conanfile_path, write=True):
         details.attrs["no_copy_source"] = True
         if "header-only" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["header-only"])
-        if "self.cpp_info.bindirs = []" not in details.methods["package_id"]:
-            details.methods["package_id"] = prepend_to_method(
-                details.methods["package_id"], "self.cpp_info.bindirs = []\nself.cpp_info.libdirs = []"
+        if "self.cpp_info.bindirs = []" not in details.methods["package_info"]:
+            details.methods["package_info"] = prepend_to_method(
+                details.methods["package_info"], "self.cpp_info.bindirs = []\nself.cpp_info.libdirs = []"
             )
-        if "package_id" not in details.methods:
-            details.methods["package_id"] = indent("def package_id(self):\n    self.info.clear()\n", "    ")
-        else:
+        if "package_id" in details.methods:
             details.methods["package_id"] = details.methods["package_id"].replace(
                 "self.info.header_only()", "self.info.clear()"
             )
+        else:
+            details.methods["package_id"] = indent("def package_id(self):\n    self.info.clear()\n", "    ")
+    elif is_application:
+        details.attrs["package_type"] = "application"
+        details.attrs["no_copy_source"] = None
+        if "pre-built" not in details.attrs["topics"]:
+            details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["pre-built"])
+        for d in ["frameworkdirs", "libdirs", "resdirs", "includedirs"][::-1]:
+            if f"self.cpp_info.{d} = []" not in details.methods["package_info"]:
+                details.methods["package_info"] = prepend_to_method(
+                    details.methods["package_info"], f"self.cpp_info.{d} = []"
+                )
+        if "self.env_info.PATH" not in details.methods["package_info"]:
+            details.methods["package_info"] += indent(
+                (
+                    'bin_folder = os.path.join(self.package_folder, "bin")\n'
+                    "self.env_info.PATH.append(bin_folder)\n"
+                ),
+                "        ",
+            )
+        if "package_id" not in details.methods or "settings.compiler" not in details.methods["package_id"]:
+            details.methods["package_id"] = indent(
+                (
+                    "def package_id(self):\n"
+                    "    del self.info.settings.compiler\n"
+                    "    del self.info.settings.build_type"
+                ),
+                "    ",
+            )
+        if details.is_method_empty("build") and not details.is_method_empty("source"):
+            details.methods["build"] = details.methods["source"].replace("def source", "def build")
+            del details.methods["source"]
     else:
         if "package_type" not in details.attrs:
             details.attrs["package_type"] = "library"
@@ -211,13 +290,13 @@ def tidy_conanfile(conanfile_path, write=True):
             src = re.sub(r"}$", ",}", repr(value))
             result.write(f"    {attr} = {src}\n")
         elif is_required:
-            warnings.warn(f"Missing required attribute '{attr}' in {rel_conanfile_path}")
+            warn(f"Missing required attribute '{attr}'")
     result.write("\n")
     for attr, value in details.attrs.items():
         if attr in expected_attrs:
             continue
         if attr in disallowed_attrs:
-            warnings.warn(f"Disallowed attribute '{attr} = {value:r}' in {rel_conanfile_path}")
+            warn(f"Disallowed attribute '{attr} = {value:r}'")
             continue
 
     methods = details.props
@@ -226,6 +305,7 @@ def tidy_conanfile(conanfile_path, write=True):
         ("_min_cppstd", False),
         ("_compilers_minimum_version", False),
         ("_settings_build", False),
+        ("_is_mingw", False),
         ("export", False),
         ("export_sources", False),
         ("config_options", not is_header_only),
@@ -242,13 +322,16 @@ def tidy_conanfile(conanfile_path, write=True):
         ("_patch_sources", False),
         ("build", not is_header_only),
         ("test", False),
+        ("_extract_license", False),
         ("package", True),
         ("package_info", True),
     ]
     expected_methods = {method for method, is_required in methods_order}
 
     if "layout" not in methods:
-        if details.build_system == "CMake":
+        if is_application:
+            methods["layout"] = indent("def layout(self):\n    pass\n", "    ")
+        elif details.build_system == "CMake":
             methods["layout"] = indent(
                 'def layout(self):\n    cmake_layout(self, src_folder="src")\n', "    "
             )
@@ -260,7 +343,7 @@ def tidy_conanfile(conanfile_path, write=True):
     result.write("\n")
     for method, body in methods.items():
         if method not in expected_methods:
-            warnings.warn(f"Unexpected method '{method}' in {rel_conanfile_path}")
+            warn(f"Unexpected method '{method}'")
             result.write(body)
             result.write("\n")
 
@@ -269,11 +352,15 @@ def tidy_conanfile(conanfile_path, write=True):
             result.write(methods[method])
             result.write("\n")
         elif is_required:
-            warnings.warn(f"Missing required method '{method}' in {rel_conanfile_path}")
+            warn(f"Missing required method '{method}'")
             result.write(indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n", "    "))
 
     processed_source = result.getvalue()
-    processed_source = black.format_str(processed_source, mode=black.FileMode())
+    processed_source = re.sub(r"^# Warnings:\n(?:# +.+\n)+", "", processed_source)
+    if warnings:
+        w = "\n".join(f"#   {warning}" for warning in warnings)
+        processed_source = f"# Warnings:\n{w}\n\n{processed_source}"
+    processed_source = _format_source(processed_source)
 
     if write:
         conanfile_path.write_text(processed_source)
