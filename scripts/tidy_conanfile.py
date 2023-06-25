@@ -390,39 +390,45 @@ def tidy_conanfile(conanfile_path, write=True):
         methods["_compilers_minimum_version"] = methods["_minimum_compilers_version"]
         del methods["_minimum_compilers_version"]
 
+    unexpected_method_groups = {}
+    cur_group = []
+    for method in methods:
+        if method not in expected_methods:
+            warn(f"Unexpected method '{method}'")
+            cur_group.append(method)
+        else:
+            if cur_group:
+                unexpected_method_groups[method] = cur_group
+                cur_group = []
+
     def add_method(method_name):
         result.write(methods[method_name])
         result.write("\n")
 
     result.write("\n")
-    for method in sorted(methods):
-        is_submethod = any(method.startswith(f"_{m}_") for m in expected_methods)
-        if is_submethod:
-            warn(f"Possibly unnecessary sub-method '{method}'")
-        elif method not in expected_methods:
-            warn(f"Unexpected method '{method}'")
-            add_method(method)
-
     for method, is_required in methods_order:
         if method in methods:
-            for m in methods:
-                if m.startswith(f"_{method}_"):
-                    add_method(m)
+            for m in unexpected_method_groups.get(method, []):
+                add_method(m)
             add_method(method)
         elif is_required:
             warn(f"Missing required method '{method}'")
             result.write(_indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n"))
+    if cur_group:
+        for method in cur_group:
+            add_method(method)
 
     processed_source = result.getvalue()
     processed_source = re.sub(r"^# Warnings:\n(?:# +.+\n)+", "", processed_source)
     if warnings:
         w = "\n".join(f"#   {warning}" for warning in warnings)
         processed_source = f"# Warnings:\n{w}\n\n{processed_source}"
-    processed_source.replace(
+    processed_source = _format_source(processed_source)
+    processed_source = processed_source.replace(
         'settings = ("os", "arch", "compiler", "build_type")',
         'settings = "os", "arch", "compiler", "build_type"',
     )
-    processed_source = _format_source(processed_source)
+    processed_source = processed_source.replace("\n\n\nrequired_conan_version", "\n\nrequired_conan_version")
 
     if write:
         conanfile_path.write_text(processed_source)
