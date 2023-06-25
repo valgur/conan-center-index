@@ -1,8 +1,11 @@
 import os
+from contextlib import contextmanager
 
 from conan import ConanFile
-from conan.tools.build import can_run
+from conan.tools.apple import is_apple_os
+from conan.tools.build import can_run, cross_building
 from conan.tools.cmake import cmake_layout
+from conan.tools.files import chdir
 
 
 class TestPackageConan(ConanFile):
