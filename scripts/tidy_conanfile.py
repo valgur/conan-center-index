@@ -131,6 +131,10 @@ def _format_source(source):
         return black.format_file_contents(source, fast=False, mode=mode)
     except black.report.NothingChanged:
         pass
+    except Exception:
+        print("Failed to format source", file=sys.stderr)
+        print(source, file=sys.stderr)
+        raise
     return source
 
 
@@ -218,7 +222,7 @@ def tidy_conanfile(conanfile_path, write=True):
     ]
 
     def prepend_to_method(method, prepend):
-        return method.replace("self):\n", f"self):\n{_indent(prepend, 2)}\n")
+        return method.replace("self):\n", f"self):\n{_indent(prepend, 2)}\n", 1)
 
     if is_header_only:
         details.attrs["package_type"] = "header-library"
