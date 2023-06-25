@@ -350,6 +350,7 @@ def tidy_conanfile(conanfile_path, write=True):
     methods.update(details.methods)
     methods_order = [
         ("_min_cppstd", False),
+        ("_minimum_cpp_standard", False),
         ("_compilers_minimum_version", False),
         ("_settings_build", False),
         ("_is_mingw", False),
@@ -413,7 +414,14 @@ def tidy_conanfile(conanfile_path, write=True):
             add_method(method)
         elif is_required:
             warn(f"Missing required method '{method}'")
-            result.write(_indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n"))
+            if method == "config_options":
+                result.write(_indent("def config_options(self):\n", 1))
+                result.write(_indent('if self.settings.os == "Windows":\n    del self.options.fPIC\n', 2))
+            elif method == "configure":
+                result.write(_indent("def configure(self):\n", 1))
+                result.write(_indent('if self.options.shared:\n    self.options.rm_safe("fPIC")\n', 2))
+            else:
+                result.write(_indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n"))
     if cur_group:
         for method in cur_group:
             add_method(method)
