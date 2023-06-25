@@ -16,6 +16,8 @@ disable=fixme,
         missing-class-docstring,
         invalid-name,
         no-member,
+        unused-import,
+        reimported,
         wrong-import-order,  # TODO: Remove
         import-outside-toplevel  # TODO: Remove
 
