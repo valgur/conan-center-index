@@ -265,14 +265,6 @@ def tidy_conanfile(conanfile_path, write=True):
                     details.methods["package_info"] = prepend_to_method(
                         details.methods["package_info"], f"self.cpp_info.{d} = []"
                     )
-        if "self.env_info.PATH" not in details.methods["package_info"]:
-            details.methods["package_info"] += _indent(
-                (
-                    'bin_folder = os.path.join(self.package_folder, "bin")\n'
-                    "self.env_info.PATH.append(bin_folder)\n"
-                ),
-                level=2,
-            )
         if "package_id" not in details.methods or "settings.compiler" not in details.methods["package_id"]:
             details.methods["package_id"] = _indent(
                 "def package_id(self):\n"
@@ -352,6 +344,7 @@ def tidy_conanfile(conanfile_path, write=True):
         ("_min_cppstd", False),
         ("_minimum_cpp_standard", False),
         ("_compilers_minimum_version", False),
+        ("_minimum_compiler_version", False),
         ("_settings_build", False),
         ("_is_mingw", False),
         ("export", False),
@@ -366,7 +359,7 @@ def tidy_conanfile(conanfile_path, write=True):
         ("build_requirements", False),
         ("system_requirements", False),
         ("source", True),
-        ("generate", not is_header_only),
+        ("generate", not (is_header_only or is_application)),
         ("_patch_sources", False),
         ("build", not is_header_only),
         ("test", False),
@@ -390,6 +383,18 @@ def tidy_conanfile(conanfile_path, write=True):
     if "_minimum_compilers_version" in methods:
         methods["_compilers_minimum_version"] = methods["_minimum_compilers_version"]
         del methods["_minimum_compilers_version"]
+
+    if details.build_system == "CMake":
+        if details.is_method_empty("generate"):
+            methods["generate"] = _indent(
+                "def generate(self):\n    tc = CMakeToolchain(self)\n    tc.generate()\n"
+            )
+        if "CMakeToolchain" not in methods["generate"]:
+            methods["generate"] = prepend_to_method(
+                methods["generate"], "tc = CMakeToolchain(self)\ntc.generate()\n"
+            )
+        if not details.is_method_empty("requirements") and "CMakeDeps" not in methods["generate"]:
+            methods["generate"] += _indent("tc = CMakeDeps(self)\ntc.generate()\n", 2)
 
     unexpected_method_groups = {}
     cur_group = []
