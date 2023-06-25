@@ -75,7 +75,6 @@ from conan.tools.microsoft import (
     unix_path_package_info_legacy,
     vs_layout,
 )
-from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 from io import StringIO
