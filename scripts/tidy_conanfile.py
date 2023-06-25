@@ -1,12 +1,10 @@
 import inspect
 import io
-import linecache
 import os
 import re
 import sys
 import textwrap
 from pathlib import Path
-from pprint import pprint
 
 import black
 from conan import ConanFile
@@ -232,7 +230,11 @@ def tidy_conanfile(conanfile_path, write=True):
         details.attrs["no_copy_source"] = True
         if "header-only" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["header-only"])
-        if "self.cpp_info.bindirs = []" not in details.methods["package_info"]:
+        if "package_info" not in details.methods:
+            details.methods["package_info"] = _indent(
+                "def package_info(self):\n    self.cpp_info.bindirs = []\n    self.cpp_info.libdirs = []\n"
+            )
+        elif "self.cpp_info.bindirs = []" not in details.methods["package_info"]:
             details.methods["package_info"] = prepend_to_method(
                 details.methods["package_info"], "self.cpp_info.bindirs = []\nself.cpp_info.libdirs = []\n"
             )
@@ -247,11 +249,22 @@ def tidy_conanfile(conanfile_path, write=True):
         details.attrs["no_copy_source"] = None
         if "pre-built" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["pre-built"])
-        for d in ["frameworkdirs", "libdirs", "resdirs", "includedirs"][::-1]:
-            if f"self.cpp_info.{d} = []" not in details.methods["package_info"]:
-                details.methods["package_info"] = prepend_to_method(
-                    details.methods["package_info"], f"self.cpp_info.{d} = []"
-                )
+        if "package_info" not in details.methods:
+            details.methods["package_info"] = "    def package_info(self):\n" + _indent(
+                (
+                    "self.cpp_info.frameworkdirs = []\n"
+                    "self.cpp_info.libdirs = []\n"
+                    "self.cpp_info.resdirs ="
+                    " []\nself.cpp_info.includedirs = []\n"
+                ),
+                2,
+            )
+        else:
+            for d in ["frameworkdirs", "libdirs", "resdirs", "includedirs"][::-1]:
+                if f"self.cpp_info.{d} = []" not in details.methods["package_info"]:
+                    details.methods["package_info"] = prepend_to_method(
+                        details.methods["package_info"], f"self.cpp_info.{d} = []"
+                    )
         if "self.env_info.PATH" not in details.methods["package_info"]:
             details.methods["package_info"] += _indent(
                 (
@@ -405,6 +418,10 @@ def tidy_conanfile(conanfile_path, write=True):
     if warnings:
         w = "\n".join(f"#   {warning}" for warning in warnings)
         processed_source = f"# Warnings:\n{w}\n\n{processed_source}"
+    processed_source.replace(
+        'settings = ("os", "arch", "compiler", "build_type")',
+        'settings = "os", "arch", "compiler", "build_type"',
+    )
     processed_source = _format_source(processed_source)
 
     if write:
