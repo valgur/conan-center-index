@@ -1,10 +1,12 @@
 import inspect
 import io
+import linecache
 import os
 import re
 import sys
 import textwrap
 from pathlib import Path
+from pprint import pprint
 
 import black
 from conan import ConanFile
@@ -15,7 +17,8 @@ class ConanFileDetails:
     def __init__(self, conanfile_path):
         conanfile_path = Path(conanfile_path)
         conanfile = conanfile_path.read_text(encoding="utf-8")
-        conanfile = _format_source(conanfile)
+        # Formatting the file breaks inspect.getsourcefile()
+        # conanfile = _format_source(conanfile)
         eval(compile(conanfile, str(conanfile_path), "exec"), globals(), locals())
         conanfile_class = [
             value
@@ -327,7 +330,7 @@ def tidy_conanfile(conanfile_path, write=True):
         if attr in expected_attrs:
             continue
         if attr in disallowed_attrs:
-            warn(f"Disallowed attribute '{attr} = {value:r}'")
+            warn(f"Disallowed attribute '{attr} = {repr(value)}'")
             continue
 
     methods = details.props
@@ -354,7 +357,10 @@ def tidy_conanfile(conanfile_path, write=True):
         ("build", not is_header_only),
         ("test", False),
         ("_extract_license", False),
+        ("_create_cmake_module_alias_targets", False),
         ("package", True),
+        ("_module_file_rel_path", False),
+        ("_variable_file_rel_path", False),
         ("package_info", True),
     ]
     expected_methods = {method for method, is_required in methods_order}
@@ -371,17 +377,25 @@ def tidy_conanfile(conanfile_path, write=True):
         methods["_compilers_minimum_version"] = methods["_minimum_compilers_version"]
         del methods["_minimum_compilers_version"]
 
+    def add_method(method_name):
+        result.write(methods[method_name])
+        result.write("\n")
+
     result.write("\n")
     for method in sorted(methods):
-        if method not in expected_methods:
+        is_submethod = any(method.startswith(f"_{m}_") for m in expected_methods)
+        if is_submethod:
+            warn(f"Possibly unnecessary sub-method '{method}'")
+        elif method not in expected_methods:
             warn(f"Unexpected method '{method}'")
-            result.write(methods[method])
-            result.write("\n")
+            add_method(method)
 
     for method, is_required in methods_order:
         if method in methods:
-            result.write(methods[method])
-            result.write("\n")
+            for m in methods:
+                if m.startswith(f"_{method}_"):
+                    add_method(m)
+            add_method(method)
         elif is_required:
             warn(f"Missing required method '{method}'")
             result.write(_indent(f"def {method}(self):\n    # TODO: fill in {method}()\n    pass\n"))
