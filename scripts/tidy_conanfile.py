@@ -59,8 +59,14 @@ class ConanFileDetails:
 
     @property
     def is_header_only(self):
+        if self.is_application:
+            return False
+        if "package_info" in self.methods and 'self.cpp_info.libs = ["' in self.methods["package_info"]:
+            return False
         if "package_type" in self.attrs:
             return self.attrs["package_type"] == "header-library"
+        if "options" in self.attrs and "shared" in self.attrs["options"] or "fPIC" in self.attrs["options"]:
+            return False
         if self.attrs.get("no_copy_source") is True:
             return True
         if "package_id" in self.methods:
@@ -72,10 +78,14 @@ class ConanFileDetails:
 
     @property
     def is_application(self):
-        if self.is_header_only:
+        if "package_info" in self.methods and 'self.cpp_info.libs = ["' in self.methods["package_info"]:
             return False
         if "package_type" in self.attrs:
             return self.attrs["package_type"] == "application"
+        if self.build_system is not None:
+            return False
+        if "options" in self.attrs and "shared" in self.attrs["options"] or "fPIC" in self.attrs["options"]:
+            return False
         if "layout" in self.methods and self.is_method_empty("layout"):
             return True
         if "source" in self.methods and self.is_method_empty("source"):
