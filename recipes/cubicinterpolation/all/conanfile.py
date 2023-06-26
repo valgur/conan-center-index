@@ -11,11 +11,12 @@ required_conan_version = ">=1.57.0"
 
 class CubicInterpolationConan(ConanFile):
     name = "cubicinterpolation"
-    homepage = "https://github.com/MaxSac/cubic_interpolation"
+    description = "Leightweight interpolation library based on boost and eigen."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Leightweight interpolation library based on boost and eigen."
+    homepage = "https://github.com/MaxSac/cubic_interpolation"
     topics = ("interpolation", "splines", "cubic", "bicubic", "boost", "eigen3")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -66,7 +67,8 @@ class CubicInterpolationConan(ConanFile):
 
         if not check_min_vs(self, 192, raise_invalid=False):
             raise ConanInvalidConfiguration(
-                f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome"
+                f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions"
+                " are welcome"
             )
 
         if is_msvc(self) and self.options.shared:

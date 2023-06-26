@@ -10,10 +10,11 @@ required_conan_version = ">=1.53.0"
 class DrflacConan(ConanFile):
     name = "drflac"
     description = "FLAC audio decoder."
-    homepage = "https://mackron.github.io/dr_flac"
-    topics = ("audio", "flac", "sound")
     license = ("Unlicense", "MIT-0")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mackron.github.io/dr_flac"
+    topics = ("audio", "flac", "sound")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

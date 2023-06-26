@@ -4,7 +4,6 @@ from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualBuildEnv
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -12,9 +11,11 @@ class InnoextractConan(ConanFile):
     name = "innoextract"
     description = "Extract contents of Inno Setup installers"
     license = "LicenseRef-LICENSE"
-    topics = ("inno-setup", "decompression")
-    homepage = "https://constexpr.org/innoextract"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://constexpr.org/innoextract"
+    topics = ("inno-setup", "decompression")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
@@ -63,6 +64,8 @@ class InnoextractConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         bindir = os.path.join(self.package_folder, "bin")

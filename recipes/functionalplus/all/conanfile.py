@@ -5,16 +5,18 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class FunctionalPlusConan(ConanFile):
     name = "functionalplus"
     description = "Functional Programming Library for C++."
     license = "BSL-1.0"
-    topics = ("fplus", "functional programming")
-    homepage = "https://github.com/Dobiasd/FunctionalPlus"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Dobiasd/FunctionalPlus"
+    topics = ("fplus", "functional programming", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -27,6 +29,9 @@ class FunctionalPlusConan(ConanFile):
             "clang": "3.7",
             "apple-clang": "9",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -46,9 +51,6 @@ class FunctionalPlusConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "functionalplus requires C++14, which your compiler does not support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -14,11 +14,12 @@ class OpenEXRConan(ConanFile):
         "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & "
         "Magic for use in computer imaging applications."
     )
-    topics = ("hdr", "image", "picture")
     license = "BSD-3-Clause"
-    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
+    topics = ("hdr", "image", "picture")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,6 +41,9 @@ class OpenEXRConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("zlib/1.2.13")
         # Note: OpenEXR and Imath are versioned independently.
@@ -48,9 +52,6 @@ class OpenEXRConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,10 +78,6 @@ class OpenEXRConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-    @staticmethod
-    def _conan_comp(name):
-        return f"openexr_{name.lower()}"
 
     def _add_component(self, name):
         component = self.cpp_info.components[self._conan_comp(name)]

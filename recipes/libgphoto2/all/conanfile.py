@@ -14,14 +14,17 @@ required_conan_version = ">=1.54.0"
 
 class LibGphoto2(ConanFile):
     name = "libgphoto2"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "The libgphoto2 camera access and control library."
-    homepage = "http://www.gphoto.org/"
     license = "LGPL-2.1"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.gphoto.org/"
     topics = ("gphoto2", "libgphoto", "photo")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "with_libusb": [True, False],
         "with_libcurl": [True, False],
         "with_libxml2": [True, False],
@@ -29,6 +32,8 @@ class LibGphoto2(ConanFile):
         "with_libjpeg": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "with_libusb": True,
         "with_libcurl": True,
         "with_libxml2": True,
@@ -42,6 +47,10 @@ class LibGphoto2(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")

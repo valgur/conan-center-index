@@ -12,9 +12,9 @@ class DiscountConan(ConanFile):
     name = "discount"
     description = "DISCOUNT is a implementation of John Gruber & Aaron Swartz's Markdown markup language."
     license = "BSD-3-Clause"
-    topics = ("markdown",)
-    homepage = "http://www.pell.portland.or.us/~orc/Code/discount"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.pell.portland.or.us/~orc/Code/discount"
+    topics = ("markdown",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

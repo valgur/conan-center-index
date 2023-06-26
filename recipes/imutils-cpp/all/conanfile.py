@@ -13,9 +13,10 @@ class ImutilsCppConan(ConanFile):
     name = "imutils-cpp"
     description = "This is a cpp version of popular python computer vision library imutils."
     license = "Apache-2.0"
-    topics = ("opencv", "imutils", "computer vision")
-    homepage = "https://github.com/thedevmanek/imutils-cpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/thedevmanek/imutils-cpp"
+    topics = ("opencv", "imutils", "computer vision")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

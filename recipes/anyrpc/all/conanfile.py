@@ -15,6 +15,8 @@ class AnyRPCConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/sgieseking/anyrpc"
     topics = ("rpc",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -67,7 +69,8 @@ class AnyRPCConan(ConanFile):
 
         if self.options.with_log4cplus and self.options.with_wchar:
             raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built with both log4cplus and wchar, see https://github.com/sgieseking/anyrpc/issues/25"
+                f"{self.ref} can not be built with both log4cplus and wchar, see"
+                " https://github.com/sgieseking/anyrpc/issues/25"
             )
 
     def source(self):

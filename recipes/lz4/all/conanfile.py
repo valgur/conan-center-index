@@ -15,8 +15,9 @@ class LZ4Conan(ConanFile):
     license = ("BSD-2-Clause", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lz4/lz4"
-    topics = "compression"
+    topics = ("compression",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -75,14 +76,12 @@ class LZ4Conan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

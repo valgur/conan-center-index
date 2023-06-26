@@ -16,14 +16,14 @@ required_conan_version = ">=1.51.0"
 
 class CMakeConan(ConanFile):
     name = "cmake"
-    package_type = "application"
     description = "Conan installer for CMake"
-    topics = ("build", "installer")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Kitware/CMake"
-    license = "BSD-3-Clause"
-    settings = "os", "arch", "compiler", "build_type"
+    topics = ("build", "installer", "pre-built")
 
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_openssl": [True, False],
         "bootstrap": [True, False],
@@ -37,9 +37,23 @@ class CMakeConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.with_openssl = False
 
+    def layout(self):
+        if self.options.bootstrap:
+            basic_layout(self, src_folder="src")
+        else:
+            cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_openssl:
             self.requires("openssl/1.1.1t")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.options.bootstrap
+
+    def validate(self):
+        if self.settings.os == "Macos" and self.settings.arch == "x86":
+            raise ConanInvalidConfiguration("CMake does not support x86 for macOS")
 
     def validate_build(self):
         if self.settings.os == "Windows" and self.options.bootstrap:
@@ -72,16 +86,6 @@ class CMakeConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
-
-    def validate(self):
-        if self.settings.os == "Macos" and self.settings.arch == "x86":
-            raise ConanInvalidConfiguration("CMake does not support x86 for macOS")
-
-    def layout(self):
-        if self.options.bootstrap:
-            basic_layout(self, src_folder="src")
-        else:
-            cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -170,11 +174,9 @@ class CMakeConan(ConanFile):
             cmake.install()
         rmdir(self, os.path.join(self.package_folder, "doc"))
 
-    def package_id(self):
-        del self.info.settings.compiler
-        del self.info.options.bootstrap
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

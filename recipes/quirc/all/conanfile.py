@@ -10,13 +10,22 @@ class QuircConan(ConanFile):
     name = "quirc"
     description = "QR decoder library"
     license = "ISC"
-    topics = ("qr", "decoder")
-    homepage = "https://github.com/dlbeer/quirc"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/dlbeer/quirc"
+    topics = ("qr", "decoder")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "max_regions": [254, 65534]}
-    default_options = {"shared": False, "fPIC": True, "max_regions": 254}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "max_regions": [254, 65534],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "max_regions": 254,
+    }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)

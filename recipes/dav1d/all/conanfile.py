@@ -16,10 +16,11 @@ class Dav1dConan(ConanFile):
     description = (
         "dav1d is a new AV1 cross-platform decoder, open-source, and focused on speed, size and correctness."
     )
-    homepage = "https://www.videolan.org/projects/dav1d.html"
-    topics = ("av1", "codec", "video", "decoding")
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.videolan.org/projects/dav1d.html"
+    topics = ("av1", "codec", "video", "decoding")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

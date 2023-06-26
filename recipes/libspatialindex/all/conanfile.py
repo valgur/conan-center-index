@@ -12,9 +12,9 @@ class LibspatialindexConan(ConanFile):
     name = "libspatialindex"
     description = "C++ implementation of R*-tree, an MVR-tree and a TPR-tree with C API."
     license = "MIT"
-    topics = ("spatial-indexing", "tree")
-    homepage = "https://github.com/libspatialindex/libspatialindex"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libspatialindex/libspatialindex"
+    topics = ("spatial-indexing", "tree")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

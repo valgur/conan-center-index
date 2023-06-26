@@ -171,7 +171,7 @@ class Re2CConan(ConanFile):
             keep_path=False,
         )
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))

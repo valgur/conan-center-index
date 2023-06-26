@@ -1,18 +1,22 @@
 import os
-from conan import ConanFile, tools
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
-required_conan_version = ">=1.46.0"
+from conan import ConanFile
+from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
+from conan.tools.files import copy, get
+
+required_conan_version = ">=1.53.0"
 
 
 class Box2dConan(ConanFile):
     name = "box2d"
-    license = "Zlib"
     description = "Box2D is a 2D physics engine for games"
-    topics = ("physics", "engine", "game development")
-    homepage = "http://box2d.org/"
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "http://box2d.org/"
+    topics = ("physics", "engine", "game development")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

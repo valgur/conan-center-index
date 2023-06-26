@@ -15,8 +15,8 @@ class CwalkConan(ConanFile):
         "MacOS and Linux. Supports UNIX and Windows path styles "
         "on those platforms."
     )
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://likle.github.io/cwalk/"
     topics = (
         "cross-platform",

@@ -6,7 +6,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -17,6 +16,7 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/maxbachmann/rapidfuzz-cpp"
     topics = ("levenshtein", "string-matching", "string-similarity", "string-comparison", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

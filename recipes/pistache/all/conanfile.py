@@ -26,12 +26,13 @@ required_conan_version = ">=1.53.0"
 
 class PistacheConan(ConanFile):
     name = "pistache"
-    license = "Apache-2.0"
-    homepage = "https://github.com/pistacheio/pistache"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("http", "rest", "framework", "networking")
     description = "Pistache is a modern and elegant HTTP and REST framework for C++"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pistacheio/pistache"
+    topics = ("http", "rest", "framework", "networking")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -89,7 +90,8 @@ class PistacheConan(ConanFile):
                 )
         else:
             self.output.warn(
-                f"{self.ref} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17."
+                f"{self.ref} requires c++17, but this compiler is unknown to this recipe. "
+                f"Assuming your compiler supports c++17."
             )
 
     def build_requirements(self):

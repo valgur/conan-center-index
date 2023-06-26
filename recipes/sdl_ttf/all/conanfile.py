@@ -21,10 +21,11 @@ class SdlttfConan(ConanFile):
     name = "sdl_ttf"
     description = "A TrueType font library for SDL"
     license = "Zlib"
-    topics = ("sdl2", "sdl2_ttf", "sdl", "ttf", "font")
-    homepage = "https://www.libsdl.org/projects/SDL_ttf"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libsdl.org/projects/SDL_ttf"
+    topics = ("sdl2", "sdl2_ttf", "sdl", "ttf", "font")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

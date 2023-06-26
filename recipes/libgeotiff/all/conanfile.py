@@ -22,10 +22,11 @@ class LibgeotiffConan(ConanFile):
         "of libtiff for reading, and writing GeoTIFF information tags."
     )
     license = ["MIT", "BSD-3-Clause"]
-    topics = ("geotiff", "tiff")
-    homepage = "https://github.com/OSGeo/libgeotiff"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OSGeo/libgeotiff"
+    topics = ("geotiff", "tiff")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -89,8 +90,7 @@ class LibgeotiffConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(GEOTIFF_FOUND ${GeoTIFF_FOUND})
             if(DEFINED GeoTIFF_INCLUDE_DIR)
                 set(GEOTIFF_INCLUDE_DIR ${GeoTIFF_INCLUDE_DIR})
@@ -98,21 +98,18 @@ class LibgeotiffConan(ConanFile):
             if(DEFINED GeoTIFF_LIBRARIES)
                 set(GEOTIFF_LIBRARIES ${GeoTIFF_LIBRARIES})
             endif()
-        """
-        )
+        """)
         save(self, module_file, content)
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

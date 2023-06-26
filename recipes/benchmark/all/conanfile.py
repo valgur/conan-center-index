@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
@@ -14,7 +14,7 @@ class BenchmarkConan(ConanFile):
     name = "benchmark"
     description = "A microbenchmark support library."
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index/"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/benchmark"
     topics = ("google", "microbenchmark")
 
@@ -48,14 +48,14 @@ class BenchmarkConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        if self.options.get_safe("enable_libpfm"):
+            self.requires("libpfm4/4.13.0")
+
     def validate(self):
         check_min_vs(self, "190")
         if Version(self.version) < "1.7.0" and is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support msvc shared builds")
-
-    def requirements(self):
-        if self.options.get_safe("enable_libpfm"):
-            self.requires("libpfm4/4.13.0")
 
     def build_requirements(self):
         if Version(self.version) >= "1.7.1":
@@ -82,6 +82,9 @@ class BenchmarkConan(ConanFile):
             tc.variables["BENCHMARK_USE_LIBCXX"] = self.settings.compiler.get_safe("libcxx") == "libc++"
         else:
             tc.variables["BENCHMARK_USE_LIBCXX"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

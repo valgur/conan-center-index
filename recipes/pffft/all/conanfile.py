@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan.tools.files import get, load, save, copy
 import os
 
 required_conan_version = ">=1.53.0"
@@ -9,10 +9,10 @@ required_conan_version = ">=1.53.0"
 class PffftConan(ConanFile):
     name = "pffft"
     description = "PFFFT, a pretty fast Fourier Transform."
+    license = "BSD-like (FFTPACK license)"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/jpommier/pffft/src/master/"
     topics = ("fft", "pffft")
-    license = "BSD-like (FFTPACK license)"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

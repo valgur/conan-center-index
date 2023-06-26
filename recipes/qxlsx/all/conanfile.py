@@ -12,9 +12,10 @@ class QXlsxConan(ConanFile):
     name = "qxlsx"
     description = "Excel file(*.xlsx) reader/writer library using Qt 5 or 6."
     license = "MIT"
-    topics = ("excel", "xlsx")
-    homepage = "https://github.com/QtExcel/QXlsx"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/QtExcel/QXlsx"
+    topics = ("excel", "xlsx")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

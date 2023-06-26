@@ -10,10 +10,11 @@ required_conan_version = ">=1.53.0"
 class AwsCCompression(ConanFile):
     name = "aws-c-compression"
     description = "C99 implementation of huffman encoding/decoding"
-    topics = ("aws", "amazon", "cloud", "compression", "huffman")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-compression"
-    license = ("Apache-2.0",)
+    topics = ("aws", "amazon", "cloud", "compression", "huffman")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -56,6 +57,19 @@ class AwsCCompression(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -69,19 +83,6 @@ class AwsCCompression(ConanFile):
                 "AWS::aws-c-compression": "aws-c-compression::aws-c-compression",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

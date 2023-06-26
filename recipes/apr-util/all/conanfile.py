@@ -20,9 +20,9 @@ class AprUtilConan(ConanFile):
         "consistent interface to underlying platform-specific implementations"
     )
     license = "Apache-2.0"
-    topics = ("apache", "platform", "library")
-    homepage = "https://apr.apache.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://apr.apache.org/"
+    topics = ("apache", "platform", "library")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

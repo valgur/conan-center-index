@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -24,15 +23,14 @@ required_conan_version = ">=1.53.0"
 
 class GrpcConan(ConanFile):
     name = "grpc"
-    package_type = "library"
     description = "Google's RPC (remote procedure call) library and framework."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/grpc/grpc"
     topics = ("rpc",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

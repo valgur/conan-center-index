@@ -25,6 +25,7 @@ class GTestConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/googletest"
     topics = ("testing", "google-testing", "unit-test")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

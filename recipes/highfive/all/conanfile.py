@@ -12,10 +12,11 @@ class HighFiveConan(ConanFile):
     name = "highfive"
     description = "HighFive is a modern header-only C++11 friendly interface for libhdf5."
     license = "Boost Software License 1.0"
-    topics = ("hdf5", "hdf", "data")
-    homepage = "https://github.com/BlueBrain/HighFive"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/BlueBrain/HighFive"
+    topics = ("hdf5", "hdf", "data", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_boost": [True, False],
@@ -29,6 +30,7 @@ class HighFiveConan(ConanFile):
         "with_xtensor": True,
         "with_opencv": False,
     }
+    no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -5,23 +5,25 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, rmdir
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.51.0"
+required_conan_version = ">=1.53.0"
 
 
 class SdbusCppConan(ConanFile):
     name = "sdbus-cpp"
-    license = "LicenseRef-LGPL-2.1-or-later-WITH-sdbus-cpp-LGPL-exception-1.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/Kistler-Group/sdbus-cpp"
     description = (
         "High-level C++ D-Bus library for Linux designed"
         " to provide easy-to-use yet powerful API in modern C++"
     )
+    license = "LicenseRef-LGPL-2.1-or-later-WITH-sdbus-cpp-LGPL-exception-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Kistler-Group/sdbus-cpp"
     topics = ("dbus", "sd-bus", "sdbus-c++")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -32,7 +34,6 @@ class SdbusCppConan(ConanFile):
         "fPIC": True,
         "with_code_gen": False,
     }
-    generators = "PkgConfigDeps", "VirtualBuildEnv"
 
     @property
     def _minimum_cpp_standard(self):
@@ -49,12 +50,19 @@ class SdbusCppConan(ConanFile):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
             copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         if Version(self.version) < "0.9.0":
             self.license = "LGPL-2.1-or-later"
 
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libsystemd/253.3")
@@ -88,9 +96,6 @@ class SdbusCppConan(ConanFile):
         if self.options.with_code_gen:
             self.tool_requires("expat/2.5.0")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -104,6 +109,9 @@ class SdbusCppConan(ConanFile):
 
         # workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18150
         copy(self, "*.pc", self.generators_folder, os.path.join(self.generators_folder, "lib", "pkgconfig"))
+
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)

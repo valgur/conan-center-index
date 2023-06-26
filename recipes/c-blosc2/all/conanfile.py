@@ -18,6 +18,7 @@ class CBlosc2Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Blosc/c-blosc2"
     topics = ("c-blosc", "blosc", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

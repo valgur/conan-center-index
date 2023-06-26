@@ -20,6 +20,7 @@ class PahoMqttcConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eclipse/paho.mqtt.c"
     topics = ("mqtt", "iot", "eclipse", "ssl", "tls", "paho")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -102,11 +103,37 @@ class PahoMqttcConan(ConanFile):
                 "",
             )
 
+    @property
+    def _cmake_target(self):
+        target = "paho-mqtt3"
+        target += "a" if self.options.asynchronous else "c"
+        if self.options.ssl:
+            target += "s"
+        if not self.options.shared:
+            target += "-static"
+        return target
+
+    @property
+    def _lib_target(self):
+        target = "paho-mqtt3"
+        target += "a" if self.options.asynchronous else "c"
+        if self.options.ssl:
+            target += "s"
+        if not self.options.shared:
+            # https://github.com/eclipse/paho.mqtt.c/blob/317fb008e1541838d1c29076d2bc5c3e4b6c4f53/src/CMakeLists.txt#L154
+            if self.settings.os == "Windows":
+                target += "-static"
+        return target
+
     def build(self):
         self._patch_source()
         cmake = CMake(self)
         cmake.configure()
         cmake.build(target=self._cmake_target)
+
+    @property
+    def _epl_file(self):
+        return "epl-v10" if self.version in ["1.3.0", "1.3.1"] else "epl-v20"  # EPL changed to V2
 
     def package(self):
         copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -180,29 +207,3 @@ class PahoMqttcConan(ConanFile):
         self.cpp_info.components["_paho-mqtt-c"].set_property(
             "cmake_target_name", f"eclipse-paho-mqtt-c::{self._cmake_target}"
         )
-
-    @property
-    def _epl_file(self):
-        return "epl-v10" if self.version in ["1.3.0", "1.3.1"] else "epl-v20"  # EPL changed to V2
-
-    @property
-    def _cmake_target(self):
-        target = "paho-mqtt3"
-        target += "a" if self.options.asynchronous else "c"
-        if self.options.ssl:
-            target += "s"
-        if not self.options.shared:
-            target += "-static"
-        return target
-
-    @property
-    def _lib_target(self):
-        target = "paho-mqtt3"
-        target += "a" if self.options.asynchronous else "c"
-        if self.options.ssl:
-            target += "s"
-        if not self.options.shared:
-            # https://github.com/eclipse/paho.mqtt.c/blob/317fb008e1541838d1c29076d2bc5c3e4b6c4f53/src/CMakeLists.txt#L154
-            if self.settings.os == "Windows":
-                target += "-static"
-        return target

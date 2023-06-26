@@ -12,13 +12,14 @@ required_conan_version = ">=1.50.0"
 
 class RuntimeQml(ConanFile):
     name = "runtimeqml"
-    homepage = "https://github.com/GIPdA/runtimeqml"
     description = "Enables hot-reloading qml files"
-    topics = ("qt", "hot-reload", "qml", "gui")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    settings = "os", "arch", "compiler", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/GIPdA/runtimeqml"
+    topics = ("qt", "hot-reload", "qml", "gui")
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -68,7 +69,8 @@ class RuntimeQml(ConanFile):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}, "
+                    "which your compiler does not support."
                 )
         qt = self.dependencies["qt"]
         if not qt.options.qtdeclarative:

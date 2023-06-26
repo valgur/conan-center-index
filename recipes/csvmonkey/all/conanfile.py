@@ -16,6 +16,8 @@ class CSVMONEKYConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dw/csvmonkey/"
     topics = ("csv-parser", "header-only", "vectorized")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_spirit": [True, False],

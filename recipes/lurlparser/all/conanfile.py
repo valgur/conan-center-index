@@ -4,7 +4,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class PackageConan(ConanFile):
@@ -14,6 +14,8 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/corporateshark/LUrlParser/"
     topics = ("url", "uri", "parser")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

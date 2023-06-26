@@ -28,11 +28,12 @@ required_conan_version = ">=1.53.0"
 
 class GlibmmConan(ConanFile):
     name = "glibmm"
-    homepage = "https://gitlab.gnome.org/GNOME/glibmm"
+    description = "glibmm is a C++ API for parts of glib that are useful for C++."
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "glibmm is a C++ API for parts of glib that are useful for C++."
+    homepage = "https://gitlab.gnome.org/GNOME/glibmm"
     topics = ("giomm",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -1,10 +1,12 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools import build, files
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import json
 import os
 import re
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools import build
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import export_conandata_patches, load, rmdir, copy, apply_conandata_patches, rm, get
 
 required_conan_version = ">=1.52.0"
 
@@ -17,11 +19,15 @@ class NmosCppConan(ConanFile):
     homepage = "https://github.com/sony/nmos-cpp"
     topics = ("amwa", "nmos", "is-04", "is-05", "is-07", "is-08", "is-09", "broadcasting", "network", "media")
 
-    settings = "os", "compiler", "build_type", "arch"
-    # for now, no "shared" option support
-    options = {"fPIC": [True, False], "with_dnssd": ["mdnsresponder", "avahi"]}
-    # "fPIC" is handled automatically by Conan, injecting CMAKE_POSITION_INDEPENDENT_CODE
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_dnssd": ["mdnsresponder", "avahi"],
+    }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_dnssd": "mdnsresponder",
     }
@@ -39,6 +45,13 @@ class NmosCppConan(ConanFile):
             self.options.with_dnssd = "avahi"
         elif self.settings.os == "Windows":
             self.options.with_dnssd = "mdnsresponder"
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # for now, consistent with project's conanfile.txt
@@ -59,9 +72,9 @@ class NmosCppConan(ConanFile):
         elif self.options.get_safe("with_dnssd") == "avahi":
             self.requires("avahi/0.8")
 
-    def build_requirements(self):
-        # nmos-cpp needs CMake 3.17 or higher but CCI doesn't allow version ranges
-        self.build_requires("cmake/3.24.2")
+    def package_id(self):
+        self.info.requires["boost"].minor_mode()
+        self.info.requires["nlohmann_json"].patch_mode()
 
     def validate(self):
         if self.info.settings.os in ["Macos"]:
@@ -71,12 +84,9 @@ class NmosCppConan(ConanFile):
         if self.info.settings.compiler.get_safe("cppstd"):
             build.check_min_cppstd(self, 11)
 
-    def package_id(self):
-        self.info.requires["boost"].minor_mode()
-        self.info.requires["nlohmann_json"].patch_mode()
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def build_requirements(self):
+        # nmos-cpp needs CMake 3.17 or higher but CCI doesn't allow version ranges
+        self.build_requires("cmake/3.24.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -194,7 +204,8 @@ class NmosCppConan(ConanFile):
                         for property_value in property_values:
                             if property_value not in ["cxx_std_11"]:
                                 self.output.warn(
-                                    f"{self.name} recipe does not handle {property_type} {property_value} (yet)"
+                                    f"{self.name} recipe does not handle"
+                                    f" {property_type} {property_value} (yet)"
                                 )
                     elif property_type == "INTERFACE_COMPILE_OPTIONS":
                         for property_value in property_values:
@@ -205,7 +216,8 @@ class NmosCppConan(ConanFile):
                         for property_value in property_values:
                             if property_value not in ["${_IMPORT_PREFIX}/include"]:
                                 self.output.warn(
-                                    f"{self.name} recipe does not handle {property_type} {property_value} (yet)"
+                                    f"{self.name} recipe does not handle"
+                                    f" {property_type} {property_value} (yet)"
                                 )
                     elif property_type == "INTERFACE_LINK_OPTIONS":
                         for property_value in property_values:

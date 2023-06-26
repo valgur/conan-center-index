@@ -10,12 +10,12 @@ required_conan_version = ">=1.53.0"
 class FreeImageConan(ConanFile):
     name = "freeimage"
     description = (
-        "Open Source library project for developers who would like to support popular graphics image formats"
-        "like PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
+        "Open Source library project for developers who would like to support popular graphics image"
+        " formatslike PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
     )
-    homepage = "https://freeimage.sourceforge.io"
+    license = ("FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
-    license = "FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later"
+    homepage = "https://freeimage.sourceforge.io"
     topics = ("image", "decoding", "graphics")
 
     package_type = "library"

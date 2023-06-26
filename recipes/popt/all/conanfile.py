@@ -8,7 +8,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 import os
 
-
 required_conan_version = ">=1.54.0"
 
 
@@ -19,6 +18,7 @@ class PoptConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rpm-software-management/popt"
     topics = ("command line", "options", "parsing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

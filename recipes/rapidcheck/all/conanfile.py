@@ -16,10 +16,11 @@ class RapidcheckConan(ConanFile):
     description = (
         "QuickCheck clone for C++ with the goal of being simple to use with as little boilerplate as possible"
     )
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/emil-e/rapidcheck"
-    license = "BSD-2-Clause"
     topics = ("quickcheck", "testing", "property-testing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -97,6 +98,21 @@ class RapidcheckConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                """\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
@@ -114,21 +130,6 @@ class RapidcheckConan(ConanFile):
                 "rapidcheck_gtest": "rapidcheck::rapidcheck_gtest",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

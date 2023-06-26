@@ -13,11 +13,12 @@ class NetcdfConan(ConanFile):
         "scientific data access and a freely-distributed software library "
         "that provides an implementation of the interface."
     )
-    topics = ("unidata", "unidata-netcdf", "networking")
     license = "BSD-3-Clause"
-    homepage = "https://github.com/Unidata/netcdf-c"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Unidata/netcdf-c"
+    topics = ("unidata", "unidata-netcdf", "networking")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

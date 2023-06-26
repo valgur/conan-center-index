@@ -14,13 +14,18 @@ required_conan_version = ">=1.53.0"
 class EditlineConan(ConanFile):
     name = "editline"
     description = "Autotool- and libtoolized port of the NetBSD Editline library (libedit)."
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://thrysoee.dk/editline/"
     topics = ("libedit", "line", "editing", "history", "tokenization")
-    license = "BSD-3-Clause"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "terminal_db": ["termcap", "ncurses", "tinfo"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "terminal_db": ["termcap", "ncurses", "tinfo"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

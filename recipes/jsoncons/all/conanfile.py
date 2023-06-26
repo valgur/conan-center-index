@@ -3,12 +3,15 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class JsonconsConan(ConanFile):
     name = "jsoncons"
-    description = "A C++, header-only library for constructing JSON and JSON-like data formats, with JSON Pointer, JSON Patch, JSON Schema, JSONPath, JMESPath, CSV, MessagePack, CBOR, BSON, UBJSON"
+    description = (
+        "A C++, header-only library for constructing JSON and JSON-like data formats, "
+        "with JSON Pointer, JSON Patch, JSON Schema, JSONPath, JMESPath, CSV, MessagePack, CBOR, BSON, UBJSON"
+    )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/danielaparker/jsoncons"
@@ -35,6 +38,8 @@ class JsonconsConan(ConanFile):
         "streaming-json-read",
         "header-only",
     )
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

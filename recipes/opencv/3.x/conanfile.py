@@ -21,12 +21,13 @@ required_conan_version = ">=1.54.0"
 
 class OpenCVConan(ConanFile):
     name = "opencv"
-    license = "BSD-3-Clause"
-    homepage = "https://opencv.org"
     description = "OpenCV (Open Source Computer Vision Library)"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://opencv.org"
     topics = ("computer-vision", "deep-learning", "image-processing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -342,14 +343,12 @@ class OpenCVConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property
@@ -438,10 +437,12 @@ class OpenCVConan(ConanFile):
             {
                 "target": "opencv_highgui",
                 "lib": "highgui",
-                "requires": ["opencv_core", "opencv_imgproc", "opencv_imgcodecs", "opencv_videoio"]
-                + eigen()
-                + gtk()
-                + freetype(),
+                "requires": (
+                    ["opencv_core", "opencv_imgproc", "opencv_imgcodecs", "opencv_videoio"]
+                    + eigen()
+                    + gtk()
+                    + freetype()
+                ),
             },
             {
                 "target": "opencv_objdetect",
@@ -452,24 +453,25 @@ class OpenCVConan(ConanFile):
                     "opencv_imgproc",
                     "opencv_features2d",
                     "opencv_calib3d",
-                ]
-                + eigen(),
+                ] + eigen(),
             },
             {
                 "target": "opencv_stitching",
                 "lib": "stitching",
-                "requires": [
-                    "opencv_core",
-                    "opencv_flann",
-                    "opencv_imgproc",
-                    "opencv_ml",
-                    "opencv_video",
-                    "opencv_features2d",
-                    "opencv_shape",
-                    "opencv_calib3d",
-                ]
-                + xfeatures2d()
-                + eigen(),
+                "requires": (
+                    [
+                        "opencv_core",
+                        "opencv_flann",
+                        "opencv_imgproc",
+                        "opencv_ml",
+                        "opencv_video",
+                        "opencv_features2d",
+                        "opencv_shape",
+                        "opencv_calib3d",
+                    ]
+                    + xfeatures2d()
+                    + eigen()
+                ),
             },
             {
                 "target": "opencv_superres",
@@ -480,8 +482,7 @@ class OpenCVConan(ConanFile):
                     "opencv_video",
                     "opencv_imgcodecs",
                     "opencv_videoio",
-                ]
-                + eigen(),
+                ] + eigen(),
             },
             {
                 "target": "opencv_videostab",
@@ -496,8 +497,7 @@ class OpenCVConan(ConanFile):
                     "opencv_imgcodecs",
                     "opencv_videoio",
                     "opencv_calib3d",
-                ]
-                + eigen(),
+                ] + eigen(),
             },
         ]
         if self.options.contrib:
@@ -536,8 +536,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgproc",
                             "freetype::freetype",
                             "harfbuzz::harfbuzz",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_fuzzy",
@@ -557,14 +556,22 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_line_descriptor",
                         "lib": "line_descriptor",
-                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
-                        + eigen(),
+                        "requires": [
+                            "opencv_core",
+                            "opencv_flann",
+                            "opencv_imgproc",
+                            "opencv_features2d",
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_saliency",
                         "lib": "saliency",
-                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
-                        + eigen(),
+                        "requires": [
+                            "opencv_core",
+                            "opencv_flann",
+                            "opencv_imgproc",
+                            "opencv_features2d",
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_datasets",
@@ -575,8 +582,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgproc",
                             "opencv_ml",
                             "opencv_imgcodecs",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_rgbd",
@@ -587,8 +593,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgproc",
                             "opencv_features2d",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_stereo",
@@ -599,8 +604,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgproc",
                             "opencv_features2d",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_structured_light",
@@ -612,8 +616,7 @@ class OpenCVConan(ConanFile):
                             "opencv_phase_unwrapping",
                             "opencv_features2d",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_tracking",
@@ -627,8 +630,7 @@ class OpenCVConan(ConanFile):
                             "opencv_video",
                             "opencv_imgcodecs",
                             "opencv_datasets",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_xfeatures2d",
@@ -642,8 +644,7 @@ class OpenCVConan(ConanFile):
                             "opencv_features2d",
                             "opencv_shape",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_ximgproc",
@@ -655,8 +656,7 @@ class OpenCVConan(ConanFile):
                             "opencv_features2d",
                             "opencv_imgcodecs",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_xobjdetect",
@@ -669,8 +669,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgcodecs",
                             "opencv_calib3d",
                             "opencv_objdetect",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_aruco",
@@ -681,8 +680,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgproc",
                             "opencv_features2d",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_bgsegm",
@@ -694,8 +692,7 @@ class OpenCVConan(ConanFile):
                             "opencv_video",
                             "opencv_features2d",
                             "opencv_calib3d",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_bioinspired",
@@ -706,8 +703,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgcodecs",
                             "opencv_videoio",
                             "opencv_highgui",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_ccalib",
@@ -721,8 +717,7 @@ class OpenCVConan(ConanFile):
                             "opencv_videoio",
                             "opencv_calib3d",
                             "opencv_highgui",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_dpm",
@@ -737,8 +732,7 @@ class OpenCVConan(ConanFile):
                             "opencv_calib3d",
                             "opencv_highgui",
                             "opencv_objdetect",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_face",
@@ -752,8 +746,7 @@ class OpenCVConan(ConanFile):
                             "opencv_features2d",
                             "opencv_calib3d",
                             "opencv_objdetect",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_optflow",
@@ -767,8 +760,7 @@ class OpenCVConan(ConanFile):
                             "opencv_imgcodecs",
                             "opencv_calib3d",
                             "opencv_ximgproc",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "opencv_sfm",
@@ -789,8 +781,7 @@ class OpenCVConan(ConanFile):
                             "numeric",
                             "glog::glog",
                             "gflags::gflags",
-                        ]
-                        + eigen(),
+                        ] + eigen(),
                     },
                     {
                         "target": "correspondence",

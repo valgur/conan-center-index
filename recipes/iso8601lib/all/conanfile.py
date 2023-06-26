@@ -13,6 +13,8 @@ class Iso8601LibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TimSC/iso8601lib"
     topics = ("iso8601", "date", "time", "timezone")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

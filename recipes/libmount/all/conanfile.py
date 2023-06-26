@@ -14,10 +14,10 @@ class LibmountConan(ConanFile):
         "The libmount library is used to parse /etc/fstab, /etc/mtab and "
         "/proc/self/mountinfo files, manage the mtab file, evaluate mount options, etc"
     )
-    topics = ("mount", "linux", "util-linux")
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
-    license = "LGPL-2.1-or-later"
+    topics = ("mount", "linux", "util-linux")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

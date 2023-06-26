@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class QuickJSConan(ConanFile):
@@ -16,6 +16,8 @@ class QuickJSConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bellard.org/quickjs/"
     topics = ("Javascript", "embeddable", "ES2020", "asynchronous")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -43,13 +45,13 @@ class QuickJSConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         # TODO: there are forked repository to support MSVC. (https://github.com/c-smile/quickjspp)
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

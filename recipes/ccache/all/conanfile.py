@@ -13,14 +13,16 @@ required_conan_version = ">=1.55.0"
 class CcacheConan(ConanFile):
     name = "ccache"
     description = (
-        "Ccache (or “ccache”) is a compiler cache. It speeds up recompilation "
+        "Ccache is a compiler cache. It speeds up recompilation "
         "by caching previous compilations and detecting when the same "
         "compilation is being done again."
     )
     license = "GPL-3.0-or-later"
-    topics = ("compiler-cache", "recompilation", "cache", "compiler")
-    homepage = "https://ccache.dev"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://ccache.dev"
+    topics = ("compiler-cache", "recompilation", "cache", "compiler")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "redis_storage_backend": [True, False],
@@ -103,7 +105,11 @@ class CcacheConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))
         self.env_info.PATH.append(bin_path)
-        self.cpp_info.includedirs = []

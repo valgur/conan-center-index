@@ -6,7 +6,6 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, check_min_vs
-from conan.tools.scm import Version
 
 import glob
 import os
@@ -16,11 +15,15 @@ required_conan_version = ">=1.53.0"
 
 class GStreamerConan(ConanFile):
     name = "gstreamer"
-    description = "GStreamer is a development framework for creating applications like media players, video editors, streaming media broadcasters and so on"
-    topics = ("multimedia", "video", "audio", "broadcasting", "framework", "media")
+    description = (
+        "GStreamer is a development framework for creating applications like "
+        "media players, video editors, streaming media broadcasters and so on"
+    )
+    license = "LGPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gstreamer.freedesktop.org/"
-    license = "LGPL-2.0-or-later"
+    topics = ("multimedia", "video", "audio", "broadcasting", "framework", "media")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

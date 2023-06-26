@@ -80,17 +80,18 @@ from conan.tools.system import package_manager
 import functools
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class MagnumIntegrationConan(ConanFile):
     name = "magnum-integration"
     description = "Integration libraries for the Magnum C++11/C++14 graphics engine"
     license = "MIT"
-    topics = ("magnum", "graphics", "rendering", "3d", "2d", "opengl")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://magnum.graphics"
+    topics = ("magnum", "graphics", "rendering", "3d", "2d", "opengl")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -121,8 +122,11 @@ class MagnumIntegrationConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
-        self.requires("magnum/{}".format(self.version))
+        self.requires(f"magnum/{self.version}")
         if self.options.with_bullet:
             self.requires("bullet3/3.22a")
         if self.options.with_eigen:

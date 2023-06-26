@@ -15,12 +15,13 @@ required_conan_version = ">=1.57.0"
 class CoinOsiConan(ConanFile):
     name = "coin-osi"
     description = "COIN-OR Linear Programming Solver"
-    topics = ("clp", "simplex", "solver", "linear", "programming")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/Osi"
-    license = "EPL-2.0"
+    topics = ("clp", "simplex", "solver", "linear programming")
+
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

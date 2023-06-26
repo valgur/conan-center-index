@@ -2,97 +2,26 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import collect_libs, copy, get
+from conan.tools.gnu import PkgConfigDeps
+
+required_conan_version = ">=1.53.0"
 
 
 class libuiConan(ConanFile):
     name = "libui"
-    description = "Simple and portable GUI library in C that uses the native GUI technologies of each platform it supports."
-    topics = ("ui", "gui")
+    description = (
+        "Simple and portable GUI library in C that uses the "
+        "native GUI technologies of each platform it supports."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andlabs/libui"
-    license = "MIT"
-    generators = "cmake", "pkg_config"
+    topics = ("ui", "gui")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -111,14 +40,22 @@ class libuiConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("gtk/3.24.24")
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -130,29 +67,37 @@ class libuiConan(ConanFile):
             self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.so*", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(
+            self,
+            pattern="*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.build_folder,
+            keep_path=False,
+        )
+        for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
+            copy(
+                self,
+                pattern,
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.build_folder,
+                keep_path=False,
+            )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(
-                [
-                    "user32",
-                    "kernel32",
-                    "gdi32",
-                    "comctl32",
-                    "msimg32",
-                    "comdlg32",
-                    "d2d1",
-                    "dwrite",
-                    "ole32",
-                    "oleaut32",
-                    "oleacc",
-                    "uuid",
-                    "windowscodecs",
-                ]
-            )
+            self.cpp_info.system_libs += [
+                "user32",
+                "kernel32",
+                "gdi32",
+                "comctl32",
+                "msimg32",
+                "comdlg32",
+                "d2d1",
+                "dwrite",
+                "ole32",
+                "oleaut32",
+                "oleacc",
+                "uuid",
+                "windowscodecs",
+            ]

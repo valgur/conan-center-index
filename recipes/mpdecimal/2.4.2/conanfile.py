@@ -80,18 +80,21 @@ from conan.tools.system import package_manager
 import os
 import shutil
 
+required_conan_version = ">=1.53.0"
+
 
 class MpdecimalConan(ConanFile):
     name = "mpdecimal"
-    version = "2.4.2"
     description = (
         "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
     )
     license = "BSD-2-Clause"
-    topics = ("multiprecision", "library")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.bytereef.org/mpdecimal"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("multiprecision", "library")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -101,10 +104,12 @@ class MpdecimalConan(ConanFile):
         "fPIC": True,
     }
 
-    _autotools = None
-
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if is_msvc(self) and self.settings.arch not in ("x86", "x86_64"):
@@ -114,18 +119,15 @@ class MpdecimalConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    _shared_ext_mapping = {
-        "Linux": ".so",
-        "Windows": ".dll",
-        "Macos": ".dylib",
-    }
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -156,7 +158,7 @@ class MpdecimalConan(ConanFile):
 
             makefile_in = os.path.join(self.source_folder, "Makefile.in")
             mpdec_makefile_in = os.path.join(self.source_folder, "libmpdec", "Makefile.in")
-            replace_in_file(self, makefile_in, "libdir = @libdir@", "libdir = @libdir@\n" "bindir = @bindir@")
+            replace_in_file(self, makefile_in, "libdir = @libdir@", "libdir = @libdir@\nbindir = @bindir@")
             if self.options.shared:
                 if self.settings.os == "Windows":
                     replace_in_file(
@@ -169,7 +171,7 @@ class MpdecimalConan(ConanFile):
                         self,
                         makefile_in,
                         "install: FORCE",
-                        "install: FORCE\n" "\t$(INSTALL) -d -m 755 $(DESTDIR)$(bindir)",
+                        "install: FORCE\n\t$(INSTALL) -d -m 755 $(DESTDIR)$(bindir)",
                     )
                     replace_in_file(
                         self,
@@ -180,7 +182,10 @@ class MpdecimalConan(ConanFile):
                     replace_in_file(
                         self,
                         makefile_in,
-                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
+                        (
+                            "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf"
+                            " $(LIBSHARED) libmpdec.so\n"
+                        ),
                         "",
                     )
                 else:
@@ -193,10 +198,12 @@ class MpdecimalConan(ConanFile):
                     replace_in_file(
                         self,
                         makefile_in,
-                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so",
-                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec{}".format(
-                            shared_ext
+                        (
+                            "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf"
+                            " $(LIBSHARED) libmpdec.so"
                         ),
+                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED)"
+                        " libmpdec{}".format(shared_ext),
                     )
             else:
                 replace_in_file(
@@ -205,7 +212,10 @@ class MpdecimalConan(ConanFile):
                 replace_in_file(
                     self,
                     makefile_in,
-                    "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED) libmpdec.so\n",
+                    (
+                        "\tcd $(DESTDIR)$(libdir) && ln -sf $(LIBSHARED) $(LIBSONAME) && ln -sf $(LIBSHARED)"
+                        " libmpdec.so\n"
+                    ),
                     "",
                 )
 

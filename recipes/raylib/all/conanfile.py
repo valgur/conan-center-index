@@ -16,6 +16,7 @@ class RaylibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.raylib.com/"
     topics = ("gamedev",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -23,7 +24,11 @@ class RaylibConan(ConanFile):
         "fPIC": [True, False],
         "opengl_version": [None, "4.3", "3.3", "2.1", "1.1", "ES-2.0"],
     }
-    default_options = {"shared": False, "fPIC": True, "opengl_version": None}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "opengl_version": None,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -96,16 +101,12 @@ class RaylibConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """)
         save(self, module_file, content)
 
     @property

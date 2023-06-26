@@ -13,7 +13,8 @@ class ConcurrentqueueConan(ConanFile):
     license = ["BSD-2-Clause", "BSL-1.0"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cameron314/concurrentqueue"
-    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free")
+    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

@@ -9,11 +9,13 @@ required_conan_version = ">=1.52.0"
 
 class JwtCppConan(ConanFile):
     name = "jwt-cpp"
+    description = "A C++ JSON Web Token library for encoding/decoding"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Thalhammer/jwt-cpp"
-    description = "A C++ JSON Web Token library for encoding/decoding"
     topics = ("json", "jwt", "jws", "jwe", "jwk", "jwks", "jose", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -24,16 +26,19 @@ class JwtCppConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("openssl/1.1.1s")
         if not self._supports_generic_json:
             self.requires("picojson/1.3.0")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def build(self):
         apply_conandata_patches(self)
@@ -48,9 +53,6 @@ class JwtCppConan(ConanFile):
             keep_path=True,
         )
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-
-    def package_id(self):
-        self.info.clear()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "jwt-cpp")

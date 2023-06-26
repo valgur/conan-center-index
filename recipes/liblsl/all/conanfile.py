@@ -16,10 +16,11 @@ class LiblslConan(ConanFile):
         "time-synched data transmission over the local network"
     )
     license = "MIT"
-    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal", "transmission")
-    homepage = "https://github.com/sccn/liblsl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sccn/liblsl"
+    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal", "transmission")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,10 +45,6 @@ class LiblslConan(ConanFile):
             "apple-clang": "10",
         }
 
-    def requirements(self):
-        self.requires("boost/1.81.0")
-        self.requires("pugixml/1.13")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -58,6 +55,10 @@ class LiblslConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("boost/1.81.0")
+        self.requires("pugixml/1.13")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

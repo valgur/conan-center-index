@@ -19,12 +19,16 @@ required_conan_version = ">=1.53.0"
 
 class AutomakeConan(ConanFile):
     name = "automake"
-    package_type = "application"
+    description = (
+        "Automake is a tool for automatically generating Makefile.in files"
+        " compliant with the GNU Coding Standards."
+    )
+    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/automake/"
-    description = "Automake is a tool for automatically generating Makefile.in files compliant with the GNU Coding Standards."
     topics = ("autotools", "configure", "build")
-    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -126,6 +130,7 @@ class AutomakeConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = ["res"]
 
         # For consumers with new integrations (Conan 1 and 2 compatible):

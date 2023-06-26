@@ -82,7 +82,7 @@ import json
 import os
 import textwrap
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class OpenCascadeConan(ConanFile):
@@ -91,11 +91,12 @@ class OpenCascadeConan(ConanFile):
         "A software development platform providing services for 3D "
         "surface and solid modeling, CAD data exchange, and visualization."
     )
-    homepage = "https://dev.opencascade.org"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-2.1-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://dev.opencascade.org"
     topics = ("occt", "3d", "modeling", "cad")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -159,6 +160,9 @@ class OpenCascadeConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("tcl/8.6.11")
         if self._link_tk:
@@ -198,6 +202,59 @@ class OpenCascadeConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+
+        # Inject C++ standard from profile since we have removed hardcoded C++11 from upstream build files
+        if not valid_min_cppstd(self, 11):
+            tc.variables["CMAKE_CXX_STANDARD"] = 11
+
+        # Generate a relocatable shared lib on Macos
+        tc.variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+
+        tc.variables["BUILD_LIBRARY_TYPE"] = "Shared" if self.options.shared else "Static"
+        tc.variables["INSTALL_TEST_CASES"] = False
+        tc.variables["BUILD_RESOURCES"] = False
+        tc.variables["BUILD_RELEASE_DISABLE_EXCEPTIONS"] = True
+        if self.settings.build_type == "Debug":
+            tc.variables["BUILD_WITH_DEBUG"] = self.options.extended_debug_messages
+        tc.variables["BUILD_USE_PCH"] = False
+        tc.variables["INSTALL_SAMPLES"] = False
+
+        tc.variables["INSTALL_DIR_LAYOUT"] = "Unix"
+        tc.variables["INSTALL_DIR_BIN"] = "bin"
+        tc.variables["INSTALL_DIR_LIB"] = "lib"
+        tc.variables["INSTALL_DIR_INCLUDE"] = "include"
+        tc.variables["INSTALL_DIR_RESOURCE"] = "res/resource"
+        tc.variables["INSTALL_DIR_DATA"] = "res/data"
+        tc.variables["INSTALL_DIR_SAMPLES"] = "res/samples"
+        tc.variables["INSTALL_DIR_DOC"] = "res/doc"
+
+        if is_msvc(self):
+            tc.variables["BUILD_SAMPLES_MFC"] = False
+        tc.variables["BUILD_SAMPLES_QT"] = False
+        tc.variables["BUILD_Inspector"] = False
+        if is_apple_os(self.settings.os):
+            tc.variables["USE_GLX"] = False
+        if self.settings.os == "Windows":
+            tc.variables["USE_D3D"] = False
+        tc.variables["BUILD_ENABLE_FPE_SIGNAL_HANDLER"] = False
+        tc.variables["BUILD_DOC_Overview"] = False
+
+        tc.variables["USE_FREEIMAGE"] = self.options.with_freeimage
+        tc.variables["USE_OPENVR"] = self.options.with_openvr
+        tc.variables["USE_FFMPEG"] = self.options.with_ffmpeg
+        tc.variables["USE_TBB"] = self.options.with_tbb
+        tc.variables["USE_RAPIDJSON"] = self.options.with_rapidjson
+        if Version(self.version) >= "7.6.0":
+            tc.variables["USE_DRACO"] = self.options.with_draco
+            tc.variables["USE_TK"] = self.options.with_tk
+            tc.variables["USE_OPENGL"] = self.options.with_opengl
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
 
@@ -213,10 +270,12 @@ class OpenCascadeConan(ConanFile):
             self,
             cmakelists,
             "project (OCCT)",
-            "project (OCCT)\n"
-            "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\n"
-            "conan_basic_setup(TARGETS KEEP_RPATHS)\n"
-            "conan_global_flags()",
+            (
+                "project (OCCT)\n"
+                "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\n"
+                "conan_basic_setup(TARGETS KEEP_RPATHS)\n"
+                "conan_global_flags()"
+            ),
         )
 
         # Avoid to add system include/libs directories
@@ -389,59 +448,6 @@ class OpenCascadeConan(ConanFile):
                 "",
             )
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-
-        # Inject C++ standard from profile since we have removed hardcoded C++11 from upstream build files
-        if not valid_min_cppstd(self, 11):
-            tc.variables["CMAKE_CXX_STANDARD"] = 11
-
-        # Generate a relocatable shared lib on Macos
-        tc.variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-
-        tc.variables["BUILD_LIBRARY_TYPE"] = "Shared" if self.options.shared else "Static"
-        tc.variables["INSTALL_TEST_CASES"] = False
-        tc.variables["BUILD_RESOURCES"] = False
-        tc.variables["BUILD_RELEASE_DISABLE_EXCEPTIONS"] = True
-        if self.settings.build_type == "Debug":
-            tc.variables["BUILD_WITH_DEBUG"] = self.options.extended_debug_messages
-        tc.variables["BUILD_USE_PCH"] = False
-        tc.variables["INSTALL_SAMPLES"] = False
-
-        tc.variables["INSTALL_DIR_LAYOUT"] = "Unix"
-        tc.variables["INSTALL_DIR_BIN"] = "bin"
-        tc.variables["INSTALL_DIR_LIB"] = "lib"
-        tc.variables["INSTALL_DIR_INCLUDE"] = "include"
-        tc.variables["INSTALL_DIR_RESOURCE"] = "res/resource"
-        tc.variables["INSTALL_DIR_DATA"] = "res/data"
-        tc.variables["INSTALL_DIR_SAMPLES"] = "res/samples"
-        tc.variables["INSTALL_DIR_DOC"] = "res/doc"
-
-        if is_msvc(self):
-            tc.variables["BUILD_SAMPLES_MFC"] = False
-        tc.variables["BUILD_SAMPLES_QT"] = False
-        tc.variables["BUILD_Inspector"] = False
-        if is_apple_os(self.settings.os):
-            tc.variables["USE_GLX"] = False
-        if self.settings.os == "Windows":
-            tc.variables["USE_D3D"] = False
-        tc.variables["BUILD_ENABLE_FPE_SIGNAL_HANDLER"] = False
-        tc.variables["BUILD_DOC_Overview"] = False
-
-        tc.variables["USE_FREEIMAGE"] = self.options.with_freeimage
-        tc.variables["USE_OPENVR"] = self.options.with_openvr
-        tc.variables["USE_FFMPEG"] = self.options.with_ffmpeg
-        tc.variables["USE_TBB"] = self.options.with_tbb
-        tc.variables["USE_RAPIDJSON"] = self.options.with_rapidjson
-        if Version(self.version) >= "7.6.0":
-            tc.variables["USE_DRACO"] = self.options.with_draco
-            tc.variables["USE_TK"] = self.options.with_tk
-            tc.variables["USE_OPENGL"] = self.options.with_opengl
-        tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
-
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
@@ -490,20 +496,15 @@ class OpenCascadeConan(ConanFile):
             },
         )
 
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
+    def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """)
         save(self, module_file, content)
 
     @property
@@ -547,11 +548,11 @@ class OpenCascadeConan(ConanFile):
             "CSF_d3d9": {},
             # Apple OS frameworks
             "CSF_Appkit": {
-                "frameworks": ["UIKit"]
-                if self.settings.os == "iOS"
-                else ["Appkit"]
-                if is_apple_os(self.settings.os)
-                else []
+                "frameworks": (
+                    ["UIKit"]
+                    if self.settings.os == "iOS"
+                    else ["Appkit"] if is_apple_os(self.settings.os) else []
+                )
             },
             "CSF_IOKit": {"frameworks": ["IOKit"] if is_apple_os(self.settings.os) else []},
             "CSF_objc": {},

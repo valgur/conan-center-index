@@ -16,7 +16,8 @@ class CubConan(ConanFile):
     license = "BSD 3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/cub"
-    topics = ("algorithms", "cuda", "gpu", "nvidia", "nvidia-hpc-sdk")
+    topics = ("algorithms", "cuda", "gpu", "nvidia", "nvidia-hpc-sdk", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

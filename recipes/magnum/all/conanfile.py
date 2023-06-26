@@ -88,13 +88,15 @@ import os
 import re
 import textwrap
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.47.0"
 
 
 class MagnumConan(ConanFile):
     name = "magnum"
     description = "Lightweight and modular C++11/C++14 graphics middleware for games and data visualization"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://magnum.graphics"
     topics = (
         "magnum",
         "graphics",
@@ -107,12 +109,11 @@ class MagnumConan(ConanFile):
         "2d",
         "opengl",
         "game-engine",
+        "pre-built",
     )
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://magnum.graphics"
 
-    settings = "os", "compiler", "build_type", "arch"
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -290,6 +291,9 @@ class MagnumConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("corrade/{}".format(self.version))

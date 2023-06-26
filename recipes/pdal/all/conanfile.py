@@ -1,97 +1,38 @@
 # TODO: verify the Conan v2 migration
 
 import os
+import textwrap
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
-    collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
     replace_in_file,
     rm,
     rmdir,
     save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
-import os
-import textwrap
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class PdalConan(ConanFile):
     name = "pdal"
     description = "PDAL is Point Data Abstraction Library. GDAL for point cloud data."
-    topics = ("gdal", "point-cloud-data", "lidar")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pdal.io"
-    license = "BSD-3-Clause"
+    topics = ("gdal", "point-cloud-data", "lidar")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -129,6 +70,9 @@ class PdalConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # TODO package improvements:
@@ -190,9 +134,8 @@ class PdalConan(ConanFile):
         tc.variables["WITH_TESTS"] = False
         tc.variables["WITH_LAZPERF"] = self.options.with_lazperf
         tc.variables["WITH_LASZIP"] = self.options.with_laszip
-        tc.variables[
-            "WITH_STATIC_LASZIP"
-        ] = True  # doesn't really matter but avoids to inject useless definition
+        # doesn't really matter but avoids to inject useless definition
+        tc.variables["WITH_STATIC_LASZIP"] = True
         tc.variables["WITH_ZSTD"] = self.options.with_zstd
         tc.variables["WITH_ZLIB"] = self.options.with_zlib
         tc.variables["WITH_LZMA"] = self.options.with_lzma
@@ -246,13 +189,20 @@ class PdalConan(ConanFile):
                 self,
                 top_cmakelists,
                 "${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME}",
-                "${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME} ${PDAL_ARBITER_LIB_NAME} ${PDAL_KAZHDAN_LIB_NAME}",
+                (
+                    "${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME} "
+                    "${PDAL_ARBITER_LIB_NAME} ${PDAL_KAZHDAN_LIB_NAME}"
+                ),
             )
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "cmake", "macros.cmake"),
                 "        install(TARGETS ${_name}",
-                '    endif()\n    if (PDAL_LIB_TYPE STREQUAL "STATIC" OR NOT ${_library_type} STREQUAL "STATIC")\n         install(TARGETS ${_name}',
+                (
+                    "    endif()\n"
+                    '    if (PDAL_LIB_TYPE STREQUAL "STATIC" OR NOT ${_library_type} STREQUAL "STATIC")\n'
+                    "         install(TARGETS ${_name}"
+                ),
             )
             replace_in_file(
                 self,
@@ -294,34 +244,27 @@ class PdalConan(ConanFile):
 
     def _create_cmake_module_variables(self, module_file):
         pdal_version = Version(self.version)
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(PDAL_LIBRARIES {self._pdal_base_name} pdal_util)
             set(PDAL_VERSION_MAJOR {pdal_version.major})
             set(PDAL_VERSION_MINOR {pdal_version.minor})
             set(PDAL_VERSION_PATCH {pdal_version.patch})
-        """
-        )
+        """)
         save(self, module_file, content)
 
     @property
     def _module_vars_file(self):
         return os.path.join("lib", "cmake", "conan-official-{}-variables.cmake".format(self.name))
 
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
+    def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """)
         save(self, module_file, content)
 
     @property

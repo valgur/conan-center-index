@@ -18,12 +18,13 @@ required_conan_version = ">=1.53.0"
 
 class PCRE2Conan(ConanFile):
     name = "pcre2"
+    description = "Perl Compatible Regular Expressions"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.pcre.org/"
-    description = "Perl Compatible Regular Expressions"
     topics = ("regex", "regexp", "perl")
-    license = "BSD-3-Clause"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

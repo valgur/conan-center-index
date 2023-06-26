@@ -10,9 +10,10 @@ class LibnaboConan(ConanFile):
     name = "libnabo"
     description = "A fast K Nearest Neighbor library for low-dimensional spaces"
     license = "BSD-3-Clause"
-    topics = ("nearest-neighbor", "kd-tree")
-    homepage = "https://github.com/ethz-asl/libnabo"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ethz-asl/libnabo"
+    topics = ("nearest-neighbor", "kd-tree")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -12,9 +12,9 @@ class BigintConan(ConanFile):
     name = "bigint"
     description = "C++ Big Integer Library"
     license = "Unlicense"
-    topics = "integer"
-    homepage = "https://mattmccutchen.net/bigint"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mattmccutchen.net/bigint"
+    topics = "integer"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

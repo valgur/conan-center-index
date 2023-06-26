@@ -13,12 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class Libdc1394Conan(ConanFile):
     name = "libdc1394"
+    description = "libdc1394 provides a complete high level API to control IEEE 1394 based cameras"
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://damien.douxchamps.net/ieee1394/libdc1394/"
-    description = "libdc1394 provides a complete high level API to control IEEE 1394 based cameras"
     topics = ("ieee1394", "camera", "iidc", "dcam")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

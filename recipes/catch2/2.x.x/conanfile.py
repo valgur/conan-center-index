@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 class Catch2Conan(ConanFile):
     name = "catch2"
     description = "A modern, C++-native, header-only, framework for unit-tests, TDD and BDD"
-    topics = ("header-only", "unit-test", "tdd", "bdd")
-    homepage = "https://github.com/catchorg/Catch2"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/catchorg/Catch2"
+    topics = ("header-only", "unit-test", "tdd", "bdd")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -31,6 +32,7 @@ class Catch2Conan(ConanFile):
         "with_prefix": False,
         "default_reporter": None,
     }
+    no_copy_source = True
 
     @property
     def _default_reporter_str(self):
@@ -103,6 +105,9 @@ class Catch2Conan(ConanFile):
             )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "Catch2")
         self.cpp_info.set_property(
             "cmake_target_name", "Catch2::Catch2{}".format("WithMain" if self.options.with_main else "")

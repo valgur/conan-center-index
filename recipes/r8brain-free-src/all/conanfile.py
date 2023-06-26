@@ -16,8 +16,14 @@ class R8brainFreeSrcConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/avaneev/r8brain-free-src"
     topics = ("audio", "sample-rate", "conversion", "audio-processing", "resampler")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "fft": ["ooura", "pffft", "pffft_double"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "fft": ["ooura", "pffft", "pffft_double"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

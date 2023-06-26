@@ -14,12 +14,14 @@ required_conan_version = ">=1.53.0"
 
 class Antlr4CppRuntimeConan(ConanFile):
     name = "antlr4-cppruntime"
-    homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
     description = "C++ runtime support for ANTLR (ANother Tool for Language Recognition)"
-    topics = ("antlr", "parser", "runtime")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
+    topics = ("antlr", "parser", "runtime")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -112,6 +114,19 @@ class Antlr4CppRuntimeConan(ConanFile):
         cmake.configure(build_script_folder="runtime/Cpp")
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(
             self,
@@ -147,19 +162,6 @@ class Antlr4CppRuntimeConan(ConanFile):
                 else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

@@ -6,15 +6,15 @@ from conan.tools.scm import Version
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class RotorConan(ConanFile):
     name = "rotor"
-    license = "MIT"
-    homepage = "https://github.com/basiliscos/cpp-rotor"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Event loop friendly C++ actor micro-framework, supervisable"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/basiliscos/cpp-rotor"
     topics = (
         "concurrency",
         "actor-framework",
@@ -25,17 +25,18 @@ class RotorConan(ConanFile):
         "supervisor",
     )
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "enable_asio": [True, False],
         "enable_thread": [True, False],
-        "multithreading": [True, False],  # enables multithreading support
+        "multithreading": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "enable_asio": False,
         "enable_thread": False,
         "multithreading": True,
@@ -52,21 +53,11 @@ class RotorConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def requirements(self):
-        self.requires("boost/1.81.0")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["BUILD_BOOST_ASIO"] = self.options.enable_asio
-        tc.variables["BUILD_THREAD"] = self.options.enable_thread
-        tc.variables["BUILD_THREAD_UNSAFE"] = not self.options.multithreading
-        tc.variables["BUILD_TESTING"] = False
-        tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+    def requirements(self):
+        self.requires("boost/1.81.0")
 
     def validate(self):
         minimal_cpp_standard = "17"
@@ -97,14 +88,24 @@ class RotorConan(ConanFile):
         if self.options.shared and Version(self.version) < "0.23":
             raise ConanInvalidConfiguration("shared option is available from v0.23")
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_BOOST_ASIO"] = self.options.enable_asio
+        tc.variables["BUILD_THREAD"] = self.options.enable_thread
+        tc.variables["BUILD_THREAD_UNSAFE"] = not self.options.multithreading
+        tc.variables["BUILD_TESTING"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(

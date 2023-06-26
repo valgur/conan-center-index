@@ -19,12 +19,17 @@ class Md4cConan(ConanFile):
     name = "md4c"
     description = "C Markdown parser. Fast. SAX-like interface. Compliant to CommonMark specification."
     license = "MIT"
-    topics = ("markdown-parser", "markdown")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mity/md4c"
+    topics = ("markdown-parser", "markdown")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "encoding": ["utf-8", "utf-16", "ascii"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "encoding": ["utf-8", "utf-16", "ascii"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

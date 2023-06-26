@@ -5,16 +5,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class CpphttplibConan(ConanFile):
     name = "cpp-httplib"
     description = "A C++11 single-file header-only cross platform HTTP/HTTPS library."
     license = "MIT"
-    homepage = "https://github.com/yhirose/cpp-httplib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/yhirose/cpp-httplib"
     topics = ("http", "https", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -33,6 +34,9 @@ class CpphttplibConan(ConanFile):
         if Version(self.version) < "0.7.2":
             self.options.rm_safe("with_brotli")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
@@ -47,9 +51,6 @@ class CpphttplibConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -15,9 +15,9 @@ class InihConan(ConanFile):
     name = "inih"
     description = "Simple .INI file parser in C, good for embedded systems "
     license = "BSD-3-Clause"
-    topics = ("ini", "configuration", "parser")
-    homepage = "https://github.com/benhoyt/inih"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/benhoyt/inih"
+    topics = ("ini", "configuration", "parser")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

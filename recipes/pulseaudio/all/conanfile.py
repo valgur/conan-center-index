@@ -15,10 +15,10 @@ class PulseAudioConan(ConanFile):
     description = (
         "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
     )
-    topics = ("sound",)
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pulseaudio.org/"
-    license = "LGPL-2.1"
+    topics = ("sound",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

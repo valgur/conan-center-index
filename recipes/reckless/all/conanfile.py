@@ -13,10 +13,10 @@ class RecklessConan(ConanFile):
     name = "reckless"
     description = "Reckless is an extremely low-latency, high-throughput logging library."
     license = "MIT"
-    topics = "logging"
-    homepage = "https://github.com/mattiasflodin/reckless"
     url = "https://github.com/conan-io/conan-center-index"
-
+    homepage = "https://github.com/mattiasflodin/reckless"
+    topics = "logging"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

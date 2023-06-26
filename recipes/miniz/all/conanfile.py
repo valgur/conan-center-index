@@ -18,6 +18,8 @@ class MinizConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/richgel999/miniz"
     topics = ("zlib", "compression", "lossless")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

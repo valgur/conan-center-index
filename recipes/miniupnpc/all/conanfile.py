@@ -17,10 +17,11 @@ class MiniupnpcConan(ConanFile):
     name = "miniupnpc"
     description = "UPnP client library/tool to access Internet Gateway Devices."
     license = "BSD-3-Clause"
-    topics = ("upnp", "networking", "internet-gateway")
-    homepage = "https://github.com/miniupnp/miniupnp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/miniupnp/miniupnp"
+    topics = ("upnp", "networking", "internet-gateway")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

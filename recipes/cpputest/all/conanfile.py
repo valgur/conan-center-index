@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 import os
 import textwrap
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class CppUTestConan(ConanFile):
@@ -16,17 +16,20 @@ class CppUTestConan(ConanFile):
         "for any C/C++ project."
     )
     license = "BSD-3-Clause"
-    topics = ("testing", "unit-testing")
-    homepage = "https://cpputest.github.io"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://cpputest.github.io"
+    topics = ("testing", "unit-testing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_extensions": [True, False],
         "with_leak_detection": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_extensions": True,
         "with_leak_detection": True,
@@ -38,6 +41,10 @@ class CppUTestConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

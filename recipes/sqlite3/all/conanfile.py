@@ -17,6 +17,7 @@ class Sqlite3Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.sqlite.org"
     topics = ("sqlite", "database", "sql", "serverless")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -176,16 +177,14 @@ class Sqlite3Conan(ConanFile):
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             if(DEFINED SQLite_INCLUDE_DIRS)
                 set(SQLite3_INCLUDE_DIRS ${SQLite_INCLUDE_DIRS})
             endif()
             if(DEFINED SQLite_LIBRARIES)
                 set(SQLite3_LIBRARIES ${SQLite_LIBRARIES})
             endif()
-        """
-        )
+        """)
         save(self, module_file, content)
 
     @property

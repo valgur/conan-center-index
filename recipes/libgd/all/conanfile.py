@@ -17,12 +17,13 @@ required_conan_version = ">=1.53.0"
 
 class LibgdConan(ConanFile):
     name = "libgd"
-    description = "GD is an open source code library for the dynamic" "creation of images by programmers."
+    description = "GD is an open source code library for the dynamic creation of images by programmers."
     license = "BSD-like"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libgd.github.io"
     topics = ("images", "graphics")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -145,7 +146,7 @@ class LibgdConan(ConanFile):
             self.cpp_info.system_libs.append("m")
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

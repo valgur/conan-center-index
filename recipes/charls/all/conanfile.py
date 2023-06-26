@@ -25,9 +25,9 @@ class CharlsConan(ConanFile):
         "and near-lossless image compression and decompression."
     )
     license = "BSD-3-Clause"
-    topics = ("jpeg", "JPEG-LS", "compression", "decompression")
-    homepage = "https://github.com/team-charls/charls"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/team-charls/charls"
+    topics = ("jpeg", "JPEG-LS", "compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

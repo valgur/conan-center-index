@@ -11,12 +11,15 @@ required_conan_version = ">=1.54.0"
 
 class ApriltagConan(ConanFile):
     name = "apriltag"
-    description = "AprilTag is a visual fiducial system, useful for a wide variety of tasks \
-                    including augmented reality, robotics, and camera calibration"
-    homepage = "https://april.eecs.umich.edu/software/apriltag"
-    topics = ("robotics",)
+    description = (
+        "AprilTag is a visual fiducial system, useful for a wide variety of tasks                    "
+        " including augmented reality, robotics, and camera calibration"
+    )
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://april.eecs.umich.edu/software/apriltag"
+    topics = ("robotics",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

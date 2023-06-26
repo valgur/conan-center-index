@@ -80,7 +80,7 @@ from conan.tools.system import package_manager
 import os
 import glob
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class ImageMagicConan(ConanFile):
@@ -89,12 +89,13 @@ class ImageMagicConan(ConanFile):
         "ImageMagick is a free and open-source software suite for displaying, converting, and editing "
         "raster image and vector image files"
     )
-    topics = ("images", "manipulating")
+    license = "ImageMagick"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://imagemagick.org"
-    license = "ImageMagick"
+    topics = ("images", "manipulating")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    generators = "pkg_config"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -142,22 +143,6 @@ class ImageMagicConan(ConanFile):
         "utilities": True,
     }
 
-    _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "ImageMagick"  # name is important, VisualMagick uses relative paths to it
-
-    @property
-    def _modules(self):
-        return ["Magick++", "MagickWand", "MagickCore"]
-
-    def validate(self):
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows builds of ImageMagick require MFC which cannot currently be sourced from CCI."
-            )
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -168,6 +153,9 @@ class ImageMagicConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         if self.options.with_zlib:
@@ -205,7 +193,18 @@ class ImageMagicConan(ConanFile):
         if self.options.with_djvu:
             # FIXME: missing djvu recipe
             self.output.warn(
-                "There is no djvu package available on Conan (yet). This recipe will use the one present on the system (if available)."
+                "There is no djvu package available on Conan (yet). This recipe will use the one present on"
+                " the system (if available)."
+            )
+
+    @property
+    def _modules(self):
+        return ["Magick++", "MagickWand", "MagickCore"]
+
+    def validate(self):
+        if self.settings.os == "Windows":
+            raise ConanInvalidConfiguration(
+                "Windows builds of ImageMagick require MFC which cannot currently be sourced from CCI."
             )
 
     def source(self):

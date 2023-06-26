@@ -24,14 +24,13 @@ required_conan_version = ">=1.57.0"
 
 class LibtoolConan(ConanFile):
     name = "libtool"
-    # most common use is as "application", but library traits
-    # are a superset of application so this should cover all cases
-    package_type = "library"
+    description = "GNU libtool is a generic library support script. "
+    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/libtool/"
-    description = "GNU libtool is a generic library support script. "
     topics = ("configure", "library", "shared", "static")
-    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -225,7 +224,10 @@ class LibtoolConan(ConanFile):
         replace_in_file(
             self,
             libtool_m4,
-            "lt_cv_deplibs_check_method='file_magic file format (pei*-i386(.*architecture: i386)?|pe-arm-wince|pe-x86-64)'",
+            (
+                "lt_cv_deplibs_check_method="
+                "'file_magic file format (pei*-i386(.*architecture: i386)?|pe-arm-wince|pe-x86-64)'"
+            ),
             method_pass_all,
         )
 

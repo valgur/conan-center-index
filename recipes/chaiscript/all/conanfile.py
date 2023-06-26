@@ -2,98 +2,23 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import collect_libs, copy, get, rmdir
+
+required_conan_version = ">=1.52.0"
 
 
 class ChaiScriptConan(ConanFile):
     name = "chaiscript"
-    homepage = "https://github.com/ChaiScript/ChaiScript"
     description = "Embedded Scripting Language Designed for C++."
-    topics = ("embedded-scripting-language", "language")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ChaiScript/ChaiScript"
+    topics = ("embedded-scripting-language", "language", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
         "dyn_load": [True, False],
@@ -108,15 +33,21 @@ class ChaiScriptConan(ConanFile):
         "multithread_support": True,
         "header_only": True,
     }
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "ChaiScript-" + self.version
-        os.rename(extracted_dir, self.source_folder)
+    no_copy_source = True
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        if self.options.header_only:
+            self.info.clear()
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -153,11 +84,10 @@ class ChaiScriptConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "share"))
 
-    def package_id(self):
-        if self.options.header_only:
-            self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if not self.options.header_only:
             self.cpp_info.libs = collect_libs(self)
         if self.options.use_std_make_shared:

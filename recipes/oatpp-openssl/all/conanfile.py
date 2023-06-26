@@ -12,12 +12,13 @@ required_conan_version = ">=1.51.1"
 
 class OatppOpenSSLConan(ConanFile):
     name = "oatpp-openssl"
-    license = "Apache-2.0"
-    homepage = "https://github.com/oatpp/oatpp-openssl"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Oat++ OpenSSL library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-openssl"
     topics = ("oat++", "oatpp", "openssl")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

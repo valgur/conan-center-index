@@ -11,10 +11,11 @@ required_conan_version = ">=1.53.0"
 class freeglutConan(ConanFile):
     name = "freeglut"
     description = "Open-source alternative to the OpenGL Utility Toolkit (GLUT) library"
-    topics = ("opengl", "gl", "glut", "utility", "toolkit", "graphics")
+    license = "X11"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://freeglut.sourceforge.net"
-    license = "X11"
+    topics = ("opengl", "gl", "glut", "utility", "toolkit", "graphics")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -8,12 +8,13 @@ required_conan_version = ">=1.53.0"
 
 class MinizipConan(ConanFile):
     name = "minizip"
+    description = "An experimental package to read and write files in .zip format, written on top of zlib"
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://zlib.net"
-    license = "Zlib"
-    description = "An experimental package to read and write files in .zip format, written on top of zlib"
     topics = ("zip", "compression", "inflate")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

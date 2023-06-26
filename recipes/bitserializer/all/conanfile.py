@@ -13,10 +13,11 @@ required_conan_version = ">=1.51.1"
 class BitserializerConan(ConanFile):
     name = "bitserializer"
     description = "C++ 17 library for serialization to multiple output formats (JSON, XML, YAML, CSV)"
-    topics = ("serialization", "json", "xml", "yaml", "csv")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/Pavel_Kisliak/bitserializer"
-    license = "MIT"
+    topics = ("serialization", "json", "xml", "yaml", "csv", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -35,7 +36,6 @@ class BitserializerConan(ConanFile):
         "with_rapidyaml": False,
         "with_csv": False,
     }
-
     no_copy_source = True
 
     @property
@@ -162,6 +162,9 @@ class BitserializerConan(ConanFile):
         copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         lib_suffix = "d" if self.settings.build_type == "Debug" else ""
         self.cpp_info.set_property("cmake_file_name", "bitserializer")
 

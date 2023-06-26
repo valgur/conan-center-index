@@ -3,18 +3,19 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class OutPtrConan(ConanFile):
     name = "out_ptr"
+    description = "a C++11 implementation of std::out_ptr (p1132), as a standalone library"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/soasis/out_ptr"
-    description = "a C++11 implementation of std::out_ptr (p1132), as a standalone library"
-    topics = ("utility", "backport")
+    topics = ("utility", "backport", "header-only")
+
     package_type = "header-library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def layout(self):

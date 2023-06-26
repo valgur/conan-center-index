@@ -8,11 +8,13 @@ required_conan_version = ">=1.53.0"
 
 class LibCborStackConan(ConanFile):
     name = "libcbor"
-    license = "MIT"
-    homepage = "https://github.com/PJK/libcbor"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "CBOR protocol implementation for C"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/PJK/libcbor"
     topics = ("cbor", "serialization", "messaging")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

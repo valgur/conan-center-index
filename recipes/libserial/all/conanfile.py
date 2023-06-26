@@ -6,7 +6,6 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -17,8 +16,9 @@ class LibserialConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/crayzeewulf/libserial"
     topics = ("serial-ports", "rs232", "usb-serial")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

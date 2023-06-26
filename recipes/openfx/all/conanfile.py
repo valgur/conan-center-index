@@ -2,121 +2,54 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rmdir
+
+required_conan_version = ">=1.53.0"
 
 
 class openfx(ConanFile):
     name = "openfx"
+    description = "OpenFX image processing plug-in standard."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://openeffects.org"
-    description = "OpenFX image processing plug-in standard."
     topics = ("image-processing", "standard")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
-
-    def requirements(self):
-        self.requires("opengl/system")
-        self.requires("expat/2.4.8")
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
         copy(self, "symbols", src=self.recipe_folder, dst=self.export_sources_folder)
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("opengl/system")
+        self.requires("expat/2.4.8")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -11,11 +11,15 @@ required_conan_version = ">=1.52.0"
 
 class NameofConan(ConanFile):
     name = "nameof"
-    description = "Header-only C++17 library provides nameof macros and functions to simply obtain the name of a variable, type, function, macro, and enum."
+    description = (
+        "Header-only C++17 library provides nameof macros and functions to "
+        "simply obtain the name of a variable, type, function, macro, and enum."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Neargye/nameof"
     topics = ("enum-to-string", "serialization", "reflection", "header-only", "compile-time")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

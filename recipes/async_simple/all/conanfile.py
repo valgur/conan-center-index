@@ -7,7 +7,6 @@ from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -17,7 +16,9 @@ class AsyncSimpleConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alibaba/async_simple"
-    topics = ("modules", "asynchronous", "coroutines", "cpp20")
+    topics = ("modules", "asynchronous", "coroutines", "cpp20", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

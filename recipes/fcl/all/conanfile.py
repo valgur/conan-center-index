@@ -13,13 +13,13 @@ required_conan_version = ">=1.53.0"
 class FclConan(ConanFile):
     name = "fcl"
     description = (
-        "C++11 library for performing three types of proximity "
-        "queries on a pair of geometric models composed of triangles."
+        "C++11 library for performing three types of proximity queries on a "
+        "pair of geometric models composed of triangles."
     )
     license = "BSD-3-Clause"
-    topics = ("geometry", "collision")
-    homepage = "https://github.com/flexible-collision-library/fcl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/flexible-collision-library/fcl"
+    topics = ("geometry", "collision")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

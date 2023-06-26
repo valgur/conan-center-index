@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 class CppKafkaConan(ConanFile):
     name = "cppkafka"
     description = "Modern C++ Apache Kafka client library (wrapper for librdkafka)"
-    topics = ("librdkafka", "kafka")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mfontanini/cppkafka"
-    license = "MIT"
+    topics = ("librdkafka", "kafka")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

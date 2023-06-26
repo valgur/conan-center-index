@@ -6,7 +6,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -19,6 +18,8 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CD3/libInterpolate"
     topics = ("math", "spline", "interpolation", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -43,10 +44,14 @@ class PackageConan(ConanFile):
         self.requires("boost/1.80.0", transitive_headers=True)
         self.requires("eigen/3.3.7", transitive_headers=True)
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(
-                "libInterpolate currently only supports Linux. Upstream PR's are welcome (https://github.com/CD3/libInterpolate/issues/14)."
+                "libInterpolate currently only supports Linux. Upstream PR's are welcome"
+                " (https://github.com/CD3/libInterpolate/issues/14)."
             )
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -76,9 +81,6 @@ class PackageConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "src"),
         )
-
-    def package_id(self):
-        self.info.clear()
 
     def package_info(self):
         self.cpp_info.bindirs = []

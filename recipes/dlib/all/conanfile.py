@@ -2,101 +2,25 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import collect_libs, copy, get, replace_in_file, rmdir
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
-import os
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class DlibConan(ConanFile):
     name = "dlib"
     description = "A toolkit for making real world machine learning and data analysis applications"
-    topics = ("machine-learning", "deep-learning", "computer-vision")
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://dlib.net"
-    license = "BSL-1.0"
+    topics = ("machine-learning", "deep-learning", "computer-vision")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -146,6 +70,9 @@ class DlibConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_gif:
             self.requires("giflib/5.2.1")
@@ -168,6 +95,43 @@ class DlibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+
+        # With in-project builds dlib is always built as a static library,
+        # we want to be able to build it as a shared library too
+        tc.variables["DLIB_IN_PROJECT_BUILD"] = False
+
+        tc.variables["DLIB_ISO_CPP_ONLY"] = False
+        tc.variables["DLIB_NO_GUI_SUPPORT"] = True
+
+        # Configure external dependencies
+        tc.variables["DLIB_JPEG_SUPPORT"] = self.options.with_jpeg
+        if self._has_with_webp_option:
+            tc.variables["DLIB_WEBP_SUPPORT"] = self.options.with_webp
+        tc.variables["DLIB_LINK_WITH_SQLITE3"] = self.options.with_sqlite3
+        tc.variables["DLIB_USE_BLAS"] = True  # FIXME: all the logic behind is not sufficiently under control
+        tc.variables["DLIB_USE_LAPACK"] = (
+            True  # FIXME: all the logic behind is not sufficiently under control
+        )
+        tc.variables["DLIB_USE_CUDA"] = False  # TODO: add with_cuda option?
+        tc.variables["DLIB_PNG_SUPPORT"] = self.options.with_png
+        tc.variables["DLIB_GIF_SUPPORT"] = self.options.with_gif
+        tc.variables["DLIB_USE_MKL_FFT"] = False
+
+        # Configure SIMD options if possible
+        if self.settings.arch in ["x86", "x86_64"]:
+            if self.options.with_sse2 != "auto":
+                tc.variables["USE_SSE2_INSTRUCTIONS"] = self.options.with_sse2
+            if self.options.with_sse4 != "auto":
+                tc.variables["USE_SSE4_INSTRUCTIONS"] = self.options.with_sse4
+            if self.options.with_avx != "auto":
+                tc.variables["USE_AVX_INSTRUCTIONS"] = self.options.with_avx
+
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         dlib_cmakelists = os.path.join(self.source_folder, "dlib", "CMakeLists.txt")
@@ -204,41 +168,6 @@ class DlibConan(ConanFile):
             )
             replace_in_file(self, dlib_cmakelists, "if (WEBP_FOUND)", "if(1)")
             replace_in_file(self, dlib_cmakelists, "${WEBP_LIBRARY}", "WebP::webp")
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-
-        # With in-project builds dlib is always built as a static library,
-        # we want to be able to build it as a shared library too
-        tc.variables["DLIB_IN_PROJECT_BUILD"] = False
-
-        tc.variables["DLIB_ISO_CPP_ONLY"] = False
-        tc.variables["DLIB_NO_GUI_SUPPORT"] = True
-
-        # Configure external dependencies
-        tc.variables["DLIB_JPEG_SUPPORT"] = self.options.with_jpeg
-        if self._has_with_webp_option:
-            tc.variables["DLIB_WEBP_SUPPORT"] = self.options.with_webp
-        tc.variables["DLIB_LINK_WITH_SQLITE3"] = self.options.with_sqlite3
-        tc.variables["DLIB_USE_BLAS"] = True  # FIXME: all the logic behind is not sufficiently under control
-        tc.variables[
-            "DLIB_USE_LAPACK"
-        ] = True  # FIXME: all the logic behind is not sufficiently under control
-        tc.variables["DLIB_USE_CUDA"] = False  # TODO: add with_cuda option?
-        tc.variables["DLIB_PNG_SUPPORT"] = self.options.with_png
-        tc.variables["DLIB_GIF_SUPPORT"] = self.options.with_gif
-        tc.variables["DLIB_USE_MKL_FFT"] = False
-
-        # Configure SIMD options if possible
-        if self.settings.arch in ["x86", "x86_64"]:
-            if self.options.with_sse2 != "auto":
-                tc.variables["USE_SSE2_INSTRUCTIONS"] = self.options.with_sse2
-            if self.options.with_sse4 != "auto":
-                tc.variables["USE_SSE4_INSTRUCTIONS"] = self.options.with_sse4
-            if self.options.with_avx != "auto":
-                tc.variables["USE_AVX_INSTRUCTIONS"] = self.options.with_avx
-
-        tc.generate()
 
     def build(self):
         self._patch_sources()

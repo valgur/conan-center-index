@@ -13,10 +13,10 @@ required_conan_version = ">=1.53.0"
 class FriBiDiCOnan(ConanFile):
     name = "fribidi"
     description = "The Free Implementation of the Unicode Bidirectional Algorithm"
-    topics = ("unicode", "bidirectional", "text")
     license = "LGPL-2.1"
-    homepage = "https://github.com/fribidi/fribidi"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/fribidi/fribidi"
+    topics = ("unicode", "bidirectional", "text")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

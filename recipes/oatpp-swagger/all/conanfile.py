@@ -12,12 +12,13 @@ required_conan_version = ">=1.51.1"
 
 class OatppSwaggerConan(ConanFile):
     name = "oatpp-swagger"
-    license = "Apache-2.0"
-    homepage = "https://github.com/oatpp/oatpp-swagger"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "oat++ Swagger library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-swagger"
     topics = ("oat++", "oatpp", "swagger")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

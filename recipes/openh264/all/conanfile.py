@@ -17,18 +17,18 @@ from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, msvc_runtime
 
 import os
 
-
 required_conan_version = ">=1.57.0"
 
 
 class OpenH264Conan(ConanFile):
     name = "openh264"
+    description = "Open Source H.264 Codec"
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.openh264.org/"
-    description = "Open Source H.264 Codec"
     topics = ("h264", "codec", "video", "compression")
-    license = "BSD-2-Clause"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -73,34 +73,6 @@ class OpenH264Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
-        if is_msvc(self):
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
-                "CFLAGS_OPT += -MT",
-                f"CFLAGS_OPT += -{msvc_runtime_flag(self)}",
-            )
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
-                "CFLAGS_DEBUG += -MTd -Gm",
-                f"CFLAGS_DEBUG += -{msvc_runtime_flag(self)} -Gm",
-            )
-        if self.settings.os == "Android":
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
-                "APP_STL := stlport_shared",
-                f"APP_STL := {self.settings.compiler.libcxx}",
-            )
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
-                "APP_PLATFORM := android-12",
-                f"APP_PLATFORM := {self._android_target}",
-            )
 
     @property
     def _library_filename(self):
@@ -177,6 +149,34 @@ class OpenH264Conan(ConanFile):
             if self.settings.arch in ("armv8",):
                 tc.extra_ldflags.append("-arch arm64")
         tc.generate()
+
+    def _patch_sources(self):
+        if is_msvc(self):
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
+                "CFLAGS_OPT += -MT",
+                f"CFLAGS_OPT += -{msvc_runtime_flag(self)}",
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build", "platform-msvc.mk"),
+                "CFLAGS_DEBUG += -MTd -Gm",
+                f"CFLAGS_DEBUG += -{msvc_runtime_flag(self)} -Gm",
+            )
+        if self.settings.os == "Android":
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
+                "APP_STL := stlport_shared",
+                f"APP_STL := {self.settings.compiler.libcxx}",
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "codec", "build", "android", "dec", "jni", "Application.mk"),
+                "APP_PLATFORM := android-12",
+                f"APP_PLATFORM := {self._android_target}",
+            )
 
     def build(self):
         apply_conandata_patches(self)

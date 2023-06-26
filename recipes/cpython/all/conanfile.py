@@ -82,18 +82,20 @@ import os
 import re
 import textwrap
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class CPythonConan(ConanFile):
     name = "cpython"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.python.org"
     description = (
         "Python is a programming language that lets you work quickly and integrate systems more effectively."
     )
-    topics = ("python", "language", "script")
     license = "Python-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.python.org"
+    topics = ("python", "language", "script", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -137,8 +139,6 @@ class CPythonConan(ConanFile):
         # options that don't change package id
         "env_vars": True,
     }
-
-    _autotools = None
 
     @property
     def _version_number_only(self):
@@ -206,47 +206,8 @@ class CPythonConan(ConanFile):
             # The msbuild generator only works with Visual Studio
             self.generators.append("MSBuildDeps")
 
-    def validate(self):
-        if self.options.shared:
-            if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
-                raise ConanInvalidConfiguration(
-                    "cpython does not support MT(d) runtime when building a shared cpython library"
-                )
-        if self.settings.compiler == "Visual Studio":
-            if self.options.optimizations:
-                raise ConanInvalidConfiguration(
-                    "This recipe does not support optimized MSVC cpython builds (yet)"
-                )
-                # FIXME: should probably throw when cross building
-                # FIXME: optimizations for Visual Studio, before building the final `build_type`:
-                # 1. build the MSVC PGInstrument build_type,
-                # 2. run the instrumented binaries, (PGInstrument should have created a `python.bat` file in the PCbuild folder)
-                # 3. build the MSVC PGUpdate build_type
-            if self.settings.build_type == "Debug" and "d" not in self.settings.compiler.runtime:
-                raise ConanInvalidConfiguration(
-                    "Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode symbol, which only debug runtimes define)"
-                )
-            if self._is_py2:
-                if self.settings.compiler.version >= Version(self, "14"):
-                    self.output.warn(
-                        "Visual Studio versions 14 and higher were never officially supported by the CPython developers"
-                    )
-            if str(self.settings.arch) not in self._msvc_archs:
-                raise ConanInvalidConfiguration("Visual Studio does not support this architecture")
-
-            if not self.options.shared and Version(self._version_number_only) >= "3.10":
-                raise ConanInvalidConfiguration(
-                    "Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no attribute 'winver'\""
-                )
-
-        if self.options.get_safe("with_curses", False) and not self.options["ncurses"].with_widec:
-            raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
-
-    def package_id(self):
-        del self.info.options.env_vars
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def layout(self):
+        pass
 
     @property
     def _with_libffi(self):
@@ -289,6 +250,52 @@ class CPythonConan(ConanFile):
             self.requires("libdb/5.3.28")
         if self.options.get_safe("with_lzma", False):
             self.requires("xz_utils/5.2.5")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
+    def validate(self):
+        if self.options.shared:
+            if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
+                raise ConanInvalidConfiguration(
+                    "cpython does not support MT(d) runtime when building a shared cpython library"
+                )
+        if self.settings.compiler == "Visual Studio":
+            if self.options.optimizations:
+                raise ConanInvalidConfiguration(
+                    "This recipe does not support optimized MSVC cpython builds (yet)"
+                )
+                # FIXME: should probably throw when cross building
+                # FIXME: optimizations for Visual Studio, before building the final `build_type`:
+                # 1. build the MSVC PGInstrument build_type,
+                # 2. run the instrumented binaries, (PGInstrument should have created a `python.bat` file in the PCbuild folder)
+                # 3. build the MSVC PGUpdate build_type
+            if self.settings.build_type == "Debug" and "d" not in self.settings.compiler.runtime:
+                raise ConanInvalidConfiguration(
+                    "Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode"
+                    " symbol, which only debug runtimes define)"
+                )
+            if self._is_py2:
+                if self.settings.compiler.version >= Version(self, "14"):
+                    self.output.warn(
+                        "Visual Studio versions 14 and higher were never officially supported by the CPython"
+                        " developers"
+                    )
+            if str(self.settings.arch) not in self._msvc_archs:
+                raise ConanInvalidConfiguration("Visual Studio does not support this architecture")
+
+            if not self.options.shared and Version(self._version_number_only) >= "3.10":
+                raise ConanInvalidConfiguration(
+                    "Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no"
+                    " attribute 'winver'\""
+                )
+
+        if self.options.get_safe("with_curses", False) and not self.options["ncurses"].with_widec:
+            raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
         if self._autotools:
@@ -387,7 +394,9 @@ class CPythonConan(ConanFile):
                 os.path.join(self.source_folder, "setup.py"),
                 "curses_libs = ",
                 "curses_libs = {} #".format(
-                    repr(self.dependencies["ncurses"].libs + self.deps_cpp_info["ncurses"].cpp_info.system_libs)
+                    repr(
+                        self.dependencies["ncurses"].libs + self.deps_cpp_info["ncurses"].cpp_info.system_libs
+                    )
                 ),
             )
 
@@ -595,14 +604,16 @@ class CPythonConan(ConanFile):
                 and "d" in str(self.settings.compiler.runtime)
             ):
                 raise ConanInvalidConfiguration(
-                    "libffi versions >= 3.3 cause 'read access violations' when using a debug runtime (MTd/MDd)"
+                    "libffi versions >= 3.3 cause 'read access violations' when using a debug runtime"
+                    " (MTd/MDd)"
                 )
 
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
             self._msvc_build()
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     @property
@@ -754,7 +765,7 @@ class CPythonConan(ConanFile):
                 self._msvc_package_layout()
             rm(self, "vcruntime*", os.path.join(self.package_folder, "bin"), recursive=True)
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "share"))
@@ -777,9 +788,7 @@ class CPythonConan(ConanFile):
                     text = fn.read()
                 self.output.info("Rewriting shebang of {}".format(filename))
                 with open(filepath, "wb") as fn:
-                    fn.write(
-                        textwrap.dedent(
-                            """\
+                    fn.write(textwrap.dedent("""\
                         #!/bin/sh
                         ''':'
                         __file__="$0"
@@ -788,11 +797,7 @@ class CPythonConan(ConanFile):
                         done
                         exec "$(dirname "$__file__")/python{}" "$0" "$@"
                         '''
-                        """.format(
-                                self._version_suffix
-                            )
-                        ).encode()
-                    )
+                        """.format(self._version_suffix)).encode())
                     fn.write(text)
 
             if not os.path.exists(self._cpython_symlink):
@@ -866,6 +871,11 @@ class CPythonConan(ConanFile):
         # self.cpp_info.names["cmake_find_package"] = "Python"
         # self.cpp_info.names["cmake_find_package_multi"] = "Python"
         # FIXME: conan components need to generate multiple .pc files (python2, python-27)
+
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
 
         py_version = Version(self._version_number_only)
         # python component: "Build a C extension for Python"

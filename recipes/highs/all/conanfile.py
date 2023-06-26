@@ -18,6 +18,8 @@ class HiGHSConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.highs.dev/"
     topics = ("simplex", "interior point", "solver", "linear", "programming")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -27,15 +29,6 @@ class HiGHSConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def validate(self):
-        if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared on Visual Studio and msvc."
-            )
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -48,11 +41,20 @@ class HiGHSConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("zlib/1.2.13")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def validate(self):
+        if is_msvc(self) and self.options.shared:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

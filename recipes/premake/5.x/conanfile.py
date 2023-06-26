@@ -81,37 +81,58 @@ import glob
 import os
 import re
 
+required_conan_version = ">=1.53.0"
+
 
 class PremakeConan(ConanFile):
     name = "premake"
-    topics = ("build", "build-systems")
-    description = "Describe your software project just once, using Premake's simple and easy to read syntax, and build it everywhere"
+    description = (
+        "Describe your software project just once, "
+        "using Premake's simple and easy to read syntax, "
+        "and build it everywhere"
+    )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://premake.github.io"
-    license = "BSD-3-Clause"
+    topics = ("build", "build-systems")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "lto": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "lto": False,
     }
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self.source_folder)
-
     def config_options(self):
         if self.settings.os != "Windows" or self.settings.compiler == "Visual Studio":
             self.options.rm_safe("lto")
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @property
     def _msvc_version(self):

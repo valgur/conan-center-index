@@ -12,13 +12,14 @@ required_conan_version = ">=1.53.0"
 
 class GtkDocStubConan(ConanFile):
     name = "gtk-doc-stub"
-    homepage = "https://gitlab.gnome.org/GNOME/gtk-doc-stub"
     description = "Helper scripts for generating GTK documentation"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-2.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.gnome.org/GNOME/gtk-doc-stub"
     topics = ("gtk", "documentation", "gtkdocize")
+
     package_type = "application"
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
@@ -30,14 +31,15 @@ class GtkDocStubConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
     def build_requirements(self):
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-
-    def package_id(self):
-        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -63,6 +65,7 @@ class GtkDocStubConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = ["res"]
 
         self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))

@@ -11,15 +11,21 @@ required_conan_version = ">=1.55.0"
 class BlissConan(ConanFile):
     name = "bliss"
     description = (
-        "bliss is an open source tool for computing automorphism groups and canonical forms of graphs."
+        "bliss is an open source tool for computing"
+        " automorphism groups and canonical forms of graphs."
     )
-    topics = ("automorphism", "group", "graph")
+    license = ("GPL-3-or-later", "LGPL-3-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://users.aalto.fi/~tjunttil/bliss"
-    license = "GPL-3-or-later", "LGPL-3-or-later"
+    topics = ("automorphism", "group", "graph")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_exact_int": [False, "gmp", "mpir"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_exact_int": [False, "gmp", "mpir"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

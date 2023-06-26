@@ -28,10 +28,9 @@ required_conan_version = ">=1.57.0"
 
 class FFMpegConan(ConanFile):
     name = "ffmpeg"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A complete, cross-platform solution to record, convert and stream audio and video"
-    # https://github.com/FFmpeg/FFmpeg/blob/master/LICENSE.md
     license = ("LGPL-2.1-or-later", "GPL-2.0-or-later")
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://ffmpeg.org"
     topics = (
         "multimedia",
@@ -46,6 +45,7 @@ class FFMpegConan(ConanFile):
         "demultiplexer",
         "streaming",
     )
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

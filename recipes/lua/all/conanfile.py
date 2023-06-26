@@ -13,7 +13,6 @@ from conan.tools.files import (
 )
 from conan.tools.apple import fix_apple_shared_install_name
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -24,6 +23,7 @@ class LuaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.lua.org/"
     topics = ("embed", "scripting")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

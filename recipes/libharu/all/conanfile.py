@@ -15,18 +15,18 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 import re
 
-
 required_conan_version = ">=1.53.0"
 
 
 class LibharuConan(ConanFile):
     name = "libharu"
     description = "Haru is a free, cross platform, open-sourced software library for generating PDF."
-    topics = ("pdf", "generate", "generator")
     license = "Zlib"
-    homepage = "http://libharu.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://libharu.org/"
+    topics = ("pdf", "generate", "generator")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

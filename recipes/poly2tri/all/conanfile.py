@@ -10,9 +10,9 @@ class Poly2triConan(ConanFile):
     name = "poly2tri"
     description = "Poly2Tri is a sweepline constrained Delaunay Polygon Triangulation Library."
     license = "BSD-3-Clause"
-    topics = ("triangulation", "delaunay", "polygon")
-    homepage = "https://github.com/greenm01/poly2tri"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/greenm01/poly2tri"
+    topics = ("triangulation", "delaunay", "polygon")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -12,11 +12,15 @@ required_conan_version = ">=1.50.0"
 
 class BitFlags(ConanFile):
     name = "bitflags"
-    description = "Single-header header-only C++11 / C++14 / C++17 library for easily managing set of auto-generated type-safe flags"
-    topics = ("bits", "bitflags", "header-only")
+    description = (
+        "Single-header header-only C++11 / C++14 / C++17 library"
+        " for easily managing set of auto-generated type-safe flags"
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/m-peko/bitflags"
-    license = "MIT"
+    topics = ("bits", "bitflags", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

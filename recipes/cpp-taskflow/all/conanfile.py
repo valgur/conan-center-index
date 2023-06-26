@@ -2,94 +2,30 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
-required_conan_version = ">=1.28.0"
+required_conan_version = ">=1.52.0"
 
 
 class CppTaskflowConan(ConanFile):
     name = "cpp-taskflow"
-    description = "A fast C++ header-only library to help you quickly write parallel programs with complex task dependencies."
-    topics = ("taskflow", "tasking", "parallelism")
+    description = (
+        "A fast C++ header-only library to help you quickly write "
+        "parallel programs with complex task dependencies."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cpp-taskflow/cpp-taskflow"
-    license = "MIT"
+    topics = ("taskflow", "tasking", "parallelism", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = "os", "compiler"
     deprecated = "taskflow"
 
     def configure(self):
@@ -101,8 +37,7 @@ class CppTaskflowConan(ConanFile):
             check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler"
-                " standard version support" % (self.name, compiler)
+                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
             )
 
         minimal_version = {
@@ -129,15 +64,18 @@ class CppTaskflowConan(ConanFile):
         # Exclude compilers not supported by cpp-taskflow
         if compiler_version < minimal_version[min_req_cppstd][compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports"
-                " at least C++%s. %s %s is not"
-                " supported."
-                % (self.name, min_req_cppstd, compiler, Version(self.settings.compiler.version.value))
+                f"{self.name} requires a compiler that supports at least C++{min_req_cppstd}."
+                f" {compiler} {Version(self.settings.compiler.version.value)} is not supported."
             )
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("taskflow-" + self.version, self.source_folder)
 
     def package(self):
         copy(
@@ -150,10 +88,10 @@ class CppTaskflowConan(ConanFile):
             src=os.path.join(self.source_folder, "taskflow"),
         )
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")
         if self.settings.compiler == "Visual Studio":

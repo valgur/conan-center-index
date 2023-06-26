@@ -18,17 +18,18 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class MdnsResponderConan(ConanFile):
     name = "mdnsresponder"
     description = "Apple Open Source DNS Service Discovery Collection"
-    topics = ("Bonjour", "DNS-SD", "mDNS")
+    license = ("Apache-2.0", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://opensource.apple.com/tarballs/mDNSResponder/"
-    license = "Apache-2.0", "BSD-3-Clause"
+    topics = ("Bonjour", "DNS-SD", "mDNS", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_opt_patches": [True, False],
@@ -55,12 +56,12 @@ class MdnsResponderConan(ConanFile):
             # The target(libdns_sd) is a shared lib, so mbedtls enable 'shared' option
             self.options["mbedtls"].shared = True
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.use_tls:
             self.requires("mbedtls/2.25.0")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Linux", "Windows"]:
@@ -120,8 +121,8 @@ class MdnsResponderConan(ConanFile):
     @property
     def _make_install_args(self):
         return self._make_build_args + [
-            "INSTBASE={}".format(self.package_folder),
-            "STARTUPSCRIPTDIR={}/bin".format(self.package_folder),
+            f"INSTBASE={self.package_folder}",
+            f"STARTUPSCRIPTDIR={self.package_folder}/bin",
             "RUNLEVELSCRIPTSDIR=",
         ]
 

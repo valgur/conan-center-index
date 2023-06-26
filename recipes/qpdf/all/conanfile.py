@@ -19,11 +19,15 @@ required_conan_version = ">=1.54.0"
 
 class QpdfConan(ConanFile):
     name = "qpdf"
-    description = "QPDF is a command-line tool and C++ library that performs content-preserving transformations on PDF files."
+    description = (
+        "QPDF is a command-line tool and C++ library that "
+        "performs content-preserving transformations on PDF files."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/qpdf/qpdf"
     topics = ("pdf",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

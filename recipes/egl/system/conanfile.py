@@ -8,12 +8,12 @@ required_conan_version = ">=1.50.0"
 
 class SysConfigEGLConan(ConanFile):
     name = "egl"
-    version = "system"
     description = "cross-platform virtual conan package for the EGL support"
-    topics = ("opengl", "egl")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.khronos.org/egl"
-    license = "MIT"
+    topics = ("opengl", "egl")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 

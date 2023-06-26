@@ -23,13 +23,13 @@ required_conan_version = ">=1.54.0"
 
 class mFASTConan(ConanFile):
     name = "mfast"
-    license = "LGPL-3.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://objectcomputing.com/"
     description = (
         "mFAST is a high performance C++ encoding/decoding library for FAST "
         "(FIX Adapted for STreaming) protocol"
     )
+    license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://objectcomputing.com/"
     topics = (
         "fast",
         "fix",
@@ -39,6 +39,7 @@ class mFASTConan(ConanFile):
         "cpp",
     )
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

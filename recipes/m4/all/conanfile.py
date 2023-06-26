@@ -13,12 +13,13 @@ required_conan_version = ">=1.55.0"
 
 class M4Conan(ConanFile):
     name = "m4"
-    package_type = "application"
     description = "GNU M4 is an implementation of the traditional Unix macro processor"
-    topics = ("macro", "preprocessor")
-    homepage = "https://www.gnu.org/software/m4/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/m4/"
+    topics = ("macro", "preprocessor")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -106,6 +107,8 @@ class M4Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

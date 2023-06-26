@@ -14,10 +14,11 @@ required_conan_version = ">=1.54.0"
 class LibelfConan(ConanFile):
     name = "libelf"
     description = "ELF object file access library"
+    license = "LGPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://directory.fsf.org/wiki/Libelf"
-    license = "LGPL-2.0"
     topics = ("elf", "fsf", "object-file")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,12 +30,12 @@ class LibelfConan(ConanFile):
         "fPIC": True,
     }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -8,12 +8,13 @@ required_conan_version = ">=1.52.0"
 
 class LibcorrectConan(ConanFile):
     name = "libcorrect"
+    description = "C library for Convolutional codes and Reed-Solomon"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/quiet/libcorrect"
-    description = "C library for Convolutional codes and Reed-Solomon"
     topics = ("fec", "reed-solomon", "viterbi", "convolutional")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -23,10 +23,12 @@ required_conan_version = ">=1.54.0"
 class LibmicrohttpdConan(ConanFile):
     name = "libmicrohttpd"
     description = "A small C library that is supposed to make it easy to run an HTTP server"
-    homepage = "https://www.gnu.org/software/libmicrohttpd/"
-    topics = ("httpd", "server", "service")
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libmicrohttpd/"
+    topics = ("httpd", "server", "service")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

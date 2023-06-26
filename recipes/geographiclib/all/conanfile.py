@@ -21,11 +21,12 @@ required_conan_version = ">=1.53.0"
 class GeographiclibConan(ConanFile):
     name = "geographiclib"
     description = "Convert geographic units and solve geodesic problems"
-    topics = "geodesic"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://geographiclib.sourceforge.io"
-    license = "MIT"
+    topics = ("geodesic",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,6 +41,27 @@ class GeographiclibConan(ConanFile):
         "tools": True,
     }
 
+    @property
+    def _compilers_minimum_version(self):
+        # Minimum compiler version having C++11 math functions
+        return {
+            "apple-clang": "3.3",
+            "gcc": "4.9",
+            "clang": "6",
+            "Visual Studio": "14",  # guess
+            "msvc": "190",
+        }
+
+    @property
+    def _cmake_option_precision(self):
+        return {
+            "float": 1,
+            "double": 2,
+            "extended": 3,
+            "quadruple": 4,
+            "variable": 5,
+        }.get(str(self.options.precision))
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -53,17 +75,6 @@ class GeographiclibConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    @property
-    def _compilers_minimum_version(self):
-        # Minimum compiler version having C++11 math functions
-        return {
-            "apple-clang": "3.3",
-            "gcc": "4.9",
-            "clang": "6",
-            "Visual Studio": "14",  # guess
-            "msvc": "190",
-        }
 
     def validate(self):
         if Version(self.version) >= "1.51":
@@ -91,12 +102,6 @@ class GeographiclibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @property
-    def _cmake_option_precision(self):
-        return {"float": 1, "double": 2, "extended": 3, "quadruple": 4, "variable": 5}.get(
-            str(self.options.precision)
-        )
 
     def generate(self):
         tc = CMakeToolchain(self)

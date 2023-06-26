@@ -12,6 +12,8 @@ class OdeConan(ConanFile):
     name = "ode"
     description = "ODE is an open source, high performance library for simulating rigid body dynamics."
     license = ("LGPL-2.1-or-later", "BSD-3-Clause")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.ode.org"
     topics = (
         "open-dynamics-engine",
         "physics",
@@ -20,8 +22,6 @@ class OdeConan(ConanFile):
         "dynamics",
         "rigid-body",
     )
-    homepage = "https://www.ode.org"
-    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

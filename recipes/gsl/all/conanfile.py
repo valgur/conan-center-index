@@ -13,10 +13,10 @@ required_conan_version = ">=1.57.0"
 class GslConan(ConanFile):
     name = "gsl"
     description = "GNU Scientific Library"
+    license = "GPL-3.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gsl"
     topics = ("numerical", "math", "random", "scientific")
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "GPL-3.0-or-later"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -24,7 +24,6 @@ class GslConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,

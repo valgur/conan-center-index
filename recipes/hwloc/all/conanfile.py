@@ -12,10 +12,11 @@ required_conan_version = ">=1.53.0"
 class HwlocConan(ConanFile):
     name = "hwloc"
     description = "Portable Hardware Locality (hwloc)"
-    topics = ("hardware", "topology")
     license = "BSD-3-Clause"
-    homepage = "https://www.open-mpi.org/projects/hwloc/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.open-mpi.org/projects/hwloc/"
+    topics = ("hardware", "topology")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -39,18 +40,18 @@ class HwlocConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        if self.settings.os == "Windows":
+            cmake_layout(self, src_folder="src")
+        else:
+            basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_libxml2:
             self.requires("libxml2/2.9.12")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def layout(self):
-        if self.settings.os == "Windows":
-            cmake_layout(self, src_folder="src")
-        else:
-            basic_layout(self, src_folder="src")
 
     def generate(self):
         if self.settings.os == "Windows":

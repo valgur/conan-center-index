@@ -15,6 +15,7 @@ class LercConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Esri/lerc"
     topics = ("lerclib", "compression", "decompression", "image", "raster")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

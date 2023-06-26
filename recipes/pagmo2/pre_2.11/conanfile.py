@@ -2,101 +2,35 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class Pagmo2Conan(ConanFile):
     name = "pagmo2"
     description = "pagmo is a C++ scientific library for massively parallel optimization."
     license = ("LGPL-3.0-or-later", "GPL-3.0-or-later")
-    topics = ("pagmo", "optimization", "parallel-computing", "genetic-algorithm", "metaheuristics")
-    homepage = "https://esa.github.io/pagmo2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://esa.github.io/pagmo2"
+    topics = ("pagmo", "optimization", "parallel-computing", "genetic-algorithm", "metaheuristics")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "with_eigen": [True, False],
         "with_nlopt": [True, False],
         "with_ipopt": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "with_eigen": False,
         "with_nlopt": False,
         "with_ipopt": False,
@@ -105,6 +39,17 @@ class Pagmo2Conan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("boost/1.78.0")
         self.requires("onetbb/2020.3")
@@ -112,6 +57,9 @@ class Pagmo2Conan(ConanFile):
             self.requires("eigen/3.4.0")
         if self.options.with_nlopt:
             self.requires("nlopt/2.7.1")
+
+    def package_id(self):
+        self.info.settings.clear()
 
     @property
     def _required_boost_components(self):
@@ -134,9 +82,6 @@ class Pagmo2Conan(ConanFile):
                     self.name, ", ".join(self._required_boost_components)
                 )
             )
-
-    def package_id(self):
-        self.info.settings.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

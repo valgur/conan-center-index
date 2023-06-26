@@ -219,13 +219,14 @@ class GfCompleteConan(ConanFile):
         with chdir(self, self.source_folder):
             self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)
 

@@ -3,130 +3,29 @@
 import os
 import shutil
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan import ConanFile
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+
+required_conan_version = ">=1.52.0"
 
 
 class DepotToolsConan(ConanFile):
     name = "depot_tools"
+    description = "Tools for working with Chromium development."
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/chromium/tools/depot_tools"
-    description = "Tools for working with Chromium development."
-    topics = "chromium"
-    license = "BSD-3-Clause"
+    topics = ("chromium", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = "os", "arch", "build_type", "compiler"
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    @property
-    def _source_subfolder(self):
-        return os.path.join(self.source_folder, "source_subfolder")
-
-    def _dereference_symlinks(self):
-        """
-        Windows 10 started to introduce support for symbolic links. Unfortunately
-        it caused a lot of trouble during packaging. Namely, opening symlinks causes
-        `OSError: Invalid argument` rather than actually following the symlinks.
-        Therefore, this workaround simply copies the destination file over the symlink
-        """
-        if self.settings.os != "Windows":
-            return
-
-        for root, dirs, files in os.walk(self.source_folder):
-            symlinks = [os.path.join(root, f) for f in files if os.path.islink(os.path.join(root, f))]
-            for symlink in symlinks:
-                dest = os.readlink(symlink)
-                os.remove(symlink)
-                shutil.copy(os.path.join(root, dest), symlink, follow_symlinks=False)
-                self.output.info("Replaced symlink '%s' with its destination file '%s'" % (symlink, dest))
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
-        self._dereference_symlinks()
-
-        apply_conandata_patches(self)
-
-    def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        self._fix_permissions()
+    def layout(self):
+        None
 
     def _fix_permissions(self):
         def chmod_plus_x(name):
@@ -162,7 +61,43 @@ class DepotToolsConan(ConanFile):
         del self.info.settings.build_type
         del self.info.settings.compiler
 
+    def _dereference_symlinks(self):
+        """
+        Windows 10 started to introduce support for symbolic links. Unfortunately
+        it caused a lot of trouble during packaging. Namely, opening symlinks causes
+        `OSError: Invalid argument` rather than actually following the symlinks.
+        Therefore, this workaround simply copies the destination file over the symlink
+        """
+        if self.settings.os != "Windows":
+            return
+
+        for root, dirs, files in os.walk(self.source_folder):
+            symlinks = [os.path.join(root, f) for f in files if os.path.islink(os.path.join(root, f))]
+            for symlink in symlinks:
+                dest = os.readlink(symlink)
+                os.remove(symlink)
+                shutil.copy(os.path.join(root, dest), symlink, follow_symlinks=False)
+                self.output.info("Replaced symlink '%s' with its destination file '%s'" % (symlink, dest))
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
+        self._dereference_symlinks()
+
+        apply_conandata_patches(self)
+
+    def package(self):
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(self, pattern="*", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+        self._fix_permissions()
+
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH env var with : {}".format(bin_path))
         self.env_info.PATH.append(bin_path)

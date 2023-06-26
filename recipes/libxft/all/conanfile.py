@@ -137,7 +137,8 @@ class libxftConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with chdir(self, self.source_folder):
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):

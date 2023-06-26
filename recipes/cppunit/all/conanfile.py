@@ -17,10 +17,11 @@ class CppunitConan(ConanFile):
         "CppUnit is the C++ port of the famous JUnit framework for unit testing. "
         "Test output is in XML for automatic testing and GUI based for supervised tests."
     )
-    topics = ("unit-test", "tdd")
     license = " LGPL-2.1-or-later"
-    homepage = "https://freedesktop.org/wiki/Software/cppunit/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://freedesktop.org/wiki/Software/cppunit/"
+    topics = ("unit-test", "tdd")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

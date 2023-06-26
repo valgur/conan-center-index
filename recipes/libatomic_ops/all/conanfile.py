@@ -3,32 +3,31 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, rmdir, export_conandata_patches
 import os
 
-
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class Atomic_opsConan(ConanFile):
     name = "libatomic_ops"
-    homepage = "https://github.com/ivmai/libatomic_ops"
     description = "The atomic_ops project (Atomic memory update operations portable implementation)"
-    topics = ("fmt", "format", "iostream", "printf")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-2.0-or-later"
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ivmai/libatomic_ops"
+    topics = ("fmt", "format", "iostream", "printf")
 
-    _cmake_options_defaults = (("assertions", False), ("atomic_intrinsics", True))
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "assertions": [True, False],
+        "atomic_intrinsics": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "assertions": False,
+        "atomic_intrinsics": True,
     }
-    for option, default in _cmake_options_defaults:
-        options[option] = [True, False]
-        default_options[option] = default
 
     def export_sources(self):
         export_conandata_patches(self)

@@ -12,16 +12,18 @@ required_conan_version = ">=1.53.0"
 
 class PerfettoConan(ConanFile):
     name = "perfetto"
-    license = "Apache-2.0"
-    homepage = "https://perfetto.dev"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Performance instrumentation and tracing for Android, Linux and Chrome"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://perfetto.dev"
     topics = ("linux", "profiling", "tracing")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "disable_logging": [True, False],  # switches PERFETTO_DISABLE_LOG
+        "disable_logging": [True, False],
     }
     default_options = {
         "shared": False,
@@ -72,7 +74,8 @@ class PerfettoConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(compiler))
         if min_version and loose_lt_semver(str(compiler.version), min_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires {compiler} {min_version}. The current compiler is {compiler} {compiler.version}."
+                f"{self.ref} requires {compiler} {min_version}. "
+                f"The current compiler is {compiler} {compiler.version}."
             )
 
     def source(self):

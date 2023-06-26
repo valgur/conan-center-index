@@ -3,17 +3,18 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class EcosConan(ConanFile):
     name = "ecos"
     description = "ECOS is a numerical software for solving convex second-order cone programs (SOCPs)."
     license = "GPL-3.0-or-later"
-    topics = "conic-solver"
-    homepage = "https://github.com/embotech/ecos"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/embotech/ecos"
+    topics = ("conic-solver",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

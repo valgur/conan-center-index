@@ -13,10 +13,11 @@ required_conan_version = ">=1.53.0"
 class Catch2Conan(ConanFile):
     name = "catch2"
     description = "A modern, C++-native, header-only, framework for unit-tests, TDD and BDD"
-    topics = ("unit-test", "tdd", "bdd")
     license = "BSL-1.0"
-    homepage = "https://github.com/catchorg/Catch2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/catchorg/Catch2"
+    topics = ("unit-test", "tdd", "bdd")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -55,10 +56,6 @@ class Catch2Conan(ConanFile):
             "apple-clang": "10",
         }
 
-    @property
-    def _default_reporter_str(self):
-        return str(self.options.default_reporter).strip('"')
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -90,11 +87,15 @@ class Catch2Conan(ConanFile):
                 )
         except ValueError as e:
             raise ConanInvalidConfiguration(
-                f"option 'console_width' must be an integer, " f"got '{self.options.console_width}'"
+                f"option 'console_width' must be an integer, got '{self.options.console_width}'"
             ) from e
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    @property
+    def _default_reporter_str(self):
+        return str(self.options.default_reporter).strip('"')
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -114,6 +115,17 @@ class Catch2Conan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     def package(self):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -137,19 +149,6 @@ class Catch2Conan(ConanFile):
                 "Catch2::Catch2WithMain": "catch2::catch2_with_main",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

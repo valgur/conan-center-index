@@ -23,11 +23,11 @@ required_conan_version = ">=1.53.0"
 
 class EmbreeConan(ConanFile):
     name = "embree3"
+    description = "Intel's collection of high-performance ray tracing kernels."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("embree", "raytracing", "rendering")
-    description = "Intel's collection of high-performance ray tracing kernels."
     homepage = "https://embree.github.io/"
+    topics = ("embree", "raytracing", "rendering")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -54,7 +54,6 @@ class EmbreeConan(ConanFile):
         "ignore_invalid_rays": [True, False],
         "with_tbb": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,

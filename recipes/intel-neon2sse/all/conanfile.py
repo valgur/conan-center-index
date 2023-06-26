@@ -4,15 +4,19 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from os import path
 
+required_conan_version = ">=1.52.0"
+
 
 class IntelNeon2sseConan(ConanFile):
     name = "intel-neon2sse"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/intel/ARM_NEON_2_x86_SSE"
     description = "Header only library intended to simplify ARM->IA32 porting"
     license = "BSD-2-Clause"
-    topics = ("neon", "sse", "port", "translation", "intrinsics")
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/intel/ARM_NEON_2_x86_SSE"
+    topics = ("neon", "sse", "port", "translation", "intrinsics", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "SSE4": [True, False],
         "disable_performance_warnings": [True, False],
@@ -21,13 +25,17 @@ class IntelNeon2sseConan(ConanFile):
         "SSE4": False,
         "disable_performance_warnings": False,
     }
+    no_copy_source = True
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.arch not in ("x86", "x86_64"):
             raise ConanInvalidConfiguration("neon2sse only supports arch={x86,x86_64}")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -47,10 +55,8 @@ class IntelNeon2sseConan(ConanFile):
         copy(self, "LICENSE", dst=path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, path.join(self.package_folder, "lib"))
 
-    def package_id(self):
-        self.info.clear()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "NEON_2_SSE")
         self.cpp_info.set_property("cmake_target_name", "NEON_2_SSE::NEON_2_SSE")

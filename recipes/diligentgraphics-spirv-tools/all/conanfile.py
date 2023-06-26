@@ -2,104 +2,33 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd, stdcpp_library
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
-    collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
     replace_in_file,
     rm,
     rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-import textwrap
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
 )
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class SpirvtoolsConan(ConanFile):
     name = "diligentgraphics-spirv-tools"
-    homepage = "https://github.com/DiligentGraphics/SPIRV-Tools/"
     description = "Diligent fork. Create and optimize SPIRV shaders"
-    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "hlsl", "khronos", "diligent")
-    url = "https://github.com/conan-io/conan-center-index"
-    provides = "spirv-tools"
-    deprecated = "spirv-tools"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DiligentGraphics/SPIRV-Tools/"
+    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "hlsl", "khronos", "diligent")
 
-    settings = "os", "compiler", "arch", "build_type"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -110,6 +39,8 @@ class SpirvtoolsConan(ConanFile):
         "fPIC": True,
         "build_executables": True,
     }
+    provides = "spirv-tools"
+    deprecated = "spirv-tools"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -122,16 +53,19 @@ class SpirvtoolsConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def requirements(self):
-        if not self._get_compatible_spirv_headers_version:
-            raise ConanInvalidConfiguration("unknown diligentgraphics-spirv-headers version")
-        self.requires("diligentgraphics-spirv-headers/{}".format(self._get_compatible_spirv_headers_version))
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     @property
     def _get_compatible_spirv_headers_version(self):
         return {
             "cci.20211008": "cci.20211006",
         }.get(str(self.version), False)
+
+    def requirements(self):
+        if not self._get_compatible_spirv_headers_version:
+            raise ConanInvalidConfiguration("unknown diligentgraphics-spirv-headers version")
+        self.requires("diligentgraphics-spirv-headers/{}".format(self._get_compatible_spirv_headers_version))
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -175,13 +109,6 @@ class SpirvtoolsConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def build(self):
-        self._validate_dependency_graph()
-        self._patch_sources()
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
-
     def _patch_sources(self):
         apply_conandata_patches(self)
         # CMAKE_POSITION_INDEPENDENT_CODE was set ON for the entire
@@ -192,6 +119,13 @@ class SpirvtoolsConan(ConanFile):
             "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
             "",
         )
+
+    def build(self):
+        self._validate_dependency_graph()
+        self._patch_sources()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
         copy(
@@ -225,7 +159,9 @@ class SpirvtoolsConan(ConanFile):
             }
         else:
             targets = {
-                "SPIRV-Tools": "diligentgraphics-spirv-tools::SPIRV-Tools",  # before 2020.5, kept for conveniency
+                "SPIRV-Tools": (
+                    "diligentgraphics-spirv-tools::SPIRV-Tools"
+                ),  # before 2020.5, kept for conveniency
                 "SPIRV-Tools-static": "diligentgraphics-spirv-tools::SPIRV-Tools",
                 "SPIRV-Tools-opt": "diligentgraphics-spirv-tools::SPIRV-Tools-opt",
                 "SPIRV-Tools-link": "diligentgraphics-spirv-tools::SPIRV-Tools-link",
@@ -234,22 +170,6 @@ class SpirvtoolsConan(ConanFile):
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path), targets
         )
-
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
-        save(self, module_file, content)
 
     @property
     def _module_subfolder(self):

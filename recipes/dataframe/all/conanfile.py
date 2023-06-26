@@ -20,13 +20,13 @@ required_conan_version = ">=1.53.0"
 
 class DataFrameConan(ConanFile):
     name = "dataframe"
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/hosseinmoein/DataFrame"
     description = (
         "C++ DataFrame for statistical, Financial, and ML analysis -- in modern C++ "
         "using native types, continuous memory storage, and no pointers are involved"
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/hosseinmoein/DataFrame"
     topics = (
         "dataframe",
         "data-science",

@@ -10,10 +10,11 @@ required_conan_version = ">=1.50.0"
 class CppTomlConan(ConanFile):
     name = "cpptoml"
     description = "cpptoml is a header-only library for parsing TOML "
-    topics = ("toml", "header-only", "configuration")
     license = "MIT"
-    homepage = "https://github.com/skystrife/cpptoml"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/skystrife/cpptoml"
+    topics = ("toml", "header-only", "configuration")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

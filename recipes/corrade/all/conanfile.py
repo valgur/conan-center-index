@@ -2,102 +2,27 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.microsoft import is_msvc
 from conan.tools.microsoft.visual import vs_ide_version
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
-import os
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.47.0"
 
 
 class CorradeConan(ConanFile):
     name = "corrade"
     description = "Corrade is a multiplatform utility library written in C++11/C++14."
-    topics = ("magnum", "filesystem", "console", "environment", "os")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://magnum.graphics/corrade"
-    license = "MIT"
+    topics = ("magnum", "filesystem", "console", "environment", "os")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -131,6 +56,9 @@ class CorradeConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if is_msvc(self) and Version(self, vs_ide_version(self)) < 14:
@@ -269,4 +197,4 @@ class CorradeConan(ConanFile):
 
         # pkg_config: Add more explicit naming to generated files (avoid filesystem collision).
         for key, cmp in self.cpp_info.components.items():
-            self.cpp_info.components[key].names["pkg_config"] = "{}_{}".format(self.name, key)
+            self.cpp_info.components[key].names["pkg_config"] = f"{self.name}_{key}"

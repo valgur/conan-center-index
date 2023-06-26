@@ -15,9 +15,10 @@ class CityhashConan(ConanFile):
     name = "cityhash"
     description = "CityHash, a family of hash functions for strings."
     license = "MIT"
-    topics = ("hash",)
-    homepage = "https://github.com/google/cityhash"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/cityhash"
+    topics = ("hash",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

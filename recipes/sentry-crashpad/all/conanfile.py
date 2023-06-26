@@ -22,22 +22,24 @@ required_conan_version = ">=1.53.0"
 class SentryCrashpadConan(ConanFile):
     name = "sentry-crashpad"
     description = "Crashpad is a crash-reporting system."
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/getsentry/sentry-native"
-    license = "Apache-2.0"
     topics = ("crashpad", "error-reporting", "crash-reporting")
-    provides = "crashpad", "mini_chromium"
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"fPIC": [True, False], "with_tls": ["openssl", False]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_tls": ["openssl", False],
+    }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_tls": "openssl",
     }
-
-    @property
-    def _is_mingw(self):
-        return self.settings.os == "Windows" and self.settings.compiler == "gcc"
+    provides = ("crashpad", "mini_chromium")
 
     @property
     def _minimum_compilers_version(self):
@@ -49,6 +51,10 @@ class SentryCrashpadConan(ConanFile):
             "apple-clang": "5.1",
         }
 
+    @property
+    def _is_mingw(self):
+        return self.settings.os == "Windows" and self.settings.compiler == "gcc"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -58,9 +64,12 @@ class SentryCrashpadConan(ConanFile):
         if self.settings.os not in ("Linux", "Android"):
             self.options.rm_safe("with_tls")
 
-    def build_requirements(self):
-        if self._is_mingw:
-            self.tool_requires("jwasm/2.13")
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.13")
@@ -80,11 +89,13 @@ class SentryCrashpadConan(ConanFile):
             self.output.warning("Compiler is unknown. Assuming it supports C++14.")
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"Build requires support for C++14. Minimum version for {self.settings.compiler} is {minimum_version}"
+                "Build requires support for C++14. "
+                f"Minimum version for {self.settings.compiler} is {minimum_version}"
             )
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def build_requirements(self):
+        if self._is_mingw:
+            self.tool_requires("jwasm/2.13")
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)])

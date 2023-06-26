@@ -9,10 +9,12 @@ required_conan_version = ">=1.52.0"
 class MathfuConan(ConanFile):
     name = "mathfu"
     description = "C++ math library developed primarily for games focused on simplicity and efficiency."
-    topics = ("math", "geometry")
     license = "Apache-2.0"
-    homepage = "https://github.com/google/mathfu"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/mathfu"
+    topics = ("math", "geometry", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

@@ -13,6 +13,7 @@ class BZip3Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kspalaiologos/bzip3"
     topics = ("bzip2", "lzma", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

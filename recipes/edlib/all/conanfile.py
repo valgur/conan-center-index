@@ -15,10 +15,10 @@ class EdlibConan(ConanFile):
         "Lightweight, super fast C/C++ (& Python) library for "
         "sequence alignment using edit (Levenshtein) distance."
     )
-    topics = ("sequence-alignment", "edit-distance", "levehnstein-distance", "alignment-path")
     license = "MIT"
-    homepage = "https://github.com/Martinsos/edlib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Martinsos/edlib"
+    topics = ("sequence-alignment", "edit-distance", "levehnstein-distance", "alignment-path")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

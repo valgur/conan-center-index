@@ -11,12 +11,14 @@ required_conan_version = ">=1.52.0"
 class GetoptForVisualStudioConan(ConanFile):
     name = "getopt-for-visual-studio"
     description = "GNU getopt for Visual Studio"
-    topics = ("getopt", "cli", "command line", "options")
+    license = ("MIT", "BSD-2-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/skandhurkat/Getopt-for-Visual-Studio"
-    license = "MIT", "BSD-2-Clause"
+    topics = ("getopt", "cli", "command line", "options", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

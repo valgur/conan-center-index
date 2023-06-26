@@ -13,9 +13,9 @@ class ClhepConan(ConanFile):
     name = "clhep"
     description = "Class Library for High Energy Physics."
     license = "LGPL-3.0-only"
-    topics = ("cern", "hep", "high energy", "physics", "geometry", "algebra")
-    homepage = "http://proj-clhep.web.cern.ch/proj-clhep"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://proj-clhep.web.cern.ch/proj-clhep"
+    topics = ("cern", "hep", "high energy", "physics", "geometry", "algebra")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

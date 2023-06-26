@@ -19,11 +19,13 @@ required_conan_version = ">=1.54.0"
 
 class BisonConan(ConanFile):
     name = "bison"
+    description = "Bison is a general-purpose parser generator"
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/bison/"
-    description = "Bison is a general-purpose parser generator"
-    topics = "parser"
-    license = "GPL-3.0-or-later"
+    topics = ("parser",)
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],

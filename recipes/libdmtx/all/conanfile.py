@@ -3,7 +3,6 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -17,6 +16,8 @@ class libdmtxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dmtx/libdmtx"
     topics = ("data matrix", "ECC200", "barcode")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

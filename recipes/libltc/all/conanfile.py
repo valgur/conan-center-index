@@ -12,11 +12,12 @@ required_conan_version = ">=1.57.0"
 
 class LibltcConan(ConanFile):
     name = "libltc"
+    description = "Linear/Longitudinal Time Code (LTC) Library"
+    license = "LGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://x42.github.io/libltc/"
-    description = "Linear/Longitudinal Time Code (LTC) Library"
     topics = ("timecode", "smpte", "ltc")
-    license = "LGPL-3.0"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

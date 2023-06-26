@@ -17,13 +17,16 @@ class DBCpppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xR3b0rn/dbcppp"
     topics = ("can", "dbc", "network")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_tools": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_tools": False,
     }

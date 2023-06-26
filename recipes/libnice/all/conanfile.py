@@ -7,16 +7,19 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.errors import ConanInvalidConfiguration
 
+required_conan_version = ">=1.53.0"
+
 
 class LibniceConan(ConanFile):
     name = "libnice"
-    homepage = "https://libnice.freedesktop.org/"
+    description = "a GLib ICE implementation"
     license = ("MPL-1.1", "LGPL-2.1-only")
     url = "https://github.com/conan-io/conan-center-index"
-    description = "a GLib ICE implementation"
+    homepage = "https://libnice.freedesktop.org/"
     topics = ("ice", "stun", "turn")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -49,6 +52,13 @@ class LibniceConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("glib/2.75.2")
+        if self.options.crypto_library == "openssl":
+            self.requires("openssl/1.1.1t")
+        if self.options.with_gstreamer:
+            self.requires("gstreamer/1.19.2")
+
     def validate(self):
         if self.settings.os != "Windows" and self.options.crypto_library == "win32":
             raise ConanInvalidConfiguration(
@@ -58,13 +68,6 @@ class LibniceConan(ConanFile):
             raise ConanInvalidConfiguration(f"-o {self.ref}:with_gtk_doc=True is not support on Windows")
         if is_msvc_static_runtime(self) and self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration("-o glib/*:shared=True with static runtime is not supported")
-
-    def requirements(self):
-        self.requires("glib/2.75.2")
-        if self.options.crypto_library == "openssl":
-            self.requires("openssl/1.1.1t")
-        if self.options.with_gstreamer:
-            self.requires("gstreamer/1.19.2")
 
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")

@@ -87,17 +87,22 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class CryptoPPPEMConan(ConanFile):
     name = "cryptopp-pem"
+    description = (
+        "The PEM Pack is a partial implementation of message encryption "
+        "which allows you to read and write PEM encoded keys and parameters, "
+        "including encrypted private keys."
+    )
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.cryptopp.com/wiki/PEM_Pack"
-    license = "Unlicense"
-    description = "The PEM Pack is a partial implementation of message encryption which allows you to read and write PEM encoded keys and parameters, including encrypted private keys."
     topics = ("cryptopp", "crypto", "cryptographic", "security", "PEM")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -155,23 +160,6 @@ class CryptoPPPEMConan(ConanFile):
             sha256="7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c",
         )
 
-    def _patch_sources(self):
-        if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
-            shutil.copyfile(
-                os.path.join(
-                    get_env(self, "ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
-                ),
-                os.path.join(self.source_folder, "cpu-features.h"),
-            )
-        apply_conandata_patches(self)
-        # Honor fPIC option
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)",
-            "",
-        )
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
@@ -188,6 +176,23 @@ class CryptoPPPEMConan(ConanFile):
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_sources(self):
+        if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
+            shutil.copyfile(
+                os.path.join(
+                    get_env(self, "ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
+                ),
+                os.path.join(self.source_folder, "cpu-features.h"),
+            )
+        apply_conandata_patches(self)
+        # Honor fPIC option
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -208,22 +213,6 @@ class CryptoPPPEMConan(ConanFile):
                 "cryptopp-pem-static": "cryptopp-pem::cryptopp-pem-static",
             },
         )
-
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

@@ -2,92 +2,26 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
+
+required_conan_version = ">=1.53.0"
 
 
 class EazylzmaConan(ConanFile):
     name = "easylzma"
+    description = (
+        "An easy to use, tiny, public domain, C wrapper library around "
+        "Igor Pavlov's work that can be used to compress and extract lzma files"
+    )
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lloyd/easylzma"
-    description = "An easy to use, tiny, public domain, C wrapper library around \
-                    Igor Pavlov's work that can be used to compress and extract lzma files"
-    settings = "os", "arch", "compiler", "build_type"
     topics = ("eazylzma", "lzma")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -96,9 +30,6 @@ class EazylzmaConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     @property
     def _license_text(self):
@@ -110,6 +41,9 @@ class EazylzmaConan(ConanFile):
     def _libname(self):
         return "easylzma" if self.options.shared else "easylzma_s"
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -120,10 +54,17 @@ class EazylzmaConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_folder)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -134,25 +75,21 @@ class EazylzmaConan(ConanFile):
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
+        for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
+            copy(
+                self,
+                pattern,
+                src=self.build_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         copy(
             self,
-            pattern="*.dylib*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src="lib",
+            pattern="*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.build_folder, "bin"),
             keep_path=False,
-            symlinks=True,
         )
-        copy(
-            self,
-            pattern="*.so*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src="lib",
-            keep_path=False,
-            symlinks=True,
-        )
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src="bin", keep_path=False)
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src="lib", keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src="lib", keep_path=False)
 
         copy(
             self,

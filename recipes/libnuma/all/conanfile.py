@@ -12,9 +12,9 @@ class LibnumaConan(ConanFile):
     name = "libnuma"
     description = "NUMA support for Linux."
     license = "LGPL-2.1-or-later"
-    topics = ("numa",)
-    homepage = "https://github.com/numactl/numactl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/numactl/numactl"
+    topics = ("numa",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

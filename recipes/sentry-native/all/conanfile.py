@@ -19,9 +19,9 @@ class SentryNativeConan(ConanFile):
         "applications, optimized for C and C++. Sentry allows to add tags, "
         "breadcrumbs and arbitrary custom context to enrich error reports."
     )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/getsentry/sentry-native"
-    license = "MIT"
     topics = ("breakpad", "crashpad", "error-reporting", "crash-reporting")
 
     package_type = "library"

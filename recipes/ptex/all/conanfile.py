@@ -9,14 +9,14 @@ required_conan_version = ">=1.53.0"
 class PtexConan(ConanFile):
     name = "ptex"
     description = (
-        "Ptex is a texture mapping system developed by Walt Disney "
-        "Animation Studios for production-quality rendering."
+        "Ptex is a texture mapping system developed by "
+        "Walt Disney Animation Studios for production-quality rendering."
     )
     license = "BSD-3-Clause"
-    topics = "texture-mapping"
-    homepage = "https://ptex.us"
     url = "https://github.com/conan-io/conan-center-index"
-
+    homepage = "https://ptex.us"
+    topics = "texture-mapping"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

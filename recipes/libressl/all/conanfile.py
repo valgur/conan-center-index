@@ -12,17 +12,15 @@ required_conan_version = ">=1.53.0"
 
 class LibreSSLConan(ConanFile):
     name = "libressl"
-    topics = ("SSL", "TLS", "openssl")
     description = (
         "LibreSSL is a version of the TLS/crypto stack forked from OpenSSL in "
         "2014, with goals of modernizing the codebase, improving security, and "
         "applying best practice development processes."
     )
+    license = ("OpenSSL", "BSD", "ISC")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libressl.org/"
-    license = ("OpenSSL", "BSD", "ISC")
-
-    provides = "openssl"
+    topics = ("SSL", "TLS", "openssl")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -34,6 +32,7 @@ class LibreSSLConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    provides = "openssl"
 
     def config_options(self):
         if self.settings.os == "Windows":

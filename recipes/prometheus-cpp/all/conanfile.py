@@ -19,6 +19,7 @@ class PrometheusCppConan(ConanFile):
     homepage = "https://github.com/jupp0r/prometheus-cpp"
     topics = ("metrics", "prometheus", "networking")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -24,11 +24,12 @@ required_conan_version = ">=1.53.0"
 
 class MimallocConan(ConanFile):
     name = "mimalloc"
+    description = "mimalloc is a compact general purpose allocator with excellent performance."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/mimalloc"
-    description = "mimalloc is a compact general purpose allocator with excellent performance."
     topics = ("allocator", "performance", "microsoft")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -106,7 +107,8 @@ class MimallocConan(ConanFile):
             and not is_msvc_static_runtime(self)
         ):
             raise ConanInvalidConfiguration(
-                f"Currently, {self.ref} doesn't work properly with shared MD builds in CCI. Contributions welcomed"
+                f"Currently, {self.ref} doesn't work properly with shared MD builds in CCI. "
+                "Contributions welcomed"
             )
 
         # Shared overriding requires dynamic runtime for MSVC:
@@ -213,14 +215,12 @@ class MimallocConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

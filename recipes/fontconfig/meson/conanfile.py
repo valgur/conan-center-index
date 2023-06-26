@@ -22,11 +22,13 @@ required_conan_version = ">=1.53.0"
 
 class FontconfigConan(ConanFile):
     name = "fontconfig"
+    description = "Fontconfig is a library for configuring and customizing font access"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Fontconfig is a library for configuring and customizing font access"
     homepage = "https://gitlab.freedesktop.org/fontconfig/fontconfig"
     topics = ("fonts", "freedesktop")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

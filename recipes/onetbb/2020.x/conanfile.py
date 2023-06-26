@@ -85,16 +85,17 @@ required_conan_version = ">=1.53.0"
 
 class OneTBBConan(ConanFile):
     name = "onetbb"
-    license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/oneapi-src/oneTBB"
     description = (
         "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel "
         "C++ programs that take full advantage of multicore performance, that "
         "are portable, composable and have future-proof scalability."
     )
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oneapi-src/oneTBB"
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -132,20 +133,23 @@ class OneTBBConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.options.tbbmalloc
+        del self.info.options.tbbproxy
+
     def validate(self):
         if self.settings.os == "Macos":
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(
-                    "%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version)
+                    f"{self.name} {self.version} couldn't be built by apple-clang < 8.0"
                 )
         if not self.options.shared:
             self.output.warn("oneTBB strongly discourages usage of static linkage")
         if self.options.tbbproxy and (not self.options.shared or not self.options.tbbmalloc):
             raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
-
-    def package_id(self):
-        del self.info.options.tbbmalloc
-        del self.info.options.tbbproxy
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -154,6 +158,10 @@ class OneTBBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         def add_flag(name, value):
@@ -175,9 +183,8 @@ class OneTBBConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
-                textwrap.dedent(
-                    """\
-                    LIB_LINK_CMD = {}.exe
+                textwrap.dedent(f"""\
+                    LIB_LINK_CMD = {"xilib" if self.settings.compiler == "intel" else "lib"}.exe
                     LIB_OUTPUT_KEY = /OUT:
                     LIB_LINK_FLAGS =
                     LIB_LINK_LIBS =
@@ -198,10 +205,7 @@ class OneTBBConan(ConanFile):
                     MALLOC_NO_VERSION.DLL =
                     MALLOCPROXY.DLL =
                     MALLOCPROXY.DEF =
-                """.format(
-                        "xilib" if self.settings.compiler == "intel" else "lib"
-                    )
-                ),
+                """),
             )
             extra = "" if self.options.shared else "extra_inc=big_iron_msvc.inc"
         else:
@@ -261,7 +265,7 @@ class OneTBBConan(ConanFile):
                         "191": "vc14.1",
                         "192": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
-            extra += " runtime=%s" % runtime
+            extra += f" runtime={runtime}"
 
             if self.settings.compiler == "intel":
                 extra += " compiler=icl"
@@ -272,9 +276,7 @@ class OneTBBConan(ConanFile):
             cxx_std_value = (
                 cxx_std_flag.split("=")[1]
                 if "=" in cxx_std_flag
-                else cxx_std_flag.split(":")[1]
-                if ":" in cxx_std_flag
-                else None
+                else cxx_std_flag.split(":")[1] if ":" in cxx_std_flag else None
             )
             if cxx_std_value:
                 extra += f" stdver={cxx_std_value}"

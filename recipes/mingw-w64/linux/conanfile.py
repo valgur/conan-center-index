@@ -78,18 +78,24 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class MingwConan(ConanFile):
     name = "mingw-w64"
     description = "MinGW is a contraction of Minimalist GNU for Windows"
+    license = ("ZPL-2.1", "MIT", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.mingw-w64.org/"
-    license = "ZPL-2.1", "MIT", "GPL-2.0-or-later"
     topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
-    settings = "os", "arch", "build_type", "compiler"
-    options = {"threads": ["posix", "win32"], "exception": ["seh", "sjlj"], "gcc": ["10.3.0"]}
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "threads": ["posix", "win32"],
+        "exception": ["seh", "sjlj"],
+        "gcc": ["10.3.0"],
+    }
     default_options = {
         "threads": "posix",
         "exception": "seh",
@@ -100,6 +106,13 @@ class MingwConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         valid_os = ["Linux"]
@@ -132,10 +145,6 @@ class MingwConan(ConanFile):
         self.build_requires("mpfr/4.1.0")
         self.build_requires("mpc/1.2.0")
 
-    def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
-
     def _download_source(self):
         arch_data = self.conan_data["sources"][self.version]
 
@@ -147,7 +156,7 @@ class MingwConan(ConanFile):
                 self,
                 **arch_data[package],
                 strip_root=True,
-                destination=os.path.join(self.build_folder, "sources", package)
+                destination=os.path.join(self.build_folder, "sources", package),
             )
         # Download gcc version
         gcc_data = arch_data["gcc"][str(self.options.gcc)]
@@ -399,6 +408,11 @@ class MingwConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         if getattr(self, "settings_target", None):
             if self.settings_target.compiler != "gcc":
                 raise ConanInvalidConfiguration("Only GCC is allowed as compiler.")

@@ -3,11 +3,11 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class OpenblasConan(ConanFile):
@@ -17,6 +17,8 @@ class OpenblasConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.openblas.net"
     topics = ("blas", "lapack")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -41,6 +43,9 @@ class OpenblasConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
@@ -61,9 +66,7 @@ class OpenblasConan(ConanFile):
         # Required for safe concurrent calls to OpenBLAS routines
         tc.variables["USE_LOCKING"] = not self.options.use_thread
 
-        tc.variables["MSVC_STATIC_CRT"] = (
-            False  # don't, may lie to consumer, /MD or /MT is managed by conan
-        )
+        tc.variables["MSVC_STATIC_CRT"] = False  # don't, may lie to consumer, /MD or /MT is managed by conan
 
         # This is a workaround to add the libm dependency on linux,
         # which is required to successfully compile on older gcc versions.
@@ -74,9 +77,7 @@ class OpenblasConan(ConanFile):
     def build(self):
         if Version(self.version) >= "0.3.12":
             search = """message(STATUS "No Fortran compiler found, can build only BLAS but not LAPACK")"""
-            replace = (
-                """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
-            )
+            replace = """message(FATAL_ERROR "No Fortran compiler found. Cannot build with LAPACK.")"""
         else:
             search = "enable_language(Fortran)"
             replace = """include(CheckLanguage)
@@ -89,9 +90,7 @@ else()
   set (NO_LAPACK 1)
 endif()"""
 
-        replace_in_file(
-            self, os.path.join(self.source_folder, "cmake", "f_check.cmake"), search, replace
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "f_check.cmake"), search, replace)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -120,9 +119,7 @@ endif()"""
             "pthread" if self.options.use_thread else "serial"
         )  # TODO: how to model this in CMakeDeps?
         self.cpp_info.components["openblas_component"].set_property("pkg_config_name", "openblas")
-        self.cpp_info.components["openblas_component"].includedirs.append(
-            os.path.join("include", "openblas")
-        )
+        self.cpp_info.components["openblas_component"].includedirs.append(os.path.join("include", "openblas"))
         self.cpp_info.components["openblas_component"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["openblas_component"].system_libs.append("m")
@@ -131,17 +128,13 @@ endif()"""
             if self.options.build_lapack:
                 self.cpp_info.components["openblas_component"].system_libs.append("gfortran")
 
-        self.output.info(
-            f"Setting OpenBLAS_HOME environment variable: {self.package_folder}"
-        )
+        self.output.info(f"Setting OpenBLAS_HOME environment variable: {self.package_folder}")
         self.env_info.OpenBLAS_HOME = self.package_folder
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
-        self.cpp_info.components["openblas_component"].names[
-            "cmake_find_package"
-        ] = cmake_component_name
+        self.cpp_info.components["openblas_component"].names["cmake_find_package"] = cmake_component_name
         self.cpp_info.components["openblas_component"].names[
             "cmake_find_package_multi"
         ] = cmake_component_name

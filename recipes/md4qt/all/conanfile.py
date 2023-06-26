@@ -6,16 +6,30 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class Md4QtConan(ConanFile):
     name = "md4qt"
+    description = "Header-only C++ library for parsing Markdown."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/md4qt"
-    license = "MIT"
-    description = "Header-only C++ library for parsing Markdown."
-    topics = ("markdown", "gfm", "parser", "icu", "ast", "commonmark", "md", "qt6", "stl", "cpp17")
+    topics = (
+        "markdown",
+        "gfm",
+        "parser",
+        "icu",
+        "ast",
+        "commonmark",
+        "md",
+        "qt6",
+        "stl",
+        "cpp17",
+        "header-only",
+    )
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -33,12 +47,15 @@ class Md4QtConan(ConanFile):
             "apple-clang": "14",
         }
 
-    def package_id(self):
-        self.info.clear()
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("icu/72.1")
         self.requires("uriparser/0.9.7")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -46,11 +63,9 @@ class Md4QtConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, "
+                "which your compiler does not support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

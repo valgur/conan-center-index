@@ -89,13 +89,12 @@ class Asn1cConan(ConanFile):
     name = "asn1c"
     description = "The ASN.1 Compiler"
     license = "BSD-2-Clause"
-    topics = ("asn.1", "compiler")
-    homepage = "https://lionet.info/asn1c"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://lionet.info/asn1c"
+    topics = ("asn.1", "compiler")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-
-    _autotools = None
 
     @property
     def _datarootdir(self):
@@ -105,17 +104,20 @@ class Asn1cConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def build_requirements(self):
-        self.tool_requires("bison/3.7.6")
-        self.tool_requires("flex/2.6.4")
-        self.tool_requires("libtool/2.4.7")
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
-    def package_id(self):
-        del self.info.settings.compiler
+    def build_requirements(self):
+        self.tool_requires("bison/3.7.6")
+        self.tool_requires("flex/2.6.4")
+        self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -131,17 +133,23 @@ class Asn1cConan(ConanFile):
     def build(self):
         with chdir(self, self.source_folder):
             self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "res", "doc"))
         rmdir(self, os.path.join(self.package_folder, "res", "man"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))
         self.env_info.PATH.append(bin_path)
@@ -150,4 +158,3 @@ class Asn1cConan(ConanFile):
         # so `SUPPORT_PATH` should be propagated to command line invocation to `-S` argument
         self.env_info.SUPPORT_PATH = os.path.join(self.package_folder, "res/asn1c")
 
-        self.cpp_info.includedirs = []

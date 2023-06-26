@@ -13,10 +13,11 @@ required_conan_version = ">=1.53.0"
 class LibPslConan(ConanFile):
     name = "libpsl"
     description = "C library for the Public Suffix List"
-    homepage = "https://github.com/rockdaboot/libpsl"
-    topics = ("psl", "suffix", "TLD", "gTLD", ".com", ".net")
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rockdaboot/libpsl"
+    topics = ("psl", "suffix", "TLD", "gTLD", ".com", ".net")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

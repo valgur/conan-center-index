@@ -17,15 +17,16 @@ class MailioConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/karastojko/mailio"
     topics = ("smtp", "imap", "email", "mail", "libraries", "cpp")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property

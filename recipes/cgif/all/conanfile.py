@@ -15,9 +15,10 @@ class CgifConan(ConanFile):
     name = "cgif"
     description = "GIF encoder written in C"
     license = "MIT"
-    topics = ("gif", "encoder", "image")
-    homepage = "https://github.com/dloebl/cgif"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/dloebl/cgif"
+    topics = ("gif", "encoder", "image")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

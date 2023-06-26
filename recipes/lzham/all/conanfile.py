@@ -5,20 +5,20 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 SLN_FILE = "lzham.sln"
 
 
 class PackageConan(ConanFile):
     name = "lzham"
-
-    description = "Compression algorithm similar compression ratio and faster " "decompression than LZMA."
-
+    description = "Compression algorithm similar compression ratio and faster decompression than LZMA."
     license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/richgel999/lzham_codec"
     topics = ("compression", "lz-compression")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -11,11 +11,16 @@ required_conan_version = ">=1.53.0"
 
 class QCBORConan(ConanFile):
     name = "qcbor"
-    description = "Comprehensive, powerful, commercial-quality CBOR encoder/decoder that is still suited for small devices."
+    description = (
+        "Comprehensive, powerful, commercial-quality CBOR encoder/decoder "
+        "that is still suited for small devices."
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/laurencelundblade/QCBOR"
     topics = ("serialization", "cbor", "rfc-7049", "rfc-8949")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

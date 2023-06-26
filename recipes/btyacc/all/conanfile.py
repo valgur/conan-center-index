@@ -1,101 +1,24 @@
 # TODO: verify the Conan v2 migration
 
-import functools
 import os
 import textwrap
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rmdir, save
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class BtyaccConan(ConanFile):
     name = "btyacc"
+    description = "Backtracking yacc"
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ChrisDodd/btyacc"
-    description = "Backtracking yacc"
-    topics = ("yacc", "parser")
-    license = "Unlicense"
+    topics = ("yacc", "parser", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -112,6 +35,12 @@ class BtyaccConan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         root = self.source_folder
@@ -140,17 +69,18 @@ class BtyaccConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         variables = os.path.join(self.package_folder, self._variables)
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(BTYACC_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/btyacc")
             if(NOT EXISTS "${BTYACC_EXECUTABLE}")
               set(BTYACC_EXECUTABLE "${BTYACC_EXECUTABLE}.exe")
             endif()
-        """
-        )
+        """)
         save(self, variables, content)
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

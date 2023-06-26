@@ -21,6 +21,7 @@ class G3logConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KjellKod/g3log"
     topics = ("logging", "log", "asynchronous")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -115,9 +116,9 @@ class G3logConan(ConanFile):
         tc.variables["G3_LOG_FULL_FILENAME"] = self.options.log_full_filename
         tc.variables["ENABLE_FATAL_SIGNALHANDLING"] = self.options.enable_fatal_signal_handling
         if is_msvc(self):
-            tc.variables[
-                "ENABLE_VECTORED_EXCEPTIONHANDLING"
-            ] = self.options.enable_vectored_exception_handling
+            tc.variables["ENABLE_VECTORED_EXCEPTIONHANDLING"] = (
+                self.options.enable_vectored_exception_handling
+            )
             tc.variables["DEBUG_BREAK_AT_FATAL_SIGNAL"] = self.options.debug_break_at_fatal_signal
         tc.variables["ADD_FATAL_EXAMPLE"] = "OFF"
         tc.variables["ADD_G3LOG_PERFORMANCE"] = "OFF"
@@ -147,14 +148,12 @@ class G3logConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

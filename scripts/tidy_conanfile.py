@@ -65,7 +65,7 @@ class ConanFileDetails:
             return False
         if "package_type" in self.attrs:
             return self.attrs["package_type"] == "header-library"
-        if "options" in self.attrs and "shared" in self.attrs["options"] or "fPIC" in self.attrs["options"]:
+        if "shared" in self.attrs.get("options", {}) or "fPIC" in self.attrs.get("options", {}):
             return False
         if self.attrs.get("no_copy_source") is True:
             return True
@@ -337,6 +337,8 @@ def tidy_conanfile(conanfile_path, write=True):
 
     for attr, is_required in attr_order:
         if attr in details.attrs:
+            if attr == "package_type":
+                result.write("\n")
             value = details.attrs[attr]
             # Add a comma for formatting with black
             src = re.sub(r"}$", ",}", repr(value))

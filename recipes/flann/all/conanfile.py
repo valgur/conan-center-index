@@ -20,10 +20,10 @@ required_conan_version = ">=1.54.0"
 class FlannConan(ConanFile):
     name = "flann"
     description = "Fast Library for Approximate Nearest Neighbors"
-    topics = ("nns", "nearest-neighbor-search", "knn", "kd-tree")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.cs.ubc.ca/research/flann/"
-    license = "BSD-3-Clause"
+    topics = ("nns", "nearest-neighbor-search", "knn", "kd-tree")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

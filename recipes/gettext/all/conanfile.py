@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, unix_path_package_info_legacy
 from conan.tools.scm import Version
 
@@ -13,12 +14,13 @@ required_conan_version = ">=1.57.0"
 
 class GetTextConan(ConanFile):
     name = "gettext"
-    package_type = "application"
     description = "An internationalization and localization system for multilingual programs"
-    topics = ("intl", "libintl", "i18n")
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gettext"
-    license = "GPL-3.0-or-later"
+    topics = ("intl", "libintl", "i18n")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -32,8 +34,20 @@ class GetTextConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("libiconv/1.17")
+
+    def package_id(self):
+        del self.info.settings.compiler
+
+    def validate(self):
+        if Version(self.version) < "0.21" and is_msvc(self):
+            raise ConanInvalidConfiguration(
+                "MSVC builds of gettext for versions < 0.21 are not supported."
+            )  # FIXME: it used to be possible. What changed?
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not self.conf.get(
@@ -43,15 +57,6 @@ class GetTextConan(ConanFile):
             self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.build_requires("automake/1.16.5")
-
-    def validate(self):
-        if Version(self.version) < "0.21" and is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "MSVC builds of gettext for versions < 0.21 are not supported."
-            )  # FIXME: it used to be possible. What changed?
-
-    def package_id(self):
-        del self.info.settings.compiler
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -141,6 +146,8 @@ class GetTextConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

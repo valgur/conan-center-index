@@ -18,12 +18,17 @@ class LibmetalinkConan(ConanFile):
         "It supports both Metalink version 3 and Metalink version 4 (RFC 5854)."
     )
     license = "MIT"
-    topics = ("metalink", "xml")
-    homepage = "https://launchpad.net/libmetalink"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://launchpad.net/libmetalink"
+    topics = ("metalink", "xml")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "xml_backend": ["expat", "libxml2"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "xml_backend": ["expat", "libxml2"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

@@ -24,12 +24,12 @@ required_conan_version = ">=1.53.0"
 class AtkConan(ConanFile):
     name = "atk"
     description = "set of accessibility interfaces that are implemented by other toolkits and applications"
-    topics = ("accessibility",)
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.atk.org"
-    license = "LGPL-2.1-or-later"
-    deprecated = "at-spi2-core"
+    topics = ("accessibility",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -39,6 +39,7 @@ class AtkConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    deprecated = "at-spi2-core"
 
     def export_sources(self):
         export_conandata_patches(self)

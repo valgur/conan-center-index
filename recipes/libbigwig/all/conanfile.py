@@ -11,26 +11,29 @@ required_conan_version = ">=1.53.0"
 class LibBigWigConan(ConanFile):
     name = "libbigwig"
     description = "A C library for handling bigWig files"
-    topics = ("bioinformatics", "bigwig", "bigbed")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dpryan79/libBigWig"
-    license = "MIT"
-    package_type = "library"
-    settings = "arch", "build_type", "compiler", "os"
+    topics = ("bioinformatics", "bigwig", "bigbed")
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "with_curl": [True, False],
         "with_zlibng": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_curl": True,
         "with_zlibng": False,
     }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:

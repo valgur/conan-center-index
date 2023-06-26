@@ -13,10 +13,12 @@ class OrcaniaConan(ConanFile):
     description = (
         "Potluck with different functions for different purposes that can be shared among C programs"
     )
-    homepage = "https://github.com/babelouest/orcania"
-    topics = ("utility", "functions")
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/babelouest/orcania"
+    topics = ("utility", "functions")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -29,6 +31,9 @@ class OrcaniaConan(ConanFile):
         "enable_base64url": True,
     }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -39,18 +44,15 @@ class OrcaniaConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if is_msvc(self) and self.options.enable_base64url:
             self.requires("getopt-for-visual-studio/20200201")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -70,6 +72,17 @@ class OrcaniaConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -83,35 +96,14 @@ class OrcaniaConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(
-                f"""\
-                set(ORCANIA_VERSION_STRING "{self.version}")
-           """
-            ),
+            f'set(ORCANIA_VERSION_STRING "{self.version}")',
         )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {}
-            if self.options.shared
-            else {
-                "Orcania::Orcania-static": "Orcania::Orcania",
-            },
+            ({} if self.options.shared else {"Orcania::Orcania-static": "Orcania::Orcania"}),
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

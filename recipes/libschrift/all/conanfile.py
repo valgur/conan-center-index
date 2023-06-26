@@ -9,11 +9,12 @@ required_conan_version = ">=1.46.0"
 class LibschriftConan(ConanFile):
     name = "libschrift"
     description = "A lightweight TrueType font rendering library "
-    topics = ("truetype", "suckless")
+    license = ("ISC",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tomolt/libschrift"
-    license = ("ISC",)
+    topics = ("truetype", "suckless")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

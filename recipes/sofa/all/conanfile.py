@@ -10,9 +10,9 @@ class SofaConan(ConanFile):
     name = "sofa"
     description = "IAU Standards of Fundamental Astronomy (SOFA) C Library."
     license = "SOFA Software License"
-    topics = ("iau", "astronomy")
-    homepage = "http://www.iausofa.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.iausofa.org"
+    topics = ("iau", "astronomy")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

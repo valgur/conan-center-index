@@ -158,21 +158,25 @@ from conan.tools.system import package_manager
 import os
 import functools
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class OsgearthConan(ConanFile):
     name = "osgearth"
+    description = (
+        "osgEarth is a C++ geospatial SDK and terrain engine. "
+        "Just create a simple XML file, point it at your map data, "
+        "and go! osgEarth supports all kinds of data and comes with "
+        "lots of examples to help you get up and running quickly "
+        "and easily."
+    )
     license = "LGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "osgEarth is a C++ geospatial SDK and terrain engine. \
-                   Just create a simple XML file, point it at your map data, \
-                   and go! osgEarth supports all kinds of data and comes with \
-                   lots of examples to help you get up and running quickly \
-                   and easily."
-    topics = ("openscenegraph", "graphics")
-    settings = "os", "compiler", "build_type", "arch"
     homepage = "http://osgearth.org/"
+    topics = ("openscenegraph", "graphics")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -194,7 +198,6 @@ class OsgearthConan(ConanFile):
         "enable_nvtt_cpu_mipmaps": [True, False],
         "enable_wininet_for_http": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -221,18 +224,6 @@ class OsgearthConan(ConanFile):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
-    def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
-        elif self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration(
-                "With apple-clang cppstd needs to be set, since default is not at least c++11."
-            )
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def config_options(self):
         if self.settings.os != "Windows":
             self.options.enable_wininet_for_http = False
@@ -247,6 +238,13 @@ class OsgearthConan(ConanFile):
             # need draco >= 1.4.0 for gcc11
             # https://github.com/google/draco/issues/635
             self.options.with_draco = False
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("opengl/system")
@@ -285,12 +283,13 @@ class OsgearthConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/1.2.0")
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
-            # Prefer conan's find package scripts over osgEarth's
-            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
+        elif self.settings.compiler == "apple-clang":
+            raise ConanInvalidConfiguration(
+                "With apple-clang cppstd needs to be set, since default is not at least c++11."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -328,6 +327,13 @@ class OsgearthConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+
+        for package in ("Draco", "GEOS", "LevelDB", "OSG", "RocksDB", "Sqlite3", "WEBP"):
+            # Prefer conan's find package scripts over osgEarth's
+            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def build(self):
         cmake = CMake(self)
@@ -418,7 +424,7 @@ class OsgearthConan(ConanFile):
             plugin_library.requires = ["osgEarth"]
             if not self.options.shared:
                 plugin_library.libdirs = [
-                    os.path.join("lib", "osgPlugins-{}".format(self.dependencies["openscenegraph"].cpp_info.version))
+                    os.path.join("lib", f"osgPlugins-{self.dependencies['openscenegraph'].cpp_info.version}")
                 ]
             return plugin_library
 

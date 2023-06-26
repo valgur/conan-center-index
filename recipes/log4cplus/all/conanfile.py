@@ -22,6 +22,8 @@ class Log4cplusConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/log4cplus/log4cplus"
     topics = ("logging", "log", "logging-library")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

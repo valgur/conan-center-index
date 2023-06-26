@@ -12,11 +12,12 @@ required_conan_version = ">=1.51.1"
 
 class ConfuJson(ConanFile):
     name = "confu_json"
-    homepage = "https://github.com/werto87/confu_json"
     description = "uses boost::fusion to help with serialization; json <-> user defined type"
-    topics = ("json parse", "serialization", "user defined type")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/werto87/confu_json"
+    topics = ("json parse", "serialization", "user defined type", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

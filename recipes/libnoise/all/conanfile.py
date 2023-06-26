@@ -15,9 +15,9 @@ class LibnoiseConan(ConanFile):
         "multifractal, etc.) and combinations of those techniques."
     )
     license = "LGPL-2.1-or-later"
-    topics = ("graphics", "noise-generator")
-    homepage = "http://libnoise.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://libnoise.sourceforge.net"
+    topics = ("graphics", "noise-generator")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -81,17 +81,19 @@ import conan.tools.files
 import textwrap, shutil
 import functools
 
+required_conan_version = ">=1.53.0"
+
 
 class ogrecmakeconan(ConanFile):
     name = "ogre"
-    license = "MIT"
-    homepage = "https://github.com/OGRECave/ogre"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A scene-oriented, flexible 3D engine written in C++ "
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OGRECave/ogre"
     topics = ("graphics", "rendering", "engine", "c++")
 
-    settings = "os", "compiler", "build_type", "arch"
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -133,7 +135,6 @@ class ogrecmakeconan(ConanFile):
         "set_double": [True, False],
         "glsupport_use_egl": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -179,6 +180,19 @@ class ogrecmakeconan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        self.options.install_tools = self.options.build_tools
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self._strict_options_requirements()
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("cppunit/1.15.1")
         self.requires("freeimage/3.18.0")
@@ -217,20 +231,13 @@ class ogrecmakeconan(ConanFile):
                 "OGRE requires these boost components: {}".format(", ".join(self._required_boost_components))
             )
 
-    def config_options(self):
-        self.options.install_tools = self.options.build_tools
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self._strict_options_requirements()
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _strict_options_requirements(self):
         self.options["boost"].header_only = False
         for boost_comp in self._required_boost_components:
-            setattr(self.options["boost"], "without_{}".format(boost_comp), False)
+            setattr(self.options["boost"], f"without_{boost_comp}", False)
 
     @property
     def _required_boost_components(self):
@@ -285,9 +292,6 @@ class ogrecmakeconan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def _patch_sources(self):
         apply_conandata_patches(self)
         # the pkgs below are not available as conan recipes yet
@@ -320,6 +324,20 @@ class ogrecmakeconan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_variables(self, module_file, version):
+        content = textwrap.dedent(f"""\
+            set(OGRE_PREFIX_DIR ${{CMAKE_CURRENT_LIST_DIR}}/../..)
+            set(OGRE{version.major}_VERSION_MAJOR {version.major})
+            set(OGRE{version.major}_VERSION_MINOR {version.minor})
+            set(OGRE{version.major}_VERSION_PATCH {version.patch})
+            set(OGRE{version.major}_VERSION_STRING "{version.major}.{version.minor}.{version.patch}")
+
+            set(OGRE_MEDIA_DIR "${{OGRE_PREFIX_DIR}}/share/OGRE/Media")
+            set(OGRE_PLUGIN_DIR "${{OGRE_PREFIX_DIR}}/lib/OGRE")
+            set(OGRE_CONFIG_DIR "${{OGRE_PREFIX_DIR}}/share/OGRE")
+        """)
+        save(self, module_file, content)
+
     def package(self):
         cmake = CMake(self)
         cmake.install()
@@ -336,25 +354,6 @@ class ogrecmakeconan(ConanFile):
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
         )
-
-    @staticmethod
-    def _create_cmake_module_variables(module_file, version):
-        content = textwrap.dedent(
-            """\
-            set(OGRE_PREFIX_DIR ${{CMAKE_CURRENT_LIST_DIR}}/../..)
-            set(OGRE{major}_VERSION_MAJOR {major})
-            set(OGRE{major}_VERSION_MINOR {minor})
-            set(OGRE{major}_VERSION_PATCH {patch})
-            set(OGRE{major}_VERSION_STRING "{major}.{minor}.{patch}")
-
-            set(OGRE_MEDIA_DIR "${{OGRE_PREFIX_DIR}}/share/OGRE/Media")
-            set(OGRE_PLUGIN_DIR "${{OGRE_PREFIX_DIR}}/lib/OGRE")
-            set(OGRE_CONFIG_DIR "${{OGRE_PREFIX_DIR}}/share/OGRE")
-        """.format(
-                major=version.major, minor=version.minor, patch=version.patch
-            )
-        )
-        save(self, module_file, content)
 
     @property
     def _components(self):
@@ -510,6 +509,14 @@ class ogrecmakeconan(ConanFile):
 
         return components
 
+    @property
+    def _module_file_rel_dir(self):
+        return os.path.join("lib", "cmake")
+
+    @property
+    def _module_file_rel_path(self):
+        return os.path.join(self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake")
+
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OGRE")
         self.cpp_info.names["cmake_find_package"] = "OGRE"
@@ -537,11 +544,3 @@ class ogrecmakeconan(ConanFile):
 
         if self.options.install_tools:
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-
-    @property
-    def _module_file_rel_dir(self):
-        return os.path.join("lib", "cmake")
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join(self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake")

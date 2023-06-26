@@ -10,10 +10,12 @@ required_conan_version = ">=1.50.0"
 class HlslppConan(ConanFile):
     name = "hlslpp"
     description = "Header-only Math library using hlsl syntax with SSE/NEON support"
-    topics = ("hlsl", "math", "shader", "vector", "matrix", "quaternion")
     license = "MIT"
-    homepage = "https://github.com/redorav/hlslpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/redorav/hlslpp"
+    topics = ("hlsl", "math", "shader", "vector", "matrix", "quaternion", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

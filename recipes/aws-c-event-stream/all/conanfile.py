@@ -4,7 +4,7 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class AwsCEventStream(ConanFile):
@@ -14,6 +14,8 @@ class AwsCEventStream(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-event-stream"
     topics = ("aws", "eventstream", "content")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

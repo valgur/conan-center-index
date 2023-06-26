@@ -16,9 +16,9 @@ class QhullConan(ConanFile):
         "Voronoi diagram."
     )
     license = "Qhull"
-    topics = ("geometry", "convex", "triangulation", "intersection")
-    homepage = "http://www.qhull.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.qhull.org"
+    topics = ("geometry", "convex", "triangulation", "intersection")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

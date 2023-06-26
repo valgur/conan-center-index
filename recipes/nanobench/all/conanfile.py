@@ -9,13 +9,15 @@ required_conan_version = ">=1.52.0"
 
 class NanobenchConan(ConanFile):
     name = "nanobench"
-    description = """ankerl::nanobench is a platform independent
-                     microbenchmarking library for C++11/14/17/20."""
+    description = "ankerl::nanobench is a platform independent microbenchmarking library for C++11/14/17/20."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinus/nanobench"
     topics = ("benchmark", "microbenchmark", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

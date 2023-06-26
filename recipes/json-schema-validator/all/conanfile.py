@@ -13,11 +13,12 @@ required_conan_version = ">=1.53.0"
 
 class JsonSchemaValidatorConan(ConanFile):
     name = "json-schema-validator"
+    description = "JSON schema validator for JSON for Modern C++ "
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/pboettch/json-schema-validator"
-    description = "JSON schema validator for JSON for Modern C++ "
     topics = ("modern-json", "schema-validation", "json")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -115,21 +116,21 @@ class JsonSchemaValidatorConan(ConanFile):
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {
-                "nlohmann_json_schema_validator": "nlohmann_json_schema_validator::nlohmann_json_schema_validator"
+                "nlohmann_json_schema_validator": (
+                    "nlohmann_json_schema_validator::nlohmann_json_schema_validator"
+                )
             },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

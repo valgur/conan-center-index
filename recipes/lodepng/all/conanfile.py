@@ -12,9 +12,9 @@ class LodepngConan(ConanFile):
     name = "lodepng"
     description = "PNG encoder and decoder in C and C++, without dependencies."
     license = "Zlib"
-    topics = ("png", "encoder", "decoder")
-    homepage = "https://github.com/lvandeve/lodepng"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/lvandeve/lodepng"
+    topics = ("png", "encoder", "decoder")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

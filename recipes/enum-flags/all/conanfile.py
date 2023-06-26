@@ -4,17 +4,18 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class EnumFlagsConan(ConanFile):
     name = "enum-flags"
     description = "Bit flags for C++11 scoped enums"
-    homepage = "https://github.com/grisumbras/enum-flags"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("bitmask", "enum")
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/grisumbras/enum-flags"
+    topics = ("bitmask", "enum", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "forbid_implicit_conversions": [True, False],

@@ -1,3 +1,11 @@
+# Warnings:
+#   Unexpected method '_bx_folder'
+#   Unexpected method '_bx_path'
+#   Unexpected method '_genie_extra'
+#   Unexpected method '_projs'
+#   Unexpected method '_compiler_required'
+#   Missing required method 'configure'
+
 from conan import ConanFile
 from conan.tools.files import copy, get, rename
 from conan.tools.build import check_min_cppstd
@@ -11,22 +19,26 @@ from conan.tools.env import VirtualBuildEnv
 from pathlib import Path
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class bxConan(ConanFile):
     name = "bx"
-    license = "BSD-2-Clause"
-    homepage = "https://github.com/bkaradzic/bx"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Base library providing utility functions and macros."
+    license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bkaradzic/bx"
     topics = ("general", "utility")
-    settings = "os", "compiler", "arch", "build_type"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "tools": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "tools": False,
     }
@@ -68,6 +80,10 @@ class bxConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -204,7 +220,7 @@ class bxConan(ConanFile):
             # Build project folder and path from given settings
             projFolder = f"gmake-{gmake_os_to_proj[str(self.settings.os)]}"
             if self.settings.os == "Windows" or compiler_str not in ["gcc", "apple-clang"]:
-                projFolder += f"-{compiler_str}"  # mingw-gcc or mingw-clang for windows; -clang for linux (where gcc on linux has no extra)
+                projFolder += (  # mingw-gcc or mingw-clang for windows; -clang for linux (where gcc on linux has no extra)
             if os_to_use_arch_config_suffix[str(self.settings.os)]:
                 projFolder += gmake_arch_to_genie_suffix[str(self.settings.arch)]
             proj_path = os.path.sep.join([self._bx_path, ".build", "projects", projFolder])

@@ -1,18 +1,23 @@
-import os
 from conan import ConanFile
-from conan.tools import files, scm, build
 from conan.errors import ConanInvalidConfiguration
+from conan.tools import files, scm, build
+from conan.tools.files import copy
+from conan.tools.layout import basic_layout
+import os
+
+required_conan_version = ">=1.52.0"
 
 
 class PackioConan(ConanFile):
     name = "packio"
+    description = "An asynchronous msgpack-RPC and JSON-RPC library built on top of Boost.Asio."
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/qchateau/packio"
-    description = "An asynchronous msgpack-RPC and JSON-RPC library built on top of Boost.Asio."
-    topics = ("rpc", "msgpack", "json", "asio", "async", "cpp17", "cpp20", "coroutines")
-    settings = "compiler"
-    no_copy_source = True
+    topics = ("rpc", "msgpack", "json", "asio", "async", "cpp17", "cpp20", "coroutines", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "standalone_asio": [True, False],
         "msgpack": [True, False],
@@ -25,6 +30,7 @@ class PackioConan(ConanFile):
         "nlohmann_json": True,
         "boost_json": "default",
     }
+    no_copy_source = True
 
     @property
     def _compilers_minimum_version(self):
@@ -40,6 +46,22 @@ class PackioConan(ConanFile):
             self.options.rm_safe("nlohmann_json")
         if scm.Version(self.version) < "2.1.0":
             self.options.rm_safe("boost_json")
+
+    def configure(self):
+        if self.settings.compiler.cppstd:
+            build.check_min_cppstd(self, "17")
+
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version:
+            if scm.Version(self.settings.compiler.version) < minimum_version:
+                raise ConanInvalidConfiguration(
+                    "packio requires C++17, which your compiler does not support."
+                )
+        else:
+            self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.get_safe("msgpack") or scm.Version(self.version) < "2.0.0":
@@ -58,23 +80,13 @@ class PackioConan(ConanFile):
         if self.options.get_safe("standalone_asio"):
             self.requires("asio/1.18.1")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
         files.get(conanfile=self, **self.conan_data["sources"][self.version])
         extracted_dir = "packio-" + self.version
         os.rename(extracted_dir, self.source_folder)
-
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            build.check_min_cppstd(self, "17")
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version:
-            if scm.Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    "packio requires C++17, which your compiler does not support."
-                )
-        else:
-            self.output.warn("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def package(self):
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
@@ -85,10 +97,10 @@ class PackioConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
         )
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if scm.Version(self.version) < "2.1.0":
             if self.options.get_safe("standalone_asio"):
                 self.cpp_info.defines.append("PACKIO_STANDALONE_ASIO")

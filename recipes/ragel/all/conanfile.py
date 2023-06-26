@@ -17,7 +17,8 @@ class RagelConan(ConanFile):
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.colm.net/open-source/ragel"
-    topics = ("FSM", "regex", "fsm-compiler")
+    topics = ("FSM", "regex", "fsm-compiler", "pre-built")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -86,6 +87,8 @@ class RagelConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

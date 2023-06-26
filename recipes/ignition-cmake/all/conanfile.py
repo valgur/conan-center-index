@@ -1,110 +1,36 @@
 # TODO: verify the Conan v2 migration
 
 import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-import os
 import textwrap
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.52.0"
 
 
 class IgnitionCmakeConan(ConanFile):
     name = "ignition-cmake"
+    description = "A set of CMake modules that are used by the C++-based Ignition projects."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gazebosim/gz-cmake"
-    description = "A set of CMake modules that are used by the C++-based Ignition projects."
-    topics = ("ignition", "robotics", "cmake")
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("ignition", "robotics", "cmake", "header-only")
 
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -148,22 +74,20 @@ class IgnitionCmakeConan(ConanFile):
             os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
         )
 
-    @staticmethod
-    def _create_cmake_module_variables(module_file, version):
+    def _create_cmake_module_variables(self, module_file, version):
         # the version info is needed by downstream ignition-dependencies
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(ignition-cmake{major}_VERSION_MAJOR {major})
             set(ignition-cmake{major}_VERSION_MINOR {minor})
             set(ignition-cmake{major}_VERSION_PATCH {patch})
             set(ignition-cmake{major}_VERSION_STRING "{major}.{minor}.{patch}")
-        """.format(
-                major=version.major, minor=version.minor, patch=version.patch
-            )
-        )
+        """.format(major=version.major, minor=version.minor, patch=version.patch))
         save(self, module_file, content)
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         version_major = Version(self.version).major
         ign_cmake_component = f"ignition-cmake{version_major}"
         base_module_path = os.path.join(self.package_folder, "lib", "cmake", ign_cmake_component)

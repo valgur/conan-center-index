@@ -13,10 +13,12 @@ required_conan_version = ">=1.53.0"
 class GliConan(ConanFile):
     name = "gli"
     description = "OpenGL Image (GLI)"
-    topics = ("opengl", "image")
+    license = "LicenseRef-copying.txt"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/g-truc/gli"
-    license = "LicenseRef-copying.txt"
+    topics = ("opengl", "image", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

@@ -13,15 +13,17 @@ required_conan_version = ">=1.50.0"
 
 class LogrConan(ConanFile):
     name = "logr"
+    description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     license = "BSD-3-Clause"
-    homepage = "https://github.com/ngrodzitski/logr"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Logger frontend substitution for spdlog, glog, etc " "for server/desktop applications"
-    topics = ("logger", "development", "util", "utils")
+    homepage = "https://github.com/ngrodzitski/logr"
+    topics = ("logger", "development", "util", "utils", "header-only")
 
-    settings = "os", "compiler", "build_type", "arch"
-
-    options = {"backend": ["spdlog", "glog", "log4cplus", "boostlog", None]}
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "backend": ["spdlog", "glog", "log4cplus", "boostlog", None],
+    }
     default_options = {
         "backend": "spdlog",
     }
@@ -31,16 +33,15 @@ class LogrConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "0.6.0":
-            fmt_ref = "fmt/9.1.0"
-            spdlog_ref = "spdlog/1.11.0"
+            self.requires("fmt/9.1.0")
         else:
-            fmt_ref = "fmt/8.1.1"
-            spdlog_ref = "spdlog/1.9.2"
-
-        self.requires(fmt_ref)
+            self.requires("fmt/8.1.1")
 
         if self.options.backend == "spdlog":
-            self.requires(spdlog_ref)
+            if Version(self.version) >= "0.6.0":
+                self.requires("spdlog/1.11.0")
+            else:
+                self.requires("spdlog/1.9.2")
         elif self.options.backend == "glog":
             self.requires("glog/0.6.0")
         elif self.options.backend == "log4cplus":
@@ -49,8 +50,7 @@ class LogrConan(ConanFile):
             self.requires("boost/1.77.0")
 
     def package_id(self):
-        self.info.settings.clear()
-        self.info.requires.clear()
+        self.info.clear()
 
     def validate(self):
         minimal_cpp_standard = "17"

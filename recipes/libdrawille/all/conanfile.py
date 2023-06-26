@@ -14,8 +14,10 @@ class LibdrawilleConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Huulivoide/libdrawille/"
-    topics = "drawille"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("drawille",)
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

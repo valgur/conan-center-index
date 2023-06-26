@@ -4,92 +4,36 @@ import glob
 import os
 import re
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os, to_apple_arch
+from conan.tools.build import cross_building
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
     collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
     rm,
     rmdir,
-    save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class RubyConan(ConanFile):
     name = "ruby"
     description = "The Ruby Programming Language"
     license = "Ruby"
-    topics = ("c", "language", "object-oriented", "ruby-language")
-    homepage = "https://www.ruby-lang.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.ruby-lang.org"
+    topics = ("c", "language", "object-oriented", "ruby-language")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -120,26 +64,29 @@ class RubyConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def requirements(self):
-        self.requires("zlib/1.2.12")
-        self.requires("gmp/6.1.2")
-        if self.options.with_openssl:
-            self.requires("openssl/1.1.1o")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def validate(self):
-        if is_msvc(self) and msvc_runtime_flag(self).startswith("MT"):
-            # see https://github.com/conan-io/conan-center-index/pull/8644#issuecomment-1068974098
-            raise ConanInvalidConfiguration("VS static runtime is not supported")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("zlib/1.2.12")
+        self.requires("gmp/6.1.2")
+        if self.options.with_openssl:
+            self.requires("openssl/1.1.1o")
+
+    def validate(self):
+        if is_msvc(self) and msvc_runtime_flag(self).startswith("MT"):
+            # see https://github.com/conan-io/conan-center-index/pull/8644#issuecomment-1068974098
+            raise ConanInvalidConfiguration("VS static runtime is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

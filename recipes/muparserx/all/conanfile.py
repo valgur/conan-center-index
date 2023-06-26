@@ -12,10 +12,11 @@ class MuparserxConan(ConanFile):
         "A C++ Library for Parsing Expressions with Strings, Complex Numbers, Vectors, Matrices and more"
     )
     license = "BSD-2-Clause"
-    topics = ("math", "parser")
-    homepage = "https://beltoforion.de/article.php?a=muparserx"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://beltoforion.de/article.php?a=muparserx"
+    topics = ("math", "parser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

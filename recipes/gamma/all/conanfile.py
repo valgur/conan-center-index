@@ -12,12 +12,13 @@ required_conan_version = ">=1.53.0"
 class Gammaconan(ConanFile):
     name = "gamma"
     description = (
-        "Gamma is a cross-platform, C++ library for doing generic synthesis " "and filtering of signals."
+        "Gamma is a cross-platform, C++ library for doing generic synthesis "
+        "and filtering of signals."
     )
     license = "MIT"
-    topics = ("signal-processing", "sound", "audio")
-    homepage = "https://github.com/LancePutnam/Gamma"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/LancePutnam/Gamma"
+    topics = ("signal-processing", "sound", "audio")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

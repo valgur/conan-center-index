@@ -12,12 +12,13 @@ required_conan_version = ">=1.55.0"
 
 class SociConan(ConanFile):
     name = "soci"
-    homepage = "https://github.com/SOCI/soci"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "The C++ Database Access Library "
-    topics = ("mysql", "odbc", "postgresql", "sqlite3")
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/SOCI/soci"
+    topics = ("mysql", "odbc", "postgresql", "sqlite3")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -46,11 +47,17 @@ class SociConan(ConanFile):
         "with_boost": False,
     }
 
+    @property
+    def _minimum_compilers_version(self):
+        return {
+            "Visual Studio": "14",
+            "gcc": "4.8",
+            "clang": "3.8",
+            "apple-clang": "8.0",
+        }
+
     def export_sources(self):
         export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -59,6 +66,9 @@ class SociConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_sqlite3:
@@ -71,15 +81,6 @@ class SociConan(ConanFile):
             self.requires("libpq/14.7")
         if self.options.with_boost:
             self.requires("boost/1.81.0")
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "Visual Studio": "14",
-            "gcc": "4.8",
-            "clang": "3.8",
-            "apple-clang": "8.0",
-        }
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

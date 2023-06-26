@@ -14,10 +14,11 @@ required_conan_version = ">=1.54.0"
 class LibTarConan(ConanFile):
     name = "libtar"
     description = "libtar is a library for manipulating tar files from within C programs."
-    topics = ("tar",)
     license = "BSD-3-Clause"
-    homepage = "https://repo.or.cz/libtar.git"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://repo.or.cz/libtar.git"
+    topics = ("tar",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

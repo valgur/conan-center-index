@@ -6,8 +6,7 @@ from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
 import os
 
-
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.52.0"
 
 
 class EternalConan(ConanFile):
@@ -17,6 +16,8 @@ class EternalConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mapbox/eternal"
     topics = ("hashing", "map", "constexpr", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

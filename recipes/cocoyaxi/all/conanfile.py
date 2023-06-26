@@ -11,12 +11,13 @@ required_conan_version = ">=1.50.0"
 
 class CocoyaxiConan(ConanFile):
     name = "cocoyaxi"
+    description = "A go-style coroutine library in C++11 and more."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/idealvin/cocoyaxi"
-    license = "MIT"
-    description = "A go-style coroutine library in C++11 and more."
     topics = ("coroutine", "c++11")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -39,6 +40,9 @@ class CocoyaxiConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_libcurl:
             self.requires("libcurl/7.80.0")
@@ -59,9 +63,6 @@ class CocoyaxiConan(ConanFile):
                 )
             if not self.dependencies["libcurl"].options.with_zlib:
                 raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

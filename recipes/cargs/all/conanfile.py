@@ -2,83 +2,11 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import collect_libs, copy, get
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CargsConan(ConanFile):
@@ -88,8 +16,8 @@ class CargsConan(ConanFile):
         "Windows and macOS. Command line argument parser library"
         " for C/C++. Can be used to parse argv and argc parameters."
     )
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://likle.github.io/cargs/"
     topics = (
         "cargs",
@@ -106,6 +34,7 @@ class CargsConan(ConanFile):
         "argument-parser",
     )
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -125,6 +54,9 @@ class CargsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -150,25 +82,8 @@ class CargsConan(ConanFile):
 
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "cargs.h", dst=os.path.join(self.package_folder, "include"), src=include_dir)
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=lib_dir, keep_path=False)
-        copy(
-            self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=lib_dir, keep_path=False
-        )
-        copy(
-            self,
-            pattern="*.dylib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=lib_dir,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.so*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=lib_dir,
-            keep_path=False,
-            symlinks=True,
-        )
+        for pattern in ["*.a", "*.so", "*.dylib", "*.lib"]:
+            copy(self, pattern, dst=os.path.join(self.package_folder, "lib"), src=lib_dir, keep_path=False)
         copy(
             self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), src=bin_dir, keep_path=False
         )

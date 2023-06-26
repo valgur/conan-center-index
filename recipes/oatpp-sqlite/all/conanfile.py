@@ -12,12 +12,13 @@ required_conan_version = ">=1.51.1"
 
 class OatppsqliteConan(ConanFile):
     name = "oatpp-sqlite"
-    license = "Apache-2.0"
-    homepage = "https://github.com/oatpp/oatpp-sqlite"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "oat++ SQLite library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-sqlite"
     topics = ("oat++", "oatpp", "sqlite")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

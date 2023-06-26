@@ -14,10 +14,11 @@ class QuaZIPConan(ConanFile):
         "A simple C++ wrapper over Gilles Vollant's ZIP/UNZIP package "
         "that can be used to access ZIP archives."
     )
+    license = "LGPL-2.1-linking-exception"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/stachenov/quazip"
-    license = "LGPL-2.1-linking-exception"
     topics = ("zip", "unzip", "compress")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

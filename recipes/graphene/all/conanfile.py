@@ -17,10 +17,11 @@ required_conan_version = ">=1.53.0"
 class GrapheneConan(ConanFile):
     name = "graphene"
     description = "A thin layer of graphic data types."
-    topics = ("graphic", "canvas", "types")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://ebassi.github.io/graphene/"
-    license = "MIT"
+    topics = ("graphic", "canvas", "types")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

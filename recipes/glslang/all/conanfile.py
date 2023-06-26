@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_get_compatible_spirv_tools_version'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
@@ -20,12 +23,13 @@ required_conan_version = ">=1.54.0"
 class GlslangConan(ConanFile):
     name = "glslang"
     description = (
-        "Khronos-reference front end for GLSL/ESSL, partial front " "end for HLSL, and a SPIR-V generator."
+        "Khronos-reference front end for GLSL/ESSL, "
+        "partial front end for HLSL, and a SPIR-V generator."
     )
     license = ["BSD-3-Clause", "NVIDIA"]
-    topics = ("glsl", "hlsl", "spirv", "spir-v", "validation", "translation")
-    homepage = "https://github.com/KhronosGroup/glslang"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/glslang"
+    topics = ("glsl", "hlsl", "spirv", "spir-v", "validation", "translation")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

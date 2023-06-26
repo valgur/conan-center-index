@@ -13,10 +13,11 @@ required_conan_version = ">=1.57.0"
 class LibConfuseConan(ConanFile):
     name = "libconfuse"
     description = "Small configuration file parser library for C"
-    topics = ("configuration", "parser")
+    license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinh/libconfuse"
-    license = "ISC"
+    topics = ("configuration", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

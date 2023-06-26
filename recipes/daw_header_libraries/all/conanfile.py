@@ -16,7 +16,8 @@ class DawHeaderLibrariesConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/beached/header_libraries"
-    topics = ("algorithms", "helpers", "data-structures")
+    topics = ("algorithms", "helpers", "data-structures", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

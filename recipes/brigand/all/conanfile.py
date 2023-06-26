@@ -9,12 +9,13 @@ required_conan_version = ">=1.50.0"
 
 class BrigandConan(ConanFile):
     name = "brigand"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A light-weight, fully functional, instant-compile time meta-programming library."
-    topics = ("meta-programming", "boost", "runtime", "header-only")
-    homepage = "https://github.com/edouarda/brigand"
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/edouarda/brigand"
+    topics = ("meta-programming", "boost", "runtime", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_boost": [True, False],
@@ -22,8 +23,10 @@ class BrigandConan(ConanFile):
     default_options = {
         "with_boost": True,
     }
-
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_boost:
@@ -36,9 +39,6 @@ class BrigandConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

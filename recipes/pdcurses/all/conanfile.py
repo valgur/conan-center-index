@@ -80,15 +80,18 @@ from conan.tools.system import package_manager
 import os
 import re
 
+required_conan_version = ">=1.53.0"
+
 
 class PDCursesConan(ConanFile):
     name = "pdcurses"
     description = "PDCurses - a curses library for environments that don't fit the termcap/terminfo model"
-    topics = ("curses", "ncurses")
+    license = ("Unlicense", "MITX", "CC-BY-4.0", "GPL", "FSFUL")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pdcurses.org/"
-    license = "Unlicense", "MITX", "CC-BY-4.0", "GPL", "FSFUL"
+    topics = ("curses", "ncurses")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -96,9 +99,12 @@ class PDCursesConan(ConanFile):
         "enable_widec": [True, False],
         "with_sdl": [None, "1", "2"],
     }
-    default_options = {"shared": False, "fPIC": True, "enable_widec": False, "with_sdl": None}
-
-    _autotools = None
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "enable_widec": False,
+        "with_sdl": None,
+    }
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -116,6 +122,9 @@ class PDCursesConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.settings.os in ("FreeBSD", "Linux"):
             self.requires("xorg/system")
@@ -128,16 +137,12 @@ class PDCursesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         os.rename("PDCurses-{}".format(self.version), self.source_folder)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
-        conf_args = [
-            "--enable-shared" if self.options.shared else "--disable-shared",
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = [
             "--enable-widec" if self.options.enable_widec else "--disable-widec",
         ]
-        self._autotools.configure(args=conf_args)
-        return self._autotools
+        tc.generate()
 
     def _build_windows(self):
         with chdir(self, os.path.join(self.source_folder, "wincon")):
@@ -147,7 +152,7 @@ class PDCursesConan(ConanFile):
             args = " ".join(args)
             if self.settings.compiler == "Visual Studio":
                 with vcvars(self):
-                    self.run("nmake -f Makefile.vc {}".format(args))
+                    self.run(f"nmake -f Makefile.vc {args}")
             else:
                 self.run("{} libs {}".format(os.environ["CONAN_MAKE_PROGRAM"], args))
 

@@ -5,22 +5,27 @@ from conan.tools.files import apply_conandata_patches, get, export_conandata_pat
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class AngelScriptConan(ConanFile):
     name = "angelscript"
-    license = "Zlib"
-    homepage = "http://www.angelcode.com/angelscript"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "An extremely flexible cross-platform scripting library designed to "
         "allow applications to extend their functionality through external scripts."
     )
+    license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.angelcode.com/angelscript"
     topics = ("angelcode", "embedded", "scripting", "language", "compiler", "interpreter")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [False, True], "fPIC": [False, True], "no_exceptions": [False, True]}
+    options = {
+        "shared": [False, True],
+        "fPIC": [False, True],
+        "no_exceptions": [False, True],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

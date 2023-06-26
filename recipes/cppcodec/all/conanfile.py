@@ -4,19 +4,21 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class CppcodecConan(ConanFile):
     name = "cppcodec"
-    license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/tplgy/cppcodec"
     description = (
         "Header-only C++11 library to encode/decode base64, base64url, base32, "
         "base32hex and hex (a.k.a. base16) as specified in RFC 4648, plus Crockford's base32"
     )
-    topics = ("base64", "cpp11", "codec", "base32")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/tplgy/cppcodec"
+    topics = ("base64", "cpp11", "codec", "base32", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

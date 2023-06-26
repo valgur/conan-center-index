@@ -2,86 +2,15 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
-import os
 
-
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class OpenVDBConan(ConanFile):
@@ -92,10 +21,11 @@ class OpenVDBConan(ConanFile):
         "manipulation of sparse volumetric data discretized on three-dimensional grids."
     )
     license = "MPL-2.0"
-    topics = ("voxel", "voxelizer", "volume-rendering", "fx")
-    homepage = "https://github.com/AcademySoftwareFoundation/openvdb"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/AcademySoftwareFoundation/openvdb"
+    topics = ("voxel", "voxelizer", "volume-rendering", "fx")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -138,6 +68,9 @@ class OpenVDBConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("boost/1.79.0")
         self.requires("onetbb/2020.3")
@@ -171,49 +104,6 @@ class OpenVDBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Remove FindXXX files from OpenVDB. Let Conan do the job
-        rm(self, "Find*", os.path.join(self.source_folder, "cmake"), recursive=True)
-        with open("FindBlosc.cmake", "w") as f:
-            f.write(
-                """find_package(c-blosc)
-if(c-blosc_FOUND)
-    add_library(blosc INTERFACE)
-    target_link_libraries(blosc INTERFACE c-blosc::c-blosc)
-    add_library(Blosc::blosc ALIAS blosc)
-endif()
-"""
-            )
-        with open("FindIlmBase.cmake", "w") as f:
-            f.write(
-                """find_package(OpenEXR)
-if(OpenEXR_FOUND)
-  add_library(Half INTERFACE)
-  add_library(IlmThread INTERFACE)
-  add_library(Iex INTERFACE)
-  add_library(Imath INTERFACE)
-  add_library(IlmImf INTERFACE)
-  target_link_libraries(Half INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(IlmThread INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(Iex INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(Imath INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(IlmImf INTERFACE OpenEXR::OpenEXR)
-  add_library(IlmBase::Half ALIAS Half)
-  add_library(IlmBase::IlmThread ALIAS IlmThread)
-  add_library(IlmBase::Iex ALIAS Iex)
-  add_library(IlmBase::Imath ALIAS Imath)
-  add_library(OpenEXR::IlmImf ALIAS IlmImf)
- endif()
- """
-            )
-
-    def build(self):
-        self._patch_sources()
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -255,6 +145,47 @@ if(OpenEXR_FOUND)
         tc.variables["OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING"] = True
 
         tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        # Remove FindXXX files from OpenVDB. Let Conan do the job
+        rm(self, "Find*", os.path.join(self.source_folder, "cmake"), recursive=True)
+        with open("FindBlosc.cmake", "w") as f:
+            f.write("""find_package(c-blosc)
+if(c-blosc_FOUND)
+    add_library(blosc INTERFACE)
+    target_link_libraries(blosc INTERFACE c-blosc::c-blosc)
+    add_library(Blosc::blosc ALIAS blosc)
+endif()
+""")
+        with open("FindIlmBase.cmake", "w") as f:
+            f.write("""find_package(OpenEXR)
+if(OpenEXR_FOUND)
+  add_library(Half INTERFACE)
+  add_library(IlmThread INTERFACE)
+  add_library(Iex INTERFACE)
+  add_library(Imath INTERFACE)
+  add_library(IlmImf INTERFACE)
+  target_link_libraries(Half INTERFACE OpenEXR::OpenEXR)
+  target_link_libraries(IlmThread INTERFACE OpenEXR::OpenEXR)
+  target_link_libraries(Iex INTERFACE OpenEXR::OpenEXR)
+  target_link_libraries(Imath INTERFACE OpenEXR::OpenEXR)
+  target_link_libraries(IlmImf INTERFACE OpenEXR::OpenEXR)
+  add_library(IlmBase::Half ALIAS Half)
+  add_library(IlmBase::IlmThread ALIAS IlmThread)
+  add_library(IlmBase::Iex ALIAS Iex)
+  add_library(IlmBase::Imath ALIAS Imath)
+  add_library(OpenEXR::IlmImf ALIAS IlmImf)
+ endif()
+ """)
+
+    def build(self):
+        self._patch_sources()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

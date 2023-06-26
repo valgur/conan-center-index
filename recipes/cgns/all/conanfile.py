@@ -4,18 +4,19 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 import os
 
-
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class CgnsConan(ConanFile):
     name = "cgns"
-    description = "Standard for data associated with the numerical solution " "of fluid dynamics equations."
-    topics = ("data", "cfd", "fluids")
-    homepage = "http://cgns.org/"
+    description = "Standard for data associated with the numerical solution of fluid dynamics equations."
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "http://cgns.org/"
+    topics = ("data", "cfd", "fluids")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

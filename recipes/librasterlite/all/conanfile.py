@@ -27,9 +27,10 @@ class LibrasterliteConan(ConanFile):
         "huge raster coverages using a SpatiaLite DBMS."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("rasterlite", "raster", "spatialite")
-    homepage = "https://www.gaia-gis.it/fossil/librasterlite"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/librasterlite"
+    topics = ("rasterlite", "raster", "spatialite")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

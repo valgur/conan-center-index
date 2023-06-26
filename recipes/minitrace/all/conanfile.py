@@ -8,20 +8,24 @@ required_conan_version = ">=1.53.0"
 
 class MinitraceConan(ConanFile):
     name = "minitrace"
-    description = "Simple C/C++ library for producing JSON traces suitable for Chrome's built-in trace viewer (about:tracing)."
+    description = (
+        "Simple C/C++ library for producing JSON traces suitable for Chrome's "
+        "built-in trace viewer (about:tracing)."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hrydgard/minitrace"
     topics = ("trace", "chrome", "about:tracing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):

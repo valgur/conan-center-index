@@ -11,10 +11,10 @@ required_conan_version = ">=1.53.0"
 class LibaomAv1Conan(ConanFile):
     name = "libaom-av1"
     description = "AV1 Codec Library"
-    topics = ("av1", "codec", "video", "encoding", "decoding")
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://aomedia.googlesource.com/aom"
-    license = "BSD-2-Clause"
+    topics = ("av1", "codec", "video", "encoding", "decoding")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -48,14 +48,14 @@ class LibaomAv1Conan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def build_requirements(self):
         if self.options.get_safe("assembly", False):
             self.tool_requires("nasm/2.15.05")
         if self._settings_build.os == "Windows":
             self.tool_requires("strawberryperl/5.30.0.1")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=Version(self.version) >= "3.3.0")

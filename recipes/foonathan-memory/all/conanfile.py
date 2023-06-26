@@ -22,11 +22,12 @@ required_conan_version = ">=1.53.0"
 
 class FoonathanMemoryConan(ConanFile):
     name = "foonathan-memory"
-    license = "Zlib"
-    homepage = "https://github.com/foonathan/memory"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "STL compatible C++ memory allocator library"
+    license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/foonathan/memory"
     topics = ("memory", "STL", "RawAllocator")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -53,15 +54,15 @@ class FoonathanMemoryConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate_build(self):
         # Versions older than 0.7.2 require to compile and run an executable
         # during the build, newer versions do it differently.
         is_older = Version(self.version) < "0.7.2"
         if hasattr(self, "settings_build") and cross_building(self) and is_older:
             raise ConanInvalidConfiguration("Cross building is not supported on versions older than 0.7.2")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

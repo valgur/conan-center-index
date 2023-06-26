@@ -6,21 +6,27 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class OctoLoggerCPPConan(ConanFile):
     name = "octo-logger-cpp"
+    description = "Octo logger library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ofiriluz/octo-logger-cpp"
-    description = "Octo logger library"
     topics = ("logging", "cpp")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "with_aws": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "with_aws": False,
     }
 
@@ -34,6 +40,10 @@ class OctoLoggerCPPConan(ConanFile):
             "msvc": "1923",
         }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     @property
     def _aws_supported(self):
         return Version(self.version) >= "1.2.0"
@@ -42,18 +52,14 @@ class OctoLoggerCPPConan(ConanFile):
         if not self._aws_supported:
             self.options.rm_safe("with_aws")
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["DISABLE_TESTS"] = True
-        tc.variables["DISABLE_EXAMPLES"] = True
-        if self.options.get_safe("with_aws"):
-            tc.variables["WITH_AWS"] = True
-        tc.generate()
-        cd = CMakeDeps(self)
-        cd.generate()
-
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("fmt/9.0.0")
+        if self.options.get_safe("with_aws"):
+            self.requires("nlohmann_json/3.11.2")
+            self.requires("aws-sdk-cpp/1.9.234")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:
@@ -80,17 +86,21 @@ class OctoLoggerCPPConan(ConanFile):
             if not self.dependencies["aws-sdk-cpp"].options.logs:
                 raise ConanInvalidConfiguration(f"{self.name} requires the option aws-sdk-cpp:logs=True")
 
+    def build_requirements(self):
+        self.build_requires("cmake/3.24.0")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def requirements(self):
-        self.requires("fmt/9.0.0")
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["DISABLE_TESTS"] = True
+        tc.variables["DISABLE_EXAMPLES"] = True
         if self.options.get_safe("with_aws"):
-            self.requires("nlohmann_json/3.11.2")
-            self.requires("aws-sdk-cpp/1.9.234")
-
-    def build_requirements(self):
-        self.build_requires("cmake/3.24.0")
+            tc.variables["WITH_AWS"] = True
+        tc.generate()
+        cd = CMakeDeps(self)
+        cd.generate()
 
     def build(self):
         cmake = CMake(self)

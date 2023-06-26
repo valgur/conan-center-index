@@ -12,13 +12,13 @@ required_conan_version = ">=1.53.0"
 class PhysfsConan(ConanFile):
     name = "physfs"
     description = (
-        "PhysicsFS is a library to provide abstract access to various "
-        "archives. It is intended for use in video games."
+        "PhysicsFS is a library to provide abstract access to various archives. "
+        "It is intended for use in video games."
     )
     license = "Zlib"
-    topics = ("physicsfs", "file", "filesystem", "io")
-    homepage = "https://icculus.org/physfs"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://icculus.org/physfs"
+    topics = ("physicsfs", "file", "filesystem", "io")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -111,14 +111,12 @@ class PhysfsConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

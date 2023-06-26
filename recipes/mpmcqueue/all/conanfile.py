@@ -13,11 +13,16 @@ class MpmcqueueConan(ConanFile):
     name = "mpmcqueue"
     description = "A bounded multi-producer multi-consumer concurrent queue written in C++11."
     license = "MIT"
-    topics = ("queue", "concurrency")
-    homepage = "https://github.com/rigtorp/MPMCQueue"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rigtorp/MPMCQueue"
+    topics = ("queue", "concurrency", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -27,9 +32,6 @@ class MpmcqueueConan(ConanFile):
             check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 not supported")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -16,10 +16,11 @@ required_conan_version = ">=1.54.0"
 class NettleConan(ConanFile):
     name = "nettle"
     description = "The Nettle and Hogweed low-level cryptographic libraries"
-    homepage = "https://www.lysator.liu.se/~nisse/nettle"
-    topics = ("crypto", "low-level-cryptographic", "cryptographic")
     license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.lysator.liu.se/~nisse/nettle"
+    topics = ("crypto", "low-level-cryptographic", "cryptographic")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -66,7 +67,8 @@ class NettleConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built with Visual Studio")
         if Version(self.version) < "3.6" and self.options.get_safe("fat") and self.settings.arch == "x86_64":
             raise ConanInvalidConfiguration(
-                "fat support is broken on this nettle release (due to a missing x86_64/sha_ni/sha1-compress.asm source)"
+                "fat support is broken on this nettle release "
+                "(due to a missing x86_64/sha_ni/sha1-compress.asm source)"
             )
 
     @property

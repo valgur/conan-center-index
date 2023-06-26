@@ -2,9 +2,8 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 import os
-
 
 required_conan_version = ">=1.53.0"
 
@@ -12,11 +11,12 @@ required_conan_version = ">=1.53.0"
 class NngConan(ConanFile):
     name = "nng"
     description = "nanomsg-next-generation: light-weight brokerless messaging"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nanomsg/nng"
-    license = "MIT"
     topics = ("nanomsg", "communication", "messaging", "protocols")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -79,6 +79,9 @@ class NngConan(ConanFile):
         tc.variables["NNG_ENABLE_NNGCAT"] = self.options.nngcat
         tc.variables["NNG_ENABLE_HTTP"] = self.options.http
         tc.variables["NNG_MAX_TASKQ_THREADS"] = self.options.max_taskq_threads
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

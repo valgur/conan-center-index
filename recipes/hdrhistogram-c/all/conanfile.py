@@ -16,20 +16,21 @@ required_conan_version = ">=1.53.0"
 
 class HdrhistogramcConan(ConanFile):
     name = "hdrhistogram-c"
+    description = "'C' port of High Dynamic Range (HDR) Histogram"
     license = ("BSD-2-Clause", "CC0-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/HdrHistogram/HdrHistogram_c"
-    description = "'C' port of High Dynamic Range (HDR) Histogram"
     topics = ("libraries", "c", "histogram")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):

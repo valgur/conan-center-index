@@ -18,6 +18,7 @@ class AwsCAuth(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-auth"
     topics = ("aws", "amazon", "cloud", "authentication", "credentials", "providers", "signing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

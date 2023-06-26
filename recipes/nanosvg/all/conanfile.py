@@ -3,24 +3,26 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class NanosvgConan(ConanFile):
     name = "nanosvg"
     description = "NanoSVG is a simple stupid single-header-file SVG parser."
     license = "Zlib"
-    topics = ("svg", "parser", "header-only")
-    homepage = "https://github.com/memononen/nanosvg"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/memononen/nanosvg"
+    topics = ("svg", "parser", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    def package_id(self):
-        self.info.clear()
-
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

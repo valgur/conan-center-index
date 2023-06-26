@@ -1,99 +1,26 @@
 # TODO: verify the Conan v2 migration
 
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import glob
 import os
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.gnu import PkgConfigDeps
+
+required_conan_version = ">=1.53.0"
 
 
 class GetDnsConan(ConanFile):
     name = "getdns"
     description = "A modern asynchronous DNS API"
-    topics = ("asynchronous", "event")
     license = "BSD-3-Clause"
-    homepage = "https://getdnsapi.net/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://getdnsapi.net/"
+    topics = ("asynchronous", "event")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -116,9 +43,6 @@ class GetDnsConan(ConanFile):
         "with_libidn2": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     @property
     def _with_libev(self):
         if self.options.with_libev == "auto":
@@ -135,6 +59,9 @@ class GetDnsConan(ConanFile):
         else:
             return self.options.stub_only
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -144,6 +71,9 @@ class GetDnsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openssl/1.1.1j")
@@ -163,12 +93,15 @@ class GetDnsConan(ConanFile):
             # FIXME: missing libunbound recipe
             raise ConanInvalidConfiguration("libunbound is not (yet) available on cci")
 
+    def package_id(self):
+        self.info.options.stub_only = self._stub_only
+        self.info.options.with_libev = self._with_libev
+
     def build_requirements(self):
         self.build_requires("pkgconf/1.7.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("getdns-{}".format(self.version), self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -210,10 +143,6 @@ class GetDnsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-    def package_id(self):
-        self.info.options.stub_only = self._stub_only
-        self.info.options.with_libev = self._with_libev
-
     def package_info(self):
         libsuffix = ""
         if self.settings.compiler == "Visual Studio" and not self.options.shared:
@@ -246,5 +175,5 @@ class GetDnsConan(ConanFile):
             self.cpp_info.components["dns_ex_uv"].names["pkg_config"] = "getdns_ext_uv"
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

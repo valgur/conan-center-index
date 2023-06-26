@@ -18,10 +18,11 @@ required_conan_version = ">=1.53.0"
 class Libssh2Conan(ConanFile):
     name = "libssh2"
     description = "libssh2 is a client-side C library implementing the SSH2 protocol"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libssh2.org"
     topics = ("libssh", "ssh", "shell", "ssh2", "connection")
-    license = "BSD-3-Clause"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -46,8 +47,34 @@ class Libssh2Conan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        # This is a pure C library
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_zlib:
+            self.requires("zlib/1.2.13")
+        if self.options.crypto_backend == "openssl":
+            self.requires("openssl/1.1.1t")
+            # Version 3.x not currently working
+            # self.requires("openssl/[>=1.1 <4]")
+        elif self.options.crypto_backend == "mbedtls":
+            # libssh2/<=1.10.0 doesn't support mbedtls/3.x.x
+            self.requires("mbedtls/2.25.0")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,32 +104,6 @@ class Libssh2Conan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # This is a pure C library
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
-    def requirements(self):
-        if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
-        if self.options.crypto_backend == "openssl":
-            self.requires("openssl/1.1.1t")
-            # Version 3.x not currently working
-            # self.requires("openssl/[>=1.1 <4]")
-        elif self.options.crypto_backend == "mbedtls":
-            # libssh2/<=1.10.0 doesn't support mbedtls/3.x.x
-            self.requires("mbedtls/2.25.0")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def build(self):
         cmake = CMake(self)

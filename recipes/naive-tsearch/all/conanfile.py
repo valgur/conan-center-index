@@ -13,13 +13,16 @@ class NaiveTsearchConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kulp/naive-tsearch"
     topics = ("tsearch", "search", "tree", "msvc")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "header_only": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "header_only": True,
     }

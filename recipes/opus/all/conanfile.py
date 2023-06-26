@@ -10,11 +10,12 @@ required_conan_version = ">=1.53.0"
 class OpusConan(ConanFile):
     name = "opus"
     description = "Opus is a totally open, royalty-free, highly versatile audio codec."
-    topics = ("audio", "decoder", "decoding", "multimedia", "sound")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://opus-codec.org"
-    license = "BSD-3-Clause"
+    topics = ("audio", "decoder", "decoding", "multimedia", "sound")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

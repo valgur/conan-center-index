@@ -79,13 +79,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class NcbiCxxToolkit(ConanFile):
     name = "ncbi-cxx-toolkit-public"
+    description = (
+        "NCBI C++ Toolkit -- a cross-platform application framework and "
+        "a collection of libraries for working with biological data."
+    )
     license = "CC0-1.0"
-    homepage = "https://ncbi.github.io/cxx-toolkit"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "NCBI C++ Toolkit -- a cross-platform application framework and a collection of libraries for working with biological data."
+    homepage = "https://ncbi.github.io/cxx-toolkit"
     topics = (
         "ncbi",
         "biotechnology",
@@ -101,8 +106,9 @@ class NcbiCxxToolkit(ConanFile):
         "toolkit",
         "c++",
     )
-    settings = "os", "compiler", "build_type", "arch"
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -115,33 +121,28 @@ class NcbiCxxToolkit(ConanFile):
         "with_projects": "",
         "with_targets": "",
     }
-    NCBI_to_Conan_requires = {
-        "BerkeleyDB": "libdb/5.3.28",
-        "BZ2": "bzip2/1.0.8",
-        "CASSANDRA": "cassandra-cpp-driver/2.15.3",
-        "GIF": "giflib/5.2.1",
-        "JPEG": "libjpeg/9d",
-        "LMDB": "lmdb/0.9.29",
-        "LZO": "lzo/2.10",
-        "MySQL": "libmysqlclient/8.0.25",
-        "NGHTTP2": "libnghttp2/1.46.0",
-        "PCRE": "pcre/8.45",
-        "PNG": "libpng/1.6.37",
-        "SQLITE3": "sqlite3/3.37.2",
-        "TIFF": "libtiff/4.3.0",
-        "XML": "libxml2/2.9.12",
-        "XSLT": "libxslt/1.1.34",
-        "UV": "libuv/1.42.0",
-        "Z": "zlib/1.2.11",
-        "OpenSSL": "openssl/1.1.1l",
-        "ZSTD": "zstd/1.5.2",
-    }
 
-    # ----------------------------------------------------------------------------
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        NCBIreqs = self._get_RequiresMapKeys()
+        for req in NCBIreqs:
+            pkg = self._translate_ReqKey(req)
+            if pkg is not None:
+                self.requires(pkg)
+
     def _get_RequiresMapKeys(self):
         return self.NCBI_to_Conan_requires.keys()
 
-    # ----------------------------------------------------------------------------
     def _translate_ReqKey(self, key):
         if key in self.NCBI_to_Conan_requires.keys():
             if key == "BerkeleyDB" and self.settings.os == "Windows":
@@ -153,7 +154,6 @@ class NcbiCxxToolkit(ConanFile):
             return self.NCBI_to_Conan_requires[key]
         return None
 
-    # ----------------------------------------------------------------------------
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 17)
@@ -172,27 +172,9 @@ class NcbiCxxToolkit(ConanFile):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross compilation is not supported")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    # ----------------------------------------------------------------------------
-    def requirements(self):
-        NCBIreqs = self._get_RequiresMapKeys()
-        for req in NCBIreqs:
-            pkg = self._translate_ReqKey(req)
-            if pkg is not None:
-                self.requires(pkg)
-
-    # ----------------------------------------------------------------------------
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    # ----------------------------------------------------------------------------
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["NCBI_PTBCFG_PACKAGING"] = "TRUE"
@@ -204,7 +186,6 @@ class NcbiCxxToolkit(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    # ----------------------------------------------------------------------------
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -213,12 +194,10 @@ class NcbiCxxToolkit(ConanFile):
             cmake.parallel = False
         cmake.build()
 
-    # ----------------------------------------------------------------------------
     def package(self):
         cmake = CMake(self)
         cmake.install()
 
-    # ----------------------------------------------------------------------------
     def package_info(self):
         if self.settings.os == "Windows":
             self.cpp_info.components["ORIGLIBS"].system_libs = ["ws2_32", "dbghelp"]

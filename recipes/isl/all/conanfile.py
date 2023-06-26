@@ -198,13 +198,14 @@ class IslConan(ConanFile):
 
     def build(self):
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libisl.la")))

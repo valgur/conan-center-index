@@ -11,11 +11,13 @@ required_conan_version = ">=1.53.0"
 
 class ClickHouseCppConan(ConanFile):
     name = "clickhouse-cpp"
-    homepage = "https://github.com/ClickHouse/clickhouse-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "ClickHouse C++ API"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ClickHouse/clickhouse-cpp"
     topics = ("database", "db", "clickhouse")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -30,19 +32,6 @@ class ClickHouseCppConan(ConanFile):
         "with_openssl": False,
     }
 
-    def requirements(self):
-        self.requires("lz4/1.9.4")
-
-        self.requires("abseil/20230125.3", transitive_headers=True)
-
-        self.requires("cityhash/cci.20130801")
-        if self.options.with_openssl:
-            self.requires("openssl/[>=1.1 <4]")
-
-    def build_requirements(self):
-        if self.options.enable_benchmark:
-            self.requires("benchmark/1.8.0")
-
     @property
     def _min_cppstd(self):
         return "17"
@@ -56,12 +45,31 @@ class ClickHouseCppConan(ConanFile):
             "clang": "6",
         }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     @property
     def _requires_compiler_rt(self):
         return self.settings.compiler == "clang" and (
             (self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"] and not self.options.shared)
             or self.settings.compiler.libcxx == "libc++"
         )
+
+    def requirements(self):
+        self.requires("lz4/1.9.4")
+
+        self.requires("abseil/20230125.3", transitive_headers=True)
+
+        self.requires("cityhash/cci.20130801")
+        if self.options.with_openssl:
+            self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -75,15 +83,9 @@ class ClickHouseCppConan(ConanFile):
             raise ConanInvalidConfiguration("f{self.ref} does not support shared library on Windows.")
             # look at https://github.com/ClickHouse/clickhouse-cpp/pull/226
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        self.options.rm_safe("fPIC")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def build_requirements(self):
+        if self.options.enable_benchmark:
+            self.requires("benchmark/1.8.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

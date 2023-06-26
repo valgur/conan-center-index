@@ -21,14 +21,14 @@ required_conan_version = ">=1.55.0"
 
 class LeptonicaConan(ConanFile):
     name = "leptonica"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "Library containing software that is broadly useful for "
         "image processing and image analysis applications."
     )
-    topics = ("image", "multimedia", "format", "graphics")
-    homepage = "http://leptonica.org"
     license = "BSD 2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://leptonica.org"
+    topics = ("image", "multimedia", "format", "graphics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -205,9 +205,11 @@ class LeptonicaConan(ConanFile):
             self,
             cmakelists_src,
             "if (WEBP_FOUND)",
-            "if (WEBP_FOUND)\n"
-            "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
-            "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})",
+            (
+                "if (WEBP_FOUND)\n"
+                "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
+                "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})"
+            ),
         )
         replace_in_file(self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}")
 
@@ -220,8 +222,8 @@ class LeptonicaConan(ConanFile):
                 replace_in_file(
                     self,
                     cmake_configure,
-                    "set(functions_list\n    " "fmemopen\n    fstatat\n)",
-                    "set(functions_list\n    " "fstatat\n)",
+                    "set(functions_list\n    fmemopen\n    fstatat\n)",
+                    "set(functions_list\n    fstatat\n)",
                 )
 
     def build(self):
@@ -254,14 +256,12 @@ class LeptonicaConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

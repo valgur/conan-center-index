@@ -11,11 +11,12 @@ class LibStudXmlConan(ConanFile):
     description = (
         "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
     )
-    topics = ("xml", "xml-parser", "serialization")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.codesynthesis.com/projects/libstudxml/"
-    license = "MIT"
+    topics = ("xml", "xml-parser", "serialization")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -12,12 +12,13 @@ required_conan_version = ">=1.52.0"
 
 class OatppPostgresqlConan(ConanFile):
     name = "oatpp-postgresql"
-    license = "Apache-2.0"
-    homepage = "https://github.com/oatpp/oatpp-postgresql"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "oat++ PostgreSQL library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-postgresql"
     topics = ("oat", "postgresql", "orm", "database")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

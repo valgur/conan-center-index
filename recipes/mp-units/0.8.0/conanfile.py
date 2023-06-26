@@ -12,8 +12,10 @@ required_conan_version = ">=1.59.0"
 
 class MPUnitsConan(ConanFile):
     name = "mp-units"
-    homepage = "https://github.com/mpusz/units"
     description = "Physical Quantities and Units library for C++"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mpusz/units"
     topics = (
         "units",
         "dimensions",
@@ -27,11 +29,11 @@ class MPUnitsConan(ConanFile):
         "si",
         "library",
         "quantity-manipulation",
+        "header-only",
     )
-    license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -69,6 +71,9 @@ class MPUnitsConan(ConanFile):
             self.requires("fmt/8.1.1")
         if self._use_range_v3:
             self.requires("range-v3/0.11.0")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -112,6 +117,9 @@ class MPUnitsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         compiler = self.settings.compiler
 
         # core

@@ -17,11 +17,11 @@ required_conan_version = ">=1.54.0"
 
 class GlogConan(ConanFile):
     name = "glog"
+    description = "Google logging library"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/glog/"
-    description = "Google logging library"
     topics = ("logging",)
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

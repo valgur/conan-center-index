@@ -22,30 +22,46 @@ required_conan_version = ">=1.57.0"
 
 class PcapplusplusConan(ConanFile):
     name = "pcapplusplus"
-    package_type = "static-library"
-    license = "Unlicense"
     description = (
         "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets"
     )
-    topics = ("pcap", "network", "security", "packet")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/seladb/PcapPlusPlus"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("pcap", "network", "security", "packet")
+
+    package_type = "static-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "immediate_mode": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "immediate_mode": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    @property
+    def _configure_sh_script(self):
+        return {
+            "Android": "configure-android.sh",
+            "Linux": "configure-linux.sh",
+            "Macos": "configure-mac_os_x.sh",
+            "FreeBSD": "configure-freebsd.sh",
+        }[str(self.settings.os)]
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def export_sources(self):
-        export_conandata_patches(self)
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -69,38 +85,6 @@ class PcapplusplusConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @property
-    def _configure_sh_script(self):
-        return {
-            "Android": "configure-android.sh",
-            "Linux": "configure-linux.sh",
-            "Macos": "configure-mac_os_x.sh",
-            "FreeBSD": "configure-freebsd.sh",
-        }[str(self.settings.os)]
-
-    def _patch_sources(self):
-        if not self.options.get_safe("fPIC") and self.settings.os != "Windows":
-            replace_in_file(self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"), "-fPIC", "")
-        apply_conandata_patches(self)
-        if self.settings.os != "Windows":
-            rename(
-                self,
-                os.path.join(self.source_folder, self._configure_sh_script),
-                os.path.join(self.source_folder, "configure"),
-            )
-        else:
-            props_file = os.path.join(self.generators_folder, "conantoolchain.props")
-            vcxproj_templates = glob.glob(f"{self.source_folder}/mk/vs/*.vcxproj.template")
-            for template_file in vcxproj_templates:
-                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props
-                # so that we have precedence over PlatformToolset version
-                replace_in_file(
-                    self,
-                    template_file,
-                    '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
-                    f'<Import Project="{props_file}" />\n<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
-                )
 
     def generate(self):
         if self.settings.os == "Windows":
@@ -128,6 +112,32 @@ class PcapplusplusConan(ConanFile):
                 tc.configure_args.append("--arm64")
 
             tc.generate()
+
+    def _patch_sources(self):
+        if not self.options.get_safe("fPIC") and self.settings.os != "Windows":
+            replace_in_file(self, os.path.join(self.source_folder, "PcapPlusPlus.mk.common"), "-fPIC", "")
+        apply_conandata_patches(self)
+        if self.settings.os != "Windows":
+            rename(
+                self,
+                os.path.join(self.source_folder, self._configure_sh_script),
+                os.path.join(self.source_folder, "configure"),
+            )
+        else:
+            props_file = os.path.join(self.generators_folder, "conantoolchain.props")
+            vcxproj_templates = glob.glob(f"{self.source_folder}/mk/vs/*.vcxproj.template")
+            for template_file in vcxproj_templates:
+                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props
+                # so that we have precedence over PlatformToolset version
+                replace_in_file(
+                    self,
+                    template_file,
+                    '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
+                    (
+                        f'<Import Project="{props_file}" />\n'
+                        '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />'
+                    ),
+                )
 
     def build(self):
         self._patch_sources()

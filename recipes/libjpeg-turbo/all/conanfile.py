@@ -17,7 +17,8 @@ class LibjpegTurboConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libjpeg-turbo.org"
     topics = ("jpeg", "libjpeg", "image", "multimedia", "format", "graphics")
-    provides = "libjpeg"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -45,6 +46,7 @@ class LibjpegTurboConan(ConanFile):
         "java": False,
         "enable12bit": False,
     }
+    provides = "libjpeg"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -126,9 +128,9 @@ class LibjpegTurboConan(ConanFile):
         if is_msvc(self):
             tc.variables["WITH_CRT_DLL"] = True  # avoid replacing /MD by /MT in compiler flags
         if Version(self.version) <= "2.1.0":
-            tc.variables[
-                "CMAKE_MACOSX_BUNDLE"
-            ] = False  # avoid configuration error if building for iOS/tvOS/watchOS
+            tc.variables["CMAKE_MACOSX_BUNDLE"] = (
+                False  # avoid configuration error if building for iOS/tvOS/watchOS
+            )
         tc.generate()
 
     def _patch_sources(self):

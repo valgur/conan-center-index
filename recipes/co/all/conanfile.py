@@ -2,101 +2,23 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CoConan(ConanFile):
     name = "co"
+    description = "A go-style coroutine library in C++11 and more."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/idealvin/co"
-    license = "MIT"
-    description = "A go-style coroutine library in C++11 and more."
     topics = ("coroutine", "c++11")
 
-    deprecated = "cocoyaxi"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -110,6 +32,7 @@ class CoConan(ConanFile):
         "with_libcurl": False,
         "with_openssl": False,
     }
+    deprecated = "cocoyaxi"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -122,11 +45,27 @@ class CoConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_libcurl:
             self.requires("libcurl/7.79.1")
         if self.options.with_openssl:
             self.requires("openssl/1.1.1l")
+
+    def validate(self):
+        if self.options.with_libcurl:
+            if not self.options.with_openssl:
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires with_openssl=True when using with_libcurl=True"
+                )
+            if self.options["libcurl"].with_ssl != "openssl":
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires libcurl:with_ssl='openssl' to be enabled"
+                )
+            if not self.options["libcurl"].with_zlib:
+                raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
 
     def build_requirements(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
@@ -135,12 +74,6 @@ class CoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -156,6 +89,12 @@ class CoConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
+    def build(self):
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
     def package(self):
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
@@ -165,16 +104,3 @@ class CoConan(ConanFile):
         self.cpp_info.libs = ["co"]
         self.cpp_info.names["cmake_find_package"] = "co"
         self.cpp_info.names["cmake_find_package_multi"] = "co"
-
-    def validate(self):
-        if self.options.with_libcurl:
-            if not self.options.with_openssl:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires with_openssl=True when using with_libcurl=True"
-                )
-            if self.options["libcurl"].with_ssl != "openssl":
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires libcurl:with_ssl='openssl' to be enabled"
-                )
-            if not self.options["libcurl"].with_zlib:
-                raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")

@@ -12,14 +12,15 @@ required_conan_version = ">=1.54.0"
 
 class GinkgoConan(ConanFile):
     name = "ginkgo"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/ginkgo-project/ginkgo"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "High-performance linear algebra library for manycore systems, with a "
         "focus on sparse solution of linear systems."
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ginkgo-project/ginkgo"
     topics = ("hpc", "linear-algebra")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -13,9 +13,11 @@ class JsmnConan(ConanFile):
         "It can be easily integrated into resource-limited or embedded projects."
     )
     license = "MIT"
-    topics = ("json", "parser")
-    homepage = "https://github.com/zserge/jsmn"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zserge/jsmn"
+    topics = ("json", "parser", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

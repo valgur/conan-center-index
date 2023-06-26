@@ -6,16 +6,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class ArgsParserConan(ConanFile):
     name = "args-parser"
+    description = "Small C++ header-only library for parsing command line arguments."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/args-parser"
-    license = "MIT"
-    description = "Small C++ header-only library for parsing command line arguments."
-    topics = ("argument", "parsing")
+    topics = ("argument", "parsing", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

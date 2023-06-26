@@ -15,20 +15,22 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class AtSpi2CoreConan(ConanFile):
     name = "at-spi2-core"
-    description = "It provides a Service Provider Interface for the Assistive Technologies available on the GNOME platform and a library against which applications can be linked"
-    topics = ("atk", "accessibility")
+    description = (
+        "Provides a Service Provider Interface for the"
+        " Assistive Technologies available on the GNOME platform"
+        " and a library against which applications can be linked"
+    )
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-core/"
-    license = "LGPL-2.1-or-later"
+    topics = ("atk", "accessibility")
 
-    provides = "at-spi2-atk", "atk"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,6 +42,7 @@ class AtSpi2CoreConan(ConanFile):
         "fPIC": True,
         "with_x11": False,
     }
+    provides = ("at-spi2-atk", "atk")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -52,16 +55,18 @@ class AtSpi2CoreConan(ConanFile):
         if self.options.shared:
             self.options["glib"].shared = True
 
-    def build_requirements(self):
-        self.tool_requires("meson/1.1.1")
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+    def layout(self):
+        basic_layout(self, src_folder="src")
+        self.cpp.package.resdirs = ["res"]
 
     def requirements(self):
         self.requires("glib/2.76.3")
         if self.options.with_x11:
             self.requires("xorg/system")
         self.requires("dbus/1.15.6")
+
+    def package_id(self):
+        self.info.requires["glib"].full_package_mode()
 
     def validate(self):
         if self.options.shared and not self.options["glib"].shared:
@@ -71,9 +76,10 @@ class AtSpi2CoreConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-        self.cpp.package.resdirs = ["res"]
+    def build_requirements(self):
+        self.tool_requires("meson/1.1.1")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -138,6 +144,3 @@ class AtSpi2CoreConan(ConanFile):
         self.cpp_info.components["atk-bridge"].includedirs = [os.path.join("include", "at-spi2-atk", "2.0")]
         self.cpp_info.components["atk-bridge"].requires = ["dbus::dbus", "atk", "glib::glib", "atspi"]
         self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", "atk-bridge-2.0")
-
-    def package_id(self):
-        self.info.requires["glib"].full_package_mode()

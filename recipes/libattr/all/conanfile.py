@@ -11,10 +11,11 @@ required_conan_version = ">=1.53.0"
 class LibAttrConan(ConanFile):
     name = "libattr"
     description = "Commands for Manipulating Filesystem Extended Attributes"
-    topics = ("attr", "filesystem")
     license = "GPL-2.0-or-later"
-    homepage = "https://savannah.nongnu.org/projects/attr/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://savannah.nongnu.org/projects/attr/"
+    topics = ("attr", "filesystem")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

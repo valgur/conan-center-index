@@ -2,103 +2,35 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import collect_libs, copy, get, rmdir
+
+required_conan_version = ">=1.52.0"
 
 
 class MsgpackConan(ConanFile):
     name = "msgpack"
     description = "The official C++ library for MessagePack"
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/msgpack/msgpack-c"
     topics = ("message-pack", "serialization")
-    license = "BSL-1.0"
-    settings = "os", "arch", "build_type", "compiler"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "c_api": [True, False],
         "cpp_api": [True, False],
         "with_boost": [True, False],
         "header_only": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "c_api": True,
         "cpp_api": True,
         "with_boost": False,
@@ -137,6 +69,9 @@ class MsgpackConan(ConanFile):
             self.options["boost"].without_system = False
             self.options["boost"].without_timer = False
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.get_safe("with_boost"):
             self.requires("boost/1.74.0")
@@ -144,7 +79,7 @@ class MsgpackConan(ConanFile):
     def package_id(self):
         del self.info.options.with_boost
         if not self.options.c_api:
-            self.info.header_only()
+            self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -173,7 +108,8 @@ class MsgpackConan(ConanFile):
             or self.options["boost"].without_timer
         ):
             raise ConanInvalidConfiguration(
-                "msgpack with boost requires the following boost components: chrono, context, system and timer."
+                "msgpack with boost requires the following boost components:"
+                " chrono, context, system and timer."
             )
         if self.options.c_api:
             cmake = CMake(self)

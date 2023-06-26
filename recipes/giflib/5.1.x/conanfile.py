@@ -80,17 +80,18 @@ from conan.tools.system import package_manager
 import os
 import shutil
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class GiflibConan(ConanFile):
     name = "giflib"
     description = "A library and utilities for reading and writing GIF images."
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://giflib.sourceforge.net"
     topics = ("image", "multimedia", "format", "graphics")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -126,6 +127,9 @@ class GiflibConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def build_requirements(self):
         if not is_msvc(self):
             self.build_requires("gnu-config/cci.20201022")
@@ -145,11 +149,11 @@ class GiflibConan(ConanFile):
         )
 
         if is_msvc(self):
-            self.build_visual()
+            self._build_visual()
         else:
-            self.build_configure()
+            self._build_autotools()
 
-    def build_visual(self):
+    def _build_visual(self):
         # fully replace gif_lib.h for VS, with patched version
         ver_components = self.version.split(".")
         replace_in_file(self, "gif_lib.h", "@GIFLIB_MAJOR@", ver_components[0])
@@ -204,7 +208,7 @@ class GiflibConan(ConanFile):
                 self.run("make", win_bash=True)
                 self.run("make install", win_bash=True)
 
-    def build_configure(self):
+    def _build_autotools(self):
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
         )

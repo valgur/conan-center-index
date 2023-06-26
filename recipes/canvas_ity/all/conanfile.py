@@ -14,6 +14,8 @@ class CanvasItyConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/a-e-k/canvas_ity"
     topics = ("rasterizer", "canvas", "2d", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

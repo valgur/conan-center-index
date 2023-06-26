@@ -11,16 +11,17 @@ required_conan_version = ">=1.53.0"
 
 class OneTBBConan(ConanFile):
     name = "onetbb"
-    license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/oneapi-src/oneTBB"
     description = (
         "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel C++"
         " programs that take full advantage of multicore performance, that are portable, composable"
         " and have future-proof scalability."
     )
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oneapi-src/oneTBB"
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

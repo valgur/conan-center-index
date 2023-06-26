@@ -14,9 +14,10 @@ class PthreadpoolConan(ConanFile):
         "#pragma omp parallel for, but with additional features."
     )
     license = "BSD-2-Clause"
-    topics = ("multi-threading", "pthreads", "multi-core", "threadpool")
-    homepage = "https://github.com/Maratyszcza/pthreadpool"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Maratyszcza/pthreadpool"
+    topics = ("multi-threading", "pthreads", "multi-core", "threadpool")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

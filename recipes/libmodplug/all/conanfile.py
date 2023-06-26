@@ -10,10 +10,11 @@ required_conan_version = ">=1.54.0"
 class LibmodplugConan(ConanFile):
     name = "libmodplug"
     description = "libmodplug - the library which was part of the Modplug-xmms project"
-    topics = ("auduo", "multimedia", "sound", "music", "mod", "mod music", "tracket music")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://modplug-xmms.sourceforge.net"
-    license = "Unlicense"
+    topics = ("auduo", "multimedia", "sound", "music", "mod", "mod music", "tracket music")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -151,6 +151,12 @@ class SqlcipherConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        if is_msvc(self):
+            self._generate_msvc()
+        else:
+            self._generate_autotools()
+
     @property
     def _temp_store_nmake_value(self):
         return {
@@ -230,15 +236,13 @@ class SqlcipherConan(ConanFile):
                 "#! /bin/sh\n",
                 "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
             )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
+    def _generate_autotools(self):
         yes_no = lambda v: "yes" if v else "no"
         args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
             "--enable-tempstore={}".format(self._temp_store_autotools_value),
             "--disable-tcl",
         ]
@@ -278,7 +282,7 @@ class SqlcipherConan(ConanFile):
             self._build_autotools()
 
     def _package_unix(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

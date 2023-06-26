@@ -11,13 +11,14 @@ required_conan_version = ">=1.50.0"
 
 class NanorangeConan(ConanFile):
     name = "nanorange"
-    license = "BSL-1.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/tcbrindle/NanoRange"
     description = (
         "NanoRange is a C++17 implementation of the C++20 Ranges proposals (formerly the Ranges TS)."
     )
-    topics = ("ranges", "C++17", "Ranges TS")
+    license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/tcbrindle/NanoRange"
+    topics = ("ranges", "C++17", "Ranges TS", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

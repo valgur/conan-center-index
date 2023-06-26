@@ -23,10 +23,10 @@ required_conan_version = ">=1.57.0"
 class LibmodbusConan(ConanFile):
     name = "libmodbus"
     description = "libmodbus is a free software library to send/receive data according to the Modbus protocol"
-    homepage = "https://libmodbus.org/"
-    topics = ("modbus", "protocol", "industry", "automation")
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://libmodbus.org/"
+    topics = ("modbus", "protocol", "industry", "automation")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

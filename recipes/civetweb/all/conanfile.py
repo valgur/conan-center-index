@@ -10,17 +10,17 @@ required_conan_version = ">=1.53.0"
 
 class CivetwebConan(ConanFile):
     name = "civetweb"
-    license = "MIT"
-    homepage = "https://github.com/civetweb/civetweb"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Embedded C/C++ web server"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/civetweb/civetweb"
     topics = ("web-server", "embedded")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "ssl_dynamic_loading": [True, False],
         "with_caching": [True, False],
         "with_cgi": [True, False],
@@ -36,8 +36,8 @@ class CivetwebConan(ConanFile):
         "with_zlib": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "ssl_dynamic_loading": False,
         "with_caching": True,
         "with_cgi": True,

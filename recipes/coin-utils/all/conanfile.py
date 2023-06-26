@@ -18,13 +18,13 @@ class CoinUtilsConan(ConanFile):
         "CoinUtils is an open-source collection of classes and helper "
         "functions that are generally useful to multiple COIN-OR projects."
     )
-    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/CoinUtils"
-    license = "EPL-2.0"
+    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
 
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

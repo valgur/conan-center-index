@@ -15,6 +15,7 @@ class ErkirConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/vahancho/erkir"
     topics = ("earth", "geodesy", "geography", "coordinate-systems", "geodetic", "datum")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -76,38 +77,18 @@ class ErkirConan(ConanFile):
                 dst=os.path.join(self.package_folder, "include"),
                 src=os.path.join(self.source_folder, "include"),
             )
-            copy(
-                self,
-                pattern="*.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
+            for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
+                copy(
+                    self,
+                    pattern,
+                    src=self.build_folder,
+                    dst=os.path.join(self.package_folder, "lib"),
+                    keep_path=False,
+                )
             copy(
                 self,
                 pattern="*.dll",
                 dst=os.path.join(self.package_folder, "bin"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*.dylib*",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*.so",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*.a",
-                dst=os.path.join(self.package_folder, "lib"),
                 src=self.build_folder,
                 keep_path=False,
             )

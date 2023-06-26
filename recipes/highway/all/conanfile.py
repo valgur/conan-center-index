@@ -19,10 +19,12 @@ required_conan_version = ">=1.54.0"
 class HighwayConan(ConanFile):
     name = "highway"
     description = "Performance-portable, length-agnostic SIMD with runtime dispatch"
-    topics = ("simd",)
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/highway"
+    topics = ("simd",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

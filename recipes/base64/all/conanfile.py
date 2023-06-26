@@ -20,6 +20,8 @@ class Base64Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aklomp/base64"
     topics = ("codec", "encoder", "decoder")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

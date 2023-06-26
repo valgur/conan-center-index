@@ -16,6 +16,7 @@ class SimdutfConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/simdutf/simdutf"
     topics = ("unicode", "transcoding", "neon", "simd", "avx2", "sse2", "utf8", "utf16")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

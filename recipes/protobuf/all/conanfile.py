@@ -24,11 +24,12 @@ required_conan_version = ">=1.53"
 class ProtobufConan(ConanFile):
     name = "protobuf"
     description = "Protocol Buffers - Google's data interchange format"
-    topics = ("protocol-buffers", "protocol-compiler", "serialization", "rpc", "protocol-compiler")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/protocolbuffers/protobuf"
-    license = "BSD-3-Clause"
+    topics = ("protocol-buffers", "protocol-compiler", "serialization", "rpc", "protocol-compiler")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -140,8 +141,7 @@ class ProtobufConan(ConanFile):
         protoc_filename = "protoc" + exe_ext
         module_folder_depth = len(os.path.normpath(self._cmake_install_base_path).split(os.path.sep))
         protoc_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), protoc_filename)
-        protoc_target = textwrap.dedent(
-            """\
+        protoc_target = textwrap.dedent(f"""\
             if(NOT TARGET protobuf::protoc)
                 if(CMAKE_CROSSCOMPILING)
                     find_program(PROTOC_PROGRAM protoc PATHS ENV PATH NO_DEFAULT_PATH)
@@ -154,10 +154,7 @@ class ProtobufConan(ConanFile):
                 add_executable(protobuf::protoc IMPORTED)
                 set_property(TARGET protobuf::protoc PROPERTY IMPORTED_LOCATION ${{Protobuf_PROTOC_EXECUTABLE}})
             endif()
-        """.format(
-                protoc_rel_path=protoc_rel_path
-            )
-        )
+        """)
         replace_in_file(
             self,
             protobuf_config_cmake,

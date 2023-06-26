@@ -2,91 +2,25 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import chdir, copy, get, rename, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+
+required_conan_version = ">=1.53.0"
 
 
 class PciUtilsConan(ConanFile):
     name = "pciutils"
-    license = "BSD-3-Clause"
     description = "The PCI Utilities package contains a library for portable access to PCI bus"
-    topics = ("pci", "pci-bus", "hardware", "local-bus")
-    homepage = "https://github.com/pciutils/pciutils"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "https://github.com/pciutils/pciutils"
+    topics = ("pci", "pci-bus", "hardware", "local-bus")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -100,6 +34,10 @@ class PciUtilsConan(ConanFile):
         "with_udev": False,
     }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(
@@ -110,6 +48,9 @@ class PciUtilsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_zlib:
@@ -124,28 +65,28 @@ class PciUtilsConan(ConanFile):
         extracted_dir = self.name + "-" + self.version
         rename(self, extracted_dir, self.source_folder)
 
-    def _make(self, targets):
+    def generate(self):
         yes_no = lambda v: "yes" if v else "no"
-        autotools = AutoToolsBuildEnvironment(self)
-        autotools.make(
-            args=[
-                "SHARED={}".format(yes_no(self.options.shared)),
-                "ZLIB={}".format(yes_no(self.options.with_zlib)),
-                "HWDB={}".format(yes_no(self.options.with_udev)),
-                "PREFIX={}".format(self.package_folder),
-                "OPT={}".format("{} {}".format(autotools.vars["CPPFLAGS"], autotools.vars["CFLAGS"])),
-                "DNS=no",
-            ],
-            target=" ".join(targets),
-        )
+        tc = AutotoolsToolchain(self)
+        tc.make_args = [
+            "SHARED={}".format(yes_no(self.options.shared)),
+            "ZLIB={}".format(yes_no(self.options.with_zlib)),
+            "HWDB={}".format(yes_no(self.options.with_udev)),
+            "PREFIX={}".format(self.package_folder),
+            "DNS=no",
+        ]
+        tc.generate()
 
     def build(self):
         with chdir(self, self.source_folder):
-            self._make(["all"])
+            autotools = Autotools(self)
+            autotools.make(target="all")
 
     def package(self):
         with chdir(self, self.source_folder):
-            self._make(["install", "install-pcilib"])
+            autotools = Autotools(self)
+            autotools.make(target="install")
+            autotools.make(target="install-pcilib")
 
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(

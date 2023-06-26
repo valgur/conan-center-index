@@ -1,8 +1,7 @@
 import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import download, rmdir
-
+from conan.tools.files import download, rmdir, copy
 
 required_conan_version = ">=1.47.0"
 
@@ -10,22 +9,33 @@ required_conan_version = ">=1.47.0"
 class MingwConan(ConanFile):
     name = "mingw-builds"
     description = "MinGW is a contraction of Minimalist GNU for Windows"
+    license = ("ZPL-2.1", "MIT", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/niXman/mingw-builds"
-    license = "ZPL-2.1", "MIT", "GPL-2.0-or-later"
-    topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
-    settings = "os", "arch"
-    options = {"threads": ["posix", "win32"], "exception": ["seh", "sjlj"]}
+    topics = ("gcc", "gnu", "unix", "mingw32", "binutils", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "threads": ["posix", "win32"],
+        "exception": ["seh", "sjlj"],
+    }
     default_options = {
         "threads": "posix",
         "exception": "seh",
     }
-
     provides = "mingw-w64"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         valid_os = ["Windows"]
@@ -36,7 +46,8 @@ class MingwConan(ConanFile):
         valid_arch = ["x86_64"]
         if str(self.settings.arch) not in valid_arch:
             raise ConanInvalidConfiguration(
-                f"MinGW {self.version} is only supported for the following architectures on {self.settings.os}: {valid_arch}"
+                f"MinGW {self.version} is only supported for the following architectures on"
+                f" {self.settings.os}: {valid_arch}"
             )
 
         if getattr(self, "settings_target", None):
@@ -47,7 +58,8 @@ class MingwConan(ConanFile):
             valid_arch = ["x86_64"]
             if str(self.settings_target.arch) not in valid_arch:
                 raise ConanInvalidConfiguration(
-                    f"MinGW {self.version} is only supported for the following architectures on {self.settings.os}: {valid_arch}"
+                    f"MinGW {self.version} is only supported for the following architectures on"
+                    f" {self.settings.os}: {valid_arch}"
                 )
             if self.settings_target.compiler != "gcc":
                 raise ConanInvalidConfiguration("Only GCC is allowed as compiler.")
@@ -59,9 +71,10 @@ class MingwConan(ConanFile):
                 )
             if str(self.settings_target.compiler.exception) != str(self.options.exception):
                 raise ConanInvalidConfiguration(
-                    "Build requires 'mingw' provides binaries for gcc "
-                    f"with exception={self.options.exception}, your profile:host declares "
-                    f"exception={self.settings_target.compiler.exception}, please use the same value for both."
+                    "Build requires 'mingw' provides binaries for gcc with"
+                    f" exception={self.options.exception}, your profile:host declares"
+                    f" exception={self.settings_target.compiler.exception}, "
+                    "please use the same value for both."
                 )
 
     def build_requirements(self):
@@ -83,6 +96,10 @@ class MingwConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "opt", "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         if getattr(self, "settings_target", None):
             if self.settings_target.compiler != "gcc":
                 raise ConanInvalidConfiguration("Only GCC is allowed as compiler.")
@@ -94,9 +111,10 @@ class MingwConan(ConanFile):
                 )
             if str(self.settings_target.compiler.exception) != str(self.options.exception):
                 raise ConanInvalidConfiguration(
-                    "Build requires 'mingw' provides binaries for gcc "
-                    f"with exception={self.options.exception}, your profile:host declares "
-                    f"exception={self.settings_target.compiler.exception}, please use the same value for both."
+                    "Build requires 'mingw' provides binaries for gcc with"
+                    f" exception={self.options.exception}, your profile:host declares"
+                    f" exception={self.settings_target.compiler.exception}, "
+                    "please use the same value for both."
                 )
 
         bin_path = os.path.join(self.package_folder, "bin")

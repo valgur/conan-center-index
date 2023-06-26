@@ -15,12 +15,13 @@ required_conan_version = ">=1.57.0"
 class CoinCglConan(ConanFile):
     name = "coin-cgl"
     description = "COIN-OR Cut Generator Library"
-    topics = ("cgl", "simplex", "solver", "linear", "programming")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/Cgl"
-    license = "EPL-2.0"
+    topics = ("cgl", "simplex", "solver", "linear programming")
+
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -53,6 +54,13 @@ class CoinCglConan(ConanFile):
         self.requires("coin-osi/0.108.7")
         self.requires("coin-clp/1.17.7")
 
+    def validate(self):
+        if self.settings.os == "Windows" and self.options.shared:
+            raise ConanInvalidConfiguration("coin-cgl does not support shared builds on Windows")
+        # FIXME: This issue likely comes from very old autotools versions used to produce configure.
+        if hasattr(self, "settings_build") and cross_building(self) and self.options.shared:
+            raise ConanInvalidConfiguration("coin-cgl shared not supported yet when cross-building")
+
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -63,13 +71,6 @@ class CoinCglConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
-
-    def validate(self):
-        if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("coin-cgl does not support shared builds on Windows")
-        # FIXME: This issue likely comes from very old autotools versions used to produce configure.
-        if hasattr(self, "settings_build") and cross_building(self) and self.options.shared:
-            raise ConanInvalidConfiguration("coin-cgl shared not supported yet when cross-building")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

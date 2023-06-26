@@ -14,11 +14,12 @@ required_conan_version = ">=1.53.0"
 class GumboParserConan(ConanFile):
     name = "gumbo-parser"
     description = "An HTML5 parsing library in pure C99"
-    topics = ("parser", "html")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/gumbo-parser"
-    license = "Apache-2.0"
+    topics = ("parser", "html")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -1,3 +1,21 @@
+# Warnings:
+#   Unexpected method '_is_x86'
+#   Unexpected method '_is_ppc'
+#   Unexpected method '_is_arm'
+#   Unexpected method '_source_subfolder'
+#   Unexpected method '_required_boost_components'
+#   Unexpected method '_is_mingw_windows'
+#   Unexpected method '_botan_os'
+#   Unexpected method '_configure_cmd'
+#   Unexpected method '_make_cmd'
+#   Unexpected method '_make_program'
+#   Unexpected method '_gnumake_cmd'
+#   Unexpected method '_nmake_cmd'
+#   Unexpected method '_make_install_cmd'
+#   Unexpected method '_is_linux_clang_libcxx'
+#   Unexpected method '_dependency_build_flags'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +97,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class BotanConan(ConanFile):
     name = "botan"
+    description = "Botan is a cryptography library written in C++11."
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/randombit/botan"
-    license = "BSD-2-Clause"
-    description = "Botan is a cryptography library written in C++11."
     topics = ("cryptography", "crypto", "C++11", "tls")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -165,138 +184,9 @@ class BotanConan(ConanFile):
         # Required to build at least 2.12.1
         return "sources"
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-        if not self._is_x86:
-            self.options.rm_safe("with_sse2")
-            self.options.rm_safe("with_ssse3")
-            self.options.rm_safe("with_sse4_1")
-            self.options.rm_safe("with_sse4_2")
-            self.options.rm_safe("with_avx2")
-            self.options.rm_safe("with_bmi2")
-            self.options.rm_safe("with_rdrand")
-            self.options.rm_safe("with_rdseed")
-            self.options.rm_safe("with_aes_ni")
-            self.options.rm_safe("with_sha_ni")
-        if not self._is_arm:
-            self.options.rm_safe("with_neon")
-            self.options.rm_safe("with_armv8crypto")
-        if not self._is_ppc:
-            self.options.rm_safe("with_altivec")
-            self.options.rm_safe("with_powercrypto")
-
-        # --single-amalgamation option is no longer available
-        # See also https://github.com/randombit/botan/pull/2246
-        if Version(self.version) >= "2.14.0":
-            self.options.rm_safe("single_amalgamation")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        if self.options.with_bzip2:
-            self.requires("bzip2/1.0.8")
-        if self.options.with_openssl:
-            self.requires("openssl/1.1.1o")
-        if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
-        if self.options.with_sqlite3:
-            self.requires("sqlite3/3.38.5")
-        if self.options.with_boost:
-            self.requires("boost/1.79.0")
-
     @property
     def _required_boost_components(self):
         return ["coroutine", "system"]
-
-    def validate(self):
-        if self.options.with_boost:
-            miss_boost_required_comp = any(
-                getattr(self.options["boost"], "without_{}".format(boost_comp), True)
-                for boost_comp in self._required_boost_components
-            )
-            if (
-                self.options["boost"].header_only
-                or self.options["boost"].shared
-                or self.options["boost"].magic_autolink
-                or miss_boost_required_comp
-            ):
-                raise ConanInvalidConfiguration(
-                    "{0} requires non-header-only static boost, without magic_autolink, and with these components: {1}".format(
-                        self.name, ", ".join(self._required_boost_components)
-                    )
-                )
-
-        compiler = self.settings.compiler
-        version = Version(self.settings.compiler.version)
-
-        if compiler == "Visual Studio" and version < "14":
-            raise ConanInvalidConfiguration("Botan doesn't support MSVC < 14")
-
-        elif compiler == "gcc" and version >= "5" and compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration(
-                'Using Botan with GCC >= 5 on Linux requires "compiler.libcxx=libstdc++11"'
-            )
-
-        elif compiler == "clang" and compiler.libcxx not in ["libstdc++11", "libc++"]:
-            raise ConanInvalidConfiguration(
-                'Using Botan with Clang on Linux requires either "compiler.libcxx=libstdc++11" '
-                'or "compiler.libcxx=libc++"'
-            )
-
-        # Some older compilers cannot handle the amalgamated build anymore
-        # See also https://github.com/randombit/botan/issues/2328
-        if Version(self.version) >= "2.14.0" and self.options.amalgamation:
-            if (
-                (compiler == "apple-clang" and version < "10")
-                or (compiler == "gcc" and version < "8")
-                or (compiler == "clang" and version < "7")
-            ):
-                raise ConanInvalidConfiguration(
-                    "botan amalgamation is not supported for {}/{}".format(compiler, version)
-                )
-
-        if self.options.get_safe("single_amalgamation", False) and not self.options.amalgamation:
-            raise ConanInvalidConfiguration("botan:single_amalgamation=True requires botan:amalgamation=True")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
-        apply_conandata_patches(self)
-        with chdir(self, self.source_folder):
-            self.run(self._configure_cmd)
-            self.run(self._make_cmd)
-
-    def package(self):
-        copy(
-            self,
-            pattern="license.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        with chdir(self, self.source_folder):
-            self.run(self._make_install_cmd)
-
-    def package_info(self):
-        major_version = Version(self.version).major
-        self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
-        self.cpp_info.names["pkg_config"] = f"botan-{major_version}"
-        self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
-        if self.settings.os == "Linux":
-            self.cpp_info.system_libs.extend(["dl", "rt", "pthread"])
-        if self.settings.os == "Macos":
-            self.cpp_info.frameworks = ["Security", "CoreFoundation"]
-        if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "crypt32"])
-
-        self.cpp_info.includedirs = [os.path.join("include", f"botan-{major_version}")]
 
     @property
     def _is_mingw_windows(self):
@@ -526,9 +416,7 @@ class BotanConan(ConanFile):
     def _gnumake_cmd(self):
         make_ldflags = "LDFLAGS=-lc++abi" if self._is_linux_clang_libcxx else ""
 
-        make_cmd = ("{ldflags}" " {make}" " -j{cpucount}").format(
-            ldflags=make_ldflags, make=self._make_program, cpucount=cpu_count(self)
-        )
+        make_cmd = f"{make_ldflags} {self._make_program} -j{cpu_count(self)}"
         return make_cmd
 
     @property
@@ -553,3 +441,138 @@ class BotanConan(ConanFile):
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libc++"
         )
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+        if not self._is_x86:
+            self.options.rm_safe("with_sse2")
+            self.options.rm_safe("with_ssse3")
+            self.options.rm_safe("with_sse4_1")
+            self.options.rm_safe("with_sse4_2")
+            self.options.rm_safe("with_avx2")
+            self.options.rm_safe("with_bmi2")
+            self.options.rm_safe("with_rdrand")
+            self.options.rm_safe("with_rdseed")
+            self.options.rm_safe("with_aes_ni")
+            self.options.rm_safe("with_sha_ni")
+        if not self._is_arm:
+            self.options.rm_safe("with_neon")
+            self.options.rm_safe("with_armv8crypto")
+        if not self._is_ppc:
+            self.options.rm_safe("with_altivec")
+            self.options.rm_safe("with_powercrypto")
+
+        # --single-amalgamation option is no longer available
+        # See also https://github.com/randombit/botan/pull/2246
+        if Version(self.version) >= "2.14.0":
+            self.options.rm_safe("single_amalgamation")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_bzip2:
+            self.requires("bzip2/1.0.8")
+        if self.options.with_openssl:
+            self.requires("openssl/1.1.1o")
+        if self.options.with_zlib:
+            self.requires("zlib/1.2.12")
+        if self.options.with_sqlite3:
+            self.requires("sqlite3/3.38.5")
+        if self.options.with_boost:
+            self.requires("boost/1.79.0")
+
+    def validate(self):
+        if self.options.with_boost:
+            miss_boost_required_comp = any(
+                getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+                for boost_comp in self._required_boost_components
+            )
+            if (
+                self.options["boost"].header_only
+                or self.options["boost"].shared
+                or self.options["boost"].magic_autolink
+                or miss_boost_required_comp
+            ):
+                raise ConanInvalidConfiguration(
+                    "{0} requires non-header-only static boost, without magic_autolink, and with these"
+                    " components: {1}".format(self.name, ", ".join(self._required_boost_components))
+                )
+
+        compiler = self.settings.compiler
+        version = Version(self.settings.compiler.version)
+
+        if compiler == "Visual Studio" and version < "14":
+            raise ConanInvalidConfiguration("Botan doesn't support MSVC < 14")
+
+        elif compiler == "gcc" and version >= "5" and compiler.libcxx != "libstdc++11":
+            raise ConanInvalidConfiguration(
+                'Using Botan with GCC >= 5 on Linux requires "compiler.libcxx=libstdc++11"'
+            )
+
+        elif compiler == "clang" and compiler.libcxx not in ["libstdc++11", "libc++"]:
+            raise ConanInvalidConfiguration(
+                'Using Botan with Clang on Linux requires either "compiler.libcxx=libstdc++11" '
+                'or "compiler.libcxx=libc++"'
+            )
+
+        # Some older compilers cannot handle the amalgamated build anymore
+        # See also https://github.com/randombit/botan/issues/2328
+        if Version(self.version) >= "2.14.0" and self.options.amalgamation:
+            if (
+                (compiler == "apple-clang" and version < "10")
+                or (compiler == "gcc" and version < "8")
+                or (compiler == "clang" and version < "7")
+            ):
+                raise ConanInvalidConfiguration(
+                    "botan amalgamation is not supported for {}/{}".format(compiler, version)
+                )
+
+        if self.options.get_safe("single_amalgamation", False) and not self.options.amalgamation:
+            raise ConanInvalidConfiguration("botan:single_amalgamation=True requires botan:amalgamation=True")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
+
+    def build(self):
+        apply_conandata_patches(self)
+        with chdir(self, self.source_folder):
+            self.run(self._configure_cmd)
+            self.run(self._make_cmd)
+
+    def package(self):
+        copy(
+            self,
+            pattern="license.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        with chdir(self, self.source_folder):
+            self.run(self._make_install_cmd)
+
+    def package_info(self):
+        major_version = Version(self.version).major
+        self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
+        self.cpp_info.names["pkg_config"] = f"botan-{major_version}"
+        self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs.extend(["dl", "rt", "pthread"])
+        if self.settings.os == "Macos":
+            self.cpp_info.frameworks = ["Security", "CoreFoundation"]
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["ws2_32", "crypt32"])
+
+        self.cpp_info.includedirs = [os.path.join("include", f"botan-{major_version}")]

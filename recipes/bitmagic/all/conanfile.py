@@ -33,6 +33,7 @@ class BitmagicConan(ConanFile):
         "associative-array",
         "header-only",
     )
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -51,6 +52,9 @@ class BitmagicConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def package_id(self):
         self.info.clear()
 
@@ -62,9 +66,6 @@ class BitmagicConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} requires C++17, which your compiler does not support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

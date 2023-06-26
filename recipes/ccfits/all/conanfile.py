@@ -12,10 +12,11 @@ class CcfitsConan(ConanFile):
     name = "ccfits"
     description = "CCfits is an object oriented interface to the cfitsio library."
     license = "ISC"
-    topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
-    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/ccfits"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/ccfits"
+    topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

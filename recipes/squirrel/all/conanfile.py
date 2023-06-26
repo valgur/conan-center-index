@@ -21,6 +21,8 @@ class SquirrelConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.squirrel-lang.org/"
     topics = ("programming-language", "object-oriented", "scripting")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

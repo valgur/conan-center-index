@@ -1,3 +1,16 @@
+# Warnings:
+#   Unexpected method '_bx_folder'
+#   Unexpected method '_bimg_folder'
+#   Unexpected method '_bimg_path'
+#   Unexpected method '_genie_extra'
+#   Unexpected method '_lib_target_prefix'
+#   Unexpected method '_tool_target_prefix'
+#   Unexpected method '_projs'
+#   Unexpected method '_compiler_required'
+#   Unexpected method '_bx_version'
+#   Missing required method 'config_options'
+#   Missing required method 'configure'
+
 from conan import ConanFile
 from conan.tools.files import copy, get, rename
 from conan.tools.build import check_min_cppstd
@@ -11,21 +24,27 @@ from conan.tools.env import VirtualBuildEnv
 from pathlib import Path
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class bimgConan(ConanFile):
     name = "bimg"
-    license = "BSD-2-Clause"
-    homepage = "https://github.com/bkaradzic/bimg"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Image library providing loading, saving, conversions and other utilities."
+    license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bkaradzic/bimg"
     topics = ("image", "graphics")
-    settings = "os", "compiler", "arch", "build_type"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "tools": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "tools": False,
     }
 
@@ -92,6 +111,14 @@ class bimgConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -84,19 +84,19 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class AndreasbuhrCppCoroConan(ConanFile):
     name = "andreasbuhr-cppcoro"
     description = "A library of C++ coroutine abstractions for the coroutines TS"
-    topics = ("cpp", "async", "coroutines")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andreasbuhr/cppcoro"
-    license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
-    provides = "cppcoro"
+    topics = ("cpp", "async", "coroutines")
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -105,6 +105,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    provides = "cppcoro"
 
     @property
     def _minimum_compilers_version(self):
@@ -118,6 +119,13 @@ class AndreasbuhrCppCoroConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         # We can't simply check for C++20, because clang and MSVC support the coroutine TS despite not having labeled (__cplusplus macro) C++20 support
@@ -143,10 +151,6 @@ class AndreasbuhrCppCoroConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "{} does not support clang with libstdc++. Use libc++ instead.".format(self.name)
             )
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

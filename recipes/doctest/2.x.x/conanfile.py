@@ -3,18 +3,20 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class DoctestConan(ConanFile):
     name = "doctest"
+    description = "C++11/14/17/20 single header testing framework"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/onqtam/doctest"
-    description = "C++11/14/17/20 single header testing framework"
     topics = ("header-only", "unit-test", "tdd")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    license = "MIT"
+    no_copy_source = True
 
     @property
     def _is_mingw(self):

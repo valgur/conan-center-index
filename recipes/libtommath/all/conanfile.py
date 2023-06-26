@@ -79,16 +79,21 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibTomMathConan(ConanFile):
     name = "libtommath"
-    description = "LibTomMath is a free open source portable number theoretic multiple-precision integer library written entirely in C."
-    topics = ("libtommath", "math", "multiple", "precision")
+    description = (
+        "LibTomMath is a free open source portable number theoretic "
+        "multiple-precision integer library written entirely in C."
+    )
     license = "Unlicense"
-    homepage = "https://www.libtom.net/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libtom.net/"
+    topics = ("libtommath", "math", "multiple", "precision")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -116,6 +121,9 @@ class LibTomMathConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def build_requirements(self):
         if self._settings_build.os == "Windows" and self.settings.compiler != "Visual Studio":
             self.build_requires("make/4.3")
@@ -128,6 +136,10 @@ class LibTomMathConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _run_makefile(self, target=None):
         target = target or ""
@@ -149,7 +161,7 @@ class LibTomMathConan(ConanFile):
                 args["AR"] = get_env(self, "AR")
 
             args["LIBTOOL"] = "libtool"
-        arg_str = " ".join('{}="{}"'.format(k, v) for k, v in args.items())
+        arg_str = " ".join(f'{k}="{v}"' for k, v in args.items())
 
         with environment_append(self, args):
             with chdir(self, self.source_folder):
@@ -173,12 +185,10 @@ class LibTomMathConan(ConanFile):
                         else:
                             makefile = "makefile.unix"
                     self.run(
-                        "{} -f {} {} {} -j{}".format(
-                            get_env(self, "CONAN_MAKE_PROGRAM", "make"),
-                            makefile,
-                            target,
-                            arg_str,
-                            cpu_count(self),
+                        (
+                            f"{get_env(self, 'CONAN_MAKE_PROGRAM', 'make')} "
+                            f"-f {makefile} {target} {arg_str} "
+                            f"-j{cpu_count(self)}"
                         ),
                         run_environment=True,
                     )

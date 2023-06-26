@@ -23,12 +23,13 @@ required_conan_version = ">=1.55.0"
 
 class LibMP3LameConan(ConanFile):
     name = "libmp3lame"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL."
+    license = "LGPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://lame.sourceforge.net"
     topics = ("multimedia", "audio", "mp3", "decoder", "encoding", "decoding")
-    license = "LGPL-2.0"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

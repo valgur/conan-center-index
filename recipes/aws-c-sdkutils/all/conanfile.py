@@ -14,6 +14,7 @@ class AwsCSDKUtils(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-sdkutils"
     topics = ("aws", "amazon", "cloud", "utility", "ARN")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

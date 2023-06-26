@@ -21,14 +21,15 @@ required_conan_version = ">=1.53.0"
 
 class LibmediainfoConan(ConanFile):
     name = "libmediainfo"
-    license = ("BSD-2-Clause", "Apache-2.0", "GLPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
-    homepage = "https://mediaarea.net/en/MediaInfo"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "MediaInfo is a convenient unified display of the most relevant "
         "technical and tag data for video and audio files"
     )
+    license = ("BSD-2-Clause", "Apache-2.0", "GLPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mediaarea.net/en/MediaInfo"
     topics = ("video", "audio", "metadata", "tag")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

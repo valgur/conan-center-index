@@ -17,10 +17,11 @@ class LibSELinuxConan(ConanFile):
         "of utilities with enhanced security functionality designed to add "
         "mandatory access controls to Linux"
     )
-    topics = ("linux", "selinux", "security", "security-enhanced")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/SELinuxProject/selinux"
-    license = "Unlicense"
+    topics = ("linux", "selinux", "security", "security-enhanced")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -12,9 +12,9 @@ class EasyhttpcppConan(ConanFile):
     name = "easyhttpcpp"
     description = "A cross-platform HTTP client library with a focus on usability and speed"
     license = "MIT"
-    topics = ("http", "client", "protocol")
-    homepage = "https://github.com/sony/easyhttpcpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sony/easyhttpcpp"
+    topics = ("http", "client", "protocol")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -65,7 +65,8 @@ class EasyhttpcppConan(ConanFile):
             ]
         ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
+                f"{self.ref} requires the following poco options enabled:"
+                f" {', '.join(self._required_poco_components)}"
             )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)

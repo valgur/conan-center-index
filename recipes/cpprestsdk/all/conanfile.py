@@ -17,13 +17,14 @@ required_conan_version = ">=1.53.0"
 class CppRestSDKConan(ConanFile):
     name = "cpprestsdk"
     description = (
-        "A project for cloud-based client-server communication in native code using a modern asynchronous "
-        "C++ API design"
+        "A project for cloud-based client-server communication in native code using "
+        "a modern asynchronous C++ API design"
     )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Microsoft/cpprestsdk"
     topics = ("rest", "client", "http", "https")
-    license = "MIT"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

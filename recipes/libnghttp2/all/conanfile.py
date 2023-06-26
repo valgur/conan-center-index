@@ -16,17 +16,17 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class Nghttp2Conan(ConanFile):
     name = "libnghttp2"
     description = "HTTP/2 C Library and tools"
-    topics = ("http", "http2")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://nghttp2.org"
-    license = "MIT"
+    topics = ("http", "http2")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -128,30 +128,32 @@ class Nghttp2Conan(ConanFile):
             save(
                 self,
                 os.path.join(self.source_folder, "lib", "CMakeLists.txt"),
-                "target_include_directories(nghttp2_static INTERFACE\n"
-                "${CMAKE_CURRENT_BINARY_DIR}/includes\n"
-                "${CMAKE_CURRENT_SOURCE_DIR}/includes)\n",
+                (
+                    "target_include_directories(nghttp2_static INTERFACE\n"
+                    "${CMAKE_CURRENT_BINARY_DIR}/includes\n"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/includes)\n"
+                ),
                 append=True,
             )
         target_libnghttp2 = "nghttp2" if self.options.shared else "nghttp2_static"
         replace_in_file(
             self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-            "\n" "link_libraries(\n" "  nghttp2\n",
-            "\n" "link_libraries(\n" "  {} ${{CONAN_LIBS}}\n".format(target_libnghttp2),
+            "\nlink_libraries(\n  nghttp2\n",
+            f"\nlink_libraries(\n  {target_libnghttp2} ${{CONAN_LIBS}}\n",
         )
         if not self.options.shared and Version(self.version) < "1.52.0":
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                "\n" "  add_library(nghttp2_asio SHARED\n",
-                "\n" "  add_library(nghttp2_asio\n",
+                "\n  add_library(nghttp2_asio SHARED\n",
+                "\n  add_library(nghttp2_asio\n",
             )
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                "\n" "  target_link_libraries(nghttp2_asio\n" "    nghttp2\n",
-                "\n" "  target_link_libraries(nghttp2_asio\n" f"    {target_libnghttp2}\n",
+                "\n  target_link_libraries(nghttp2_asio\n    nghttp2\n",
+                f"\n  target_link_libraries(nghttp2_asio\n    {target_libnghttp2}\n",
             )
 
     def build(self):

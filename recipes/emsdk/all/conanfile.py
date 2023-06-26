@@ -13,30 +13,17 @@ required_conan_version = ">=1.52.0"
 class EmSDKConan(ConanFile):
     name = "emsdk"
     description = "Emscripten SDK. Emscripten is an Open Source LLVM to JavaScript compiler"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kripken/emscripten"
-    topics = ("emscripten", "sdk")
-    license = "MIT"
+    topics = ("emscripten", "sdk", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def requirements(self):
-        self.requires("nodejs/16.3.0")
-        # self.requires("python")  # FIXME: Not available as Conan package
-        # self.requires("wasm")  # FIXME: Not available as Conan package
-
-    def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _relative_paths(self):
@@ -62,6 +49,21 @@ class EmSDKConan(ConanFile):
     def _em_cache(self):
         return os.path.join(self.package_folder, "bin", ".emscripten_cache")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("nodejs/16.3.0")
+        # self.requires("python")  # FIXME: Not available as Conan package
+        # self.requires("wasm")  # FIXME: Not available as Conan package
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         env = Environment()
         env.prepend_path("PATH", self._paths)
@@ -70,11 +72,6 @@ class EmSDKConan(ConanFile):
         env.define_path("EM_CONFIG", self._em_config)
         env.define_path("EM_CACHE", self._em_cache)
         env.vars(self, scope="emsdk").save_script("emsdk_env_file")
-
-    @staticmethod
-    def _chmod_plus_x(filename):
-        if os.name == "posix":
-            os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def _tools_for_version(self):
         ret = {}
@@ -149,6 +146,7 @@ class EmSDKConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
+        self.cpp_info.frameworkdirs = []
 
         # If we are not building for Emscripten, probably we don't want to inject following environment variables,
         #   but it might be legit use cases... until we find them, let's be conservative.
@@ -157,7 +155,8 @@ class EmSDKConan(ConanFile):
 
         if self.settings_target.os != "Emscripten":
             self.output.warning(
-                f"You've added {self.name}/{self.version} as a build requirement, while os={self.settings_target.os} != Emscripten"
+                f"You've added {self.name}/{self.version} as a build requirement, while"
+                f" os={self.settings_target.os} != Emscripten"
             )
             return
 

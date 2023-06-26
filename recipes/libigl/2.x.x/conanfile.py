@@ -2,108 +2,35 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+
+required_conan_version = ">=1.52.0"
 
 
 class LibiglConan(ConanFile):
     name = "libigl"
     description = "Simple C++ geometry processing library"
-    topics = ("geometry", "matrices", "algorithms")
+    license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libigl.github.io/"
-    license = "MPL-2.0"
+    topics = ("geometry", "matrices", "algorithms", "header-only")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "header_only": [True, False],
         "fPIC": [True, False],
+        "header_only": [True, False],
     }
     default_options = {
-        "header_only": True,
         "fPIC": True,
+        "header_only": True,
     }
-
-    def requirements(self):
-        self.requires("eigen/3.3.9")
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -121,6 +48,24 @@ class LibiglConan(ConanFile):
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.header_only:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("eigen/3.3.9")
+
+    def package_id(self):
+        if self.options.header_only:
+            self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -146,17 +91,6 @@ class LibiglConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Not available for arm. Requested arch: {}".format(self.settings.arch)
             )
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.header_only:
-            self.options.rm_safe("fPIC")
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -186,10 +120,15 @@ class LibiglConan(ConanFile):
         tc.variables["LIBIGL_WITH_XML"] = False
         tc.variables["LIBIGL_WITH_PYTHON"] = "OFF"
         tc.variables["LIBIGL_WITH_PREDICATES"] = False
+        tc = CMakeDeps(self)
+        tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = CMake()
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
@@ -203,10 +142,6 @@ class LibiglConan(ConanFile):
         if not self.options.header_only:
             rm(self, "*.c", self.package_folder, recursive=True)
             rm(self, "*.cpp", self.package_folder, recursive=True)
-
-    def package_id(self):
-        if self.options.header_only:
-            self.info.header_only()
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "libigl"

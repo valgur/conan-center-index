@@ -8,11 +8,13 @@ required_conan_version = ">=1.50.0"
 
 class HedleyConan(ConanFile):
     name = "hedley"
+    description = "A C/C++ header to help move #ifdefs out of your code"
     license = "CC0-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://nemequ.github.io/hedley/"
-    description = "A C/C++ header to help move #ifdefs out of your code"
     topics = ("header", "header-only", "preprocessor", "#ifdef", "cross-platform")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

@@ -1,3 +1,8 @@
+# Warnings:
+#   Disallowed attribute 'generators = 'pkg_config''
+#   Unexpected method '_configure_meson'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +84,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class AtSPI2AtkConan(ConanFile):
     name = "at-spi2-atk"
     description = "library that bridges ATK to At-Spi2 D-Bus service."
-    topics = ("atk", "accessibility")
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-atk"
-    license = "LGPL-2.1-or-later"
-    generators = "pkg_config"
+    topics = ("atk", "accessibility")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,7 +107,20 @@ class AtSPI2AtkConan(ConanFile):
     }
     deprecated = "at-spi2-core"
 
-    _meson = None
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("at-spi2-core/2.44.1")
+        self.requires("atk/2.38.0")
+        self.requires("glib/2.76.3")
+        self.requires("libxml2/2.11.4")
 
     def validate(self):
         if self.settings.os not in ("Linux", "FreeBSD"):
@@ -115,24 +134,16 @@ class AtSPI2AtkConan(ConanFile):
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
     def build_requirements(self):
         self.build_requires("meson/1.1.1")
         self.build_requires("pkgconf/1.9.3")
 
-    def requirements(self):
-        self.requires("at-spi2-core/2.44.1")
-        self.requires("atk/2.38.0")
-        self.requires("glib/2.76.3")
-        self.requires("libxml2/2.11.4")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _configure_meson(self):
         if self._meson:

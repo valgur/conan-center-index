@@ -10,10 +10,12 @@ required_conan_version = ">=1.53.0"
 class SAILConan(ConanFile):
     name = "sail"
     description = "The missing small and fast image decoding library for humans (not for machines)"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sail.software"
     topics = ("image", "encoding", "decoding", "graphics")
-    license = "MIT"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -51,6 +53,9 @@ class SAILConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_avif:
             self.requires("libavif/0.11.1")
@@ -68,9 +73,6 @@ class SAILConan(ConanFile):
             self.requires("libtiff/4.4.0")
         if self.options.with_webp:
             self.requires("libwebp/1.2.4")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

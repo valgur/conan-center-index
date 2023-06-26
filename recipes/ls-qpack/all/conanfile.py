@@ -13,6 +13,8 @@ class LsQpackConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/litespeedtech/ls-qpack/"
     topics = ("compression", "quic", "http3", "qpack")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -14,10 +14,12 @@ class MakeConan(ConanFile):
         "GNU Make is a tool which controls the generation of executables and "
         "other non-source files of a program from the program's source files"
     )
-    topics = ("build", "makefile")
-    homepage = "https://www.gnu.org/software/make/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/make/"
+    topics = ("build", "makefile")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -75,6 +77,8 @@ class MakeConan(ConanFile):
             )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

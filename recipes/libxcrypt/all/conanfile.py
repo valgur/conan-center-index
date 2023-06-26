@@ -13,11 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class LibxcryptConan(ConanFile):
     name = "libxcrypt"
+    description = "Extended crypt library for descrypt, md5crypt, bcrypt, and others"
+    license = ("LGPL-2.1-or-later",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/besser82/libxcrypt"
-    description = "Extended crypt library for descrypt, md5crypt, bcrypt, and others"
     topics = ("hash", "password", "one-way", "bcrypt", "md5", "sha256", "sha512")
-    license = ("LGPL-2.1-or-later",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

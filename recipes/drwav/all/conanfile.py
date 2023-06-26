@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class DrwavConan(ConanFile):
     name = "drwav"
     description = "WAV audio loader and writer."
-    homepage = "https://mackron.github.io/dr_wav"
-    topics = ("audio", "wav", "wave", "sound")
     license = ("Unlicense", "MIT-0")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mackron.github.io/dr_wav"
+    topics = ("audio", "wav", "wave", "sound")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

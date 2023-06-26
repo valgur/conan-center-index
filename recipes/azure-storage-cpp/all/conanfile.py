@@ -84,17 +84,19 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class AzureStorageCppConan(ConanFile):
     name = "azure-storage-cpp"
+    description = "Microsoft Azure Storage Client Library for C++"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Azure/azure-storage-cpp"
-    description = "Microsoft Azure Storage Client Library for C++"
     topics = ("azure", "cpp", "cross-platform", "microsoft", "cloud")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -103,10 +105,6 @@ class AzureStorageCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def export_sources(self):
-        copy(self, "cmake-wrapper.cmd", src=self.recipe_folder, dst=self.export_sources_folder)
-        export_conandata_patches(self)
 
     @property
     def _minimum_cpp_standard(self):
@@ -121,17 +119,9 @@ class AzureStorageCppConan(ConanFile):
             "apple-clang": "5.1",
         }
 
-    def requirements(self):
-        self.requires("cpprestsdk/2.10.18")
-        if self.settings.os != "Windows":
-            self.requires("boost/1.76.0")
-            self.requires("libxml2/2.9.10")
-            self.requires("libuuid/1.0.3")
-        if self.settings.os == "Macos":
-            self.requires("libgettext/0.20.1")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def export_sources(self):
+        copy(self, "cmake-wrapper.cmd", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -140,6 +130,18 @@ class AzureStorageCppConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("cpprestsdk/2.10.18")
+        if self.settings.os != "Windows":
+            self.requires("boost/1.76.0")
+            self.requires("libxml2/2.9.10")
+            self.requires("libuuid/1.0.3")
+        if self.settings.os == "Macos":
+            self.requires("libgettext/0.20.1")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -174,6 +176,9 @@ class AzureStorageCppConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Visual Studio build for shared library with MT runtime is not supported"
             )
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

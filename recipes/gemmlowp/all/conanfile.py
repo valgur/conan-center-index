@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 
 class GemmlowpConan(ConanFile):
     name = "gemmlowp"
+    description = "Low-precision matrix multiplication"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/gemmlowp"
-    description = "Low-precision matrix multiplication"
     topics = ("gemm", "matrix")
 
     package_type = "library"

@@ -10,11 +10,12 @@ required_conan_version = ">=1.54.0"
 
 class LibzenConan(ConanFile):
     name = "libzen"
-    license = "ZLIB"
-    homepage = "https://github.com/MediaArea/ZenLib"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Small C++ derivate classes to have an easier life"
+    license = "ZLIB"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/MediaArea/ZenLib"
     topics = ("c++", "helper", "util")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -82,14 +83,12 @@ class LibzenConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

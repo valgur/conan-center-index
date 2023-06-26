@@ -13,10 +13,11 @@ class CqrlibConan(ConanFile):
         "for quaternion arithmetic and quaternion rotation math."
     )
     license = "LGPL-2.1-only"
-    topics = "quaternion"
-    homepage = "https://github.com/yayahjb/cqrlib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/yayahjb/cqrlib"
+    topics = ("quaternion",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

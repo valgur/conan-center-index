@@ -14,13 +14,15 @@ required_conan_version = ">=1.55.0"
 class FreexlConan(ConanFile):
     name = "freexl"
     description = (
-        "FreeXL is an open source library to extract valid data " "from within an Excel (.xls) spreadsheet."
+        "FreeXL is an open source library to extract valid data "
+        "from within an Excel (.xls) spreadsheet."
     )
     license = ["MPL-1.0", "GPL-2.0-only", "LGPL-2.1-only"]
-    topics = ("excel", "xls")
-    homepage = "https://www.gaia-gis.it/fossil/freexl/index"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/freexl/index"
+    topics = ("excel", "xls")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -1,6 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
     export_conandata_patches,
@@ -10,21 +12,22 @@ from conan.tools.files import (
     rmdir,
     replace_in_file,
 )
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-import os
 
 required_conan_version = ">=1.52.0"
 
 
 class LibaecConan(ConanFile):
     name = "libaec"
+    description = "Adaptive Entropy Coding library"
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.dkrz.de/k202009/libaec"
-    description = "Adaptive Entropy Coding library"
     topics = ("dsp", "encoding", "decoding")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -55,13 +58,13 @@ class LibaecConan(ConanFile):
             # libaec/1.0.6 uses "restrict" keyword which seems to be supported since Visual Studio 16.
             if Version(self.settings.compiler.version) < "16":
                 raise ConanInvalidConfiguration(
-                    "{} does not support Visual Studio {}".format(self.name, self.settings.compiler.version)
+                    f"{self.name} does not support Visual Studio {self.settings.compiler.version}"
                 )
             # In libaec/1.0.6, fail to build aec_client command with debug and shared settings in Visual Studio.
             # Temporary, this recipe doesn't support these settings.
             if self.options.shared and self.settings.build_type == "Debug":
                 raise ConanInvalidConfiguration(
-                    "{} does not support debug and shared build in Visual Studio(currently)".format(self.name)
+                    f"{self.name} does not support debug and shared build in Visual Studio(currently)"
                 )
 
     def source(self):

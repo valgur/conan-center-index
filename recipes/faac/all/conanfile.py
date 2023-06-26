@@ -24,11 +24,12 @@ required_conan_version = ">=1.54.0"
 class FaacConan(ConanFile):
     name = "faac"
     description = "Freeware Advanced Audio Coder"
-    topics = ("audio", "mp4", "encoder", "aac", "m4a", "faac")
+    license = "LGPL-2.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/faac"
-    license = "LGPL-2.0-only"
+    topics = ("audio", "mp4", "encoder", "aac", "m4a", "faac")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -225,6 +226,8 @@ class FaacConan(ConanFile):
             fix_apple_shared_install_name(self)
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         suffix = "_drm" if self.options.drm else ""
         self.cpp_info.libs = [f"faac{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:

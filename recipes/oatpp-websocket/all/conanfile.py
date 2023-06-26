@@ -13,11 +13,12 @@ required_conan_version = ">=1.51.1"
 class OatppWebSocketConan(ConanFile):
     name = "oatpp-websocket"
     description = "WebSocket functionality for oatpp applications"
-    homepage = "https://github.com/oatpp/oatpp-websocket"
     license = "Apache-2.0"
-    topics = ("oat++", "oatpp", "websocket")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-websocket"
+    topics = ("oat++", "oatpp", "websocket")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

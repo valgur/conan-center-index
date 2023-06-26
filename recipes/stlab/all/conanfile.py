@@ -2,110 +2,47 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+
+required_conan_version = ">=1.52.0"
 
 
 class Stlab(ConanFile):
     name = "stlab"
     description = "The Software Technology Lab libraries."
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/stlab/libraries"
-    license = "BSL-1.0"
-    topics = ("c++", "concurrency", "futures", "channels")
+    topics = ("c++", "concurrency", "futures", "channels", "header-only")
 
-    settings = ("arch", "os", "compiler", "build_type")
-
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "boost_optional": [True, False],
         "boost_variant": [True, False],
         "coroutines": [True, False],
         "task_system": ["portable", "libdispatch", "emscripten", "pnacl", "windows", "auto"],
     }
-
     default_options = {
         "boost_optional": False,
         "boost_variant": False,
         "coroutines": False,
         "task_system": "auto",
     }
-
     no_copy_source = True
-    _source_subfolder = "source_subfolder"
+
+    def configure(self):
+        if self.options.task_system == "auto":
+            self.options.task_system = self._default_task_system()
+        self.output.info("Stlab Task System: {}.".format(self.options.task_system))
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def _use_boost(self):
         return self.options.boost_optional or self.options.boost_variant
@@ -122,10 +59,10 @@ class Stlab(ConanFile):
         if self._requires_libdispatch():
             self.requires("libdispatch/5.3.2")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "libraries-" + self.version
-        os.rename(extracted_dir, self.source_folder)
+    def package_id(self):
+        self.info.clear()
+        self.info.options.boost_optional = "ANY"
+        self.info.options.boost_variant = "ANY"
 
     def _fix_boost_components(self):
         if self.settings.os != "Macos":
@@ -139,7 +76,8 @@ class Stlab(ConanFile):
         # On Apple we have to force the usage of boost.variant, because Apple's implementation of C++17 is not complete.
         #
         self.output.info(
-            "Apple-Clang versions less than 12 do not correctly support std::optional or std::variant, so we will use boost::optional and boost::variant instead."
+            "Apple-Clang versions less than 12 do not correctly support std::optional or std::variant, so we"
+            " will use boost::optional and boost::variant instead."
         )
         self.options.boost_optional = True
         self.options.boost_variant = True
@@ -160,7 +98,8 @@ class Stlab(ConanFile):
         if self.settings.os == "Linux":
             if self.settings.compiler != "clang":
                 raise ConanInvalidConfiguration(
-                    "{}/{} task_system=libdispatch needs Clang compiler when using OS: {}. Use Clang compiler or switch to task_system=portable or task_system=auto".format(
+                    "{}/{} task_system=libdispatch needs Clang compiler when using OS: {}. Use Clang compiler"
+                    " or switch to task_system=portable or task_system=auto".format(
                         self.name, self.version, self.settings.os
                     )
                 )
@@ -213,7 +152,10 @@ class Stlab(ConanFile):
         # On Apple we have to force the usage of boost.variant, because Apple's implementation of C++17
         # is not complete.
         #
-        msg = "Apple-Clang versions less than 12 do not correctly support std::optional or std::variant, so we will use boost::optional and boost::variant instead. "
+        msg = (
+            "Apple-Clang versions less than 12 do not correctly support std::optional or std::variant, so we"
+            " will use boost::optional and boost::variant instead. "
+        )
         if not self.options.boost_optional and not self.options.boost_variant:
             msg += "Try -o boost_optional=True -o boost_variant=True"
         elif not self.options.boost_optional:
@@ -243,21 +185,19 @@ class Stlab(ConanFile):
         self._validate_task_system()
         self._validate_boost_components()
 
-    def configure(self):
-        if self.options.task_system == "auto":
-            self.options.task_system = self._default_task_system()
-        self.output.info("Stlab Task System: {}.".format(self.options.task_system))
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        extracted_dir = "libraries-" + self.version
+        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
         copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
         copy(self, "stlab/*", src=self.source_folder, dst=os.path.join(self.package_folder, "include/"))
 
-    def package_id(self):
-        self.info.header_only()
-        self.info.options.boost_optional = "ANY"
-        self.info.options.boost_variant = "ANY"
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         coroutines_value = 1 if self.options.coroutines else 0
 
         self.cpp_info.defines = ["STLAB_FUTURE_COROUTINES={}".format(coroutines_value)]

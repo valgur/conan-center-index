@@ -15,6 +15,8 @@ class FastPFORConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lemire/FastPFor"
     topics = ("compression", "sorted-lists", "simd", "x86", "x86-64")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

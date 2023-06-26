@@ -9,20 +9,19 @@ required_conan_version = ">=1.53.0"
 class LibwebmConan(ConanFile):
     name = "libwebm"
     description = "Library for muxing and demuxing WebM media container files"
-    topics = ("webm", "container", "demuxing", "muxing", "media", "audio", "video")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/webm/libwebm/"
-    license = "BSD-3-Clause"
+    topics = ("webm", "container", "demuxing", "muxing", "media", "audio", "video")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "with_pes_ts": [True, False],
         "with_new_parser_api": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,

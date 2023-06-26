@@ -28,11 +28,12 @@ class OpenTelemetryCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/open-telemetry/opentelemetry-cpp"
     topics = ("opentelemetry", "telemetry", "tracing", "metrics", "logs")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_no_deprecated_code": [True, False],
         "with_stl": [True, False],
         "with_gsl": [True, False],
@@ -52,8 +53,8 @@ class OpenTelemetryCppConan(ConanFile):
         "with_metrics_exemplar_preview": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_no_deprecated_code": False,
         "with_stl": False,
         "with_gsl": False,
@@ -174,16 +175,14 @@ class OpenTelemetryCppConan(ConanFile):
         self.tool_requires("grpc/1.50.1")
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(OPENTELEMETRY_CPP_INCLUDE_DIRS ${opentelemetry-cpp_INCLUDE_DIRS}
                                                ${opentelemetry-cpp_INCLUDE_DIRS_RELEASE}
                                                ${opentelemetry-cpp_INCLUDE_DIRS_RELWITHDEBINFO}
                                                ${opentelemetry-cpp_INCLUDE_DIRS_MINSIZEREL}
                                                ${opentelemetry-cpp_INCLUDE_DIRS_DEBUG})
             set(OPENTELEMETRY_CPP_LIBRARIES opentelemetry-cpp::opentelemetry-cpp)
-        """
-        )
+        """)
         save(self, module_file, content)
 
     def source(self):

@@ -5,24 +5,34 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, chdir, copy, get, export_conandata_patches
-from conan.tools.microsoft import MSBuild, is_msvc
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
+
+required_conan_version = ">=1.47.0"
 
 
 class GoogleGuetzliConan(ConanFile):
     name = "guetzli"
+    description = "Perceptual JPEG encoder"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://opensource.google/projects/guetzli"
-    description = "Perceptual JPEG encoder"
-    topics = ("jpeg", "compression")
-    settings = "os", "compiler", "arch"
-    generators = "pkg_config"
+    topics = ("jpeg", "compression", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)
 
+    def layout(self):
+        pass
+
     def requirements(self):
         self.requires("libpng/1.6.37")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.os not in ["Linux", "Windows"]:
@@ -36,11 +46,18 @@ class GoogleGuetzliConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "guetzli-" + self.version
-        os.rename(extracted_dir, self.source_folder)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
+
+    def generate(self):
+        if is_msvc(self):
+            tc = MSBuildToolchain(self)
+            tc.generate()
+        else:
+            tc = AutotoolsToolchain(self)
+            tc.make_args = ["config=release", "verbose=1',"]
+            tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -49,13 +66,8 @@ class GoogleGuetzliConan(ConanFile):
             with chdir(self, self.source_folder):
                 msbuild.build("guetzli.sln", build_type="Release")
         else:
-            autotools = AutoToolsBuildEnvironment(self)
-            with chdir(self, self.source_folder):
-                env_vars = {"PKG_CONFIG_PATH": self.build_folder}
-                env_vars.update(autotools.vars)
-                with environment_append(self, env_vars):
-                    make_args = ["config=release", "verbose=1',"]
-                    autotools.make(args=make_args)
+            autotools = Autotools(self)
+            autotools.make()
 
     def package(self):
         if is_msvc(self):
@@ -63,6 +75,7 @@ class GoogleGuetzliConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
                 dst=os.path.join(self.package_folder, "bin"),
+                src=self.build_folder,
                 keep_path=False,
             )
         else:
@@ -70,14 +83,16 @@ class GoogleGuetzliConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "bin", "Release", "guetzli"),
                 dst=os.path.join(self.package_folder, "bin"),
+                src=self.build_folder,
                 keep_path=False,
             )
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

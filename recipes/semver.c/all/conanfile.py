@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class SemverCConan(ConanFile):
     name = "semver.c"
+    description = "Semantic versioning for c"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/h2non/semver.c"
-    description = "Semantic versioning for c"
     topics = ("versioning", "semver", "semantic", "versioning")
 
     package_type = "library"

@@ -8,13 +8,16 @@ required_conan_version = ">=1.53.0"
 
 class BacnetStackConan(ConanFile):
     name = "bacnet-stack"
+    description = (
+        "BACnet Protocol Stack library provides a BACnet application layer,"
+        " network layer and media access (MAC) layer communications services."
+    )
     license = "GPL-2.0-or-later"
-    homepage = "https://github.com/bacnet-stack/bacnet-stack/"
     url = "https://github.com/conan-io/conan-center-index"
-    description = """
-        BACnet Protocol Stack library provides a BACnet application layer,
-        network layer and media access (MAC) layer communications services."""
-    topics = "bacnet"
+    homepage = "https://github.com/bacnet-stack/bacnet-stack/"
+    topics = ("bacnet", "networking")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

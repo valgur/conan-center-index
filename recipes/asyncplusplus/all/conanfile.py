@@ -12,9 +12,9 @@ class AsyncplusplusConan(ConanFile):
     name = "asyncplusplus"
     description = "Async++ concurrency framework for C++11"
     license = "MIT"
-    topics = ("async", "parallel", "task", "scheduler")
-    homepage = "https://github.com/Amanieu/asyncplusplus"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Amanieu/asyncplusplus"
+    topics = ("async", "parallel", "task", "scheduler")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -54,6 +54,19 @@ class AsyncplusplusConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -67,19 +80,6 @@ class AsyncplusplusConan(ConanFile):
                 "Async++": "Async++::Async++",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

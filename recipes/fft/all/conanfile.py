@@ -9,13 +9,13 @@ required_conan_version = ">=1.53.0"
 
 class FftConan(ConanFile):
     name = "fft"
-    license = "LicenseRef-LICENSE"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html"
     description = (
         "This is a package to calculate Discrete Fourier/Cosine/Sine "
         "Transforms of 2,3-dimensional sequences of length 2^N."
     )
+    license = "LicenseRef-LICENSE"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html"
     topics = ("fft2d", "fft3d", "dct", "dst", "dft")
 
     package_type = "library"

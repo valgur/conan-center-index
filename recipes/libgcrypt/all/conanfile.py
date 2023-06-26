@@ -12,11 +12,12 @@ required_conan_version = ">=1.53.0"
 
 class LibgcryptConan(ConanFile):
     name = "libgcrypt"
+    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnupg.org/download/index.html#libgcrypt"
-    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
     topics = ("gcrypt", "gnupg", "gpg", "crypto", "cryptography")
-    license = "LGPL-2.1-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -10,11 +10,16 @@ required_conan_version = ">=1.50.0"
 
 class CppfrontConan(ConanFile):
     name = "cppfront"
-    description = "Cppfront is a experimental compiler from a potential C++ 'syntax 2' (Cpp2) to today's 'syntax 1' (Cpp1)"
-    topics = ("cpp2", "compiler")
+    description = (
+        "Cppfront is a experimental compiler from a potential C++ 'syntax 2' (Cpp2) "
+        "to today's 'syntax 1' (Cpp1)"
+    )
+    license = "CC-BY-NC-ND-4.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hsutter/cppfront"
-    license = "CC-BY-NC-ND-4.0"
+    topics = ("cpp2", "compiler")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -37,6 +42,10 @@ class CppfrontConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -54,8 +63,8 @@ class CppfrontConan(ConanFile):
             )
         if self.settings.compiler == "clang" and str(self.settings.compiler.version) in ("13", "14"):
             raise ConanInvalidConfiguration(
-                f"{self.ref} currently does not work with Clang {self.settings.compiler.version} on CCI, "
-                "it enters in an infinite build loop (smells like a compiler bug). Contributions are welcomed!"
+                f"{self.ref} currently does not work with Clang {self.settings.compiler.version} on CCI, it"
+                " enters in an infinite build loop (smells like a compiler bug). Contributions are welcomed!"
             )
 
     def source(self):
@@ -78,6 +87,9 @@ class CppfrontConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
 
         # TODO: to remove in conan v2
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -9,14 +9,14 @@ required_conan_version = ">=1.53.0"
 
 class CapstoneConan(ConanFile):
     name = "capstone"
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.capstone-engine.org"
     description = (
         "Capstone disassembly/disassembler framework: Core (Arm, Arm64, BPF, "
         "EVM, M68K, M680X, MOS65xx, Mips, PPC, RISCV, Sparc, SystemZ, "
         "TMS320C64x, Web Assembly, X86, X86_64, XCore) + bindings."
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.capstone-engine.org"
     topics = (
         "reverse-engineering",
         "disassembler",
@@ -40,21 +40,40 @@ class CapstoneConan(ConanFile):
         "riscv",
     )
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "use_default_alloc": [True, False],
+        "arm": [True, False],
+        "m68k": [True, False],
+        "mips": [True, False],
+        "ppc": [True, False],
+        "sparc": [True, False],
+        "sysz": [True, False],
+        "xcore": [True, False],
+        "x86": [True, False],
+        "tms320c64x": [True, False],
+        "m680x": [True, False],
+        "evm": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "use_default_alloc": True,
+        "arm": True,
+        "m68k": True,
+        "mips": True,
+        "ppc": True,
+        "sparc": True,
+        "sysz": True,
+        "xcore": True,
+        "x86": True,
+        "tms320c64x": True,
+        "m680x": True,
+        "evm": True,
     }
-
-    _archs = ["arm", "m68k", "mips", "ppc", "sparc", "sysz", "xcore", "x86", "tms320c64x", "m680x", "evm"]
-    options.update({a: [True, False] for a in _archs})
-    default_options.update({a: True for a in _archs})
 
     def config_options(self):
         if self.settings.os == "Windows":

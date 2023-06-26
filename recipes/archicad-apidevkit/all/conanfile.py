@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.47.0"
 
 
 class ArchicadApidevkitConan(ConanFile):
@@ -13,12 +14,20 @@ class ArchicadApidevkitConan(ConanFile):
     description = (
         "The General API Development Kit enables software developers to extend the functionality of Archicad"
     )
+    license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://archicadapi.graphisoft.com/"
-    license = "LicenseRef-LICENSE"
-    settings = "os", "compiler", "arch", "build_type"
-    no_copy_source = True
-    topics = ("api", "archicad", "development")
+    topics = ("api", "archicad", "development", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.build_type == "Debug":
@@ -32,6 +41,9 @@ class ArchicadApidevkitConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported yet.")
         if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This recipe does not support this compiler version")
+
+    def source(self):
+        pass
 
     def build(self):
         devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][

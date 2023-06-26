@@ -37,13 +37,13 @@ class lock:
 class MSYS2Conan(ConanFile):
     name = "msys2"
     description = "MSYS2 is a software distro and building platform for Windows"
+    license = "MSYS license"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.msys2.org"
-    license = "MSYS license"
     topics = ("msys", "unix", "subsystem")
 
-    settings = "os", "arch"
-    # "exclude_files" "packages" "additional_packages" values are a comma separated list
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "exclude_files": ["ANY"],
         "packages": ["ANY"],
@@ -61,6 +61,8 @@ class MSYS2Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
         del self.info.options.no_kill
 
     def validate(self):
@@ -189,6 +191,8 @@ class MSYS2Conan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

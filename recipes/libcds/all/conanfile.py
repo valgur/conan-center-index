@@ -19,9 +19,9 @@ class LibcdsConan(ConanFile):
     name = "libcds"
     description = "C++11 library of Concurrent Data Structures."
     license = "BSL-1.0"
-    topics = ("concurrent", "lock-free", "containers", "hazard-pointer", "rcu")
-    homepage = "https://github.com/khizmax/libcds"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/khizmax/libcds"
+    topics = ("concurrent", "lock-free", "containers", "hazard-pointer", "rcu")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

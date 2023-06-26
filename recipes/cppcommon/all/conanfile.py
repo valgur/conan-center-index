@@ -16,21 +16,22 @@ class CppCommon(ConanFile):
         "C++ Common Library contains reusable components and patterns"
         " for error and exceptions handling, filesystem manipulations, math,"
         " string format and encoding, shared memory, threading, time management"
-        " and others."
+        " management and others."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/chronoxor/CppCommon"
     topics = ("utils", "filesystem", "uuid", "synchronization", "queue")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property

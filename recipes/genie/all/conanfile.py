@@ -14,11 +14,13 @@ required_conan_version = ">=1.51.3"
 
 class GenieConan(ConanFile):
     name = "genie"
+    description = "Project generator tool"
     license = "BSD-3-clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bkaradzic/GENie"
-    description = "Project generator tool"
     topics = ("project", "generator", "build", "build-systems")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -131,6 +133,8 @@ class GenieConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         # TODO remove for conan v2
         bindir = os.path.join(self.package_folder, "bin")

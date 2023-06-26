@@ -18,6 +18,8 @@ class Openmvgconan(ConanFile):
         "compounded of libraries, binaries, and pipelines."
     )
     license = "MPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/openMVG/openMVG"
     topics = (
         "computer-vision",
         "geometry",
@@ -27,8 +29,7 @@ class Openmvgconan(ConanFile):
         "photogrammetry",
         "3d-reconstruction",
     )
-    homepage = "https://github.com/openMVG/openMVG"
-    url = "https://github.com/conan-io/conan-center-index"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

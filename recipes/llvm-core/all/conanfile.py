@@ -1,94 +1,31 @@
 # TODO: verify the Conan v2 migration
 
+import json
 import os
+import os.path
+import re
+import textwrap
+from collections import defaultdict
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
     collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
     load,
-    mkdir,
-    patch,
-    patches,
     rename,
     replace_in_file,
     rm,
     rmdir,
     save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
 )
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from collections import defaultdict
-import json
-import re
-import os.path
-import os
-import textwrap
 
 required_conan_version = ">=1.50.2"  # Due to conan.tools.scm.Version
 
@@ -96,15 +33,15 @@ required_conan_version = ">=1.50.2"  # Due to conan.tools.scm.Version
 class LLVMCoreConan(ConanFile):
     name = "llvm-core"
     description = (
-        "A toolkit for the construction of highly optimized compilers,"
-        "optimizers, and runtime environments."
+        "A toolkit for the construction of highly optimized compilers, optimizers, and runtime environments."
     )
     license = "Apache-2.0 WITH LLVM-exception"
-    topics = ("llvm", "compiler")
-    homepage = "https://llvm.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://llvm.org"
+    topics = ("llvm", "compiler")
 
-    settings = ("os", "arch", "compiler", "build_type")
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -184,6 +121,9 @@ class LLVMCoreConan(ConanFile):
             del self.options.fPIC
             self.options.rm_safe("with_xml2")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_ffi:
             self.requires("libffi/3.3")
@@ -191,6 +131,9 @@ class LLVMCoreConan(ConanFile):
             self.requires("zlib/1.2.12")
         if self.options.get_safe("with_xml2", False):
             self.requires("libxml2/2.9.10")
+
+    def package_id(self):
+        del self.info.options.use_llvm_cmake_files
 
     def validate(self):
         if self.options.shared:  # Shared builds disabled just due to the CI
@@ -211,9 +154,6 @@ class LLVMCoreConan(ConanFile):
         # Older cmake versions may have issues generating the graphviz output used
         # to model the components
         self.tool_requires("cmake/3.20.5")
-
-    def package_id(self):
-        del self.info.options.use_llvm_cmake_files
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -315,16 +255,12 @@ class LLVMCoreConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """.format(alias=alias, aliased=aliased))
         save(self, module_file, content)
 
     def package(self):
@@ -384,9 +320,9 @@ class LLVMCoreConan(ConanFile):
             old_alias_targets = {}
             for component, _ in components.items():
                 alias_targets[component] = "LLVM::{}".format(component)
-                old_alias_targets[
-                    "llvm-core::{}".format(component[4:].replace("LLVM", "").lower())
-                ] = "LLVM::{}".format(component)
+                old_alias_targets[f"llvm-core::{component[4:].replace('LLVM', '').lower()}"] = (
+                    f"LLVM::{component}"
+                )
 
             # TODO: to remove in conan v2 once cmake_find_package_* generators removed
             self._create_cmake_module_alias_targets(

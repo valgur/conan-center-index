@@ -29,9 +29,10 @@ class CapnprotoConan(ConanFile):
     name = "capnproto"
     description = "Cap'n Proto serialization/RPC system."
     license = "MIT"
-    topics = ("serialization", "rpc")
-    homepage = "https://capnproto.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://capnproto.org"
+    topics = ("serialization", "rpc")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -158,10 +159,6 @@ class CapnprotoConan(ConanFile):
                 autotools.configure(build_script_folder=os.path.join(self.source_folder, "c++"))
                 autotools.make()
 
-    @property
-    def _cmake_folder(self):
-        return os.path.join("lib", "cmake", "CapnProto")
-
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
@@ -201,6 +198,18 @@ class CapnprotoConan(ConanFile):
             "function(CAPNP_GENERATE_CPP SOURCES HEADERS)",
             find_execs,
         )
+
+    @property
+    def _cmake_folder(self):
+        return os.path.join("lib", "cmake", "CapnProto")
+
+    def _register_component(self, component):
+        name = component["name"]
+        self.cpp_info.components[name].set_property("cmake_target_name", f"CapnProto::{name}")
+        self.cpp_info.components[name].builddirs.append(self._cmake_folder)
+        self.cpp_info.components[name].set_property("pkg_config_name", name)
+        self.cpp_info.components[name].libs = [name]
+        self.cpp_info.components[name].requires = component["requires"]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CapnProto")
@@ -243,11 +252,3 @@ class CapnprotoConan(ConanFile):
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH env var with: {bin_path}")
         self.env_info.PATH.append(bin_path)
-
-    def _register_component(self, component):
-        name = component["name"]
-        self.cpp_info.components[name].set_property("cmake_target_name", f"CapnProto::{name}")
-        self.cpp_info.components[name].builddirs.append(self._cmake_folder)
-        self.cpp_info.components[name].set_property("pkg_config_name", name)
-        self.cpp_info.components[name].libs = [name]
-        self.cpp_info.components[name].requires = component["requires"]

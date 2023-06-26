@@ -18,9 +18,9 @@ class GlbindingConan(ConanFile):
     name = "glbinding"
     description = "A C++ binding for the OpenGL API, generated using the gl.xml specification."
     license = "MIT"
-    topics = ("opengl", "binding")
-    homepage = "https://glbinding.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://glbinding.org/"
+    topics = ("opengl", "binding")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

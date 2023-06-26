@@ -2,82 +2,11 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import chdir, copy, get, replace_in_file, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.microsoft import MSBuild, is_msvc
 
 required_conan_version = ">=1.47.0"
 
@@ -104,7 +33,8 @@ class SasscConan(ConanFile):
     def validate(self):
         if not is_msvc(self) and self.info.settings.os not in ["Linux", "FreeBSD", "Macos"]:
             raise ConanInvalidConfiguration(
-                "sassc supports only Linux, FreeBSD, Macos and Windows Visual Studio at this time, contributions are welcomed"
+                "sassc supports only Linux, FreeBSD, Macos and Windows Visual Studio at this time,"
+                " contributions are welcomed"
             )
 
     def requirements(self):
@@ -125,12 +55,10 @@ class SasscConan(ConanFile):
             os.path.join(self.build_folder, "conanbuildinfo.props"),
         )
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
-        self._autotools.configure(args=["--disable-tests"])
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = ["--disable-tests"]
+        tc.generate()
 
     def _build_msbuild(self):
         msbuild = MSBuild(self)
@@ -146,9 +74,10 @@ class SasscConan(ConanFile):
             if is_msvc(self):
                 self._build_msbuild()
             else:
-                self.run("{} -fiv".format(get_env(self, "AUTORECONF")), run_environment=True)
                 save(self, path="VERSION", content=f"{self.version}")
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.autoreconf()
+                autotools.configure()
                 autotools.make()
 
     def package(self):
@@ -162,7 +91,7 @@ class SasscConan(ConanFile):
                     keep_path=False,
                 )
             else:
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 

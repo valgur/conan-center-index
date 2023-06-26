@@ -10,13 +10,15 @@ required_conan_version = ">=1.53.0"
 class CpuinfoConan(ConanFile):
     name = "cpuinfo"
     description = (
-        "cpuinfo is a library to detect essential for performance " "optimization information about host CPU."
+        "cpuinfo is a library to detect essential for performance "
+        "optimization information about host CPU."
     )
     license = "BSD-2-Clause"
-    topics = ("cpu", "cpuid", "cpu-cache", "cpu-model", "instruction-set", "cpu-topology")
-    homepage = "https://github.com/pytorch/cpuinfo"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pytorch/cpuinfo"
+    topics = ("cpu", "cpuid", "cpu-cache", "cpu-model", "instruction-set", "cpu-topology")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

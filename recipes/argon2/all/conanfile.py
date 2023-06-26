@@ -23,10 +23,10 @@ required_conan_version = ">=1.53.0"
 
 class Argon2Conan(ConanFile):
     name = "argon2"
-    license = "Apache 2.0", "CC0-1.0"
-    homepage = "https://github.com/P-H-C/phc-winner-argon2"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Argon2 password hashing library"
+    license = ("Apache 2.0", "CC0-1.0")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/P-H-C/phc-winner-argon2"
     topics = ("crypto", "password hashing")
 
     package_type = "library"

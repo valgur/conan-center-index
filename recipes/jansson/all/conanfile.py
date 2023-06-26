@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 class JanssonConan(ConanFile):
     name = "jansson"
     description = "C library for encoding, decoding and manipulating JSON data"
-    topics = ("json", "encoding", "decoding", "manipulation")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.digip.org/jansson/"
-    license = "MIT"
+    topics = ("json", "encoding", "decoding", "manipulation")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

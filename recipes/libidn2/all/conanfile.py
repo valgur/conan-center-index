@@ -179,13 +179,14 @@ class LibIdn(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libidn2.la"))

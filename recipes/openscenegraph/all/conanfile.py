@@ -2,96 +2,26 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-import functools
 
-
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class OpenSceneGraphConanFile(ConanFile):
     name = "openscenegraph"
     description = "OpenSceneGraph is an open source high performance 3D graphics toolkit"
-    topics = "graphics"
+    license = ("LGPL-2.1-only", "WxWindows-exception-3.1")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.openscenegraph.org"
-    license = "LGPL-2.1-only", "WxWindows-exception-3.1"
+    topics = ("graphics",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -181,15 +111,8 @@ class OpenSceneGraphConanFile(ConanFile):
             self.options.rm_safe("with_png")
             self.options.rm_safe("with_dcmtk")
 
-    def validate(self):
-        if self.options.get_safe("with_asio", False):
-            raise ConanInvalidConfiguration(
-                "ASIO support in OSG is broken, see https://github.com/openscenegraph/OpenSceneGraph/issues/921"
-            )
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "openscenegraph recipe cannot be cross-built yet. Contributions are welcome."
-            )
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.enable_windowing_system and self.settings.os == "Linux":
@@ -228,15 +151,19 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/1.2.13")
 
+    def validate(self):
+        if self.options.get_safe("with_asio", False):
+            raise ConanInvalidConfiguration(
+                "ASIO support in OSG is broken, see"
+                " https://github.com/openscenegraph/OpenSceneGraph/issues/921"
+            )
+        if hasattr(self, "settings_build") and cross_building(self):
+            raise ConanInvalidConfiguration(
+                "openscenegraph recipe cannot be cross-built yet. Contributions are welcome."
+            )
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
-            # Prefer conan's find package scripts over osg's
-            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -251,9 +178,9 @@ class OpenSceneGraphConanFile(ConanFile):
         tc.variables["OSG_NOTIFY_DISABLED"] = not self.options.enable_notify
         tc.variables["OSG_USE_DEPRECATED_API"] = self.options.enable_deprecated_api
         tc.variables["OSG_PROVIDE_READFILE"] = self.options.enable_readfile
-        tc.variables[
-            "OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"
-        ] = self.options.enable_ref_ptr_implicit_output_conversion
+        tc.variables["OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"] = (
+            self.options.enable_ref_ptr_implicit_output_conversion
+        )
         tc.variables["OSG_USE_REF_PTR_SAFE_DEREFERENCE"] = self.options.enable_ref_ptr_safe_dereference
         tc.variables["OSG_ENVVAR_SUPPORTED"] = self.options.enable_envvar_support
 
@@ -302,6 +229,13 @@ class OpenSceneGraphConanFile(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+
+        for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
+            # Prefer conan's find package scripts over osg's
+            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
 
     def build(self):
         self._patch_sources()

@@ -1,22 +1,27 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.files import get, copy
 from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import get, copy
+from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-import os
 
 required_conan_version = ">=1.53.0"
 
 
 class SeadexEssentialsConan(ConanFile):
     name = "seadex-essentials"
-    description = "essentials is a small c++ library that offers very basic capabilities for applications and libraries."
+    description = (
+        "essentials is a small c++ library that offers very basic "
+        "capabilities for applications and libraries."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://essentials.seadex.de/"
     topics = ("utility", "c++")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -52,17 +57,14 @@ class SeadexEssentialsConan(ConanFile):
         self.options["fmt/*"].header_only = True
         self.options["spdlog/*"].header_only = True
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         # Headers are exposed https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/log/log_level.hpp#L15
         self.requires("spdlog/1.11.0", transitive_headers=True)
         # Exposes headers and symbols https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/type_wrapper.hpp#L282
         self.requires("fmt/9.1.0", transitive_headers=True, transitive_libs=True)
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -81,10 +83,15 @@ class SeadexEssentialsConan(ConanFile):
         if not self.dependencies["spdlog"].options.header_only:
             raise ConanInvalidConfiguration("Spdlog must be header only!")
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["ESS_BUILD_UNIT_TESTS"] = False
         tc.cache_variables["ESS_BUILD_EXAMPLES"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

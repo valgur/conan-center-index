@@ -3,20 +3,19 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class NsyncConan(ConanFile):
     name = "nsync"
-    homepage = "https://github.com/google/nsync"
     description = "Library that exports various synchronization primitives"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/nsync"
     topics = ("c", "thread", "multithreading", "google")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -63,7 +62,7 @@ class NsyncConan(ConanFile):
         )
 
         if self.settings.os == "Windows" and self.options.shared:
-            ar_dest = "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} " "COMPONENT Development"
+            ar_dest = "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development"
             rt_dest = 'RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"'
             replace_in_file(
                 self,

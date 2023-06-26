@@ -4,17 +4,21 @@ from conan.tools.files import get, copy, rm, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class SoundTouchConan(ConanFile):
     name = "soundtouch"
-    description = "an open-source audio processing library that allows changing the sound tempo, pitch and playback rate parameters independently"
+    description = (
+        "an open-source audio processing library that allows changing "
+        "the sound tempo, pitch and playback rate parameters independently"
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://codeberg.org/soundtouch/soundtouch"
     topics = ("audio", "processing", "tempo", "pitch", "playback")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

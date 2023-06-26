@@ -10,11 +10,13 @@ required_conan_version = ">=1.53.0"
 class EasyExifConan(ConanFile):
     name = "easyexif"
     description = "Tiny ISO-compliant C++ EXIF parsing library, third-party dependency free."
-    topics = ("exif", "image", "multimedia", "format", "graphics")
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mayanklahiri/easyexif"
-    license = "BSD-2-Clause"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("exif", "image", "multimedia", "format", "graphics")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -35,12 +37,12 @@ class EasyExifConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self)
+
     def validate(self):
         if self.info.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        cmake_layout(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

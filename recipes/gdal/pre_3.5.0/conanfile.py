@@ -29,9 +29,9 @@ class GdalConan(ConanFile):
         "for raster and vector geospatial data formats."
     )
     license = "MIT"
-    topics = ("osgeo", "geospatial", "raster", "vector")
-    homepage = "https://github.com/OSGeo/gdal"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OSGeo/gdal"
+    topics = ("osgeo", "geospatial", "raster", "vector")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

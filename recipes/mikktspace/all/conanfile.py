@@ -1,7 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, save
-import os
+from conan.tools.files import get, save, copy
 
 required_conan_version = ">=1.53.0"
 
@@ -9,11 +10,12 @@ required_conan_version = ">=1.53.0"
 class MikkTSpaceConan(ConanFile):
     name = "mikktspace"
     description = " A common standard for tangent space used in baking tools to produce normal maps."
-    homepage = "https://github.com/mmikk/MikkTSpace"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mmikk/MikkTSpace"
     topics = ("tangent", "space", "normal")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

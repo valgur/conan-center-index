@@ -1,3 +1,9 @@
+# Warnings:
+#   Disallowed attribute '_source_subfolder = 'source_subfolder''
+#   Disallowed attribute '_build_subfolder = 'build_subfolder''
+#   Disallowed attribute 'generators = 'pkg_config''
+#   Unexpected method '_configure_meson'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -81,16 +87,21 @@ import os
 import shutil
 import glob
 
-required_conan_version = ">=1.36.0"
+required_conan_version = ">=1.47.0"
 
 
 class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
-    description = "GObject introspection is a middleware layer between C libraries (using GObject) and language bindings"
-    topics = "gobject-instrospection"
+    description = (
+        "GObject introspection is a middleware layer between "
+        "C libraries (using GObject) and language bindings"
+    )
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
-    license = "LGPL-2.1"
+    topics = ("gobject-instrospection",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -100,9 +111,14 @@ class GobjectIntrospectionConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
-    generators = "pkg_config"
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if self.settings.os == "Windows":
+            raise ConanInvalidConfiguration(
+                f"{self.name} recipe does not support windows. Contributions are welcome!"
+            )
 
     def configure(self):
         if self.options.shared:
@@ -110,13 +126,11 @@ class GobjectIntrospectionConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "%s recipe does not support windows. Contributions are welcome!" % self.name
-            )
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("glib/2.73.0")
 
     def build_requirements(self):
         if Version(self.version) >= "1.71.0":
@@ -130,9 +144,6 @@ class GobjectIntrospectionConan(ConanFile):
         else:
             self.build_requires("flex/2.6.4")
             self.build_requires("bison/3.7.6")
-
-    def requirements(self):
-        self.requires("glib/2.73.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -13,19 +13,21 @@ required_conan_version = ">=1.52.0"
 
 class UTConan(ConanFile):
     name = "boost-ext-ut"
-    description = "C++20 single header/single module, " "macro-free micro Unit Testing Framework"
-    topics = ("ut", "header-only", "unit-test", "test", "tdd", "bdd")
+    description = "C++20 single header/single module, macro-free micro Unit Testing Framework"
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://boost-ext.github.io/ut/"
-    license = "BSL-1.0"
-    settings = "os", "compiler", "arch", "build_type"
-    no_copy_source = True
+    topics = ("ut", "header-only", "unit-test", "test", "tdd", "bdd")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "disable_module": [True, False],
     }
     default_options = {
         "disable_module": False,
     }
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -51,12 +53,15 @@ class UTConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
         if Version(self.version) <= "1.1.8" and is_msvc(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} may not be built with MSVC. " "Please use at least version 1.1.9 with MSVC."
+                f"{self.ref} may not be built with MSVC. Please use at least version 1.1.9 with MSVC."
             )
 
         if is_msvc(self):
@@ -105,10 +110,10 @@ class UTConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
-    def package_id(self):
-        self.info.clear()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         newer_than_1_1_8 = Version(self.version) > "1.1.8"
         namespace = "Boost" if newer_than_1_1_8 else "boost"
         self.cpp_info.set_property("cmake_file_name", "ut")

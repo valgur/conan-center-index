@@ -79,19 +79,23 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class FtjamConan(ConanFile):
     name = "ftjam"
     description = "Jam (ftjam) is a small open-source build tool that can be used as a replacement for Make."
-    topics = ("build", "make")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org/jam/"
-    license = "BSD-3-Clause"
+    topics = ("build", "make", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -100,18 +104,17 @@ class FtjamConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("ftjam can't be cross-built")
-
-    def package_id(self):
-        del self.info.settings.compiler
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
@@ -124,19 +127,13 @@ class FtjamConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "jamgram.c"), "\n#line", "\n//#line")
-
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
-        # The configure MUST be run inside this directory
-        with chdir(self, os.path.join(self.build_folder, self.source_folder, "builds", "unix")):
-            self._autotools.configure()
-        return self._autotools
 
     def build(self):
         self._patch_sources()
@@ -157,8 +154,10 @@ class FtjamConan(ConanFile):
                                 args=["JAM_TOOLSET={}".format(jam_toolset), "-f", "builds/win32-gcc.mk"]
                             )
             else:
-                autotools = self._configure_autotools()
-                autotools.make()
+                with chdir(self, os.path.join(self.build_folder, "builds", "unix")):
+                    autotools = Autotools(self)
+                    autotools.configure()
+                    autotools.make()
 
     def package(self):
         txt = load(self, os.path.join(self.source_folder, "jam.c"))
@@ -189,6 +188,10 @@ class FtjamConan(ConanFile):
         return None
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         jam_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(jam_path))
         self.env_info.PATH.append(jam_path)

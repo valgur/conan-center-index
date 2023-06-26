@@ -5,13 +5,15 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
 
+required_conan_version = ">=1.52.0"
+
 
 class EarcutPackage(ConanFile):
     name = "earcut"
     description = "A C++ port of earcut.js, a fast, header-only polygon triangulation library."
-    homepage = "https://github.com/mapbox/earcut.hpp"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "ISC"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mapbox/earcut.hpp"
     topics = (
         "algorithm",
         "cpp",
@@ -23,8 +25,14 @@ class EarcutPackage(ConanFile):
         "tessellation",
         "earcut",
     )
-    settings = "compiler"
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 11
 
     @property
     def _minimum_compilers_version(self):
@@ -41,9 +49,11 @@ class EarcutPackage(ConanFile):
             "Visual Studio": "12",
         }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 11
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -63,11 +73,9 @@ class EarcutPackage(ConanFile):
         else:
             if lazy_lt_semver(str(self.settings.compiler.version), min_version):
                 raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -81,5 +89,6 @@ class EarcutPackage(ConanFile):
         )
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
 
-    def package_id(self):
-        self.info.clear()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

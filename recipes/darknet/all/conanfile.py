@@ -4,15 +4,11 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.53.0"
 
 
 class DarknetConan(ConanFile):
@@ -22,7 +18,9 @@ class DarknetConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pjreddie.com/darknet/"
     topics = ("neural network", "deep learning")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -33,35 +31,6 @@ class DarknetConan(ConanFile):
         "fPIC": True,
         "with_opencv": False,
     }
-
-    @property
-    def _lib_to_compile(self):
-        if not self.options.shared:
-            return "$(ALIB)"
-        else:
-            return "$(SLIB)"
-
-    @property
-    def _shared_lib_extension(self):
-        if self.settings.os == "Macos":
-            return ".dylib"
-        else:
-            return ".so"
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "Makefile"),
-            "SLIB=libdarknet.so",
-            f"SLIB=libdarknet{self._shared_lib_extension}",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "Makefile"),
-            "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
-            f"all: obj backup results {self._lib_to_compile}",
-        )
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -92,6 +61,35 @@ class DarknetConan(ConanFile):
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
+
+    @property
+    def _lib_to_compile(self):
+        if not self.options.shared:
+            return "$(ALIB)"
+        else:
+            return "$(SLIB)"
+
+    @property
+    def _shared_lib_extension(self):
+        if self.settings.os == "Macos":
+            return ".dylib"
+        else:
+            return ".so"
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile"),
+            "SLIB=libdarknet.so",
+            f"SLIB=libdarknet{self._shared_lib_extension}",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile"),
+            "all: obj backup results $(SLIB) $(ALIB) $(EXEC)",
+            f"all: obj backup results {self._lib_to_compile}",
+        )
 
     def build(self):
         self._patch_sources()

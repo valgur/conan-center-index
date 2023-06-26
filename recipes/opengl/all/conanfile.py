@@ -7,12 +7,12 @@ required_conan_version = ">=1.50.0"
 
 class SysConfigOpenGLConan(ConanFile):
     name = "opengl"
-    version = "system"
     description = "cross-platform virtual conan package for the OpenGL support"
-    topics = "gl"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.opengl.org/"
-    license = "MIT"
+    topics = ("gl",)
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 

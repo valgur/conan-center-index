@@ -13,11 +13,12 @@ required_conan_version = ">=1.54.0"
 class IXWebSocketConan(ConanFile):
     name = "ixwebsocket"
     description = "IXWebSocket is a C++ library for WebSocket client and server development"
-    topics = ("socket", "websocket")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/machinezone/IXWebSocket"
-    license = "BSD-3-Clause"
+    topics = ("socket", "websocket")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

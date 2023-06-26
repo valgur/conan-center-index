@@ -27,6 +27,7 @@ class LibsodiumConan(ConanFile):
     homepage = "https://doc.libsodium.org/"
     topics = ("encryption", "signature", "hashing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -152,7 +153,10 @@ class LibsodiumConan(ConanFile):
             self,
             os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
             '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-            f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+            (
+                f'<Import Project="{conantoolchain_props}" />'
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+            ),
         )
         # ==============================
 
@@ -187,7 +191,7 @@ class LibsodiumConan(ConanFile):
                 "*.h",
                 src=inc_src,
                 dst=os.path.join(self.package_folder, "include"),
-                excludes=("*/private/*"),
+                excludes="*/private/*",
             )
         else:
             autotools = Autotools(self)

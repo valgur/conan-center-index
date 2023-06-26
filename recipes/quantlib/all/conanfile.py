@@ -16,10 +16,10 @@ class QuantlibConan(ConanFile):
         "QuantLib is a free/open-source library for modeling, trading, and risk management in real-life."
     )
     license = "BSD-3-Clause"
-    topics = "quantitative-finance"
-    homepage = "https://www.quantlib.org"
     url = "https://github.com/conan-io/conan-center-index"
-
+    homepage = "https://www.quantlib.org"
+    topics = "quantitative-finance"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -5,17 +5,17 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class FakeItConan(ConanFile):
     name = "fakeit"
     description = "C++ mocking made easy. A simple yet very expressive, headers only library for c++ mocking."
-    topics = ("mock", "fake", "spy")
     license = "MIT"
-    homepage = "https://github.com/eranpeer/FakeIt"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/eranpeer/FakeIt"
+    topics = ("mock", "fake", "spy", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -30,7 +30,7 @@ class FakeItConan(ConanFile):
             "qtest",
             "standalone",
             "tpunit",
-        ]
+        ],
     }
     default_options = {
         "integration": "standalone",
@@ -87,3 +87,7 @@ class FakeItConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "single_header", str(self.options.integration)),
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

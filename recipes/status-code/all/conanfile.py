@@ -3,20 +3,29 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.52.0"
 
 
 class StatusCodeConan(ConanFile):
     name = "status-code"
+    description = "Proposed SG14 status_code for the C++ standard"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ned14/status-code"
-    description = "Proposed SG14 status_code for the C++ standard"
     topics = ("header-only", "proposal", "status", "return code")
+
     package_type = "header-library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     @property
     def _compiler_required_version(self):
@@ -43,9 +52,6 @@ class StatusCodeConan(ConanFile):
                 "This recipe has no support for the current compiler. Please consider adding it."
             )
 
-    def package_id(self):
-        self.info.clear()
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -65,6 +71,9 @@ class StatusCodeConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         # See https://github.com/ned14/status-code/blob/38e1e862386cb38d577664fd681ef829b0e03fba/CMakeLists.txt#L126
         self.cpp_info.set_property("cmake_file_name", "status-code")
         self.cpp_info.set_property("cmake_target_name", "status-code::hl")

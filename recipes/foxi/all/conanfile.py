@@ -4,22 +4,25 @@ from conan.tools.files import apply_conandata_patches, copy, get, rename, replac
 import glob
 import os
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.53.0"
 
 
 class FoxiConan(ConanFile):
     name = "foxi"
     description = "ONNXIFI with Facebook Extension."
     license = "MIT"
-    topics = "onnxifi"
-    homepage = "https://github.com/houseroad/foxi"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/houseroad/foxi"
+    topics = ("onnxifi",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 

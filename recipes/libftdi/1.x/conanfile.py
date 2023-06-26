@@ -12,10 +12,12 @@ required_conan_version = ">=1.53.0"
 class LibFtdiConan(ConanFile):
     name = "libftdi"
     description = "A library to talk to FTDI chips"
-    license = "LGPL-2.0-only", "GPLv2-or-later"
-    topics = "ftdi"
-    homepage = "https://www.intra2net.com/en/developer/libftdi/"
+    license = ("LGPL-2.0-only", "GPLv2-or-later")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.intra2net.com/en/developer/libftdi/"
+    topics = ("ftdi",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,17 +37,11 @@ class LibFtdiConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
             if is_msvc(self):
                 self.options.use_streaming = False
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def configure(self):
         if self.options.shared:
@@ -55,6 +51,21 @@ class LibFtdiConan(ConanFile):
             if self.options.build_eeprom_tool or self.options.enable_cpp_wrapper
             else ("LGPL-2.1-only")
         )
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("libusb/1.0.26")
+        if self.options.enable_cpp_wrapper:
+            self.requires("boost/1.80.0")
+
+    def validate(self):
+        if is_msvc(self) and self.options.use_streaming:
+            raise ConanInvalidConfiguration("VS doesn't not compile with enabled option use_streaming")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,15 +78,6 @@ class LibFtdiConan(ConanFile):
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
-
-    def requirements(self):
-        self.requires("libusb/1.0.26")
-        if self.options.enable_cpp_wrapper:
-            self.requires("boost/1.80.0")
-
-    def validate(self):
-        if is_msvc(self) and self.options.use_streaming:
-            raise ConanInvalidConfiguration("VS doesn't not compile with enabled option use_streaming")
 
     def build(self):
         apply_conandata_patches(self)

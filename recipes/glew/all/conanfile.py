@@ -3,17 +3,18 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class GlewConan(ConanFile):
     name = "glew"
     description = "The GLEW library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://github.com/nigels-com/glew"
     topics = ("opengl", "wrangler", "loader", "binding")
-    license = "MIT"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

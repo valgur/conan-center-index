@@ -23,11 +23,12 @@ required_conan_version = ">=1.53.0"
 
 class FastDDSConan(ConanFile):
     name = "fast-dds"
-    license = "Apache-2.0"
-    homepage = "https://fast-dds.docs.eprosima.com/"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "The most complete OSS DDS implementation for embedded systems."
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://fast-dds.docs.eprosima.com/"
     topics = ("dds", "middleware", "ipc")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

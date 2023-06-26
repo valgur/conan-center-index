@@ -4,19 +4,22 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, save
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class LinuxSyscallSupportConan(ConanFile):
     name = "linux-syscall-support"
-    description = "Linux Syscall Support provides a header file that can be included into your application whenever you need to make direct system calls."
+    description = (
+        "Linux Syscall Support provides a header file that can be included into your "
+        "application whenever you need to make direct system calls."
+    )
     license = "BSD-3-Clause"
-    topics = ("linux", "syscall", "chromium")
-    homepage = "https://chromium.googlesource.com/linux-syscall-support"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://chromium.googlesource.com/linux-syscall-support"
+    topics = ("linux", "syscall", "chromium", "header-only")
 
     package_type = "header-library"
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def configure(self):
@@ -26,11 +29,11 @@ class LinuxSyscallSupportConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def package_id(self):
         self.info.clear()
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _extract_license(self):
         with open(os.path.join(self.source_folder, "linux_syscall_support.h")) as f:

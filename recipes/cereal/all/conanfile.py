@@ -4,17 +4,18 @@ from conan.tools.files import copy, get, rmdir, save
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class CerealConan(ConanFile):
     name = "cereal"
     description = "Serialization header-only library for C++11."
     license = "BSD-3-Clause"
-    topics = ("header-only", "serialization", "cpp11")
-    homepage = "https://github.com/USCiLab/cereal"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/USCiLab/cereal"
+    topics = ("header-only", "serialization", "cpp11")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "thread_safe": [True, False],
@@ -22,12 +23,13 @@ class CerealConan(ConanFile):
     default_options = {
         "thread_safe": False,
     }
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

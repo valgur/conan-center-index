@@ -9,6 +9,8 @@ required_conan_version = ">=1.53.0"
 class HashLibraryConan(ConanFile):
     name = "hash-library"
     description = "Portable C++ hashing library"
+    license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://create.stephan-brumme.com/hash-library/"
     topics = (
         "hash",
@@ -23,9 +25,8 @@ class HashLibraryConan(ConanFile):
         "sha3",
         "keccak",
     )
-    license = "Zlib"
-    url = "https://github.com/conan-io/conan-center-index"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

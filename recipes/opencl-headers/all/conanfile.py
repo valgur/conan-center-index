@@ -4,16 +4,17 @@ from conan.tools.layout import basic_layout
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class OpenclHeadersConan(ConanFile):
     name = "opencl-headers"
     description = "C language headers for the OpenCL API"
     license = "Apache-2.0"
-    topics = ("opencl", "header-only", "api-headers")
-    homepage = "https://github.com/KhronosGroup/OpenCL-Headers"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/OpenCL-Headers"
+    topics = ("opencl", "header-only", "api-headers")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -31,8 +32,28 @@ class OpenclHeadersConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        # TODO: to remove in conan v2 once legacy generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                self._target_name: f"{self.name}::{self.name}",
+            },
+        )
+
     def build(self):
         pass
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -41,28 +62,6 @@ class OpenclHeadersConan(ConanFile):
             "*",
             src=os.path.join(self.source_folder, "CL"),
             dst=os.path.join(self.package_folder, "include", "CL"),
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
-
-    def generate(self):
-        # TODO: to remove in conan v2 once legacy generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                self._target_name: f"{self.name}::{self.name}",
-            },
         )
 
     @property

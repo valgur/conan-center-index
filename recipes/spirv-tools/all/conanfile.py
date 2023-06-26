@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir, save
 from conan.tools.scm import Version
@@ -13,11 +13,11 @@ required_conan_version = ">=1.54.0"
 
 class SpirvtoolsConan(ConanFile):
     name = "spirv-tools"
-    homepage = "https://github.com/KhronosGroup/SPIRV-Tools/"
     description = "Create and optimize SPIRV shaders"
-    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "hlsl", "khronos")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/SPIRV-Tools/"
+    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "hlsl", "khronos")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -123,6 +123,9 @@ class SpirvtoolsConan(ConanFile):
 
         tc.generate()
 
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         # CMAKE_POSITION_INDEPENDENT_CODE was set ON for the entire
         # project in the lists file.
@@ -189,14 +192,12 @@ class SpirvtoolsConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

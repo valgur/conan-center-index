@@ -27,14 +27,17 @@ required_conan_version = ">=1.53.0"
 
 class DbusConan(ConanFile):
     name = "dbus"
+    description = "D-Bus is a simple system for interprocess communication and coordination."
     license = ("AFL-2.1", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freedesktop.org/wiki/Software/dbus"
-    description = "D-Bus is a simple system for interprocess communication and coordination."
     topics = ("bus", "interprocess", "message")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "system_socket": [None, "ANY"],
         "system_pid_file": [None, "ANY"],
         "with_x11": [True, False],
@@ -44,6 +47,8 @@ class DbusConan(ConanFile):
         "session_socket_dir": ["ANY"],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "system_socket": None,
         "system_pid_file": None,
         "with_x11": False,
@@ -52,10 +57,6 @@ class DbusConan(ConanFile):
         "with_selinux": False,
         "session_socket_dir": "/tmp",
     }
-
-    @property
-    def _meson_available(self):
-        return Version(self.version) >= "1.15.0"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -185,6 +186,19 @@ class DbusConan(ConanFile):
             cmake.configure(build_script_folder=build_script_folder)
             cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self._meson_available:
@@ -213,18 +227,9 @@ class DbusConan(ConanFile):
             },
         )
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
+    @property
+    def _meson_available(self):
+        return Version(self.version) >= "1.15.0"
 
     @property
     def _module_file_rel_path(self):

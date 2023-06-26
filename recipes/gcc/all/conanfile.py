@@ -19,23 +19,21 @@ class GccConan(ConanFile):
         "C++, Objective-C, Fortran, Ada, Go, and D, as well as "
         "libraries for these languages (libstdc++,...). "
     )
-    topics = ("gnu", "compiler", "c", "c++")
-    homepage = "https://gcc.gnu.org"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-only"
-    settings = "os", "compiler", "arch", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gcc.gnu.org"
+    topics = ("gnu", "compiler", "c", "c++")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def configure(self):
         if self.settings.compiler in ["clang", "apple-clang"]:
             # Can't remove this from cxxflags with autotools - so get rid of it
             self.settings.rm_safe("compiler.libcxx")
 
-    def build_requirements(self):
-        if self.settings.os == "Linux":
-            # binutils recipe is broken for Macos, and Windows uses tools
-            # distributed with msys/mingw
-            self.tool_requires("binutils/2.38")
-        self.tool_requires("flex/2.6.4")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("mpc/1.2.0")
@@ -46,10 +44,6 @@ class GccConan(ConanFile):
 
     def package_id(self):
         del self.info.settings.compiler
-
-    def validate_build(self):
-        if is_msvc(self):
-            raise ConanInvalidConfiguration("GCC can't be built with MSVC")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -69,8 +63,19 @@ class GccConan(ConanFile):
                 "Cross builds are not current supported. Contributions to support this are welcome"
             )
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def validate_build(self):
+        if is_msvc(self):
+            raise ConanInvalidConfiguration("GCC can't be built with MSVC")
+
+    def build_requirements(self):
+        if self.settings.os == "Linux":
+            # binutils recipe is broken for Macos, and Windows uses tools
+            # distributed with msys/mingw
+            self.tool_requires("binutils/2.38")
+        self.tool_requires("flex/2.6.4")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         # Ensure binutils and flex are on the path.
@@ -104,9 +109,6 @@ class GccConan(ConanFile):
         # Don't use AutotoolsDeps here - deps are passed directly in configure_args.
         # Using AutotoolsDeps causes the compiler tests to fail by erroneously adding
         # additional $LIBS to the test compilation
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         # If building on x86_64, change the default directory name for 64-bit libraries to "lib":
@@ -147,6 +149,11 @@ class GccConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("rt")

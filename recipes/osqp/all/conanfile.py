@@ -8,7 +8,6 @@ required_conan_version = ">=1.53.0"
 
 class OsqpConan(ConanFile):
     name = "osqp"
-    package_type = "library"
     description = (
         "The OSQP (Operator Splitting Quadratic Program) solver is a numerical optimization package."
     )
@@ -28,6 +27,8 @@ class OsqpConan(ConanFile):
         "convex-optimization",
         "model-predictive-control",
     )
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

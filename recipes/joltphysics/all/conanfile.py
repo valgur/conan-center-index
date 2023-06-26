@@ -4,6 +4,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.53.0"
@@ -16,6 +17,8 @@ class JoltPhysicsConan(ConanFile):
         "library, written in C++, suitable for games and VR applications."
     )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jrouwe/JoltPhysics"
     topics = (
         "physics",
         "simulation",
@@ -25,8 +28,6 @@ class JoltPhysicsConan(ConanFile):
         "game",
         "collision",
     )
-    homepage = "https://github.com/jrouwe/JoltPhysics"
-    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -99,14 +100,8 @@ class JoltPhysicsConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )

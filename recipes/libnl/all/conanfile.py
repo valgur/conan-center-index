@@ -2,84 +2,14 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan.tools.microsoft import unix_path
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibNlConan(ConanFile):
@@ -87,27 +17,34 @@ class LibNlConan(ConanFile):
     description = (
         "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
     )
-    topics = "netlink"
+    license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.infradead.org/~tgr/libnl/"
-    license = "LGPL-2.1-only"
+    topics = ("netlink",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -120,35 +57,24 @@ class LibNlConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
-        config_args = ["--prefix={}".format(unix_path(self.package_folder))]
-        if self.options.shared:
-            config_args.extend(["--enable-shared=yes", "--enable-static=no"])
-        else:
-            config_args.extend(["--enable-shared=no", "--enable-static=yes"])
-
-        self._autotools.configure(configure_dir=self.source_folder, args=config_args)
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = [f"--prefix={unix_path(self.package_folder)}"]
+        tc.generate()
 
     def build(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def package_info(self):
         self.cpp_info.components["nl"].libs = ["nl-3"]

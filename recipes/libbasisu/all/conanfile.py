@@ -2,115 +2,50 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibBasisUniversalConan(ConanFile):
     name = "libbasisu"
     description = "Basis Universal Supercompressed GPU Texture Codec"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/BinomialLLC/basis_universal"
     topics = ("basis", "textures", "compression")
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "Apache-2.0"
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "use_sse4": [True, False],
         "with_zstd": [True, False],
         "enable_encoder": [True, False],
         "custom_iterator_debug_level": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "use_sse4": False,
         "with_zstd": True,
         "enable_encoder": True,
         "custom_iterator_debug_level": False,
     }
+
+    def _minimum_compiler_version(self):
+        return {
+            "Visual Studio": "15",
+            "gcc": "5.4",
+            "clang": "3.9",
+            "apple-clang": "10",
+        }
 
     def _use_custom_iterator_debug_level(self):
         return self.options.get_safe(
@@ -126,38 +61,27 @@ class LibBasisUniversalConan(ConanFile):
         if self.settings.compiler != "Visual Studio":
             self.options.rm_safe("custom_iterator_debug_level")
 
-    def _minimum_compiler_version(self) -> bool:
-        return {
-            "Visual Studio": "15",
-            "gcc": "5.4",
-            "clang": "3.9",
-            "apple-clang": "10",
-        }
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         min_version = self._minimum_compiler_version().get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         elif Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
-                "{} {} does not support compiler with version {} {}, minimum supported compiler version is {} ".format(
-                    self.name,
-                    self.version,
-                    self.settings.compiler,
-                    self.settings.compiler.version,
-                    min_version,
-                )
+                f"{self.name} {self.version} does not support compiler with version"
+                f" {self.settings.compiler} {self.settings.compiler.version}, minimum supported compiler"
+                f" version is {min_version} "
             )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -194,11 +118,21 @@ class LibBasisUniversalConan(ConanFile):
                 dst=os.path.join("include", self.name, "encoder"),
                 src=os.path.join(self.source_folder, "encoder"),
             )
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.so", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dylib*", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
+            copy(
+                self,
+                pattern,
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.build_folder,
+                keep_path=False,
+            )
+        copy(
+            self,
+            pattern="*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=self.build_folder,
+            keep_path=False,
+        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

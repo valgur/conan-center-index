@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -7,18 +9,19 @@ from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-import os
 
 required_conan_version = ">=1.54.0"
 
 
 class FontconfigConan(ConanFile):
     name = "fontconfig"
+    description = "Fontconfig is a library for configuring and customizing font access"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Fontconfig is a library for configuring and customizing font access"
     homepage = "https://gitlab.freedesktop.org/fontconfig/fontconfig"
     topics = ("fonts", "freedesktop")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -103,10 +106,8 @@ class FontconfigConan(ConanFile):
         replace_in_file(
             self,
             os.path.join(self.generators_folder, "freetype2.pc"),
-            "Version: {}".format(self.dependencies["freetype"].ref.version),
-            "Version: {}".format(
-                self.dependencies["freetype"].conf_info.get("user.freetype:libtool_version")
-            ),
+            f"Version: {self.dependencies['freetype'].ref.version}",
+            f"Version: {self.dependencies['freetype'].conf_info.get('user.freetype:libtool_version')}",
         )
         # disable fc-cache test to enable cross compilation but also builds with shared libraries on MacOS
         replace_in_file(

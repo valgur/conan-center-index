@@ -2,94 +2,33 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
     collect_libs,
     copy,
     download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
     save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class MicroprofileConan(ConanFile):
     name = "microprofile"
+    description = "Microprofile is a embeddable profiler in a few files, written in C++"
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jonasmr/microprofile"
-    description = "Microprofile is a embeddable profiler in a few files, written in C++"
     topics = ("profiler", "embedded", "timer")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -118,12 +57,12 @@ class MicroprofileConan(ConanFile):
         "fPIC": True,
         "microprofile_enabled": True,
         "with_miniz": False,
-        "thread_buffer_size": 2048 << 10,
-        "thread_gpu_buffer_size": 128 << 10,
+        "thread_buffer_size": 2097152,
+        "thread_gpu_buffer_size": 131072,
         "max_frame_history": 512,
         "webserver_port": 1338,
         "webserver_maxframes": 30,
-        "webserver_socket_buffer_size": 16 << 10,
+        "webserver_socket_buffer_size": 16384,
         "gpu_frame_delay": 5,
         "name_max_length": 64,
         "max_timers": 1024,
@@ -144,6 +83,21 @@ class MicroprofileConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_miniz:
+            self.requires("miniz/2.2.0")
+        if self.options.enable_timer == "gl":
+            self.requires("opengl/system")
+        if self.options.enable_timer == "vulkan":
+            self.requires("vulkan-loader/1.2.182")
+
     def _validate_int_options(self):
         positive_int_options = [
             "thread_buffer_size",
@@ -163,11 +117,11 @@ class MicroprofileConan(ConanFile):
         ]
         for opt in positive_int_options:
             try:
-                value = int(getattr(self.options, opt))
+                value = int(self.options.get_safe(opt))
                 if value < 0:
                     raise ValueError
             except ValueError:
-                raise ConanInvalidConfiguration("microprofile:{} must be a positive integer".format(opt))
+                raise ConanInvalidConfiguration(f"microprofile:{opt} must be a positive integer")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -184,33 +138,14 @@ class MicroprofileConan(ConanFile):
         if int(self.options.webserver_port) > 2**16 - 1:
             raise ConanInvalidConfiguration("microprofile:webserver_port must be between 0 and 65535.")
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        if self.options.with_miniz:
-            self.requires("miniz/2.2.0")
-        if self.options.enable_timer == "gl":
-            self.requires("opengl/system")
-        if self.options.enable_timer == "vulkan":
-            self.requires("vulkan-loader/1.2.182")
-
     def source(self):
         get(
             self,
             **self.conan_data["sources"][self.version][0],
             strip_root=True,
-            destination=self.source_folder
+            destination=self.source_folder,
         )
         download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
-
-    def build(self):
-        self._create_defines_file(os.path.join(self.source_folder, "microprofile.config.h"))
-        apply_conandata_patches(self)
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -221,8 +156,15 @@ class MicroprofileConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
+    def build(self):
+        self._create_defines_file(os.path.join(self.source_folder, "microprofile.config.h"))
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -260,9 +202,9 @@ class MicroprofileConan(ConanFile):
         defines_list = ["#pragma once\n"]
         for define in defines:
             if isinstance(define, tuple) or isinstance(define, list):
-                defines_list.append("#define {} {}\n".format(define[0], define[1]))
+                defines_list.append(f"#define {define[0]} {define[1]}\n")
             else:
-                defines_list.append("#define {}\n".format(define))
+                defines_list.append(f"#define {define}\n")
         save(self, filename, "".join(defines_list))
 
     def package_info(self):

@@ -10,11 +10,11 @@ required_conan_version = ">=1.53.0"
 class SophusConan(ConanFile):
     name = "sophus"
     description = "C++ implementation of Lie Groups using Eigen."
-    topics = ("eigen", "numerical", "math")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://strasdat.github.io/Sophus/"
-    license = "MIT"
-    no_copy_source = True
+    topics = ("eigen", "numerical", "math", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -23,6 +23,10 @@ class SophusConan(ConanFile):
     default_options = {
         "with_fmt": True,
     }
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
@@ -33,9 +37,6 @@ class SophusConan(ConanFile):
 
     def package_id(self):
         self.info.clear()
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

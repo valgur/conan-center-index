@@ -15,10 +15,12 @@ required_conan_version = ">=1.53.0"
 class LibnetConan(ConanFile):
     name = "libnet"
     description = "Libnet is an API to help with the construction and injection of network packets."
-    topics = "network"
+    license = ["BSD-2-Clause"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libnet.sourceforge.net/"
-    license = ["BSD-2-Clause"]
+    topics = ("network",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

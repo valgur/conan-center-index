@@ -192,7 +192,7 @@ class LibIdnConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

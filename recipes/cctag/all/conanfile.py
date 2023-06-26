@@ -20,6 +20,8 @@ class CCTagConan(ConanFile):
     name = "cctag"
     description = "Detection of CCTag markers made up of concentric circles."
     license = "MPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/alicevision/CCTag"
     topics = (
         "cctag",
         "computer-vision",
@@ -29,9 +31,8 @@ class CCTagConan(ConanFile):
         "fiducial-markers",
         "concentric-circles",
     )
-    homepage = "https://github.com/alicevision/CCTag"
-    url = "https://github.com/conan-io/conan-center-index"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -10,10 +10,11 @@ class RplyConan(ConanFile):
     name = "rply"
     description = "ANSI C Library for PLY file format input and output"
     license = "MIT"
-    topics = ("ply", "3d", "reader", "writer")
-    homepage = "https://w3.impa.br/~diego/software/rply"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://w3.impa.br/~diego/software/rply"
+    topics = ("ply", "3d", "reader", "writer")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

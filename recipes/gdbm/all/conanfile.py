@@ -24,8 +24,9 @@ class GdbmConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org.ua/software/gdbm/gdbm.html"
     topics = ("dbm", "hash", "database")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -101,7 +102,7 @@ class GdbmConan(ConanFile):
         if self.options.get_safe("with_libiconv"):
             libiconv_package_folder = self.dependencies.direct_host["libiconv"].package_folder
             tc.configure_args.extend(
-                [f"--with-libiconv-prefix={libiconv_package_folder}" "--with-libintl-prefix"]
+                [f"--with-libiconv-prefix={libiconv_package_folder}--with-libintl-prefix"]
             )
         else:
             tc.configure_args.extend(["--without-libiconv-prefix", "--without-libintl-prefix"])

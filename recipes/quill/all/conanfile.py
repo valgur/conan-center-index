@@ -18,9 +18,11 @@ class QuillConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/odygrd/quill/"
     topics = ("logging", "log", "async")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_bounded_queue": [True, False],
         "with_no_exceptions": [True, False],
@@ -28,6 +30,7 @@ class QuillConan(ConanFile):
         "with_bounded_blocking_queue": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_bounded_queue": False,
         "with_no_exceptions": False,
@@ -88,7 +91,8 @@ class QuillConan(ConanFile):
                 )
         else:
             self.output.warning(
-                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{self._min_cppstd}."
             )
 
         if (

@@ -33,6 +33,7 @@ class ArrowConan(ConanFile):
         "s3",
         "grpc",
     )
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

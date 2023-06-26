@@ -20,13 +20,16 @@ required_conan_version = ">=1.53.0"
 
 class GtsamConan(ConanFile):
     name = "gtsam"
+    description = (
+        "GTSAM is a library of C++ classes that implement smoothing and mapping (SAM) "
+        "in robotics and vision"
+    )
     license = "BSD-3-Clause"
-    homepage = "https://github.com/borglab/gtsam"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "GTSAM is a library of C++ classes that implement\
-                    smoothing and mapping (SAM) in robotics and vision"
+    homepage = "https://github.com/borglab/gtsam"
     topics = ("mapping", "smoothing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -121,7 +124,8 @@ class GtsamConan(ConanFile):
 
         if Version(self.version) >= "4.1.0" and is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(
-                f"{self.ref} does not support shared builds with MSVC. See https://github.com/borglab/gtsam/issues/1087"
+                f"{self.ref} does not support shared builds with MSVC. See"
+                " https://github.com/borglab/gtsam/issues/1087"
             )
 
     def source(self):

@@ -11,14 +11,15 @@ required_conan_version = ">=1.53.0"
 
 class ReplxxConan(ConanFile):
     name = "replxx"
-    description = """
-    A readline and libedit replacement that supports UTF-8,
-    syntax highlighting, hints and Windows and is BSD licensed.
-    """
+    description = (
+        "A readline and libedit replacement that supports UTF-8, "
+        "syntax highlighting, hints and Windows and is BSD licensed."
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AmokHuginnsson/replxx"
     topics = ("readline", "libedit", "UTF-8")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

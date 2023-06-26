@@ -11,10 +11,10 @@ required_conan_version = ">=1.53.0"
 class SDLImageConan(ConanFile):
     name = "sdl_image"
     description = "SDL_image is an image file loading library"
-    topics = ("sdl2", "sdl", "images", "opengl")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org/projects/SDL_image/"
-    license = "MIT"
+    topics = ("sdl2", "sdl", "images", "opengl")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

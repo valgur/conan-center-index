@@ -19,6 +19,7 @@ class GperftoolsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gperftools/gperftools"
     topics = ("memory", "allocator", "tcmalloc", "google-perftools")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -87,15 +88,15 @@ class GperftoolsConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        if self.options.get_safe("enable_libunwind", False):
+            self.requires("libunwind/1.6.2")
+
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(
                 "gperftools recipe does not currently support Windows. Contributions are welcome."
             )
-
-    def requirements(self):
-        if self.options.get_safe("enable_libunwind", False):
-            self.requires("libunwind/1.6.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

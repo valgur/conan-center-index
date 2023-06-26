@@ -13,6 +13,7 @@ from conan.tools.files import (
     rmdir,
     save,
 )
+from conan.tools.scm import Version
 import glob
 import os
 import textwrap
@@ -22,12 +23,13 @@ required_conan_version = ">=1.53.0"
 
 class LibSigCppConan(ConanFile):
     name = "libsigcpp"
-    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "LGPL-3.0-only"
     description = "libsigc++ implements a typesafe callback system for standard C++."
-    topics = "callback"
+    license = "LGPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
+    topics = ("callback",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -70,14 +72,8 @@ class LibSigCppConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -128,14 +124,12 @@ class LibSigCppConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

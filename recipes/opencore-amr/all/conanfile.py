@@ -12,13 +12,14 @@ required_conan_version = ">=1.54.0"
 
 class OpencoreAmrConan(ConanFile):
     name = "opencore-amr"
-    homepage = "https://sourceforge.net/projects/opencore-amr/"
     description = "OpenCORE Adaptive Multi Rate (AMR) speech codec library implementation."
-    topics = ("audio-codec", "amr", "opencore")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/opencore-amr/"
+    topics = ("audio-codec", "amr", "opencore")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

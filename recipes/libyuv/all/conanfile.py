@@ -10,12 +10,13 @@ required_conan_version = ">=1.53.0"
 
 class LibyuvConan(ConanFile):
     name = "libyuv"
+    description = "libyuv is an open source project that includes YUV scaling and conversion functionality."
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/libyuv/libyuv/"
-    description = "libyuv is an open source project that includes YUV scaling and conversion functionality."
-    topics = ["YUV", "google", "chromium"]
-    license = "BSD-3-Clause"
+    topics = ("YUV", "google", "chromium")
 
+    package_type = "librrary"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

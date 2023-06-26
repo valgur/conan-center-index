@@ -2,94 +2,32 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
-    collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
     replace_in_file,
-    rm,
     rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
 )
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class PopplerConan(ConanFile):
     name = "poppler"
     description = "Poppler is a PDF rendering library based on the xpdf-3.0 code base"
+    license = ("GPL-2.0-or-later", "GPL-3.0-or-later")
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://poppler.freedesktop.org/"
     topics = ("pdf", "rendering")
-    license = "GPL-2.0-or-later", "GPL-3.0-or-later"
-    url = "https://github.com/conan-io/conan-center-index"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -136,6 +74,23 @@ class PopplerConan(ConanFile):
         "float": False,
     }
 
+    @property
+    def _cppstd_required(self):
+        if self.options.with_qt and Version(self.deps_cpp_info["qt"].version).major == "6":
+            return 17
+        else:
+            return 14
+
+    @property
+    def _minimum_compilers_version(self):
+        # Poppler requires C++14
+        return {
+            "Visual Studio": "15",
+            "gcc": "5",
+            "clang": "5",
+            "apple-clang": "5.1",
+        }
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -153,6 +108,9 @@ class PopplerConan(ConanFile):
             self.options.rm_safe("with_gtk")
         if not self.options.cpp:
             self.options.rm_safe("with_libiconv")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("poppler-data/0.4.11")
@@ -188,16 +146,6 @@ class PopplerConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/1.2.12")
 
-    @property
-    def _minimum_compilers_version(self):
-        # Poppler requires C++14
-        return {
-            "Visual Studio": "15",
-            "gcc": "5",
-            "clang": "5",
-            "apple-clang": "5.1",
-        }
-
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("'win32' option of fontconfig is only available on Windows")
@@ -228,13 +176,6 @@ class PopplerConan(ConanFile):
             return "none"
         else:
             return str(self.options.with_libjpeg)
-
-    @property
-    def _cppstd_required(self):
-        if self.options.with_qt and Version(self.deps_cpp_info["qt"].version).major == "6":
-            return 17
-        else:
-            return 14
 
     def generate(self):
         tc = CMakeToolchain(self)

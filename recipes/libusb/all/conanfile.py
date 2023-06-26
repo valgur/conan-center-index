@@ -23,9 +23,10 @@ class LibUSBConan(ConanFile):
     name = "libusb"
     description = "A cross-platform library to access USB devices"
     license = "LGPL-2.1"
-    homepage = "https://github.com/libusb/libusb"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libusb/libusb"
     topics = ("usb", "device")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -111,7 +112,11 @@ class LibUSBConan(ConanFile):
             replace_in_file(
                 self,
                 vcxproj_path,
-                "<WholeProgramOptimization Condition=\"'$(Configuration)'=='Release'\">true</WholeProgramOptimization>",
+                (
+                    "<WholeProgramOptimization Condition=\"'$(Configuration)'=='Release'\">"
+                    "true"
+                    "</WholeProgramOptimization>"
+                ),
                 "",
             )
             old_toolset = "v141" if Version(self.version) < "1.0.24" else "v142"
@@ -127,7 +132,10 @@ class LibUSBConan(ConanFile):
                 self,
                 vcxproj_path,
                 '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" />'
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
             # ==============================
 

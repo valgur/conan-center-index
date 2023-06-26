@@ -2,30 +2,33 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get, replace_in_file, save
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class SentryBreakpadConan(ConanFile):
     name = "sentry-breakpad"
     description = "Client component that implements a crash-reporting system."
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/getsentry/breakpad"
-    license = "Apache-2.0"
     topics = ("breakpad", "error-reporting", "crash-reporting")
-    provides = "breakpad"
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
+    provides = "breakpad"
 
     @property
     def _min_cppstd(self):
@@ -52,6 +55,10 @@ class SentryBreakpadConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -77,6 +84,8 @@ class SentryBreakpadConan(ConanFile):
         tc = CMakeToolchain(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["LINUX"] = True
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def _patch_sources(self):
@@ -116,8 +125,7 @@ class SentryBreakpadConan(ConanFile):
         save(
             self,
             os.path.join(self.source_folder, "external", "CMakeLists.txt"),
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
                     target_compile_features(breakpad_client PUBLIC cxx_std_11)
                     if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
                         find_path(LINUX_SYSCALL_INCLUDE_DIR NAMES linux_syscall_support.h)
@@ -157,8 +165,7 @@ class SentryBreakpadConan(ConanFile):
                         DESTINATION include/breakpad/google_breakpad
                         FILES_MATCHING PATTERN *.h
                     )
-                   """
-            ),
+                   """),
             append=True,
         )
 

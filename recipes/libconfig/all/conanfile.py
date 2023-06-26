@@ -16,6 +16,8 @@ class LibconfigConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://hyperrealm.github.io/libconfig/"
     topics = ("conf", "config", "cfg", "configuration")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

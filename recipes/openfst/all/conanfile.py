@@ -163,7 +163,7 @@ class OpenFstConan(ConanFile):
         # Check stdlib ABI compatibility
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration(
-                'Using %s with GCC requires "compiler.libcxx=libstdc++11"' % self.name
+                f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"'
             )
         elif self.settings.compiler == "clang" and self.settings.compiler.libcxx not in [
             "libstdc++11",
@@ -210,14 +210,15 @@ class OpenFstConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
 
         lib_dir = os.path.join(self.package_folder, "lib")
@@ -232,12 +233,12 @@ class OpenFstConan(ConanFile):
 
     @property
     def _get_const_fsts_libs(self):
-        return ["const{}-fst".format(n) for n in [8, 16, 64]]
+        return [f"const{n}-fst" for n in [8, 16, 64]]
 
     @property
     def _get_compact_fsts_libs(self):
         return [
-            "compact{}_{}-fst".format(n, fst)
+            f"compact{n}_{fst}-fst"
             for n, fst in product(
                 [8, 16, 64], ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"]
             )
@@ -283,7 +284,7 @@ class OpenFstConan(ConanFile):
                 self.cpp_info.libs.append("fstpdtscript")
 
             bindir = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment var: {}".format(bindir))
+            self.output.info(f"Appending PATH environment var: {bindir}")
             self.env_info.PATH.append(bindir)
 
         self.cpp_info.system_libs = ["pthread", "dl", "m"]

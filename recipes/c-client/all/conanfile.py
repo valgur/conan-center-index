@@ -23,15 +23,19 @@ required_conan_version = ">=1.55.0"
 class CclientConan(ConanFile):
     name = "c-client"
     description = "University of Washington IMAP toolkit"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/uw-imap/imap"
     topics = ("imap", "uw-imap", "tcp-ip")
-    license = "Apache-2.0"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
@@ -59,7 +63,7 @@ class CclientConan(ConanFile):
         # FIXME: need krb5 recipe
         if self.settings.os == "Macos":
             raise ConanInvalidConfiguration(
-                "c-client depends on krb5 on MacOS and it's not packaged by " "Conan yet"
+                "c-client depends on krb5 on MacOS and it's not packaged by Conan yet"
             )
 
     def source(self):

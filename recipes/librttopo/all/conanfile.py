@@ -14,9 +14,9 @@ class LibrttopoConan(ConanFile):
         "standard (ISO 13249 aka SQL/MM) topologies."
     )
     license = "GPL-2.0-or-later"
-    topics = ("topology", "geospatial", "gis")
-    homepage = "https://git.osgeo.org/gitea/rttopo/librttopo"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://git.osgeo.org/gitea/rttopo/librttopo"
+    topics = ("topology", "geospatial", "gis")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

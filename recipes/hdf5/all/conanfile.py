@@ -24,9 +24,10 @@ class Hdf5Conan(ConanFile):
     name = "hdf5"
     description = "HDF5 is a data model, library, and file format for storing and managing data."
     license = "BSD-3-Clause"
-    topics = ("hdf", "data")
-    homepage = "https://portal.hdfgroup.org/display/HDF5/HDF5"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://portal.hdfgroup.org/display/HDF5/HDF5"
+    topics = ("hdf", "data")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -10,13 +10,15 @@ required_conan_version = ">=1.50.0"
 
 class GcemConan(ConanFile):
     name = "gcem"
-    description = "A C++ compile-time math library using generalized " "constant expressions."
+    description = "A C++ compile-time math library using generalized constant expressions."
     license = "Apache-2.0"
-    topics = ("math", "header-only")
-    homepage = "https://github.com/kthohr/gcem"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kthohr/gcem"
+    topics = ("math", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = ("os", "arch", "compiler", "build_type")
 
     def layout(self):
         basic_layout(self, src_folder="src")

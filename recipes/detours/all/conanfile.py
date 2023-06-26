@@ -2,101 +2,41 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
-import os
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import stdcpp_library
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import chdir, copy, get, replace_in_file
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class DetoursConan(ConanFile):
     name = "detours"
-    homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
     description = "Detours is a software package for monitoring and instrumenting API calls on Windows"
-    topics = ("monitoror", "instrumenting", "hook", "injection")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
+    topics = ("monitoror", "instrumenting", "hook", "injection")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+
+    @property
+    def _target_processor(self):
+        return {
+            "x86": "X86",
+            "x86_64": "X64",
+            "armv7": "ARM",
+            "armv8": "ARM64",
+        }[str(self.settings.arch)]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -115,18 +55,6 @@ class DetoursConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
-    @property
-    def _target_processor(self):
-        return {
-            "x86": "X86",
-            "x86_64": "X64",
-            "armv7": "ARM",
-            "armv8": "ARM64",
-        }[str(self.settings.arch)]
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -176,6 +104,8 @@ class DetoursConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.bindirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libs = ["detours"]
         if self.settings.compiler == "gcc":
             self.cpp_info.system_libs = [stdcpp_library(self)]

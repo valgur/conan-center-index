@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class KissfftConan(ConanFile):
     name = "kissfft"
+    description = "a Fast Fourier Transform (FFT) library that tries to Keep it Simple, Stupid"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mborgerding/kissfft"
-    description = "a Fast Fourier Transform (FFT) library that tries to Keep it Simple, Stupid"
     topics = ("fft", "kiss", "frequency-domain", "fast-fourier-transform")
 
     package_type = "library"

@@ -5,17 +5,20 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class BertrandConan(ConanFile):
     name = "bertrand"
+    description = "A C++ header only library providing a trivial implementation for design by contract."
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bernedom/bertrand"
-    description = "A C++ header only library providing a trivial implementation for design by contract."
-    topics = ("design by contract", "dbc", "cplusplus-library", "cplusplus-17")
+    topics = ("design by contract", "dbc", "cplusplus-library", "cplusplus-17", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -30,6 +33,9 @@ class BertrandConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -49,9 +55,6 @@ class BertrandConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
             )
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

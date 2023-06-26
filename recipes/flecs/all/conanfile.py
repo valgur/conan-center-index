@@ -11,6 +11,8 @@ class FlecsConan(ConanFile):
     name = "flecs"
     description = "A fast entity component system (ECS) for C & C++"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/SanderMertens/flecs"
     topics = (
         "gamedev",
         "cpp",
@@ -22,9 +24,8 @@ class FlecsConan(ConanFile):
         "cpp11",
         "ecs-framework",
     )
-    homepage = "https://github.com/SanderMertens/flecs"
-    url = "https://github.com/conan-io/conan-center-index"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

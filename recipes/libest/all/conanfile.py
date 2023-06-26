@@ -2,91 +2,25 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+
+required_conan_version = ">=1.53.0"
 
 
 class LibEstConan(ConanFile):
     name = "libest"
-    license = "BSD-3-Clause"
     description = "EST is used for secure certificate enrollment"
-    topics = ("EST", "RFC 7030", "certificate enrollment")
-    homepage = "https://github.com/cisco/libest"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "https://github.com/cisco/libest"
+    topics = ("EST", "RFC 7030", "certificate enrollment")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -95,8 +29,6 @@ class LibEstConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    _autotools = None
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -113,6 +45,9 @@ class LibEstConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("openssl/1.1.1q")
 
@@ -121,30 +56,27 @@ class LibEstConan(ConanFile):
         extracted_dir = self.name + "-r" + self.version
         os.rename(extracted_dir, self.source_folder)
 
-    def _configure_autotools(self):
-        if not self._autotools:
-            self._autotools = AutoToolsBuildEnvironment(self)
-            # TODO:
-            # - Static only build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L140
-            # - Release build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L253
-            args = []
-            if self.options.shared:
-                args.extend(["--enable-shared", "--disable-static"])
-            else:
-                args.extend(["--disable-shared", "--enable-static"])
-            self._autotools.configure(args=args)
-        return self._autotools
+    def generate(self):
+        # TODO:
+        # - Static only build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L140
+        # - Release build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L253
+        tc = AutotoolsToolchain(self)
+        tc.generate()
+
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         with chdir(self, self.source_folder):
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
-            autotools = self._configure_autotools()
+            autotools = Autotools()
             autotools.install()
         os.unlink(os.path.join(self.package_folder, "lib", "libest.la"))
 

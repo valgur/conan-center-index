@@ -27,6 +27,7 @@ class SkyrUrlConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cpp-netlib.github.io/url"
     topics = ("whatwg", "url", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -89,8 +90,8 @@ class SkyrUrlConan(ConanFile):
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++17 support. "
-                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.ref} requires C++17 support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
         if self.options.with_fs and self.settings.compiler == "apple-clang":

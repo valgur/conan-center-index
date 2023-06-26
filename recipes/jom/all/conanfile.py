@@ -1,7 +1,8 @@
-from conan import ConanFile
-from conan.tools.files import copy, download, get
-from conan.errors import ConanInvalidConfiguration
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import copy, download, get
 
 required_conan_version = ">=1.47.0"
 
@@ -11,10 +12,11 @@ class JomInstallerConan(ConanFile):
     description = (
         "jom is a clone of nmake to support the execution of multiple independent commands in parallel"
     )
+    license = "GPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://wiki.qt.io/Jom"
-    license = "GPL-3.0-only"
-    topics = ("build", "make", "makefile", "nmake")
+    topics = ("build", "make", "makefile", "nmake", "pre-built")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -45,6 +47,8 @@ class JomInstallerConan(ConanFile):
         copy(self, "*.exe", self.build_folder, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

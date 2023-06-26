@@ -9,14 +9,17 @@ required_conan_version = ">=1.50.0"
 
 class OpenJDK(ConanFile):
     name = "openjdk"
-    package_type = "application"
-    url = "https://github.com/conan-io/conan-center-index/"
     description = "Java Development Kit builds, from Oracle"
-    homepage = "https://jdk.java.net"
     license = "GPL-2.0-with-classpath-exception"
-    topics = ("java", "jdk", "openjdk")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://jdk.java.net"
+    topics = ("java", "jdk", "openjdk", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+
+    def layout(self):
+        pass
 
     def package_id(self):
         del self.info.settings.compiler
@@ -86,6 +89,11 @@ class OpenJDK(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         self.output.info(f"Creating JAVA_HOME environment variable with : {self.package_folder}")
 
         self.runenv_info.append("JAVA_HOME", self.package_folder)

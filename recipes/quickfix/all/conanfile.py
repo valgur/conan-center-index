@@ -2,104 +2,41 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
     collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
     rmdir,
-    save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class QuickfixConan(ConanFile):
     name = "quickfix"
+    description = "QuickFIX is a free and open source implementation of the FIX protocol"
     license = "The QuickFIX Software License, Version 1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.quickfixengine.org"
-    description = "QuickFIX is a free and open source implementation of the FIX protocol"
     topics = ("FIX", "Financial Information Exchange", "libraries", "cpp")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_ssl": [True, False],
         "with_postgres": [True, False],
         "with_mysql": [None, "libmysqlclient"],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_ssl": False,
         "with_postgres": False,
         "with_mysql": None,
@@ -107,6 +44,17 @@ class QuickfixConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_ssl:
@@ -117,14 +65,6 @@ class QuickfixConan(ConanFile):
 
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/8.0.29")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:

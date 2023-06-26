@@ -12,16 +12,19 @@ from conan.tools.files import (
 )
 from conan.errors import ConanInvalidConfiguration
 
+required_conan_version = ">=1.53.0"
+
 
 class GladConan(ConanFile):
     name = "glad"
     description = "Multi-Language GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs."
-    topics = ("opengl",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Dav1dde/glad"
-    license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("opengl",)
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -64,7 +67,6 @@ class GladConan(ConanFile):
         # if specification is wgl
         "wgl_version": ["None", "1.0"],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -111,14 +113,14 @@ class GladConan(ConanFile):
         if self.options.spec != "wgl":
             self.options.rm_safe("wgl_version")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.options.spec == "wgl" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration(
                 f"{self.ref}:{self.options.spec} specification is not compatible with {self.settings.os}"
             )
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

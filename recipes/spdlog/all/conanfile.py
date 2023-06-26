@@ -12,12 +12,13 @@ required_conan_version = ">=1.53.0"
 
 class SpdlogConan(ConanFile):
     name = "spdlog"
-    package_type = "library"
     description = "Fast C++ logging library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gabime/spdlog"
     topics = ("logger", "logging", "log-filtering", "file sink", "header-only")
-    license = "MIT"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -123,7 +124,7 @@ class SpdlogConan(ConanFile):
                 pattern="*.h",
                 dst=os.path.join(self.package_folder, "include"),
                 # Unvendor bundled dependencies https://github.com/gabime/spdlog/commit/18495bf25dad3a4e8c2fe3777a5f79acecde27e3
-                excludes=("spdlog/fmt/bundled/*"),
+                excludes="spdlog/fmt/bundled/*",
             )
         else:
             cmake = CMake(self)

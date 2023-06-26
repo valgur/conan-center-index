@@ -14,6 +14,7 @@ class StatsLibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.kthohr.com/statslib.html"
     topics = ("statistics", "constexpr", "probability", "stats", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

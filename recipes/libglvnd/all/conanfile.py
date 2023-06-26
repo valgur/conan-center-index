@@ -1,12 +1,14 @@
-from conan import ConanFile
-from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.files import get, rmdir, save
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.layout import basic_layout
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import get, rmdir, save
+from conan.tools.gnu import PkgConfigDeps
+from conan.tools.layout import basic_layout
+from conan.tools.meson import Meson, MesonToolchain
+
+required_conan_version = ">=1.53.0"
 
 
 class LibGlvndConan(ConanFile):
@@ -16,8 +18,12 @@ class LibGlvndConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/glvnd/libglvnd"
     topics = ("gl", "vendor-neutral", "dispatch")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "asm": [True, False],
         "x11": [True, False],
         "egl": [True, False],
@@ -30,6 +36,8 @@ class LibGlvndConan(ConanFile):
         "entrypoint_patching": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "asm": True,
         "x11": True,
         "egl": True,
@@ -41,8 +49,6 @@ class LibGlvndConan(ConanFile):
         "headers": True,
         "entrypoint_patching": True,
     }
-
-    generators = "PkgConfigDeps"
 
     # don't use self.settings_build
     @property
@@ -58,6 +64,9 @@ class LibGlvndConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self)
+
     def requirements(self):
         if self.options.x11:
             self.requires("xorg/system")
@@ -71,9 +80,6 @@ class LibGlvndConan(ConanFile):
     def build_requirements(self):
         self.build_requires("meson/0.63.2")
         self.build_requires("pkgconf/1.9.3")
-
-    def layout(self):
-        basic_layout(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -95,6 +101,9 @@ class LibGlvndConan(ConanFile):
         tc.project_options["libdir"] = "lib"
         tc.generate()
 
+        tc = PkgConfigDeps(self)
+        tc.generate()
+
     def build(self):
         meson = Meson(self)
         meson.configure()
@@ -110,8 +119,7 @@ class LibGlvndConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, "licenses", "LICENSE"),
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             Copyright (c) 2013, NVIDIA CORPORATION.
 
             Permission is hereby granted, free of charge, to any person obtaining a
@@ -134,8 +142,7 @@ class LibGlvndConan(ConanFile):
             CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
             TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
             MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
-            """
-            ),
+            """),
         )
 
     def package_info(self):

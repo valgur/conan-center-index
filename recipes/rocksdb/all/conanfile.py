@@ -81,18 +81,19 @@ import os
 import glob
 import shutil
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class RocksDB(ConanFile):
     name = "rocksdb"
-    homepage = "https://github.com/facebook/rocksdb"
+    description = "A library that provides an embeddable, persistent key-value store for fast storage"
     license = ("GPL-2.0-only", "Apache-2.0")
     url = "https://github.com/conan-io/conan-center-index"
-    description = "A library that provides an embeddable, persistent key-value store for fast storage"
+    homepage = "https://github.com/facebook/rocksdb"
     topics = ("database", "leveldb", "facebook", "key-value")
 
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -136,6 +137,9 @@ class RocksDB(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_gflags:

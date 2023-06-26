@@ -9,11 +9,16 @@ required_conan_version = ">=1.53.0"
 
 class LibRawConan(ConanFile):
     name = "libraw"
-    description = "LibRaw is a library for reading RAW files obtained from digital photo cameras (CRW/CR2, NEF, RAF, DNG, and others)."
-    license = "CDDL-1.0", "LGPL-2.1-only"
+    description = (
+        "LibRaw is a library for reading RAW files obtained from digital photo cameras "
+        "(CRW/CR2, NEF, RAF, DNG, and others)."
+    )
+    license = ("CDDL-1.0", "LGPL-2.1-only")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libraw.org/"
-    topics = ["image", "photography", "raw"]
+    topics = ("image", "photography", "raw")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -30,12 +35,12 @@ class LibRawConan(ConanFile):
         "with_jasper": True,
     }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
     @property
     def _min_cppstd(self):
         return 11
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

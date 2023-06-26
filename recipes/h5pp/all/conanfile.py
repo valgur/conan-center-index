@@ -15,13 +15,13 @@ required_conan_version = ">=1.50.0"
 class H5ppConan(ConanFile):
     name = "h5pp"
     description = "A C++17 wrapper for HDF5 with focus on simplicity"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/DavidAce/h5pp"
     topics = ("hdf5", "binary", "storage", "header-only", "cpp17")
-    license = "MIT"
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
     options = {
         "with_eigen": [True, False],
         "with_spdlog": [True, False],
@@ -32,6 +32,7 @@ class H5ppConan(ConanFile):
         "with_spdlog": True,
         "with_zlib": True,
     }
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -63,6 +64,9 @@ class H5ppConan(ConanFile):
         else:
             self.options["hdf5"].with_zlib = self.options.with_zlib
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("hdf5/1.14.0", transitive_headers=True, transitive_libs=True)
         if Version(self.version) < "1.10.0" or self.options.get_safe("with_eigen"):
@@ -71,9 +75,6 @@ class H5ppConan(ConanFile):
             self.requires("spdlog/1.11.0", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "1.10.0" and self.options.with_zlib:
             self.requires("zlib/1.2.13", transitive_headers=True, transitive_libs=True)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

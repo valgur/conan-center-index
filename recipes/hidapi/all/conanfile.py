@@ -19,19 +19,20 @@ class HidapiConan(ConanFile):
         "HIDAPI is a multi-platform library which allows an application to interface "
         "with USB and Bluetooth HID-Class devices on Windows, Linux, FreeBSD, and macOS."
     )
-    topics = ("libusb", "hid-class", "bluetooth")
+    license = ("GPL-3-or-later", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libusb/hidapi"
-    license = "GPL-3-or-later", "BSD-3-Clause"
+    topics = ("libusb", "hid-class", "bluetooth")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property

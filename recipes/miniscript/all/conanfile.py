@@ -14,6 +14,8 @@ class MiniscriptConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/JoeStrout/miniscript"
     topics = ("script", "embedded", "programming-language")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

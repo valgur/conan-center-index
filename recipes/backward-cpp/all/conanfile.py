@@ -12,10 +12,10 @@ required_conan_version = ">=1.53.0"
 class BackwardCppConan(ConanFile):
     name = "backward-cpp"
     description = "A beautiful stack trace pretty printer for C++"
-    homepage = "https://github.com/bombela/backward-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = "stack-trace"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bombela/backward-cpp"
+    topics = "stack-trace"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

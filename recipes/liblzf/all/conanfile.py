@@ -13,10 +13,11 @@ class LiblzfConan(ConanFile):
         "compression algorithm. It is ideal for applications where you want to "
         "save *some* space but not at the cost of speed."
     )
+    license = ("BSD-2-Clause", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://software.schmorp.de/pkg/liblzf.html"
     topics = ("lzf", "compression")
-    license = "BSD-2-Clause", "GPL-2.0-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

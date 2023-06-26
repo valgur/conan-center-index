@@ -11,9 +11,9 @@ class Libsgp4Conan(ConanFile):
     name = "libsgp4"
     description = "C++11 library for SGP4 Simplified perturbations model."
     license = "Apache-2.0"
-    topics = ("sgp4", "orbit", "satellite", "perturbation")
-    homepage = "https://github.com/dnwrnr/sgp4"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/dnwrnr/sgp4"
+    topics = ("sgp4", "orbit", "satellite", "perturbation")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -16,6 +16,8 @@ class SeasocksConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mattgodbolt/seasocks"
     topics = ("embeddable", "webserver", "websockets")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -75,12 +77,6 @@ class SeasocksConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _patch_sources(self):
-        # No warnings as errors
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "-Werror", "")
-        replace_in_file(self, cmakelists, "-pedantic-errors", "")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["DEFLATE_SUPPORT"] = self.options.with_zlib
@@ -91,6 +87,12 @@ class SeasocksConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
+
+    def _patch_sources(self):
+        # No warnings as errors
+        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
+        replace_in_file(self, cmakelists, "-Werror", "")
+        replace_in_file(self, cmakelists, "-pedantic-errors", "")
 
     def build(self):
         self._patch_sources()

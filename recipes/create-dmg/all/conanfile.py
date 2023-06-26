@@ -11,10 +11,13 @@ class CreateDmgConan(ConanFile):
     name = "create-dmg"
     description = "A shell script to build fancy DMGs"
     license = "MIT"
-    topics = ("command-line", "dmg")
-    homepage = "https://github.com/create-dmg/create-dmg"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/create-dmg/create-dmg"
+    topics = ("command-line", "dmg", "header-only")
+
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

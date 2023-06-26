@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_abi_version'
+#   Unexpected method '_configure_meson'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -159,15 +163,17 @@ import glob
 import os
 import shutil
 
+required_conan_version = ">=1.53.0"
+
 
 class CairommConan(ConanFile):
     name = "cairomm"
-    homepage = "https://github.com/freedesktop/cairomm"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "LGPL-2.0"
     description = "cairomm is a C++ wrapper for the cairo graphics library."
+    license = "LGPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/freedesktop/cairomm"
     topics = ["cairo", "wrapper", "graphics"]
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -178,10 +184,32 @@ class CairommConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "pkg_config"
-
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.shared:
+            self.options["cairo"].shared = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("cairo/1.17.4")
+
+        if self._abi_version() == "1.16":
+            self.requires("libsigcpp/3.0.7")
+        else:
+            self.requires("libsigcpp/2.10.8")
+
+    def package_id(self):
+        self.info.requires["cairo"].full_package_mode()
 
     def _abi_version(self):
         return "1.16" if Version(self.version) >= "1.16.0" else "1.0"
@@ -200,6 +228,17 @@ class CairommConan(ConanFile):
                 "against static glib which can cause problems."
             )
 
+    def build_requirements(self):
+        self.build_requires("meson/0.59.1")
+        self.build_requires("pkgconf/1.7.4")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = PkgConfigDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
         if is_msvc(self):
@@ -211,31 +250,6 @@ class CairommConan(ConanFile):
             replace_in_file(
                 self, os.path.join(self.source_folder, "meson.build"), "cpp_std=c++", "cpp_std=vc++"
             )
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        if self.options.shared:
-            self.options["cairo"].shared = True
-
-    def build_requirements(self):
-        self.build_requires("meson/0.59.1")
-        self.build_requires("pkgconf/1.7.4")
-
-    def requirements(self):
-        self.requires("cairo/1.17.4")
-
-        if self._abi_version() == "1.16":
-            self.requires("libsigcpp/3.0.7")
-        else:
-            self.requires("libsigcpp/2.10.8")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         self._patch_sources()
@@ -304,6 +318,3 @@ class CairommConan(ConanFile):
             self.cpp_info.components["cairomm-1.0"].requires = ["libsigcpp::sigc++-2.0", "cairo::cairo_"]
             if is_apple_os(self.settings.os):
                 self.cpp_info.components["cairomm-1.0"].frameworks = ["CoreFoundation"]
-
-    def package_id(self):
-        self.info.requires["cairo"].full_package_mode()

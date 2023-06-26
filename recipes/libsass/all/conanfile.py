@@ -80,17 +80,19 @@ from conan.tools.system import package_manager
 import os
 import re
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibsassConan(ConanFile):
     name = "libsass"
-    license = "MIT"
-    homepage = "libsass.org"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A C/C++ implementation of a Sass compiler"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "libsass.org"
     topics = ("Sass", "compiler")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,8 +101,6 @@ class LibsassConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    _autotools = None
 
     @property
     def _is_mingw(self):
@@ -114,6 +114,9 @@ class LibsassConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def build_requirements(self):
         if self.settings.os != "Windows":
             self.tool_requires("libtool/2.4.7")
@@ -121,27 +124,18 @@ class LibsassConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
-        args = []
-        args.append("--disable-tests")
-        args.append("--enable-%s" % ("shared" if self.options.shared else "static"))
-        args.append("--disable-%s" % ("static" if self.options.shared else "shared"))
-        self._autotools.configure(args=args)
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = ["--disable-tests"]
+        tc.generate()
 
     def _build_autotools(self):
         with chdir(self, self.source_folder):
             save(self, path="VERSION", content=f"{self.version}")
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")))
-            autotools = self._configure_autotools()
+            self.run(f"{get_env(self, 'AUTORECONF')} -fiv")
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
-
-    @property
-    def _make_program(self):
-        return get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make") or which(self, "mingw32-make"))
 
     def _build_mingw(self):
         makefile = os.path.join(self.source_folder, "Makefile")
@@ -167,9 +161,9 @@ class LibsassConan(ConanFile):
         with chdir(self, self.source_folder):
             properties = {
                 "LIBSASS_STATIC_LIB": "" if self.options.shared else "true",
-                "WholeProgramOptimization": "true"
-                if any(re.finditer("(^| )[/-]GL($| )", get_env(self, "CFLAGS", "")))
-                else "false",
+                "WholeProgramOptimization": (
+                    "true" if any(re.finditer("(^| )[/-]GL($| )", get_env(self, "CFLAGS", ""))) else "false"
+                ),
             }
             platforms = {
                 "x86": "Win32",
@@ -188,7 +182,7 @@ class LibsassConan(ConanFile):
 
     def _install_autotools(self):
         with chdir(self, self.source_folder):
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", self.package_folder, recursive=True)

@@ -8,21 +8,21 @@ required_conan_version = ">=1.53.0"
 
 class CppOptparseConan(ConanFile):
     name = "cpp-optparse"
+    description = "Python's excellent OptionParser in C++"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/weisslj/cpp-optparse"
-    description = "Python's excellent OptionParser in C++"
     topics = ("argument", "parsing")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):

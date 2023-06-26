@@ -13,12 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class LibSigCppConan(ConanFile):
     name = "libsigcpp"
-    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "LGPL-3.0-only"
     description = "libsigc++ implements a typesafe callback system for standard C++."
-    topics = "callback"
+    license = "LGPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
+    topics = ("callback",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -10,11 +10,12 @@ required_conan_version = ">=1.50.0"
 
 class Rectpack2dConan(ConanFile):
     name = "rectpack2d"
+    description = "C++17 rectangle packing library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TeamHypersomnia/rectpack2D"
-    description = "C++17 rectangle packing library"
     topics = ("header-only", "graphical", "cpp17")
-    license = "MIT"
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

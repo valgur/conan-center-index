@@ -30,14 +30,15 @@ required_conan_version = ">=1.57.0"
 
 class ICUConan(ConanFile):
     name = "icu"
-    homepage = "http://site.icu-project.org"
-    license = "ICU"
     description = (
         "ICU is a mature, widely used set of C/C++ and Java libraries "
         "providing Unicode and Globalization support for software applications."
     )
+    license = "ICU"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://site.icu-project.org"
     topics = ("icu4c", "i see you", "unicode")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -102,6 +103,11 @@ class ICUConan(ConanFile):
     def package_id(self):
         if self.info.options.dat_package_file:
             self.info.options.dat_package_file = self._sha256sum(str(self.info.options.dat_package_file))
+
+    def validate(self):
+        if self.options.dat_package_file:
+            if not os.path.exists(self.options.dat_package_file):
+                raise ConanInvalidConfiguration("Non-existent dat_package_file specified")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":

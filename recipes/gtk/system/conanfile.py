@@ -8,17 +8,22 @@ required_conan_version = ">=1.50.0"
 
 class ConanGTK(ConanFile):
     name = "gtk"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "LGPL-2.1-or-later"
-    homepage = "https://www.gtk.org"
     description = (
         "A free and open-source cross-platform widget toolkit for creating graphical user interfaces"
     )
+    license = "LGPL-2.1-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gtk.org"
     topics = ("gui", "widget", "graphical")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"version": [2, 3]}
-    default_options = {"version": 2}
+    options = {
+        "version": [2, 3],
+    }
+    default_options = {
+        "version": 2,
+    }
 
     def layout(self):
         pass

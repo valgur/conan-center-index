@@ -10,10 +10,11 @@ class JwasmConan(ConanFile):
     name = "jwasm"
     description = "JWasm is intended to be a free Masm-compatible assembler."
     license = "Watcom-1.0"
-    topics = ("masm", "assembler")
-    homepage = "https://github.com/JWasm/JWasm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/JWasm/JWasm"
+    topics = ("masm", "assembler")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
@@ -24,11 +25,11 @@ class JwasmConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

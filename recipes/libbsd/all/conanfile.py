@@ -17,10 +17,11 @@ class LibBsdConan(ConanFile):
         "This library provides useful functions commonly found on BSD systems, and lacking on others like GNU systems, "
         "thus making it easier to port projects with strong BSD origins, without needing to embed the same code over and over again on each project."
     )
-    topics = ("useful", "functions", "bsd", "GNU")
     license = ("ISC", "MIT", "Beerware", "BSD-2-clause", "BSD-3-clause", "BSD-4-clause")
-    homepage = "https://libbsd.freedesktop.org/wiki/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://libbsd.freedesktop.org/wiki/"
+    topics = ("useful", "functions", "bsd", "GNU")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -32,9 +33,6 @@ class LibBsdConan(ConanFile):
         "fPIC": True,
     }
 
-    def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -43,16 +41,6 @@ class LibBsdConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-
-    def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        tc = AutotoolsToolchain(self)
-        if is_apple_os(self):
-            tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
-        tc.generate()
-        deps = AutotoolsDeps(self)
-        deps.generate()
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -63,8 +51,21 @@ class LibBsdConan(ConanFile):
                 f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)"
             )
 
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.7")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        tc = AutotoolsToolchain(self)
+        if is_apple_os(self):
+            tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
+        tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)

@@ -15,9 +15,9 @@ class EasyProfilerConan(ConanFile):
     name = "easy_profiler"
     description = "Lightweight profiler library for c++"
     license = "MIT"
-    topics = "profiler"
-    homepage = "https://github.com/yse/easy_profiler/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/yse/easy_profiler/"
+    topics = ("profiler",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,12 +42,12 @@ class EasyProfilerConan(ConanFile):
             "apple-clang": "8.0",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:

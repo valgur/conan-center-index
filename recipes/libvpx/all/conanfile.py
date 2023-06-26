@@ -24,11 +24,11 @@ required_conan_version = ">=1.57.0"
 
 class LibVPXConan(ConanFile):
     name = "libvpx"
+    description = "WebM VP8/VP9 Codec SDK"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.webmproject.org/code"
-    description = "WebM VP8/VP9 Codec SDK"
     topics = ("vpx", "codec", "web", "VP8", "VP9")
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,7 +42,6 @@ class LibVPXConan(ConanFile):
     }
 
     _arch_options = ["mmx", "sse", "sse2", "sse3", "ssse3", "sse4_1", "avx", "avx2", "avx512"]
-
     options.update({name: [True, False] for name in _arch_options})
     default_options.update({name: "avx" not in name for name in _arch_options})
 

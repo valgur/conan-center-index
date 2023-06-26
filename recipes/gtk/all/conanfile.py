@@ -79,18 +79,17 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class GtkConan(ConanFile):
     name = "gtk"
     description = "libraries used for creating graphical user interfaces for applications."
-    topics = "widgets"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gtk.org"
-    license = "LGPL-2.1-or-later"
-    generators = "pkg_config"
-
+    topics = "widgets"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -141,22 +140,6 @@ class GtkConan(ConanFile):
             self.options.rm_safe("with_wayland")
             self.options.rm_safe("with_x11")
 
-    def validate(self):
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration(
-                "this recipes does not support GCC before version 5. contributions are welcome"
-            )
-        if str(self.settings.compiler) in ["Visual Studio", "msvc"]:
-            if Version(self.version) < "4.2":
-                raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
-            if not self.options["gdk-pixbuf"].shared:
-                raise ConanInvalidConfiguration("MSVC build requires shared gdk-pixbuf")
-            if not self.options["cairo"].shared:
-                raise ConanInvalidConfiguration("MSVC build requires shared cairo")
-        if Version(self.version) >= "4.1.0":
-            if not self.options.shared:
-                raise ConanInvalidConfiguration("gtk supports only shared since 4.1.0")
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -169,13 +152,8 @@ class GtkConan(ConanFile):
                         "with_pango option is mandatory when with_wayland or with_x11 is used"
                     )
 
-    def build_requirements(self):
-        self.build_requires("meson/0.62.2")
-        if self._gtk4:
-            self.build_requires("libxml2/2.9.14")  # for xmllint
-        self.build_requires("pkgconf/1.7.4")
-        if self._gtk4:
-            self.build_requires("sassc/3.6.2")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("gdk-pixbuf/2.42.6")
@@ -209,8 +187,37 @@ class GtkConan(ConanFile):
         if self.options.with_gstreamer:
             self.requires("gstreamer/1.19.2")
 
+    def validate(self):
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
+            raise ConanInvalidConfiguration(
+                "this recipes does not support GCC before version 5. contributions are welcome"
+            )
+        if str(self.settings.compiler) in ["Visual Studio", "msvc"]:
+            if Version(self.version) < "4.2":
+                raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
+            if not self.options["gdk-pixbuf"].shared:
+                raise ConanInvalidConfiguration("MSVC build requires shared gdk-pixbuf")
+            if not self.options["cairo"].shared:
+                raise ConanInvalidConfiguration("MSVC build requires shared cairo")
+        if Version(self.version) >= "4.1.0":
+            if not self.options.shared:
+                raise ConanInvalidConfiguration("gtk supports only shared since 4.1.0")
+
+    def build_requirements(self):
+        self.build_requires("meson/0.62.2")
+        if self._gtk4:
+            self.build_requires("libxml2/2.9.14")  # for xmllint
+        self.build_requires("pkgconf/1.7.4")
+        if self._gtk4:
+            self.build_requires("sassc/3.6.2")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_meson(self):
         meson = Meson(self)

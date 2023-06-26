@@ -22,8 +22,13 @@ class LibAVIFConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AOMediaCodec/libavif"
     topics = "avif"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_decoder": ["aom", "dav1d"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_decoder": ["aom", "dav1d"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

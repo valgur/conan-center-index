@@ -20,18 +20,18 @@ import os
 import re
 import shutil
 
-
 required_conan_version = ">=1.55.0"
 
 
 class LibjpegConan(ConanFile):
     name = "libjpeg"
     description = "Libjpeg is a widely used C library for reading and writing JPEG image files."
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("image", "format", "jpg", "jpeg", "picture", "multimedia", "graphics")
     license = "IJG"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://ijg.org"
+    topics = ("image", "format", "jpg", "jpeg", "picture", "multimedia", "graphics")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

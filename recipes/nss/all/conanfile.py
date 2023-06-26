@@ -80,17 +80,19 @@ from conan.tools.system import package_manager
 import os
 import glob
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class NSSConan(ConanFile):
     name = "nss"
-    license = "MPL-2.0"
-    homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Network Security Services"
+    license = "MPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS"
     topics = ("network", "security", "crypto", "ssl")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -104,14 +106,6 @@ class NSSConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
-        if self.settings.os == "Windows":
-            self.build_requires("mozilla-build/3.3")
-        if hasattr(self, "settings_build"):
-            self.build_requires("sqlite3/3.41.2")
-
     def configure(self):
         self.options["nspr"].shared = True
         self.options["sqlite3"].shared = True
@@ -120,6 +114,9 @@ class NSSConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("nspr/4.35")
@@ -151,8 +148,20 @@ class NSSConan(ConanFile):
             if self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= 13:
                 raise ConanInvalidConfiguration("nss < 3.74 requires clang < 13 .")
 
+    def build_requirements(self):
+        if self.settings.compiler == "Visual Studio" and not get_env(self, "CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
+        if self.settings.os == "Windows":
+            self.build_requires("mozilla-build/3.3")
+        if hasattr(self, "settings_build"):
+            self.build_requires("sqlite3/3.41.2")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @property
     def _make_args(self):
@@ -247,7 +256,7 @@ class NSSConan(ConanFile):
         apply_conandata_patches(self)
         with chdir(self, os.path.join(self.source_folder, "nss")):
             with vcvars(self) if self.settings.compiler == "Visual Studio" else no_op(self):
-                self.run("make %s" % " ".join(self._make_args), run_environment=True)
+                self.run(f"make {' '.join(self._make_args)}", run_environment=True)
 
     def package(self):
         copy(

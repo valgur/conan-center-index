@@ -6,17 +6,19 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class SamariumConan(ConanFile):
     name = "samarium"
     description = "2-D physics simulation library"
-    homepage = "https://strangequark1041.github.io/samarium/"
-    url = "https://github.com/conan-io/conan-center-index/"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://strangequark1041.github.io/samarium/"
     topics = ("cpp20", "physics", "2d", "simulation")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

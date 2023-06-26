@@ -13,12 +13,13 @@ required_conan_version = ">=1.52.0"
 class AndroidNDKConan(ConanFile):
     name = "android-ndk"
     description = "The Android NDK is a toolset that lets you implement parts of your app in native code, using languages such as C and C++"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://developer.android.com/ndk/"
     topics = ("android", "ndk", "toolchain", "compiler")
-    license = "Apache-2.0"
 
-    settings = "os", "arch", "build_type", "compiler"
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def _is_universal2(self, info=False):
         settings = self.info.settings if info else self.settings
@@ -274,12 +275,9 @@ class AndroidNDKConan(ConanFile):
             return "UNKNOWN"
         return path
 
-    @staticmethod
-    def _chmod_plus_x(filename):
-        if os.name == "posix":
-            os.chmod(filename, os.stat(filename).st_mode | 0o111)
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

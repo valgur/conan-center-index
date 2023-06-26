@@ -18,17 +18,18 @@ class ScnlibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eliaskosunen/scnlib"
     topics = ("parsing", "io", "scanf")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "header_only": [True, False],
         "shared": [True, False],
         "fPIC": [True, False],
+        "header_only": [True, False],
     }
     default_options = {
-        "header_only": False,
         "shared": False,
         "fPIC": True,
+        "header_only": False,
     }
 
     @property
@@ -58,14 +59,14 @@ class ScnlibConan(ConanFile):
         if Version(self.version) >= "1.0":
             self.requires("fast_float/5.2.0")
 
+    def package_id(self):
+        if self.info.options.header_only:
+            self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192 if Version(self.version) >= "1.0" else 191)
-
-    def package_id(self):
-        if self.info.options.header_only:
-            self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

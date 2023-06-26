@@ -1,19 +1,26 @@
+import os
+
 from conan import ConanFile
 from conan.tools.files import get, copy
-import os
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.52.0"
 
 
 class ArteryFontFormatConan(ConanFile):
     name = "artery-font-format"
-    license = "MIT"
-    homepage = "https://github.com/Chlumsky/artery-font-format"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Artery Atlas Font format library"
-    topics = ("artery", "font", "atlas")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Chlumsky/artery-font-format"
+    topics = ("artery", "font", "atlas", "header-only")
+
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -34,3 +41,7 @@ class ArteryFontFormatConan(ConanFile):
         )
         copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -20,7 +20,10 @@ class McapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/foxglove/mcap"
     topics = ("serialization", "deserialization", "recording", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

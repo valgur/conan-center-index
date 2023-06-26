@@ -161,16 +161,21 @@ import os
 import shutil
 import string
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class JemallocConan(ConanFile):
     name = "jemalloc"
-    description = "jemalloc is a general purpose malloc(3) implementation that emphasizes fragmentation avoidance and scalable concurrency support."
-    url = "https://github.com/conan-io/conan-center-index"
+    description = (
+        "jemalloc is a general purpose malloc(3) implementation that emphasizes fragmentation avoidance and"
+        " scalable concurrency support."
+    )
     license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://jemalloc.net/"
     topics = ("malloc", "free")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -203,7 +208,9 @@ class JemallocConan(ConanFile):
         "enable_prof": False,
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -218,6 +225,9 @@ class JemallocConan(ConanFile):
         if not self.options.enable_cxx:
             self.settings.rm_safe("compiler.libcxx")
             self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if (
@@ -253,13 +263,6 @@ class JemallocConan(ConanFile):
         if self.settings.os == "Macos" and self.settings.arch not in ("x86_64", "x86"):
             raise ConanInvalidConfiguration("Unsupported arch")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not self.conf.get(
             "tools.microsoft.bash:path", default=False, check_type=bool
@@ -269,8 +272,8 @@ class JemallocConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _autotools_args(self):
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         conf_args = [
             "--with-jemalloc-prefix={}".format(self.options.prefix),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
@@ -288,18 +291,8 @@ class JemallocConan(ConanFile):
         ]
         if self.options.enable_prof:
             conf_args.append("--enable-prof")
-        if self.options.shared:
-            conf_args.extend(["--enable-shared", "--disable-static"])
-        else:
-            conf_args.extend(["--disable-shared", "--enable-static"])
-        return conf_args
-
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools_legacy.os_info.is_windows)
-        self._autotools.configure(args=self._autotools_args, configure_dir=self.source_folder)
-        return self._autotools
+        tc.configure_args = conf_args
+        tc.generate()
 
     @property
     def _msvc_build_type(self):
@@ -355,7 +348,8 @@ class JemallocConan(ConanFile):
             sln_file = os.path.join(self.source_folder, "msvc", "jemalloc_vc2017.sln")
             msbuild.build(sln_file, targets=["jemalloc"], build_type=self._msvc_build_type)
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools()
+            autotools.configure()
             autotools.make()
 
     @property

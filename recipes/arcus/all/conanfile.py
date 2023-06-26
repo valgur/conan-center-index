@@ -17,10 +17,11 @@ class ArcusConan(ConanFile):
         "and receive messages based on the Protocol Buffers library."
     )
     license = "LGPL-3.0-or-later"
-    topics = ("protobuf", "socket", "cura")
-    homepage = "https://github.com/Ultimaker/libArcus"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Ultimaker/libArcus"
+    topics = ("protobuf", "socket", "cura")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -72,6 +73,19 @@ class ArcusConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -85,19 +99,6 @@ class ArcusConan(ConanFile):
                 "Arcus": "Arcus::Arcus",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

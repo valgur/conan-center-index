@@ -13,10 +13,10 @@ required_conan_version = ">=1.54.0"
 class OatppConan(ConanFile):
     name = "oatpp"
     description = "Modern Web Framework for C++"
-    homepage = "https://github.com/oatpp/oatpp"
     license = "Apache-2.0"
-    topics = ("oat++", "web-framework")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp"
+    topics = ("oat++", "web-framework")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

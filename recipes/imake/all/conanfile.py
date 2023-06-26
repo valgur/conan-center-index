@@ -12,10 +12,10 @@ required_conan_version = ">=1.54.0"
 class ImakeConan(ConanFile):
     name = "imake"
     description = "Obsolete C preprocessor interface to the make utility"
-    topics = ("xmkmf", "preprocessor", "build", "system")
     license = "MIT"
-    homepage = "https://gitlab.freedesktop.org/xorg/util/imake"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.freedesktop.org/xorg/util/imake"
+    topics = ("xmkmf", "preprocessor", "build", "system")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -40,15 +40,25 @@ class ImakeConan(ConanFile):
         "xmkmf": True,
     }
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def configure(self):
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("xorg-proto/2022.2")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
@@ -59,18 +69,8 @@ class ImakeConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
 
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def package_id(self):
-        del self.info.settings.compiler
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def generate(self):
         venv = VirtualBuildEnv(self)
@@ -132,6 +132,8 @@ class ImakeConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))

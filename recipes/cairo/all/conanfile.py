@@ -26,10 +26,11 @@ required_conan_version = ">=1.54.0"
 class CairoConan(ConanFile):
     name = "cairo"
     description = "Cairo is a 2D graphics library with support for multiple output devices"
-    topics = "graphics"
+    license = ("LGPL-2.1-only", "MPL-1.1")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cairographics.org/"
-    license = ("LGPL-2.1-only", "MPL-1.1")
+    topics = ("graphics",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

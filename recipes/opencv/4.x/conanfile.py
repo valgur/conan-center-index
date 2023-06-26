@@ -25,12 +25,13 @@ required_conan_version = ">=1.54.0"
 
 class OpenCVConan(ConanFile):
     name = "opencv"
-    license = "Apache-2.0"
-    homepage = "https://opencv.org"
     description = "OpenCV (Open Source Computer Vision Library)"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://opencv.org"
     topics = ("computer-vision", "deep-learning", "image-processing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -441,9 +442,9 @@ class OpenCVConan(ConanFile):
             # libavcodec;libavformat;libavutil;libswscale modules
             tc.variables["OPENCV_FFMPEG_USE_FIND_PACKAGE"] = "ffmpeg"
             tc.variables["OPENCV_INSTALL_FFMPEG_DOWNLOAD_SCRIPT"] = False
-            tc.variables[
-                "FFMPEG_LIBRARIES"
-            ] = "ffmpeg::avcodec;ffmpeg::avformat;ffmpeg::avutil;ffmpeg::swscale"
+            tc.variables["FFMPEG_LIBRARIES"] = (
+                "ffmpeg::avcodec;ffmpeg::avformat;ffmpeg::avutil;ffmpeg::swscale"
+            )
             ffmpeg_cpp_info = self.dependencies["ffmpeg"].cpp_info
             for component in ["avcodec", "avformat", "avutil", "swscale"]:
                 ffmpeg_component_version = ffmpeg_cpp_info.components[component].get_property(
@@ -602,14 +603,12 @@ class OpenCVConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property
@@ -718,10 +717,9 @@ class OpenCVConan(ConanFile):
             {
                 "target": "opencv_imgcodecs",
                 "lib": "imgcodecs",
-                "requires": ["opencv_core", "opencv_imgproc", "zlib::zlib"]
-                + eigen()
-                + imageformats_deps()
-                + ipp(),
+                "requires": (
+                    ["opencv_core", "opencv_imgproc", "zlib::zlib"] + eigen() + imageformats_deps() + ipp()
+                ),
             },
             {
                 "target": "opencv_videoio",
@@ -733,45 +731,51 @@ class OpenCVConan(ConanFile):
             {
                 "target": "opencv_calib3d",
                 "lib": "calib3d",
-                "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
-                + eigen()
-                + ipp(),
+                "requires": (
+                    ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"] + eigen() + ipp()
+                ),
             },
             {
                 "target": "opencv_highgui",
                 "lib": "highgui",
-                "requires": ["opencv_core", "opencv_imgproc", "opencv_imgcodecs", "opencv_videoio"]
-                + freetype()
-                + eigen()
-                + gtk()
-                + ipp(),
+                "requires": (
+                    ["opencv_core", "opencv_imgproc", "opencv_imgcodecs", "opencv_videoio"]
+                    + freetype()
+                    + eigen()
+                    + gtk()
+                    + ipp()
+                ),
             },
             {
                 "target": "opencv_stitching",
                 "lib": "stitching",
-                "requires": [
-                    "opencv_core",
-                    "opencv_flann",
-                    "opencv_imgproc",
-                    "opencv_features2d",
-                    "opencv_calib3d",
-                ]
-                + xfeatures2d()
-                + eigen()
-                + ipp(),
+                "requires": (
+                    [
+                        "opencv_core",
+                        "opencv_flann",
+                        "opencv_imgproc",
+                        "opencv_features2d",
+                        "opencv_calib3d",
+                    ]
+                    + xfeatures2d()
+                    + eigen()
+                    + ipp()
+                ),
             },
             {
                 "target": "opencv_video",
                 "lib": "video",
-                "requires": [
-                    "opencv_core",
-                    "opencv_flann",
-                    "opencv_imgproc",
-                    "opencv_features2d",
-                    "opencv_calib3d",
-                ]
-                + eigen()
-                + ipp(),
+                "requires": (
+                    [
+                        "opencv_core",
+                        "opencv_flann",
+                        "opencv_imgproc",
+                        "opencv_features2d",
+                        "opencv_calib3d",
+                    ]
+                    + eigen()
+                    + ipp()
+                ),
             },
         ]
         if self.options.with_ipp == "opencv-icv" and not self.options.shared:
@@ -788,16 +792,18 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_objdetect",
                         "lib": "objdetect",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                        ]
-                        + eigen()
-                        + quirc()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                            ]
+                            + eigen()
+                            + quirc()
+                            + ipp()
+                        ),
                     },
                 ]
             )
@@ -852,245 +858,279 @@ class OpenCVConan(ConanFile):
                     {
                         "target": "opencv_line_descriptor",
                         "lib": "line_descriptor",
-                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_saliency",
                         "lib": "saliency",
-                        "requires": ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            ["opencv_core", "opencv_flann", "opencv_imgproc", "opencv_features2d"]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_datasets",
                         "lib": "datasets",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_ml",
-                            "opencv_imgcodecs",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_ml",
+                                "opencv_imgcodecs",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_rgbd",
                         "lib": "rgbd",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_shape",
                         "lib": "shape",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_structured_light",
                         "lib": "structured_light",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_phase_unwrapping",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_phase_unwrapping",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_videostab",
                         "lib": "videostab",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_photo",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_videoio",
-                            "opencv_calib3d",
-                            "opencv_video",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_photo",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_videoio",
+                                "opencv_calib3d",
+                                "opencv_video",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_xfeatures2d",
                         "lib": "xfeatures2d",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_ml",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                            "opencv_shape",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_ml",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                                "opencv_shape",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_ximgproc",
                         "lib": "ximgproc",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_calib3d",
-                            "opencv_video",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_calib3d",
+                                "opencv_video",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_aruco",
                         "lib": "aruco",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_calib3d",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_calib3d",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_bgsegm",
                         "lib": "bgsegm",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_calib3d",
-                            "opencv_video",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_calib3d",
+                                "opencv_video",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_bioinspired",
                         "lib": "bioinspired",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_imgproc",
-                            "opencv_imgcodecs",
-                            "opencv_videoio",
-                            "opencv_highgui",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_imgproc",
+                                "opencv_imgcodecs",
+                                "opencv_videoio",
+                                "opencv_highgui",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_ccalib",
                         "lib": "ccalib",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_videoio",
-                            "opencv_calib3d",
-                            "opencv_highgui",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_videoio",
+                                "opencv_calib3d",
+                                "opencv_highgui",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_optflow",
                         "lib": "optflow",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_video",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_calib3d",
-                            "opencv_video",
-                            "opencv_ximgproc",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_video",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_calib3d",
+                                "opencv_video",
+                                "opencv_ximgproc",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_superres",
                         "lib": "superres",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_videoio",
-                            "opencv_calib3d",
-                            "opencv_video",
-                            "opencv_ximgproc",
-                            "opencv_optflow",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_videoio",
+                                "opencv_calib3d",
+                                "opencv_video",
+                                "opencv_ximgproc",
+                                "opencv_optflow",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_tracking",
                         "lib": "tracking",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_ml",
-                            "opencv_plot",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_calib3d",
-                            "opencv_datasets",
-                            "opencv_video",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_ml",
+                                "opencv_plot",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_calib3d",
+                                "opencv_datasets",
+                                "opencv_video",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                     {
                         "target": "opencv_stereo",
                         "lib": "stereo",
-                        "requires": [
-                            "opencv_core",
-                            "opencv_flann",
-                            "opencv_imgproc",
-                            "opencv_ml",
-                            "opencv_plot",
-                            "opencv_features2d",
-                            "opencv_imgcodecs",
-                            "opencv_calib3d",
-                            "opencv_datasets",
-                            "opencv_video",
-                            "opencv_tracking",
-                        ]
-                        + eigen()
-                        + ipp(),
+                        "requires": (
+                            [
+                                "opencv_core",
+                                "opencv_flann",
+                                "opencv_imgproc",
+                                "opencv_ml",
+                                "opencv_plot",
+                                "opencv_features2d",
+                                "opencv_imgcodecs",
+                                "opencv_calib3d",
+                                "opencv_datasets",
+                                "opencv_video",
+                                "opencv_tracking",
+                            ]
+                            + eigen()
+                            + ipp()
+                        ),
                     },
                 ]
             )
@@ -1100,49 +1140,55 @@ class OpenCVConan(ConanFile):
                         {
                             "target": "opencv_xobjdetect",
                             "lib": "xobjdetect",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_flann",
-                                "opencv_imgproc",
-                                "opencv_features2d",
-                                "opencv_imgcodecs",
-                                "opencv_calib3d",
-                                "opencv_objdetect",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_flann",
+                                    "opencv_imgproc",
+                                    "opencv_features2d",
+                                    "opencv_imgcodecs",
+                                    "opencv_calib3d",
+                                    "opencv_objdetect",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         },
                         {
                             "target": "opencv_dpm",
                             "lib": "dpm",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_flann",
-                                "opencv_imgproc",
-                                "opencv_features2d",
-                                "opencv_imgcodecs",
-                                "opencv_videoio",
-                                "opencv_calib3d",
-                                "opencv_highgui",
-                                "opencv_objdetect",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_flann",
+                                    "opencv_imgproc",
+                                    "opencv_features2d",
+                                    "opencv_imgcodecs",
+                                    "opencv_videoio",
+                                    "opencv_calib3d",
+                                    "opencv_highgui",
+                                    "opencv_objdetect",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         },
                         {
                             "target": "opencv_face",
                             "lib": "face",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_flann",
-                                "opencv_imgproc",
-                                "opencv_photo",
-                                "opencv_features2d",
-                                "opencv_calib3d",
-                                "opencv_objdetect",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_flann",
+                                    "opencv_imgproc",
+                                    "opencv_photo",
+                                    "opencv_features2d",
+                                    "opencv_calib3d",
+                                    "opencv_objdetect",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         },
                     ]
                 )
@@ -1162,15 +1208,17 @@ class OpenCVConan(ConanFile):
                         {
                             "target": "opencv_rapid",
                             "lib": "rapid",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_flann",
-                                "opencv_imgproc",
-                                "opencv_features2d",
-                                "opencv_calib3d",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_flann",
+                                    "opencv_imgproc",
+                                    "opencv_features2d",
+                                    "opencv_calib3d",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         },
                     ]
                 )
@@ -1181,14 +1229,16 @@ class OpenCVConan(ConanFile):
                         {
                             "target": "opencv_freetype",
                             "lib": "freetype",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_imgproc",
-                                "freetype::freetype",
-                                "harfbuzz::harfbuzz",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_imgproc",
+                                    "freetype::freetype",
+                                    "harfbuzz::harfbuzz",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         }
                     ]
                 )
@@ -1199,24 +1249,26 @@ class OpenCVConan(ConanFile):
                         {
                             "target": "opencv_sfm",
                             "lib": "sfm",
-                            "requires": [
-                                "opencv_core",
-                                "opencv_flann",
-                                "opencv_imgproc",
-                                "opencv_ml",
-                                "opencv_features2d",
-                                "opencv_imgcodecs",
-                                "opencv_calib3d",
-                                "opencv_shape",
-                                "opencv_xfeatures2d",
-                                "correspondence",
-                                "multiview",
-                                "numeric",
-                                "glog::glog",
-                                "gflags::gflags",
-                            ]
-                            + eigen()
-                            + ipp(),
+                            "requires": (
+                                [
+                                    "opencv_core",
+                                    "opencv_flann",
+                                    "opencv_imgproc",
+                                    "opencv_ml",
+                                    "opencv_features2d",
+                                    "opencv_imgcodecs",
+                                    "opencv_calib3d",
+                                    "opencv_shape",
+                                    "opencv_xfeatures2d",
+                                    "correspondence",
+                                    "multiview",
+                                    "numeric",
+                                    "glog::glog",
+                                    "gflags::gflags",
+                                ]
+                                + eigen()
+                                + ipp()
+                            ),
                         },
                         {"target": "numeric", "lib": "numeric", "requires": eigen() + ipp()},
                         {

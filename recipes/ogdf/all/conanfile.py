@@ -16,6 +16,8 @@ class OGDFConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://ogdf.net"
     topics = ("graph", "algorithm", "data-structures")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,15 +28,6 @@ class OGDFConan(ConanFile):
         "fPIC": True,
     }
 
-    def validate(self):
-        if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared on Visual Studio and msvc."
-            )
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -43,12 +36,21 @@ class OGDFConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("coin-clp/1.17.7")
         self.requires("pugixml/1.13")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def validate(self):
+        if is_msvc(self) and self.options.shared:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

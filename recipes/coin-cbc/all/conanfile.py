@@ -212,7 +212,8 @@ class CoinCbcConan(ConanFile):
             self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
         )
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
@@ -220,7 +221,7 @@ class CoinCbcConan(ConanFile):
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         for l in ("CbcSolver", "Cbc", "OsiCbc"):

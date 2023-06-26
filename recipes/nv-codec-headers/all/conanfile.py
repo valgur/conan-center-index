@@ -109,10 +109,9 @@ class FFNvEncHeaders(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         return self._autotools
 
     def build(self):

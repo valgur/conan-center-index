@@ -1,3 +1,6 @@
+#   Unexpected method '_configure_autotools'
+#   Unexpected method '_detect_compilers'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -85,29 +88,42 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
-required_conan_version = ">=1.35.0"
+required_conan_version = ">=1.53.0"
 
 
 class AwsCdiSdkConan(ConanFile):
     name = "aws-cdi-sdk"
     description = "AWS Cloud Digital Interface (CDI) SDK"
-    topics = ("aws", "communication", "framework", "service")
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aws/aws-cdi-sdk"
-    license = "BSD-2-Clause"
+    topics = ("aws", "communication", "framework", "service")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
-    def requirements(self):
-        self.requires("aws-libfabric/1.9.1amzncdi1.0")
-        self.requires("aws-sdk-cpp/1.8.130")
-
     def configure(self):
         self.options["aws-libfabric"].shared = True
         self.options["aws-sdk-cpp"].shared = True
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("aws-libfabric/1.9.1amzncdi1.0")
+        self.requires("aws-sdk-cpp/1.8.130")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -124,10 +140,9 @@ class AwsCdiSdkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         return self._autotools
 
     def generate(self):

@@ -12,7 +12,9 @@ class LibmaxminddbConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://maxmind.github.io/libmaxminddb/"
-    topics = ("maxmind", "geoip")
+    topics = ("maxmind", "geoip", "pre-built")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

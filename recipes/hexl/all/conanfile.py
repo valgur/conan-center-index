@@ -2,107 +2,29 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
-from conan.tools.files import get, rmdir
-from conan.tools.scm import Version
+from conan.tools.build import check_min_cppstd
 from conan.tools.build import cross_building
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches
+from conan.tools.files import get, rmdir
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
-import os
-
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class HexlConan(ConanFile):
     name = "hexl"
-    license = "Apache-2.0"
-    homepage = "https://github.com/intel/hexl"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Intel Homomorphic Encryption (HE) Acceleration Library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/intel/hexl"
     topics = ("homomorphic", "encryption", "privacy")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -118,21 +40,6 @@ class HexlConan(ConanFile):
         "fpga_compatibility_keyswitch": False,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build_requirements(self):
-        self.build_requires("cmake/3.22.0")
-
-    def requirements(self):
-        self.requires("cpu_features/0.7.0")
-
-        if self.settings.build_type == "Debug":
-            self.requires("easyloggingpp/9.97.0")
-
     @property
     def _compilers_minimum_version(self):
         return {
@@ -142,6 +49,26 @@ class HexlConan(ConanFile):
             "apple-clang": "11",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("cpu_features/0.7.0")
+
+        if self.settings.build_type == "Debug":
+            self.requires("easyloggingpp/9.97.0")
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 17)
@@ -149,11 +76,11 @@ class HexlConan(ConanFile):
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++17, which your compiler does not support.".format(self.name)
+                    f"{self.name} requires C++17, which your compiler does not support."
                 )
         else:
             self.output.warn(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
+                f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
 
         if self.settings.arch not in ["x86", "x86_64"]:
@@ -162,9 +89,11 @@ class HexlConan(ConanFile):
         if self.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration("Hexl only supports static linking with msvc")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def build_requirements(self):
+        self.build_requires("cmake/3.22.0")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -189,10 +118,6 @@ class HexlConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def build(self):
         apply_conandata_patches(self)

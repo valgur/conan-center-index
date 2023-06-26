@@ -7,17 +7,18 @@ from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
 
-
-required_conan_version = ">=1.53"
+required_conan_version = ">=1.53.0"
 
 
 class SQLiteCppConan(ConanFile):
     name = "sqlitecpp"
     description = "SQLiteCpp is a smart and easy to use C++ sqlite3 wrapper"
-    topics = ("sqlite", "sqlite3", "data-base")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/SRombauts/SQLiteCpp"
-    license = "MIT"
+    topics = ("sqlite", "sqlite3", "data-base")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -42,6 +43,9 @@ class SQLiteCppConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("sqlite3/3.40.0")
 
@@ -51,11 +55,22 @@ class SQLiteCppConan(ConanFile):
         if self.info.settings.os == "Windows" and self.info.options.shared:
             raise ConanInvalidConfiguration("SQLiteCpp can not be built as shared lib on Windows")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["SQLITECPP_INTERNAL_SQLITE"] = False
+        tc.variables["SQLITECPP_RUN_CPPLINT"] = False
+        tc.variables["SQLITECPP_RUN_CPPCHECK"] = False
+        tc.variables["SQLITECPP_RUN_DOXYGEN"] = False
+        tc.variables["SQLITECPP_BUILD_EXAMPLES"] = False
+        tc.variables["SQLITECPP_BUILD_TESTS"] = False
+        tc.variables["SQLITECPP_USE_STACK_PROTECTION"] = self.options.stack_protection
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -71,20 +86,6 @@ class SQLiteCppConan(ConanFile):
                 "const nullptr_t nullptr = {};",
                 "",
             )
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["SQLITECPP_INTERNAL_SQLITE"] = False
-        tc.variables["SQLITECPP_RUN_CPPLINT"] = False
-        tc.variables["SQLITECPP_RUN_CPPCHECK"] = False
-        tc.variables["SQLITECPP_RUN_DOXYGEN"] = False
-        tc.variables["SQLITECPP_BUILD_EXAMPLES"] = False
-        tc.variables["SQLITECPP_BUILD_TESTS"] = False
-        tc.variables["SQLITECPP_USE_STACK_PROTECTION"] = self.options.stack_protection
-        tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -110,14 +111,12 @@ class SQLiteCppConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

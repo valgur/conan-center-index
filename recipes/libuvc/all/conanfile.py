@@ -14,10 +14,11 @@ required_conan_version = ">=1.53.0"
 class LibuvcConan(ConanFile):
     name = "libuvc"
     description = "A cross-platform library for USB video devices"
-    topics = ("libusb", "usb", "video")
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libuvc/libuvc"
+    topics = ("libusb", "usb", "video")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

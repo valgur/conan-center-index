@@ -10,13 +10,13 @@ required_conan_version = ">=1.52.0"
 class CppZmqConan(ConanFile):
     name = "cppzmq"
     description = "C++ binding for 0MQ"
-    homepage = "https://github.com/zeromq/cppzmq"
     license = "MIT"
-    topics = ("zmq-cpp", "zmq", "cpp-bind")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zeromq/cppzmq"
+    topics = ("zmq-cpp", "zmq", "cpp-bind", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-
     no_copy_source = True
 
     def layout(self):

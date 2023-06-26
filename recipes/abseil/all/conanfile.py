@@ -26,10 +26,10 @@ required_conan_version = ">=1.53.0"
 class AbseilConan(ConanFile):
     name = "abseil"
     description = "Abseil Common Libraries (C++) from Google"
-    topics = ("algorithm", "container", "google", "common", "utility")
-    homepage = "https://github.com/abseil/abseil-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/abseil/abseil-cpp"
+    topics = ("algorithm", "container", "google", "common", "utility")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -70,6 +70,9 @@ class AbseilConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
@@ -82,9 +85,6 @@ class AbseilConan(ConanFile):
         if self.options.shared and is_msvc(self):
             # upstream tries its best to export symbols, but it's broken for the moment
             raise ConanInvalidConfiguration(f"{self.ref} shared not availabe for Visual Studio (yet)")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

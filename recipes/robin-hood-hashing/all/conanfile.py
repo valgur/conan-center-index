@@ -10,12 +10,14 @@ required_conan_version = ">=1.52.0"
 class RobinHoodHashingConan(ConanFile):
     name = "robin-hood-hashing"
     description = "Faster and more efficient replacement for std::unordered_map / std::unordered_set"
-    topics = ("header-only", "containers")
-    homepage = "https://github.com/martinus/robin-hood-hashing"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martinus/robin-hood-hashing"
+    topics = ("header-only", "containers")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

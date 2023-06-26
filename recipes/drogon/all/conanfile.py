@@ -12,10 +12,12 @@ required_conan_version = ">=1.53.0"
 class DrogonConan(ConanFile):
     name = "drogon"
     description = "A C++14/17/20 based HTTP web application framework running on Linux/macOS/Unix/Windows"
-    topics = ("http-server", "non-blocking-io", "http-framework", "asynchronous-programming")
     license = "MIT"
-    homepage = "https://github.com/drogonframework/drogon"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/drogonframework/drogon"
+    topics = ("http-server", "non-blocking-io", "http-framework", "asynchronous-programming")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [False, True],
@@ -46,26 +48,6 @@ class DrogonConan(ConanFile):
         "with_redis": False,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-            self.options["trantor"].shared = True
-        if not self.options.with_orm:
-            self.options.rm_safe("with_postgres")
-            self.options.rm_safe("with_postgres_batch")
-            self.options.rm_safe("with_mysql")
-            self.options.rm_safe("with_sqlite")
-            self.options.rm_safe("with_redis")
-        elif not self.options.with_postgres:
-            self.options.rm_safe("with_postgres_batch")
-
     @property
     def _min_cppstd(self):
         return 14 if Version(self.version) < "1.8.2" else 17
@@ -89,20 +71,28 @@ class DrogonConan(ConanFile):
                 "apple-clang": "12",
             }
 
-    def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+    def export_sources(self):
+        export_conandata_patches(self)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version:
-            if Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
-        else:
-            self.output.warn(
-                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
-            )
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+            self.options["trantor"].shared = True
+        if not self.options.with_orm:
+            self.options.rm_safe("with_postgres")
+            self.options.rm_safe("with_postgres_batch")
+            self.options.rm_safe("with_mysql")
+            self.options.rm_safe("with_sqlite")
+            self.options.rm_safe("with_redis")
+        elif not self.options.with_postgres:
+            self.options.rm_safe("with_postgres_batch")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("trantor/1.5.8")
@@ -126,11 +116,24 @@ class DrogonConan(ConanFile):
         if self.options.get_safe("with_redis"):
             self.requires("hiredis/1.1.0")
 
+    def validate(self):
+        if self.info.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
+
+        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
+        if minimum_version:
+            if Version(self.info.settings.compiler.version) < minimum_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
+        else:
+            self.output.warn(
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{self._min_cppstd}."
+            )
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)

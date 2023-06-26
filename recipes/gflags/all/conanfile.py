@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 class GflagsConan(ConanFile):
     name = "gflags"
     description = "The gflags package contains a C++ library that implements commandline flags processing"
-    topics = ("cli", "flags", "commandline")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gflags/gflags"
-    license = "BSD-3-Clause"
+    topics = ("cli", "flags", "commandline")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

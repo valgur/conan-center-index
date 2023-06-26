@@ -14,14 +14,14 @@ required_conan_version = ">=1.54.0"
 
 class CyrusSaslConan(ConanFile):
     name = "cyrus-sasl"
-    license = "BSD-4-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.cyrusimap.org/sasl/"
     description = (
         "This is the Cyrus SASL API implementation. "
         "It can be used on the client or server side "
         "to provide authentication and authorization services."
     )
+    license = "BSD-4-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.cyrusimap.org/sasl/"
     topics = ("sasl", "authentication", "authorization")
 
     package_type = "library"

@@ -1,95 +1,39 @@
 # TODO: verify the Conan v2 migration
 
+import glob
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import (
     apply_conandata_patches,
-    chdir,
-    collect_libs,
     copy,
-    download,
     export_conandata_patches,
     get,
-    load,
-    mkdir,
-    patch,
-    patches,
     rename,
     replace_in_file,
     rm,
     rmdir,
-    save,
-    symlinks,
-    unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, check_min_vs, is_msvc, unix_path
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import glob
-import os
 
 required_conan_version = ">=1.55.0"
 
 
 class LibdbConan(ConanFile):
     name = "libdb"
-    description = "Berkeley DB is a family of embedded key-value database libraries providing scalable high-performance data management services to applications"
-    topics = ("gdbm", "dbm", "hash", "database")
+    description = (
+        "Berkeley DB is a family of embedded key-value database libraries "
+        "providing scalable high-performance data management services to applications"
+    )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.oracle.com/database/berkeley-db"
-    license = "BSD-3-Clause"
+    topics = ("gdbm", "dbm", "hash", "database")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -104,10 +48,6 @@ class LibdbConan(ConanFile):
         "with_tcl": False,
         "with_cxx": False,
     }
-
-    generators = "visual_studio"
-
-    _autotools = None
 
     @property
     def _mingw_build(self):
@@ -136,6 +76,9 @@ class LibdbConan(ConanFile):
         if not self.options.get_safe("with_cxx", False):
             self.settings.compiler.rm_safe("libcxx")
             self.settings.compiler.rm_safe("cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_tcl:
@@ -168,6 +111,50 @@ class LibdbConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        if not is_msvc(self):
+            tc = AutotoolsToolchain(self)
+            if (
+                self.settings.compiler in ["apple-clang", "clang"]
+                and Version(self.settings.compiler.version) >= "12"
+            ):
+                self._autotools.flags.append("-Wno-error=implicit-function-declaration")
+            conf_args = [
+                "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
+                "--enable-mingw" if self._mingw_build else "--disable-mingw",
+                "--enable-compat185",
+                "--enable-sql",
+            ]
+            if self.options.with_cxx:
+                conf_args.extend(["--enable-cxx", "--enable-stl"])
+            else:
+                conf_args.extend(["--disable-cxx", "--disable-stl"])
+
+            if self.options.shared:
+                conf_args.extend(["--enable-shared", "--disable-static"])
+            else:
+                conf_args.extend(["--disable-shared", "--enable-static"])
+            if self.options.with_tcl:
+                conf_args.append(
+                    "--with-tcl={}".format(
+                        unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))
+                    )
+                )
+            self._autotools.configure(configure_dir=os.path.join(self.source_folder, "dist"), args=conf_args)
+            if self.settings.os == "Windows" and self.options.shared:
+                replace_in_file(
+                    self,
+                    os.path.join(self.build_folder, "libtool"),
+                    "\ndeplibs_check_method=",
+                    "\ndeplibs_check_method=pass_all\n#deplibs_check_method=",
+                )
+                replace_in_file(self, os.path.join(self.build_folder, "Makefile"), ".a", ".dll.a")
+
+            tc.generate()
+        else:
+            tc = MSBuildToolchain(self)
+            tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
 
@@ -195,7 +182,10 @@ class LibdbConan(ConanFile):
                 self,
                 file,
                 '<PropertyGroup Label="Globals">',
-                '<PropertyGroup Label="Globals"><WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>',
+                (
+                    "<PropertyGroup"
+                    ' Label="Globals"><WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>'
+                ),
             )
 
         dist_configure = os.path.join(self.source_folder, "dist", "configure")
@@ -204,49 +194,8 @@ class LibdbConan(ConanFile):
             self,
             dist_configure,
             "\n    --disable-option-checking)",
-            "\n    --datarootdir=*)" "\n      ;;" "\n    --disable-option-checking)",
+            "\n    --datarootdir=*)\n      ;;\n    --disable-option-checking)",
         )
-
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=legacy_tools.os_info.is_windows)
-        if (
-            self.settings.compiler in ["apple-clang", "clang"]
-            and Version(self.settings.compiler.version) >= "12"
-        ):
-            self._autotools.flags.append("-Wno-error=implicit-function-declaration")
-        conf_args = [
-            "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
-            "--enable-mingw" if self._mingw_build else "--disable-mingw",
-            "--enable-compat185",
-            "--enable-sql",
-        ]
-        if self.options.with_cxx:
-            conf_args.extend(["--enable-cxx", "--enable-stl"])
-        else:
-            conf_args.extend(["--disable-cxx", "--disable-stl"])
-
-        if self.options.shared:
-            conf_args.extend(["--enable-shared", "--disable-static"])
-        else:
-            conf_args.extend(["--disable-shared", "--enable-static"])
-        if self.options.with_tcl:
-            conf_args.append(
-                "--with-tcl={}".format(
-                    unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))
-                )
-            )
-        self._autotools.configure(configure_dir=os.path.join(self.source_folder, "dist"), args=conf_args)
-        if self.settings.os == "Windows" and self.options.shared:
-            replace_in_file(
-                self,
-                os.path.join(self.build_folder, "libtool"),
-                "\ndeplibs_check_method=",
-                "\ndeplibs_check_method=pass_all\n#deplibs_check_method=",
-            )
-            replace_in_file(self, os.path.join(self.build_folder, "Makefile"), ".a", ".dll.a")
-        return self._autotools
 
     @property
     def _msvc_build_type(self):
@@ -263,27 +212,24 @@ class LibdbConan(ConanFile):
     def _msvc_arch(self):
         return self._msvc_platforms[str(self.settings.arch)]
 
-    def _build_msvc(self):
-        projects = ["db", "db_sql", "db_stl"]
-        if self.options.with_tcl:
-            projects.append("db_tcl")
-        msbuild = MSBuild(self)
-        upgraded = False
-        for project in projects:
-            msbuild.build(
-                os.path.join(self.source_folder, "build_windows", "VS10", "{}.vcxproj".format(project)),
-                build_type=self._msvc_build_type,
-                platforms=self._msvc_platforms,
-                upgrade_project=not upgraded,
-            )
-            upgraded = True
-
     def build(self):
         self._patch_sources()
         if is_msvc(self):
-            self._build_msvc()
+            projects = ["db", "db_sql", "db_stl"]
+            if self.options.with_tcl:
+                projects.append("db_tcl")
+            msbuild = MSBuild(self)
+            upgraded = False
+            for project in projects:
+                msbuild.build(
+                    os.path.join(self.source_folder, "build_windows", "VS10", "{}.vcxproj".format(project)),
+                    build_type=self._msvc_build_type,
+                    platforms=self._msvc_platforms,
+                    upgrade_project=not upgraded,
+                )
+                upgraded = True
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools()
             autotools.make()
 
     def package(self):
@@ -314,7 +260,7 @@ class LibdbConan(ConanFile):
                     os.path.join(libdir, "{}.lib".format(lib)),
                 )
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
             if self.settings.os == "Windows":
@@ -342,7 +288,7 @@ class LibdbConan(ConanFile):
             rm(self, "*.la", libdir)
             if not self.options.shared:
                 # autotools installs the static libraries twice as libXXX.a and libXXX-5.3.a ==> remove libXXX-5.3.a
-                rm(self, "*-{}.a".format(".".join(self._major_minor_version)), libdir)
+                rm(self, f"*-{'.'.join(self._major_minor_version)}.a", libdir)
 
     @property
     def _major_minor_version(self):

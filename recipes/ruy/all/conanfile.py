@@ -15,10 +15,12 @@ class RuyConan(ConanFile):
         "ruy is a matrix multiplication library.\n"
         "Its focus is to cover the matrix multiplication needs of neural network inference engines\n"
     )
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/ruy"
-    license = "Apache-2.0"
     topics = ("matrix", "multiplication", "neural", "network", "AI", "tensorflow")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -38,6 +40,20 @@ class RuyConan(ConanFile):
             "clang": "3.4",
             "apple-clang": "5.1",
         }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("cpuinfo/cci.20220228")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -60,20 +76,6 @@ class RuyConan(ConanFile):
         ):
             raise ConanInvalidConfiguration("Debug builds are not supported on older versions of Clang (<=5)")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        self.requires("cpuinfo/cci.20220228")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -95,7 +97,9 @@ class RuyConan(ConanFile):
             # Remove the invocation after project(), see https://github.com/google/ruy/issues/328
             "cmake_minimum_required(VERSION 3.13)": "",
             # Ensure `cmake_minimum_required` is called first
-            "# Copyright 2021 Google LLC": "# Copyright 2021 Google LLC\ncmake_minimum_required(VERSION 3.13)",
+            "# Copyright 2021 Google LLC": (
+                "# Copyright 2021 Google LLC\ncmake_minimum_required(VERSION 3.13)"
+            ),
         }
 
         for pattern, patch in patches.items():

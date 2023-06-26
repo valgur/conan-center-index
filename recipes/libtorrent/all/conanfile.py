@@ -24,10 +24,10 @@ class LibtorrentConan(ConanFile):
         "libtorrent is a feature complete C++ bittorrent implementation "
         "focusing on efficiency and scalability"
     )
-    topics = ("p2p", "network", "mesh")
+    license = ("BSD-3-clause", "ZLIB", "BSL-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libtorrent.org"
-    license = ("BSD-3-clause", "ZLIB", "BSL-1.0")
+    topics = ("p2p", "network", "mesh")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

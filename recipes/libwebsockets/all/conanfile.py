@@ -13,11 +13,12 @@ required_conan_version = ">=1.56.0"
 class LibwebsocketsConan(ConanFile):
     name = "libwebsockets"
     description = "Canonical libwebsockets.org websocket library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/warmcat/libwebsockets"
-    license = "MIT"
-    topics = "websocket"
+    topics = ("websocket",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -84,7 +85,8 @@ class LibwebsocketsConan(ConanFile):
         "enable_builtin_getifaddrs": [
             True,
             False,
-        ],  # Use the BSD getifaddrs implementation from libwebsockets if it is missing (this will result in a compilation error) ... The default is to assume that your libc provides it. On some systems such as uclibc it doesn't exist.
+        ],
+        # Use the BSD getifaddrs implementation from libwebsockets if it is missing (this will result in a compilation error) ... The default is to assume that your libc provides it. On some systems such as uclibc it doesn't exist.
         "enable_fallback_gethostbyname": [
             True,
             False,
@@ -207,9 +209,6 @@ class LibwebsocketsConan(ConanFile):
         "enable_spawn": False,
     }
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -219,6 +218,9 @@ class LibwebsocketsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_libuv:
@@ -279,7 +281,7 @@ class LibwebsocketsConan(ConanFile):
                 and Version(self.settings.compiler.version) < 192
             ):
                 raise ConanInvalidConfiguration(
-                    "{}/{} requires at least Visual Studio 2019".format(self.name, self.version)
+                    f"{self.name}/{self.version} requires at least Visual Studio 2019"
                 )
 
         if self.options.with_hubbub:
@@ -316,7 +318,7 @@ class LibwebsocketsConan(ConanFile):
             self.output.info("Dependency library full path : " + str(lib_fullpath))
             if os.path.isfile(lib_fullpath):
                 return lib_fullpath
-        raise ConanException("Library {} not found".format(lib_fullpath))
+        raise ConanException(f"Library {lib_fullpath} not found")
 
     def _find_libraries(self, dep):
         aggregated = self.dependencies[dep].cpp_info.aggregated_components()
@@ -531,16 +533,12 @@ class LibwebsocketsConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """.format(alias=alias, aliased=aliased))
         save(self, module_file, content)
 
     @property

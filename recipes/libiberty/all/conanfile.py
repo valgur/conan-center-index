@@ -12,16 +12,19 @@ required_conan_version = ">=1.53.0"
 class LibibertyConan(ConanFile):
     name = "libiberty"
     description = "A collection of subroutines used by various GNU programs"
-    topics = ("gnu", "gnu-collection")
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gcc.gnu.org/onlinedocs/libiberty"
-    license = "LGPL-2.1"
+    topics = ("gnu", "gnu-collection")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 

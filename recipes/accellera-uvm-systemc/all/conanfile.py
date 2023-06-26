@@ -1,3 +1,6 @@
+# Warnings:
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -83,35 +86,37 @@ from conan.tools.build import check_min_cppstd
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class UvmSystemC(ConanFile):
     name = "accellera-uvm-systemc"
-    description = """Universal Verification Methodology for SystemC"""
-    homepage = "https://systemc.org/about/systemc-verification/uvm-systemc-faq"
-    url = "https://github.com/conan-io/conan-center-index"
+    description = "Universal Verification Methodology for SystemC"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://systemc.org/about/systemc-verification/uvm-systemc-faq"
     topics = ("systemc", "verification", "tlm", "uvm")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
-
-    def requirements(self):
-        self.requires("systemc/2.3.3")
-
-    def build_requirements(self):
-        self.tool_requires("cmake/3.24.0")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("systemc/2.3.3")
 
     def validate(self):
         if self.settings.os == "Macos":
@@ -123,8 +128,15 @@ class UvmSystemC(ConanFile):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
+    def build_requirements(self):
+        self.tool_requires("cmake/3.24.0")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         autotools = AutoToolsBuildEnvironment(self)

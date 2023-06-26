@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method 'compatibility'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -12,12 +15,14 @@ required_conan_version = ">=1.52.0"
 class DoxygenConan(ConanFile):
     name = "doxygen"
     description = (
-        "A documentation system for C++, C, Java, IDL and PHP --- Note: Dot is disabled in this package"
+        "A documentation system for C++, C, Java, IDL and PHP "
+        "--- Note: Dot is disabled in this package"
     )
-    topics = ("installer", "devtool", "documentation")
-    homepage = "https://github.com/doxygen/doxygen"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/doxygen/doxygen"
+    topics = ("installer", "devtool", "documentation", "pre-built")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -107,6 +112,8 @@ class DoxygenConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "none")
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

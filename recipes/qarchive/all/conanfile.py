@@ -10,14 +10,15 @@ required_conan_version = ">=1.53.0"
 
 class QarchiveConan(ConanFile):
     name = "qarchive"
-    license = "BSD-3-Clause"
-    homepage = "https://antonyjr.in/QArchive/"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "QArchive is a cross-platform C++ library that modernizes libarchive, "
         "This library helps you to extract and compress archives supported by libarchive"
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://antonyjr.in/QArchive/"
     topics = ("qt", "compress", "libarchive")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -89,14 +90,12 @@ class QarchiveConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

@@ -17,9 +17,10 @@ class LibvipsConan(ConanFile):
     name = "libvips"
     description = "libvips is a demand-driven, horizontally threaded image processing library."
     license = "LGPL-2.1-or-later"
-    topics = ("image", "image-processing")
-    homepage = "https://www.libvips.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libvips.org"
+    topics = ("image", "image-processing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -187,7 +188,8 @@ class LibvipsConan(ConanFile):
             and self.dependencies["glib"].options.shared
         ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} static with MT runtime not supported if glib shared due to conancenter CI limitations"
+                f"{self.ref} static with MT runtime not supported if glib shared due to "
+                f"conancenter CI limitations"
             )
 
         if self.options.with_gsf:

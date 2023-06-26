@@ -1,3 +1,14 @@
+# Warnings:
+#   Disallowed attribute '_source_subfolder = 'source_subfolder''
+#   Unexpected method '_datadir'
+#   Unexpected method '_samplesdir'
+#   Unexpected method '_make_args'
+#   Unexpected method '_build_msvc'
+#   Unexpected method '_configure_autotools'
+#   Unexpected method '_build_autotools'
+#   Unexpected method '_package_msvc'
+#   Unexpected method '_package_autotools'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,19 +90,41 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.47.0"
+
 
 class Cc65Conan(ConanFile):
     name = "cc65"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://cc65.github.io/"
     description = "A freeware C compiler for 6502 based systems"
     license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://cc65.github.io/"
     topics = ("compiler", "cmos", "6502", "8bit")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    _autotools = None
-    _source_subfolder = "source_subfolder"
+    @property
+    def _datadir(self):
+        return os.path.join(self.package_folder, "bin", "share", "cc65")
+
+    @property
+    def _samplesdir(self):
+        return os.path.join(self.package_folder, "samples")
+
+    @property
+    def _make_args(self):
+        datadir = self._datadir
+        prefix = self.package_folder
+        samplesdir = self._samplesdir
+        if tools.os_info.is_windows:
+            datadir = unix_path(self, datadir)
+            prefix = unix_path(self, prefix)
+            samplesdir = unix_path(self, samplesdir)
+        args = [f"PREFIX={prefix}", f"datadir={datadir}", f"samplesdir={samplesdir}"]
+        if self.settings.os == "Windows":
+            args.append("EXE_SUFFIX=.exe")
+        return args
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -105,6 +138,15 @@ class Cc65Conan(ConanFile):
             if self.settings.arch == "x86_64":
                 self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
 
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.arch == "x86_64":
+                self.info.settings.arch = "x86"
+
     def build_requirements(self):
         if self.settings.compiler == "Visual Studio" and not which(self, "make"):
             self.build_requires("make/4.2.1")
@@ -113,14 +155,6 @@ class Cc65Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_folder)
-
-    @property
-    def _datadir(self):
-        return os.path.join(self.package_folder, "bin", "share", "cc65")
-
-    @property
-    def _samplesdir(self):
-        return os.path.join(self.package_folder, "samples")
 
     def _build_msvc(self):
         msbuild = MSBuild(self)
@@ -142,25 +176,10 @@ class Cc65Conan(ConanFile):
         with chdir(self, os.path.join(self.source_folder, "libsrc")):
             autotools.make()
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         return self._autotools
-
-    @property
-    def _make_args(self):
-        datadir = self._datadir
-        prefix = self.package_folder
-        samplesdir = self._samplesdir
-        if tools.os_info.is_windows:
-            datadir = unix_path(self, datadir)
-            prefix = unix_path(self, prefix)
-            samplesdir = unix_path(self, samplesdir)
-        args = ["PREFIX={}".format(prefix), "datadir={}".format(datadir), "samplesdir={}".format(samplesdir)]
-        if self.settings.os == "Windows":
-            args.append("EXE_SUFFIX=.exe")
-        return args
 
     def _build_autotools(self):
         autotools = self._configure_autotools()
@@ -233,13 +252,12 @@ class Cc65Conan(ConanFile):
         else:
             self._package_autotools()
 
-    def package_id(self):
-        del self.info.settings.compiler
-        if self.settings.compiler == "Visual Studio":
-            if self.settings.arch == "x86_64":
-                self.info.settings.arch = "x86"
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: %s" % bindir)
         self.env_info.PATH.append(bindir)

@@ -15,10 +15,10 @@ required_conan_version = ">=1.54.0"
 class LibevConan(ConanFile):
     name = "libev"
     description = "A full-featured and high-performance event loop that is loosely modelled after libevent"
-    topics = ("event", "event-loop", "periodic-timer", "notify")
+    license = ["BSD-2-Clause", "GPL-2.0-or-later"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://software.schmorp.de/pkg/libev.html"
-    license = ["BSD-2-Clause", "GPL-2.0-or-later"]
+    topics = ("event", "event-loop", "periodic-timer", "notify")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

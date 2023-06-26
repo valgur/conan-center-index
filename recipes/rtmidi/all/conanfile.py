@@ -17,11 +17,12 @@ required_conan_version = ">=1.54.0"
 
 class RtMidiConan(ConanFile):
     name = "rtmidi"
+    description = "Realtime MIDI input/output"
+    license = "MIT+send-patches-upstream"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.music.mcgill.ca/~gary/rtmidi/"
-    description = "Realtime MIDI input/output"
     topics = ("midi",)
-    license = "MIT+send-patches-upstream"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

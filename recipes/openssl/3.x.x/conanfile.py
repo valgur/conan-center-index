@@ -16,12 +16,14 @@ required_conan_version = ">=1.57.0"
 
 class OpenSSLConan(ConanFile):
     name = "openssl"
-    settings = "os", "arch", "compiler", "build_type"
+    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/openssl/openssl"
-    license = "Apache-2.0"
     topics = ("ssl", "tls", "encryption", "security")
-    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -328,9 +330,10 @@ class OpenSSLConan(ConanFile):
         ancestor = next((self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None)
         if not ancestor:
             raise ConanInvalidConfiguration(
-                f"Unsupported configuration ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\n"
-                f"Please open an issue at {self.url}.\n"
-                f"Alternatively, set the CONAN_OPENSSL_CONFIGURATION environment variable into your conan profile."
+                "Unsupported configuration"
+                f" ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\nPlease open an issue"
+                f" at {self.url}.\nAlternatively, set the CONAN_OPENSSL_CONFIGURATION environment variable"
+                " into your conan profile."
             )
         return ancestor
 
@@ -422,8 +425,7 @@ class OpenSSLConan(ConanFile):
         tc.generate(env)
 
     def _create_targets(self, cflags, cxxflags, defines, ldflags):
-        config_template = textwrap.dedent(
-            """\
+        config_template = textwrap.dedent("""\
             {targets} = (
                 "{target}" => {{
                     inherit_from => {ancestor},
@@ -436,8 +438,7 @@ class OpenSSLConan(ConanFile):
                     {shared_extension}
                     {perlasm_scheme}
                 }});
-        """
-        )
+        """)
 
         perlasm_scheme = ""
         if self._perlasm_scheme:
@@ -580,8 +581,7 @@ class OpenSSLConan(ConanFile):
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(OPENSSL_FOUND TRUE)
             if(DEFINED OpenSSL_INCLUDE_DIR)
                 set(OPENSSL_INCLUDE_DIR ${OpenSSL_INCLUDE_DIR})
@@ -618,9 +618,7 @@ class OpenSSLConan(ConanFile):
             if(DEFINED OpenSSL_VERSION)
                 set(OPENSSL_VERSION ${OpenSSL_VERSION})
             endif()
-        """
-            % {"config": str(self.settings.build_type).upper()}
-        )
+        """ % {"config": str(self.settings.build_type).upper()})
         save(self, module_file, content)
 
     @property

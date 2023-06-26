@@ -10,10 +10,11 @@ from conan.tools.files import (
     rmdir,
     copy,
 )
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.build import cross_building
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import Environment
 
 import os
@@ -26,10 +27,11 @@ class SDLConan(ConanFile):
     description = (
         "Access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL, Direct3D and Vulkan"
     )
-    topics = ("sdl2", "audio", "keyboard", "graphics", "opengl")
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org"
-    license = "Zlib"
+    topics = ("sdl2", "audio", "keyboard", "graphics", "opengl")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -89,22 +91,6 @@ class SDLConan(ConanFile):
         "vulkan": True,
         "libunwind": True,
     }
-    generators = "CMakeDeps", "PkgConfigDeps", "VirtualBuildEnv"
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def generate(self):
-        self.define_toolchain()
-        lib_paths = [lib for _, dep in self.dependencies.items() for lib in dep.cpp_info.libdirs]
-        env = Environment()
-        env.define_path("LIBRARY_PATH", os.pathsep.join(lib_paths))
-
-        # FIXME: remove and raise required_conan_version to 1.55 once it's on c3i
-        env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
-
-        env = env.vars(self, scope="build")
-        env.save_script("sdl_env")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -149,6 +135,9 @@ class SDLConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.get_safe("iconv", False):
             self.requires("libiconv/1.17")
@@ -167,6 +156,10 @@ class SDLConan(ConanFile):
                 self.requires("egl/system")
             if self.options.libunwind:
                 self.requires("libunwind/1.6.2")
+
+    def package_id(self):
+        if Version(self.version) < "2.0.22":
+            del self.info.options.sdl2main
 
     def validate(self):
         # SDL>=2.0.18 requires xcode 12 or higher because it uses CoreHaptics.
@@ -189,10 +182,6 @@ class SDLConan(ConanFile):
             if self.options.directfb:
                 raise ConanInvalidConfiguration("Package for 'directfb' is not available (yet)")
 
-    def package_id(self):
-        if Version(self.version) < "2.0.22":
-            del self.info.options.sdl2main
-
     def build_requirements(self):
         if self.settings.os == "Macos" and cross_building(self):
             # Workaround for CMake bug with error message:
@@ -208,6 +197,27 @@ class SDLConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+        self._define_toolchain()
+        lib_paths = [lib for _, dep in self.dependencies.items() for lib in dep.cpp_info.libdirs]
+        env = Environment()
+        env.define_path("LIBRARY_PATH", os.pathsep.join(lib_paths))
+
+        # FIXME: remove and raise required_conan_version to 1.55 once it's on c3i
+        env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
+
+        env = env.vars(self, scope="build")
+        env.save_script("sdl_env")
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -237,10 +247,11 @@ class SDLConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
                 "find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED)",
-                'find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED PATHS "${WAYLAND_BIN_DIR}" NO_DEFAULT_PATH)',
+                'find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED '
+                'PATHS "${WAYLAND_BIN_DIR}" NO_DEFAULT_PATH)',
             )
 
-    def define_toolchain(self):
+    def _define_toolchain(self):
         tc = CMakeToolchain(self)
         if (
             self.settings.os == "Linux"
@@ -249,9 +260,9 @@ class SDLConan(ConanFile):
         ):
             tc.preprocessor_definitions["GBM_BO_USE_CURSOR"] = 2
 
-        tc.variables[
-            "SDL2_DISABLE_INSTALL"
-        ] = False  # SDL2_* options will get renamed to SDL_ options in the next SDL release
+        tc.variables["SDL2_DISABLE_INSTALL"] = (
+            False  # SDL2_* options will get renamed to SDL_ options in the next SDL release
+        )
         if is_apple_os(self):
             tc.variables["CMAKE_OSX_ARCHITECTURES"] = {
                 "armv8": "arm64",

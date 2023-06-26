@@ -2,98 +2,29 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CppIPCConan(ConanFile):
     name = "cpp-ipc"
-    description = "C++ IPC Library: A high-performance inter-process communication using shared memory on Linux/Windows."
-    topics = ("ipc", "shared memory")
+    description = (
+        "C++ IPC Library: A high-performance inter-process communication "
+        "using shared memory on Linux/Windows."
+    )
+    license = ("MIT",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mutouyun/cpp-ipc"
-    license = ("MIT",)
+    topics = ("ipc", "shared memory")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -104,12 +35,6 @@ class CppIPCConan(ConanFile):
         "fPIC": True,
     }
 
-    _compiler_required_cpp17 = {
-        "Visual Studio": "17",
-        "gcc": "8",
-        "clang": "4",
-    }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -117,6 +42,9 @@ class CppIPCConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if is_apple_os(self.settings.os):
@@ -146,7 +74,6 @@ class CppIPCConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["LIBIPC_BUILD_SHARED_LIBS"] = self.options.shared
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -156,9 +83,7 @@ class CppIPCConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

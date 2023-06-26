@@ -16,6 +16,7 @@ class MDSpanConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kokkos/mdspan"
     topics = ("multi-dimensional", "array", "span", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -55,13 +56,13 @@ class MDSpanConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warning(
-                f"{self.ref} recipe lacks information about the {self.settings.compiler} " "compiler support."
+                f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd} support. "
-                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.ref} requires C++{self._min_cppstd} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
         if (
@@ -69,14 +70,15 @@ class MDSpanConan(ConanFile):
             and "16.6" <= Version(self.settings.compiler.version) < "17.0"
         ):
             raise ConanInvalidConfiguration(
-                "Unsupported Visual Studio version due to upstream bug. The supported Visual Studio versions are (< 16.6 or 17.0 <=)."
-                "See upstream issue https://github.com/kokkos/mdspan/issues/26 for details."
+                "Unsupported Visual Studio version due to upstream bug. The supported Visual Studio versions"
+                " are (< 16.6 or 17.0 <=).See upstream issue https://github.com/kokkos/mdspan/issues/26 for"
+                " details."
             )
         # TODO: check msvcc version more precisely
         if self.settings.compiler == "msvc" and Version(self.settings.compiler.version) == "192":
             raise ConanInvalidConfiguration(
-                "Unsupported MSVC version due to upstream bug. The supported MSVC versions are (< 192 or 193 <=)."
-                "See upstream issue https://github.com/kokkos/mdspan/issues/26 for details."
+                "Unsupported MSVC version due to upstream bug. The supported MSVC versions are (< 192 or 193"
+                " <=).See upstream issue https://github.com/kokkos/mdspan/issues/26 for details."
             )
 
     def source(self):

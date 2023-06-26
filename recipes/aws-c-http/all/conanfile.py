@@ -15,6 +15,7 @@ class AwsCHttp(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-http"
     topics = ("aws", "amazon", "cloud", "http", "http2")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

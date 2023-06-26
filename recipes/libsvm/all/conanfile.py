@@ -14,10 +14,12 @@ class libsvmConan(ConanFile):
     description = (
         "Libsvm is a simple, easy-to-use, and efficient software for SVM classification and regression"
     )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.csie.ntu.edu.tw/~cjlin/libsvm/"
-    license = "BSD-3-Clause"
     topics = ("svm", "vector")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

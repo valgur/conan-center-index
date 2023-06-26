@@ -21,10 +21,12 @@ required_conan_version = ">=1.53.0"
 class LibpngConan(ConanFile):
     name = "libpng"
     description = "libpng is the official PNG file format reference library."
+    license = "libpng-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.libpng.org"
-    license = "libpng-2.0"
     topics = ("png", "graphics", "image")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -107,7 +109,8 @@ class LibpngConan(ConanFile):
     def validate(self):
         if Version(self.version) < "1.6" and self.settings.arch == "armv8" and is_apple_os(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} currently does not building for {self.settings.os} {self.settings.arch}. Contributions are welcomed"
+                f"{self.ref} currently does not building for {self.settings.os} {self.settings.arch}."
+                " Contributions are welcomed"
             )
 
     def source(self):
@@ -155,7 +158,11 @@ class LibpngConan(ConanFile):
                 )
             if not (is_msvc(self) or self._is_clang_cl):
                 if Version(self.version) < "1.6.38":
-                    src_text = 'COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_LINKER_FILE_NAME:${S_TARGET}> $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}'
+                    src_text = (
+                        'COMMAND "${CMAKE_COMMAND}" -E copy_if_different'
+                        " $<TARGET_LINKER_FILE_NAME:${S_TARGET}>"
+                        " $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}"
+                    )
                 else:
                     src_text = """COMMAND "${CMAKE_COMMAND}"
                                  -E copy_if_different
@@ -165,7 +172,11 @@ class LibpngConan(ConanFile):
                     self,
                     os.path.join(self.source_folder, "CMakeLists.txt"),
                     src_text,
-                    'COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/$<TARGET_LINKER_FILE_NAME:${S_TARGET}> $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}',
+                    (
+                        'COMMAND "${CMAKE_COMMAND}" -E copy_if_different'
+                        " $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/$<TARGET_LINKER_FILE_NAME:${S_TARGET}>"
+                        " $<TARGET_LINKER_FILE_DIR:${S_TARGET}>/${DEST_FILE}"
+                    ),
                 )
 
     def build(self):

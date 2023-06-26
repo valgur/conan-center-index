@@ -12,9 +12,9 @@ class FFTWConan(ConanFile):
     description = (
         "C subroutine library for computing the Discrete Fourier Transform (DFT) in one or more dimensions"
     )
+    license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.fftw.org/"
-    license = "GPL-2.0"
     topics = ("dft", "dct", "dst")
 
     package_type = "library"
@@ -95,6 +95,14 @@ class FFTWConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
+    @property
+    def _prec_suffix(self):
+        return {
+            "double": "",
+            "single": "f",
+            "longdouble": "l",
+        }
+
     def package_info(self):
         prec_suffix = self._prec_suffix[str(self.options.precision)]
         cmake_config_name = "FFTW3" + prec_suffix
@@ -129,11 +137,3 @@ class FFTWConan(ConanFile):
             "cmake_target_name", f"{cmake_namespace}::{cmake_target_name}"
         )
         self.cpp_info.components["fftwlib"].set_property("pkg_config_name", pkgconfig_name)
-
-    @property
-    def _prec_suffix(self):
-        return {
-            "double": "",
-            "single": "f",
-            "longdouble": "l",
-        }

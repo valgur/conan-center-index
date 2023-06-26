@@ -11,12 +11,13 @@ required_conan_version = ">=1.53.0"
 
 class DateConan(ConanFile):
     name = "date"
+    description = "A date and time library based on the C++11/14/17 <chrono> header"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/HowardHinnant/date"
-    description = "A date and time library based on the C++11/14/17 <chrono> header"
-    topics = ("datetime", "timezone", "calendar", "time", "iana-database")
-    license = "MIT"
+    topics = ("datetime", "timezone", "calendar", "time", "iana-database", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -32,6 +33,7 @@ class DateConan(ConanFile):
         "use_system_tz_db": False,
         "use_tz_db_in_dot": False,
     }
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -109,6 +111,9 @@ class DateConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "CMake"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_target_name", "date::date")
         # TODO: Remove legacy .names attribute when conan 2.0 is released
         self.cpp_info.names["cmake_find_package"] = "date"

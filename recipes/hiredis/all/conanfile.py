@@ -12,9 +12,10 @@ class HiredisConan(ConanFile):
     name = "hiredis"
     description = "Hiredis is a minimalistic C client library for the Redis database."
     license = "BSD-3-Clause"
-    topics = ("redis", "client", "database")
-    homepage = "https://github.com/redis/hiredis"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/redis/hiredis"
+    topics = ("redis", "client", "database")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -10,11 +10,11 @@ required_conan_version = ">=1.54.0"
 
 class MuParserConan(ConanFile):
     name = "muparser"
-    license = "BSD-2-Clause"
-    homepage = "https://beltoforion.de/en/muparser/"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("math", "parser")
     description = "Fast Math Parser Library"
+    license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://beltoforion.de/en/muparser/"
+    topics = ("math", "parser")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

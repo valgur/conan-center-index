@@ -16,7 +16,8 @@ class ItlibConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/iboB/itlib"
-    topics = ("template", "flatmatp", "static-vector")
+    topics = ("template", "flatmatp", "static-vector", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

@@ -17,10 +17,10 @@ class AwsCCommon(ConanFile):
         "Core c99 package for AWS SDK for C. Includes cross-platform "
         "primitives, configuration, data structures, and error handling."
     )
-    topics = ("aws", "amazon", "cloud")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-common"
-    license = "Apache-2.0"
+    topics = ("aws", "amazon", "cloud")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -77,6 +77,19 @@ class AwsCCommon(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -90,19 +103,6 @@ class AwsCCommon(ConanFile):
                 "AWS::aws-c-common": "aws-c-common::aws-c-common",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

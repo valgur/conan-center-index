@@ -10,12 +10,13 @@ required_conan_version = ">=1.52.0"
 
 class LibE57FormatConan(ConanFile):
     name = "libe57format"
+    description = "Library for reading & writing the E57 file format"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/asmaloney/libE57Format"
-    description = "Library for reading & writing the E57 file format"
     topics = ("e57", "io", "point-cloud")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -80,14 +81,12 @@ class LibE57FormatConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

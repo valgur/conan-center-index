@@ -16,19 +16,19 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, unix_path_package_info_legacy
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-
 
 required_conan_version = ">=1.57.0"
 
 
 class PkgConfConan(ConanFile):
     name = "pkgconf"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("build", "configuration")
-    homepage = "https://git.sr.ht/~kaniini/pkgconf"
-    license = "ISC"
     description = "package compiler and linker metadata toolkit"
+    license = "ISC"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://git.sr.ht/~kaniini/pkgconf"
+    topics = ("build", "configuration")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,9 +40,6 @@ class PkgConfConan(ConanFile):
         "fPIC": True,
         "enable_lib": False,
     }
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -61,11 +58,28 @@ class PkgConfConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        if not self.info.options.enable_lib:
+            del self.info.settings.compiler
+
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+
+        tc = MesonToolchain(self)
+        tc.project_options["tests"] = False
+        if not self.options.enable_lib:
+            tc.project_options["default_library"] = "static"
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -83,16 +97,6 @@ class PkgConfConan(ConanFile):
                 "project('pkgconf', 'c',",
                 "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],",
             )
-
-    def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
-        tc = MesonToolchain(self)
-        tc.project_options["tests"] = False
-        if not self.options.enable_lib:
-            tc.project_options["default_library"] = "static"
-        tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -127,10 +131,6 @@ class PkgConfConan(ConanFile):
         )
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-    def package_id(self):
-        if not self.info.options.enable_lib:
-            del self.info.settings.compiler
 
     def package_info(self):
         if self.options.enable_lib:

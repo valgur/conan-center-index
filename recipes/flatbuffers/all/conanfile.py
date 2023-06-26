@@ -19,12 +19,13 @@ required_conan_version = ">=1.53.0"
 
 class FlatbuffersConan(ConanFile):
     name = "flatbuffers"
+    description = "Memory-Efficient Serialization Library"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://google.github.io/flatbuffers"
-    topics = ("serialization", "rpc", "json-parser")
-    description = "Memory Efficient Serialization Library"
+    topics = ("serialization", "rpc", "json-parser", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,6 +37,7 @@ class FlatbuffersConan(ConanFile):
         "fPIC": True,
         "header_only": False,
     }
+    no_copy_source = True
 
     def _has_flatc(self, info=False):
         # don't build flatc when it makes little sense or not supported

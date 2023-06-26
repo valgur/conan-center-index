@@ -12,13 +12,14 @@ required_conan_version = ">=1.54.0"
 
 class ScreenCaptureLiteConan(ConanFile):
     name = "screen_capture_lite"
-    license = "MIT"
     description = "cross platform screen/window capturing library "
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/smasherprog/screen_capture_lite"
     topics = ("screen-capture", "screen-ercorder")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

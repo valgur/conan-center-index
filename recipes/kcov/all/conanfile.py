@@ -2,106 +2,27 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+
+required_conan_version = ">=1.47.0"
 
 
 class KcovConan(ConanFile):
     name = "kcov"
-    license = "GPL-2.0"
-    url = "https://github.com/conan-io/conan-center-index/"
-    homepage = "http://simonkagstrom.github.io/kcov/index.html"
     description = (
         "Code coverage tool for compiled programs, Python and Bash which uses "
         "debugging information to collect and report data without special compilation options"
     )
-    topics = ("coverage", "linux", "debug")
-    settings = "os", "compiler", "build_type", "arch"
+    license = "GPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://simonkagstrom.github.io/kcov/index.html"
+    topics = ("coverage", "linux", "debug", "pre-built")
 
-    def requirements(self):
-        self.requires("zlib/1.2.12")
-        self.requires("libiberty/9.1.0")
-        self.requires("libcurl/7.83.1")
-        self.requires("elfutils/0.180")
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -109,6 +30,19 @@ class KcovConan(ConanFile):
     def configure(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("kcov can not be built on windows.")
+
+    def layout(self):
+        pass
+
+    def requirements(self):
+        self.requires("zlib/1.2.12")
+        self.requires("libiberty/9.1.0")
+        self.requires("libcurl/7.83.1")
+        self.requires("elfutils/0.180")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -138,3 +72,6 @@ class KcovConan(ConanFile):
         self.output.info("Appending PATH environment variable: {}".format(bindir))
         self.env_info.PATH.append(bindir)
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []

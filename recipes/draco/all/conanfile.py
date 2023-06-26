@@ -16,9 +16,9 @@ class DracoConan(ConanFile):
         "improve the storage and transmission of 3D graphics."
     )
     license = "Apache-2.0"
-    topics = ("3d", "graphics", "mesh", "compression", "decompression")
-    homepage = "https://google.github.io/draco/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://google.github.io/draco/"
+    topics = ("3d", "graphics", "mesh", "compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

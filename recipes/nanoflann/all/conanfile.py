@@ -9,16 +9,22 @@ required_conan_version = ">=1.50.0"
 
 class NanoflannConan(ConanFile):
     name = "nanoflann"
-    description = """nanoflann is a C++11 header-only library for building KD-Trees
-                    of datasets with different topologies: R2, R3 (point clouds),
-                    SO(2) and SO(3) (2D and 3D rotation groups).
-                    """
-    topics = ("nearest-neighbor", "kd-trees")
+    description = (
+        "nanoflann is a C++11 header-only library for building KD-Trees "
+        "of datasets with different topologies: R2, R3 (point clouds), "
+        "SO(2) and SO(3) (2D and 3D rotation groups)."
+    )
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jlblancoc/nanoflann"
-    license = "BSD-2-Clause"
+    topics = ("nearest-neighbor", "kd-trees", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -26,9 +32,6 @@ class NanoflannConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

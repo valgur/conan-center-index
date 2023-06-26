@@ -1,21 +1,23 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 from conan.tools.scm import Version
-import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
 
 class JasperConan(ConanFile):
     name = "jasper"
-    license = "JasPer-2.0"
-    homepage = "https://jasper-software.github.io/jasper"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("toolkit", "coding", "jpeg", "images")
     description = "JasPer Image Processing/Coding Tool Kit"
+    license = "JasPer-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://jasper-software.github.io/jasper"
+    topics = ("toolkit", "coding", "jpeg", "images")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -85,6 +87,23 @@ class JasperConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    @property
+    def _module_file_rel_path(self):
+        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+
+    def _create_cmake_module_variables(self, module_file):
+        content = textwrap.dedent(f"""\
+            set(JASPER_FOUND TRUE)
+            if(DEFINED Jasper_INCLUDE_DIR)
+                set(JASPER_INCLUDE_DIR ${{Jasper_INCLUDE_DIR}})
+            endif()
+            if(DEFINED Jasper_LIBRARIES)
+                set(JASPER_LIBRARIES ${{Jasper_LIBRARIES}})
+            endif()
+            set(JASPER_VERSION_STRING "{self.version}")
+        """)
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "COPYRIGHT*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -96,26 +115,6 @@ class JasperConan(ConanFile):
             for dll_prefix in ["concrt", "msvcp", "vcruntime"]:
                 rm(self, f"{dll_prefix}*.dll", os.path.join(self.package_folder, "bin"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
-
-    # FIXME: Missing CMake alias variables. See https://github.com/conan-io/conan/issues/7691
-    def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            f"""\
-            set(JASPER_FOUND TRUE)
-            if(DEFINED Jasper_INCLUDE_DIR)
-                set(JASPER_INCLUDE_DIR ${{Jasper_INCLUDE_DIR}})
-            endif()
-            if(DEFINED Jasper_LIBRARIES)
-                set(JASPER_LIBRARIES ${{Jasper_LIBRARIES}})
-            endif()
-            set(JASPER_VERSION_STRING "{self.version}")
-        """
-        )
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

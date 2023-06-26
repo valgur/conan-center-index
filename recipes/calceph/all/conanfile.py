@@ -14,14 +14,15 @@ required_conan_version = ">=1.55.0"
 class CalcephConan(ConanFile):
     name = "calceph"
     description = (
-        "C Library designed to access the binary planetary ephemeris "
-        "files, such INPOPxx, JPL DExxx and SPICE ephemeris files."
+        "C Library designed to access the binary planetary ephemeris files,"
+        " such as INPOPxx, JPL DExxx and SPICE ephemeris files."
     )
     license = ["CECILL-C", "CECILL-B", "CECILL-2.1"]
-    topics = ("ephemeris", "astronomy", "space", "planet")
-    homepage = "https://www.imcce.fr/inpop/calceph"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.imcce.fr/inpop/calceph"
+    topics = ("ephemeris", "astronomy", "space", "planet")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -77,16 +78,14 @@ class CalcephConan(ConanFile):
             env.generate()
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend(
-                [
-                    f"--enable-thread={yes_no(self.options.threadsafe)}",
-                    "--disable-fortran",
-                    "--disable-python",
-                    "--disable-python-package-system",
-                    "--disable-python-package-user",
-                    "--disable-mex-octave",
-                ]
-            )
+            tc.configure_args += [
+                f"--enable-thread={yes_no(self.options.threadsafe)}",
+                "--disable-fortran",
+                "--disable-python",
+                "--disable-python-package-system",
+                "--disable-python-package-user",
+                "--disable-mex-octave",
+            ]
             tc.generate()
 
     @property

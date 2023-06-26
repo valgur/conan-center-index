@@ -6,17 +6,17 @@ from conan.errors import ConanInvalidConfiguration
 from conan import Version
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class LefticusToolsConan(ConanFile):
     name = "lefticus-tools"
     description = "Some handy C++ tools"
-    topics = ("tools", "cpp", "cmake")
     license = "MIT"
-    homepage = "https://github.com/lefticus/tools"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/lefticus/tools"
+    topics = ("tools", "cpp", "cmake", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -32,6 +32,9 @@ class LefticusToolsConan(ConanFile):
             "clang": "13",
             "apple-clang": "14",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

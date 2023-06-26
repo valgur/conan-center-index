@@ -1,3 +1,7 @@
+# Warnings:
+#   Missing required method 'config_options'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -78,37 +82,22 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.53.0"
+
 
 class B2Conan(ConanFile):
     name = "b2"
-    homepage = "https://www.bfgroup.xyz/b2/"
     description = "B2 makes it easy to build C++ projects, everywhere."
-    topics = ("installer", "builder")
     license = "BSL-1.0"
-    settings = "os", "arch"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.bfgroup.xyz/b2/"
+    topics = ("installer", "builder")
 
-    """
-    * use_cxx_env: False, True
-
-    Indicates if the build will use the CXX and
-    CXXFLAGS environment variables. The common use is to add additional flags
-    for building on specific platforms or for additional optimization options.
-
-    * toolset: 'auto', 'cxx', 'cross-cxx',
-    'acc', 'borland', 'clang', 'como', 'gcc-nocygwin', 'gcc',
-    'intel-darwin', 'intel-linux', 'intel-win32', 'kcc', 'kylix',
-    'mingw', 'mipspro', 'pathscale', 'pgi', 'qcc', 'sun', 'sunpro',
-    'tru64cxx', 'vacpp', 'vc12', 'vc14', 'vc141', 'vc142', 'vc143'
-
-    Specifies the toolset to use for building. The default of 'auto' detects
-    a usable compiler for building and should be preferred. The 'cxx' toolset
-    uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx'
-    toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
-    toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
-    'CXX' and 'CXXFLAGS' variables for use in subprocesses.
-    """
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "use_cxx_env": [False, True],
         "toolset": [
             "auto",
@@ -142,9 +131,15 @@ class B2Conan(ConanFile):
         ],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "use_cxx_env": False,
         "toolset": "auto",
     }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if (
@@ -154,8 +149,19 @@ class B2Conan(ConanFile):
                 "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
             )
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.options.use_cxx_env
+        del self.info.options.toolset
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination="source")
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         use_windows_commands = os.name == "nt"
@@ -183,13 +189,11 @@ class B2Conan(ConanFile):
         command = os.path.join(engine_dir, "b2.exe" if use_windows_commands else "b2")
         if self.options.toolset != "auto":
             full_command = (
-                "{0} --ignore-site-config --prefix=../output --abbreviate-paths"
-                " toolset={1} install".format(command, self.options.toolset)
+                f"{command} --ignore-site-config --prefix=../output --abbreviate-paths"
+                f" toolset={self.options.toolset} install"
             )
         else:
-            full_command = "{0} --ignore-site-config --prefix=../output --abbreviate-paths" " install".format(
-                command
-            )
+            full_command = f"{command} --ignore-site-config --prefix=../output --abbreviate-paths" " install"
         self.run(full_command)
 
     def package(self):
@@ -207,7 +211,3 @@ class B2Conan(ConanFile):
         self.cpp_info.bindirs = ["bin"]
         self.env_info.path = [os.path.join(self.package_folder, "bin")]
         self.env_info.BOOST_BUILD_PATH = os.path.join(self.package_folder, "bin", "b2_src", "src", "kernel")
-
-    def package_id(self):
-        del self.info.options.use_cxx_env
-        del self.info.options.toolset

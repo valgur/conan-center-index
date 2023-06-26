@@ -11,9 +11,11 @@ class ShapelibConan(ConanFile):
     name = "shapelib"
     description = "C library for reading and writing ESRI Shapefiles"
     license = "LGPL-2.0-or-later"
-    topics = ("osgeo", "shapefile", "esri", "geospatial")
-    homepage = "https://github.com/OSGeo/shapelib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OSGeo/shapelib"
+    topics = ("osgeo", "shapefile", "esri", "geospatial")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -23,6 +25,9 @@ class ShapelibConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -36,9 +41,6 @@ class ShapelibConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -12,15 +12,18 @@ required_conan_version = ">=1.53.0"
 
 class QwtConan(ConanFile):
     name = "qwt"
+    description = (
+        "The Qwt library contains GUI Components and utility classes which are primarily useful for programs"
+        " with a technical background. Beside a framework for 2D plots it provides scales, sliders, dials,"
+        " compasses, thermometers, wheels and knobs to control or display values, arrays, or ranges of type"
+        " double."
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://qwt.sourceforge.io/"
     topics = ("archive", "compression")
-    description = (
-        "The Qwt library contains GUI Components and utility classes which are primarily useful for programs "
-        "with a technical background. Beside a framework for 2D plots it provides scales, sliders, dials, compasses, "
-        "thermometers, wheels and knobs to control or display values, arrays, or ranges of type double."
-    )
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

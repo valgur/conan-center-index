@@ -79,31 +79,47 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class MysqlConnectorCConan(ConanFile):
     name = "mysql-connector-c"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A MySQL client library for C development."
-    topics = ("mysql", "sql", "connector", "database")
-    homepage = "https://dev.mysql.com/downloads/connector/c/"
     license = "GPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://dev.mysql.com/downloads/connector/c/"
+    topics = ("mysql", "sql", "connector", "database")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_ssl": [True, False],
         "with_zlib": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
         "with_ssl": True,
         "with_zlib": True,
     }
-
     deprecated = "libmysqlclient"
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_ssl:
@@ -115,7 +131,7 @@ class MysqlConnectorCConan(ConanFile):
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration(
-                "Cross compilation not yet supported by the recipe. contributions are welcome."
+                "Cross compilation not yet supported by the recipe. Contributions are welcome."
             )
 
     def source(self):

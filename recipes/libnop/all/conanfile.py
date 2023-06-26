@@ -17,9 +17,10 @@ class LibnopConan(ConanFile):
         "generators or runtime support libraries."
     )
     license = "Apache-2.0"
-    topics = ("header-only", "serializer")
-    homepage = "https://github.com/google/libnop"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/libnop"
+    topics = ("header-only", "serializer")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -48,7 +49,8 @@ class LibnopConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, "
+                "which your compiler does not support."
             )
 
     def source(self):

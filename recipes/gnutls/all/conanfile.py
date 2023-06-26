@@ -15,11 +15,12 @@ required_conan_version = ">=1.54.0"
 
 class GnuTLSConan(ConanFile):
     name = "gnutls"
+    description = "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
+    license = ("LGPL-2.1-or-later", "GPL-3-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnutls.org"
-    description = "GnuTLS is a secure communications library implementing the SSL, TLS and DTLS protocols"
     topics = ("tls", "ssl", "secure communications")
-    license = ("LGPL-2.1-or-later", "GPL-3-or-later")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

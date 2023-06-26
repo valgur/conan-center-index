@@ -10,14 +10,15 @@ required_conan_version = ">=1.51.1"
 
 class CxxOptsConan(ConanFile):
     name = "cxxopts"
-    homepage = "https://github.com/jarro2783/cxxopts"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "Lightweight C++ option parser library, supporting the standard GNU style syntax for options."
     )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jarro2783/cxxopts"
     topics = ("option-parser", "positional-arguments ", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "unicode": [True, False],

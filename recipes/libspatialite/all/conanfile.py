@@ -27,9 +27,10 @@ class LibspatialiteConan(ConanFile):
         "core to support fully fledged Spatial SQL capabilities."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("spatialite", "database", "sql", "sqlite", "ogc")
-    homepage = "https://www.gaia-gis.it/fossil/libspatialite"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/libspatialite"
+    topics = ("spatialite", "database", "sql", "sqlite", "ogc")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

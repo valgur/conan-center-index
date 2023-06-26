@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_configure_autotools'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,62 +83,67 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.35.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibfabricConan(ConanFile):
     name = "aws-libfabric"
     description = "AWS Libfabric"
-    topics = ("fabric", "communication", "framework", "service")
+    license = ("BSD-2-Clause", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aws/libfabric"
-    license = "BSD-2-Clause", "GPL-2.0-or-later"
+    topics = ("fabric", "communication", "framework", "service")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    _providers = [
-        "gni",
-        "psm",
-        "psm2",
-        "sockets",
-        "rxm",
-        "tcp",
-        "udp",
-        "usnic",
-        "verbs",
-        "bgq",
-        "shm",
-        "efa",
-        "rxd",
-        "mrail",
-        "rstream",
-        "perf",
-        "hook_debug",
-    ]
     options = {
-        **{p: [True, False, "shared"] for p in _providers},
-        **{
-            "shared": [True, False],
-            "fPIC": [True, False],
-            "with_libnl": [True, False],
-            "bgq_progress": ["auto", "manual"],
-            "bgq_mr": ["basic", "scalable"],
-        },
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "gni": [True, False, "shared"],
+        "psm": [True, False, "shared"],
+        "psm2": [True, False, "shared"],
+        "sockets": [True, False, "shared"],
+        "rxm": [True, False, "shared"],
+        "tcp": [True, False, "shared"],
+        "udp": [True, False, "shared"],
+        "usnic": [True, False, "shared"],
+        "verbs": [True, False, "shared"],
+        "bgq": [True, False, "shared"],
+        "shm": [True, False, "shared"],
+        "efa": [True, False, "shared"],
+        "rxd": [True, False, "shared"],
+        "mrail": [True, False, "shared"],
+        "rstream": [True, False, "shared"],
+        "perf": [True, False, "shared"],
+        "hook_debug": [True, False, "shared"],
+        "with_libnl": [True, False],
+        "bgq_progress": ["auto", "manual"],
+        "bgq_mr": ["basic", "scalable"],
     }
     default_options = {
-        **{p: False for p in _providers},
-        **{
-            "shared": False,
-            "fPIC": True,
-            "tcp": True,
-            "with_libnl": False,
-            "bgq_progress": "manual",
-            "bgq_mr": "basic",
-        },
+        "shared": False,
+        "fPIC": True,
+        "gni": False,
+        "psm": False,
+        "psm2": False,
+        "sockets": False,
+        "rxm": False,
+        "tcp": True,
+        "udp": False,
+        "usnic": False,
+        "verbs": False,
+        "bgq": False,
+        "shm": False,
+        "efa": False,
+        "rxd": False,
+        "mrail": False,
+        "rstream": False,
+        "perf": False,
+        "hook_debug": False,
+        "with_libnl": False,
+        "bgq_progress": "manual",
+        "bgq_mr": "basic",
     }
-
-    _autotools = None
-
-    def build_requirements(self):
-        self.build_requires("libtool/2.4.6")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -148,6 +157,9 @@ class LibfabricConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_libnl:
             self.requires("libnl/3.2.25")
@@ -156,8 +168,15 @@ class LibfabricConan(ConanFile):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("The libfabric package cannot be built on Windows.")
 
+    def build_requirements(self):
+        self.build_requires("libtool/2.4.6")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _configure_autotools(self):
         if self._autotools:
@@ -190,14 +209,15 @@ class LibfabricConan(ConanFile):
         return self._autotools
 
     def build(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))

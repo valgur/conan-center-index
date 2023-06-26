@@ -1,102 +1,37 @@
 # TODO: verify the Conan v2 migration
 
 import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-import os
 import textwrap
 
-required_conan_version = ">=1.43.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd, stdcpp_library
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rmdir,
+    save,
+)
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.47.0"
 
 
 class IceoryxConan(ConanFile):
     name = "iceoryx"
-    license = "Apache-2.0"
-    homepage = "https://iceoryx.io/"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Eclipse iceoryx - true zero-copy inter-process-communication"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://iceoryx.io/"
     topics = ("Shared Memory", "IPC", "ROS", "Middleware")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -120,15 +55,14 @@ class IceoryxConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.toml_config:
             self.requires("cpptoml/0.1.1")
         if self.settings.os == "Linux":
             self.requires("acl/2.3.1")
-
-    def build_requirements(self):
-        if Version(self.version) >= "2.0.0":
-            self.tool_requires("cmake/3.16.2")
 
     def validate(self):
         compiler = self.settings.compiler
@@ -167,8 +101,21 @@ class IceoryxConan(ConanFile):
             ):
                 raise ConanInvalidConfiguration("shared Debug with clang 7.0 and libc++ not supported")
 
+    def build_requirements(self):
+        if Version(self.version) >= "2.0.0":
+            self.tool_requires("cmake/3.16.2")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["TOML_CONFIG"] = self.options.toml_config
+        if Version(self.version) >= "2.0.0":
+            tc.variables["DOWNLOAD_TOML_LIB"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -182,15 +129,6 @@ class IceoryxConan(ConanFile):
             replace_in_file(
                 self, os.path.join(self.source_folder, cmake_file), "POSITION_INDEPENDENT_CODE ON", ""
             )
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["TOML_CONFIG"] = self.options.toml_config
-        if Version(self.version) >= "2.0.0":
-            tc.variables["DOWNLOAD_TOML_LIB"] = False
-        tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -341,20 +279,15 @@ class IceoryxConan(ConanFile):
             },
         }
 
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
+    def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """)
         save(self, module_file, content)
 
     @property

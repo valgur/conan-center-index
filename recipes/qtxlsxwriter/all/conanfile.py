@@ -12,12 +12,13 @@ required_conan_version = ">=1.53.0"
 
 class QtXlsxWriterConan(ConanFile):
     name = "qtxlsxwriter"
+    description = ".xlsx file reader and writer for Qt5"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dbzhang800/QtXlsxWriter"
-    description = ".xlsx file reader and writer for Qt5"
     topics = ("excel", "xlsx")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

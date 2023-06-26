@@ -18,6 +18,8 @@ class CzmqConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zeromq/czmq"
     topics = ("zmq", "libzmq", "message-queue", "asynchronous")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,8 +33,8 @@ class CzmqConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "enable_drafts": False,
         "fPIC": True,
+        "enable_drafts": False,
         "with_libcurl": True,
         "with_lz4": True,
         "with_libuuid": True,

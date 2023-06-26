@@ -2,90 +2,25 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.files import copy, get, save
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+
+required_conan_version = ">=1.52.0"
 
 
 class IosCMakeConan(ConanFile):
     name = "ios-cmake"
+    description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
     license = "BSD-3-Clause"
-    settings = "os", "arch"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/leetal/ios-cmake"
+    topics = ("apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos", "header-only")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "enable_bitcode": [True, False],
         "enable_arc": [True, False],
@@ -118,8 +53,6 @@ class IosCMakeConan(ConanFile):
         "enable_strict_try_compile": False,
         "toolchain_target": "auto",
     }
-    description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
-    topics = ("apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos")
 
     @staticmethod
     def _chmod_plus_x(filename):
@@ -132,6 +65,14 @@ class IosCMakeConan(ConanFile):
     def configure(self):
         if not is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("This package only supports Apple operating systems")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+        # TODO: since we have 2 profiles I am not sure that this is still required
+        #       since this will always be / has to be  a build profile
 
     def _guess_toolchain_target(self, os, arch):
         if os == "iOS":
@@ -156,7 +97,6 @@ class IosCMakeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename(f"ios-cmake-{self.version}", self.source_folder)
 
     def build(self):
         pass  # there is nothing to build
@@ -209,16 +149,19 @@ class IosCMakeConan(ConanFile):
         elif arch_flag == "armv8.3":
             arch_flag = "arm64e"
 
-        cmake_options = "-DENABLE_BITCODE={} -DENABLE_ARC={} -DENABLE_VISIBILITY={} -DENABLE_STRICT_TRY_COMPILE={}".format(
-            self.options.enable_bitcode,
-            self.options.enable_arc,
-            self.options.enable_visibility,
-            self.options.enable_strict_try_compile,
+        cmake_options = (
+            f"-DENABLE_BITCODE={self.options.enable_bitcode} "
+            f"-DENABLE_ARC={self.options.enable_arc} "
+            f"-DENABLE_VISIBILITY={self.options.enable_visibility} "
+            f"-DENABLE_STRICT_TRY_COMPILE={self.options.enable_strict_try_compile}"
         )
         # Note that this, as long as we specify (overwrite) the ARCHS, PLATFORM has just limited effect,
         # but PLATFORM need to be set in the profile so it makes sense, see ios-cmake docs for more info
-        cmake_flags = "-DPLATFORM={} -DDEPLOYMENT_TARGET={} -DARCHS={} {}".format(
-            toolchain_target, target_version, arch_flag, cmake_options
+        cmake_flags = (
+            f"-DPLATFORM={toolchain_target} "
+            f"-DDEPLOYMENT_TARGET={target_version} "
+            f"-DARCHS={arch_flag} "
+            f"{cmake_options}"
         )
 
         self.env_info.CONAN_USER_CMAKE_FLAGS = cmake_flags
@@ -234,8 +177,3 @@ class IosCMakeConan(ConanFile):
         self.env_info.CONAN_ENABLE_VISIBILITY_FLAG = str(self.options.enable_visibility)
         self.env_info.CONAN_ENABLE_STRICT_TRY_COMPILE_FLAG = str(self.options.enable_strict_try_compile)
         # the rest should be exported from profile info anyway
-
-    def package_id(self):
-        self.info.header_only()
-        # TODO , since we have 2 profiles I am not sure that this is still required
-        # since this will always be / has to be  a build profile

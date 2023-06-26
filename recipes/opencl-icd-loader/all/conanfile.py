@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
@@ -12,9 +12,10 @@ class OpenclIcdLoaderConan(ConanFile):
     name = "opencl-icd-loader"
     description = "OpenCL ICD Loader."
     license = "Apache-2.0"
-    topics = ("opencl", "khronos", "parallel", "icd-loader")
-    homepage = "https://github.com/KhronosGroup/OpenCL-ICD-Loader"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/OpenCL-ICD-Loader"
+    topics = ("opencl", "khronos", "parallel", "icd-loader")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -64,6 +65,9 @@ class OpenclIcdLoaderConan(ConanFile):
         tc.variables["OPENCL_ICD_LOADER_BUILD_TESTING"] = False
         if self.settings.os == "Windows":
             tc.variables["OPENCL_ICD_LOADER_DISABLE_OPENCLON12"] = self.options.disable_openclon12
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

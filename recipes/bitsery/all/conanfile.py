@@ -13,12 +13,17 @@ class BitseryConan(ConanFile):
         "Header only C++ binary serialization library. It is designed around "
         "the networking requirements for real-time data delivery, especially for games."
     )
-    topics = ("serialization", "binary", "header-only")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/fraillt/bitsery"
-    license = "MIT"
+    topics = ("serialization", "binary", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -26,9 +31,6 @@ class BitseryConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -46,6 +48,9 @@ class BitseryConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "Bitsery")
         self.cpp_info.set_property("cmake_target_name", "Bitsery::bitsery")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed

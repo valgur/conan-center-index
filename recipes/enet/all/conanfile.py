@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 class EnetConan(ConanFile):
     name = "enet"
     description = "ENet reliable UDP networking library"
-    topics = ("udp", "networking")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lsalzman/enet"
-    license = "MIT"
+    topics = ("udp", "networking")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

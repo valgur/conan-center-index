@@ -3,27 +3,30 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class IttApiConan(ConanFile):
     name = "ittapi"
-    license = ("BSD-3-Clause", "GPL-2.0-only")
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/intel/ittapi"
     description = (
         "The Instrumentation and Tracing Technology (ITT) API enables your application"
         " to generate and control the collection of trace data during its execution"
         " across different Intel tools."
     )
+    license = ("BSD-3-Clause", "GPL-2.0-only")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/intel/ittapi"
     topics = ("itt", "vtune", "profiler", "profiling")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "ptmark": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "ptmark": False,
     }
@@ -43,6 +46,12 @@ class IttApiConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        self._patch_sources()
+        toolchain = CMakeToolchain(self)
+        toolchain.variables["ITT_API_IPT_SUPPORT"] = self.options.ptmark
+        toolchain.generate()
+
     def _patch_sources(self):
         # Don't force PIC
         replace_in_file(
@@ -51,12 +60,6 @@ class IttApiConan(ConanFile):
             'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")',
             "",
         )
-
-    def generate(self):
-        self._patch_sources()
-        toolchain = CMakeToolchain(self)
-        toolchain.variables["ITT_API_IPT_SUPPORT"] = self.options.ptmark
-        toolchain.generate()
 
     def build(self):
         cmake = CMake(self)

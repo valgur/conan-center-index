@@ -16,9 +16,14 @@ class EdynConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xissburg/edyn"
     topics = ("physics", "game-development", "ecs")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "floating_type": ["float", "double"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "floating_type": ["float", "double"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

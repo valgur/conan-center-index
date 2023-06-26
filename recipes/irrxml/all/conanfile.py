@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class IrrXMLConan(ConanFile):
     name = "irrxml"
-    license = "ZLIB"
-    homepage = "http://www.ambiera.com/irrxml"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "irrXML is a simple and fast open source xml parser for C++"
+    license = "ZLIB"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.ambiera.com/irrxml"
     topics = ("xml", "xml-parser", "parser", "xml-reader")
 
     package_type = "library"

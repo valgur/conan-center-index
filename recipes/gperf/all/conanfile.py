@@ -11,12 +11,13 @@ required_conan_version = ">=1.57.0"
 
 class GperfConan(ConanFile):
     name = "gperf"
+    description = "GNU gperf is a perfect hash function generator"
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gperf"
-    description = "GNU gperf is a perfect hash function generator"
-    topics = ("hash-generator", "hash")
+    topics = ("hash-generator", "hash", "pre-built")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -87,6 +88,8 @@ class GperfConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

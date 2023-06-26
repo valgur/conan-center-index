@@ -18,6 +18,7 @@ class MpppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bluescarni/mppp/"
     topics = ("multiprecision", "gmp", "math-bignum", "computer-algebra")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -77,11 +78,13 @@ class MpppConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         if self.options.with_arb:
             raise ConanInvalidConfiguration(
-                f"{self.ref}:with_arb=True is not supported because `fredrik-johansson/arb` is not packaged in CCI. (yet)"
+                f"{self.ref}:with_arb=True is not supported "
+                "because `fredrik-johansson/arb` is not packaged in CCI. (yet)"
             )
         if self.options.with_quadmath:
             raise ConanInvalidConfiguration(
-                f"{self.ref}:with_quadmath=True is not supported because `libquadmath` is not available from CCI. (yet)"
+                f"{self.ref}:with_quadmath=True is not supported "
+                "because `libquadmath` is not available from CCI. (yet)"
             )
         if self.options.with_boost and self.dependencies["boost"].options.without_serialization:
             raise ConanInvalidConfiguration(

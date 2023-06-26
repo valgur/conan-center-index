@@ -4,9 +4,9 @@ from conan import ConanFile, Version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, get, rmdir
+from conan.tools.files import apply_conandata_patches, copy, get, rmdir, export_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
 required_conan_version = ">=1.53.0"
@@ -14,11 +14,13 @@ required_conan_version = ">=1.53.0"
 
 class LibvaultConan(ConanFile):
     name = "libvault"
+    description = "A C++ library for Hashicorp Vault"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/abedra/libvault"
-    description = "A C++ library for Hashicorp Vault"
     topics = ("vault", "secrets", "passwords")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -43,6 +45,9 @@ class LibvaultConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libcurl/7.86.0")
@@ -80,7 +85,8 @@ class LibvaultConan(ConanFile):
             os_version = self.info.settings.get_safe("os.version")
             if os_version and Version(os_version) < self._mac_os_minimum_required_version:
                 raise ConanInvalidConfiguration(
-                    "Macos Mojave (10.14) and earlier cannot to be built because C++ standard library too old."
+                    "Macos Mojave (10.14) and earlier cannot to be built "
+                    "because C++ standard library too old."
                 )
 
         if self.settings.compiler.get_safe("cppstd"):

@@ -12,11 +12,11 @@ required_conan_version = ">=1.57.0"
 
 class LibsmackerConan(ConanFile):
     name = "libsmacker"
+    description = "A C library for decoding .smk Smacker Video files"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libsmacker.sourceforge.net"
     topics = ("decoding ", "smk", "smacker", "video", "file")
-    license = "LGPL-2.1-or-later"
-    description = "A C library for decoding .smk Smacker Video files"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

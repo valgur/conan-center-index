@@ -12,8 +12,8 @@ required_conan_version = ">=1.50.0"
 class MagicEnumConan(ConanFile):
     name = "magic_enum"
     description = (
-        "Header-only C++17 library provides static reflection for enums, work "
-        "with any enum type without any macro or boilerplate code."
+        "Header-only C++17 library provides static reflection for enums, "
+        "work with any enum type without any macro or boilerplate code."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -27,6 +27,7 @@ class MagicEnumConan(ConanFile):
         "header-only",
         "compile-time",
     )
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

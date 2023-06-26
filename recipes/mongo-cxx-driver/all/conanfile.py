@@ -12,11 +12,12 @@ required_conan_version = ">=1.54.0"
 
 class MongoCxxConan(ConanFile):
     name = "mongo-cxx-driver"
+    description = "C++ Driver for MongoDB"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mongocxx.org"
-    description = "C++ Driver for MongoDB"
     topics = ("libbsoncxx", "libmongocxx", "mongo", "mongodb", "database", "db")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -31,25 +32,6 @@ class MongoCxxConan(ConanFile):
         "polyfill": "boost",
         "with_ssl": True,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def requirements(self):
-        self.requires("mongo-c-driver/1.23.5")
-        if self.options.polyfill == "boost":
-            self.requires("boost/1.82.0", transitive_headers=True)
 
     @property
     def _minimal_std_version(self):
@@ -91,6 +73,25 @@ class MongoCxxConan(ConanFile):
                 f"please, specify _compilers_minimum_version for {self.options.polyfill} polyfill"
             )
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("mongo-c-driver/1.23.5")
+        if self.options.polyfill == "boost":
+            self.requires("boost/1.82.0", transitive_headers=True)
+
     def validate(self):
         if self.options.with_ssl and not bool(self.dependencies["mongo-c-driver"].options.with_ssl):
             raise ConanInvalidConfiguration(
@@ -115,7 +116,8 @@ class MongoCxxConan(ConanFile):
             and version < self._compilers_minimum_version[compiler]
         ):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires a compiler that supports at least C++{self._minimal_std_version}"
+                f"{self.name} {self.version} requires a compiler that supports at least"
+                f" C++{self._minimal_std_version}"
             )
 
     def source(self):

@@ -5,15 +5,19 @@ from conan.tools.files import get, rmdir, copy, replace_in_file, rm
 from conan.errors import ConanInvalidConfiguration
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class Libpfm4Conan(ConanFile):
     name = "libpfm4"
-    license = "MIT"
-    homepage = "http://perfmon2.sourceforge.net"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A helper library to program the performance monitoring events"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://perfmon2.sourceforge.net"
     topics = ("perf", "pmu", "benchmark", "microbenchmark")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -22,13 +26,6 @@ class Libpfm4Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    package_type = "library"
-
-    def validate(self):
-        # The library doesn't really make much sense without perf_events API
-        # and currently does not compile on modern Mac OS X && Windows
-        if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This library is Linux only")
 
     def configure(self):
         if self.options.shared:
@@ -38,6 +35,12 @@ class Libpfm4Conan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def validate(self):
+        # The library doesn't really make much sense without perf_events API
+        # and currently does not compile on modern Mac OS X && Windows
+        if self.settings.os != "Linux":
+            raise ConanInvalidConfiguration("This library is Linux only")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

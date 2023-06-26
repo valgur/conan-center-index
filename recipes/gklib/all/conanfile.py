@@ -10,11 +10,12 @@ required_conan_version = ">=1.53.0"
 
 class GKlibConan(ConanFile):
     name = "gklib"
+    description = "A library of various helper routines and frameworks used by many of the lab's software"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/GKlib"
-    description = "A library of various helper routines and frameworks" " used by many of the lab's software"
-    topics = "karypislab"
+    topics = ("karypislab",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

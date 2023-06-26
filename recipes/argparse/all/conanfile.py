@@ -6,17 +6,20 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class ArgparseConan(ConanFile):
     name = "argparse"
+    description = "Argument Parser for Modern C++"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/argparse"
-    topics = ("argument", "parsing")
-    license = "MIT"
-    description = "Argument Parser for Modern C++"
+    topics = ("argument", "parsing", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -39,6 +42,9 @@ class ArgparseConan(ConanFile):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
             copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def package_id(self):
         self.info.clear()
 
@@ -48,7 +54,8 @@ class ArgparseConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
+                " support."
             )
 
         if (
@@ -57,11 +64,9 @@ class ArgparseConan(ConanFile):
             and self.settings.compiler.libcxx == "libstdc++"
         ):
             raise ConanInvalidConfiguration(
-                "This recipe does not permit >2.1 with clang and stdlibc++. There may be an infrastructure issue in CCI."
+                "This recipe does not permit >2.1 with clang and stdlibc++. There may be an infrastructure"
+                " issue in CCI."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

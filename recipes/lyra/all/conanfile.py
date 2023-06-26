@@ -1,18 +1,21 @@
 import os
+
 from conan import ConanFile
-import conan.tools.files
-import conan.tools.layout
-import conan.tools.build
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import get, copy
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.50.0"
 
 
 class LyraConan(ConanFile):
     name = "lyra"
-    homepage = "https://bfgroup.github.io/Lyra/"
     description = (
         "A simple to use, composing, header only, command line arguments parser for C++ 11 and beyond."
     )
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://bfgroup.github.io/Lyra/"
     topics = (
         "cli",
         "cli-parser",
@@ -23,20 +26,20 @@ class LyraConan(ConanFile):
         "no-dependencies",
         "c++11",
     )
-    no_copy_source = True
-    settings = "compiler"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "MIT"
 
-    def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            conan.tools.build.check_min_cppstd(self, 11)
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="root")
 
     def package_id(self):
         self.info.clear()
 
-    def layout(self):
-        conan.tools.layout.basic_layout(self, src_folder="root")
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

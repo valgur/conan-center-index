@@ -16,10 +16,10 @@ required_conan_version = ">=1.53.0"
 class GetTextConan(ConanFile):
     name = "libgettext"
     description = "An internationalization and localization system for multilingual programs"
-    topics = ("gettext", "intl", "libintl", "i18n")
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gettext"
-    license = "GPL-3.0-or-later"
+    topics = ("gettext", "intl", "libintl", "i18n")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -103,9 +103,11 @@ class GetTextConan(ConanFile):
             "--disable-csharp",
             "--disable-libasprintf",
             "--disable-curses",
-            "--disable-threads"
-            if self.options.threads == "disabled"
-            else ("--enable-threads=" + str(self.options.threads)),
+            (
+                "--disable-threads"
+                if self.options.threads == "disabled"
+                else f"--enable-threads={str(self.options.threads)}"
+            ),
             f"--with-libiconv-prefix={unix_path(self, self.dependencies['libiconv'].package_folder)}",
         ]
         if is_msvc(self) or self._is_clang_cl:

@@ -10,9 +10,9 @@ class LzfseConan(ConanFile):
     name = "lzfse"
     description = "Lempel-Ziv style data compression algorithm using Finite State Entropy coding."
     license = "BSD-3-Clause"
-    topics = ("compression", "decompression")
-    homepage = "https://github.com/lzfse/lzfse"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/lzfse/lzfse"
+    topics = ("compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

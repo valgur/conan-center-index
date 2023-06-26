@@ -2,111 +2,61 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import collect_libs, copy, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.35.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibfabricConan(ConanFile):
     name = "libfabric"
     description = "Open Fabric Interfaces"
-    topics = ("fabric", "communication", "framework", "service")
+    license = ("BSD-2-Clause", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libfabric.org"
-    license = "BSD-2-Clause", "GPL-2.0-or-later"
+    topics = ("fabric", "communication", "framework", "service")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    _providers = ["gni", "psm", "psm2", "psm3", "rxm", "sockets", "tcp", "udp", "usnic", "verbs", "bgq"]
     options = {
-        **{p: "ANY" for p in _providers},
-        **{
-            "shared": [True, False],
-            "fPIC": [True, False],
-            "with_libnl": "ANY",
-            "with_bgq_progress": [None, "auto", "manual"],
-            "with_bgq_mr": [None, "basic", "scalable"],
-        },
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "gni": "ANY",
+        "psm": "ANY",
+        "psm2": "ANY",
+        "psm3": "ANY",
+        "rxm": "ANY",
+        "sockets": "ANY",
+        "tcp": "ANY",
+        "udp": "ANY",
+        "usnic": "ANY",
+        "verbs": "ANY",
+        "bgq": "ANY",
+        "with_libnl": "ANY",
+        "with_bgq_progress": [None, "auto", "manual"],
+        "with_bgq_mr": [None, "basic", "scalable"],
     }
     default_options = {
-        **{p: "auto" for p in _providers},
-        **{"shared": False, "fPIC": True, "with_libnl": None, "with_bgq_progress": None, "with_bgq_mr": None},
+        "shared": False,
+        "fPIC": True,
+        "gni": "auto",
+        "psm": "auto",
+        "psm2": "auto",
+        "psm3": "auto",
+        "rxm": "auto",
+        "sockets": "auto",
+        "tcp": "auto",
+        "udp": "auto",
+        "usnic": "auto",
+        "verbs": "auto",
+        "bgq": "auto",
+        "with_libnl": None,
+        "with_bgq_progress": None,
+        "with_bgq_mr": None,
     }
-
-    _autotools = None
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,6 +67,9 @@ class LibfabricConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
@@ -134,31 +87,29 @@ class LibfabricConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         args = []
         for p in self._providers:
-            args.append("--enable-{}={}".format(p, self.options.get_safe(p)))
+            args.append(f"--enable-{p}={self.options.get_safe(p)}")
         if self.options.with_libnl:
-            args.append("--with-libnl={}".format(self.options.with_libnl))
+            args.append(f"--with-libnl={self.options.with_libnl}")
         if self.options.with_bgq_progress:
-            args.append("--with-bgq-progress={}".format(self.options.with_bgq_progress))
+            args.append(f"--with-bgq-progress={self.options.with_bgq_progress}")
         if self.options.with_bgq_mr:
-            args.append("--with-bgq-mr={}".format(self.options.with_bgq_mr))
-        self._autotools.configure(args=args, configure_dir=self.source_folder)
-        return self._autotools
+            args.append(f"--with-bgq-mr={self.options.with_bgq_mr}")
+        tc.configure_args = args
 
     def build(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools()
         autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))

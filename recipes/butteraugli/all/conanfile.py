@@ -11,9 +11,9 @@ class ButteraugliConan(ConanFile):
     name = "butteraugli"
     description = "A tool for measuring perceived differences between images"
     license = "Apache-2.0"
-    topics = ("image", "diff")
-    homepage = "https://github.com/google/butteraugli"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/butteraugli"
+    topics = ("image", "diff")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -17,13 +17,14 @@ class AbsentConan(ConanFile):
         "A small C++17 library meant to simplify the composition of nullable "
         "types in a generic, type-safe, and declarative way"
     )
-    homepage = "https://github.com/rvarago/absent"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    topics = ("nullable-types", "composition", "monadic-interface", "declarative-programming")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rvarago/absent"
+    topics = ("nullable-types", "composition", "monadic-interface", "declarative-programming", "header-only")
+
     package_type = "header-library"
-    no_copy_source = True
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -40,6 +41,9 @@ class AbsentConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
@@ -50,9 +54,6 @@ class AbsentConan(ConanFile):
                 raise ConanInvalidConfiguration(
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
-
-    def package_id(self):
-        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

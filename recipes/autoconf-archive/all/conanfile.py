@@ -9,13 +9,14 @@ required_conan_version = ">=1.56.0"
 
 class AutoconfArchiveConan(ConanFile):
     name = "autoconf-archive"
-    package_type = "build-scripts"
+    description = "The GNU Autoconf Archive is a collection of more than 500 macros for GNU Autoconf"
+    license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/autoconf-archive/"
-    license = "GPL-2.0-or-later"
-    description = "The GNU Autoconf Archive is a collection of more than 500 macros for GNU Autoconf"
     topics = ("GNU", "autoconf", "macro")
-    settings = "os"
+
+    package_type = "build-scripts"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):

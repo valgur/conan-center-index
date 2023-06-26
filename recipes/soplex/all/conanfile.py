@@ -18,6 +18,8 @@ class SoPlexConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://soplex.zib.de"
     topics = ("simplex", "solver", "linear", "programming")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,6 +46,26 @@ class SoPlexConan(ConanFile):
             "apple-clang": "7",
         }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("zlib/1.2.13", transitive_headers=True)
+        if self.options.with_gmp:
+            # transitive libs as anything using soplex requires __gmpz_init_set_si
+            # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
+            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
+        if self.options.with_boost:
+            self.requires("boost/1.81.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
+
     def _determine_lib_name(self):
         if self.options.shared:
             return "soplexshared"
@@ -69,26 +91,6 @@ class SoPlexConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        self.requires("zlib/1.2.13", transitive_headers=True)
-        if self.options.with_gmp:
-            # transitive libs as anything using soplex requires __gmpz_init_set_si
-            # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
-            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
-        if self.options.with_boost:
-            self.requires("boost/1.81.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)

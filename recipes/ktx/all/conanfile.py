@@ -11,9 +11,10 @@ class KtxConan(ConanFile):
     name = "ktx"
     description = "Khronos Texture library and tool."
     license = "Apache-2.0"
-    topics = ("texture", "khronos")
-    homepage = "https://github.com/KhronosGroup/KTX-Software"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/KTX-Software"
+    topics = ("texture", "khronos")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

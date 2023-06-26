@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -19,11 +19,12 @@ required_conan_version = ">=1.54.0"
 
 class OpenSubdivConan(ConanFile):
     name = "opensubdiv"
-    license = "LicenseRef-LICENSE.txt"
-    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "An Open-Source subdivision surface library"
+    license = "LicenseRef-LICENSE.txt"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
     topics = ("cgi", "vfx", "animation", "subdivision surface")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -137,6 +138,9 @@ class OpenSubdivConan(ConanFile):
         tc.variables["NO_TESTS"] = True
         tc.variables["NO_GLTESTS"] = True
         tc.variables["NO_MACOS_FRAMEWORK"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def _patch_sources(self):

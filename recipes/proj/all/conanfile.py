@@ -18,7 +18,6 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.54.0"
 
 
@@ -26,10 +25,11 @@ class ProjConan(ConanFile):
     name = "proj"
     description = "Cartographic Projections and Coordinate Transformations Library."
     license = "MIT"
-    topics = ("dsp", "proj4", "projections", "gis", "geospatial")
-    homepage = "https://proj.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://proj.org"
+    topics = ("dsp", "proj4", "projections", "gis", "geospatial")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

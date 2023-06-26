@@ -9,10 +9,10 @@ required_conan_version = ">=1.53.0"
 class FarmhashConan(ConanFile):
     name = "farmhash"
     description = "A family of hash functions"
-    topics = ("hash", "google", "family")
     license = "MIT"
-    homepage = "https://github.com/google/farmhash"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/farmhash"
+    topics = ("hash", "google", "family")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

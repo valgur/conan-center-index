@@ -23,13 +23,12 @@ required_conan_version = ">=1.58.0"
 class ReadosmConan(ConanFile):
     name = "readosm"
     description = (
-        "ReadOSM is an open source library to extract valid data from within "
-        "an Open Street Map input file."
+        "ReadOSM is an open source library to extract valid data from within an Open Street Map input file."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("osm", "open-street-map", "xml", "protobuf")
-    homepage = "https://www.gaia-gis.it/fossil/readosm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/readosm"
+    topics = ("osm", "open-street-map", "xml", "protobuf")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

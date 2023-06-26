@@ -79,21 +79,20 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class GLShaderPPConan(ConanFile):
     name = "glshaderpp"
-    homepage = "https://gitlab-lepuy.iut.uca.fr/opengl/glshaderpp"
     description = "A lightweight header-only library to compile and link OpenGL GLSL shaders."
-    topics = ("opengl", "glsl", "shader", "header-only")
-    url = "https://github.com/conan-io/conan-center-index"
-    no_copy_source = True
     license = "LGPL-3.0-or-later"
-    settings = "compiler", "os", "arch", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab-lepuy.iut.uca.fr/opengl/glshaderpp"
+    topics = ("opengl", "glsl", "shader", "header-only")
 
-    def package_id(self):
-        self.info.header_only()
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -108,6 +107,12 @@ class GLShaderPPConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
@@ -119,7 +124,8 @@ class GLShaderPPConan(ConanFile):
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def source(self):
@@ -135,4 +141,7 @@ class GLShaderPPConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.includedirs.append(os.path.join("include", "GLShaderPP"))

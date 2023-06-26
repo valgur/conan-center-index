@@ -80,19 +80,22 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc_static_runtime, is_msvc
 
-required_conan_version = ">=1.35.0"
+required_conan_version = ">=1.53.0"
 
 
 class NvclothConan(ConanFile):
     name = "nvcloth"
+    description = (
+        "NvCloth is a library that provides low level access to a "
+        "cloth solver designed for realtime interactive applications."
+    )
     license = "Nvidia Source Code License (1-Way Commercial)"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/NVIDIAGameWorks/NvCloth"
-    description = "NvCloth is a library that provides low level access to a cloth solver designed for realtime interactive applications."
     topics = ("physics", "physics-engine", "physics-simulation", "game-development", "cuda")
 
-    # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -106,11 +109,19 @@ class NvclothConan(ConanFile):
         "use_dx11": False,
     }
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Windows", "Linux", "Macos", "Android", "iOS"]:
@@ -122,6 +133,21 @@ class NvclothConan(ConanFile):
 
         if is_msvc(self) and Version(self.settings.compiler.version) < 9:
             raise ConanInvalidConfiguration("Visual Studio versions < 9 are not supported")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        if not self.options.shared:
+            tc.variables["PX_STATIC_LIBRARIES"] = 1
+        tc.variables["STATIC_WINCRT"] = is_msvc_static_runtime(self)
+        tc.variables["NV_CLOTH_ENABLE_CUDA"] = self.options.use_cuda
+        tc.variables["NV_CLOTH_ENABLE_DX11"] = self.options.use_dx11
+        tc.variables["TARGET_BUILD_PLATFORM"] = self._get_target_build_platform()
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _remove_samples(self):
         rmdir(self, os.path.join(self.source_folder, "NvCloth", "samples"))
@@ -156,26 +182,6 @@ class NvclothConan(ConanFile):
                 ),
                 os.path.join(self.build_folder, self.source_folder, "NvCloth/include/NvCloth/Callbacks.h"),
             )
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        if not self.options.shared:
-            tc.variables["PX_STATIC_LIBRARIES"] = 1
-        tc.variables["STATIC_WINCRT"] = is_msvc_static_runtime(self)
-        tc.variables["NV_CLOTH_ENABLE_CUDA"] = self.options.use_cuda
-        tc.variables["NV_CLOTH_ENABLE_DX11"] = self.options.use_dx11
-        tc.variables["TARGET_BUILD_PLATFORM"] = self._get_target_build_platform()
-        tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         with environment_append(self, {"GW_DEPS_ROOT": os.path.abspath(self.source_folder)}):

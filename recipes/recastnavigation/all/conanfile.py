@@ -8,12 +8,13 @@ required_conan_version = ">=1.52.0"
 
 class RecastNavigationConan(ConanFile):
     name = "recastnavigation"
-    homepage = "https://github.com/recastnavigation/recastnavigation"
     description = " Navigation-mesh Toolset for Games"
-    topics = ("navmesh", "recast", "navigation", "crowd")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/recastnavigation/recastnavigation"
+    topics = ("navmesh", "recast", "navigation", "crowd")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

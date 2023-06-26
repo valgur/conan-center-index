@@ -12,19 +12,20 @@ required_conan_version = ">=1.53.0"
 class AvcppConan(ConanFile):
     name = "avcpp"
     description = "C++ wrapper for FFmpeg"
-    license = "LGPL-2.1", "BSD-3-Clause"
+    license = ("LGPL-2.1", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/h4tr3d/avcpp/"
     topics = ("ffmpeg", "cpp")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property

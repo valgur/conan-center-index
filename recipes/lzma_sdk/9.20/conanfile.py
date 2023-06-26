@@ -23,11 +23,15 @@ required_conan_version = ">=1.55.0"
 
 class LzmaSdkConan(ConanFile):
     name = "lzma_sdk"
+    description = (
+        "LZMA provides a high compression ratio and fast decompression, "
+        "so it is very suitable for embedded applications."
+    )
+    license = "LZMA-exception"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "LZMA provides a high compression ratio and fast decompression, so it is very suitable for embedded applications."
-    license = ("LZMA-exception",)
     homepage = "https://www.7-zip.org/sdk.html"
     topics = ("lzma", "zip", "compression", "decompression")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -35,35 +39,12 @@ class LzmaSdkConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    def build_requirements(self):
-        if not is_msvc(self) and self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.build_requires("msys2/cci.latest")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.build_type
         del self.info.settings.compiler
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        rm(self, "7zr.exe", self.source_folder)
-        rm(self, "lzma.exe", self.source_folder)
-
-    def generate(self):
-        if is_msvc(self):
-            tc = NMakeToolchain(self)
-            tc.generate()
-        else:
-            env = VirtualBuildEnv(self)
-            env.generate()
-            tc = AutotoolsToolchain(self)
-            tc.generate()
-            deps = AutotoolsDeps(self)
-            deps.generate()
 
     @property
     def _msvc_build_dirs(self):
@@ -89,6 +70,29 @@ class LzmaSdkConan(ConanFile):
             (os.path.join(self.source_folder, "C", "Util", "7z"), f"7zDec{es}"),
             (os.path.join(self.source_folder, "CPP", "7zip", "Bundles", "LzmaCon"), f"lzma{es}"),
         )
+
+    def build_requirements(self):
+        if not is_msvc(self) and self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.build_requires("msys2/cci.latest")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rm(self, "7zr.exe", self.source_folder)
+        rm(self, "lzma.exe", self.source_folder)
+
+    def generate(self):
+        if is_msvc(self):
+            tc = NMakeToolchain(self)
+            tc.generate()
+        else:
+            env = VirtualBuildEnv(self)
+            env.generate()
+            tc = AutotoolsToolchain(self)
+            tc.generate()
+            deps = AutotoolsDeps(self)
+            deps.generate()
 
     def _build_msvc(self):
         for make_dir, _ in self._msvc_build_dirs:
@@ -177,6 +181,8 @@ class LzmaSdkConan(ConanFile):
                 )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         bin_path = os.path.join(self.package_folder, "bin")

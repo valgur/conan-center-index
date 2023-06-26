@@ -15,17 +15,18 @@ from conan.tools.files import (
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
 
-
 required_conan_version = ">=1.54.0"
 
 
 class NasRecipe(ConanFile):
     name = "nas"
     description = "The Network Audio System is a network transparent, client/server audio transport system."
-    topics = ("audio", "sound")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.radscan.com/nas.html"
-    license = "Unlicense"
+    topics = ("audio", "sound")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,8 +37,8 @@ class NasRecipe(ConanFile):
         "fPIC": True,
     }
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:
@@ -45,8 +46,11 @@ class NasRecipe(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def export_sources(self):
-        export_conandata_patches(self)
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("xorg/system")
 
     def validate(self):
         if self.settings.os not in ("FreeBSD", "Linux"):
@@ -54,9 +58,6 @@ class NasRecipe(ConanFile):
         if self.settings.compiler == "clang":
             # See https://github.com/conan-io/conan-center-index/pull/16267#issuecomment-1469824504
             raise ConanInvalidConfiguration("Recipe cannot be built with clang")
-
-    def requirements(self):
-        self.requires("xorg/system")
 
     def build_requirements(self):
         self.tool_requires("bison/3.7.1")

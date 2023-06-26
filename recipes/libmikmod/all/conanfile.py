@@ -18,10 +18,11 @@ required_conan_version = ">=1.53.0"
 class LibmikmodConan(ConanFile):
     name = "libmikmod"
     description = "Module player and library supporting many formats, including mod, s3m, it, and xm."
-    topics = ("audio",)
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mikmod.sourceforge.net"
-    license = "LGPL-2.1-or-later"
+    topics = ("audio",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

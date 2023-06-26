@@ -87,7 +87,10 @@ required_conan_version = ">=1.33.0"
 
 class NCursesConan(ConanFile):
     name = "ncurses"
-    description = "The ncurses (new curses) library is a free software emulation of curses in System V Release 4.0 (SVr4), and more"
+    description = (
+        "The ncurses (new curses) library is a free software emulation of curses in System V Release 4.0"
+        " (SVr4), and more"
+    )
     topics = ("terminal", "screen", "tui")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/ncurses"
@@ -276,20 +279,19 @@ class NCursesConan(ConanFile):
     def build(self):
         self._patch_sources()
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     @property
     def _major_version(self):
         return Version(self.version).major
 
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file):
+    def _create_cmake_module_alias_targets(self, module_file):
         save(
             self,
             module_file,
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             set(CURSES_FOUND ON)
             set(CURSES_INCLUDE_DIRS ${ncurses_libcurses_INCLUDE_DIRS})
             set(CURSES_LIBRARIES ${ncurses_libcurses_LINK_LIBS})
@@ -304,21 +306,18 @@ class NCursesConan(ConanFile):
             # Backward Compatibility
             set(CURSES_INCLUDE_DIR ${CURSES_INCLUDE_DIRS})
             set(CURSES_LIBRARY ${CURSES_LIBRARIES})
-        """
-            ),
+        """),
         )
 
     def package(self):
         # return
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+            autotools = Autotools(self)
             autotools.install()
 
             os.unlink(
-                os.path.join(
-                    self.package_folder, "bin", "ncurses{}{}-config".format(self._suffix, self._major_version)
-                )
+                os.path.join(self.package_folder, "bin", f"ncurses{self._suffix}{self._major_version}-config")
             )
 
         self._create_cmake_module_alias_targets(

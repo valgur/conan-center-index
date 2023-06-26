@@ -12,9 +12,9 @@ class LaszipConan(ConanFile):
     name = "laszip"
     description = "C++ library for lossless LiDAR compression."
     license = "LGPL-2.1"
-    topics = ("las", "laz", "lidar", "compression", "decompression")
-    homepage = "https://github.com/LASzip/LASzip"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/LASzip/LASzip"
+    topics = ("las", "laz", "lidar", "compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

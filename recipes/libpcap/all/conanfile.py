@@ -18,11 +18,12 @@ required_conan_version = ">=1.53.0"
 
 class LibPcapConan(ConanFile):
     name = "libpcap"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/the-tcpdump-group/libpcap"
     description = "libpcap is an API for capturing network traffic"
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/the-tcpdump-group/libpcap"
     topics = ("networking", "pcap", "sniffing", "network-traffic")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

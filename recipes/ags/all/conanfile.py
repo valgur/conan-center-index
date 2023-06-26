@@ -78,7 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class AGSConan(ConanFile):
@@ -88,12 +88,13 @@ class AGSConan(ConanFile):
         "software and hardware state information that is not normally available through standard operating "
         "systems or graphics APIs."
     )
-    homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK"
-    topics = ("amd", "gpu")
-    url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
     license = "MIT"
-    no_copy_source = True
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK"
+    topics = ("amd", "gpu", "header-only")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
     }
@@ -124,6 +125,9 @@ class AGSConan(ConanFile):
                 )
             if self.settings.arch not in self._supported_archs:
                 raise ConanInvalidConfiguration("ags doesn't support arch: {}".format(self.settings.arch))
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

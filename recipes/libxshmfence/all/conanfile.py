@@ -156,29 +156,21 @@ class LibxshmfenceConan(ConanFile):
         else:
             yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=self._settings_build.os == "Windows")
-        self._autotools.libs = []
-        yes_no = lambda v: "yes" if v else "no"
-        configure_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
-        ]
-        self._autotools.configure(args=configure_args, configure_dir=self.source_folder)
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

@@ -1,3 +1,8 @@
+# Warnings:
+#   Disallowed attribute 'generators = 'pkg_config''
+#   Unexpected method '_configure_meson'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +84,21 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class AtSpi2CoreConan(ConanFile):
     name = "at-spi2-core"
-    description = "It provides a Service Provider Interface for the Assistive Technologies available on the GNOME platform and a library against which applications can be linked"
-    topics = ("atk", "accessibility")
+    description = (
+        "It provides a Service Provider Interface for the Assistive Technologies available on the GNOME"
+        " platform and a library against which applications can be linked"
+    )
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-core/"
-    license = "LGPL-2.1-or-later"
-    generators = "pkg_config"
-    deprecated = "Consumers should migrate to at-spi2-core/[>=2.45.1], which includes atk and at-spi2-atk"
+    topics = ("atk", "accessibility")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,8 +110,7 @@ class AtSpi2CoreConan(ConanFile):
         "fPIC": True,
         "with_x11": False,
     }
-
-    _meson = None
+    deprecated = "Consumers should migrate to at-spi2-core/[>=2.45.1], which includes atk and at-spi2-atk"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -113,9 +121,8 @@ class AtSpi2CoreConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def build_requirements(self):
-        self.build_requires("meson/1.1.1")
-        self.build_requires("pkgconf/1.9.3")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("glib/2.76.3")
@@ -131,8 +138,16 @@ class AtSpi2CoreConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
+    def build_requirements(self):
+        self.build_requires("meson/1.1.1")
+        self.build_requires("pkgconf/1.9.3")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _configure_meson(self):
         if self._meson:

@@ -82,17 +82,21 @@ import glob
 import os
 import shutil
 
+required_conan_version = ">=1.53.0"
+
 
 class GStPluginsUglyConan(ConanFile):
     name = "gst-plugins-ugly"
     description = (
-        "GStreamer is a development framework for creating applications like media players, video editors, "
-        "streaming media broadcasters and so on"
+        "GStreamer is a development framework for creating applications like "
+        "media players, video editors, streaming media broadcasters and so on"
     )
-    topics = ("gstreamer", "multimedia", "video", "audio", "broadcasting", "framework", "media")
+    license = "GPL-2.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gstreamer.freedesktop.org/"
-    license = "GPL-2.0-only"
+    topics = ("gstreamer", "multimedia", "video", "audio", "broadcasting", "framework", "media")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -104,13 +108,29 @@ class GStPluginsUglyConan(ConanFile):
         "fPIC": True,
         "with_introspection": False,
     }
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
-
-    generators = "pkg_config"
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+        self.options["gstreamer"].shared = self.options.shared
+        self.options["gst-plugins-base"].shared = self.options.shared
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("glib/2.70.1")
+        self.requires("gstreamer/1.19.1")
+        self.requires("gst-plugins-base/1.19.1")
 
     def validate(self):
         if (
@@ -135,26 +155,9 @@ class GStPluginsUglyConan(ConanFile):
                 "shared build with static runtime is not supported due to the FlsAlloc limit"
             )
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-        self.options["gstreamer"].shared = self.options.shared
-        self.options["gst-plugins-base"].shared = self.options.shared
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def requirements(self):
-        self.requires("glib/2.70.1")
-        self.requires("gstreamer/1.19.1")
-        self.requires("gst-plugins-base/1.19.1")
-
     def build_requirements(self):
         self.build_requires("meson/0.54.2")
-        if not which(self, "pkg-config"):
+        if not shutil.which(self, "pkg-config"):
             self.build_requires("pkgconf/1.7.4")
         if self.settings.os == "Windows":
             self.build_requires("winflexbison/2.5.24")
@@ -166,6 +169,11 @@ class GStPluginsUglyConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_meson(self):
         defs = dict()
@@ -187,7 +195,7 @@ class GStPluginsUglyConan(ConanFile):
         meson = Meson(self)
         if self.settings.compiler == "Visual Studio":
             add_linker_flag("-lws2_32")
-            add_compiler_flag("-%s" % self.settings.compiler.runtime)
+            add_compiler_flag(f"-{self.settings.compiler.runtime}")
             if int(str(self.settings.compiler.version)) < 14:
                 add_compiler_flag("-Dsnprintf=_snprintf")
         if self.settings.get_safe("compiler.runtime"):

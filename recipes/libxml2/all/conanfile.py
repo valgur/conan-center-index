@@ -17,12 +17,13 @@ required_conan_version = ">=1.55.0"
 
 class Libxml2Conan(ConanFile):
     name = "libxml2"
-    package_type = "library"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "libxml2 is a software library for parsing XML documents"
-    topics = ("xml", "parser", "validation")
-    homepage = "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/"
+    topics = ("xml", "parser", "validation")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     # from ./configure and ./win32/configure.js
     default_options = {
@@ -381,8 +382,7 @@ class Libxml2Conan(ConanFile):
 
     def _create_cmake_module_variables(self, module_file):
         # FIXME: also define LIBXML2_XMLLINT_EXECUTABLE variable
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(LibXml2_FOUND TRUE)
             set(LIBXML2_FOUND TRUE)
             if(DEFINED LibXml2_INCLUDE_DIRS)
@@ -407,8 +407,7 @@ class Libxml2Conan(ConanFile):
                 set(LIBXML2_DEFINITIONS "")
             endif()
             set(LIBXML2_VERSION_STRING "{self.version}")
-        """
-        )
+        """)
         save(self, module_file, content)
 
     @property

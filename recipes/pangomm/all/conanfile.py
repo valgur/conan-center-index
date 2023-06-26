@@ -158,15 +158,18 @@ from conan.tools.system import package_manager
 import os
 import shutil
 
+required_conan_version = ">=1.53.0"
+
 
 class PangommConan(ConanFile):
     name = "pangomm"
-    homepage = "https://gitlab.gnome.org/GNOME/pangomm"
+    description = "pangomm is a C++ API for Pango: a library for layout and rendering of text."
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "pangomm is a C++ API for Pango: a library for layout and rendering of text."
+    homepage = "https://gitlab.gnome.org/GNOME/pangomm"
     topics = ["pango", "wrapper", "text rendering", "fonts", "freedesktop"]
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -175,8 +178,6 @@ class PangommConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    generators = "pkg_config"
 
     @property
     def _is_2_48_api(self):
@@ -193,23 +194,16 @@ class PangommConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building not implemented")
-
-        if self.settings.compiler.get_safe("cppstd"):
-            if self._is_2_48_api:
-                check_min_cppstd(self, 17)
-            elif self._is_1_4_api:
-                check_min_cppstd(self, 11)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def build_requirements(self):
-        self.build_requires("meson/0.59.1")
-        self.build_requires("pkgconf/1.7.4")
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("pango/1.50.7")
@@ -227,8 +221,27 @@ class PangommConan(ConanFile):
             self.requires("glibmm/2.66.4")
             self.requires("cairomm/1.14.3")
 
+    def validate(self):
+        if hasattr(self, "settings_build") and cross_building(self):
+            raise ConanInvalidConfiguration("Cross-building not implemented")
+
+        if self.settings.compiler.get_safe("cppstd"):
+            if self._is_2_48_api:
+                check_min_cppstd(self, 17)
+            elif self._is_1_4_api:
+                check_min_cppstd(self, 11)
+
+    def build_requirements(self):
+        self.build_requires("meson/0.59.1")
+        self.build_requires("pkgconf/1.7.4")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -257,10 +270,6 @@ class PangommConan(ConanFile):
             replace_in_file(
                 self, os.path.join(self.source_folder, "meson.build"), "cpp_std=c++", "cpp_std=vc++"
             )
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def build(self):
         self._patch_sources()

@@ -2,100 +2,25 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rmdir
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class JerryScriptStackConan(ConanFile):
     name = "jerryscript"
-    license = "Apache-2.0"
-    homepage = "https://github.com/jerryscript-project/jerryscript"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Ultra-lightweight JavaScript engine for the Internet of Things"
-    topics = ["javascript", "iot", "javascript-engine"]
-    settings = "os", "compiler", "build_type", "arch"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jerryscript-project/jerryscript"
+    topics = ("javascript", "iot", "javascript-engine")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -141,7 +66,9 @@ class JerryScriptStackConan(ConanFile):
         "default_port_implementation": True,
         "jerry_ext": True,
         "jerry_math": False,  # Initialized in `config_options`
-        "link_time_optimization": False,  # Enabled by upstream, but disabled to be confirm cci (add -flto in your profile)
+        "link_time_optimization": (
+            False
+        ),  # Enabled by upstream, but disabled to be confirm cci (add -flto in your profile)
         "strip_symbols": True,
         "amalgamated": False,
         "debugger": False,
@@ -168,7 +95,10 @@ class JerryScriptStackConan(ConanFile):
         "gc_before_each_alloc": False,
         "vm_exec_stop": False,
     }
-    _predefined_profiles = ["es.next", "es5.1", "minimal"]
+
+    @property
+    def _predefined_profiles(self):
+        return ["es.next", "es5.1", "minimal"]
 
     @property
     def _jerry_math(self):
@@ -207,6 +137,13 @@ class JerryScriptStackConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("jerryscript shared lib is not yet supported under windows")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        if self.options.profile not in self._predefined_profiles:
+            self.info.options.profile = load(self, str(self.options.profile))
+
     def validate(self):
         # validate integers
         try:
@@ -228,7 +165,8 @@ class JerryScriptStackConan(ConanFile):
             str(self.options.profile)
         ):
             raise ConanInvalidConfiguration(
-                "Invalid profile option. Feature profile must either be a valid file or one of these: es.next, es5.1, minimal"
+                "Invalid profile option. Feature profile must either be a valid file or one of these:"
+                " es.next, es5.1, minimal"
             )
         # validate the use of the system allocator option
         if self.settings.arch == "x86_64" and self.options.system_allocator:
@@ -236,15 +174,8 @@ class JerryScriptStackConan(ConanFile):
         if self.options.system_allocator and not self.options.cpointer_32_bit:
             raise ConanInvalidConfiguration("jerryscript system allocator must be used with 32 bit pointers")
 
-    def package_id(self):
-        if self.options.profile not in self._predefined_profiles:
-            self.info.options.profile = load(self, str(self.options.profile))
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -288,6 +219,9 @@ class JerryScriptStackConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()

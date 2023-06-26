@@ -5,7 +5,7 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.52.0"
 
 
 class CImgConan(ConanFile):
@@ -14,7 +14,8 @@ class CImgConan(ConanFile):
     license = "CeCILL V2"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://cimg.eu"
-    topics = ("physics", "simulation", "robotics", "kinematics", "engine")
+    topics = ("physics", "simulation", "robotics", "kinematics", "engine", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -13,13 +13,13 @@ required_conan_version = ">=1.54.0"
 
 class CeressolverConan(ConanFile):
     name = "ceres-solver"
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://ceres-solver.org/"
     description = (
         "Ceres Solver is an open source C++ library for modeling "
         "and solving large, complicated optimization problems"
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://ceres-solver.org/"
     topics = ("optimization", "non-linear least squares")
 
     package_type = "library"
@@ -27,10 +27,8 @@ class CeressolverConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "use_glog": [
-            True,
-            False,
-        ],  # TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
+        # TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
+        "use_glog": [True, False],
         "use_gflags": [True, False, "deprecated"],
         "use_custom_blas": [True, False],
         "use_eigen_sparse": [True, False],

@@ -19,6 +19,8 @@ class BearConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rizsotto/Bear"
     topics = ("clang", "compilation", "database", "llvm")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -45,9 +47,6 @@ class BearConan(ConanFile):
         self.requires("spdlog/1.11.0")
         self.requires("nlohmann_json/3.11.2")
 
-    def build_requirements(self):
-        self.tool_requires("grpc/1.50.1")
-
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
@@ -62,6 +61,9 @@ class BearConan(ConanFile):
             )
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on windows.")
+
+    def build_requirements(self):
+        self.tool_requires("grpc/1.50.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

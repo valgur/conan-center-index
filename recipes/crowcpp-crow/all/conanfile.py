@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.scm import Version
 import os
 
@@ -15,7 +15,9 @@ class CrowConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://crowcpp.org/"
     topics = ("web", "microframework", "header-only")
-    settings = "os", "compiler", "arch", "build_type"
+
+    package_type = "header-only"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "amalgamation": [True, False],
         "with_ssl": [True, False],
@@ -53,7 +55,7 @@ class CrowConan(ConanFile):
                 self.requires("zlib/1.2.13")
 
     def package_id(self):
-        self.info.settings.clear()
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -72,6 +74,8 @@ class CrowConan(ConanFile):
                 tc.variables["CROW_BUILD_EXAMPLES"] = False
                 tc.variables["CROW_BUILD_TESTS"] = False
                 tc.variables["CROW_AMALGAMATE"] = True
+            tc.generate()
+            tc = CMakeDeps(self)
             tc.generate()
 
     def build(self):
@@ -115,6 +119,8 @@ class CrowConan(ConanFile):
             )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 

@@ -9,14 +9,14 @@ required_conan_version = ">=1.54"
 
 class ImplotConan(ConanFile):
     name = "implot"
+    description = "Advanced 2D Plotting for Dear ImGui"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/epezent/implot"
-    description = "Advanced 2D Plotting for Dear ImGui"
     topics = ("imgui", "plot", "graphics")
-    license = "MIT"
-    settings = "os", "arch", "compiler", "build_type"
-    package_type = "library"
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -37,6 +37,9 @@ class ImplotConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if Version(self.version) >= "0.14":
             self.requires("imgui/1.89.4", transitive_headers=True)
@@ -45,9 +48,6 @@ class ImplotConan(ConanFile):
             self.requires("imgui/1.88", transitive_headers=True)
         else:
             self.requires("imgui/1.86", transitive_headers=True)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,7 +66,10 @@ class ImplotConan(ConanFile):
 
     def package(self):
         copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
         )
         cmake = CMake(self)
         cmake.install()

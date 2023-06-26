@@ -80,17 +80,18 @@ from conan.tools.system import package_manager
 import functools
 import os
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class OpenColorIOConan(ConanFile):
     name = "opencolorio"
     description = "A color management framework for visual effects and animation."
     license = "BSD-3-Clause"
-    homepage = "https://opencolorio.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://opencolorio.org/"
     topics = ("colors", "visual", "effects", "animation")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -115,6 +116,9 @@ class OpenColorIOConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("expat/2.4.8")
@@ -169,15 +173,14 @@ class OpenColorIOConan(ConanFile):
 
         tc.generate()
 
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath"):
-            remove_files_by_mask(
-                self,
-                os.path.join(self.source_folder, "share", "cmake", "modules"),
-                "Find" + module + ".cmake",
-            )
+            rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
 
     def build(self):
         self._patch_sources()
@@ -203,7 +206,7 @@ class OpenColorIOConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         # nop for 2.x
-        remove_files_by_mask(self.package_folder, "OpenColorIOConfig*.cmake")
+        rm(self, "OpenColorIOConfig*.cmake", self.package_folde, recursive=True)
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
 

@@ -86,6 +86,8 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
+required_conan_version = ">=1.47.0"
+
 
 class GdalConan(ConanFile):
     name = "gdal"
@@ -94,10 +96,11 @@ class GdalConan(ConanFile):
         "for raster and vector geospatial data formats."
     )
     license = "MIT"
-    topics = ("osgeo", "geospatial", "raster", "vector")
-    homepage = "https://github.com/OSGeo/gdal"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OSGeo/gdal"
+    topics = ("osgeo", "geospatial", "raster", "vector", "pre-built")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
 
     # A list of gdal dependencies can be taken from cmake/helpers/CheckDependentLibraries.cmake
@@ -156,7 +159,6 @@ class GdalConan(ConanFile):
         "with_zlib": [True, False],
         "with_zstd": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -221,6 +223,9 @@ class GdalConan(ConanFile):
 
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("json-c/0.16")
@@ -822,6 +827,9 @@ class GdalConan(ConanFile):
         for k, v in tc.variables.items():
             print(k, " = ", v)
 
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

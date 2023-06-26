@@ -2,94 +2,26 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, get, rm
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class QCoroConan(ConanFile):
     name = "qcoro"
-    license = "MIT"
-    homepage = "https://github.com/danvratil/qcoro"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "C++ Coroutines for Qt."
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/danvratil/qcoro"
     topics = ("coroutines", "qt")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -119,8 +51,8 @@ class QCoroConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def build_requirements(self):
-        self.build_requires("cmake/3.23.2")
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("qt/6.3.1")
@@ -128,12 +60,6 @@ class QCoroConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 20)
-
-        def lazy_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
 
         # Special check for clang that can only be linked to libc++
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libc++":
@@ -146,18 +72,16 @@ class QCoroConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("qcoro requires C++20. Your compiler is unknown. Assuming it supports C++20.")
-        elif lazy_lt_semver(compiler_version, minimum_version):
+        elif Version(compiler_version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "qcoro requires some C++20 features, which your {} {} compiler does not support.".format(
-                    str(self.settings.compiler), compiler_version
-                )
+                f"qcoro requires some C++20 features, which your {str(self.settings.compiler)} "
+                f"{compiler_version} compiler does not support."
             )
         else:
-            print(
-                "Your compiler is {} {} and is compatible.".format(
-                    str(self.settings.compiler), compiler_version
-                )
-            )
+            print(f"Your compiler is {str(self.settings.compiler)} {compiler_version} and is compatible.")
+
+    def build_requirements(self):
+        self.build_requires("cmake/3.23.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -189,7 +113,7 @@ class QCoroConan(ConanFile):
         cmake.install()
 
         for mask in ["Find*.cmake", "*Config*.cmake", "*-config.cmake", "*Targets*.cmake"]:
-            remove_files_by_mask(self.package_folder, mask)
+            rm(self, mask, self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "QCoro6"

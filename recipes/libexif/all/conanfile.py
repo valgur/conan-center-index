@@ -12,13 +12,14 @@ required_conan_version = ">=1.57.0"
 
 class LibexifConan(ConanFile):
     name = "libexif"
+    description = "libexif is a library for parsing, editing, and saving EXIF data."
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libexif.github.io/"
-    license = "LGPL-2.1"
-    description = "libexif is a library for parsing, editing, and saving EXIF data."
     topics = ("exif", "metadata", "parse", "edit")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

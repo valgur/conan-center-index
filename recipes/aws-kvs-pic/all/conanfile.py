@@ -84,15 +84,18 @@ from conan.tools.cmake import (
     cmake_layout,
 )
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class awskvspicConan(ConanFile):
     name = "aws-kvs-pic"
-    license = "Apache-2.0"
-    homepage = "https://github.com/awslabs/amazon-kinesis-video-streams-pic"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Platform Independent Code for Amazon Kinesis Video Streams"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/awslabs/amazon-kinesis-video-streams-pic"
+    topics = ("aws", "kvs", "kinesis", "video", "stream")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -102,14 +105,9 @@ class awskvspicConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    topics = ("aws", "kvs", "kinesis", "video", "stream")
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def validate(self):
-        if self.settings.os != "Linux" and self.options.shared:
-            raise ConanInvalidConfiguration("This library can only be built shared on Linux")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -120,6 +118,13 @@ class awskvspicConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.os != "Linux" and self.options.shared:
+            raise ConanInvalidConfiguration("This library can only be built shared on Linux")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

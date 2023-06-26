@@ -15,22 +15,24 @@ required_conan_version = ">=1.53.0"
 class FruitConan(ConanFile):
     name = "fruit"
     description = "C++ dependency injection framework"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/fruit"
-    license = "Apache-2.0"
     topics = ("injection", "framework")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "use_boost": [True, False, "deprecated"],
         "with_boost": [True, False],
-        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
         "use_boost": "deprecated",
         "with_boost": True,
-        "fPIC": True,
     }
 
     def export_sources(self):
@@ -39,9 +41,6 @@ class FruitConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def package_id(self):
-        del self.info.options.use_boost
 
     def configure(self):
         if self.options.shared:
@@ -56,6 +55,9 @@ class FruitConan(ConanFile):
     def requirements(self):
         if self.options.with_boost:
             self.requires("boost/1.80.0")
+
+    def package_id(self):
+        del self.info.options.use_boost
 
     def validate(self):
         if self.settings.compiler.cppstd:

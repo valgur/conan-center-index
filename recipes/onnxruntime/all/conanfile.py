@@ -9,15 +9,14 @@ from conan.tools.env import VirtualBuildEnv
 import os
 import sys
 
-
 required_conan_version = ">=1.53.0"
 
 
 class OnnxRuntimeConan(ConanFile):
     name = "onnxruntime"
     description = "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://onnxruntime.ai"
     topics = (
         "deep-learning",

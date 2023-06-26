@@ -8,11 +8,11 @@ required_conan_version = ">=1.53.0"
 
 class LibsquishConan(ConanFile):
     name = "libsquish"
-    description = "The libSquish library compresses images with the DXT " "standard (also known as S3TC)."
+    description = "The libSquish library compresses images with the DXT standard (also known as S3TC)."
     license = "MIT"
-    topics = ("image", "compression", "dxt", "s3tc")
-    homepage = "https://sourceforge.net/projects/libsquish"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/libsquish"
+    topics = ("image", "compression", "dxt", "s3tc")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

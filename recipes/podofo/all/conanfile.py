@@ -11,12 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class PodofoConan(ConanFile):
     name = "podofo"
-    license = "GPL-3.0", "LGPL-3.0"
-    homepage = "http://podofo.sourceforge.net"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "PoDoFo is a library to work with the PDF file format."
+    license = ("GPL-3.0", "LGPL-3.0")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://podofo.sourceforge.net"
     topics = "pdf"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

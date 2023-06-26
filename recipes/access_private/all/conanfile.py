@@ -4,18 +4,23 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class AccessPrivateConan(ConanFile):
     name = "access_private"
     description = "Access private members and statics of a C++ class"
     license = "MIT"
-    topics = ("access", "private", "header-only")
-    homepage = "https://github.com/martong/access_private"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martong/access_private"
+    topics = ("access", "private", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -23,9 +28,6 @@ class AccessPrivateConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

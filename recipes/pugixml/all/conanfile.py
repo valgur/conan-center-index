@@ -11,11 +11,12 @@ required_conan_version = ">=1.54.0"
 class PugiXmlConan(ConanFile):
     name = "pugixml"
     description = "Light-weight, simple and fast XML parser for C++ with XPath support"
-    topics = ("xml-parser", "xpath", "xml", "dom")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://pugixml.org/"
+    topics = ("xml-parser", "xpath", "xml", "dom")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

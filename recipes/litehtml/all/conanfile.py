@@ -14,10 +14,11 @@ class LitehtmlConan(ConanFile):
     name = "litehtml"
     description = "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support."
     license = "BSD-3-Clause"
-    topics = ("render engine", "html", "parser")
-    homepage = "https://github.com/litehtml/litehtml"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/litehtml/litehtml"
+    topics = ("render engine", "html", "parser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

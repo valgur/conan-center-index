@@ -11,13 +11,15 @@ required_conan_version = ">=1.52.0"
 
 class SMLConan(ConanFile):
     name = "sml"
-    homepage = "https://github.com/boost-ext/sml"
     description = "SML: C++14 State Machine Library"
-    topics = ("state-machine", "metaprogramming", "design-patterns")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+    homepage = "https://github.com/boost-ext/sml"
+    topics = ("state-machine", "metaprogramming", "design-patterns", "header-only")
+
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

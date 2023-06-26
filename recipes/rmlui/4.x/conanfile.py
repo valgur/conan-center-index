@@ -5,7 +5,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, replace_in_file, copy, export_conandata_patches, apply_conandata_patches
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -16,24 +15,29 @@ class RmluiConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mikke89/RmlUi"
     topics = ("css", "gui", "html", "lua", "rmlui")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "font_interface": ["freetype", None],
-        "fPIC": [True, False],
-        "matrix_mode": ["column_major", "row_major"],
         "shared": [True, False],
+        "fPIC": [True, False],
+        "font_interface": ["freetype", None],
+        "matrix_mode": ["column_major", "row_major"],
         "with_lua_bindings": [True, False],
         "with_thirdparty_containers": [True, False],
     }
     default_options = {
-        "font_interface": "freetype",
-        "fPIC": True,
-        "matrix_mode": "column_major",
         "shared": False,
+        "fPIC": True,
+        "font_interface": "freetype",
+        "matrix_mode": "column_major",
         "with_lua_bindings": False,
         "with_thirdparty_containers": True,
     }
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 14
 
     @property
     def _minimum_compilers_version(self):
@@ -47,10 +51,6 @@ class RmluiConan(ConanFile):
             "Visual Studio": "15",
         }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 14
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -61,6 +61,19 @@ class RmluiConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.font_interface == "freetype":
+            self.requires("freetype/2.10.4")
+
+        if self.options.with_lua_bindings:
+            self.requires("lua/5.3.5")
+
+        if self.options.with_thirdparty_containers:
+            self.requires("robin-hood-hashing/3.11.3", transitive_headers=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -80,21 +93,9 @@ class RmluiConan(ConanFile):
         else:
             if lazy_lt_semver(str(self.settings.compiler.version), min_version):
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard} support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.ref} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
-
-    def requirements(self):
-        if self.options.font_interface == "freetype":
-            self.requires("freetype/2.10.4")
-
-        if self.options.with_lua_bindings:
-            self.requires("lua/5.3.5")
-
-        if self.options.with_thirdparty_containers:
-            self.requires("robin-hood-hashing/3.11.3", transitive_headers=True)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

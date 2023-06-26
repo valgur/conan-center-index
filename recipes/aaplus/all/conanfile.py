@@ -16,9 +16,9 @@ class Aaplusconan(ConanFile):
         'book "Astronomical Algorithms" by Jean Meeus'
     )
     license = "Unlicense"
-    topics = ("aa+", "astronomy", "astronomical-algorithms", "orbital-mechanics")
-    homepage = "http://www.naughter.com/aa.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.naughter.com/aa.html"
+    topics = ("aa+", "astronomy", "astronomical-algorithms", "orbital-mechanics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -88,16 +88,16 @@ class Aaplusconan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        cmake = CMake(self)
-        cmake.install()
-
     def _extract_license(self):
         aaplus_header = load(self, os.path.join(self.source_folder, "AA+.h"))
         begin = aaplus_header.find("Copyright")
         end = aaplus_header.find("*/", begin)
         return aaplus_header[begin:end]
+
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["aaplus"]

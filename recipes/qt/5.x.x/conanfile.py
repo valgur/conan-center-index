@@ -17,6 +17,7 @@ from conan.tools.files import (
     apply_conandata_patches,
 )
 from conan.tools.gnu import PkgConfigDeps
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc, VCVars
 from conan.tools.scm import Version
 import configparser
@@ -80,14 +81,16 @@ class QtConan(ConanFile):
 
     name = "qt"
     description = "Qt is a cross-platform framework for graphical user interfaces."
-    topics = ("ui", "framework")
+    license = "LGPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.qt.io"
-    license = "LGPL-3.0-only"
+    topics = ("ui", "framework")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "commercial": [True, False],
         "opengl": ["no", "es2", "desktop", "dynamic"],
         "with_vulkan": [True, False],
@@ -129,6 +132,7 @@ class QtConan(ConanFile):
 
     default_options = {
         "shared": False,
+        "fPIC": True,
         "commercial": False,
         "opengl": "desktop",
         "with_vulkan": False,
@@ -178,47 +182,6 @@ class QtConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def validate_build(self):
-        if self.options.qtwebengine:
-            # Check if a valid python2 is available in PATH or it will failflex
-            # Start by checking if python2 can be found
-            python_exe = shutil.which("python2")
-            if not python_exe:
-                # Fall back on regular python
-                python_exe = shutil.which("python")
-
-            if not python_exe:
-                msg = "Python2 must be available in PATH " "in order to build Qt WebEngine"
-                raise ConanInvalidConfiguration(msg)
-
-            # In any case, check its actual version for compatibility
-            from six import StringIO  # Python 2 and 3 compatible
-
-            mybuf = StringIO()
-            cmd_v = f'"{python_exe}" --version'
-            self.run(cmd_v, mybuf)
-            verstr = mybuf.getvalue().strip().split("Python ")[1]
-            if verstr.endswith("+"):
-                verstr = verstr[:-1]
-            version = Version(verstr)
-            # >= 2.7.5 & < 3
-            v_min = "2.7.5"
-            v_max = "3.0.0"
-            if (version >= v_min) and (version < v_max):
-                msg = (
-                    "Found valid Python 2 required for QtWebengine:"
-                    f" version={mybuf.getvalue()}, path={python_exe}"
-                )
-                self.output.success(msg)
-            else:
-                msg = (
-                    f"Found Python 2 in path, but with invalid version {verstr}"
-                    f" (QtWebEngine requires >= {v_min} & < {v_max})\n"
-                    "If you have both Python 2 and 3 installed, copy the python 2 executable to"
-                    "python2(.exe)"
-                )
-                raise ConanInvalidConfiguration(msg)
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -330,112 +293,8 @@ class QtConan(ConanFile):
             if module in self.options and not self.options.get_safe(module):
                 setattr(self.options, module, False)
 
-    def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
-        if self.options.widgets and not self.options.gui:
-            raise ConanInvalidConfiguration(
-                "using option qt:widgets without option qt:gui is not possible. "
-                "You can either disable qt:widgets or enable qt:gui"
-            )
-
-        if self.options.qtwebengine:
-            if not self.options.shared:
-                raise ConanInvalidConfiguration("Static builds of Qt WebEngine are not supported")
-
-            if not (
-                self.options.gui
-                and self.options.qtdeclarative
-                and self.options.qtlocation
-                and self.options.qtwebchannel
-            ):
-                raise ConanInvalidConfiguration(
-                    "option qt:qtwebengine requires also qt:gui, qt:qtdeclarative, qt:qtlocation and qt:qtwebchannel"
-                )
-
-            if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
-                raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
-
-            if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-                raise ConanInvalidConfiguration("Compiling Qt WebEngine with gcc < 5 is not supported")
-
-        if self.settings.os == "Android":
-            if self.options.get_safe("opengl", "no") == "desktop":
-                raise ConanInvalidConfiguration(
-                    "OpenGL desktop is not supported on Android. Consider using OpenGL es2"
-                )
-            if not self.options.get_safe("android_sdk", ""):
-                raise ConanInvalidConfiguration("Path to Android SDK is required to build Qt")
-
-        if self.settings.os != "Windows" and self.options.get_safe("opengl", "no") == "dynamic":
-            raise ConanInvalidConfiguration("Dynamic OpenGL is supported only on Windows.")
-
-        if self.options.get_safe("with_fontconfig", False) and not self.options.get_safe(
-            "with_freetype", False
-        ):
-            raise ConanInvalidConfiguration("with_fontconfig cannot be enabled if with_freetype is disabled.")
-
-        if not self.options.with_doubleconversion and str(self.settings.compiler.libcxx) != "libc++":
-            raise ConanInvalidConfiguration(
-                "Qt without libc++ needs qt:with_doubleconversion. "
-                "Either enable qt:with_doubleconversion or switch to libc++"
-            )
-
-        if "MT" in self.settings.get_safe("compiler.runtime", default="") and self.options.shared:
-            raise ConanInvalidConfiguration("Qt cannot be built as shared library with static runtime")
-
-        if self.settings.compiler == "apple-clang":
-            if Version(self.settings.compiler.version) < "10.0":
-                raise ConanInvalidConfiguration(
-                    "Old versions of apple sdk are not supported by Qt (QTBUG-76777)"
-                )
-        if self.settings.compiler in ["gcc", "clang"]:
-            if Version(self.settings.compiler.version) < "5.0":
-                raise ConanInvalidConfiguration("qt 5.15.X does not support GCC or clang before 5.0")
-
-        if (
-            self.options.get_safe("with_pulseaudio", default=False)
-            and not self.dependencies["pulseaudio"].options.with_glib
-        ):
-            # https://bugreports.qt.io/browse/QTBUG-95952
-            raise ConanInvalidConfiguration(
-                "Pulseaudio needs to be built with glib option or qt's configure script won't detect it"
-            )
-
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            if self.options.with_gssapi:
-                raise ConanInvalidConfiguration(
-                    "gssapi cannot be enabled until conan-io/conan-center-index#4102 is closed"
-                )
-
-        if (
-            self.options.get_safe("with_x11", False)
-            and not self.dependencies.direct_host["xkbcommon"].options.with_x11
-        ):
-            raise ConanInvalidConfiguration(
-                "The 'with_x11' option for the 'xkbcommon' package must be enabled when the 'with_x11' option is enabled"
-            )
-        if (
-            self.options.get_safe("qtwayland", False)
-            and not self.dependencies.direct_host["xkbcommon"].options.with_wayland
-        ):
-            raise ConanInvalidConfiguration(
-                "The 'with_wayland' option for the 'xkbcommon' package must be enabled when the 'qtwayland' option is enabled"
-            )
-
-        if (
-            cross_building(self)
-            and self.options.cross_compile == "None"
-            and not is_apple_os(self)
-            and self.settings.os != "Android"
-        ):
-            raise ConanInvalidConfiguration(
-                "option cross_compile must be set for cross compilation "
-                "cf https://doc.qt.io/qt-5/configure-options.html#cross-compilation-options"
-            )
-
-        if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
-            raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.13")
@@ -526,6 +385,157 @@ class QtConan(ConanFile):
                 self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk
+
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, "11")
+        if self.options.widgets and not self.options.gui:
+            raise ConanInvalidConfiguration(
+                "using option qt:widgets without option qt:gui is not possible. "
+                "You can either disable qt:widgets or enable qt:gui"
+            )
+
+        if self.options.qtwebengine:
+            if not self.options.shared:
+                raise ConanInvalidConfiguration("Static builds of Qt WebEngine are not supported")
+
+            if not (
+                self.options.gui
+                and self.options.qtdeclarative
+                and self.options.qtlocation
+                and self.options.qtwebchannel
+            ):
+                raise ConanInvalidConfiguration(
+                    "option qt:qtwebengine requires also qt:gui, qt:qtdeclarative, qt:qtlocation and"
+                    " qt:qtwebchannel"
+                )
+
+            if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+                raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
+
+            if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
+                raise ConanInvalidConfiguration("Compiling Qt WebEngine with gcc < 5 is not supported")
+
+        if self.settings.os == "Android":
+            if self.options.get_safe("opengl", "no") == "desktop":
+                raise ConanInvalidConfiguration(
+                    "OpenGL desktop is not supported on Android. Consider using OpenGL es2"
+                )
+            if not self.options.get_safe("android_sdk", ""):
+                raise ConanInvalidConfiguration("Path to Android SDK is required to build Qt")
+
+        if self.settings.os != "Windows" and self.options.get_safe("opengl", "no") == "dynamic":
+            raise ConanInvalidConfiguration("Dynamic OpenGL is supported only on Windows.")
+
+        if self.options.get_safe("with_fontconfig", False) and not self.options.get_safe(
+            "with_freetype", False
+        ):
+            raise ConanInvalidConfiguration("with_fontconfig cannot be enabled if with_freetype is disabled.")
+
+        if not self.options.with_doubleconversion and str(self.settings.compiler.libcxx) != "libc++":
+            raise ConanInvalidConfiguration(
+                "Qt without libc++ needs qt:with_doubleconversion. "
+                "Either enable qt:with_doubleconversion or switch to libc++"
+            )
+
+        if "MT" in self.settings.get_safe("compiler.runtime", default="") and self.options.shared:
+            raise ConanInvalidConfiguration("Qt cannot be built as shared library with static runtime")
+
+        if self.settings.compiler == "apple-clang":
+            if Version(self.settings.compiler.version) < "10.0":
+                raise ConanInvalidConfiguration(
+                    "Old versions of apple sdk are not supported by Qt (QTBUG-76777)"
+                )
+        if self.settings.compiler in ["gcc", "clang"]:
+            if Version(self.settings.compiler.version) < "5.0":
+                raise ConanInvalidConfiguration("qt 5.15.X does not support GCC or clang before 5.0")
+
+        if (
+            self.options.get_safe("with_pulseaudio", default=False)
+            and not self.dependencies["pulseaudio"].options.with_glib
+        ):
+            # https://bugreports.qt.io/browse/QTBUG-95952
+            raise ConanInvalidConfiguration(
+                "Pulseaudio needs to be built with glib option or qt's configure script won't detect it"
+            )
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            if self.options.with_gssapi:
+                raise ConanInvalidConfiguration(
+                    "gssapi cannot be enabled until conan-io/conan-center-index#4102 is closed"
+                )
+
+        if (
+            self.options.get_safe("with_x11", False)
+            and not self.dependencies.direct_host["xkbcommon"].options.with_x11
+        ):
+            raise ConanInvalidConfiguration(
+                "The 'with_x11' option for the 'xkbcommon' package must be enabled when the 'with_x11' option"
+                " is enabled"
+            )
+        if (
+            self.options.get_safe("qtwayland", False)
+            and not self.dependencies.direct_host["xkbcommon"].options.with_wayland
+        ):
+            raise ConanInvalidConfiguration(
+                "The 'with_wayland' option for the 'xkbcommon' package must be enabled when the 'qtwayland'"
+                " option is enabled"
+            )
+
+        if (
+            cross_building(self)
+            and self.options.cross_compile == "None"
+            and not is_apple_os(self)
+            and self.settings.os != "Android"
+        ):
+            raise ConanInvalidConfiguration(
+                "option cross_compile must be set for cross compilation "
+                "cf https://doc.qt.io/qt-5/configure-options.html#cross-compilation-options"
+            )
+
+        if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
+            raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
+
+    def validate_build(self):
+        if self.options.qtwebengine:
+            # Check if a valid python2 is available in PATH or it will failflex
+            # Start by checking if python2 can be found
+            python_exe = shutil.which("python2")
+            if not python_exe:
+                # Fall back on regular python
+                python_exe = shutil.which("python")
+
+            if not python_exe:
+                msg = "Python2 must be available in PATH in order to build Qt WebEngine"
+                raise ConanInvalidConfiguration(msg)
+
+            # In any case, check its actual version for compatibility
+            from six import StringIO  # Python 2 and 3 compatible
+
+            mybuf = StringIO()
+            cmd_v = f'"{python_exe}" --version'
+            self.run(cmd_v, mybuf)
+            verstr = mybuf.getvalue().strip().split("Python ")[1]
+            if verstr.endswith("+"):
+                verstr = verstr[:-1]
+            version = Version(verstr)
+            # >= 2.7.5 & < 3
+            v_min = "2.7.5"
+            v_max = "3.0.0"
+            if (version >= v_min) and (version < v_max):
+                msg = (
+                    "Found valid Python 2 required for QtWebengine:"
+                    f" version={mybuf.getvalue()}, path={python_exe}"
+                )
+                self.output.success(msg)
+            else:
+                msg = (
+                    f"Found Python 2 in path, but with invalid version {verstr}"
+                    f" (QtWebEngine requires >= {v_min} & < {v_max})\n"
+                    "If you have both Python 2 and 3 installed, copy the python 2 executable to"
+                    "python2(.exe)"
+                )
+                raise ConanInvalidConfiguration(msg)
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and is_msvc(self):
@@ -1046,14 +1056,12 @@ Examples = bin/datadir/examples""",
         if self._settings_build.os == "Windows":
             extension = ".exe"
         v = Version(self.version)
-        filecontents = textwrap.dedent(
-            f"""\
+        filecontents = textwrap.dedent(f"""\
             set(QT_CMAKE_EXPORT_NAMESPACE Qt5)
             set(QT_VERSION_MAJOR {v.major})
             set(QT_VERSION_MINOR {v.minor})
             set(QT_VERSION_PATCH {v.patch})
-        """
-        )
+        """)
         targets = {}
         targets["Core"] = ["moc", "rcc", "qmake"]
         targets["DBus"] = ["qdbuscpp2xml", "qdbusxml2cpp"]
@@ -1081,8 +1089,7 @@ Examples = bin/datadir/examples""",
                 )
 
         if self.settings.os == "Windows":
-            filecontents += textwrap.dedent(
-                """\
+            filecontents += textwrap.dedent("""\
                 set(Qt5Core_QTMAIN_LIBRARIES Qt5::WinMain)
                 if (NOT Qt5_NO_LINK_QTMAIN)
                     set(_isExe $<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>)
@@ -1098,25 +1105,24 @@ Examples = bin/datadir/examples""",
                     unset(_isNotExcluded)
                     unset(_isPolicyNEW)
                 endif()
-                """
-            )
+                """)
 
-        filecontents += textwrap.dedent(
-            f"""\
+        filecontents += textwrap.dedent(f"""\
             if(NOT DEFINED QT_DEFAULT_MAJOR_VERSION)
                 set(QT_DEFAULT_MAJOR_VERSION {v.major})
             endif()
-            """
+            """)
+        filecontents += (
+            'set(CMAKE_AUTOMOC_MACRO_NAMES "Q_OBJECT" "Q_GADGET" '
+            '"Q_GADGET_EXPORT" "Q_NAMESPACE" "Q_NAMESPACE_EXPORT")\n'
         )
-        filecontents += 'set(CMAKE_AUTOMOC_MACRO_NAMES "Q_OBJECT" "Q_GADGET" "Q_GADGET_EXPORT" "Q_NAMESPACE" "Q_NAMESPACE_EXPORT")\n'
         save(self, os.path.join(self.package_folder, self._cmake_core_extras_file), filecontents)
 
         def _create_private_module(module, dependencies=[]):
             if "Core" not in dependencies:
                 dependencies.append("Core")
             dependencies_string = ";".join(f"Qt5::{dependency}" for dependency in dependencies)
-            contents = textwrap.dedent(
-                """\
+            contents = textwrap.dedent("""\
             if(NOT TARGET Qt5::{0}Private)
                 add_library(Qt5::{0}Private INTERFACE IMPORTED)
                 set_target_properties(Qt5::{0}Private PROPERTIES
@@ -1129,10 +1135,7 @@ Examples = bin/datadir/examples""",
                     INTERFACE_LINK_LIBRARIES "Qt5::{0}Private"
                     _qt_is_versionless_target "TRUE"
                 )
-            endif()""".format(
-                    module, self.version, dependencies_string
-                )
-            )
+            endif()""".format(module, self.version, dependencies_string))
 
             save(self, os.path.join(self.package_folder, self._cmake_qt5_private_file(module)), contents)
 
@@ -1525,9 +1528,8 @@ Examples = bin/datadir/examples""",
             self.cpp_info.components["qtLinguistTools"].names["cmake_find_package"] = "LinguistTools"
             self.cpp_info.components["qtLinguistTools"].names["cmake_find_package_multi"] = "LinguistTools"
             _create_module("UiPlugin", ["Gui", "Widgets"])
-            self.cpp_info.components[
-                "qtUiPlugin"
-            ].libs = []  # this is a collection of abstract classes, so this is header-only
+            # this is a collection of abstract classes, so this is header-only
+            self.cpp_info.components["qtUiPlugin"].libs = []
             self.cpp_info.components["qtUiPlugin"].libdirs = []
             _create_module("UiTools", ["UiPlugin", "Gui", "Widgets"])
             if not cross_building(self):

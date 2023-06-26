@@ -14,13 +14,22 @@ required_conan_version = ">=1.53.0"
 
 class ReadLineConan(ConanFile):
     name = "readline"
-    description = "A set of functions for use by applications that allow users to edit command lines as they are typed in"
-    topics = ("cli", "terminal", "command")
+    description = (
+        "A set of functions for use by applications that allow "
+        "users to edit command lines as they are typed in"
+    )
     license = "GPL-3.0-only"
-    homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://tiswww.case.edu/php/chet/readline/rltop.html"
+    topics = ("cli", "terminal", "command")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_library": ["termcap", "curses"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_library": ["termcap", "curses"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -31,24 +40,24 @@ class ReadLineConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def requirements(self):
-        if self.options.with_library == "termcap":
-            self.requires("termcap/1.3.1")
-        elif self.options.with_library == "curses":
-            self.requires("ncurses/6.2")
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_library == "termcap":
+            self.requires("termcap/1.3.1")
+        elif self.options.with_library == "curses":
+            self.requires("ncurses/6.2")
+
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration("readline does not support Visual Studio")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -16,6 +16,7 @@ class B64Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libb64.sourceforge.net/"
     topics = ("base64", "codec", "encoder", "decoder")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

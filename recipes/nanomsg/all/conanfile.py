@@ -4,7 +4,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -15,6 +14,7 @@ class NanomsgConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nanomsg/nanomsg"
     topics = ("socket", "protocols", "communication")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

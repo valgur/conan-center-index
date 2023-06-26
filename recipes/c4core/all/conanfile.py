@@ -11,13 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class C4CoreConan(ConanFile):
     name = "c4core"
-    description = (
-        "c4core is a library of low-level C++ utilities, written with " "low-latency projects in mind."
-    )
+    description = "c4core is a library of low-level C++ utilities, written with low-latency projects in mind."
     license = ("MIT",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/biojppm/c4core"
     topics = ("utilities", "low-latency")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

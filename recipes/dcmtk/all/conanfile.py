@@ -1,3 +1,8 @@
+# Warnings:
+#   Unexpected method '_module_subfolder'
+#   Unexpected method '_dcmtk_components'
+#   Unexpected method '_dcm_datadictionary_path'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -101,11 +106,12 @@ class DCMTKConan(ConanFile):
     description = (
         "DCMTK is a collection of libraries and applications implementing large parts the DICOM standard"
     )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://dicom.offis.de/dcmtk"
-    license = "BSD-3-Clause"
     topics = ("dicom", "image")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -156,6 +162,9 @@ class DCMTKConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        pass
+
     def requirements(self):
         if self.options.charset_conversion == "libiconv":
             self.requires("libiconv/1.17")
@@ -177,6 +186,10 @@ class DCMTKConan(ConanFile):
             self.requires("libtiff/4.4.0")
         if self.options.get_safe("with_tcpwrappers"):
             self.requires("tcp-wrappers/7.6")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if (
@@ -252,12 +265,25 @@ class DCMTKConan(ConanFile):
             tc.variables["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = "MD" in msvc_runtime_flag(self)
 
         tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     def package(self):
         copy(
@@ -279,21 +305,6 @@ class DCMTKConan(ConanFile):
             os.path.join(self.package_folder, self._module_file_rel_path),
             {target: f"DCMTK::{target}" for target in self._dcmtk_components},
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
-        save(self, module_file, content)
 
     @property
     def _module_subfolder(self):
@@ -378,6 +389,11 @@ class DCMTKConan(ConanFile):
         return os.path.join(self.package_folder, "bin", "share")
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "DCMTK")
 

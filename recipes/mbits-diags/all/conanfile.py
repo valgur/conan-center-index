@@ -7,7 +7,6 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -18,11 +17,15 @@ class MBitsDiagsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mbits-libs/diags"
     topics = ("diagnostics", "cli", "logging", "errors")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
@@ -46,6 +49,10 @@ class MBitsDiagsConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

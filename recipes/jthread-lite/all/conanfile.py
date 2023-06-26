@@ -4,16 +4,18 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class JthreadLiteConan(ConanFile):
     name = "jthread-lite"
+    description = "jthread lite - C++20's jthread for C++11 and later in a single-file header-only library "
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/jthread-lite"
-    description = "jthread lite - C++20's jthread for C++11 and later in a single-file header-only library "
-    topics = ("jthread", "cpp11")
-    license = "BSL-1.0"
+    topics = ("jthread", "cpp11", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

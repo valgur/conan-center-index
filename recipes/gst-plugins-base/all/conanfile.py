@@ -81,17 +81,21 @@ import glob
 import os
 import shutil
 
+required_conan_version = ">=1.53.0"
+
 
 class GStPluginsBaseConan(ConanFile):
     name = "gst-plugins-base"
     description = (
-        "GStreamer is a development framework for creating applications like media players, video editors, "
-        "streaming media broadcasters and so on"
+        "GStreamer is a development framework for creating applications "
+        "like media players, video editors, streaming media broadcasters and so on"
     )
-    topics = ("gstreamer", "multimedia", "video", "audio", "broadcasting", "framework", "media")
+    license = "GPL-2.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gstreamer.freedesktop.org/"
-    license = "GPL-2.0-only"
+    topics = ("gstreamer", "multimedia", "video", "audio", "broadcasting", "framework", "media")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -129,48 +133,9 @@ class GStPluginsBaseConan(ConanFile):
         "with_xorg": True,
         "with_introspection": False,
     }
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
-
-    generators = "pkg_config"
-
-    _gl_api = None
-    _gl_platform = None
-    _gl_winsys = None
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def validate(self):
-        if not self.options["glib"].shared and self.options.shared:
-            # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
-            raise ConanInvalidConfiguration("shared GStreamer cannot link to static GLib")
-        if self.options.shared != self.options["gstreamer"].shared:
-            # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
-            raise ConanInvalidConfiguration(
-                "GStreamer and GstPlugins must be either all shared, or all static"
-            )
-        if (
-            Version(self.version) >= "1.18.2"
-            and self.settings.compiler == "gcc"
-            and Version(self.settings.compiler.version) < "5"
-        ):
-            raise ConanInvalidConfiguration(
-                "gst-plugins-base %s does not support gcc older than 5" % self.version
-            )
-        if (
-            self.options.with_gl
-            and self.options.get_safe("with_wayland")
-            and not self.options.get_safe("with_egl")
-        ):
-            raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-        self.options["gstreamer"].shared = self.options.shared
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -181,6 +146,16 @@ class GStPluginsBaseConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_egl")
             self.options.rm_safe("with_xorg")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+        self.options["gstreamer"].shared = self.options.shared
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -219,9 +194,37 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.with_pango:
             self.requires("pango/1.49.3")
 
+    def package_id(self):
+        self.info.requires["glib"].full_package_mode()
+        self.info.requires["gstreamer"].full_package_mode()
+
+    def validate(self):
+        if not self.options["glib"].shared and self.options.shared:
+            # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
+            raise ConanInvalidConfiguration("shared GStreamer cannot link to static GLib")
+        if self.options.shared != self.options["gstreamer"].shared:
+            # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
+            raise ConanInvalidConfiguration(
+                "GStreamer and GstPlugins must be either all shared, or all static"
+            )
+        if (
+            Version(self.version) >= "1.18.2"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "5"
+        ):
+            raise ConanInvalidConfiguration(
+                "gst-plugins-base %s does not support gcc older than 5" % self.version
+            )
+        if (
+            self.options.with_gl
+            and self.options.get_safe("with_wayland")
+            and not self.options.get_safe("with_egl")
+        ):
+            raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
+
     def build_requirements(self):
         self.build_requires("meson/0.61.2")
-        if not which(self, "pkg-config"):
+        if not shutil.which(self, "pkg-config"):
             self.build_requires("pkgconf/1.7.4")
         if self.settings.os == "Windows":
             self.build_requires("winflexbison/2.5.24")
@@ -233,6 +236,11 @@ class GStPluginsBaseConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _gl_config(self):
         if not self._gl_api or not self._gl_platform or not self._gl_winsys:
@@ -288,7 +296,7 @@ class GStPluginsBaseConan(ConanFile):
         meson = Meson(self)
         if self.settings.compiler == "Visual Studio":
             add_linker_flag("-lws2_32")
-            add_compiler_flag("-%s" % self.settings.compiler.runtime)
+            add_compiler_flag(f"-{self.settings.compiler.runtime}")
             if int(str(self.settings.compiler.version)) < 14:
                 add_compiler_flag("-Dsnprintf=_snprintf")
         if self.settings.get_safe("compiler.runtime"):

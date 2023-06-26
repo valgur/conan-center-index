@@ -4,26 +4,26 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class StbConan(ConanFile):
     name = "stb"
     description = "single-file public domain libraries for C/C++"
-    topics = "single-file"
+    license = ("Unlicense", "MIT")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nothings/stb"
-    license = ("Unlicense", "MIT")
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+    topics = ("single-file", "header-only")
 
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_deprecated": [True, False],
     }
-
     default_options = {
         "with_deprecated": True,
     }
+    no_copy_source = True
 
     @property
     def _version(self):

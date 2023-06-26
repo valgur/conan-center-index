@@ -1,22 +1,24 @@
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools import files
-from conan import ConanFile
 import os
 
-required_conan_version = ">=1.45.0"
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import rmdir, copy, get
+
+required_conan_version = ">=1.53.0"
 
 
 class CMinpackConan(ConanFile):
     name = "cminpack"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "About A C/C++ rewrite of the MINPACK software (originally in FORTRAN)"
         "for solving nonlinear equations and nonlinear least squares problems"
     )
-    topics = ("nonlinear", "solver")
-    homepage = "http://devernay.free.fr/hacks/cminpack/"
     license = "LicenseRef-CopyrightMINPACK.txt"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://devernay.free.fr/hacks/cminpack/"
+    topics = ("nonlinear", "solver")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,16 +28,6 @@ class CMinpackConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["BUILD_EXAMPLES"] = "OFF"
-        tc.variables["CMINPACK_LIB_INSTALL_DIR"] = "lib"
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.generate()
-
-    def layout(self):
-        cmake_layout(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,8 +41,18 @@ class CMinpackConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self)
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_EXAMPLES"] = "OFF"
+        tc.variables["CMINPACK_LIB_INSTALL_DIR"] = "lib"
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

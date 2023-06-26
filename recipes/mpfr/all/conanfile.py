@@ -24,17 +24,22 @@ required_conan_version = ">=1.58.0"
 
 class MpfrConan(ConanFile):
     name = "mpfr"
-    package_type = "library"
     description = (
         "The MPFR library is a C library for multiple-precision floating-point computations with "
         "correct rounding"
     )
-    topics = ("multiprecision", "math", "mathematics")
+    license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.mpfr.org/"
-    license = "LGPL-3.0-or-later"
+    topics = ("multiprecision", "math", "mathematics")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "exact_int": ["mpir", "gmp"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "exact_int": ["mpir", "gmp"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -59,6 +64,12 @@ class MpfrConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        if self.settings.os == "Windows":
+            cmake_layout(self, src_folder="src")
+        else:
+            basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.exact_int == "gmp":
             self.requires("gmp/6.2.1", transitive_headers=True)
@@ -70,12 +81,6 @@ class MpfrConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-
-    def layout(self):
-        if self.settings.os == "Windows":
-            cmake_layout(self, src_folder="src")
-        else:
-            basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -126,7 +131,10 @@ class MpfrConan(ConanFile):
     def _extract_makefile_variable(self, makefile, variable):
         makefile_contents = load(self, makefile)
         match = re.search(
-            f'{variable}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\"))*)*)\n',
+            (
+                f'{variable}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9'
+                ' \t.=/_-])|(?:\\"))*)*)\n'
+            ),
             makefile_contents,
         )
         if not match:

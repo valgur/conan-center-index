@@ -3,16 +3,18 @@ from conan.tools.files import copy, get, load, save
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class EglHeadersConan(ConanFile):
     name = "egl-headers"
     description = "EGL Header files."
     license = "Apache-2.0"
-    topics = "egl"
-    homepage = "https://github.com/KhronosGroup/EGL-Registry"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/EGL-Registry"
+    topics = ("egl", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -47,4 +49,5 @@ class EglHeadersConan(ConanFile):
         )
 
     def package_info(self):
-        pass
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -12,11 +12,11 @@ required_conan_version = ">=1.53.0"
 
 class SerdConan(ConanFile):
     name = "serd"
+    description = "A lightweight C library for RDF syntax"
+    license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://drobilla.net/software/serd.html"
-    description = "A lightweight C library for RDF syntax"
     topics = ("linked-data", "semantic-web", "rdf", "turtle", "trig", "ntriples", "nquads")
-    license = "ISC"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

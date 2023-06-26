@@ -1,22 +1,31 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, load, save, download
+from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.52.0"
 
 
 class GFortranConan(ConanFile):
     name = "gfortran"
     description = "The Fortran compiler front end and run-time libraries for GCC"
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gcc.gnu.org/fortran"
     topics = ("gnu", "gcc", "fortran", "compiler")
-    license = "GPL-3.0-or-later"
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
     deprecated = "gcc"
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type  # The binaries are not specific
 
     def validate(self):
         if self.settings.arch != "x86_64":
@@ -76,10 +85,6 @@ class GFortranConan(ConanFile):
         license_contents = info[info.find("Version 3") : info.find("END OF TERMS", 1)]
         save(self, os.path.join(self.build_folder, "LICENSE"), license_contents)
 
-    def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type  # The binaries are not specific
-
     def package(self):
         self._extract_license()
         copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -95,7 +100,9 @@ class GFortranConan(ConanFile):
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.env_info.PATH.append(bin_path)
         self.cpp_info.libs = ["gfortran"]

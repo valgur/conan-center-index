@@ -13,11 +13,11 @@ required_conan_version = ">=1.54.0"
 
 class LibTasn1Conan(ConanFile):
     name = "libtasn1"
-    homepage = "https://www.gnu.org/software/libtasn1/"
     description = "Libtasn1 is the ASN.1 library used by GnuTLS, p11-kit and some other packages."
-    topics = ("ASN.1", "cryptography")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-2.1-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libtasn1/"
+    topics = ("ASN.1", "cryptography")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

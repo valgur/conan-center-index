@@ -84,17 +84,19 @@ from conan.tools.files import get, replace_in_file, chdir, rmdir, rm, rename
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class PangoConan(ConanFile):
     name = "pango"
+    description = "Internationalized text layout and rendering library"
     license = "LGPL-2.0-and-later"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Internationalized text layout and rendering library"
     homepage = "https://www.pango.org/"
     topics = ("fontconfig", "fonts", "freedesktop")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -113,28 +115,6 @@ class PangoConan(ConanFile):
         "with_freetype": "auto",
         "with_fontconfig": "auto",
     }
-    generators = "pkg_config"
-    _autotools = None
-
-    def validate(self):
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration(
-                "this recipe does not support GCC before version 5. contributions are welcome"
-            )
-        if self.options.with_xft and not self.settings.os in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("Xft can only be used on Linux and FreeBSD")
-
-        if self.options.with_xft and (not self.options.with_freetype or not self.options.with_fontconfig):
-            raise ConanInvalidConfiguration("Xft requires freetype and fontconfig")
-
-        if self.options.shared and (
-            not self.options["glib"].shared
-            or not self.options["harfbuzz"].shared
-            or (self.options.with_cairo and not self.options["cairo"].shared)
-        ):
-            raise ConanInvalidConfiguration(
-                "Linking a shared library against static glib can cause unexpected behaviour."
-            )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -159,9 +139,8 @@ class PangoConan(ConanFile):
             if self.options.with_cairo:
                 self.options["cairo"].shared = True
 
-    def build_requirements(self):
-        self.build_requires("pkgconf/1.7.4")
-        self.build_requires("meson/0.63.2")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_freetype:
@@ -179,8 +158,45 @@ class PangoConan(ConanFile):
         self.requires("glib/2.73.3")
         self.requires("fribidi/1.0.12")
 
+    def package_id(self):
+        if not self.options["glib"].shared:
+            self.info.requires["glib"].full_package_mode()
+        if not self.options["harfbuzz"].shared:
+            self.info.requires["harfbuzz"].full_package_mode()
+        if self.options.with_cairo and not self.options["cairo"].shared:
+            self.info.requires["cairo"].full_package_mode()
+
+    def validate(self):
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
+            raise ConanInvalidConfiguration(
+                "this recipe does not support GCC before version 5. contributions are welcome"
+            )
+        if self.options.with_xft and not self.settings.os in ["Linux", "FreeBSD"]:
+            raise ConanInvalidConfiguration("Xft can only be used on Linux and FreeBSD")
+
+        if self.options.with_xft and (not self.options.with_freetype or not self.options.with_fontconfig):
+            raise ConanInvalidConfiguration("Xft requires freetype and fontconfig")
+
+        if self.options.shared and (
+            not self.options["glib"].shared
+            or not self.options["harfbuzz"].shared
+            or (self.options.with_cairo and not self.options["cairo"].shared)
+        ):
+            raise ConanInvalidConfiguration(
+                "Linking a shared library against static glib can cause unexpected behaviour."
+            )
+
+    def build_requirements(self):
+        self.build_requires("pkgconf/1.7.4")
+        self.build_requires("meson/0.63.2")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_meson(self):
         defs = {}
@@ -207,8 +223,10 @@ class PangoConan(ConanFile):
         replace_in_file(self, meson_build, "subdir('tools')", "")
         replace_in_file(self, meson_build, "subdir('utils')", "")
         replace_in_file(self, meson_build, "subdir('examples')", "")
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.build()
@@ -217,8 +235,10 @@ class PangoConan(ConanFile):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.install()
@@ -301,11 +321,3 @@ class PangoConan(ConanFile):
             ]
 
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-
-    def package_id(self):
-        if not self.options["glib"].shared:
-            self.info.requires["glib"].full_package_mode()
-        if not self.options["harfbuzz"].shared:
-            self.info.requires["harfbuzz"].full_package_mode()
-        if self.options.with_cairo and not self.options["cairo"].shared:
-            self.info.requires["cairo"].full_package_mode()

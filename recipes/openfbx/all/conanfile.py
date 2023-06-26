@@ -11,10 +11,11 @@ class OpenfbxConan(ConanFile):
     name = "openfbx"
     description = "Lightweight open source FBX importer."
     license = "MIT"
-    topics = ("fbx", "importer")
-    homepage = "https://github.com/nem0/OpenFBX"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/nem0/OpenFBX"
+    topics = ("fbx", "importer")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

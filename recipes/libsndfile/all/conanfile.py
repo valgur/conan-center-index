@@ -10,14 +10,15 @@ required_conan_version = ">=1.54.0"
 
 class LibsndfileConan(ConanFile):
     name = "libsndfile"
-    license = "LGPL-2.1"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.mega-nerd.com/libsndfile"
     description = (
         "Libsndfile is a library of C routines for reading and writing files "
         "containing sampled audio data."
     )
+    license = "LGPL-2.1"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.mega-nerd.com/libsndfile"
     topics = ("audio",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

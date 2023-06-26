@@ -11,25 +11,30 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 
-
 required_conan_version = ">=1.53.0"
 
 
 class PackageConan(ConanFile):
     name = "openassetio"
-    description = "An open-source interoperability standard for tools and content management systems used in media production."
+    description = (
+        "An open-source interoperability standard for tools and "
+        "content management systems used in media production."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/OpenAssetIO/OpenAssetIO"
     topics = ("asset-pipeline", "vfx", "cg", "assetmanager", "vfx-pipeline")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_python": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
         "with_python": True,
     }
 
@@ -44,6 +49,10 @@ class PackageConan(ConanFile):
             "clang": "12",
             "apple-clang": "12",
         }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if self.options.with_python:
@@ -61,6 +70,10 @@ class PackageConan(ConanFile):
             self.requires("ncurses/6.3")
             self.requires("cpython/3.9.7")
             self.requires("pybind11/2.10.1")
+
+    def package_id(self):
+        if self.options.with_python:
+            self.info.requires["cpython"].minor_mode()
 
     def validate(self):
         if is_apple_os(self):
@@ -130,10 +143,6 @@ class PackageConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def package_id(self):
-        if self.options.with_python:
-            self.info.requires["cpython"].minor_mode()
 
     def package(self):
         copy(

@@ -1,22 +1,23 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-
 
 required_conan_version = ">=1.53.0"
 
 
 class Mosquitto(ConanFile):
     name = "mosquitto"
+    description = "Eclipse Mosquitto MQTT library, broker and more"
     license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://mosquitto.org"
-    description = """Eclipse Mosquitto MQTT library, broker and more"""
     topics = ("MQTT", "IoT", "eclipse")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -42,7 +43,6 @@ class Mosquitto(ConanFile):
         "websockets": False,
         "threading": True,
     }
-    generators = "CMakeDeps"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -96,6 +96,9 @@ class Mosquitto(ConanFile):
         tc.variables["DOCUMENTATION"] = False
         tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "res").replace("\\", "/")
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

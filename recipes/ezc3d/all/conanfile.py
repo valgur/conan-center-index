@@ -13,9 +13,9 @@ class Ezc3dConan(ConanFile):
     name = "ezc3d"
     description = "EZC3D is an easy to use reader, modifier and writer for C3D format files."
     license = "MIT"
-    topics = "c3d"
-    homepage = "https://github.com/pyomeca/ezc3d"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pyomeca/ezc3d"
+    topics = ("c3d",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

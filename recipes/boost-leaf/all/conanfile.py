@@ -5,16 +5,15 @@ from conan.tools.build import check_min_cppstd
 from conan.errors import ConanInvalidConfiguration
 import os
 
-
 required_conan_version = ">=1.50.0"
 
 
 class BoostLEAFConan(ConanFile):
     name = "boost-leaf"
+    description = "Lightweight Error Augmentation Framework"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/leaf"
-    description = "Lightweight Error Augmentation Framework"
     topics = (
         "multi-platform",
         "multi-threading",
@@ -25,12 +24,11 @@ class BoostLEAFConan(ConanFile):
         "no-dependencies",
         "single-header",
     )
-    settings = "os", "compiler", "arch", "build_type"
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
     deprecated = "boost"
-
-    def package_id(self):
-        self.info.clear()
 
     @property
     def _min_cppstd(self):
@@ -46,8 +44,14 @@ class BoostLEAFConan(ConanFile):
             "apple-clang": "10.0.0",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -67,9 +71,6 @@ class BoostLEAFConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support"
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -11,12 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class CycloneDDSConan(ConanFile):
     name = "cyclonedds"
-    license = "EPL-2.0"
-    homepage = "https://cyclonedds.io/"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "Eclipse Cyclone DDS - An implementation" " of the OMG Data Distribution Service (DDS) specification"
+        "Eclipse Cyclone DDS - An implementation of the OMG Data Distribution Service (DDS) specification"
     )
+    license = "EPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://cyclonedds.io/"
     topics = ("dds", "ipc", "ros", "middleware")
 
     package_type = "library"
@@ -75,7 +75,7 @@ class CycloneDDSConan(ConanFile):
     def validate(self):
         if self.options.enable_security and not self.options.shared:
             raise ConanInvalidConfiguration(
-                f"{self.ref} currently do not support" "static build and security on"
+                f"{self.ref} currently do not support static build and security on"
             )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)

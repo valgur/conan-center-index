@@ -2,91 +2,14 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-import functools
-import os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file, rmdir
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibGit2Conan(ConanFile):
@@ -95,11 +18,12 @@ class LibGit2Conan(ConanFile):
         "libgit2 is a portable, pure C implementation of the Git core methods "
         "provided as a re-entrant linkable library with a solid API"
     )
-    topics = ("git", "scm")
+    license = "GPL-2.0-linking-exception"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libgit2.org/"
-    license = "GPL-2.0-linking-exception"
+    topics = ("git", "scm")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -140,6 +64,9 @@ class LibGit2Conan(ConanFile):
     @property
     def _need_mbedtls(self):
         return "mbedtls" in (self.options.with_https, self.options.with_sha1)
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -211,11 +138,13 @@ class LibGit2Conan(ConanFile):
             self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
             "FIND_PKGLIBRARIES(LIBSSH2 libssh2)",
-            "FIND_PACKAGE(Libssh2 REQUIRED)\n"
-            "\tSET(LIBSSH2_FOUND ON)\n"
-            "\tSET(LIBSSH2_INCLUDE_DIRS ${Libssh2_INCLUDE_DIRS})\n"
-            "\tSET(LIBSSH2_LIBRARIES ${Libssh2_LIBRARIES})\n"
-            "\tSET(LIBSSH2_LIBRARY_DIRS ${Libssh2_LIB_DIRS})",
+            (
+                "FIND_PACKAGE(Libssh2 REQUIRED)\n"
+                "\tSET(LIBSSH2_FOUND ON)\n"
+                "\tSET(LIBSSH2_INCLUDE_DIRS ${Libssh2_INCLUDE_DIRS})\n"
+                "\tSET(LIBSSH2_LIBRARIES ${Libssh2_LIBRARIES})\n"
+                "\tSET(LIBSSH2_LIBRARY_DIRS ${Libssh2_LIB_DIRS})"
+            ),
         )
 
     def build(self):

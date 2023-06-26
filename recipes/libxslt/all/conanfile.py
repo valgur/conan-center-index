@@ -23,11 +23,12 @@ required_conan_version = ">=1.55.0"
 
 class LibxsltConan(ConanFile):
     name = "libxslt"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "libxslt is a software library implementing XSLT processor, based on libxml2"
-    topics = ("xslt", "processor")
-    homepage = "https://xmlsoft.org"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://xmlsoft.org"
+    topics = ("xslt", "processor")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

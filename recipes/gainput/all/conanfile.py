@@ -4,17 +4,18 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class GainputConan(ConanFile):
     name = "gainput"
     description = "Cross-platform C++ input library supporting gamepads, keyboard, mouse, touch."
     license = "MIT"
-    topics = ("input", "keyboard", "gamepad", "mouse", "multi-touch")
-    homepage = "https://gainput.johanneskuhlmann.de"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gainput.johanneskuhlmann.de"
+    topics = ("input", "keyboard", "gamepad", "mouse", "multi-touch")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

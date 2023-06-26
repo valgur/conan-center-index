@@ -11,11 +11,12 @@ required_conan_version = ">=1.54.0"
 class FlacConan(ConanFile):
     name = "flac"
     description = "Free Lossless Audio Codec"
-    topics = ("flac", "codec", "audio")
+    license = ("BSD-3-Clause", "GPL-2.0-or-later", "LPGL-2.1-or-later", "GFDL-1.2")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xiph/flac"
-    license = ("BSD-3-Clause", "GPL-2.0-or-later", "LPGL-2.1-or-later", "GFDL-1.2")
+    topics = ("flac", "codec", "audio", "pre-built")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -37,15 +38,15 @@ class FlacConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("ogg/1.3.5")
 
     def build_requirements(self):
         if Version(self.version) < "1.4.2" and self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("nasm/2.15.05")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

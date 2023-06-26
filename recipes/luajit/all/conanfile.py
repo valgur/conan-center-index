@@ -17,17 +17,18 @@ from conan.tools.build import cross_building
 from conan.errors import ConanInvalidConfiguration
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class LuajitConan(ConanFile):
     name = "luajit"
+    description = "LuaJIT is a Just-In-Time Compiler (JIT) for the Lua programming language."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://luajit.org"
-    description = "LuaJIT is a Just-In-Time Compiler (JIT) for the Lua programming language."
     topics = ("lua", "jit")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

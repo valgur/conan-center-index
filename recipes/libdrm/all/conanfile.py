@@ -79,16 +79,21 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.53.0"
+
 
 class LibdrmConan(ConanFile):
     name = "libdrm"
-    description = "User space library for accessing the Direct Rendering Manager, on operating systems that support the ioctl interface"
-    topics = "graphics"
+    description = (
+        "User space library for accessing the Direct Rendering Manager, "
+        "on operating systems that support the ioctl interface"
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/mesa/drm"
-    license = "MIT"
-    generators = "PkgConfigDeps"
+    topics = ("graphics",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -129,9 +134,6 @@ class LibdrmConan(ConanFile):
         "udev": False,
     }
 
-    def build_requirements(self):
-        self.build_requires("meson/0.64.1")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -144,6 +146,9 @@ class LibdrmConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.intel:
             self.requires("libpciaccess/0.16")
@@ -154,8 +159,16 @@ class LibdrmConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libdrm supports only Linux or FreeBSD")
 
+    def build_requirements(self):
+        self.build_requires("meson/0.64.1")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_meson(self):
         meson = Meson(self)

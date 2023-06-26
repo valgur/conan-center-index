@@ -5,17 +5,20 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-
 required_conan_version = ">=1.54.0"
 
 
 class SoxrConan(ConanFile):
     name = "soxr"
-    description = "The SoX Resampler library libsoxr performs fast, high-quality one-dimensional sample rate conversion."
-    homepage = "https://sourceforge.net/projects/soxr/"
-    topics = ("resampling", "audio", "sample-rate", "conversion")
+    description = (
+        "The SoX Resampler library libsoxr performs fast, "
+        "high-quality one-dimensional sample rate conversion."
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/soxr/"
+    topics = ("resampling", "audio", "sample-rate", "conversion")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

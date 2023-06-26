@@ -13,9 +13,9 @@ class MujsConan(ConanFile):
         "embedding in other software to extend them with scripting capabilities."
     )
     license = "ISC"
-    topics = ("interpreter", "javascript")
-    homepage = "https://mujs.com"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mujs.com"
+    topics = ("interpreter", "javascript")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

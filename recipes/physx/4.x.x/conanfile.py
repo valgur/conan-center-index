@@ -26,11 +26,12 @@ class PhysXConan(ConanFile):
         "from smartphones to high-end multicore CPUs and GPUs."
     )
     license = "BSD-3-Clause"
-    topics = ("physx", "physics", "physics-engine", "physics-simulation", "game-development", "cuda")
-    homepage = "https://github.com/NVIDIAGameWorks/PhysX"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/NVIDIAGameWorks/PhysX"
+    topics = ("physx", "physics", "physics-engine", "physics-simulation", "game-development", "cuda")
 
-    settings = "os", "compiler", "arch", "build_type"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -46,13 +47,8 @@ class PhysXConan(ConanFile):
         "enable_float_point_precise_math": False,
     }
 
-    generators = "CMakeDeps"
-
     def export_sources(self):
         export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -67,6 +63,9 @@ class PhysXConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Windows", "Linux", "Macos", "Android", "iOS"]:
@@ -156,13 +155,6 @@ class PhysXConan(ConanFile):
 
         tc.generate()
 
-    def build(self):
-        self._patch_sources()
-
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "physx/compiler/public"))
-        cmake.build(build_type=self._get_physx_build_type())
-
     def _get_cmakemodules_subfolder(self):
         return "CMakeModules" if self.settings.os == "Windows" else "cmakemodules"
 
@@ -220,6 +212,13 @@ class PhysXConan(ConanFile):
             replace_in_file(
                 self, os.path.join(physx_source_cmake_dir, cmake_os, "CMakeLists.txt"), "-Werror", ""
             )
+
+    def build(self):
+        self._patch_sources()
+
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "physx/compiler/public"))
+        cmake.build(build_type=self._get_physx_build_type())
 
     def _get_physx_build_type(self):
         if self.settings.build_type == "Debug":

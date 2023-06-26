@@ -13,17 +13,22 @@ required_conan_version = ">=1.57.0"
 
 class LibX264Conan(ConanFile):
     name = "libx264"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.videolan.org/developers/x264.html"
     description = (
         "x264 is a free software library and application for encoding video streams into the "
         "H.264/MPEG-4 AVC compression format"
     )
-    topics = ("video", "encoding")
     license = "GPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.videolan.org/developers/x264.html"
+    topics = ("video", "encoding")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "bit_depth": [8, 10, "all"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "bit_depth": [8, 10, "all"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

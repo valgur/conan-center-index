@@ -9,18 +9,18 @@ from conan.tools.scm import Version
 import os
 import textwrap
 
-
 required_conan_version = ">=1.53.0"
 
 
 class GDCMConan(ConanFile):
     name = "gdcm"
-    package_type = "library"
     description = "C++ library for DICOM medical files"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://gdcm.sourceforge.net/"
     topics = ("dicom", "images", "medical-imaging")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

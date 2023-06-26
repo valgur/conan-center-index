@@ -6,16 +6,18 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class StduuidConan(ConanFile):
     name = "stduuid"
     description = "A C++17 cross-platform implementation for UUIDs"
-    topics = ("uuid", "guid", "header-only")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mariusbancila/stduuid"
+    topics = ("uuid", "guid", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_cxx20_span": [True, False],

@@ -1,95 +1,27 @@
 # TODO: verify the Conan v2 migration
 
 import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 import shutil
 
-required_conan_version = ">=1.33.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import chdir, copy, get, replace_in_file, rm
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
+
+required_conan_version = ">=1.53.0"
 
 
 class LibId3TagConan(ConanFile):
     name = "libid3tag"
     description = "ID3 tag manipulation library."
-    topics = ("mad", "id3", "MPEG", "audio", "decoder")
+    license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.underbit.com/products/mad/"
-    license = "GPL-2.0-or-later"
+    topics = ("mad", "id3", "MPEG", "audio", "decoder")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -99,9 +31,14 @@ class LibId3TagConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generator = "pkg_config", "visual_studio"
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
+
+    @property
+    def _user_info_build(self):
+        return getattr(self, "user_info_build", self.deps_user_info)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -113,16 +50,15 @@ class LibId3TagConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("zlib/1.2.11")
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("libid3tag does not support shared library for MSVC")
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -132,6 +68,16 @@ class LibId3TagConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        if is_msvc(self):
+            tc = MSBuildToolchain(self)
+            tc.generate()
+        else:
+            tc = AutotoolsToolchain(self)
+            tc.generate()
+            tc = PkgConfigDeps(self)
+            tc.generate()
 
     def build(self):
         if is_msvc(self):
@@ -155,20 +101,6 @@ class LibId3TagConan(ConanFile):
             msbuild = MSBuild(self)
             msbuild.build(project_file="libid3tag.vcxproj", **kwargs)
 
-    def _configure_autotools(self):
-        if not self._autotools:
-            if self.options.shared:
-                args = ["--disable-static", "--enable-shared"]
-            else:
-                args = ["--disable-shared", "--enable-static"]
-            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(args=args, configure_dir=self.source_folder)
-        return self._autotools
-
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def _build_autotools(self):
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
@@ -176,11 +108,11 @@ class LibId3TagConan(ConanFile):
         shutil.copy(
             self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.make()
 
     def _install_autotools(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)
 

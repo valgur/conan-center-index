@@ -8,24 +8,24 @@ required_conan_version = ">=1.50.0"
 
 class LibUDEVConan(ConanFile):
     name = "libudev"
-    version = "system"
     description = "API for enumerating and introspecting local devices"
-    topics = ("udev", "devices", "enumerating")
+    license = ("GPL-2.0-or-later", "LGPL-2.1-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freedesktop.org/software/systemd/man/udev.html"
-    license = "GPL-2.0-or-later", "LGPL-2.1-or-later"
+    topics = ("udev", "devices", "enumerating")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         pass
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("libudev is only supported on Linux.")
-
-    def package_id(self):
-        self.info.clear()
 
     def system_requirements(self):
         dnf = package_manager.Dnf(self)

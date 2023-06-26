@@ -8,16 +8,17 @@ required_conan_version = ">=1.52.0"
 
 class EigenConan(ConanFile):
     name = "eigen"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://eigen.tuxfamily.org"
     description = (
         "Eigen is a C++ template library for linear algebra: matrices, vectors,"
         " numerical solvers, and related algorithms."
     )
-    topics = ("algebra", "linear-algebra", "matrix", "vector", "numerical", "header-only")
-    package_type = "header-library"
     license = ("MPL-2.0", "LGPL-3.0-or-later")  # Taking into account the default value of MPL2_only option
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://eigen.tuxfamily.org"
+    topics = ("algebra", "linear-algebra", "matrix", "vector", "numerical", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "MPL2_only": [True, False],
@@ -25,6 +26,7 @@ class EigenConan(ConanFile):
     default_options = {
         "MPL2_only": False,
     }
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -63,6 +65,9 @@ class EigenConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "Eigen3")
         self.cpp_info.set_property("cmake_target_name", "Eigen3::Eigen")
         self.cpp_info.set_property("pkg_config_name", "eigen3")

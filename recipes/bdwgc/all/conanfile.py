@@ -10,51 +10,68 @@ required_conan_version = ">=1.53.0"
 
 class BdwGcConan(ConanFile):
     name = "bdwgc"
-    homepage = "https://www.hboehm.info/gc/"
     description = "The Boehm-Demers-Weiser conservative C/C++ Garbage Collector (libgc, bdwgc, boehm-gc)"
-    topics = ("gc", "garbage", "collector")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.hboehm.info/gc/"
+    topics = ("gc", "garbage", "collector")
 
-    _autotools_options_defaults = (
-        ("cplusplus", False),
-        ("throw_bad_alloc_library", True),
-        ("cord", True),
-        ("threads", True),
-        ("parallel_mark", True),
-        ("handle_fork", True),
-        ("thread_local_alloc", True),
-        ("threads_discovery", True),
-        ("gcj_support", True),
-        ("java_finalization", True),
-        ("sigrt_signals", False),
-        ("atomic_uncollectable", True),
-        ("gc_debug", False),
-        ("redirect_malloc", False),
-        ("disclaim", True),
-        ("large_config", True),
-        ("gc_assertions", False),
-        ("mmap", False),
-        ("munmap", True),
-        ("dynamic_loading", True),
-        ("register_main_static_data", True),
-        ("checksums", False),
-        ("single_obj_compilation", False),
-    )
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "cplusplus": [True, False],
+        "throw_bad_alloc_library": [True, False],
+        "cord": [True, False],
+        "threads": [True, False],
+        "parallel_mark": [True, False],
+        "handle_fork": [True, False],
+        "thread_local_alloc": [True, False],
+        "threads_discovery": [True, False],
+        "gcj_support": [True, False],
+        "java_finalization": [True, False],
+        "sigrt_signals": [True, False],
+        "atomic_uncollectable": [True, False],
+        "gc_debug": [True, False],
+        "redirect_malloc": [True, False],
+        "disclaim": [True, False],
+        "large_config": [True, False],
+        "gc_assertions": [True, False],
+        "mmap": [True, False],
+        "munmap": [True, False],
+        "dynamic_loading": [True, False],
+        "register_main_static_data": [True, False],
+        "checksums": [True, False],
+        "single_obj_compilation": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
+        "cplusplus": False,
+        "throw_bad_alloc_library": True,
+        "cord": True,
+        "threads": True,
+        "parallel_mark": True,
+        "handle_fork": True,
+        "thread_local_alloc": True,
+        "threads_discovery": True,
+        "gcj_support": True,
+        "java_finalization": True,
+        "sigrt_signals": False,
+        "atomic_uncollectable": True,
+        "gc_debug": False,
+        "redirect_malloc": False,
+        "disclaim": True,
+        "large_config": True,
+        "gc_assertions": False,
+        "mmap": False,
+        "munmap": True,
+        "dynamic_loading": True,
+        "register_main_static_data": True,
+        "checksums": False,
+        "single_obj_compilation": False,
     }
-    for option, default in _autotools_options_defaults:
-        options[option] = [True, False]
-        default_options[option] = default
 
     def export_sources(self):
         export_conandata_patches(self)

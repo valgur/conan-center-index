@@ -19,9 +19,11 @@ class GsoapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/gsoap2"
     topics = ("logging",)
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_openssl": [True, False],
         "with_ipv6": [True, False],
@@ -29,6 +31,7 @@ class GsoapConan(ConanFile):
         "with_c_locale": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_openssl": True,
         "with_ipv6": True,
@@ -47,6 +50,10 @@ class GsoapConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

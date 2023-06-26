@@ -15,10 +15,11 @@ required_conan_version = ">=1.54.0"
 class GlpkConan(ConanFile):
     name = "glpk"
     description = "GNU Linear Programming Kit"
+    license = "GPL-3.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/glpk"
     topics = ("linear", "programming", "simplex", "solver")
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "GPL-3.0-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class SevenBitConfConan(ConanFile):
     name = "7bitconf"
-    homepage = "https://github.com/7bitCoder/7bitConf"
     description = "7bitConf is a simple C++17 centralized configuration provider library."
-    topics = ("cpp17", "configuration", "provider", "configuration-files")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/7bitCoder/7bitConf"
+    topics = ("cpp17", "configuration", "provider", "configuration-files")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

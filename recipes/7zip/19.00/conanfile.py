@@ -13,11 +13,12 @@ required_conan_version = ">=1.55.0"
 
 class SevenZipConan(ConanFile):
     name = "7zip"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "7-Zip is a file archiver with a high compression ratio"
     license = ("LGPL-2.1-or-later", "BSD-3-Clause", "Unrar")
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.7-zip.org"
     topics = ("archive", "compression", "decompression", "zip")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -25,14 +26,18 @@ class SevenZipConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.build_type
+        del self.info.settings.compiler
+
     def validate(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("Only Windows supported")
         if self.settings.arch not in ("x86", "x86_64"):
             raise ConanInvalidConfiguration("Unsupported architecture")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def build_requirements(self):
         if Version(self.version) < "22":
@@ -44,10 +49,6 @@ class SevenZipConan(ConanFile):
             and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", "")
         ):
             self.build_requires("make/4.3")
-
-    def package_id(self):
-        del self.info.settings.build_type
-        del self.info.settings.compiler
 
     def source(self):
         if Version(self.version) < "22":
@@ -136,9 +137,11 @@ class SevenZipConan(ConanFile):
         # TODO: Package the libraries: binaries and headers (add the rest of settings)
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+        self.cpp_info.libdirs = []
+
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.path.append(bin_path)
-
-        self.cpp_info.includedirs = []
-        self.cpp_info.libdirs = []

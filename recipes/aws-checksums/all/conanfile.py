@@ -17,6 +17,7 @@ class AwsChecksums(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-checksums"
     topics = ("aws", "checksum")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

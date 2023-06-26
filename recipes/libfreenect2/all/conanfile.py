@@ -85,15 +85,19 @@ from conan.tools.cmake import (
 )
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class Libfreenect2Conan(ConanFile):
     name = "libfreenect2"
+    description = "Open source drivers for the Kinect for Windows v2 device."
     license = ("Apache-2.0", "GPL-2.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/OpenKinect/libfreenect2"
-    description = "Open source drivers for the Kinect for Windows v2 device."
     topics = ("usb", "camera", "kinect")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -122,6 +126,9 @@ class Libfreenect2Conan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("libusb/1.0.24")
         self.requires("libjpeg-turbo/2.1.1")
@@ -141,9 +148,6 @@ class Libfreenect2Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_EXAMPLES"] = False
@@ -159,6 +163,9 @@ class Libfreenect2Conan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()

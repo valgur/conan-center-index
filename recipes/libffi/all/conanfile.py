@@ -29,8 +29,9 @@ class LibffiConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceware.org/libffi/"
     topics = ("runtime", "foreign-function-interface", "runtime-library")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -13,7 +13,8 @@ class BrynetConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/IronsDu/brynet"
-    topics = ("networking", "tcp", "websocket")
+    topics = ("networking", "tcp", "websocket", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -22,7 +23,6 @@ class BrynetConan(ConanFile):
     default_options = {
         "with_openssl": True,
     }
-
     no_copy_source = True
 
     def layout(self):

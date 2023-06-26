@@ -13,6 +13,8 @@ class MiniSatConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://minisat.se"
     topics = ("satisfiability", "solver")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -22,7 +24,6 @@ class MiniSatConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    package_type = "library"
 
     def export_sources(self):
         export_conandata_patches(self)

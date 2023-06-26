@@ -9,12 +9,13 @@ required_conan_version = ">=1.53.0"
 
 class JBigConan(ConanFile):
     name = "jbig"
+    description = "jbig for the Windows build of ImageMagick"
+    license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ImageMagick/jbig"
-    description = "jbig for the Windows build of ImageMagick"
     topics = ("imagemagick", "window", "graphic")
-    license = "GPL-2.0"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

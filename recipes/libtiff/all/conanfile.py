@@ -19,8 +19,8 @@ required_conan_version = ">=1.53.0"
 class LibtiffConan(ConanFile):
     name = "libtiff"
     description = "Library for Tag Image File Format (TIFF)"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.simplesystems.org/libtiff"
     topics = ("tiff", "image", "bigtiff", "tagged-image-file-format")
 
@@ -149,7 +149,10 @@ class LibtiffConan(ConanFile):
             self,
             os.path.join(self.source_folder, "libtiff", "CMakeLists.txt"),
             "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
-            "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)",
+            (
+                "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION}"
+                " WINDOWS_EXPORT_ALL_SYMBOLS ON)"
+            ),
         )
 
         # Disable tools, test, contrib, man & html generation
@@ -157,8 +160,10 @@ class LibtiffConan(ConanFile):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
-                "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
-                "add_subdirectory(man)\nadd_subdirectory(html)",
+                (
+                    "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
+                    "add_subdirectory(man)\nadd_subdirectory(html)"
+                ),
                 "",
             )
 

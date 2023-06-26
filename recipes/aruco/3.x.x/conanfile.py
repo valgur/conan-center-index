@@ -9,14 +9,17 @@ required_conan_version = ">=1.53.0"
 class ArucoConan(ConanFile):
     name = "aruco"
     description = "Augmented reality library based on OpenCV "
-    topics = ("augmented-reality", "robotics", "markers")
+    license = "GPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.uco.es/investiga/grupos/ava/node/26"
-    license = "GPL-3.0-only"
+    topics = ("augmented-reality", "robotics", "markers")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [False, True], "fPIC": [False, True]}
+    options = {
+        "shared": [False, True],
+        "fPIC": [False, True],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

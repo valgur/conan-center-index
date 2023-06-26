@@ -11,11 +11,11 @@ required_conan_version = ">=1.53.0"
 class AggConan(ConanFile):
     name = "aggeom-agg"
     description = "AGG Anti-Grain Geometry Library"
-    topics = "graphics"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aggeom"
-    license = "BSD-3-Clause"
-
+    topics = "graphics"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -27,7 +27,6 @@ class AggConan(ConanFile):
         "with_platform": [True, False],
         "with_controls": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -39,21 +38,12 @@ class AggConan(ConanFile):
         "with_controls": True,
     }
 
-    def validate(self):
-        if self.settings.os not in ("Windows", "Linux"):
-            raise ConanInvalidConfiguration("OS is not supported")
-        if self.options.shared:
-            raise ConanInvalidConfiguration("Invalid configuration")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         self.options.rm_safe("fPIC")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -63,6 +53,15 @@ class AggConan(ConanFile):
             self.requires("freetype/2.13.0")
         if self.options.with_platform and self.settings.os in ["Linux"]:
             self.requires("xorg/system")
+
+    def validate(self):
+        if self.settings.os not in ("Windows", "Linux"):
+            raise ConanInvalidConfiguration("OS is not supported")
+        if self.options.shared:
+            raise ConanInvalidConfiguration("Invalid configuration")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

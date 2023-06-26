@@ -7,7 +7,6 @@ from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -18,6 +17,8 @@ class AlpacaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/alpaca"
     topics = ("reflection", "checksum", "serialization", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

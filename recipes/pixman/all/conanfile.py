@@ -24,10 +24,11 @@ required_conan_version = ">=1.53.0"
 class PixmanConan(ConanFile):
     name = "pixman"
     description = "Pixman is a low-level software library for pixel manipulation"
-    topics = ("graphics", "compositing", "rasterization")
+    license = ("LGPL-2.1-only", "MPL-1.1")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cairographics.org/"
-    license = ("LGPL-2.1-only", "MPL-1.1")
+    topics = ("graphics", "compositing", "rasterization")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

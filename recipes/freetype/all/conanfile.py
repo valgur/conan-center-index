@@ -23,10 +23,11 @@ required_conan_version = ">=1.53.0"
 class FreetypeConan(ConanFile):
     name = "freetype"
     description = "FreeType is a freely available software library to render fonts."
+    license = "FTL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org"
-    license = "FTL"
-    topics = "fonts"
+    topics = ("fonts",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

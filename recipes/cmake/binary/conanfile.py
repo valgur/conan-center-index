@@ -5,19 +5,26 @@ from conan.tools.files import get, copy, rmdir
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
-
 required_conan_version = ">=1.51.0"
 
 
 class CMakeConan(ConanFile):
     name = "cmake"
-    package_type = "application"
     description = "CMake, the cross-platform, open-source build system."
-    topics = ("build", "installer")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Kitware/CMake"
-    license = "BSD-3-Clause"
-    settings = "os", "arch"
+    topics = ("build", "installer", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.arch not in ["x86_64", "armv8"]:
@@ -33,10 +40,6 @@ class CMakeConan(ConanFile):
     def build(self):
         arch = str(self.settings.arch) if self.settings.os != "Macos" else "universal"
         get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch], strip_root=True)
-
-    def package_id(self):
-        if self.info.settings.os == "Macos":
-            del self.info.settings.arch
 
     def package(self):
         copy(self, "*", src=self.build_folder, dst=self.package_folder)
@@ -62,6 +65,8 @@ class CMakeConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "man"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

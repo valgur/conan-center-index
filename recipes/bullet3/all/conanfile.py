@@ -17,10 +17,10 @@ class Bullet3Conan(ConanFile):
         "Bullet Physics SDK: real-time collision detection and multi-physics "
         "simulation for VR, games, visual effects, robotics, machine learning etc."
     )
-    homepage = "https://github.com/bulletphysics/bullet3"
-    topics = ("bullet", "physics", "simulation", "robotics", "kinematics", "engine")
     license = "ZLIB"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bulletphysics/bullet3"
+    topics = ("bullet", "physics", "simulation", "robotics", "kinematics", "engine")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

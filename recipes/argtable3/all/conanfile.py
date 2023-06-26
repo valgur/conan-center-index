@@ -17,6 +17,8 @@ class Argtable3Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.argtable.org/"
     topics = ("command", "line", "argument", "parse", "parsing", "getopt")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

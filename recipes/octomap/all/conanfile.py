@@ -22,9 +22,9 @@ class OctomapConan(ConanFile):
     name = "octomap"
     description = "An Efficient Probabilistic 3D Mapping Framework Based on Octrees."
     license = "BSD-3-Clause"
-    topics = ("octree", "3d", "robotics")
-    homepage = "https://github.com/OctoMap/octomap"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OctoMap/octomap"
+    topics = ("octree", "3d", "robotics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -119,14 +119,12 @@ class OctomapConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

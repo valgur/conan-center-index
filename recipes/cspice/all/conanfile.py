@@ -22,9 +22,9 @@ class CspiceConan(ConanFile):
     name = "cspice"
     description = "NASA C SPICE library"
     license = "TSPA"
-    topics = ("spice", "naif", "kernels", "space", "nasa", "jpl", "spacecraft", "planet", "robotics")
-    homepage = "https://naif.jpl.nasa.gov/naif/toolkit.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://naif.jpl.nasa.gov/naif/toolkit.html"
+    topics = ("spice", "naif", "kernels", "space", "nasa", "jpl", "spacecraft", "planet", "robotics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -116,16 +116,16 @@ class CspiceConan(ConanFile):
         cmake.configure(build_script_folder=self._parent_source_folder)
         cmake.build()
 
-    def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        cmake = CMake(self)
-        cmake.install()
-
     def _extract_license(self):
         spiceusr_header = load(self, os.path.join(self.source_folder, "include", "SpiceUsr.h"))
         begin = spiceusr_header.find("-Disclaimer")
         end = spiceusr_header.find("-Required_Reading", begin)
         return spiceusr_header[begin:end]
+
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["cspice"]

@@ -28,9 +28,10 @@ class LibMysqlClientCConan(ConanFile):
     description = "A MySQL client library for C development."
     license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("mysql", "sql", "connector", "database")
     homepage = "https://dev.mysql.com/downloads/mysql/"
+    topics = ("mysql", "sql", "connector", "database")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,8 +41,6 @@ class LibMysqlClientCConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    package_type = "library"
 
     @property
     def _min_cppstd(self):
@@ -81,24 +80,9 @@ class LibMysqlClientCConan(ConanFile):
         if self.settings.os == "FreeBSD":
             self.requires("libunwind/1.6.2")
 
-    def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
-            raise ConanInvalidConfiguration(
-                "Cross compilation not yet supported by the recipe. Contributions are welcomed."
-            )
-
     def validate(self):
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires {self.settings.compiler} {minimum_version} or newer"
             )
@@ -113,6 +97,15 @@ class LibMysqlClientCConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd") == "20" and Version(self.version) < "8.0.29":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support C++20")
 
+    def validate_build(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+            raise ConanInvalidConfiguration(
+                "Cross compilation not yet supported by the recipe. Contributions are welcomed."
+            )
+
     def build_requirements(self):
         if is_apple_os(self):
             self.tool_requires("cmake/[>=3.18 <4]")
@@ -121,6 +114,51 @@ class LibMysqlClientCConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        vbenv = VirtualBuildEnv(self)
+        vbenv.generate()
+
+        if not cross_building(self):
+            vrenv = VirtualRunEnv(self)
+            vrenv.generate(scope="build")
+
+        tc = CMakeToolchain(self)
+        # Not used anywhere in the CMakeLists
+        tc.cache_variables["DISABLE_SHARED"] = not self.options.shared
+        # stack grows downwards, on very few platforms stack grows upwards
+        tc.cache_variables["STACK_DIRECTION"] = "-1"
+        tc.cache_variables["WITHOUT_SERVER"] = True
+        tc.cache_variables["WITH_UNIT_TESTS"] = False
+        tc.cache_variables["ENABLED_PROFILING"] = False
+        tc.cache_variables["MYSQL_MAINTAINER_MODE"] = False
+        tc.cache_variables["WIX_DIR"] = False
+        # Disable additional Linux distro-specific compiler checks.
+        # The recipe already checks for minimum versions of supported
+        # compilers.
+        tc.cache_variables["FORCE_UNSUPPORTED_COMPILER"] = True
+
+        tc.cache_variables["WITH_LZ4"] = "system"
+
+        tc.cache_variables["WITH_ZSTD"] = "system"
+        tc.cache_variables["ZSTD_INCLUDE_DIR"] = (
+            self.dependencies["zstd"].cpp_info.aggregated_components().includedirs[0].replace("\\", "/")
+        )
+
+        if is_msvc(self):
+            tc.cache_variables["WINDOWS_RUNTIME_MD"] = not is_msvc_static_runtime(self)
+
+        tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
+
+        tc.cache_variables["WITH_ZLIB"] = "system"
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
+        if self.settings.os == "FreeBSD":
+            deps = PkgConfigDeps(self)
+            deps.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -237,7 +275,11 @@ class LibMysqlClientCConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "libmysql", "CMakeLists.txt"),
                 f"COMMAND {'libmysql_api_test'}",
-                f"COMMAND DYLD_LIBRARY_PATH={os.path.join(self.build_folder, 'library_output_directory')} {os.path.join(self.build_folder, 'runtime_output_directory', 'libmysql_api_test')}",
+                (
+                    "COMMAND "
+                    f"DYLD_LIBRARY_PATH={os.path.join(self.build_folder, 'library_output_directory')} "
+                    f"{os.path.join(self.build_folder, 'runtime_output_directory', 'libmysql_api_test')}"
+                ),
             )
         replace_in_file(
             self,
@@ -245,52 +287,6 @@ class LibMysqlClientCConan(ConanFile):
             "  INSTALL_DEBUG_SYMBOLS(",
             "  # INSTALL_DEBUG_SYMBOLS(",
         )
-
-    def generate(self):
-        vbenv = VirtualBuildEnv(self)
-        vbenv.generate()
-
-        if not cross_building(self):
-            vrenv = VirtualRunEnv(self)
-            vrenv.generate(scope="build")
-
-        tc = CMakeToolchain(self)
-        # Not used anywhere in the CMakeLists
-        tc.cache_variables["DISABLE_SHARED"] = not self.options.shared
-        tc.cache_variables[
-            "STACK_DIRECTION"
-        ] = "-1"  # stack grows downwards, on very few platforms stack grows upwards
-        tc.cache_variables["WITHOUT_SERVER"] = True
-        tc.cache_variables["WITH_UNIT_TESTS"] = False
-        tc.cache_variables["ENABLED_PROFILING"] = False
-        tc.cache_variables["MYSQL_MAINTAINER_MODE"] = False
-        tc.cache_variables["WIX_DIR"] = False
-        # Disable additional Linux distro-specific compiler checks.
-        # The recipe already checks for minimum versions of supported
-        # compilers.
-        tc.cache_variables["FORCE_UNSUPPORTED_COMPILER"] = True
-
-        tc.cache_variables["WITH_LZ4"] = "system"
-
-        tc.cache_variables["WITH_ZSTD"] = "system"
-        tc.cache_variables["ZSTD_INCLUDE_DIR"] = (
-            self.dependencies["zstd"].cpp_info.aggregated_components().includedirs[0].replace("\\", "/")
-        )
-
-        if is_msvc(self):
-            tc.cache_variables["WINDOWS_RUNTIME_MD"] = not is_msvc_static_runtime(self)
-
-        tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
-
-        tc.cache_variables["WITH_ZLIB"] = "system"
-        tc.generate()
-
-        deps = CMakeDeps(self)
-        deps.generate()
-
-        if self.settings.os == "FreeBSD":
-            deps = PkgConfigDeps(self)
-            deps.generate()
 
     def build(self):
         self._patch_sources()
