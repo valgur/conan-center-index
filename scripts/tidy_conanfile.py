@@ -260,7 +260,7 @@ def tidy_conanfile(conanfile_path, write=True):
         details.attrs["package_type"] = "application"
         if "no_copy_source" in details.attrs:
             del details.attrs["no_copy_source"]
-        if "pre-built" not in details.attrs["topics"]:
+        if details.build_system is None and "pre-built" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["pre-built"])
         if "package_info" not in details.methods:
             details.methods["package_info"] = "    def package_info(self):\n" + _indent(
@@ -386,7 +386,7 @@ def tidy_conanfile(conanfile_path, write=True):
     expected_methods = {method for method, is_required in methods_order}
 
     if "layout" not in methods:
-        if is_application:
+        if details.build_system is None:
             methods["layout"] = _indent("def layout(self):\n    pass\n")
         elif details.build_system == "CMake":
             methods["layout"] = _indent('def layout(self):\n    cmake_layout(self, src_folder="src")\n')
