@@ -19,5 +19,4 @@ sources:
     url: "https://ftp.gnome.org/pub/gnome/sources/at-spi2-core/2.44/at-spi2-core-2.44.1.tar.xz"
 patches:
   "2.44.0":
-    - base_path: "source_subfolder"
-      patch_file: "patches/08036a4c4491eea57d7b713bb4440f541584204b.patch"
+    - patch_file: "patches/08036a4c4491eea57d7b713bb4440f541584204b.patch"

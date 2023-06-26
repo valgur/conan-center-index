@@ -128,7 +128,7 @@ class AcadoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio" and self.options.shared:
+        if is_msvc(self) and self.options.shared:
             # https://github.com/acado/acado/blob/b4e28f3131f79cadfd1a001e9fff061f361d3a0f/CMakeLists.txt#L77-L80
             raise ConanInvalidConfiguration("Acado does not support shared builds on Windows.")
         if self.settings.compiler == "apple-clang":
@@ -153,8 +153,6 @@ class AcadoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = glob.glob("acado-*/")[0]
-        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)

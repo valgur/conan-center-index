@@ -4,7 +4,5 @@ sources:
     sha256: "494b35418f1eaa86d80572a4254b7fae88a1341dcda83788ed038ce4f39117cb"
 patches:
   "2.15.3":
-    - base_path: "source_subfolder"
-      patch_file: "patches/2.15.3/fix-cmake.patch"
-    - base_path: "source_subfolder"
-      patch_file: "patches/2.15.3/fix-rapidjson.patch"
+    - patch_file: "patches/2.15.3/fix-cmake.patch"
+    - patch_file: "patches/2.15.3/fix-rapidjson.patch"
