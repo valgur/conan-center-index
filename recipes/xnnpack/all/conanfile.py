@@ -6,17 +6,18 @@ from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.53.0"
 
 
 class XnnpackConan(ConanFile):
     name = "xnnpack"
     description = (
-        "XNNPACK is a highly optimized library of floating-point "
-        "neural network inference operators for ARM, WebAssembly, "
-        "and x86 platforms."
+        "XNNPACK is a highly optimized library of floating-point neural network inference operators for ARM,"
+        " WebAssembly, and x86 platforms."
     )
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/XNNPACK"
     topics = (
         "neural-network",
         "inference",
@@ -25,9 +26,8 @@ class XnnpackConan(ConanFile):
         "matrix-multiplication",
         "simd",
     )
-    homepage = "https://github.com/google/XNNPACK"
-    url = "https://github.com/conan-io/conan-center-index"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

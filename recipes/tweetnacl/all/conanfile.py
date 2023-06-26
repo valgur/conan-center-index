@@ -79,16 +79,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.32.0"
+required_conan_version = ">=1.53.0"
 
 
 class TweetnaclConan(ConanFile):
     name = "tweetnacl"
-    license = "Unlicense"
-    homepage = "https://tweetnacl.cr.yp.to"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "TweetNaCl is the world's first auditable high-security cryptographic library"
+    license = "Unlicense"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://tweetnacl.cr.yp.to"
     topics = ("nacl", "encryption", "signature", "hashing")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -97,7 +100,6 @@ class TweetnaclConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    settings = "os", "compiler", "build_type", "arch"
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -112,11 +114,15 @@ class TweetnaclConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.os in ("Windows", "Macos"):
             if self.options.shared:
                 raise ConanInvalidConfiguration(
-                    "tweetnacl does not support shared on Windows and Madcos: it needs a randombytes implementation"
+                    "tweetnacl does not support shared on Windows and Madcos: it needs a randombytes"
+                    " implementation"
                 )
 
     def source(self):

@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_shext'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -78,14 +82,18 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.53.0"
+
 
 class TcpWrappersConan(ConanFile):
     name = "tcp-wrappers"
-    homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
     description = "A security tool which acts as a wrapper for TCP daemons"
-    topics = ("tcp", "ip", "daemon", "wrapper")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
+    topics = ("tcp", "ip", "daemon", "wrapper")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -95,6 +103,12 @@ class TcpWrappersConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    @property
+    def _shext(self):
+        if is_apple_os(self.settings.os):
+            return ".dylib"
+        return ".so"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -111,9 +125,16 @@ class TcpWrappersConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self.source_folder)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -137,12 +158,6 @@ class TcpWrappersConan(ConanFile):
             print(env_vars)
             with environment_append(self, env_vars):
                 autotools.make(target="linux", args=make_args)
-
-    @property
-    def _shext(self):
-        if is_apple_os(self.settings.os):
-            return ".dylib"
-        return ".so"
 
     def package(self):
         copy(

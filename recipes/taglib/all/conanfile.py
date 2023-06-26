@@ -20,9 +20,9 @@ class TaglibConan(ConanFile):
     name = "taglib"
     description = "TagLib is a library for reading and editing the metadata of several popular audio formats."
     license = ("LGPL-2.1-or-later", "MPL-1.1")
-    topics = ("audio", "metadata")
-    homepage = "https://taglib.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://taglib.org"
+    topics = ("audio", "metadata")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_compilers_min_version'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +82,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class UnleashConan(ConanFile):
     name = "unleash-client-cpp"
-    homepage = "https://github.com/aruizs/unleash-client-cpp/"
+    description = "Unleash Client SDK for C++ projects."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Unleash Client SDK for C++ projects."
+    homepage = "https://github.com/aruizs/unleash-client-cpp/"
     topics = ("unleash", "feature", "flag", "toggle")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -124,6 +128,9 @@ class UnleashConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("cpr/1.7.2")

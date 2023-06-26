@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_validate'
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run
@@ -20,17 +23,16 @@ required_conan_version = ">=1.53.0"
 class XercesCConan(ConanFile):
     name = "xerces-c"
     description = "Xerces-C++ is a validating XML parser written in a portable subset of C++"
-    topics = ("xerces", "XML", "validation", "DOM", "SAX", "SAX2")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://xerces.apache.org/xerces-c/index.html"
-    license = "Apache-2.0"
+    topics = ("xerces", "XML", "validation", "DOM", "SAX", "SAX2")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        # https://xerces.apache.org/xerces-c/build-3.html
         "char_type": ["uint16_t", "char16_t", "wchar_t"],
         "network_accessor": ["curl", "socket", "cfurl", "winsock"],
         "transcoder": ["gnuiconv", "iconv", "icu", "macosunicodeconverter", "windows"],

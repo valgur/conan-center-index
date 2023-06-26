@@ -14,12 +14,15 @@ required_conan_version = ">=1.53.0"
 
 class ZbarConan(ConanFile):
     name = "zbar"
+    description = (
+        "ZBar is an open source software suite for reading bar codes                   from various sources,"
+        " such as video streams, image files and raw intensity sensors"
+    )
     license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://zbar.sourceforge.net/"
     topics = ("barcode", "scanner", "decoder", "reader", "bar")
-    description = "ZBar is an open source software suite for reading bar codes\
-                   from various sources, such as video streams, image files and raw intensity sensors"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -83,11 +86,13 @@ class ZbarConan(ConanFile):
             raise ConanInvalidConfiguration("Zbar can't be built static on macOS")
         if self.options.with_xv:  # TODO add when available
             self.output.warning(
-                "There is no Xvideo package available on Conan (yet). This recipe will use the one present on the system (if available)."
+                "There is no Xvideo package available on Conan (yet). This recipe will use the one present on"
+                " the system (if available)."
             )
         if Version(self.version) >= "0.22" and cross_building(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} can't be built on cross building environment currently because autopoint(part of gettext) doesn't execute correctly."
+                f"{self.ref} can't be built on cross building environment currently because autopoint(part of"
+                " gettext) doesn't execute correctly."
             )
 
     def build_requirements(self):

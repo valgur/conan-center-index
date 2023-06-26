@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_module_file'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -13,14 +16,15 @@ required_conan_version = ">=1.53.0"
 
 class TensorflowLiteConan(ConanFile):
     name = "tensorflow-lite"
-    license = "Apache-2.0"
-    homepage = "https://www.tensorflow.org/lite/guide"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "TensorFlow Lite is a set of tools that enables on-device machine learning "
-        "by helping developers run their models on mobile, embedded, and IoT devices."
+        "TensorFlow Lite is a set of tools that enables on-device machine learning by helping developers run"
+        " their models on mobile, embedded, and IoT devices."
     )
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.tensorflow.org/lite/guide"
     topics = ("machine-learning", "neural-networks", "deep-learning")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -53,6 +57,10 @@ class TensorflowLiteConan(ConanFile):
             "clang": "5",
             "apple-clang": "5.1",
         }
+
+    @property
+    def _module_file(self):
+        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -133,24 +141,6 @@ class TensorflowLiteConan(ConanFile):
         cmake = CMake(self)
         cmake.configure(build_script_folder=join("tensorflow", "lite"))
         cmake.build()
-
-    @staticmethod
-    def _create_cmake_module_alias_target(conanfile, module_file):
-        aliased = "tensorflowlite::tensorflowlite"
-        alias = "tensorflow::tensorflowlite"
-        content = textwrap.dedent(
-            f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-        )
-        save(conanfile, module_file, content)
-
-    @property
-    def _module_file(self):
-        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, join(self.package_folder, "licenses"))

@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_msbuild_configuration'
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
@@ -23,11 +26,12 @@ required_conan_version = ">=1.54.0"
 class ZimgConan(ConanFile):
     name = "zimg"
     description = "Scaling, colorspace conversion, and dithering library"
-    topics = ("image", "manipulation")
-    homepage = "https://github.com/sekrit-twc/zimg"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "WTFPL"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sekrit-twc/zimg"
+    topics = ("image", "manipulation")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -111,7 +115,10 @@ class ZimgConan(ConanFile):
                     self,
                     vcxproj_file,
                     '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                    f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    (
+                        f'<Import Project="{conantoolchain_props}" /><Import'
+                        ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                    ),
                 )
             # ==========================
 

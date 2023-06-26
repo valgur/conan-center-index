@@ -11,10 +11,11 @@ class TinygltfConan(ConanFile):
     name = "tinygltf"
     description = "Header only C++11 tiny glTF 2.0 library."
     license = "MIT"
-    topics = "gltf"
-    homepage = "https://github.com/syoyo/tinygltf"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/syoyo/tinygltf"
+    topics = ("g", "l", "t", "f", "pre-built")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "draco": [True, False],
@@ -30,15 +31,16 @@ class TinygltfConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def package_id(self):
-        self.info.clear()
-
     def requirements(self):
         self.requires("nlohmann_json/3.11.2")
         if self.options.draco:
             self.requires("draco/1.5.5")
         if self.options.stb_image or self.options.stb_image_write:
             self.requires("stb/cci.20210910")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -60,6 +62,9 @@ class TinygltfConan(ConanFile):
         copy(self, "tiny_gltf.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         self.cpp_info.set_property("cmake_file_name", "TinyGLTF")
         self.cpp_info.set_property("cmake_target_name", "TinyGLTF::TinyGLTF")
         self.cpp_info.bindirs = []

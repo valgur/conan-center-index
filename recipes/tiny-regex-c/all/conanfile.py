@@ -10,9 +10,9 @@ class TinyregexcConan(ConanFile):
     name = "tiny-regex-c"
     description = "Small and portable Regular Expression (regex) library written in C."
     license = "Unlicense"
-    topics = ("regex",)
-    homepage = "https://github.com/kokke/tiny-regex-c"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kokke/tiny-regex-c"
+    topics = ("regex",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

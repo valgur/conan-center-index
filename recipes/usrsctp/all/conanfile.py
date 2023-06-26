@@ -79,15 +79,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class UsrsctpConan(ConanFile):
     name = "usrsctp"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/sctplab/usrsctp"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("network", "sctp")
     description = " A portable SCTP userland stack"
-    settings = "os", "compiler", "arch", "build_type"
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sctplab/usrsctp"
+    topics = ("network", "sctp")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -109,6 +113,9 @@ class UsrsctpConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

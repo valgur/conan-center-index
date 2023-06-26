@@ -78,23 +78,29 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.37.0"
+required_conan_version = ">=1.52.0"
 
 
 class WglextConan(ConanFile):
     name = "wglext"
+    description = "WGL extension interfaces"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.khronos.org/registry/OpenGL/index_gl.php"
-    description = "WGL extension interfaces"
-    topics = ("opengl", "gl", "wgl", "wglext")
+    topics = ("opengl", "gl", "wgl", "wglext", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = ("os",)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("opengl/system")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -112,3 +118,7 @@ class WglextConan(ConanFile):
         license_data = license_data.replace("**", "")
         save(self, "LICENSE", license_data)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

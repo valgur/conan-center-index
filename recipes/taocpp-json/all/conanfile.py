@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_min_compilers_version'
+#   Unexpected method '_requires_pegtl'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -6,16 +10,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.52.0"
 
 
 class TaoCPPJSONConan(ConanFile):
     name = "taocpp-json"
+    description = "C++ header-only JSON library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/json"
-    description = "C++ header-only JSON library"
-    topics = ("json", "jaxn", "cbor", "msgpack", "ubjson", "json-pointer", "json-patch")
+    topics = ("json", "jaxn", "cbor", "msgpack", "ubjson", "json-pointer", "json-patch", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -75,6 +80,9 @@ class TaoCPPJSONConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "taocpp-json")
         self.cpp_info.set_property("cmake_target_name", "taocpp::json")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed

@@ -4,20 +4,21 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class ZopfliConan(ConanFile):
     name = "zopfli"
+    description = (
+        "Zopfli Compression Algorithm is a compression library programmed in C to perform very good, but"
+        " slow, deflate or zlib compression."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/zopfli/"
-    description = (
-        "Zopfli Compression Algorithm is a compression library programmed in C "
-        "to perform very good, but slow, deflate or zlib compression."
-    )
     topics = ("compression", "deflate", "gzip", "zlib")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

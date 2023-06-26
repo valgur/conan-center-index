@@ -4,17 +4,18 @@ from conan import ConanFile
 import os
 import textwrap
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class Tixi3Conan(ConanFile):
     name = "tixi3"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A simple xml interface based on libxml2 and libxslt"
-    topics = ("xml", "xml2", "xslt")
-    homepage = "https://github.com/DLR-SC/tixi"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DLR-SC/tixi"
+    topics = ("xml", "xml2", "xslt")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -25,20 +26,9 @@ class Tixi3Conan(ConanFile):
         "fPIC": True,
     }
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["TIXI_BUILD_EXAMPLES"] = False
-        tc.generate()
-        deps = CMakeDeps(self)
-        deps.generate()
-
-    def requirements(self):
-        self.requires("libxml2/2.9.14")
-        self.requires("libxslt/1.1.34")
-        self.requires("libcurl/7.84.0")
-
-    def layout(self):
-        cmake_layout(self)
+    def export_sources(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -52,12 +42,23 @@ class Tixi3Conan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
+    def layout(self):
+        cmake_layout(self)
+
+    def requirements(self):
+        self.requires("libxml2/2.9.14")
+        self.requires("libxslt/1.1.34")
+        self.requires("libcurl/7.84.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["TIXI_BUILD_EXAMPLES"] = False
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)

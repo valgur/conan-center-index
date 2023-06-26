@@ -1,3 +1,6 @@
+# Warnings:
+#   Missing required method 'configure'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -5,27 +8,29 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.53.0"
 
 
 class VectorclassConan(ConanFile):
     name = "vectorclass"
     description = (
-        "C++ class library for using the Single Instruction Multiple "
-        "Data (SIMD) instructions to improve performance on modern "
-        "microprocessors with the x86 or x86/64 instruction set on "
-        "Windows, Linux, and Mac platforms."
+        "C++ class library for using the Single Instruction Multiple Data (SIMD) instructions to improve"
+        " performance on modern microprocessors with the x86 or x86/64 instruction set on Windows, Linux, and"
+        " Mac platforms."
     )
     license = "Apache-2.0"
-    topics = ("vector", "simd")
-    homepage = "https://github.com/vectorclass/version2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/vectorclass/version2"
+    topics = ("vector", "simd")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
@@ -48,6 +53,10 @@ class VectorclassConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

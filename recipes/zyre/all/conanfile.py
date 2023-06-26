@@ -1,3 +1,6 @@
+# Warnings:
+#   Disallowed attribute 'generators = ['cmake', 'cmake_find_package']'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -81,18 +84,19 @@ from conan.tools.microsoft import is_msvc
 import os
 import functools
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class ZyreConan(ConanFile):
     name = "zyre"
+    description = "Local Area Clustering for Peer-to-Peer Applications."
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zeromq/zyre"
-    description = "Local Area Clustering for Peer-to-Peer Applications."
     topics = ("czmq", "zmq", "zeromq", "message-queue", "asynchronous")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    generators = ["cmake", "cmake_find_package"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -114,6 +118,9 @@ class ZyreConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("czmq/4.2.0")

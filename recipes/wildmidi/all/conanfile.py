@@ -4,17 +4,21 @@ from conan.tools.files import export_conandata_patches, get, copy, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class WildmidiConan(ConanFile):
     name = "wildmidi"
-    description = "WildMIDI is a simple software midi player which has a core softsynth library that can be used in other applications."
+    description = (
+        "WildMIDI is a simple software midi player which has a core softsynth library that can be used in"
+        " other applications."
+    )
     license = "LGPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.mindwerks.net/projects/wildmidi"
     topics = ("audio", "midi", "multimedia", "music", "softsynth", "sound", "synth")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

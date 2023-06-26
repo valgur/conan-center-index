@@ -20,12 +20,12 @@ required_conan_version = ">=1.53.0"
 class TlxConan(ConanFile):
     name = "tlx"
     description = (
-        "tlx is a collection of C++ helpers and extensions " "universally needed, but not found in the STL."
+        "tlx is a collection of C++ helpers and extensions universally needed, but not found in the STL."
     )
     license = "BSL-1.0"
-    topics = ("data-structure", "algorithm")
-    homepage = "https://github.com/tlx/tlx"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/tlx/tlx"
+    topics = ("data-structure", "algorithm")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -84,6 +84,19 @@ class TlxConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -99,19 +112,6 @@ class TlxConan(ConanFile):
                 "tlx": "tlx::tlx",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

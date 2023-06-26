@@ -14,9 +14,9 @@ class VkBootstrapConan(ConanFile):
     name = "vk-bootstrap"
     description = "Vulkan bootstraping library."
     license = "MIT"
-    topics = ("vulkan", "bootstrap", "setup")
-    homepage = "https://github.com/charles-lunarg/vk-bootstrap"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/charles-lunarg/vk-bootstrap"
+    topics = ("vulkan", "bootstrap", "setup")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -101,6 +101,8 @@ class VkBootstrapConan(ConanFile):
             tc.variables["VK_BOOTSTRAP_VULKAN_HEADER_DIR"] = includedirs
         if Version(self.version) >= "0.4.0":
             tc.variables["VK_BOOTSTRAP_WERROR"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

@@ -1,3 +1,8 @@
+# Warnings:
+#   Unexpected method '_get_default_build_system_subdir'
+#   Unexpected method '_get_configure_dir'
+#   Unexpected method '_build_nmake'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
@@ -25,6 +30,7 @@ class TclConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tcl.tk"
     topics = ("scripting", "programming")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

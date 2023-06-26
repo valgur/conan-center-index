@@ -1,3 +1,10 @@
+# Warnings:
+#   Unexpected method '_effective_msbuild_type'
+#   Unexpected method '_msbuild_target'
+#   Unexpected method '_msvc_sln_folder'
+#   Unexpected method '_build_msvc'
+#   Unexpected method '_create_cmake_module_variables'
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
@@ -25,14 +32,15 @@ required_conan_version = ">=1.54.0"
 class XZUtilsConan(ConanFile):
     name = "xz_utils"
     description = (
-        "XZ Utils is free general-purpose data compression software with a high "
-        "compression ratio. XZ Utils were written for POSIX-like systems, but also "
-        "work on some not-so-POSIX systems. XZ Utils are the successor to LZMA Utils."
+        "XZ Utils is free general-purpose data compression software with a high compression ratio. XZ Utils"
+        " were written for POSIX-like systems, but also work on some not-so-POSIX systems. XZ Utils are the"
+        " successor to LZMA Utils."
     )
+    license = ("Unlicense", "LGPL-2.1-or-later", "GPL-2.0-or-later", "GPL-3.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tukaani.org/xz"
     topics = ("lzma", "xz", "compression")
-    license = "Unlicense", "LGPL-2.1-or-later", "GPL-2.0-or-later", "GPL-3.0-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -47,19 +55,6 @@ class XZUtilsConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
-
-    @property
-    def _effective_msbuild_type(self):
-        # treat "RelWithDebInfo" and "MinSizeRel" as "Release"
-        # there is no DebugMT configuration in upstream vcxproj, we patch Debug configuration afterwards
-        return "{}{}".format(
-            "Debug" if self.settings.build_type == "Debug" else "Release",
-            "MT" if is_msvc_static_runtime(self) and self.settings.build_type != "Debug" else "",
-        )
-
-    @property
-    def _msbuild_target(self):
-        return "liblzma_dll" if self.options.shared else "liblzma"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -100,14 +95,6 @@ class XZUtilsConan(ConanFile):
                 tc.configure_args.append("--enable-debug")
             tc.generate()
 
-    @property
-    def _msvc_sln_folder(self):
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
-            str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
-        ):
-            return "vs2017"
-        return "vs2013"
-
     def _build_msvc(self):
         build_script_folder = os.path.join(self.source_folder, "windows", self._msvc_sln_folder)
 
@@ -136,7 +123,10 @@ class XZUtilsConan(ConanFile):
                 self,
                 vcxproj_file,
                 '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" /><Import'
+                    ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
         # ==============================
 
@@ -177,6 +167,31 @@ class XZUtilsConan(ConanFile):
 
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
+    @property
+    def _effective_msbuild_type(self):
+        # treat "RelWithDebInfo" and "MinSizeRel" as "Release"
+        # there is no DebugMT configuration in upstream vcxproj, we patch Debug configuration afterwards
+        return "{}{}".format(
+            "Debug" if self.settings.build_type == "Debug" else "Release",
+            "MT" if is_msvc_static_runtime(self) and self.settings.build_type != "Debug" else "",
+        )
+
+    @property
+    def _msbuild_target(self):
+        return "liblzma_dll" if self.options.shared else "liblzma"
+
+    @property
+    def _msvc_sln_folder(self):
+        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
+            str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
+        ):
+            return "vs2017"
+        return "vs2013"
+
+    @property
+    def _module_file_rel_path(self):
+        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+
     def _create_cmake_module_variables(self, module_file):
         # TODO: also add LIBLZMA_HAS_AUTO_DECODER, LIBLZMA_HAS_EASY_ENCODER & LIBLZMA_HAS_LZMA_PRESET
         content = textwrap.dedent(
@@ -195,10 +210,6 @@ class XZUtilsConan(ConanFile):
         """
         )
         save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

@@ -21,20 +21,21 @@ required_conan_version = ">=1.53.0"
 class TrantorConan(ConanFile):
     name = "trantor"
     description = "a non-blocking I/O tcp network lib based on c++14/17"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/an-tao/trantor"
     topics = ("tcp-server", "asynchronous-programming", "non-blocking-io")
-    license = "BSD-3-Clause"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_c_ares": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_c_ares": True,
     }
 
@@ -83,7 +84,8 @@ class TrantorConan(ConanFile):
                 )
         else:
             self.output.warn(
-                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{self._min_cppstd}."
             )
 
         # TODO: Compilation succeeds, but execution of test_package fails on Visual Studio with MDd

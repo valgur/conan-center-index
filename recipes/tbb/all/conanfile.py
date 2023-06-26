@@ -1,3 +1,8 @@
+# Warnings:
+#   Unexpected method '_is_clanglc'
+#   Unexpected method '_base_compiler'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -80,24 +85,22 @@ from conan.tools.system import package_manager
 import os
 import textwrap
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class TBBConan(ConanFile):
-    deprecated = "onetbb"
-
     name = "tbb"
+    description = (
+        "Intel Threading Building Blocks (Intel TBB) lets you easily write parallel C++ programs that take"
+        " full advantage of multicore performance, that are portable and composable, and that have"
+        " future-proof scalability"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/oneapi-src/oneTBB"
-    description = (
-        "Intel Threading Building Blocks (Intel TBB) lets you easily write "
-        "parallel C++ programs that take full advantage of multicore "
-        "performance, that are portable and composable, and that have "
-        "future-proof scalability"
-    )
     topics = ("threading", "parallelism", "tbbmalloc")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -111,6 +114,7 @@ class TBBConan(ConanFile):
         "tbbmalloc": False,
         "tbbproxy": False,
     }
+    deprecated = "onetbb"
 
     @property
     def _settings_build(self):
@@ -135,6 +139,13 @@ class TBBConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.options.tbbmalloc
+        del self.info.options.tbbproxy
+
     def validate(self):
         if self.settings.os == "Macos":
             if hasattr(self, "settings_build") and cross_building(self):
@@ -151,10 +162,6 @@ class TBBConan(ConanFile):
         if self.options.tbbproxy and (not self.options.shared or not self.options.tbbmalloc):
             raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
 
-    def package_id(self):
-        del self.info.options.tbbmalloc
-        del self.info.options.tbbproxy
-
     def build_requirements(self):
         if self._settings_build.os == "Windows":
             if "CONAN_MAKE_PROGRAM" not in os.environ and not which(self, "make"):
@@ -162,6 +169,10 @@ class TBBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         def add_flag(name, value):

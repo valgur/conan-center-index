@@ -79,17 +79,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class TCSBankUconfigConan(ConanFile):
     name = "tcsbank-uconfig"
     description = "Lightweight, header-only, C++17 configuration library"
-    topics = ("configuration", "env", "json")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TinkoffCreditSystems/uconfig"
-    license = "Apache-2.0"
+    topics = ("configuration", "env", "json", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_rapidjson": [True, False],
@@ -97,10 +98,17 @@ class TCSBankUconfigConan(ConanFile):
     default_options = {
         "with_rapidjson": True,
     }
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_rapidjson:
             self.requires("rapidjson/1.1.0")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         compiler = str(self.settings.compiler)
@@ -111,8 +119,8 @@ class TCSBankUconfigConan(ConanFile):
             check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler"
-                " standard version support." % (self.name, compiler)
+                "%s recipe lacks information about the %s compiler standard version support."
+                % (self.name, compiler)
             )
 
         minimal_version = {
@@ -152,11 +160,11 @@ class TCSBankUconfigConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.names["pkg_config"] = "uconfig"
         self.cpp_info.names["cmake_find_package"] = "uconfig"
         self.cpp_info.names["cmake_find_package_multi"] = "uconfig"
         if self.options.with_rapidjson:
             self.cpp_info.defines = ["RAPIDJSON_HAS_STDSTRING=1"]
-
-    def package_id(self):
-        self.info.header_only()

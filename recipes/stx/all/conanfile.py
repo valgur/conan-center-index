@@ -79,18 +79,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class STXConan(ConanFile):
     name = "stx"
-    homepage = "https://github.com/lamarrr/STX"
+    description = "C++17 & C++ 20 error-handling and utility extensions."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "C++17 & C++ 20 error-handling and utility extensions."
+    homepage = "https://github.com/lamarrr/STX"
     topics = ("error-handling", "result", "option", "backtrace", "panic")
 
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -117,6 +118,9 @@ class STXConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.backtrace:
             self.requires("abseil/20200923.1")
@@ -133,12 +137,12 @@ class STXConan(ConanFile):
 
         if compiler == "Visual Studio" and compiler_version < 16:
             raise ConanInvalidConfiguration(
-                "STX requires C++17 language and standard library features " "which VS < 2019 lacks"
+                "STX requires C++17 language and standard library features which VS < 2019 lacks"
             )
 
         if compiler == "gcc" and compiler_version < 8:
             raise ConanInvalidConfiguration(
-                "STX requires C++17 language and standard library features " "which GCC < 8 lacks"
+                "STX requires C++17 language and standard library features which GCC < 8 lacks"
             )
 
         if (
@@ -148,14 +152,12 @@ class STXConan(ConanFile):
             and compiler_version < 9
         ):
             raise ConanInvalidConfiguration(
-                "STX requires C++17 language and standard library features "
-                "which clang < 9 with libc++ lacks"
+                "STX requires C++17 language and standard library features which clang < 9 with libc++ lacks"
             )
 
         if compiler == "clang" and compiler.libcxx and compiler.libcxx == "libc++" and compiler_version < 10:
             raise ConanInvalidConfiguration(
-                "STX requires C++17 language and standard library features "
-                "which clang < 10 with libc++ lacks"
+                "STX requires C++17 language and standard library features which clang < 10 with libc++ lacks"
             )
 
         if compiler == "apple-clang" and compiler_version < 12:
@@ -166,7 +168,7 @@ class STXConan(ConanFile):
 
         if compiler == "Visual Studio" and self.options.shared and Version(self.version) <= "1.0.1":
             raise ConanInvalidConfiguration(
-                "shared library build does not work on windows with " "STX version <= 1.0.1"
+                "shared library build does not work on windows with STX version <= 1.0.1"
             )
 
     def source(self):

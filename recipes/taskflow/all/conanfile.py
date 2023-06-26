@@ -13,15 +13,17 @@ required_conan_version = ">=1.52.0"
 class TaskflowConan(ConanFile):
     name = "taskflow"
     description = (
-        "A fast C++ header-only library to help you quickly write parallel "
-        "programs with complex task dependencies."
+        "A fast C++ header-only library to help you quickly write parallel programs with complex task"
+        " dependencies."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taskflow/taskflow"
     topics = ("tasking", "parallelism", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

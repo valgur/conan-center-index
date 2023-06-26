@@ -12,14 +12,19 @@ required_conan_version = ">=1.53.0"
 
 class WaveletBufferConan(ConanFile):
     name = "wavelet_buffer"
-    license = "MPL-2.0"
     description = "An universal C++ compression library based on wavelet transformation"
-    topics = ("compression", "signal-processing", "wavelet")
-    homepage = "https://github.com/panda-official/WaveletBuffer"
+    license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/panda-official/WaveletBuffer"
+    topics = ("compression", "signal-processing", "wavelet")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "jpeg": ["libjpeg-turbo", "libjpeg"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "jpeg": ["libjpeg-turbo", "libjpeg"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,

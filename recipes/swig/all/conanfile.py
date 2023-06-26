@@ -210,7 +210,8 @@ class SwigConan(ConanFile):
         with chdir(self, os.path.join(self.source_folder)):
             self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
@@ -228,7 +229,7 @@ class SwigConan(ConanFile):
         )
         copy(self, "*", src="cmake", dst=self._module_subfolder)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
     @property

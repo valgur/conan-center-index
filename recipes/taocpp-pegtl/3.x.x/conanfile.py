@@ -6,17 +6,18 @@ from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class TaoCPPPEGTLConan(ConanFile):
     name = "taocpp-pegtl"
+    description = "Parsing Expression Grammar Template Library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/pegtl"
-    description = "Parsing Expression Grammar Template Library"
     topics = ("peg", "header-only", "cpp", "parsing", "cpp17", "cpp11", "grammar")
-    no_copy_source = True
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "boost_filesystem": [True, False],
@@ -24,10 +25,7 @@ class TaoCPPPEGTLConan(ConanFile):
     default_options = {
         "boost_filesystem": False,
     }
-
-    def requirements(self):
-        if self.options.boost_filesystem:
-            self.requires("boost/1.78.0")
+    no_copy_source = True
 
     @property
     def _compilers_minimum_version(self):
@@ -37,6 +35,16 @@ class TaoCPPPEGTLConan(ConanFile):
             "clang": "6.0",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.boost_filesystem:
+            self.requires("boost/1.78.0")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -71,12 +79,6 @@ class TaoCPPPEGTLConan(ConanFile):
                 "{self.ref} requires non header-only boost with filesystem component"
             )
 
-    def package_id(self):
-        self.info.clear()
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -90,6 +92,9 @@ class TaoCPPPEGTLConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "pegtl")
         self.cpp_info.set_property("cmake_target_name", "taocpp::pegtl")
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed

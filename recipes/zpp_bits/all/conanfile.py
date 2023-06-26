@@ -5,7 +5,6 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -16,6 +15,7 @@ class ZppBitsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eyalz800/zpp_bits"
     topics = ("serialization", "rpc", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -53,7 +53,8 @@ class ZppBitsConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
+                " support."
             )
 
     def source(self):

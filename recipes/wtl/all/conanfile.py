@@ -9,16 +9,18 @@ required_conan_version = ">=1.54.0"
 
 class WTLConan(ConanFile):
     name = "wtl"
-    description = "Windows Template Library (WTL) is a C++ library for developing Windows applications and UI components."
+    description = (
+        "Windows Template Library (WTL) is a C++ library for developing Windows applications and UI"
+        " components."
+    )
     license = "MS-PL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/wtl"
     topics = ("atl", "template library", "windows", "template", "ui", "gdi", "header-only")
 
-    settings = "os"
-    no_copy_source = True
-
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")

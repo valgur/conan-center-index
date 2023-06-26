@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 class ZziplibConan(ConanFile):
     name = "zziplib"
     description = "The ZZIPlib provides read access on ZIP-archives and unpacked data"
-    topics = ("zip", "archive", "decompression")
+    license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gdraheim/zziplib"
-    license = "GPL-2.0-or-later"
+    topics = ("zip", "archive", "decompression")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

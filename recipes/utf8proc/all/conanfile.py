@@ -4,17 +4,18 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class Utf8ProcConan(ConanFile):
     name = "utf8proc"
+    description = "A clean C library for processing UTF-8 Unicode data"
+    license = "MIT expat"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/JuliaStrings/utf8proc"
-    description = "A clean C library for processing UTF-8 Unicode data"
     topics = ("utf", "utf8", "unicode", "text")
-    license = "MIT expat"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -11,11 +11,12 @@ class VisitStructConan(ConanFile):
     name = "visit_struct"
     description = "A miniature library for struct-field reflection in C++"
     license = "BSL-1.0"
-    topics = ("reflection", "introspection", "visitor", "struct-field-visitor", "header-only")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cbeck88/visit_struct"
+    topics = ("reflection", "introspection", "visitor", "struct-field-visitor", "header-only")
+
     package_type = "header-library"
-    settings = ("os", "arch", "compiler", "build_type")
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_boost_fusion": [True, False],
         "with_boost_hana": [True, False],

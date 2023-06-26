@@ -173,9 +173,9 @@ class SubunitConan(ConanFile):
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(
-                " ".join("-I{}".format(inc) for inc in self.dependencies["cppunit"].cpp_info.includedirs).replace(
-                    "\\", "/"
-                )
+                " ".join(
+                    "-I{}".format(inc) for inc in self.dependencies["cppunit"].cpp_info.includedirs
+                ).replace("\\", "/")
             ),
             "CPPUNIT_LIBS='{}'".format(" ".join(self.dependencies["cppunit"].cpp_info.libs)),
         ]
@@ -185,7 +185,8 @@ class SubunitConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):

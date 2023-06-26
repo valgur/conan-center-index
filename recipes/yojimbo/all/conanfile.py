@@ -1,3 +1,6 @@
+# Warnings:
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,32 +82,41 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import yaml
 
+required_conan_version = ">=1.53.0"
+
 
 class YojimboConan(ConanFile):
     name = "yojimbo"
+    description = "A network library for client/server games written in C++"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/networkprotocol/yojimbo"
     topics = ("yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
-    description = "A network library for client/server games written in C++"
-    license = "BSD-3-Clause"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
     def export_sources(self):
         copy(self, "submoduledata.yml", src=self.recipe_folder, dst=self.export_sources_folder)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Only 64-bit architecture supported")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libsodium/1.0.18")
@@ -130,6 +142,10 @@ class YojimboConan(ConanFile):
                 get(self, **submodule_data)
                 submodule_source = os.path.join(self.source_folder, path)
                 rmdir(self, submodule_source)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         # Before building we need to make some edits to the premake file to build using conan dependencies rather than local/bundled

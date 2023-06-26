@@ -1,3 +1,6 @@
+# Warnings:
+#   Disallowed attribute 'generators = ('cmake',)'
+
 # TODO: verify the Conan v2 migration
 
 import functools
@@ -79,27 +82,37 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class WineditlineConan(ConanFile):
     name = "wineditline"
-    description = "A BSD-licensed EditLine API implementation for the native " "Windows Console"
+    description = "A BSD-licensed EditLine API implementation for the native Windows Console"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mingweditline.sourceforge.net/"
     topics = ("readline", "editline", "windows")
-    license = "BSD-3-Clause"
-    generators = ("cmake",)
-    settings = ("os", "arch", "compiler", "build_type")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def configure(self):
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -110,10 +123,6 @@ class WineditlineConan(ConanFile):
         root = self.source_folder
         get_args = self.conan_data["sources"][self.version]
         get(self, **get_args, destination=root, strip_root=True)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def generate(self):
         tc = CMakeToolchain(self)

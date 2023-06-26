@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_tsil_size'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -5,31 +8,36 @@ from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class TsilConan(ConanFile):
     name = "tsil"
+    description = "Two-loop Self-energy Integral Library"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.niu.edu/spmartin/TSIL/"
-    description = "Two-loop Self-energy Integral Library"
     topics = ("high-energy", "physics", "hep", "two-loop", "integrals")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "size": ["long", "double"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "size": ["long", "double"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
         "size": "long",
     }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
     @property
     def _tsil_size(self):
         return "TSIL_SIZE_DOUBLE" if self.options.size == "double" else "TSIL_SIZE_LONG"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

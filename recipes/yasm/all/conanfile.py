@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_generate_autotools'
+#   Unexpected method '_generate_cmake'
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -12,12 +16,13 @@ required_conan_version = ">=1.54.0"
 
 class YASMConan(ConanFile):
     name = "yasm"
-    package_type = "application"
+    description = "Yasm is a complete rewrite of the NASM assembler under the 'new' BSD License"
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yasm/yasm"
-    description = "Yasm is a complete rewrite of the NASM assembler under the 'new' BSD License"
-    topics = ("installer", "assembler")
-    license = "BSD-2-Clause"
+    topics = ("installer", "assembler", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -103,6 +108,8 @@ class YASMConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

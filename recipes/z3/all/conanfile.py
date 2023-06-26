@@ -21,11 +21,12 @@ required_conan_version = ">=1.53.0"
 class Z3Conan(ConanFile):
     name = "z3"
     description = "The Z3 Theorem Prover"
-    topics = ("theorem", "smt", "satisfiability", "prover", "solver")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Z3Prover/z3"
-    license = "MIT"
+    topics = ("theorem", "smt", "satisfiability", "prover", "solver")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

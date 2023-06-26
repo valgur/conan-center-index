@@ -80,24 +80,26 @@ from conan.tools.system import package_manager
 import functools
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TreeSitterCConan(ConanFile):
     name = "tree-sitter-c"
     description = "C grammar for tree-sitter."
-    topics = ("parser", "grammar", "tree", "c", "ide")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tree-sitter/tree-sitter-c"
-    license = "MIT"
+    topics = ("parser", "grammar", "tree", "c", "ide")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -112,6 +114,9 @@ class TreeSitterCConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("tree-sitter/0.20.0")

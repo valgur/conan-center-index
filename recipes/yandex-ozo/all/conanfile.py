@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_validate_compiler_settings'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,18 +82,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class YandexOzoConan(ConanFile):
     name = "yandex-ozo"
     description = "C++ header-only library for asynchronous access to PostgreSQL databases using ASIO"
-    topics = ("ozo", "yandex", "postgres", "postgresql", "cpp17", "database", "db", "asio")
-    package_type = "header-library"
+    license = "PostgreSQL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yandex/ozo"
-    license = "PostgreSQL"
-    settings = "os", "compiler"
+    topics = ("ozo", "yandex", "postgres", "postgresql", "cpp17", "database", "db", "asio", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -102,10 +106,16 @@ class YandexOzoConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("boost/1.76.0")
         self.requires("resource_pool/cci.20210322")
         self.requires("libpq/13.2")
+
+    def package_id(self):
+        self.info.clear()
 
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
@@ -137,6 +147,9 @@ class YandexOzoConan(ConanFile):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         main_comp = self.cpp_info.components["_ozo"]
         main_comp.requires = [
             "boost::boost",

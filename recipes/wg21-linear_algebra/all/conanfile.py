@@ -11,17 +11,18 @@ required_conan_version = ">=1.59.0"
 
 class LAConan(ConanFile):
     name = "wg21-linear_algebra"
-    homepage = "https://github.com/BobSteagall/wg21"
-    description = "Production-quality reference implementation of P1385: A proposal to add linear algebra support to the C++ standard library"
-    topics = ("linear-algebra", "multi-dimensional", "maths")
+    description = (
+        "Production-quality reference implementation of P1385: A proposal to add linear algebra support to"
+        " the C++ standard library"
+    )
     license = "NCSA"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
-    package_type = "header-library"
-    no_copy_source = True
+    homepage = "https://github.com/BobSteagall/wg21"
+    topics = ("linear-algebra", "multi-dimensional", "maths", "header-only")
 
-    def requirements(self):
-        self.requires("mdspan/0.5.0")
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -37,6 +38,15 @@ class LAConan(ConanFile):
             "apple-clang": "11",
         }
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("mdspan/0.5.0")
+
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         compiler = self.settings.compiler
         if self.settings.compiler.get_safe("cppstd"):
@@ -44,12 +54,6 @@ class LAConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires at least {compiler} {min_version}")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -64,6 +68,9 @@ class LAConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "wg21_linear_algebra")
         self.cpp_info.set_property("cmake_target_name", "wg21_linear_algebra::wg21_linear_algebra")
 

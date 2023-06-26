@@ -8,26 +8,26 @@ required_conan_version = ">=1.53.0"
 
 class VolkConan(ConanFile):
     name = "volk"
-    license = "MIT"
-    homepage = "https://github.com/zeux/volk"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "volk is a meta-loader for Vulkan. It allows you to dynamically load "
-        "entrypoints required to use Vulkan without linking to vulkan-1.dll or "
-        "statically linking Vulkan loader. Additionally, volk simplifies the "
-        "use of Vulkan extensions by automatically loading all associated "
-        "entrypoints. Finally, volk enables loading Vulkan entrypoints "
-        "directly from the driver which can increase performance by skipping "
-        "loader dispatch overhead."
+        "volk is a meta-loader for Vulkan. It allows you to dynamically load entrypoints required to use"
+        " Vulkan without linking to vulkan-1.dll or statically linking Vulkan loader. Additionally, volk"
+        " simplifies the use of Vulkan extensions by automatically loading all associated entrypoints."
+        " Finally, volk enables loading Vulkan entrypoints directly from the driver which can increase"
+        " performance by skipping loader dispatch overhead."
     )
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zeux/volk"
     topics = ("vulkan", "loader", "extension", "entrypoint", "graphics")
 
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 

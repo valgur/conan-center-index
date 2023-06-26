@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_libzmq_target'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -22,12 +25,13 @@ required_conan_version = ">=1.53.0"
 
 class ZeroMQConan(ConanFile):
     name = "zeromq"
-    homepage = "https://github.com/zeromq/libzmq"
     description = "ZeroMQ is a community of projects focused on decentralized messaging and computing"
-    topics = ("zmq", "libzmq", "message-queue", "asynchronous")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zeromq/libzmq"
+    topics = ("zmq", "libzmq", "message-queue", "asynchronous")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -49,6 +53,10 @@ class ZeroMQConan(ConanFile):
         "with_websocket": False,
         "with_radix_tree": False,
     }
+
+    @property
+    def _libzmq_target(self):
+        return "libzmq" if self.options.shared else "libzmq-static"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -122,6 +130,19 @@ class ZeroMQConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -140,26 +161,9 @@ class ZeroMQConan(ConanFile):
             },
         )
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
-
     @property
     def _module_file_rel_path(self):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
-    @property
-    def _libzmq_target(self):
-        return "libzmq" if self.options.shared else "libzmq-static"
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ZeroMQ")

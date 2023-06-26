@@ -10,15 +10,18 @@ class UnqliteConan(ConanFile):
     name = "unqlite"
     description = "An Embedded NoSQL, Transactional Database Engine."
     license = "BSD-2-Clause"
-    topics = ("nosql", "database", "transactional", "storage")
-    homepage = "https://unqlite.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://unqlite.org"
+    topics = ("nosql", "database", "transactional", "storage")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 

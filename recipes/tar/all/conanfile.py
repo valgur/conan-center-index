@@ -122,10 +122,9 @@ class TarConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         self._autotools.libs = []
         bzip2_exe = "bzip2"  # FIXME: get from bzip2 recipe
         lzip_exe = "lzip"  # FIXME: get from lzip recipe
@@ -157,12 +156,13 @@ class TarConan(ConanFile):
                 "_GL_INCLUDING_UNISTD_H",
                 "_GL_INCLUDING_UNISTD_H_NOP",
             )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))

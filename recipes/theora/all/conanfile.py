@@ -5,18 +5,19 @@ from conan.tools.microsoft import is_msvc
 from conan.errors import ConanException
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class TheoraConan(ConanFile):
     name = "theora"
+    description = "Theora is a free and open video compression format from the Xiph.org Foundation"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xiph/theora"
-    description = "Theora is a free and open video compression format from the Xiph.org Foundation"
     topics = ("video", "video-compressor", "video-format")
 
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

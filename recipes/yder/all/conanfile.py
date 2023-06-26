@@ -13,16 +13,18 @@ from conan.tools.microsoft import is_msvc
 import os
 import textwrap
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class YderConan(ConanFile):
     name = "yder"
     description = "Logging library for C applications"
-    homepage = "https://github.com/babelouest/yder"
-    topics = ("logging", "stdout", "file", "journald", "systemd")
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/babelouest/yder"
+    topics = ("logging", "stdout", "file", "journald", "systemd")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,6 +37,9 @@ class YderConan(ConanFile):
         "with_libsystemd": True,
     }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -46,6 +51,9 @@ class YderConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("orcania/2.3.1")
         if self.options.get_safe("with_libsystemd"):
@@ -53,12 +61,6 @@ class YderConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -87,6 +89,19 @@ class YderConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -110,25 +125,14 @@ class YderConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {}
-            if self.options.shared
-            else {
-                "Yder::Yder-static": "Yder::Yder",
-            },
+            (
+                {}
+                if self.options.shared
+                else {
+                    "Yder::Yder-static": "Yder::Yder",
+                }
+            ),
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

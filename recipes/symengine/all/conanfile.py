@@ -19,11 +19,17 @@ class SymengineConan(ConanFile):
     name = "symengine"
     description = "A fast symbolic manipulation library, written in C++"
     license = "MIT"
-    topics = ("symbolic", "algebra")
-    homepage = "https://symengine.org/"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False], "integer_class": ["boostmp", "gmp"]}
+    homepage = "https://symengine.org/"
+    topics = ("symbolic", "algebra")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "integer_class": ["boostmp", "gmp"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -32,6 +38,17 @@ class SymengineConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.integer_class == "boostmp":
@@ -42,20 +59,14 @@ class SymengineConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_BENCHMARKS"] = False
         tc.variables["INTEGER_CLASS"] = self.options.integer_class
         tc.variables["MSVC_USE_MT"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

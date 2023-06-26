@@ -17,16 +17,16 @@ required_conan_version = ">=1.53.0"
 
 class ZlibConan(ConanFile):
     name = "zlib"
-    package_type = "library"
+    description = (
+        "A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention"
+        " Unencumbered by Patents)"
+    )
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://zlib.net"
-    license = "Zlib"
-    description = (
-        "A Massively Spiffy Yet Delicately Unobtrusive Compression Library "
-        "(Also Free, Not to Mention Unencumbered by Patents)"
-    )
     topics = ("compression",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

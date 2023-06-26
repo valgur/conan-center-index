@@ -22,10 +22,10 @@ required_conan_version = ">=1.57.0"
 class UnivalueConan(ConanFile):
     name = "univalue"
     description = "High performance RAII C++ JSON library and universal value object class"
-    topics = ("universal", "json", "encoding", "decoding")
     license = "MIT"
-    homepage = "https://github.com/jgarzik/univalue"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jgarzik/univalue"
+    topics = ("universal", "json", "encoding", "decoding")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

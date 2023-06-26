@@ -12,12 +12,13 @@ required_conan_version = ">=1.52.0"
 
 class XtensorConan(ConanFile):
     name = "xtensor"
-    package_type = "header-library"
     description = "C++ tensors with broadcasting and lazy computing"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xtensor-stack/xtensor"
-    topics = ("numpy", "multidimensional-arrays", "tensors")
+    topics = ("numpy", "multidimensional-arrays", "tensors", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "xsimd": [True, False],
@@ -29,6 +30,7 @@ class XtensorConan(ConanFile):
         "tbb": False,
         "openmp": False,
     }
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -89,6 +91,19 @@ class XtensorConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(
@@ -105,19 +120,6 @@ class XtensorConan(ConanFile):
                 "xtensor": "xtensor::xtensor",
             },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """
-            )
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

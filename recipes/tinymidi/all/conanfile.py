@@ -10,10 +10,11 @@ required_conan_version = ">=1.53.0"
 class TinyMidiConan(ConanFile):
     name = "tinymidi"
     description = "A small C library for doing MIDI on GNU/Linux"
-    topics = ("audio", "MIDI")
+    license = "LGPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/krgn/tinymidi"
-    license = "LGPL-3.0-only"
+    topics = ("audio", "MIDI")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

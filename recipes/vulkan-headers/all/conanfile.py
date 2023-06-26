@@ -3,16 +3,17 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class VulkanHeadersConan(ConanFile):
     name = "vulkan-headers"
     description = "Vulkan Header files."
     license = "Apache-2.0"
-    topics = "vulkan"
-    homepage = "https://github.com/KhronosGroup/Vulkan-Headers"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/Vulkan-Headers"
+    topics = ("v", "u", "l", "k", "a", "n", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -45,6 +46,9 @@ class VulkanHeadersConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "VulkanHeaders")
         self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Vulkan::Headers")
         self.cpp_info.components["vulkanheaders"].bindirs = []

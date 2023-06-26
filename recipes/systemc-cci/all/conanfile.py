@@ -81,18 +81,19 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 import functools
 
-
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class SystemccciConan(ConanFile):
     name = "systemc-cci"
     description = "SystemC Configuration, Control and Inspection library"
-    homepage = "https://www.accellera.org/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.accellera.org/"
     topics = ("simulation", "modeling", "esl", "cci")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -114,6 +115,9 @@ class SystemccciConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("systemc/2.3.3")
         self.requires("rapidjson/1.1.0")
@@ -127,6 +131,8 @@ class SystemccciConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)

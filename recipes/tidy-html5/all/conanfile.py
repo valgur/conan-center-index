@@ -79,17 +79,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TidyHtml5Conan(ConanFile):
     name = "tidy-html5"
+    description = "The granddaddy of HTML tools, with support for modern standards"
     license = "W3C"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.html-tidy.org"
-    description = "The granddaddy of HTML tools, with support for modern standards"
     topics = ("html", "parser", "xml", "tools")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -114,6 +115,9 @@ class TidyHtml5Conan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

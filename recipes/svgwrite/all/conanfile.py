@@ -16,6 +16,7 @@ class SvgwriteConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.com/dvd0101/svgwrite"
     topics = ("svg", "writer", "stream", "vector", "image")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

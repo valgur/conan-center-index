@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_min_compilers_version'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +82,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class TinyDnnConan(ConanFile):
     name = "tiny-dnn"
+    description = "tiny-dnn is a C++14 implementation of deep learning."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tiny-dnn/tiny-dnn"
-    description = "tiny-dnn is a C++14 implementation of deep learning."
     topics = ("header-only", "deep-learning", "embedded", "iot", "computational")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_tbb": [True, False],
@@ -97,10 +101,14 @@ class TinyDnnConan(ConanFile):
     default_options = {
         "with_tbb": False,
     }
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
         return "14"
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     @property
     def _min_compilers_version(self):
@@ -117,6 +125,9 @@ class TinyDnnConan(ConanFile):
         if self.options.with_tbb:
             self.requires("onetbb/2020.3")
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -127,9 +138,6 @@ class TinyDnnConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "{} requires a compiler that supports at least C++{}".format(self.name, self._min_cppstd)
             )
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -157,6 +165,9 @@ class TinyDnnConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "tinydnn")
         self.cpp_info.set_property("cmake_target_name", "TinyDNN::tiny_dnn")
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed

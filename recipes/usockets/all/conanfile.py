@@ -239,7 +239,9 @@ class UsocketsConan(ConanFile):
                 }
 
                 if self.options.eventloop == "libuv":
-                    env["CPPFLAGS"] = "-I" + unix_path(self.dependencies["libuv"].cpp_info.includedirs[0]) + " "
+                    env["CPPFLAGS"] = (
+                        "-I" + unix_path(self.dependencies["libuv"].cpp_info.includedirs[0]) + " "
+                    )
 
                 with environment_append(env):
                     yield

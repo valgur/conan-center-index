@@ -1,3 +1,8 @@
+# Warnings:
+#   Unexpected method '_compiler_alias'
+#   Missing required method 'generate'
+#   Missing required method 'build'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -17,13 +22,16 @@ class WasmerConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wasmerio/wasmer/"
     topics = ("webassembly", "wasm", "wasi", "emscripten")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -41,6 +49,10 @@ class WasmerConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler.version
+        self.info.settings.compiler = self._compiler_alias
 
     def validate(self):
         try:
@@ -65,10 +77,6 @@ class WasmerConan(ConanFile):
         if is_msvc(self) and not self.options.shared and not is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.ref} is only available with compiler.runtime=static")
 
-    def package_id(self):
-        del self.info.settings.compiler.version
-        self.info.settings.compiler = self._compiler_alias
-
     def source(self):
         get(
             self,
@@ -76,6 +84,14 @@ class WasmerConan(ConanFile):
                 str(self.info.settings.arch)
             ][self._compiler_alias],
         )
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
+
+    def build(self):
+        # TODO: fill in build()
+        pass
 
     def package(self):
         copy(

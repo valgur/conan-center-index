@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_required_boost_components'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,18 +82,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TgbotConan(ConanFile):
     name = "tgbot"
-
+    description = "C++ library for Telegram bot API"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://reo7sp.github.io/tgbot-cpp"
-    description = "C++ library for Telegram bot API"
     topics = ("telegram", "telegram-api", "telegram-bot", "bot")
-    license = "MIT"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -101,6 +104,10 @@ class TgbotConan(ConanFile):
         "fPIC": True,
     }
 
+    @property
+    def _required_boost_components(self):
+        return ["system"]
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -109,14 +116,13 @@ class TgbotConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("boost/1.79.0")
         self.requires("libcurl/7.84.0")
         self.requires("openssl/1.1.1q")
-
-    @property
-    def _required_boost_components(self):
-        return ["system"]
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -135,6 +141,14 @@ class TgbotConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["ENABLE_TESTS"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         # Don't force PIC
         replace_in_file(
@@ -143,14 +157,6 @@ class TgbotConan(ConanFile):
             "set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)",
             "",
         )
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["ENABLE_TESTS"] = False
-        tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         self._patch_sources()

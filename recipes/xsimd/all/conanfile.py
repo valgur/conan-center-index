@@ -8,16 +8,20 @@ from conan.tools.build import check_min_cppstd
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class XsimdConan(ConanFile):
     name = "xsimd"
-    description = "C++ wrappers for SIMD intrinsics and parallelized, optimized mathematical functions (SSE, AVX, NEON, AVX512)"
+    description = (
+        "C++ wrappers for SIMD intrinsics and parallelized, optimized mathematical functions (SSE, AVX, NEON,"
+        " AVX512)"
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xtensor-stack/xsimd"
     topics = ("simd-intrinsics", "vectorization", "simd", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -44,6 +48,9 @@ class XsimdConan(ConanFile):
             }
         }.get(self._min_cppstd, {})
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.xtl_complex:
             self.requires("xtl/0.7.5")
@@ -68,24 +75,8 @@ class XsimdConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        includedir = os.path.join(self.source_folder, "include")
-        copy(self, "*.hpp", src=includedir, dst=os.path.join(self.package_folder, "include"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "xsimd": "xsimd::xsimd",
-            },
-        )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
@@ -99,6 +90,19 @@ class XsimdConan(ConanFile):
             """
             )
         save(self, module_file, content)
+
+    def package(self):
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        includedir = os.path.join(self.source_folder, "include")
+        copy(self, "*.hpp", src=includedir, dst=os.path.join(self.package_folder, "include"))
+
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "xsimd": "xsimd::xsimd",
+            },
+        )
 
     @property
     def _module_file_rel_path(self):

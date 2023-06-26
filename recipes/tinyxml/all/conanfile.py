@@ -17,6 +17,7 @@ class TinyXmlConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.grinninglizard.com/tinyxml/"
     topics = ("xml", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

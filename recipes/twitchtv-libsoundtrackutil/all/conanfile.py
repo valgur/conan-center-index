@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_compilers_min_version'
+#   Missing required method 'configure'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,15 +83,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class TwitchTvLibSoundtrackUtilConan(ConanFile):
     name = "twitchtv-libsoundtrackutil"
-    license = "MIT"
-    homepage = "https://github.com/twitchtv/libsoundtrackutil"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Twitch Soundtrack utility library"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/twitchtv/libsoundtrackutil"
     topics = ("twitch", "soundtrack")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -112,6 +120,13 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("twitch-native-ipc/3.1.1")

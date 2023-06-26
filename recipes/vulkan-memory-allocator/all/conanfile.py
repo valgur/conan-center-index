@@ -10,13 +10,15 @@ required_conan_version = ">=1.52.0"
 
 class VulkanMemoryAllocatorConan(ConanFile):
     name = "vulkan-memory-allocator"
-    license = "MIT"
-    homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Easy to integrate Vulkan memory allocation library."
-    topics = ("vulkan", "memory-allocator", "graphics")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator"
+    topics = ("vulkan", "memory-allocator", "graphics", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

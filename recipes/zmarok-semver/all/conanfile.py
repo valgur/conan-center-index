@@ -6,19 +6,19 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class ZmarokSemverConan(ConanFile):
     name = "zmarok-semver"
+    description = "Semantic versioning for cpp14"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zmarko/semver"
-    description = "Semantic versioning for cpp14"
     topics = ("versioning", "semver", "semantic")
+
     package_type = "library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

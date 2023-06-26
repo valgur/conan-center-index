@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_jni_folder'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy
@@ -10,15 +13,19 @@ class ZuluOpenJDK(ConanFile):
     name = "zulu-openjdk"
     description = "A OpenJDK distribution"
     license = "https://www.azul.com/products/zulu-and-zulu-enterprise/zulu-terms-of-use/"
-    url = "https://github.com/conan-io/conan-center-index/"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.azul.com"
-    topics = ("java", "jdk", "openjdk")
+    topics = ("java", "jdk", "openjdk", "pre-built")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def layout(self):
+        pass
 
     @property
     def _jni_folder(self):
@@ -105,6 +112,9 @@ class ZuluOpenJDK(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         self.cpp_info.includedirs.append(self._jni_folder)
         self.cpp_info.libdirs = []
 

@@ -14,14 +14,15 @@ required_conan_version = ">=1.55.0"
 class TinycborConan(ConanFile):
     name = "tinycbor"
     description = (
-        "A small CBOR encoder and decoder library, optimized for very fast "
-        "operation with very small footprint."
+        "A small CBOR encoder and decoder library, optimized for very fast operation with very small"
+        " footprint."
     )
     license = "MIT"
-    topics = ("cbor", "encoder", "decoder")
-    homepage = "https://github.com/intel/tinycbor"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/intel/tinycbor"
+    topics = ("cbor", "encoder", "decoder")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

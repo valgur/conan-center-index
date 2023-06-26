@@ -9,12 +9,14 @@ required_conan_version = ">=1.53.0"
 
 class WiringpiConan(ConanFile):
     name = "wiringpi"
-    license = "LGPL-3.0"
     description = "GPIO Interface library for the Raspberry Pi"
+    license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://wiringpi.com"
     topics = ("gpio", "raspberrypi")
-    url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -37,12 +39,12 @@ class WiringpiConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} only works for Linux")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

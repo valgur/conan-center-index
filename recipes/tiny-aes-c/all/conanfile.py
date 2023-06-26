@@ -1,31 +1,31 @@
+# Warnings:
+#   Unexpected method '_aes_defs'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class TinyAesCConan(ConanFile):
     name = "tiny-aes-c"
-    license = "Unlicense"
-    homepage = "https://github.com/kokke/tiny-AES-c"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Small portable AES128/192/256 in C"
+    license = "Unlicense"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kokke/tiny-AES-c"
     topics = ("encryption", "crypto", "AES")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        # AES128, AES192 or AES256
         "aes_block_size": ["aes128", "aes192", "aes256"],
-        # enable AES encryption in CBC-mode of operation
         "cbc": [True, False],
-        # enable the basic ECB 16-byte block algorithm
         "ecb": [True, False],
-        # enable encryption in counter-mode
         "ctr": [True, False],
     }
     default_options = {

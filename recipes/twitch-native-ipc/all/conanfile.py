@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_compilers_min_version'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,15 +82,19 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class TwitchNativeIpcConan(ConanFile):
     name = "twitch-native-ipc"
-    license = "MIT"
-    homepage = "https://github.com/twitchtv/twitch-native-ipc"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Twitch natve ipc library"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/twitchtv/twitch-native-ipc"
     topics = ("twitch", "ipc")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -126,6 +133,9 @@ class TwitchNativeIpcConan(ConanFile):
 
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libuv/1.40.0")

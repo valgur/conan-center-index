@@ -17,11 +17,11 @@ required_conan_version = ">=1.53.0"
 
 class ZstdConan(ConanFile):
     name = "zstd"
+    description = "Zstandard - Fast real-time compression algorithm"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/facebook/zstd"
-    description = "Zstandard - Fast real-time compression algorithm"
     topics = ("zstandard", "compression", "algorithm", "decoder")
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

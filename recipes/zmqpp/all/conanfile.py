@@ -4,20 +4,21 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class ZmqppConan(ConanFile):
     name = "zmqpp"
-    homepage = "https://github.com/zeromq/zmqpp"
+    description = (
+        "This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core"
+        " 0mq provides."
+    )
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "This C++ binding for 0mq/zmq is a 'high-level' library that hides "
-        "most of the c-style interface core 0mq provides."
-    )
+    homepage = "https://github.com/zeromq/zmqpp"
     topics = ("zmq", "0mq", "zeromq", "message-queue", "asynchronous")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -1,3 +1,9 @@
+# Warnings:
+#   Disallowed attribute 'generators = 'make''
+#   Unexpected method 'get_defines'
+#   Missing required method 'configure'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,16 +85,21 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class XtrConan(ConanFile):
     name = "xtr"
     description = "C++ Logging Library for Low-latency or Real-time Environments"
-    topics = ("logging", "logger")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/choll/xtr"
-    license = "MIT"
+    topics = ("logging", "logger")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "enable_exceptions": [True, False],
         "enable_lto": [True, False],
@@ -97,6 +108,7 @@ class XtrConan(ConanFile):
         "sink_capacity_kb": "ANY",
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "enable_exceptions": True,
         "enable_lto": False,
@@ -105,14 +117,19 @@ class XtrConan(ConanFile):
         "sink_capacity_kb": None,
     }
 
-    generators = "make"
-
     def config_options(self):
         if Version(self.version) < "1.0.1":
             self.options.rm_safe("sink_capacity_kb")
         if Version(self.version) < "2.0.0":
             self.options.rm_safe("enable_io_uring")
             self.options.rm_safe("enable_io_uring_sqpoll")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("fmt/7.1.3")
@@ -161,6 +178,10 @@ class XtrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def get_defines(self):
         defines = []

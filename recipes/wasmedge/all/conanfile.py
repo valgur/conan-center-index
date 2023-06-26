@@ -53,14 +53,14 @@ class WasmedgeConan(ConanFile):
             **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
                 self._compiler_alias
             ][0],
-            strip_root=True
+            strip_root=True,
         )
         download(
             self,
             filename="LICENSE",
             **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
                 self._compiler_alias
-            ][1]
+            ][1],
         )
 
     def package(self):

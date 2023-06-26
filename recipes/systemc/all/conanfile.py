@@ -80,18 +80,21 @@ from conan.tools.system import package_manager
 import functools
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class SystemcConan(ConanFile):
     name = "systemc"
-    description = """SystemC is a set of C++ classes and macros which provide
-                     an event-driven simulation interface."""
-    homepage = "https://www.accellera.org/"
-    url = "https://github.com/conan-io/conan-center-index"
+    description = (
+        "SystemC is a set of C++ classes and macros which provide\n                     an event-driven"
+        " simulation interface."
+    )
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.accellera.org/"
     topics = ("simulation", "modeling", "esl", "tlm")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -129,6 +132,9 @@ class SystemcConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os == "Macos":

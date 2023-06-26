@@ -1,3 +1,8 @@
+# Warnings:
+#   Disallowed attribute 'generators = 'PkgConfigDeps''
+#   Unexpected method '_configure_autotools'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -156,21 +161,18 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class UserspaceRCUConan(ConanFile):
     name = "userspace-rcu"
-    homepage = "https://liburcu.org/"
     description = "Userspace RCU (read-copy-update) library"
-    topics = "urcu"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-2.1"
-
-    _autotools = None
-
-    settings = "os", "compiler", "build_type", "arch"
-
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://liburcu.org/"
+    topics = "urcu"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -180,13 +182,14 @@ class UserspaceRCUConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "PkgConfigDeps"
-
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
@@ -198,10 +201,9 @@ class UserspaceRCUConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         self._autotools.libs = []
         yes_no = lambda v: "yes" if v else "no"
         conf_args = [
@@ -214,7 +216,8 @@ class UserspaceRCUConan(ConanFile):
     def build(self):
         with chdir(self, self.source_folder):
             self.run("./bootstrap")
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         autotools.make()
 
     def package(self):
@@ -224,7 +227,7 @@ class UserspaceRCUConan(ConanFile):
             src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
         autotools.install()
 
         rm(self, "*.la", self.package_folder, recursive=True)

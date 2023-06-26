@@ -79,17 +79,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class TinkerforgeBindingsConan(ConanFile):
     name = "tinkerforge-bindings"
+    description = "API bindings to control Tinkerforge's Bricks and Bricklets"
+    license = "CC0 1.0 Universal"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.tinkerforge.com/"
-    license = "CC0 1.0 Universal"
-    description = "API bindings to control Tinkerforge's Bricks and Bricklets"
     topics = ("iot", "maker", "bindings")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -112,6 +113,9 @@ class TinkerforgeBindingsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if (

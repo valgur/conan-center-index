@@ -1,3 +1,10 @@
+# Warnings:
+#   Unexpected method '_get_default_build_system'
+#   Unexpected method '_get_configure_folder'
+#   Unexpected method '_build_nmake'
+#   Unexpected method '_configure_autotools'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -79,17 +86,22 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TkConan(ConanFile):
     name = "tk"
-    description = "Tk is a graphical user interface toolkit that takes developing desktop applications to a higher level than conventional approaches."
-    topics = ("gui", "tcl", "scripting", "programming")
-    homepage = "https://tcl.tk"
+    description = (
+        "Tk is a graphical user interface toolkit that takes developing desktop applications to a higher"
+        " level than conventional approaches."
+    )
     license = "TCL"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "https://tcl.tk"
+    topics = ("gui", "tcl", "scripting", "programming")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,7 +111,9 @@ class TkConan(ConanFile):
         "fPIC": True,
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -111,27 +125,30 @@ class TkConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("tcl/{}".format(self.version))
         if self.settings.os == "Linux":
             self.requires("fontconfig/2.13.93")
             self.requires("xorg/system")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
+    def validate(self):
+        if self.options["tcl"].shared != self.options.shared:
+            raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
 
     def build_requirements(self):
         if self.settings.compiler != "Visual Studio":
             if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.build_requires("msys2/cci.latest")
 
-    def validate(self):
-        if self.options["tcl"].shared != self.options.shared:
-            raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         for build_system in ("unix", "win"):

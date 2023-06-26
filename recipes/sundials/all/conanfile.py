@@ -10,16 +10,15 @@ required_conan_version = ">=1.53.0"
 
 class SundialsConan(ConanFile):
     name = "sundials"
-    license = "BSD-3-Clause"
     description = (
-        "SUNDIALS is a family of software packages implemented"
-        " with the goal of providing robust time integrators "
-        "and nonlinear solvers that can easily be incorporated"
-        "into existing simulation codes."
+        "SUNDIALS is a family of software packages implemented with the goal of providing robust time"
+        " integrators and nonlinear solvers that can easily be incorporatedinto existing simulation codes."
     )
-    topics = ("integrators", "ode", "non-linear solvers")
-    homepage = "https://github.com/LLNL/sundials"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/LLNL/sundials"
+    topics = ("integrators", "ode", "non-linear solvers")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

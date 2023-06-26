@@ -8,14 +8,18 @@ required_conan_version = ">=1.53.0"
 
 class TurtleConan(ConanFile):
     name = "turtle"
-    description = "Turtle is a C++ mock object library based on Boost with a focus on usability, simplicity and flexibility."
-    topics = ("mock", "test", "boost")
+    description = (
+        "Turtle is a C++ mock object library based on Boost with a focus on usability, simplicity and"
+        " flexibility."
+    )
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mat007/turtle"
-    license = "BSL-1.0"
-    no_copy_source = True
+    topics = ("mock", "test", "boost", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,3 +43,7 @@ class TurtleConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "include"),
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

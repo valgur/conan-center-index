@@ -10,24 +10,24 @@ required_conan_version = ">=1.54.0"
 
 class XlsxioConan(ConanFile):
     name = "xlsxio"
+    description = "Cross-platform C library for reading values from and writing values to .xlsx files."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/brechtsanders/xlsxio"
-    description = "Cross-platform C library for reading values from and writing values to .xlsx files."
     topics = ("xlsx",)
-    license = "MIT"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_libzip": [True, False],
         "with_minizip_ng": [True, False],
         "with_wide": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_libzip": False,
         "with_minizip_ng": False,
         "with_wide": False,

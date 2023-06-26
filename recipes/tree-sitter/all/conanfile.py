@@ -79,24 +79,29 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import functools
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TreeSitterConan(ConanFile):
     name = "tree-sitter"
-    description = "Tree-sitter is a parser generator tool and an incremental parsing library. It can build a concrete syntax tree for a source file and efficiently update the syntax tree as the source file is edited."
-    topics = ("parser", "incremental", "rust")
+    description = (
+        "Tree-sitter is a parser generator tool and an incremental parsing library. It can build a concrete"
+        " syntax tree for a source file and efficiently update the syntax tree as the source file is edited."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tree-sitter.github.io/tree-sitter"
-    license = "MIT"
+    topics = ("parser", "incremental", "rust")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -111,6 +116,9 @@ class TreeSitterConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -79,17 +79,18 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TCSBankUriTemplateConan(ConanFile):
     name = "tcsbank-uri-template"
     description = "URI Templates expansion and reverse-matching for C++"
-    topics = ("uri-template", "url-template", "rfc-6570")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TinkoffCreditSystems/uri-template"
-    license = "Apache-2.0"
+    topics = ("uri-template", "url-template", "rfc-6570")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -103,14 +104,6 @@ class TCSBankUriTemplateConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["URITEMPLATE_BUILD_TESTING"] = False
-        tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -118,6 +111,9 @@ class TCSBankUriTemplateConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         compiler_name = str(self.settings.compiler)
@@ -129,8 +125,8 @@ class TCSBankUriTemplateConan(ConanFile):
             check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler"
-                " standard version support." % (self.name, compiler_name)
+                "%s recipe lacks information about the %s compiler standard version support."
+                % (self.name, compiler_name)
             )
 
         # Exclude not supported compilers
@@ -159,6 +155,14 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["URITEMPLATE_BUILD_TESTING"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

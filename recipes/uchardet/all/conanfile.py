@@ -80,17 +80,22 @@ from conan.tools.system import package_manager
 import os
 import functools
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class UchardetConan(ConanFile):
     name = "uchardet"
+    description = (
+        "uchardet is an encoding detector library, which takes a sequence of bytes in an unknown character"
+        " encoding and attempts to determine the encoding of the text. Returned encoding names are"
+        " iconv-compatible."
+    )
+    license = "MPL-1.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/freedesktop/uchardet"
-    description = "uchardet is an encoding detector library, which takes a sequence of bytes in an unknown character encoding and attempts to determine the encoding of the text. Returned encoding names are iconv-compatible."
     topics = ("encoding", "detector")
-    license = "MPL-1.1"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -117,8 +122,20 @@ class UchardetConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
+        tc.variables["BUILD_BINARY"] = False
+        tc.variables[
+            "BUILD_STATIC"
+        ] = False  # disable building static libraries when self.options.shared is True
+        tc.generate()
 
     def _patch_sources(self):
         # the following fixes that apply to uchardet version 0.0.7
@@ -143,15 +160,6 @@ class UchardetConan(ConanFile):
             "add_subdirectory(test)",
             "#add_subdirectory(test)",
         )
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
-        tc.variables["BUILD_BINARY"] = False
-        tc.variables[
-            "BUILD_STATIC"
-        ] = False  # disable building static libraries when self.options.shared is True
-        tc.generate()
 
     def build(self):
         self._patch_sources()

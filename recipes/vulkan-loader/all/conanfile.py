@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_is_pkgconf_needed'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
@@ -22,11 +25,12 @@ required_conan_version = ">=1.55.0"
 class VulkanLoaderConan(ConanFile):
     name = "vulkan-loader"
     description = "Khronos official Vulkan ICD desktop loader for Windows, Linux, and MacOS."
-    topics = ("vulkan", "loader", "desktop", "gpu")
-    homepage = "https://github.com/KhronosGroup/Vulkan-Loader"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/Vulkan-Loader"
+    topics = ("vulkan", "loader", "desktop", "gpu")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

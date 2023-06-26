@@ -14,7 +14,9 @@ class TinyCThreadPoolConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bennyhuo/tinycthreadpool"
     topics = ("thread-pool", "threading", "pure-c")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -24,24 +26,24 @@ class TinyCThreadPoolConan(ConanFile):
         "fPIC": True,
     }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("tinycthread/cci.20161001", transitive_headers=True)
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

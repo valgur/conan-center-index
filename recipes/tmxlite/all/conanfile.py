@@ -15,17 +15,18 @@ from conan.tools.files import (
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class TmxliteConan(ConanFile):
     name = "tmxlite"
     description = "A lightweight C++14 parsing library for tmx map files created with the Tiled map editor."
     license = "Zlib"
-    topics = ("tmx", "tiled-map", "parser")
-    homepage = "https://github.com/fallahn/tmxlite"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/fallahn/tmxlite"
+    topics = ("tmx", "tiled-map", "parser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

@@ -12,13 +12,14 @@ required_conan_version = ">=1.54.0"
 
 class OpencoreAmrConan(ConanFile):
     name = "vo-amrwbenc"
-    homepage = "https://sourceforge.net/projects/opencore-amr/"
     description = "VisualOn AMR-WB encoder library."
-    topics = ("audio-codec", "amr-wb", "G.722.2")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/opencore-amr/"
+    topics = ("audio-codec", "amr-wb", "G.722.2")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
