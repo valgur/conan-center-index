@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import inspect
 import io
 import os
@@ -246,7 +248,8 @@ def tidy_conanfile(conanfile_path, write=True):
             details.methods["package_id"] = _indent("def package_id(self):\n    self.info.clear()\n")
     elif is_application:
         details.attrs["package_type"] = "application"
-        details.attrs["no_copy_source"] = None
+        if "no_copy_source" in details.attrs:
+            del details.attrs["no_copy_source"]
         if "pre-built" not in details.attrs["topics"]:
             details.attrs["topics"] = tuple(list(details.attrs["topics"]) + ["pre-built"])
         if "package_info" not in details.methods:
@@ -349,8 +352,8 @@ def tidy_conanfile(conanfile_path, write=True):
         ("_is_mingw", False),
         ("export", False),
         ("export_sources", False),
-        ("config_options", not is_header_only),
-        ("configure", not is_header_only),
+        ("config_options", not (is_header_only or is_application)),
+        ("configure", not (is_header_only or is_application)),
         ("layout", True),
         ("requirements", False),
         ("package_id", is_header_only),
@@ -358,7 +361,7 @@ def tidy_conanfile(conanfile_path, write=True):
         ("validate_build", False),
         ("build_requirements", False),
         ("system_requirements", False),
-        ("source", True),
+        ("source", not is_application),
         ("generate", not (is_header_only or is_application)),
         ("_patch_sources", False),
         ("build", not is_header_only),
@@ -418,6 +421,10 @@ def tidy_conanfile(conanfile_path, write=True):
                 add_method(m)
             add_method(method)
         elif is_required:
+            if method == "config_options" and (
+                "configure" in methods and "self.settings.os" in methods.get("validate", "")
+            ):
+                continue
             warn(f"Missing required method '{method}'")
             if method == "config_options":
                 result.write(_indent("def config_options(self):\n", 1))
