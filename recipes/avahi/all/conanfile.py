@@ -12,23 +12,30 @@ required_conan_version = ">=1.53.0"
 
 class AvahiConan(ConanFile):
     name = "avahi"
-    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
-    provides = "mdnsresponder"
     description = "Avahi - Service Discovery for Linux using mDNS/DNS-SD -- compatible with Bonjour"
-    topics = ("bonjour", "dns", "dns-sd", "mdns")
+    license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lathiat/avahi"
-    license = "LGPL-2.1-only"
-    settings = "os", "arch", "compiler", "build_type"
+    topics = ("bonjour", "dns", "dns-sd", "mdns")
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
+    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
+    provides = "mdnsresponder"
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -41,20 +48,14 @@ class AvahiConan(ConanFile):
         self.requires("gdbm/1.19")
         self.requires("libevent/2.1.12")
 
-    def build_requirements(self):
-        self.tool_requires("glib/2.75.2")
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
-
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} only supports Linux.")
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    def build_requirements(self):
+        self.tool_requires("glib/2.75.2")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

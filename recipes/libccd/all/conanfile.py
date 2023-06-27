@@ -11,9 +11,9 @@ class LibccdConan(ConanFile):
     name = "libccd"
     description = "Library for collision detection between two convex shapes."
     license = "BSD-3-Clause"
-    topics = ("collision", "3d")
-    homepage = "https://github.com/danfis/libccd"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/danfis/libccd"
+    topics = ("collision", "3d")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -65,7 +65,9 @@ class LibccdConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"ccd": "ccd::ccd"}
+            {
+                "ccd": "ccd::ccd",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

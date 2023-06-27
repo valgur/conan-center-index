@@ -10,13 +10,16 @@ required_conan_version = ">=1.51.1"
 
 class ApprovalTestsCppConan(ConanFile):
     name = "approvaltests.cpp"
+    description = (
+        "Approval Tests allow you to verify a chunk of output "
+        "(such as a file) in one operation as opposed to writing "
+        "test assertions for each element."
+    )
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/approvals/ApprovalTests.cpp"
-    license = "Apache-2.0"
-    description = "Approval Tests allow you to verify a chunk of output " \
-                  "(such as a file) in one operation as opposed to writing " \
-                  "test assertions for each element."
     topics = ("testing", "unit-testing", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -41,9 +44,9 @@ class ApprovalTestsCppConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) < "8.6.0":
-            del self.options.with_boosttest
+            self.options.rm_safe("with_boosttest")
         if Version(self.version) < "10.4.0":
-            del self.options.with_cpputest
+            self.options.rm_safe("with_cpputest")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -66,19 +69,26 @@ class ApprovalTestsCppConan(ConanFile):
     def validate(self):
         if Version(self.version) >= "10.2.0":
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-                raise ConanInvalidConfiguration(f"{self.ref} with compiler gcc requires at least compiler version 5")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} with compiler gcc requires at least compiler version 5"
+                )
 
     def source(self):
         for source in self.conan_data["sources"][self.version]:
             url = source["url"]
-            filename = url[url.rfind("/") + 1:]
+            filename = url[url.rfind("/") + 1 :]
             download(self, url, filename, sha256=source["sha256"])
-        rename(self, src=os.path.join(self.source_folder, f"ApprovalTests.v.{self.version}.hpp"),
-                     dst=os.path.join(self.source_folder, self._header_file))
+        rename(
+            self,
+            src=os.path.join(self.source_folder, f"ApprovalTests.v.{self.version}.hpp"),
+            dst=os.path.join(self.source_folder, self._header_file),
+        )
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, self._header_file, src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self, self._header_file, src=self.source_folder, dst=os.path.join(self.package_folder, "include")
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ApprovalTests")

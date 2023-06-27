@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 int main() {
-  printf("%s\n", charls_get_version_string());
+    printf("%s\n", charls_get_version_string());
 
-  return 0;
+    return 0;
 }

@@ -1,19 +1,103 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
 import functools
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class MagnumExtrasConan(ConanFile):
     name = "magnum-extras"
     description = "Extras for the Magnum C++11/C++14 graphics engine"
     license = "MIT"
-    topics = ("magnum", "graphics", "rendering", "3d", "2d", "opengl")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://magnum.graphics"
+    topics = ("magnum", "graphics", "rendering", "3d", "2d", "opengl")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -32,17 +116,8 @@ class MagnumExtrasConan(ConanFile):
         "application": "sdl2",
     }
 
-    short_paths = True
-    generators = "cmake", "cmake_find_package"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -59,13 +134,16 @@ class MagnumExtrasConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("magnum/{}".format(self.version))
-        self.requires("corrade/{}".format(self.version))
+        self.requires(f"magnum/{self.version}")
+        self.requires(f"corrade/{self.version}")
         if self.settings.os in ["iOS", "Emscripten", "Android"] and self.options.ui_gallery:
-            self.requires("magnum-plugins/{}".format(self.version))
+            self.requires(f"magnum-plugins/{self.version}")
 
     def validate(self):
         opt_name = "{}_application".format(self.options.application)
@@ -75,55 +153,62 @@ class MagnumExtrasConan(ConanFile):
             raise ConanInvalidConfiguration("OpenGL ES 3 required, use option 'magnum:target_gl=gles3'")
 
     def build_requirements(self):
-        self.build_requires("corrade/{}".format(self.version))
+        self.build_requires(f"corrade/{self.version}")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
-    def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_STATIC"] = not self.options.shared
-        cmake.definitions["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
-        cmake.definitions["BUILD_TESTS"] = False
-        cmake.definitions["BUILD_GL_TESTS"] = False
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["BUILD_STATIC_PIC"] = self.options.get_safe("fPIC", False)
+        tc.variables["BUILD_TESTS"] = False
+        tc.variables["BUILD_GL_TESTS"] = False
+        tc.variables["WITH_PLAYER"] = self.options.player
+        tc.variables["WITH_UI"] = self.options.ui
+        tc.variables["WITH_UI_GALLERY"] = self.options.ui_gallery
+        tc.variables["MAGNUM_INCLUDE_INSTALL_DIR"] = os.path.join("include", "Magnum")
+        tc.generate()
 
-        cmake.definitions["WITH_PLAYER"] = self.options.player
-        cmake.definitions["WITH_UI"] = self.options.ui
-        cmake.definitions["WITH_UI_GALLERY"] = self.options.ui_gallery
-
-        cmake.configure()
-        return cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
-                              "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
+            "",
+        )
 
-        cmakelists = [os.path.join("src", "Magnum", "Ui", "CMakeLists.txt"),
-                      os.path.join("src", "player","CMakeLists.txt")]
-        app_name = "{}Application".format("XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize())
+        cmakelists = [
+            os.path.join("src", "Magnum", "Ui", "CMakeLists.txt"),
+            os.path.join("src", "player", "CMakeLists.txt"),
+        ]
+        app_name = "{}Application".format(
+            "XEgl" if self.options.application == "xegl" else str(self.options.application).capitalize()
+        )
         for cmakelist in cmakelists:
-            tools.replace_in_file(os.path.join(self._source_subfolder, cmakelist),
-                                  "Magnum::Application",
-                                  "Magnum::{}".format(app_name))
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, cmakelist),
+                "Magnum::Application",
+                f"Magnum::{app_name}",
+            )
 
     def build(self):
         self._patch_sources()
-
-        cm = self._configure_cmake()
-        cm.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        cm = self._configure_cmake()
-        cm.install()
-
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "MagnumExtras")
@@ -136,9 +221,14 @@ class MagnumExtrasConan(ConanFile):
             self.cpp_info.components["ui"].names["cmake_find_package"] = "Ui"
             self.cpp_info.components["ui"].names["cmake_find_package_multi"] = "Ui"
             self.cpp_info.components["ui"].libs = ["MagnumUi{}".format(lib_suffix)]
-            self.cpp_info.components["ui"].requires = ["corrade::interconnect", "magnum::magnum_main", "magnum::gl", "magnum::text"]
+            self.cpp_info.components["ui"].requires = [
+                "corrade::interconnect",
+                "magnum::magnum_main",
+                "magnum::gl",
+                "magnum::text",
+            ]
 
         if self.options.player or self.options.ui_gallery:
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info('Appending PATH environment variable: %s' % bin_path)
+            self.output.info("Appending PATH environment variable: %s" % bin_path)
             self.env_info.path.append(bin_path)

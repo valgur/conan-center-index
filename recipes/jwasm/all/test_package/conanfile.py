@@ -20,7 +20,9 @@ class TestPackageConan(ConanFile):
     def test(self):
         self.run("jwasm -h", ignore_errors=True)
         obj_file = os.path.join(self.build_folder, "Lin64_1.o")
-        asm_file = os.path.join(self.source_folder, "Lin64_1.asm") # content from https://www.japheth.de/JWasm/Lin64_1.html
+        asm_file = os.path.join(
+            self.source_folder, "Lin64_1.asm"
+        )  # content from https://www.japheth.de/JWasm/Lin64_1.html
         self.run(f"jwasm -elf64 -Fo={obj_file} {asm_file}")
         if self._settings_build.os == "Linux" and self._settings_build.arch == "x86_64":
             bin_file = os.path.join(self.build_folder, "Lin64_1")

@@ -2,12 +2,9 @@
 #include "asyncly/executor/MetricsWrapper.h"
 #include "asyncly/executor/ThreadPoolExecutorController.h"
 
-static void task()
-{
-}
+static void task() {}
 
-int main()
-{
+int main() {
     auto threadPool = asyncly::ThreadPoolExecutorController::create(2);
 
     threadPool->get_executor()->post([]() { task(); });

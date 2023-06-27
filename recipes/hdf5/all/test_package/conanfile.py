@@ -18,10 +18,12 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables.update({
-            "HDF5_CXX": self.dependencies["hdf5"].options.enable_cxx,
-            "HDF5_HL": self.dependencies["hdf5"].options.hl,
-        })
+        tc.variables.update(
+            {
+                "HDF5_CXX": self.dependencies["hdf5"].options.enable_cxx,
+                "HDF5_HL": self.dependencies["hdf5"].options.hl,
+            }
+        )
         tc.generate()
 
     def build(self):

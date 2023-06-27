@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeToolchain, is_msvc
@@ -17,7 +25,7 @@ class NASMConan(ConanFile):
     homepage = "http://www.nasm.us"
     description = "The Netwide Assembler, NASM, is an 80x86 and x86-64 assembler"
     license = "BSD-2-Clause"
-    topics = ("nasm", "installer", "assembler")
+    topics = ("installer", "assembler")
 
     settings = "os", "arch", "compiler", "build_type"
 
@@ -84,9 +92,17 @@ class NASMConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if is_msvc(self):
-            copy(self, pattern="*.exe", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                pattern="*.exe",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
             with chdir(self, os.path.join(self.package_folder, "bin")):
                 shutil.copy2("nasm.exe", "nasmw.exe")
                 shutil.copy2("ndisasm.exe", "ndisasmw.exe")

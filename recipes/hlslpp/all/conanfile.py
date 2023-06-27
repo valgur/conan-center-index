@@ -10,10 +10,12 @@ required_conan_version = ">=1.50.0"
 class HlslppConan(ConanFile):
     name = "hlslpp"
     description = "Header-only Math library using hlsl syntax with SSE/NEON support"
-    topics = ("hlsl", "math", "shader", "vector", "matrix", "quaternion")
     license = "MIT"
-    homepage = "https://github.com/redorav/hlslpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/redorav/hlslpp"
+    topics = ("hlsl", "math", "shader", "vector", "matrix", "quaternion", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -28,15 +30,19 @@ class HlslppConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

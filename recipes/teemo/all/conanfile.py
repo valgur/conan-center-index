@@ -7,7 +7,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -18,6 +17,8 @@ class TeemoConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/winsoft666/teemo"
     topics = ("downloader", "libcurl", "speed-limit", "ftp", "http")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -52,11 +53,14 @@ class TeemoConan(ConanFile):
     def validate(self):
         if self.info.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
-        if self.info.settings.compiler == "apple-clang" and Version(self.info.settings.compiler.version) < "12.0":
-            raise ConanInvalidConfiguration(f"{self.ref} can not build on apple-clang < 12.0.") 
+        if (
+            self.info.settings.compiler == "apple-clang"
+            and Version(self.info.settings.compiler.version) < "12.0"
+        ):
+            raise ConanInvalidConfiguration(f"{self.ref} can not build on apple-clang < 12.0.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -75,7 +79,9 @@ class TeemoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -96,6 +102,6 @@ class TeemoConan(ConanFile):
             self.cpp_info.defines.append("TEEMO_EXPORTS")
         else:
             self.cpp_info.defines.append("TEEMO_STATIC")
-            
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

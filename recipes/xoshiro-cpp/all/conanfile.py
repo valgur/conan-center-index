@@ -6,18 +6,20 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class XoshiroCppConan(ConanFile):
     name = "xoshiro-cpp"
     description = "Header-only Xoshiro/Xoroshiro PRNG wrapper library for modern C++ (C++17/C++20)"
     license = "MIT"
-    homepage = "https://github.com/Reputeless/Xoshiro-cpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Reputeless/Xoshiro-cpp"
     topics = ("prng", "xoshiro", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -32,6 +34,9 @@ class XoshiroCppConan(ConanFile):
             "Visual Studio": "16",
             "msvc": "192",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -50,10 +55,13 @@ class XoshiroCppConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*.hpp", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "include", "xoshiro-cpp"))
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.hpp",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include", "xoshiro-cpp"),
+        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

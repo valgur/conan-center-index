@@ -2,7 +2,7 @@
 
 #include "uuid/uuid.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     uuid_t uuid;
     uuid_generate_time_safe(uuid);
 

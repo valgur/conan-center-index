@@ -1,5 +1,5 @@
-#include <xml/parser>
 #include <sstream>
+#include <xml/parser>
 
 int main() {
     std::istringstream is("<root><nested>X</nasted></root>");

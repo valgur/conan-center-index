@@ -12,11 +12,12 @@ required_conan_version = ">=1.53.0"
 
 class LibgcryptConan(ConanFile):
     name = "libgcrypt"
+    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnupg.org/download/index.html#libgcrypt"
-    description = "Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG"
     topics = ("gcrypt", "gnupg", "gpg", "crypto", "cryptography")
-    license = "LGPL-2.1-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -30,7 +31,7 @@ class LibgcryptConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
@@ -43,7 +44,9 @@ class LibgcryptConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
+            raise ConanInvalidConfiguration(
+                "This recipe only support Linux. You can contribute Windows and/or Macos support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -54,10 +57,12 @@ class LibgcryptConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-doc",
-            f"--with-libgpg-error-prefix={self.dependencies['libgpg-error'].package_folder}",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-doc",
+                f"--with-libgpg-error-prefix={self.dependencies['libgpg-error'].package_folder}",
+            ]
+        )
         tc.generate()
 
         deps = AutotoolsDeps(self)

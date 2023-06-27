@@ -49,10 +49,7 @@ class TestPackageConan(ConanFile):
             self.run(f"{files['compiler']} -dumpversion", env="conanbuild")
 
             # Confirm files can be compiled
-            self.run(
-                f"{files['compiler']} {files['src']} -o {files['bin']}",
-                env="conanbuild",
-            )
+            self.run(f"{files['compiler']} {files['src']} -o {files['bin']}", env="conanbuild")
             self.output.info(f"Successfully built {files['bin']}")
 
     def test(self):
@@ -69,16 +66,12 @@ class TestPackageConan(ConanFile):
                     if shutil.which("readelf"):
                         self.run(f"readelf -l {files['bin']}", env="conanrun")
                     else:
-                        self.output.info(
-                            "readelf is not on the PATH. Skipping readelf test."
-                        )
+                        self.output.info("readelf is not on the PATH. Skipping readelf test.")
 
                 if self.settings.os == "Macos":
                     if shutil.which("otool"):
                         self.run(f"otool -L {files['bin']}", env="conanrun")
                     else:
-                        self.output.info(
-                            "otool is not on the PATH. Skipping otool test."
-                        )
+                        self.output.info("otool is not on the PATH. Skipping otool test.")
 
                 self.run(f"{files['bin']}", env="conanrun")

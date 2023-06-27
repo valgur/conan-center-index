@@ -12,11 +12,12 @@ required_conan_version = ">=1.51.1"
 
 class ConfuJson(ConanFile):
     name = "confu_json"
-    homepage = "https://github.com/werto87/confu_json"
     description = "uses boost::fusion to help with serialization; json <-> user defined type"
-    topics = ("json parse", "serialization", "user defined type")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/werto87/confu_json"
+    topics = ("json parse", "serialization", "user defined type", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -60,7 +61,9 @@ class ConfuJson(ConanFile):
             raise ConanInvalidConfiguration("gcc is only supported in versions greater than or equal 1.0.0.")
 
         if is_msvc(self) and Version(self.version) < "0.0.9":
-            raise ConanInvalidConfiguration("Visual Studio is not supported in versions before confu_json/0.0.9")
+            raise ConanInvalidConfiguration(
+                "Visual Studio is not supported in versions before confu_json/0.0.9"
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -79,8 +82,12 @@ class ConfuJson(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h*", src=os.path.join(self.source_folder, "confu_json"),
-                           dst=os.path.join(self.package_folder, "include", "confu_json"))
+        copy(
+            self,
+            "*.h*",
+            src=os.path.join(self.source_folder, "confu_json"),
+            dst=os.path.join(self.package_folder, "include", "confu_json"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -1,24 +1,37 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
-from conan.tools.files import load, get, apply_conandata_patches, export_conandata_patches, rmdir, copy, replace_in_file, save
+from conan.tools.files import (
+    load,
+    get,
+    apply_conandata_patches,
+    export_conandata_patches,
+    rmdir,
+    copy,
+    replace_in_file,
+    save,
+)
 from conan.tools.build import valid_min_cppstd
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PhysXConan(ConanFile):
     name = "physx"
-    description = "The NVIDIA PhysX SDK is a scalable multi-platform " \
-                  "physics solution supporting a wide range of devices, " \
-                  "from smartphones to high-end multicore CPUs and GPUs."
+    description = (
+        "The NVIDIA PhysX SDK is a scalable multi-platform "
+        "physics solution supporting a wide range of devices, "
+        "from smartphones to high-end multicore CPUs and GPUs."
+    )
     license = "BSD-3-Clause"
-    topics = ("physx", "physics", "physics-engine", "physics-simulation", "game-development", "cuda")
-    homepage = "https://github.com/NVIDIAGameWorks/PhysX"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/NVIDIAGameWorks/PhysX"
+    topics = ("physx", "physics", "physics-engine", "physics-simulation", "game-development", "cuda")
 
-    settings = "os", "compiler", "arch", "build_type"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -34,29 +47,25 @@ class PhysXConan(ConanFile):
         "enable_float_point_precise_math": False,
     }
 
-    short_paths = True
-
-    generators = "CMakeDeps"
-
     def export_sources(self):
         export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.build_type != "Release":
-            del self.options.release_build_type
+            self.options.rm_safe("release_build_type")
         if self.settings.os != "Windows":
-            del self.options.enable_float_point_precise_math
+            self.options.rm_safe("enable_float_point_precise_math")
         if self.settings.os not in ["Windows", "Android"]:
-            del self.options.enable_simd
+            self.options.rm_safe("enable_simd")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os not in ["Windows", "Linux", "Macos", "Android", "iOS"]:
@@ -65,9 +74,11 @@ class PhysXConan(ConanFile):
         if self.settings.os == "Macos":
             if self.settings.arch not in ["x86", "x86_64"]:
                 raise ConanInvalidConfiguration("{} only supports x86 and x86_64 on macOS".format(self.name))
-            
+
             if valid_min_cppstd(self, 17):
-                raise ConanInvalidConfiguration("{} is not supported with C++ 17. Contributions are welcome.".format(self.name))
+                raise ConanInvalidConfiguration(
+                    "{} is not supported with C++ 17. Contributions are welcome.".format(self.name)
+                )
 
         build_type = self.settings.build_type
         if build_type not in ["Debug", "RelWithDebInfo", "Release"]:
@@ -81,13 +92,12 @@ class PhysXConan(ConanFile):
             if msvc_runtime_flag(self) not in allowed_runtimes:
                 raise ConanInvalidConfiguration(
                     "Visual Studio runtime {0} is required for {1} build type".format(
-                        " or ".join(allowed_runtimes),
-                        build_type,
+                        " or ".join(allowed_runtimes), build_type
                     )
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -101,17 +111,16 @@ class PhysXConan(ConanFile):
         tc.cache_variables["PX_BUILDPUBLICSAMPLES"] = False
         tc.cache_variables["PX_CMAKE_SUPPRESS_REGENERATION"] = False
         cmakemodules_abspath = os.path.join(
-            self.build_folder,
-            self.source_folder,
-            "externals",
-            self._get_cmakemodules_subfolder()
+            self.build_folder, self.source_folder, "externals", self._get_cmakemodules_subfolder()
         )
         tc.cache_variables["CMAKEMODULES_PATH"] = cmakemodules_abspath.replace("\\", "/")
         tc.cache_variables["PHYSX_ROOT_DIR"] = os.path.join(self.source_folder, "physx").replace("\\", "/")
 
         # Options defined in physx/source/compiler/cmake/CMakeLists.txt
         if self.settings.os in ["Windows", "Android"]:
-            tc.cache_variables["PX_SCALAR_MATH"] = not self.options.enable_simd # this value doesn't matter on other os
+            tc.cache_variables[
+                "PX_SCALAR_MATH"
+            ] = not self.options.enable_simd  # this value doesn't matter on other os
         tc.cache_variables["PX_GENERATE_STATIC_LIBRARIES"] = not self.options.shared
         tc.cache_variables["PX_EXPORT_LOWLEVEL_PDB"] = False
         tc.cache_variables["PXSHARED_PATH"] = os.path.join(self.source_folder, "pxshared").replace("\\", "/")
@@ -130,22 +139,21 @@ class PhysXConan(ConanFile):
 
         if self.settings.os == "Windows":
             # Options defined in physx/source/compiler/cmake/windows/CMakeLists.txt
-            tc.cache_variables["PX_COPY_EXTERNAL_DLL"] = False # External dll copy disabled, PhysXDevice dll copy is handled afterward during conan packaging
+            tc.cache_variables[
+                "PX_COPY_EXTERNAL_DLL"
+            ] = False  # External dll copy disabled, PhysXDevice dll copy is handled afterward during conan packaging
             tc.cache_variables["PX_FLOAT_POINT_PRECISE_MATH"] = self.options.enable_float_point_precise_math
-            tc.cache_variables["PX_USE_NVTX"] = False # Could be controlled by an option if NVTX had a recipe, disabled for the moment
-            tc.cache_variables["GPU_DLL_COPIED"] = True # PhysXGpu dll copy disabled, this copy is handled afterward during conan packaging
+            tc.cache_variables[
+                "PX_USE_NVTX"
+            ] = False  # Could be controlled by an option if NVTX had a recipe, disabled for the moment
+            tc.cache_variables[
+                "GPU_DLL_COPIED"
+            ] = True  # PhysXGpu dll copy disabled, this copy is handled afterward during conan packaging
 
             # Options used in physx/source/compiler/cmake/windows/PhysX.cmake
             tc.cache_variables["PX_GENERATE_GPU_PROJECTS"] = False
 
         tc.generate()
-
-    def build(self):
-        self._patch_sources()
-
-        cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "physx/compiler/public"))
-        cmake.build(build_type=self._get_physx_build_type())
 
     def _get_cmakemodules_subfolder(self):
         return "CMakeModules" if self.settings.os == "Windows" else "cmakemodules"
@@ -155,17 +163,24 @@ class PhysXConan(ConanFile):
 
         # There is no reason to force consumer of PhysX public headers to use one of
         # NDEBUG or _DEBUG, since none of them relies on NDEBUG or _DEBUG
-        replace_in_file(self, os.path.join(self.source_folder, "pxshared", "include", "foundation", "PxPreprocessor.h"),
-                              "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
-                              "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "pxshared", "include", "foundation", "PxPreprocessor.h"),
+            "#error Exactly one of NDEBUG and _DEBUG needs to be defined!",
+            "// #error Exactly one of NDEBUG and _DEBUG needs to be defined!",
+        )
 
         physx_source_cmake_dir = os.path.join(self.source_folder, "physx", "source", "compiler", "cmake")
 
         # Remove global and specifics hard-coded PIC settings
         # (conan's CMake build helper properly sets CMAKE_POSITION_INDEPENDENT_CODE
         # depending on options)
-        replace_in_file(self, os.path.join(physx_source_cmake_dir, "CMakeLists.txt"),
-                              "SET(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        replace_in_file(
+            self,
+            os.path.join(physx_source_cmake_dir, "CMakeLists.txt"),
+            "SET(CMAKE_POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
         for cmake_file in (
             "FastXml.cmake",
             "LowLevel.cmake",
@@ -184,16 +199,26 @@ class PhysXConan(ConanFile):
             "SimulationController.cmake",
         ):
             target, _ = os.path.splitext(os.path.basename(cmake_file))
-            replace_in_file(self, os.path.join(physx_source_cmake_dir, cmake_file),
-                                  "SET_TARGET_PROPERTIES({} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)".format(target),
-                                  "")
+            replace_in_file(
+                self,
+                os.path.join(physx_source_cmake_dir, cmake_file),
+                "SET_TARGET_PROPERTIES({} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)".format(target),
+                "",
+            )
 
         # No error for compiler warnings
-        replace_in_file(self, os.path.join(physx_source_cmake_dir, "windows", "CMakeLists.txt"),
-                              "/WX", "")
+        replace_in_file(self, os.path.join(physx_source_cmake_dir, "windows", "CMakeLists.txt"), "/WX", "")
         for cmake_os in ("linux", "mac", "android", "ios"):
-            replace_in_file(self, os.path.join(physx_source_cmake_dir, cmake_os, "CMakeLists.txt"),
-                                  "-Werror", "")
+            replace_in_file(
+                self, os.path.join(physx_source_cmake_dir, cmake_os, "CMakeLists.txt"), "-Werror", ""
+            )
+
+    def build(self):
+        self._patch_sources()
+
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "physx/compiler/public"))
+        cmake.build(build_type=self._get_physx_build_type())
 
     def _get_physx_build_type(self):
         if self.settings.build_type == "Debug":
@@ -208,11 +233,11 @@ class PhysXConan(ConanFile):
 
     def _get_target_build_platform(self):
         return {
-            "Windows" : "windows",
-            "Linux" : "linux",
-            "Macos" : "mac",
-            "Android" : "android",
-            "iOS" : "ios"
+            "Windows": "windows",
+            "Linux": "linux",
+            "Macos": "mac",
+            "Android": "android",
+            "iOS": "ios",
         }.get(str(self.settings.os))
 
     def package(self):
@@ -255,27 +280,48 @@ class PhysXConan(ConanFile):
             physx_gpu_dir = os.path.join(external_bin_dir, "linux.clang", physx_build_type)
             copy(self, pattern="*PhysXGpu*.so", dst=package_dst_lib_dir, src=physx_gpu_dir, keep_path=False)
         elif self.settings.os == "Windows" and is_msvc(self):
-            physx_arch = {"x86": "x86_32", "x86_64": "x86_64"}.get(str(self.settings.arch))
-            dll_info_list = [{
-                "pattern": "PhysXGpu*.dll",
-                "vc_ver": {"x86": "vc120", "x86_64": "vc140"}.get(str(self.settings.arch))
-            }, {
-                "pattern": "PhysXDevice*.dll",
-                "vc_ver": {"180": "vc120", "190": "vc140", "191": "vc141"}.get(str(compiler_version), "vc142")
-            }]
-            
+            physx_arch = {
+                "x86": "x86_32",
+                "x86_64": "x86_64",
+            }.get(str(self.settings.arch))
+            dll_info_list = [
+                {
+                    "pattern": "PhysXGpu*.dll",
+                    "vc_ver": {
+                        "x86": "vc120",
+                        "x86_64": "vc140",
+                    }.get(str(self.settings.arch)),
+                },
+                {
+                    "pattern": "PhysXDevice*.dll",
+                    "vc_ver": {
+                        "180": "vc120",
+                        "190": "vc140",
+                        "191": "vc141",
+                    }.get(str(compiler_version), "vc142"),
+                },
+            ]
+
             package_dst_bin_dir = os.path.join(self.package_folder, "bin")
 
             for dll_info in dll_info_list:
                 dll_subdir = "win.{0}.{1}.mt".format(physx_arch, dll_info.get("vc_ver"))
                 dll_dir = os.path.join(external_bin_dir, dll_subdir, physx_build_type)
-                copy(self, pattern=dll_info.get("pattern"), dst=package_dst_bin_dir, src=dll_dir, keep_path=False)
+                copy(
+                    self,
+                    pattern=dll_info.get("pattern"),
+                    dst=package_dst_bin_dir,
+                    src=dll_dir,
+                    keep_path=False,
+                )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PhysX")
 
         # PhysXFoundation
-        self.cpp_info.components["physxfoundation"].set_property("cmake_target_name", "PhysX::PhysXFoundation")
+        self.cpp_info.components["physxfoundation"].set_property(
+            "cmake_target_name", "PhysX::PhysXFoundation"
+        )
         self.cpp_info.components["physxfoundation"].libs = ["PhysXFoundation"]
         if self.settings.os == "Linux":
             self.cpp_info.components["physxfoundation"].system_libs = ["m", "pthread", "rt"]
@@ -312,9 +358,15 @@ class PhysXConan(ConanFile):
             self.cpp_info.components["physxmain"].requires.append("physxtask")
 
         # PhysXCharacterKinematic
-        self.cpp_info.components["physxcharacterkinematic"].set_property("cmake_target_name", "PhysX::PhysXCharacterKinematic")
+        self.cpp_info.components["physxcharacterkinematic"].set_property(
+            "cmake_target_name", "PhysX::PhysXCharacterKinematic"
+        )
         self.cpp_info.components["physxcharacterkinematic"].libs = ["PhysXCharacterKinematic"]
-        self.cpp_info.components["physxcharacterkinematic"].requires = ["physxfoundation", "physxcommon", "physxextensions"]
+        self.cpp_info.components["physxcharacterkinematic"].requires = [
+            "physxfoundation",
+            "physxcommon",
+            "physxextensions",
+        ]
 
         # PhysXCooking
         self.cpp_info.components["physxcooking"].set_property("cmake_target_name", "PhysX::PhysXCooking")
@@ -326,12 +378,23 @@ class PhysXConan(ConanFile):
         # PhysXVehicle
         self.cpp_info.components["physxvehicle"].set_property("cmake_target_name", "PhysX::PhysXVehicle")
         self.cpp_info.components["physxvehicle"].libs = ["PhysXVehicle"]
-        self.cpp_info.components["physxvehicle"].requires = ["physxfoundation", "physxpvdsdk", "physxextensions"]
+        self.cpp_info.components["physxvehicle"].requires = [
+            "physxfoundation",
+            "physxpvdsdk",
+            "physxextensions",
+        ]
 
         # PhysXExtensions
-        self.cpp_info.components["physxextensions"].set_property("cmake_target_name", "PhysX::PhysXExtensions")
+        self.cpp_info.components["physxextensions"].set_property(
+            "cmake_target_name", "PhysX::PhysXExtensions"
+        )
         self.cpp_info.components["physxextensions"].libs = ["PhysXExtensions"]
-        self.cpp_info.components["physxextensions"].requires = ["physxfoundation", "physxpvdsdk", "physxmain", "physxcommon"]
+        self.cpp_info.components["physxextensions"].requires = [
+            "physxfoundation",
+            "physxpvdsdk",
+            "physxmain",
+            "physxcommon",
+        ]
 
         # TODO: remove in conan v2 once cmake_find_package* removed
         self.cpp_info.names["cmake_find_package"] = "PhysX"
@@ -347,8 +410,12 @@ class PhysXConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["physxtask"].names["cmake_find_package"] = "PhysXTask"
             self.cpp_info.components["physxtask"].names["cmake_find_package_multi"] = "PhysXTask"
-        self.cpp_info.components["physxcharacterkinematic"].names["cmake_find_package"] = "PhysXCharacterKinematic"
-        self.cpp_info.components["physxcharacterkinematic"].names["cmake_find_package_multi"] = "PhysXCharacterKinematic"
+        self.cpp_info.components["physxcharacterkinematic"].names[
+            "cmake_find_package"
+        ] = "PhysXCharacterKinematic"
+        self.cpp_info.components["physxcharacterkinematic"].names[
+            "cmake_find_package_multi"
+        ] = "PhysXCharacterKinematic"
         self.cpp_info.components["physxcooking"].names["cmake_find_package"] = "PhysXCooking"
         self.cpp_info.components["physxcooking"].names["cmake_find_package_multi"] = "PhysXCooking"
         self.cpp_info.components["physxvehicle"].names["cmake_find_package"] = "PhysXVehicle"

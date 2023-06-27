@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES C CXX)
 
 find_package(libconfig REQUIRED CONFIG)
@@ -8,3 +8,4 @@ target_link_libraries(${PROJECT_NAME} libconfig::libconfig)
 
 add_executable(${PROJECT_NAME}++ test_package.cpp)
 target_link_libraries(${PROJECT_NAME}++ libconfig::libconfig++)
+target_compile_features(${PROJECT_NAME}++ PRIVATE cxx_std_11)

@@ -5,21 +5,36 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class OsqpConan(ConanFile):
     name = "osqp"
-    package_type = "library"
-    description = "The OSQP (Operator Splitting Quadratic Program) solver is a numerical optimization package."
+    description = (
+        "The OSQP (Operator Splitting Quadratic Program) solver is a numerical optimization package."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://osqp.org/"
-    topics = ("machine-learning", "control", "optimization", "svm", "solver", "lasso", "portfolio-optimization",
-              "numerical-optimization", "quadratic-programming", "convex-optimization", "model-predictive-control")
+    topics = (
+        "machine-learning",
+        "control",
+        "optimization",
+        "svm",
+        "solver",
+        "lasso",
+        "portfolio-optimization",
+        "numerical-optimization",
+        "quadratic-programming",
+        "convex-optimization",
+        "model-predictive-control",
+    )
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
     }
-    default_options = { 
+    default_options = {
         "shared": False,
         "fPIC": True,
     }
@@ -42,7 +57,7 @@ class OsqpConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables['UNITTESTS'] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
+        tc.variables["UNITTESTS"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.variables["PRINTING"] = True
         tc.variables["PROFILING"] = True
         tc.variables["CTRLC"] = True
@@ -58,7 +73,9 @@ class OsqpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

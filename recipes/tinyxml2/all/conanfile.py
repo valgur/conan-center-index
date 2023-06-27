@@ -9,12 +9,13 @@ required_conan_version = ">=1.54.0"
 
 class Tinyxml2Conan(ConanFile):
     name = "tinyxml2"
-    description = "Simple, small, efficient, C++ XML parser that can be " \
-                  "easily integrated into other programs."
+    description = (
+        "Simple, small, efficient, C++ XML parser that can be easily integrated into other programs."
+    )
     license = "Zlib"
-    topics = ("tinyxml2", "xml", "parser")
-    homepage = "https://github.com/leethomason/tinyxml2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/leethomason/tinyxml2"
+    topics = ("xml", "parser")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

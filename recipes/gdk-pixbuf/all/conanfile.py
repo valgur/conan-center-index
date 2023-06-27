@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -18,10 +26,10 @@ required_conan_version = ">=1.53.0"
 class GdkPixbufConan(ConanFile):
     name = "gdk-pixbuf"
     description = "toolkit for image loading and pixel buffer manipulation"
-    topics = ("gdk-pixbuf", "image")
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://developer.gnome.org/gdk-pixbuf/"
-    license = "LGPL-2.1-or-later"
+    topics = ("image",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -41,14 +49,13 @@ class GdkPixbufConan(ConanFile):
         "with_libjpeg": "libjpeg",
         "with_introspection": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -103,7 +110,11 @@ class GdkPixbufConan(ConanFile):
 
     @property
     def _requires_compiler_rt(self):
-        return self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "12" and self.settings.build_type == "Debug"
+        return (
+            self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) <= "12"
+            and self.settings.build_type == "Debug"
+        )
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -118,29 +129,35 @@ class GdkPixbufConan(ConanFile):
         tc = MesonToolchain(self)
         enabled_disabled = lambda v: "enabled" if v else "disabled"
         true_false = lambda v: "true" if v else "false"
-        tc.project_options.update({
-            "builtin_loaders": "all",
-            "gio_sniffing": "false",
-            "introspection": enabled_disabled(self.options.with_introspection),
-            "docs": "false",
-            "man": "false",
-            "installed_tests": "false"
-        })
+        tc.project_options.update(
+            {
+                "builtin_loaders": "all",
+                "gio_sniffing": "false",
+                "introspection": enabled_disabled(self.options.with_introspection),
+                "docs": "false",
+                "man": "false",
+                "installed_tests": "false",
+            }
+        )
         if Version(self.version) < "2.42.0":
             tc.project_options["gir"] = "false"
 
         if Version(self.version) >= "2.42.8":
-            tc.project_options.update({
-                "png": enabled_disabled(self.options.with_libpng),
-                "tiff": enabled_disabled(self.options.with_libtiff),
-                "jpeg": enabled_disabled(self.options.with_libjpeg)
-            })
+            tc.project_options.update(
+                {
+                    "png": enabled_disabled(self.options.with_libpng),
+                    "tiff": enabled_disabled(self.options.with_libtiff),
+                    "jpeg": enabled_disabled(self.options.with_libjpeg),
+                }
+            )
         else:
-            tc.project_options.update({
-                "png": true_false(self.options.with_libpng),
-                "tiff": true_false(self.options.with_libtiff),
-                "jpeg": true_false(self.options.with_libjpeg)
-            })
+            tc.project_options.update(
+                {
+                    "png": true_false(self.options.with_libpng),
+                    "tiff": true_false(self.options.with_libtiff),
+                    "jpeg": true_false(self.options.with_libjpeg),
+                }
+            )
 
         # Workaround for https://bugs.llvm.org/show_bug.cgi?id=16404
         # Only really for the purposes of building on CCI - end users can
@@ -155,13 +172,22 @@ class GdkPixbufConan(ConanFile):
         meson_build = os.path.join(self.source_folder, "meson.build")
         replace_in_file(self, meson_build, "subdir('tests')", "#subdir('tests')")
         replace_in_file(self, meson_build, "subdir('thumbnailer')", "#subdir('thumbnailer')")
-        replace_in_file(self, meson_build,
-                              "gmodule_dep.get_variable(pkgconfig: 'gmodule_supported')" if Version(self.version) >= "2.42.6"
-                              else "gmodule_dep.get_pkgconfig_variable('gmodule_supported')", "'true'")
+        replace_in_file(
+            self,
+            meson_build,
+            "gmodule_dep.get_variable(pkgconfig: 'gmodule_supported')"
+            if Version(self.version) >= "2.42.6"
+            else "gmodule_dep.get_pkgconfig_variable('gmodule_supported')",
+            "'true'",
+        )
         # workaround https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/issues/203
         if Version(self.version) >= "2.42.6":
-            replace_in_file(self, os.path.join(self.source_folder, "build-aux", "post-install.py"),
-                                  "close_fds=True", "close_fds=(sys.platform != 'win32')")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build-aux", "post-install.py"),
+                "close_fds=True",
+                "close_fds=(sys.platform != 'win32')",
+            )
         if Version(self.version) >= "2.42.9":
             replace_in_file(self, meson_build, "is_msvc_like ? 'png' : 'libpng'", "'libpng'")
             replace_in_file(self, meson_build, "is_msvc_like ? 'jpeg' : 'libjpeg'", "'libjpeg'")
@@ -204,15 +230,17 @@ class GdkPixbufConan(ConanFile):
             "gdk_pixbuf_cache_file": "${gdk_pixbuf_binarydir}/loaders.cache",
             "gdk_pixbuf_csource": "${bindir}/gdk-pixbuf-csource",
             "gdk_pixbuf_pixdata": "${bindir}/gdk-pixbuf-pixdata",
-            "gdk_pixbuf_query_loaders": "${bindir}/gdk-pixbuf-query-loaders"
+            "gdk_pixbuf_query_loaders": "${bindir}/gdk-pixbuf-query-loaders",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()))
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
+        )
 
         gdk_pixbuf_pixdata = os.path.join(self.package_folder, "bin", "gdk-pixbuf-pixdata")
         self.runenv_info.define_path("GDK_PIXBUF_PIXDATA", gdk_pixbuf_pixdata)
-        self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata # remove in conan v2?
+        self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata  # remove in conan v2?
+
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
@@ -220,12 +248,13 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         return
     from conan.tools.files import rename
     import glob
+
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

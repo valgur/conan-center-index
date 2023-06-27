@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -10,10 +19,10 @@ required_conan_version = ">=1.53.0"
 class RTTRConan(ConanFile):
     name = "rttr"
     description = "Run Time Type Reflection library"
-    topics = ("reflection",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rttrorg/rttr"
-    license = "MIT"
+    topics = ("reflection",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

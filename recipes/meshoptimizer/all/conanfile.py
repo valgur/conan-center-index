@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.54.0"
@@ -10,10 +18,10 @@ required_conan_version = ">=1.54.0"
 class MeshOptimizerConan(ConanFile):
     name = "meshoptimizer"
     description = "Mesh optimization library that makes meshes smaller and faster to render"
-    topics = ("mesh", "optimizer", "3d")
-    homepage = "https://github.com/zeux/meshoptimizer"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zeux/meshoptimizer"
+    topics = ("mesh", "optimizer", "3d")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

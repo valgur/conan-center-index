@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class CSVMONEKYConan(ConanFile):
     name = "csvmonkey"
     description = "Header-only vectorized, lazy-decoding, zero-copy CSV file parser"
@@ -15,6 +16,8 @@ class CSVMONEKYConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dw/csvmonkey/"
     topics = ("csv-parser", "header-only", "vectorized")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_spirit": [True, False],
@@ -42,7 +45,7 @@ class CSVMONEKYConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        if self.settings.arch not in ("x86", "x86_64",):
+        if self.settings.arch not in ("x86", "x86_64"):
             raise ConanInvalidConfiguration(f"{self.ref} requires x86 architecture.")
 
         if is_msvc(self):
@@ -52,7 +55,9 @@ class CSVMONEKYConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

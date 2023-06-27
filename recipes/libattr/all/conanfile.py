@@ -11,10 +11,11 @@ required_conan_version = ">=1.53.0"
 class LibAttrConan(ConanFile):
     name = "libattr"
     description = "Commands for Manipulating Filesystem Extended Attributes"
-    topics = ("attr", "filesystem")
     license = "GPL-2.0-or-later"
-    homepage = "https://savannah.nongnu.org/projects/attr/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://savannah.nongnu.org/projects/attr/"
+    topics = ("attr", "filesystem")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -52,15 +53,23 @@ class LibAttrConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=os.path.join(self.source_folder, "doc"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=os.path.join(self.source_folder, "doc"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         mkdir(self, os.path.join(self.package_folder, "res"))
-        rename(self, os.path.join(self.package_folder, "etc", "xattr.conf"),
-                     os.path.join(self.package_folder, "res", "xattr.conf"))
+        rename(
+            self,
+            os.path.join(self.package_folder, "etc", "xattr.conf"),
+            os.path.join(self.package_folder, "res", "xattr.conf"),
+        )
         rmdir(self, os.path.join(self.package_folder, "etc"))
 
     def package_info(self):

@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <dbus/dbus.h>
+#include <stdio.h>
 
 int main() {
     int major_version = 0;

@@ -1,6 +1,5 @@
 #include "isl/ctx.h"
 
-
 int main() {
     isl_ctx *ctx = isl_ctx_alloc();
 

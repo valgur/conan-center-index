@@ -34,10 +34,6 @@ const GLSLstd450 kSin = GLSLstd450Sin;
 const OpenCLLIB::Entrypoints kNative_cos = OpenCLLIB::Native_cos;
 const spv::Op kNop = spv::OpNop;
 
-}
+} // namespace
 
-int main(int argc, char ** argv)
-{
-
-    return 0;
-}
+int main() { return 0; }

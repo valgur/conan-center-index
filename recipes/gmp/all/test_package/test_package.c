@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main (void) {
-    mpz_t a,b,c;
+int main(void) {
+    mpz_t a, b, c;
     mpz_init_set_str(a, "1234", 10);
     mpz_init_set_str(b, "4321", 10);
     mpz_init(c);

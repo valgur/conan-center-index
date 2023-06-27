@@ -13,7 +13,7 @@ class UncrustifyConan(ConanFile):
     name = "uncrustify"
     description = "Code beautifier"
     license = "GPL-2.0-or-later"
-    topics = "beautifier", "command-line"
+    topics = ("beautifier", "command-line")
     homepage = "https://github.com/uncrustify/uncrustify"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -29,8 +29,7 @@ class UncrustifyConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=7")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -51,8 +50,11 @@ class UncrustifyConan(ConanFile):
 
         if is_msvc(self):
             mkdir(self, os.path.join(self.package_folder, "bin"))
-            rename(self, os.path.join(self.package_folder, "uncrustify.exe"),
-                         os.path.join(self.package_folder, "bin", "uncrustify.exe"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "uncrustify.exe"),
+                os.path.join(self.package_folder, "bin", "uncrustify.exe"),
+            )
             os.remove(os.path.join(self.package_folder, "AUTHORS"))
             os.remove(os.path.join(self.package_folder, "BUGS"))
             os.remove(os.path.join(self.package_folder, "COPYING"))

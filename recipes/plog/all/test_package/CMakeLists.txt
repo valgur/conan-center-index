@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 find_package(plog REQUIRED CONFIG)
@@ -9,3 +9,4 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE plog::plog)
 if(plog_VERSION VERSION_GREATER_EQUAL "1.1.6")
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE -DPLOG_EXPLICIT_INIT)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

@@ -11,10 +11,12 @@ required_conan_version = ">=1.47.0"
 class AwsCMQTT(ConanFile):
     name = "aws-c-mqtt"
     description = "C99 implementation of the MQTT 3.1.1 specification."
-    license = "Apache-2.0",
+    license = ("Apache-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-mqtt"
     topics = ("aws", "amazon", "cloud", "mqtt")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,18 +33,12 @@ class AwsCMQTT(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("aws-c-common/0.8.2")
@@ -54,11 +50,8 @@ class AwsCMQTT(ConanFile):
             self.requires("aws-c-io/0.13.4")
             self.requires("aws-c-http/0.6.22")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -74,7 +67,9 @@ class AwsCMQTT(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-mqtt"))
@@ -96,5 +91,5 @@ class AwsCMQTT(ConanFile):
             "aws-c-common::aws-c-common-lib",
             "aws-c-cal::aws-c-cal-lib",
             "aws-c-io::aws-c-io-lib",
-            "aws-c-http::aws-c-http-lib"
+            "aws-c-http::aws-c-http-lib",
         ]

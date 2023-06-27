@@ -8,6 +8,7 @@ import textwrap
 
 required_conan_version = ">=1.53.0"
 
+
 class DocoptCppConan(ConanFile):
     name = "docopt.cpp"
     description = "C++11 port of docopt"
@@ -16,6 +17,7 @@ class DocoptCppConan(ConanFile):
     homepage = "https://github.com/docopt/docopt.cpp"
     topics = ("cli", "getopt", "options", "argparser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -72,7 +74,12 @@ class DocoptCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -81,7 +88,7 @@ class DocoptCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._cmake_target: "docopt::{}".format(self._cmake_target)}
+            {self._cmake_target: "docopt::{}".format(self._cmake_target)},
         )
 
     @property
@@ -91,12 +98,12 @@ class DocoptCppConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """)
         save(self, module_file, content)
 
     @property
@@ -123,5 +130,7 @@ class DocoptCppConan(ConanFile):
         self.cpp_info.components["docopt"].names["cmake_find_package"] = self._cmake_target
         self.cpp_info.components["docopt"].names["cmake_find_package_multi"] = self._cmake_target
         self.cpp_info.components["docopt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["docopt"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["docopt"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["docopt"].set_property("cmake_target_name", self._cmake_target)

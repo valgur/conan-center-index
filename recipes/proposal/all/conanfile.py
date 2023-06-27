@@ -12,14 +12,14 @@ required_conan_version = ">=1.53.0"
 
 class PROPOSALConan(ConanFile):
     name = "proposal"
-    homepage = "https://github.com/tudo-astroparticlephysics/PROPOSAL"
-    license = "LGPL-3.0"
-    package_type = "library"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "monte Carlo based lepton and photon propagator"
+    license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/tudo-astroparticlephysics/PROPOSAL"
     topics = ("propagator", "lepton", "photon", "stochastic")
 
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -47,7 +47,7 @@ class PROPOSALConan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -69,15 +69,11 @@ class PROPOSALConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Can not build shared library on Visual Studio."
-            )
+            raise ConanInvalidConfiguration("Can not build shared library on Visual Studio.")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        minimum_version = self._minimum_compilers_version.get(
-            str(self.settings.compiler), False
-        )
+        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support"
@@ -85,6 +81,15 @@ class PROPOSALConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["BUILD_PYTHON"] = self.options.with_python
+        tc.cache_variables["BUILD_DOCUMENTATION"] = False
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -96,15 +101,6 @@ class PROPOSALConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.cache_variables["BUILD_TESTING"] = False
-        tc.cache_variables["BUILD_PYTHON"] = self.options.with_python
-        tc.cache_variables["BUILD_DOCUMENTATION"] = False
-        tc.generate()
-        deps = CMakeDeps(self)
-        deps.generate()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PROPOSAL")

@@ -8,25 +8,21 @@
  *
  */
 
-#include <string.h>
 #include <libxml/parser.h>
+#include <libxslt/transform.h>
 #include <libxslt/xslt.h>
 #include <libxslt/xsltInternals.h>
-#include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
-
-
+#include <string.h>
 
 extern int xmlLoadExtDtdDefaultValue;
 
 static void usage(const char *name) {
     printf("Usage: %s [options] stylesheet file [file ...]\n", name);
     printf("      --param name value : pass a (parameter,value) pair\n");
-
 }
 
-int
-main(int argc, char **argv) {
+int main(int argc, char **argv) {
     int i;
     const char *params[16 + 1];
     int nbparams = 0;
@@ -35,14 +31,13 @@ main(int argc, char **argv) {
 
     if (argc <= 1) {
         usage(argv[0]);
-        return(1);
+        return (1);
     }
 
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-')
             break;
-        if ((!strcmp(argv[i], "-param")) ||
-                       (!strcmp(argv[i], "--param"))) {
+        if ((!strcmp(argv[i], "-param")) || (!strcmp(argv[i], "--param"))) {
             i++;
             params[nbparams++] = argv[i++];
             params[nbparams++] = argv[i];
@@ -72,6 +67,5 @@ main(int argc, char **argv) {
 
     xsltCleanupGlobals();
     xmlCleanupParser();
-    return(0);
-
+    return (0);
 }

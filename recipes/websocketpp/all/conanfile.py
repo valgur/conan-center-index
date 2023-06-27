@@ -9,10 +9,11 @@ required_conan_version = ">=1.52.0"
 class WebsocketPPConan(ConanFile):
     name = "websocketpp"
     description = "Header only C++ library that implements RFC6455 The WebSocket Protocol"
-    topics = ("websocketpp", "websocket", "network", "web", "rfc6455", "header-only")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zaphoyd/websocketpp"
-    license = "BSD-3-Clause"
+    topics = ("websocket", "network", "web", "rfc6455", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -25,6 +26,7 @@ class WebsocketPPConan(ConanFile):
         "with_openssl": True,
         "with_zlib": True,
     }
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,7 +57,12 @@ class WebsocketPPConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, os.path.join("websocketpp","*.hpp"), src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            os.path.join("websocketpp", "*.hpp"),
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "websocketpp")

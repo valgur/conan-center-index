@@ -3,13 +3,12 @@
 #include <cstdlib>
 #include <iostream>
 
-
-int main()
-{
+int main() {
     std::cout << "libpqxx version: " << PQXX_VERSION << std::endl;
 
     try {
-        pqxx::connection conn("hostaddr='.conan' port=5432 dbname=conan user=conan connect_timeout=2");
+        pqxx::connection conn(
+            "hostaddr='.conan' port=5432 dbname=conan user=conan connect_timeout=2");
 
         pqxx::work tx(conn);
 

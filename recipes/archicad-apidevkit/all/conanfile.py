@@ -1,23 +1,33 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.47.0"
 
 
 class ArchicadApidevkitConan(ConanFile):
     name = "archicad-apidevkit"
-    description = "The General API Development Kit enables software developers to extend the functionality of Archicad"
+    description = (
+        "The General API Development Kit enables software developers to extend the functionality of Archicad"
+    )
+    license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://archicadapi.graphisoft.com/"
-    license = "LicenseRef-LICENSE"
-    settings = "os", "compiler", "arch", "build_type"
-    no_copy_source = True
-    topics = "api", "archicad", "development"
-    short_paths = True
+    topics = ("api", "archicad", "development", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.build_type == "Debug":
@@ -26,17 +36,19 @@ class ArchicadApidevkitConan(ConanFile):
             # Approximate requirement for toolset >= v142
             check_min_vs(self, "192")
         if not self.info.settings.os in ("Macos", "Windows"):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported by the OS {self.info.settings.os}")
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported by the OS {self.info.settings.os}")
         if not str(self.settings.arch) in ("x86_64"):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} is not supported yet.")
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported yet.")
         if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
-            raise ConanInvalidConfiguration(
-                "This recipe does not support this compiler version")
+            raise ConanInvalidConfiguration("This recipe does not support this compiler version")
+
+    def source(self):
+        pass
 
     def build(self):
-        devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)]
+        devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][
+            str(self.settings.arch)
+        ]
         get(self, **devkit, destination=os.path.join(self.package_folder, "bin"), strip_root=True)
         get(self, **licenses, destination=os.path.join(self.package_folder, "licenses"), strip_root=True)
 
@@ -51,11 +63,18 @@ class ArchicadApidevkitConan(ConanFile):
         self.cpp_info.includedirs = []
 
         # These are dependencies of third party vendored libraries
-        self.cpp_info.system_libs = [
-            "WinMM", "MSImg32", "WS2_32", "USP10", "DNSApi"]
+        self.cpp_info.system_libs = ["WinMM", "MSImg32", "WS2_32", "USP10", "DNSApi"]
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks = ["CoreText", "CoreFoundation", "CoreServices",
-                                        "ApplicationServices", "Carbon", "CoreGraphics", "AppKit", "Foundation"]
+            self.cpp_info.frameworks = [
+                "CoreText",
+                "CoreFoundation",
+                "CoreServices",
+                "ApplicationServices",
+                "Carbon",
+                "CoreGraphics",
+                "AppKit",
+                "Foundation",
+            ]
         else:
             self.cpp_info.system_libs.extend(["gdiplus", "iphlpapi"])
 

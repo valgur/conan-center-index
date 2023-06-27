@@ -10,16 +10,17 @@ required_conan_version = ">=1.54.0"
 class ZfpConan(ConanFile):
     name = "zfp"
     description = "Compressed numerical arrays that support high-speed random access"
-    homepage = "https://github.com/LLNL/zfp"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/LLNL/zfp"
     topics = ("compression", "arrays")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "bit_stream_word_size": [8,16,32,64],
+        "bit_stream_word_size": [8, 16, 32, 64],
         "with_cuda": [True, False],
         "with_bit_stream_strided": [True, False],
         "with_aligned_alloc": [True, False],
@@ -54,9 +55,13 @@ class ZfpConan(ConanFile):
 
     def validate(self):
         if self.options.with_cuda:
-            self.output.warning("Conan package for CUDA is not available, this package will be used from system.")
+            self.output.warning(
+                "Conan package for CUDA is not available, this package will be used from system."
+            )
         if self.options.with_openmp:
-            self.output.warning("Conan package for OpenMP is not available, this package will be used from system.")
+            self.output.warning(
+                "Conan package for OpenMP is not available, this package will be used from system."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

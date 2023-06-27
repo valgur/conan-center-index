@@ -1,19 +1,19 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include <minizip/zip.h>
 #include <minizip/unzip.h>
+#include <minizip/zip.h>
 #ifdef _WIN32
-    #include <minizip/iowin32.h>
+#include <minizip/iowin32.h>
 #endif
 
 #include <minizip/mztools.h>
 
 const char text[] = "Conveying or northward offending admitting perfectly my.";
-const char* zip_fname = "test_minizip.zip";
+const char *zip_fname = "test_minizip.zip";
 
-int main(int argc, char** argv) {
+int main() {
     zipFile zf = zipOpen64(zip_fname, APPEND_STATUS_CREATE);
     if (zf == NULL) {
         printf("Error in zipOpen64, fname: %s\n", zip_fname);
@@ -22,7 +22,8 @@ int main(int argc, char** argv) {
 
     int res;
     zip_fileinfo zfi = {0};
-    res = zipOpenNewFileInZip64(zf, "fname.bin", &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_BEST_COMPRESSION, 0);
+    res = zipOpenNewFileInZip64(zf, "fname.bin", &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED,
+                                Z_BEST_COMPRESSION, 0);
     if (res != ZIP_OK) {
         printf("Error in zipOpenNewFileInZip64, code: %d\n", res);
         exit(EXIT_FAILURE);
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
     }
 
     res = zipClose(zf, "Test MiniZip");
-    if(res != ZIP_OK) {
+    if (res != ZIP_OK) {
         printf("Error in zipClose, code: %d\n", res);
         exit(EXIT_FAILURE);
     }

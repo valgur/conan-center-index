@@ -13,13 +13,16 @@ required_conan_version = ">=1.55.0"
 
 class CalcephConan(ConanFile):
     name = "calceph"
-    description = "C Library designed to access the binary planetary ephemeris " \
-                  "files, such INPOPxx, JPL DExxx and SPICE ephemeris files."
+    description = (
+        "C Library designed to access the binary planetary ephemeris files,"
+        " such as INPOPxx, JPL DExxx and SPICE ephemeris files."
+    )
     license = ["CECILL-C", "CECILL-B", "CECILL-2.1"]
-    topics = ("ephemeris", "astronomy", "space", "planet")
-    homepage = "https://www.imcce.fr/inpop/calceph"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.imcce.fr/inpop/calceph"
+    topics = ("ephemeris", "astronomy", "space", "planet")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,7 +43,7 @@ class CalcephConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if is_msvc(self):
-            del self.options.threadsafe
+            self.options.rm_safe("threadsafe")
 
     def configure(self):
         if self.options.shared:
@@ -53,7 +56,9 @@ class CalcephConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support shared builds with Visual Studio yet")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support shared builds with Visual Studio yet"
+            )
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not is_msvc(self):
@@ -73,28 +78,25 @@ class CalcephConan(ConanFile):
             env.generate()
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
+            tc.configure_args += [
                 f"--enable-thread={yes_no(self.options.threadsafe)}",
                 "--disable-fortran",
                 "--disable-python",
                 "--disable-python-package-system",
                 "--disable-python-package-user",
                 "--disable-mex-octave",
-            ])
+            ]
             tc.generate()
 
     @property
     def _nmake_args(self):
-        return " ".join([
-            f"DESTDIR=\"{self.package_folder}\"",
-            "ENABLEF2003=0",
-            "ENABLEF77=0",
-        ])
+        return " ".join([f'DESTDIR="{self.package_folder}"', "ENABLEF2003=0", "ENABLEF77=0"])
 
     def build(self):
         if is_msvc(self):
             replace_in_file(
-                self, os.path.join(self.source_folder, "Makefile.vc"),
+                self,
+                os.path.join(self.source_folder, "Makefile.vc"),
                 "CFLAGS = /O2 /GR- /MD /nologo /EHs",
                 "CFLAGS = /nologo /EHs",
             )

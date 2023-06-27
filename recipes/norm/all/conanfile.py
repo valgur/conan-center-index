@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class NormConan(ConanFile):
     name = "norm"
     description = "A reliable multicast transport protocol"
-    topics = ("multicast", "transport protocol", "nack-oriented reliable multicast")
+    license = "NRL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.nrl.navy.mil/itd/ncs/products/norm"
-    license = "NRL"
+    topics = ("multicast", "transport protocol", "nack-oriented reliable multicast")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -39,14 +40,16 @@ class NormConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libxml2/2.10.4") # dependency of protolib actually
+        self.requires("libxml2/2.10.4")  # dependency of protolib actually
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["NORM_CUSTOM_PROTOLIB_VERSION"] = "./protolib" # FIXME: use external protolib when available in CCI
+        tc.variables[
+            "NORM_CUSTOM_PROTOLIB_VERSION"
+        ] = "./protolib"  # FIXME: use external protolib when available in CCI
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

@@ -13,11 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class LibxcryptConan(ConanFile):
     name = "libxcrypt"
+    description = "Extended crypt library for descrypt, md5crypt, bcrypt, and others"
+    license = ("LGPL-2.1-or-later",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/besser82/libxcrypt"
-    description = "Extended crypt library for descrypt, md5crypt, bcrypt, and others"
     topics = ("hash", "password", "one-way", "bcrypt", "md5", "sha256", "sha512")
-    license = ("LGPL-2.1-or-later", )
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -57,8 +59,7 @@ class LibxcryptConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -68,8 +69,12 @@ class LibxcryptConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),
-                              "\nlibcrypt_la_LDFLAGS = ", "\nlibcrypt_la_LDFLAGS = -no-undefined ")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
+            "\nlibcrypt_la_LDFLAGS = ",
+            "\nlibcrypt_la_LDFLAGS = -no-undefined ",
+        )
 
     def build(self):
         self._patch_sources()

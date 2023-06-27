@@ -12,7 +12,7 @@ class PicoJSONConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kazuho/picojson"
     description = "A C++ JSON parser/serializer"
-    topics = ("picojson", "json", "header-only")
+    topics = ("json", "header-only")
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -23,8 +23,7 @@ class PicoJSONConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass

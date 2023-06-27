@@ -8,24 +8,28 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class CppServer(ConanFile):
     name = "cppserver"
-    description = "Ultra fast and low latency asynchronous socket server and" \
-        " client C++ library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket" \
+    description = (
+        "Ultra fast and low latency asynchronous socket server and"
+        " client C++ library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket"
         " protocols and 10K connections problem solution."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/chronoxor/CppServer"
     topics = ("network", "socket", "asynchronous", "low-latency")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -66,7 +70,9 @@ class CppServer(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(f"{self.ref} requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warn(
+                f"{self.ref} requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires a compiler that supports at least C++17")
 
@@ -93,12 +99,24 @@ class CppServer(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.inl", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.inl",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

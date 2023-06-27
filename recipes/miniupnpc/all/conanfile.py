@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -10,10 +17,11 @@ class MiniupnpcConan(ConanFile):
     name = "miniupnpc"
     description = "UPnP client library/tool to access Internet Gateway Devices."
     license = "BSD-3-Clause"
-    topics = ("upnp", "networking", "internet-gateway")
-    homepage = "https://github.com/miniupnp/miniupnp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/miniupnp/miniupnp"
+    topics = ("upnp", "networking", "internet-gateway")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -41,8 +49,7 @@ class MiniupnpcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -57,8 +64,12 @@ class MiniupnpcConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # Do not force PIC
-        replace_in_file(self, os.path.join(self.source_folder, "miniupnpc", "CMakeLists.txt"),
-                              "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "miniupnpc", "CMakeLists.txt"),
+            "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -67,8 +78,12 @@ class MiniupnpcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=os.path.join(self.source_folder, "miniupnpc"),
-                              dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=os.path.join(self.source_folder, "miniupnpc"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

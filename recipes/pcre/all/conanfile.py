@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
@@ -10,11 +17,11 @@ required_conan_version = ">=1.53.0"
 
 class PCREConan(ConanFile):
     name = "pcre"
+    description = "Perl Compatible Regular Expressions"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.pcre.org"
-    description = "Perl Compatible Regular Expressions"
     topics = ("regex", "regexp", "PCRE")
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,8 +70,8 @@ class PCREConan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.build_pcregrep:
-            del self.options.with_bzip2
-            del self.options.with_zlib
+            self.options.rm_safe("with_bzip2")
+            self.options.rm_safe("with_zlib")
         if self.options.with_unicode_properties:
             self.options.with_utf = True
 
@@ -78,8 +85,14 @@ class PCREConan(ConanFile):
             self.requires("zlib/1.2.13")
 
     def validate(self):
-        if not self.options.build_pcre_8 and not self.options.build_pcre_16 and not self.options.build_pcre_32:
-            raise ConanInvalidConfiguration("At least one of build_pcre_8, build_pcre_16 or build_pcre_32 must be enabled")
+        if (
+            not self.options.build_pcre_8
+            and not self.options.build_pcre_16
+            and not self.options.build_pcre_32
+        ):
+            raise ConanInvalidConfiguration(
+                "At least one of build_pcre_8, build_pcre_16 or build_pcre_32 must be enabled"
+            )
         if self.options.build_pcrecpp and not self.options.build_pcre_8:
             raise ConanInvalidConfiguration("build_pcre_8 must be enabled for the C++ library support")
         if self.options.build_pcregrep and not self.options.build_pcre_8:

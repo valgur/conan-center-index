@@ -2,8 +2,7 @@
 
 #include "posh.h"
 
-int main()
-{
+int main() {
     printf("%s", POSH_GetArchString());
     return 0;
 }

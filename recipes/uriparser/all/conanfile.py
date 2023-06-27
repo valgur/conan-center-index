@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 import os
 
@@ -10,10 +17,11 @@ required_conan_version = ">=1.54.0"
 class UriparserConan(ConanFile):
     name = "uriparser"
     description = "Strictly RFC 3986 compliant URI parsing and handling library written in C89"
-    topics = ("uri", "parser")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://uriparser.github.io/"
-    license = "BSD-3-Clause"
+    topics = ("uri", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

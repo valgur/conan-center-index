@@ -5,20 +5,21 @@ from conan.tools.files import apply_conandata_patches, get, export_conandata_pat
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class AngelScriptConan(ConanFile):
     name = "angelscript"
-    license = "Zlib"
-    homepage = "http://www.angelcode.com/angelscript"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "An extremely flexible cross-platform scripting library designed to "
         "allow applications to extend their functionality through external scripts."
     )
+    license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.angelcode.com/angelscript"
     topics = ("angelcode", "embedded", "scripting", "language", "compiler", "interpreter")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [False, True],
@@ -31,8 +32,6 @@ class AngelScriptConan(ConanFile):
         "no_exceptions": False,
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -42,10 +41,7 @@ class AngelScriptConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -56,7 +52,9 @@ class AngelScriptConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version],
             destination=self.source_folder,
-            headers={"User-Agent": "ConanCenter"},
+            headers={
+                "User-Agent": "ConanCenter",
+            },
             strip_root=True,
         )
 
@@ -72,7 +70,9 @@ class AngelScriptConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "angelscript", "projects", "cmake"))
+        cmake.configure(
+            build_script_folder=os.path.join(self.source_folder, "angelscript", "projects", "cmake")
+        )
         cmake.build()
 
     def _extract_license(self):

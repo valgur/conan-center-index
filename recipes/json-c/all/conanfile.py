@@ -9,13 +9,13 @@ required_conan_version = ">=1.54.0"
 
 class JSONCConan(ConanFile):
     name = "json-c"
-    package_type = "library"
     description = "JSON-C - A JSON implementation in C"
-    topics = ("json", "encoding", "decoding", "manipulation")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/json-c/json-c"
-    license = "MIT"
+    topics = ("json", "encoding", "decoding", "manipulation")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

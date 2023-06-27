@@ -1,21 +1,24 @@
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import CMake
-from conan.tools import files
+
 from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rmdir
 
+required_conan_version = ">=1.53.0"
 
-required_conan_version = ">=1.33.0"
 
 class EasyloggingppConan(ConanFile):
     name = "easyloggingpp"
-    license = "The MIT License (MIT)"
-    homepage = "https://github.com/amrayn/easyloggingpp"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Single header C++ logging library."
-    topics = ("logging", "stacktrace", "efficient-logging")
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
-    exports_sources = "CMakeLists.txt",
+    license = "The MIT License (MIT)"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/amrayn/easyloggingpp"
+    topics = ("logging", "stacktrace", "efficient-logging", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "enable_crash_log": [True, False],
         "enable_thread_safe": [True, False],
@@ -28,7 +31,7 @@ class EasyloggingppConan(ConanFile):
         "disable_error_logs": [True, False],
         "disable_fatal_logs": [True, False],
         "disable_verbose_logs": [True, False],
-        "disable_trace_logs": [True, False]
+        "disable_trace_logs": [True, False],
     }
     default_options = {
         "enable_crash_log": False,
@@ -42,53 +45,63 @@ class EasyloggingppConan(ConanFile):
         "disable_error_logs": False,
         "disable_fatal_logs": False,
         "disable_verbose_logs": False,
-        "disable_trace_logs": False
+        "disable_trace_logs": False,
     }
-    _cmake = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
-    def _configure_cmake(self):
-        if self._cmake is not None:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["build_static_lib"] = True
-        self._cmake.definitions["enable_crash_log"] = self.options.enable_crash_log
-        self._cmake.definitions["enable_thread_safe"] = self.options.enable_thread_safe
-        self._cmake.definitions["enable_debug_errors"] = self.options.enable_debug_errors
-        self._cmake.definitions["enable_default_logfile"] = self.options.enable_default_logfile
-        self._cmake.definitions["disable_logs"] = self.options.disable_logs
-        self._cmake.definitions["disable_debug_logs"] = self.options.disable_debug_logs
-        self._cmake.definitions["disable_info_logs"] = self.options.disable_info_logs
-        self._cmake.definitions["disable_warning_logs"] = self.options.disable_warning_logs
-        self._cmake.definitions["disable_error_logs"] = self.options.disable_error_logs
-        self._cmake.definitions["disable_fatal_logs"] = self.options.disable_fatal_logs
-        self._cmake.definitions["disable_verbose_logs"] = self.options.disable_verbose_logs
-        self._cmake.definitions["disable_trace_logs"] = self.options.disable_trace_logs
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["build_static_lib"] = True
+        tc.variables["enable_crash_log"] = self.options.enable_crash_log
+        tc.variables["enable_thread_safe"] = self.options.enable_thread_safe
+        tc.variables["enable_debug_errors"] = self.options.enable_debug_errors
+        tc.variables["enable_default_logfile"] = self.options.enable_default_logfile
+        tc.variables["disable_logs"] = self.options.disable_logs
+        tc.variables["disable_debug_logs"] = self.options.disable_debug_logs
+        tc.variables["disable_info_logs"] = self.options.disable_info_logs
+        tc.variables["disable_warning_logs"] = self.options.disable_warning_logs
+        tc.variables["disable_error_logs"] = self.options.disable_error_logs
+        tc.variables["disable_fatal_logs"] = self.options.disable_fatal_logs
+        tc.variables["disable_verbose_logs"] = self.options.disable_verbose_logs
+        tc.variables["disable_trace_logs"] = self.options.disable_trace_logs
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        files.rmdir(self, os.path.join(self.package_folder, "share"))
-        self.copy(pattern="LICENSE",
-                  dst="licenses",
-                  src=self._source_subfolder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "easyloggingpp"
@@ -118,4 +131,3 @@ class EasyloggingppConan(ConanFile):
             self.cpp_info.defines.append("ELPP_DISABLE_VERBOSE_LOGS")
         if self.options.disable_trace_logs:
             self.cpp_info.defines.append("ELPP_DISABLE_TRACE_LOGS")
-

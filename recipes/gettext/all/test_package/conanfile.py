@@ -1,34 +1,38 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.env import Environment, VirtualRunEnv, VirtualBuildEnv
+from conan.tools.files import copy
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
 
-
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "configure.ac",
     test_type = "explicit"
     win_bash = True
+
+    def export_sources(self):
+        copy(self, "src/configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
     def requirements(self):
-         self.requires(self.tested_reference_str)
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
         self.tool_requires("automake/1.16.5")
-        if self._settings_build.os == "Windows" and not self.conf.get("tools.microsoft.bash:path", check_type=str):
+        if self._settings_build.os == "Windows" and not self.conf.get(
+            "tools.microsoft.bash:path", check_type=str
+        ):
             self.tool_requires("msys2/cci.latest")
 
     def layout(self):
         basic_layout(self, src_folder="src")
-        
+
     def generate(self):
         buildenv = VirtualBuildEnv(self)
         buildenv.generate()
@@ -46,11 +50,9 @@ class TestPackageConan(ConanFile):
         runenv.generate()
 
     def build(self):
-
         autotools = Autotools(self)
         autotools.autoreconf()
         autotools.configure()
-
 
     def test(self):
         if can_run(self):

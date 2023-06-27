@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class SvgwriteConan(ConanFile):
     name = "svgwrite"
     description = "a streaming svg library"
@@ -15,6 +16,7 @@ class SvgwriteConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.com/dvd0101/svgwrite"
     topics = ("svg", "writer", "stream", "vector", "image")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -84,7 +86,9 @@ class SvgwriteConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

@@ -10,41 +10,54 @@ required_conan_version = ">=1.53.0"
 class TracyConan(ConanFile):
     name = "tracy"
     description = "C++ frame profiler"
-    topics = ("profiler", "performance", "gamedev")
-    homepage = "https://github.com/wolfpld/tracy"
-    url = "https://github.com/conan-io/conan-center-index"
     license = ["BSD-3-Clause"]
-    settings = "os", "arch", "compiler", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/wolfpld/tracy"
+    topics = ("profiler", "performance", "gamedev")
 
-    # Existing CMake tracy options with default value
-    _tracy_options = {
-        "enable": ([True, False], True),
-        "on_demand": ([True, False], False),
-        "callstack": ([True, False], False),
-        "no_callstack": ([True, False], False),
-        "no_callstack_inlines": ([True, False], False),
-        "only_localhost": ([True, False], False),
-        "no_broadcast": ([True, False], False),
-        "only_ipv": ([True, False], False),
-        "no_code_transfer": ([True, False], False),
-        "no_context_switch": ([True, False], False),
-        "no_exit": ([True, False], False),
-        "no_sampling": ([True, False], False),
-        "no_verify": ([True, False], False),
-        "no_vsync_capture": ([True, False], False),
-        "no_frame_image": ([True, False], False),
-        "no_system_tracing": ([True, False], False),
-        "delayed_init": ([True, False], False),
-    }
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        **{k: v[0] for k, v in _tracy_options.items()},
+        "enable": [True, False],
+        "on_demand": [True, False],
+        "callstack": [True, False],
+        "no_callstack": [True, False],
+        "no_callstack_inlines": [True, False],
+        "only_localhost": [True, False],
+        "no_broadcast": [True, False],
+        "only_ipv": [True, False],
+        "no_code_transfer": [True, False],
+        "no_context_switch": [True, False],
+        "no_exit": [True, False],
+        "no_sampling": [True, False],
+        "no_verify": [True, False],
+        "no_vsync_capture": [True, False],
+        "no_frame_image": [True, False],
+        "no_system_tracing": [True, False],
+        "delayed_init": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        **{k: v[1] for k, v in _tracy_options.items()},
+        "enable": True,
+        "on_demand": False,
+        "callstack": False,
+        "no_callstack": False,
+        "no_callstack_inlines": False,
+        "only_localhost": False,
+        "no_broadcast": False,
+        "only_ipv": False,
+        "no_code_transfer": False,
+        "no_context_switch": False,
+        "no_exit": False,
+        "no_sampling": False,
+        "no_verify": False,
+        "no_vsync_capture": False,
+        "no_frame_image": False,
+        "no_system_tracing": False,
+        "delayed_init": False,
     }
 
     def config_options(self):
@@ -63,8 +76,7 @@ class TracyConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,8 +94,7 @@ class TracyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -94,11 +105,9 @@ class TracyConan(ConanFile):
         # TODO: back to global scope in conan v2
         self.cpp_info.components["tracyclient"].libs = ["TracyClient"]
         if self.options.shared:
-            self.cpp_info.components["tracyclient"].defines.append(
-                "TRACY_IMPORTS")
+            self.cpp_info.components["tracyclient"].defines.append("TRACY_IMPORTS")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["tracyclient"].system_libs.append(
-                "pthread")
+            self.cpp_info.components["tracyclient"].system_libs.append("pthread")
         if self.settings.os == "Linux":
             self.cpp_info.components["tracyclient"].system_libs.append("dl")
 
@@ -114,5 +123,4 @@ class TracyConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "Tracy"
         self.cpp_info.components["tracyclient"].names["cmake_find_package"] = "TracyClient"
         self.cpp_info.components["tracyclient"].names["cmake_find_package_multi"] = "TracyClient"
-        self.cpp_info.components["tracyclient"].set_property(
-            "cmake_target_name", "Tracy::TracyClient")
+        self.cpp_info.components["tracyclient"].set_property("cmake_target_name", "Tracy::TracyClient")

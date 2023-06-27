@@ -10,9 +10,10 @@ class QuircConan(ConanFile):
     name = "quirc"
     description = "QR decoder library"
     license = "ISC"
-    topics = ("qr", "decoder")
-    homepage = "https://github.com/dlbeer/quirc"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/dlbeer/quirc"
+    topics = ("qr", "decoder")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

@@ -18,7 +18,9 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_CXX"] = self.dependencies["gmp"].options.enable_cxx
-        tc.variables["TEST_PIC"] = "fPIC" in self.dependencies["gmp"].options and self.dependencies["gmp"].options.fPIC
+        tc.variables["TEST_PIC"] = (
+            "fPIC" in self.dependencies["gmp"].options and self.dependencies["gmp"].options.fPIC
+        )
         tc.generate()
 
     def build(self):

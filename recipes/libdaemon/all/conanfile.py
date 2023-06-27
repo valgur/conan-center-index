@@ -15,11 +15,12 @@ required_conan_version = ">=1.53.0"
 class LibDaemonConan(ConanFile):
     name = "libdaemon"
     description = "a lightweight C library that eases the writing of UNIX daemons"
-    topics = ("daemon")
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://0pointer.de/lennart/projects/libdaemon/"
-    license = "LGPL-2.1-or-later"
+    topics = ("daemon",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -59,8 +60,7 @@ class LibDaemonConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -77,7 +77,12 @@ class LibDaemonConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
 
     def build(self):
         self._patch_sources()

@@ -15,9 +15,10 @@ class CgifConan(ConanFile):
     name = "cgif"
     description = "GIF encoder written in C"
     license = "MIT"
-    topics = ("gif", "encoder", "image")
-    homepage = "https://github.com/dloebl/cgif"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/dloebl/cgif"
+    topics = ("gif", "encoder", "image")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -76,10 +77,12 @@ class CgifConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "cgif")
         self.cpp_info.libs = ["cgif"]
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     from conan.tools.files import rename
     import glob
+
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
@@ -87,7 +90,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

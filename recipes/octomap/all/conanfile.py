@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -14,9 +22,9 @@ class OctomapConan(ConanFile):
     name = "octomap"
     description = "An Efficient Probabilistic 3D Mapping Framework Based on Octrees."
     license = "BSD-3-Clause"
-    topics = ("octree", "3d", "robotics")
-    homepage = "https://github.com/OctoMap/octomap"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OctoMap/octomap"
+    topics = ("octree", "3d", "robotics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,17 +71,22 @@ class OctomapConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # Create binaries in build tree instead of source tree
-        replace_in_file(self, os.path.join(self.source_folder, "octomap", "CMakeLists.txt"),
-                              "SET( BASE_DIR ${CMAKE_SOURCE_DIR} )",
-                              "SET( BASE_DIR ${CMAKE_BINARY_DIR} )")
-        compiler_settings = os.path.join(self.source_folder, "octomap", "CMakeModules", "CompilerSettings.cmake")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "octomap", "CMakeLists.txt"),
+            "SET( BASE_DIR ${CMAKE_SOURCE_DIR} )",
+            "SET( BASE_DIR ${CMAKE_BINARY_DIR} )",
+        )
+        compiler_settings = os.path.join(
+            self.source_folder, "octomap", "CMakeModules", "CompilerSettings.cmake"
+        )
         # Do not force PIC
         replace_in_file(self, compiler_settings, "ADD_DEFINITIONS(-fPIC)", "")
         # No -Werror
         if Version(self.version) >= "1.9.6":
             replace_in_file(self, compiler_settings, "-Werror", "")
         # we want a clean rpath in installed shared libs
-        replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")", "")
+        replace_in_file(self, compiler_settings, 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")', "")
         replace_in_file(self, compiler_settings, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
     def build(self):
@@ -83,8 +96,12 @@ class OctomapConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=os.path.join(self.source_folder, "octomap"),
-                                  dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=os.path.join(self.source_folder, "octomap"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -96,7 +113,7 @@ class OctomapConan(ConanFile):
             {
                 self._octomath_target: f"octomap::{self._octomath_target}",
                 self._octomap_target: f"octomap::{self._octomap_target}",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -139,9 +156,17 @@ class OctomapConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators are removed
         self.cpp_info.components["octomath"].names["cmake_find_package"] = self._octomath_target
         self.cpp_info.components["octomath"].names["cmake_find_package_multi"] = self._octomath_target
-        self.cpp_info.components["octomath"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["octomath"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["octomath"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["octomath"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["octomaplib"].names["cmake_find_package"] = self._octomap_target
         self.cpp_info.components["octomaplib"].names["cmake_find_package_multi"] = self._octomap_target
-        self.cpp_info.components["octomaplib"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["octomaplib"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["octomaplib"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["octomaplib"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]

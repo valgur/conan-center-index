@@ -7,9 +7,8 @@
 #include <type_traits>
 
 class ZoneOffset {
-public:
-    explicit ZoneOffset(std::chrono::minutes offset)
-        : _offset(offset) {}
+  public:
+    explicit ZoneOffset(std::chrono::minutes offset) : _offset(offset) {}
 
     template <class Duration>
     auto to_local(date::sys_time<Duration> tp) const
@@ -29,7 +28,7 @@ public:
         return ST{(tp - _offset).time_since_epoch()};
     }
 
-private:
+  private:
     std::chrono::minutes _offset;
 };
 
@@ -37,15 +36,15 @@ int main() {
     using namespace std::chrono;
     using namespace date;
 
-    auto date1 = 2015_y/March/22;
+    auto date1 = 2015_y / March / 22;
     std::cout << date1 << '\n';
-    auto date2 = March/22/2015;
+    auto date2 = March / 22 / 2015;
     std::cout << date2 << '\n';
-    auto date3 = 22_d/March/2015;
+    auto date3 = 22_d / March / 2015;
     std::cout << date3 << '\n';
 
     ZoneOffset p3_45{hours{3} + minutes{45}};
-    zoned_time<milliseconds, ZoneOffset*> zt{&p3_45, floor<milliseconds>(system_clock::now())};
+    zoned_time<milliseconds, ZoneOffset *> zt{&p3_45, floor<milliseconds>(system_clock::now())};
     std::cout << zt.get_sys_time() << " (sys time)\n";
     std::cout << zt.get_local_time() << " (local time)\n";
 
@@ -53,8 +52,8 @@ int main() {
     try {
         auto tz = date::current_zone()->name();
         std::cout << "timezone: " << tz << std::endl;
-    } catch (const std::exception & e) {
-         std::cout << "exception caught " << e.what() << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "exception caught " << e.what() << std::endl;
     }
 #endif
 

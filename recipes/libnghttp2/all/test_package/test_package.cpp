@@ -7,9 +7,8 @@ typedef int ssize_t;
 #include <nghttp2/nghttp2.h>
 #include <nghttp2/nghttp2ver.h>
 
-int main()
-{
-    nghttp2_info* info = nghttp2_version(NGHTTP2_VERSION_NUM);
+int main() {
+    nghttp2_info *info = nghttp2_version(NGHTTP2_VERSION_NUM);
     if (info) {
         printf("nghttp2 ver=%d version=%s\n", info->version_num, info->version_str);
     } else {

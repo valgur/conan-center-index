@@ -1,7 +1,6 @@
 #include "quill/Quill.h"
 
-int main()
-{
+int main() {
     quill::start();
     auto file_handler = quill::file_handler("logfile.log", "w");
     auto my_logger = quill::create_logger("my_logger", std::move(file_handler));

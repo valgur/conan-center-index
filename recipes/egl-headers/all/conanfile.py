@@ -3,16 +3,18 @@ from conan.tools.files import copy, get, load, save
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class EglHeadersConan(ConanFile):
     name = "egl-headers"
     description = "EGL Header files."
     license = "Apache-2.0"
-    topics = ("egl-headers", "egl")
-    homepage = "https://github.com/KhronosGroup/EGL-Registry"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/EGL-Registry"
+    topics = ("egl", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -26,8 +28,7 @@ class EglHeadersConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
@@ -40,7 +41,13 @@ class EglHeadersConan(ConanFile):
         license_data = license_data.replace("**", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
 
-        copy(self, "*", src=os.path.join(self.source_folder, "api", "EGL"), dst=os.path.join(self.package_folder, "include", "EGL"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "api", "EGL"),
+            dst=os.path.join(self.package_folder, "include", "EGL"),
+        )
 
     def package_info(self):
-        pass
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -8,8 +8,8 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 import os
 
-
 required_conan_version = ">=1.54.0"
+
 
 class PoptConan(ConanFile):
     name = "popt"
@@ -18,6 +18,7 @@ class PoptConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rpm-software-management/popt"
     topics = ("command line", "options", "parsing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -51,7 +52,9 @@ class PoptConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
@@ -72,21 +75,20 @@ class PoptConan(ConanFile):
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             tc.extra_cflags.append("-FS")
-        tc.configure_args.extend([
-            "--disable-dependency-tracking",
-            "--disable-nls",
-        ])
+        tc.configure_args.extend(["--disable-dependency-tracking", "--disable-nls"])
         tc.generate()
 
         if is_msvc(self):
             env = Environment()
             automake_conf = self.dependencies.build["automake"].conf_info
-            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            compile_wrapper = unix_path(
+                self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
+            )
             ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -100,9 +102,12 @@ class PoptConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                           src=os.path.dirname(gnu_config),
-                           dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
 
     def build(self):
         self._patch_sources()
@@ -111,7 +116,9 @@ class PoptConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
 
         autotools = Autotools(self)
         autotools.install()

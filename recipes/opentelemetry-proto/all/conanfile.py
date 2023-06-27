@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class OpenTelemetryProtoConan(ConanFile):
     name = "opentelemetry-proto"
     license = "Apache-2.0"
@@ -25,13 +26,10 @@ class OpenTelemetryProtoConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
-            self,
-            pattern="*.proto",
-            dst=os.path.join(self.package_folder, "res"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
+        copy(self, pattern="*.proto", dst=os.path.join(self.package_folder, "res"), src=self.source_folder)
         # satisfy KB-H014 (header_only recipes require headers)
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 

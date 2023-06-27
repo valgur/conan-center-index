@@ -1,19 +1,105 @@
+# TODO: verify the Conan v2 migration
+
 import os
 import glob
 
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+
+required_conan_version = ">=1.53.0"
 
 
 class AcadoConan(ConanFile):
     name = "acado"
-    description = "ACADO Toolkit is a software environment and algorithm collection for automatic control and dynamic optimization."
+    description = (
+        "ACADO Toolkit is a software environment and algorithm collection for "
+        "automatic control and dynamic optimization."
+    )
     license = "LGPL-3.0"
-    topics = ("conan", "acado", "control", "optimization", "mpc")
-    homepage = "https://github.com/acado/acado"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "cmake/qpoases.cmake", "patches/**"]
-    generators = "cmake"
+    homepage = "https://github.com/acado/acado"
+    topics = ("control", "optimization", "mpc")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,11 +112,9 @@ class AcadoConan(ConanFile):
         "codegen_only": True,
     }
 
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        copy(self, "cmake/qpoases.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -38,41 +122,67 @@ class AcadoConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if is_msvc(self) and self.options.shared:
+            # https://github.com/acado/acado/blob/b4e28f3131f79cadfd1a001e9fff061f361d3a0f/CMakeLists.txt#L77-L80
+            raise ConanInvalidConfiguration("Acado does not support shared builds on Windows.")
+        if self.settings.compiler == "apple-clang":
+            raise ConanInvalidConfiguration("apple-clang not supported")
+        if self.settings.compiler == "clang" and self.settings.compiler.version == "9":
+            raise ConanInvalidConfiguration("acado can not be built by Clang 9.")
+
+        # acado requires libstdc++11 for shared builds
+        # https://github.com/conan-io/conan-center-index/pull/3967#issuecomment-752985640
+        if (
+            self.options.shared
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.libcxx != "libstdc++11"
+        ):
+            raise ConanInvalidConfiguration("libstdc++11 required")
+        if (
+            self.options.shared
+            and self.settings.compiler == "gcc"
+            and self.settings.compiler.libcxx != "libstdc++11"
+        ):
+            raise ConanInvalidConfiguration("libstdc++11 required")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = glob.glob("acado-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
 
-        self._cmake.definitions["ACADO_BUILD_SHARED"] = self.options.shared
-        self._cmake.definitions["ACADO_BUILD_STATIC"] = not self.options.shared
+        tc.variables["CMAKE_CXX_STANDARD"] = 11
 
-        self._cmake.definitions["ACADO_WITH_EXAMPLES"] = False
-        self._cmake.definitions["ACADO_WITH_TESTING"] = False
-        self._cmake.definitions["ACADO_DEVELOPER"] = False
-        self._cmake.definitions["ACADO_INTERNAL"] = False
-        self._cmake.definitions["ACADO_BUILD_CGT_ONLY"] = self.options.codegen_only
+        tc.variables["ACADO_BUILD_SHARED"] = self.options.shared
+        tc.variables["ACADO_BUILD_STATIC"] = not self.options.shared
+
+        tc.variables["ACADO_WITH_EXAMPLES"] = False
+        tc.variables["ACADO_WITH_TESTING"] = False
+        tc.variables["ACADO_DEVELOPER"] = False
+        tc.variables["ACADO_INTERNAL"] = False
+        tc.variables["ACADO_BUILD_CGT_ONLY"] = self.options.codegen_only
 
         # ACADO logs 170.000 lines of warnings, so we disable them
-        self._cmake.definitions["CMAKE_C_FLAGS"] = "-w"
-        self._cmake.definitions["CMAKE_CXX_FLAGS"] = "-w"
+        tc.variables["CMAKE_C_FLAGS"] = "-w"
+        tc.variables["CMAKE_CXX_FLAGS"] = "-w"
+        tc.generate()
 
-        self._cmake.configure()
-        return self._cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     @property
@@ -80,20 +190,24 @@ class AcadoConan(ConanFile):
         return os.path.join("lib", "cmake", "qpoases")
 
     def package(self):
-        self.copy("LICENSE.txt", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
         cmake.install()
 
-        self.copy("*", src="lib", dst="lib")
-        self.copy("qpoases.cmake", src="cmake", dst="lib/cmake")
-        qpoases_sources_from = os.path.join(self.package_folder, "share", "acado", "external_packages", "qpoases")
-        self.copy("*", src=qpoases_sources_from, dst=self._qpoases_sources)
+        copy(self, "*", src="lib", dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "qpoases.cmake", src="cmake", dst=os.path.join(self.package_folder, "lib/cmake"))
+        qpoases_sources_from = os.path.join(
+            self.package_folder, "share", "acado", "external_packages", "qpoases"
+        )
+        copy(self, "*", src=qpoases_sources_from, dst=self._qpoases_sources)
 
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.remove_files_by_mask(self.package_folder, "*.pdb")
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        acado_template_paths = os.path.join(self.package_folder, "include", "acado", "code_generation", "templates")
+        acado_template_paths = os.path.join(
+            self.package_folder, "include", "acado", "code_generation", "templates"
+        )
         self.output.info("Setting ACADO_TEMPLATE_PATHS environment variable: {}".format(acado_template_paths))
         self.env_info.ACADO_TEMPLATE_PATHS = acado_template_paths
 
@@ -112,19 +226,3 @@ class AcadoConan(ConanFile):
         self.cpp_info.includedirs.append(self._qpoases_sources)
         self.cpp_info.includedirs.append(os.path.join(self._qpoases_sources, "INCLUDE"))
         self.cpp_info.includedirs.append(os.path.join(self._qpoases_sources, "SRC"))
-
-    def validate(self):
-        if self.settings.compiler == "Visual Studio" and self.options.shared:
-            # https://github.com/acado/acado/blob/b4e28f3131f79cadfd1a001e9fff061f361d3a0f/CMakeLists.txt#L77-L80
-            raise ConanInvalidConfiguration("Acado does not support shared builds on Windows.")
-        if self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration("apple-clang not supported")
-        if self.settings.compiler == "clang" and self.settings.compiler.version == "9":
-            raise ConanInvalidConfiguration("acado can not be built by Clang 9.")
-
-        # acado requires libstdc++11 for shared builds
-        # https://github.com/conan-io/conan-center-index/pull/3967#issuecomment-752985640
-        if self.options.shared and self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("libstdc++11 required")
-        if self.options.shared and self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("libstdc++11 required")

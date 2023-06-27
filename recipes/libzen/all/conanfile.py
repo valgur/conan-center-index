@@ -10,11 +10,12 @@ required_conan_version = ">=1.54.0"
 
 class LibzenConan(ConanFile):
     name = "libzen"
-    license = "ZLIB"
-    homepage = "https://github.com/MediaArea/ZenLib"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Small C++ derivate classes to have an easier life"
+    license = "ZLIB"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/MediaArea/ZenLib"
     topics = ("c++", "helper", "util")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -74,7 +75,9 @@ class LibzenConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"zen": "ZenLib::ZenLib"}
+            {
+                "zen": "ZenLib::ZenLib",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

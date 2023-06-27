@@ -12,21 +12,22 @@ required_conan_version = ">=1.53.0"
 class HwlocConan(ConanFile):
     name = "hwloc"
     description = "Portable Hardware Locality (hwloc)"
-    topics = ("hardware", "topology")
     license = "BSD-3-Clause"
-    homepage = "https://www.open-mpi.org/projects/hwloc/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.open-mpi.org/projects/hwloc/"
+    topics = ("hardware", "topology")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_libxml2": [True, False]
+        "with_libxml2": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_libxml2": False
+        "with_libxml2": False,
     }
 
     def config_options(self):
@@ -39,6 +40,12 @@ class HwlocConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        if self.settings.os == "Windows":
+            cmake_layout(self, src_folder="src")
+        else:
+            basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_libxml2:
             self.requires("libxml2/2.9.12")
@@ -46,23 +53,17 @@ class HwlocConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def layout(self):
-        if self.settings.os == "Windows":
-            cmake_layout(self, src_folder="src")
-        else:
-            basic_layout(self, src_folder="src")
-
     def generate(self):
         if self.settings.os == "Windows":
             deps = CMakeDeps(self)
             deps.generate()
             tc = CMakeToolchain(self)
-            tc.cache_variables["HWLOC_ENABLE_TESTING"] = 'OFF'
-            tc.cache_variables["HWLOC_SKIP_LSTOPO"] = 'ON'
-            tc.cache_variables["HWLOC_SKIP_TOOLS"] = 'ON'
-            tc.cache_variables["HWLOC_SKIP_INCLUDES"] = 'OFF'
-            tc.cache_variables["HWLOC_WITH_OPENCL"] = 'OFF'
-            tc.cache_variables["HWLOC_WITH_CUDA"] = 'OFF'
+            tc.cache_variables["HWLOC_ENABLE_TESTING"] = "OFF"
+            tc.cache_variables["HWLOC_SKIP_LSTOPO"] = "ON"
+            tc.cache_variables["HWLOC_SKIP_TOOLS"] = "ON"
+            tc.cache_variables["HWLOC_SKIP_INCLUDES"] = "OFF"
+            tc.cache_variables["HWLOC_WITH_OPENCL"] = "OFF"
+            tc.cache_variables["HWLOC_WITH_CUDA"] = "OFF"
             tc.cache_variables["HWLOC_BUILD_SHARED_LIBS"] = self.options.shared
             tc.cache_variables["HWLOC_WITH_LIBXML2"] = self.options.with_libxml2
             tc.generate()
@@ -111,4 +112,4 @@ class HwlocConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs = ["m"]
         if is_apple_os(self):
-            self.cpp_info.frameworks = ['IOKit', 'Foundation', 'CoreFoundation']
+            self.cpp_info.frameworks = ["IOKit", "Foundation", "CoreFoundation"]

@@ -5,8 +5,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get,
-    rename, replace_in_file, rm, rmdir
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
 )
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -18,10 +24,11 @@ required_conan_version = ">=1.53.0"
 class PixmanConan(ConanFile):
     name = "pixman"
     description = "Pixman is a low-level software library for pixel manipulation"
-    topics = ("graphics", "compositing", "rasterization")
+    license = ("LGPL-2.1-only", "MPL-1.1")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cairographics.org/"
-    license = ("LGPL-2.1-only", "MPL-1.1")
+    topics = ("graphics", "compositing", "rasterization")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -63,10 +70,12 @@ class PixmanConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
-        tc.project_options.update({
-            "libpng": "disabled",
-            "gtk": "disabled"
-        })
+        tc.project_options.update(
+            {
+                "libpng": "disabled",
+                "gtk": "disabled",
+            }
+        )
         tc.generate()
 
     def _patch_sources(self):
@@ -93,7 +102,7 @@ class PixmanConan(ConanFile):
             rename(self, os.path.join(lib_folder, f"{prefix}.a"), os.path.join(lib_folder, f"{prefix}.lib"))
 
     def package_info(self):
-        self.cpp_info.libs = ['libpixman-1'] if self.settings.os == "Windows" else ['pixman-1']
+        self.cpp_info.libs = ["libpixman-1"] if self.settings.os == "Windows" else ["pixman-1"]
         self.cpp_info.includedirs.append(os.path.join("include", "pixman-1"))
         self.cpp_info.set_property("pkg_config_name", "pixman-1")
         if self.settings.os in ("FreeBSD", "Linux"):

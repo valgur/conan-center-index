@@ -2,14 +2,9 @@
 
 #include <cstdlib>
 
-enum class Enum
-{
-    A,
-    B
-};
+enum class Enum { A, B };
 
-int main()
-{
+int main() {
     auto underlying = sbepp::to_underlying(Enum::A);
 
     return EXIT_SUCCESS;

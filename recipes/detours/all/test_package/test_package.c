@@ -1,11 +1,11 @@
-#include <windows.h>
 #include <detours.h>
+#include <windows.h>
 
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
-#define ARRAY_SIZE(ARR)  ((sizeof(ARR))/sizeof(*(ARR)))
+#define ARRAY_SIZE(ARR) ((sizeof(ARR)) / sizeof(*(ARR)))
 
 int CDECL main(int argc, char **argv) {
     if (argc < 2) {
@@ -56,11 +56,12 @@ int CDECL main(int argc, char **argv) {
     char command[1024];
     strcpy_s(command, sizeof(command), exe);
 
-    char hook_dll[1024];;
+    char hook_dll[1024];
+    ;
     strcpy_s(hook_dll, sizeof(hook_dll), argv[1]);
     strcat_s(hook_dll, sizeof(hook_dll), "\\");
     strcat_s(hook_dll, sizeof(hook_dll), "hook.dll");
-    const char* hooks[] = {
+    const char *hooks[] = {
         hook_dll,
     };
 
@@ -75,27 +76,17 @@ int CDECL main(int argc, char **argv) {
     DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | CREATE_NO_WINDOW;
 
     SetLastError(0);
-    if (!DetourCreateProcessWithDllsA(
-            exe,
-            command,
-            NULL,
-            NULL,
-            TRUE,
-            dwFlags,
-            NULL,
-            NULL,
-            &si,
-            &pi,
-            ARRAY_SIZE(hooks),
-            hooks,
-            NULL)) {
+    if (!DetourCreateProcessWithDllsA(exe, command, NULL, NULL, TRUE, dwFlags, NULL, NULL, &si, &pi,
+                                      ARRAY_SIZE(hooks), hooks, NULL)) {
         DWORD dwError = GetLastError();
         printf("%s: DetourCreateProcessWithDllEx failed: %ld\n", argv[0], dwError);
         if (dwError == ERROR_INVALID_HANDLE) {
 #if DETOURS_64BIT
-            printf("%s: Can't detour a 32-bit target process from a 64-bit parent process.\n", argv[0]);
+            printf("%s: Can't detour a 32-bit target process from a 64-bit parent process.\n",
+                   argv[0]);
 #else
-            printf("%s: Can't detour a 64-bit target process from a 32-bit parent process.\n", argv[0]);
+            printf("%s: Can't detour a 64-bit target process from a 32-bit parent process.\n",
+                   argv[0]);
 #endif
         }
         printf("ERROR");
@@ -106,17 +97,15 @@ int CDECL main(int argc, char **argv) {
     CloseHandle(hChildStd_OUT_Wr);
     CloseHandle(hChildStd_IN_Rd);
 
-    for (;;)
-    {
+    for (;;) {
         DWORD dwRead, dwWritten;
         char chBuf[256];
-        BOOL bSuccess = ReadFile( hChildStd_OUT_Rd, chBuf, sizeof(chBuf), &dwRead, NULL);
-        if( ! bSuccess || dwRead == 0 ) {
+        BOOL bSuccess = ReadFile(hChildStd_OUT_Rd, chBuf, sizeof(chBuf), &dwRead, NULL);
+        if (!bSuccess || dwRead == 0) {
             break;
         }
 
-        bSuccess = WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), chBuf,
-                             dwRead, &dwWritten, NULL);
+        bSuccess = WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), chBuf, dwRead, &dwWritten, NULL);
         if (!bSuccess) {
             break;
         }

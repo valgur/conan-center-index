@@ -3,14 +3,10 @@
 
 #include <cereal/archives/binary.hpp>
 
-
-struct Data
-{
+struct Data {
     int x, y, z;
-    template<class Archive>
-    void serialize(Archive & archive) { archive( x, y, z ); }
+    template <class Archive> void serialize(Archive &archive) { archive(x, y, z); }
 };
-
 
 int main() {
     std::cout << "Serialized data: ";

@@ -9,13 +9,19 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class OsmanipConan(ConanFile):
     name = "osmanip"
-    description = "Library with useful output stream tools like: color and style manipulators, progress bars and terminal graphics."
+    description = (
+        "Library with useful output stream tools like: "
+        "color and style manipulators, progress bars and terminal graphics."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/JustWhit3/osmanip"
     topics = ("manipulator", "iostream", "output-stream", "iomanip")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -25,25 +31,6 @@ class OsmanipConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        self.requires("boost/1.81.0")
-        if Version(self.version) < "4.2.0":
-            self.requires("arsenalgear/1.2.2")
-        else:
-            self.requires("arsenalgear/2.0.1")
 
     @property
     def _minimum_cpp_standard(self):
@@ -59,6 +46,28 @@ class OsmanipConan(ConanFile):
             "apple-clang": "12.0",
         }
 
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("boost/1.81.0")
+        if Version(self.version) < "4.2.0":
+            self.requires("arsenalgear/1.2.2")
+        else:
+            self.requires("arsenalgear/2.0.1")
+
     def validate(self):
         if self.info.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
@@ -66,16 +75,18 @@ class OsmanipConan(ConanFile):
         minimum_version = self._compiler_required_cpp17.get(str(self.info.settings.compiler), False)
         if minimum_version:
             if Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not"
+                    " support."
+                )
         else:
-            self.output.warn(f"{self.ref} requires C++{self._minimum_cpp_standard}. Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+            self.output.warn(
+                f"{self.ref} requires C++{self._minimum_cpp_standard}. "
+                f"Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,7 +104,9 @@ class OsmanipConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

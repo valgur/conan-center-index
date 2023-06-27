@@ -2,8 +2,7 @@
 
 #include "pcap/pcap.h"
 
-int main(void)
-{
+int main(void) {
     printf(pcap_lib_version());
     return EXIT_SUCCESS;
 }

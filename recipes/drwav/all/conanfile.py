@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class DrwavConan(ConanFile):
     name = "drwav"
     description = "WAV audio loader and writer."
-    homepage = "https://mackron.github.io/dr_wav"
-    topics = ("audio", "wav", "wave", "sound")
     license = ("Unlicense", "MIT-0")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mackron.github.io/dr_wav"
+    topics = ("audio", "wav", "wave", "sound")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,7 +30,10 @@ class DrwavConan(ConanFile):
         "no_stdio": False,
         "no_wchar": False,
     }
-    exports_sources = ["CMakeLists.txt", "dr_wav.c"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dr_wav.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -61,7 +65,9 @@ class DrwavConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

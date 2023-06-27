@@ -10,10 +10,12 @@ required_conan_version = ">=1.50.0"
 class GlmConan(ConanFile):
     name = "glm"
     description = "OpenGL Mathematics (GLM)"
-    topics = ("glm", "opengl", "mathematics")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/g-truc/glm"
-    license = "MIT"
+    topics = ("opengl", "mathematics", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -34,10 +36,16 @@ class GlmConan(ConanFile):
         if glm_version == "0.9.8" or (glm_version == "0.9.9" and self._get_tweak_number() < 6):
             save(self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
         else:
-            copy(self, "copying.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self, "copying.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
         for headers in ("*.hpp", "*.inl", "*.h"):
-            copy(self, headers, src=os.path.join(self.source_folder, "glm"),
-                                dst=os.path.join(self.package_folder, "include", "glm"))
+            copy(
+                self,
+                headers,
+                src=os.path.join(self.source_folder, "glm"),
+                dst=os.path.join(self.package_folder, "include", "glm"),
+            )
 
     def _get_semver(self):
         return self.version.rsplit(".", 1)[0]

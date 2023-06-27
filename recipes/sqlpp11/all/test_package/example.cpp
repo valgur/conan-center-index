@@ -1,6 +1,3 @@
 #include <sqlpp11/sqlpp11.h>
 
-int main()
-{
-  sqlpp::connection c;
-}
+int main() { sqlpp::connection c; }

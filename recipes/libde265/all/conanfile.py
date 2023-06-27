@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -13,9 +21,10 @@ class Libde265Conan(ConanFile):
     name = "libde265"
     description = "Open h.265 video codec implementation."
     license = "LGPL-3.0-or-later"
-    topics = ("codec", "video", "h.265")
-    homepage = "https://github.com/strukturag/libde265"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/strukturag/libde265"
+    topics = ("codec", "video", "h.265")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,7 +45,7 @@ class Libde265Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.sse
+            self.options.rm_safe("sse")
 
     def configure(self):
         if self.options.shared:
@@ -61,8 +70,12 @@ class Libde265Conan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -83,7 +96,7 @@ class Libde265Conan(ConanFile):
             {
                 "de265": "libde265::libde265",
                 "libde265": "libde265::libde265",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -104,7 +117,9 @@ class Libde265Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libde265")
         self.cpp_info.set_property("cmake_target_name", "de265")
-        self.cpp_info.set_property("cmake_target_aliases", ["libde265"]) # official imported target before 1.0.10
+        self.cpp_info.set_property(
+            "cmake_target_aliases", ["libde265"]
+        )  # official imported target before 1.0.10
         self.cpp_info.set_property("pkg_config_name", "libde265")
         prefix = "lib" if Version(self.version) < "1.0.10" else ""
         self.cpp_info.libs = [f"{prefix}de265"]

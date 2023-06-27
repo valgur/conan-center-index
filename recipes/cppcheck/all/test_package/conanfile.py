@@ -11,8 +11,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run("cppcheck --enable=warning,style,performance --std=c++11 .",
-                     cwd=self.source_folder)
+            self.run("cppcheck --enable=warning,style,performance --std=c++11 .", cwd=self.source_folder)
             if self.settings.os == "Windows":
                 self.run("set CPPCHECK_HTMLREPORT")
             else:

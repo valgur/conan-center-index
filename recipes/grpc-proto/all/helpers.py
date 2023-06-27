@@ -28,11 +28,8 @@ class _ProtoLibrary:
 
     def dumps(self):
         import json
-        return json.dumps({
-            "name": self.name,
-            "srcs": self.srcs,
-            "deps": list(self.deps),
-        }, indent=4)
+
+        return json.dumps({"name": self.name, "srcs": self.srcs, "deps": list(self.deps)}, indent=4)
 
     @property
     def cmake_target(self):
@@ -44,19 +41,23 @@ class _ProtoLibrary:
             if item.startswith("//"):
                 return item[2:].replace("/", "_").replace(":", "_")
             return item
+
         return [to_cmake_target(it) for it in self.deps]
 
     @property
     def cmake_content(self):
         content = f"\n\n# {self.cmake_target}\n"
-        content += "\n".join([f"#{it}" for it in self.dumps().split('\n')])
-        content += "\n"        
+        content += "\n".join([f"#{it}" for it in self.dumps().split("\n")])
+        content += "\n"
         if not self.srcs:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 add_library({self.cmake_target} INTERFACE)
-            """)
+            """
+            )
         else:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 set({self.cmake_target}_PROTOS {" ".join(["${CMAKE_SOURCE_DIR}/"+it for it in self.srcs])})
                 add_library({self.cmake_target} ${{{self.cmake_target}_PROTOS}})
                 target_include_directories({self.cmake_target} PUBLIC ${{CMAKE_BINARY_DIR}})
@@ -66,12 +67,15 @@ class _ProtoLibrary:
                                 PROTOS ${{{self.cmake_target}_PROTOS}}
                                 IMPORT_DIRS ${{IMPORT_DIRS}}
                                 )
-            """)
+            """
+            )
 
         if self.deps:
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 target_link_libraries({self.cmake_target} {"PUBLIC" if self.srcs else "INTERFACE"} {" ".join(self.cmake_deps)})
-            """)
+            """
+            )
 
         return content
 
@@ -81,7 +85,7 @@ def parse_proto_libraries(filename, source_folder, error):
     re_name = re.compile(r'name = "(.*)"')
     re_srcs_oneline = re.compile(r'srcs = \["(.*)"\],')
     re_deps_oneline = re.compile(r'deps = \["(.*)"\],')
-    re_add_varname = re.compile(r'] \+ (.*),')
+    re_add_varname = re.compile(r"] \+ (.*),")
 
     proto_libraries = []
 
@@ -89,11 +93,13 @@ def parse_proto_libraries(filename, source_folder, error):
     proto_library = None
 
     def parsing_sources(line):
-        proto_path = os.path.relpath(os.path.join(basedir, line.strip(",").strip("\"")), source_folder).replace('\\', '/')
+        proto_path = os.path.relpath(
+            os.path.join(basedir, line.strip(",").strip('"')), source_folder
+        ).replace("\\", "/")
         proto_library.srcs.append(proto_path)
 
     def parsing_deps(line):
-        line = line.strip(",").strip("\"")
+        line = line.strip(",").strip('"')
         if line.startswith("@com_google_protobuf//:"):
             proto_library.deps.add("protobuf::libprotobuf")
         elif line.startswith("@com_google_googleapis//"):
@@ -103,7 +109,7 @@ def parse_proto_libraries(filename, source_folder, error):
         else:
             error(f"Unrecognized dep: {line} -- {os.path.relpath(filename, source_folder)}")
 
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         action = None
         parsing_variable = None
         variables = {}
@@ -140,11 +146,11 @@ def parse_proto_libraries(filename, source_folder, error):
                     proto_library = None
                     action = None
                 elif line == "],":
-                    action = None 
+                    action = None
                 elif line.startswith("] + "):
                     varname = re_add_varname.search(line).group(1)
                     for it in variables[varname]:
-                        action(it) 
+                        action(it)
                 elif action:
                     action(line)
 

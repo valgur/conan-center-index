@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
 find_package(PhysX REQUIRED PhysX PhysXExtensions CONFIG)
 
@@ -12,3 +12,4 @@ if(TEST_SHARED_LIBRARY)
     add_library(${PROJECT_NAME}_lib SHARED test_library.cpp)
     target_link_libraries(${PROJECT_NAME}_lib PhysX::PhysXFoundation PhysX::PhysXExtensions)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

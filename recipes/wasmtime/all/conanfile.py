@@ -1,3 +1,9 @@
+# Warnings:
+#   Unexpected method '_sources_os_key'
+#   Missing required method 'config_options'
+#   Missing required method 'source'
+#   Missing required method 'generate'
+
 from conan import ConanFile
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
@@ -6,7 +12,7 @@ from conan.tools.microsoft import is_msvc
 
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class WasmtimeConan(ConanFile):
@@ -16,13 +22,16 @@ class WasmtimeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bytecodealliance/wasmtime"
     topics = ("webassembly", "wasm", "wasi")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
     }
     no_copy_source = True
 
@@ -40,6 +49,10 @@ class WasmtimeConan(ConanFile):
             "gcc": "5.1",
         }
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     @property
     def _sources_os_key(self):
         if is_msvc(self):
@@ -51,6 +64,9 @@ class WasmtimeConan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler.version
@@ -77,15 +93,34 @@ class WasmtimeConan(ConanFile):
         try:
             self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)]
         except KeyError:
-            raise ConanInvalidConfiguration("Binaries for this combination of architecture/version/os are not available")
+            raise ConanInvalidConfiguration(
+                "Binaries for this combination of architecture/version/os are not available"
+            )
+
+    def source(self):
+        # TODO: fill in source()
+        pass
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         # This is packaging binaries so the download needs to be in build
-        get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
-            destination=self.build_folder, strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
+            destination=self.build_folder,
+            strip_root=True,
+        )
 
     def package(self):
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.build_folder, "include"))
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.build_folder, "include"),
+        )
 
         srclibdir = os.path.join(self.build_folder, "lib")
         dstlibdir = os.path.join(self.package_folder, "lib")
@@ -95,7 +130,7 @@ class WasmtimeConan(ConanFile):
             copy(self, "wasmtime.dll", dst=dstbindir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.dll.a", dst=dstlibdir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.so*", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.dylib",  dst=dstlibdir, src=srclibdir, keep_path=False)
+            copy(self, "libwasmtime.dylib", dst=dstlibdir, src=srclibdir, keep_path=False)
         else:
             copy(self, "wasmtime.lib", dst=dstlibdir, src=srclibdir, keep_path=False)
             copy(self, "libwasmtime.a", dst=dstlibdir, src=srclibdir, keep_path=False)
@@ -114,6 +149,14 @@ class WasmtimeConan(ConanFile):
             self.cpp_info.libs = ["wasmtime"]
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32", "bcrypt", "advapi32", "userenv", "ntdll", "shell32", "ole32"]
+            self.cpp_info.system_libs = [
+                "ws2_32",
+                "bcrypt",
+                "advapi32",
+                "userenv",
+                "ntdll",
+                "shell32",
+                "ole32",
+            ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "dl", "m", "rt"]

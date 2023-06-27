@@ -2,8 +2,16 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, download, export_conandata_patches,
-    get, load, rename, rmdir, save
+    apply_conandata_patches,
+    chdir,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    rename,
+    rmdir,
+    save,
 )
 import os
 
@@ -14,9 +22,9 @@ class CspiceConan(ConanFile):
     name = "cspice"
     description = "NASA C SPICE library"
     license = "TSPA"
-    topics = ("spice", "naif", "kernels", "space", "nasa", "jpl", "spacecraft", "planet", "robotics")
-    homepage = "https://naif.jpl.nasa.gov/naif/toolkit.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://naif.jpl.nasa.gov/naif/toolkit.html"
+    topics = ("spice", "naif", "kernels", "space", "nasa", "jpl", "spacecraft", "planet", "robotics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -52,18 +60,16 @@ class CspiceConan(ConanFile):
         sources_url_per_triplet = self.conan_data["sources"][self.version]
         host_os = self._get_os_or_subsystem()
         if host_os not in sources_url_per_triplet:
-            raise ConanInvalidConfiguration(
-                f"cspice N{self.version} does not support {host_os}",
-            )
+            raise ConanInvalidConfiguration(f"cspice N{self.version} does not support {host_os}")
         compiler = str(self.settings.compiler)
         if compiler not in sources_url_per_triplet[host_os]:
             raise ConanInvalidConfiguration(
-                f"cspice N{self.version} does not support {compiler} on {host_os}",
+                f"cspice N{self.version} does not support {compiler} on {host_os}"
             )
         arch = str(self.settings.arch)
         if arch not in sources_url_per_triplet[host_os][compiler]:
             raise ConanInvalidConfiguration(
-                f"cspice N{self.version} does not support {compiler} on {host_os} {arch}",
+                f"cspice N{self.version} does not support {compiler} on {host_os} {arch}"
             )
 
     def _get_os_or_subsystem(self):
@@ -93,7 +99,7 @@ class CspiceConan(ConanFile):
             arch = str(self.settings.arch)
             data = self.conan_data["sources"][self.version][host_os][compiler][arch]
             url = data["url"]
-            if url.endswith(".tar.Z"): # Python doesn't have any module to uncompress .Z files
+            if url.endswith(".tar.Z"):  # Python doesn't have any module to uncompress .Z files
                 tarball = os.path.basename(url)
                 download(self, url, tarball, sha256=data["sha256"])
                 self.run(f"zcat {tarball} | tar -xf -")
@@ -110,16 +116,16 @@ class CspiceConan(ConanFile):
         cmake.configure(build_script_folder=self._parent_source_folder)
         cmake.build()
 
-    def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        cmake = CMake(self)
-        cmake.install()
-
     def _extract_license(self):
         spiceusr_header = load(self, os.path.join(self.source_folder, "include", "SpiceUsr.h"))
         begin = spiceusr_header.find("-Disclaimer")
         end = spiceusr_header.find("-Required_Reading", begin)
         return spiceusr_header[begin:end]
+
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["cspice"]

@@ -13,11 +13,14 @@ required_conan_version = ">=1.53.0"
 
 class Dav1dConan(ConanFile):
     name = "dav1d"
-    description = "dav1d is a new AV1 cross-platform decoder, open-source, and focused on speed, size and correctness."
-    homepage = "https://www.videolan.org/projects/dav1d.html"
-    topics = ("av1", "codec", "video", "decoding")
+    description = (
+        "dav1d is a new AV1 cross-platform decoder, open-source, and focused on speed, size and correctness."
+    )
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.videolan.org/projects/dav1d.html"
+    topics = ("av1", "codec", "video", "decoding")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -44,7 +47,7 @@ class Dav1dConan(ConanFile):
             # debug builds with assembly often causes linker hangs or LNK1000
             self.options.assembly = False
         if Version(self.version) < "1.0.0":
-            del self.options.with_avx512
+            self.options.rm_safe("with_avx512")
 
     def configure(self):
         if self.options.shared:
@@ -82,8 +85,7 @@ class Dav1dConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                              "subdir('doc')", "")
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('doc')", "")
 
     def build(self):
         self._patch_sources()
@@ -111,10 +113,12 @@ class Dav1dConan(ConanFile):
         if self.options.with_tools:
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     from conan.tools.files import rename
     import glob
+
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
@@ -122,7 +126,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

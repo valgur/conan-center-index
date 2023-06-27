@@ -11,17 +11,17 @@ required_conan_version = ">=1.50.0"
 
 class LibHALConan(ConanFile):
     name = "libhal"
+    description = (
+        "A collection of interfaces and abstractions for embedded peripherals and devices using modern C++"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libhal.github.io/libhal"
-    description = ("A collection of interfaces and abstractions for embedded "
-                   "peripherals and devices using modern C++")
-    topics = ("peripherals", "hardware", "abstraction", "devices", "hal")
-    settings = "os", "compiler", "arch", "build_type"
-    no_copy_source = True
+    topics = ("peripherals", "hardware", "abstraction", "devices", "hal", "header-only")
 
-    def package_id(self):
-        self.info.clear()
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -34,8 +34,14 @@ class LibHALConan(ConanFile):
             "Visual Studio": "17",
             "msvc": "193",
             "clang": "13",
-            "apple-clang": "13.1.6"
+            "apple-clang": "13.1.6",
         }
+
+    def layout(self):
+        basic_layout(self)
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -53,22 +59,27 @@ class LibHALConan(ConanFile):
 
         if minimum_version and lazy_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support")
-
-    def layout(self):
-        basic_layout(self)
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler"
+                f" ({compiler}-{version}) does not support"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(
-            self.package_folder, "licenses"),  src=self.source_folder)
-        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.hpp", dst=os.path.join(self.package_folder,
-             "include"), src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

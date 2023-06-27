@@ -19,6 +19,7 @@ class LibrdkafkaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/edenhill/librdkafka"
     topics = ("kafka", "consumer", "producer")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -53,7 +54,7 @@ class LibrdkafkaConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "1.9.0":
-            del self.options.curl
+            self.options.rm_safe("curl")
 
     def configure(self):
         if self.options.shared:

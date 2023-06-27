@@ -18,11 +18,12 @@ required_conan_version = ">=1.53.0"
 
 class LibPcapConan(ConanFile):
     name = "libpcap"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/the-tcpdump-group/libpcap"
     description = "libpcap is an API for capturing network traffic"
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/the-tcpdump-group/libpcap"
     topics = ("networking", "pcap", "sniffing", "network-traffic")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -49,7 +50,7 @@ class LibPcapConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.enable_libusb
+            self.options.rm_safe("enable_libusb")
 
     def configure(self):
         if self.options.shared:
@@ -70,8 +71,12 @@ class LibPcapConan(ConanFile):
     def validate(self):
         if Version(self.version) < "1.10.0" and self.settings.os == "Macos" and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on OSX.")
-        if hasattr(self, "settings_build") and cross_building(self) and \
-           self.options.shared and is_apple_os(self):
+        if (
+            hasattr(self, "settings_build")
+            and cross_building(self)
+            and self.options.shared
+            and is_apple_os(self)
+        ):
             raise ConanInvalidConfiguration("cross-build of libpcap shared is broken on Apple")
         if Version(self.version) < "1.10.1" and self.settings.os == "Windows" and not self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built static on Windows")
@@ -106,15 +111,17 @@ class LibPcapConan(ConanFile):
 
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--enable-usb={yes_no(self.options.get_safe('enable_libusb'))}",
-                "--disable-universal",
-                "--without-libnl",
-                "--disable-bluetooth",
-                "--disable-packet-ring",
-                "--disable-dbus",
-                "--disable-rdma",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-usb={yes_no(self.options.get_safe('enable_libusb'))}",
+                    "--disable-universal",
+                    "--without-libnl",
+                    "--disable-bluetooth",
+                    "--disable-packet-ring",
+                    "--disable-dbus",
+                    "--disable-rdma",
+                ]
+            )
             if cross_building(self):
                 target_os = "linux" if self.settings.os == "Linux" else "null"
                 tc.configure_args.append(f"--with-pcap={target_os}")

@@ -8,7 +8,7 @@ auto main() -> int {
     map[123] = "hello";
     map[987] = "world!";
 
-    for (auto const& [key, val] : map) {
+    for (auto const &[key, val] : map) {
         std::cout << key << " => " << val << std::endl;
     }
 }

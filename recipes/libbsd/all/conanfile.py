@@ -10,14 +10,18 @@ from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
 
+
 class LibBsdConan(ConanFile):
     name = "libbsd"
-    description = "This library provides useful functions commonly found on BSD systems, and lacking on others like GNU systems, " \
-                  "thus making it easier to port projects with strong BSD origins, without needing to embed the same code over and over again on each project."
-    topics = ("conan", "libbsd", "useful", "functions", "bsd", "GNU")
+    description = (
+        "This library provides useful functions commonly found on BSD systems, and lacking on others like GNU systems, "
+        "thus making it easier to port projects with strong BSD origins, without needing to embed the same code over and over again on each project."
+    )
     license = ("ISC", "MIT", "Beerware", "BSD-2-clause", "BSD-3-clause", "BSD-4-clause")
-    homepage = "https://libbsd.freedesktop.org/wiki/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://libbsd.freedesktop.org/wiki/"
+    topics = ("useful", "functions", "bsd", "GNU")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,18 +33,30 @@ class LibBsdConan(ConanFile):
         "fPIC": True,
     }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def validate(self):
+        if not is_apple_os(self) and self.settings.os != "Linux":
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)"
+            )
+
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
 
-    def export_sources(self):
-        export_conandata_patches(self)
-    
-    def configure(self):
-        if self.options.shared:
-           self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-    
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
@@ -50,16 +66,6 @@ class LibBsdConan(ConanFile):
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-    
-    def validate(self):
-        if not is_apple_os(self) and self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
@@ -94,7 +100,12 @@ class LibBsdConan(ConanFile):
             self.cpp_info.components["libbsd-ctor"].libs = ["bsd-ctor"]
             self.cpp_info.components["libbsd-ctor"].requires = ["bsd"]
             if self.settings.os == "Linux":
-                self.cpp_info.components["libbsd-ctor"].exelinkflags = ["-Wl,-z,nodlopen", "-Wl,-u,libbsd_init_func"]
-                self.cpp_info.components["libbsd-ctor"].sharedlinkflags = ["-Wl,-z,nodlopen", "-Wl,-u,libbsd_init_func"]
+                self.cpp_info.components["libbsd-ctor"].exelinkflags = [
+                    "-Wl,-z,nodlopen",
+                    "-Wl,-u,libbsd_init_func",
+                ]
+                self.cpp_info.components["libbsd-ctor"].sharedlinkflags = [
+                    "-Wl,-z,nodlopen",
+                    "-Wl,-u,libbsd_init_func",
+                ]
             self.cpp_info.components["libbsd-ctor"].set_property("pkg_config_name", "libbsd-ctor")
-

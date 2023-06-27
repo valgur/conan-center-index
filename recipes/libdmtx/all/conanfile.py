@@ -1,13 +1,7 @@
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
-
 
 required_conan_version = ">=1.53.0"
 
@@ -22,6 +16,8 @@ class libdmtxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dmtx/libdmtx"
     topics = ("data matrix", "ECC200", "barcode")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -49,12 +45,7 @@ class libdmtxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -69,10 +60,7 @@ class libdmtxConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         cmake = CMake(self)
         cmake.install()

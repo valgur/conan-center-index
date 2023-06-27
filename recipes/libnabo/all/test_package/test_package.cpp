@@ -2,8 +2,7 @@
 
 #include <memory>
 
-int main()
-{
+int main() {
     Eigen::MatrixXf M = Eigen::MatrixXf::Random(3, 100);
     Eigen::VectorXf q = Eigen::VectorXf::Random(3);
     auto nns = std::unique_ptr<Nabo::NNSearchF>(Nabo::NNSearchF::createKDTreeLinearHeap(M));

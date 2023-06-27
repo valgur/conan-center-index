@@ -8,12 +8,14 @@ required_conan_version = ">=1.53.0"
 
 class Chipmunk2DConan(ConanFile):
     name = "chipmunk2d"
+    description = (
+        "Chipmunk2D is a simple, lightweight, fast and portable 2D "
+        "rigid body physics library written in C."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chipmunk-physics.net"
     topics = ("physics", "engine", "game development")
-    description = "Chipmunk2D is a simple, lightweight, fast and portable 2D "\
-                  "rigid body physics library written in C."
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

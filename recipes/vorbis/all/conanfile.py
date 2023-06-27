@@ -3,18 +3,19 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, rmdir
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class VorbisConan(ConanFile):
     name = "vorbis"
     description = "The VORBIS audio codec library"
-    topics = ("vorbis", "audio", "codec")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://xiph.org/vorbis/"
-    license = "BSD-3-Clause"
+    topics = ("audio", "codec")
 
-    settings = "os", "arch", "build_type", "compiler"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -35,24 +36,17 @@ class VorbisConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
-
-    def requirements(self):
-        self.requires("ogg/1.3.5", transitive_headers=True, transitive_libs=True)
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("ogg/1.3.5", transitive_headers=True, transitive_libs=True)
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

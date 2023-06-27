@@ -24,30 +24,34 @@ class GoogleAPIS(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/googleapis/googleapis"
-    topics = "google", "protos", "api"
+    topics = ("google", "protos", "api")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        }
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
-        }
-    exports = "helpers.py"
-    short_paths = True
+    }
 
     @property
     def _protobuf_version(self):
         return "3.21.9"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=os.path.join(self.export_sources_folder, "src"))
+        copy(
+            self,
+            "CMakeLists.txt",
+            src=self.recipe_folder,
+            dst=os.path.join(self.export_sources_folder, "src"),
+        )
+        copy(self, "helpers.py", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -59,7 +63,12 @@ class GoogleAPIS(ConanFile):
 
     def requirements(self):
         # https://github.com/conan-io/conan-center-index/pull/15601#issuecomment-1493086506
-        self.requires(f"protobuf/{self._protobuf_version}", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires(
+            f"protobuf/{self._protobuf_version}",
+            transitive_headers=True,
+            transitive_libs=True,
+            run=can_run(self),
+        )
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -70,7 +79,9 @@ class GoogleAPIS(ConanFile):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("Source code generated from protos is missing some export macro")
         if self.options.shared and not self.dependencies["protobuf"].options.shared:
-            raise ConanInvalidConfiguration("If built as shared, protobuf must be shared as well. Please, use `protobuf:shared=True`")
+            raise ConanInvalidConfiguration(
+                "If built as shared, protobuf must be shared as well. Please, use `protobuf:shared=True`"
+            )
 
     def build_requirements(self):
         if not can_run(self):
@@ -95,10 +106,14 @@ class GoogleAPIS(ConanFile):
     def _parse_proto_libraries(self):
         # Generate the libraries to build dynamically
         proto_libraries = []
-        for filename in glob.iglob(os.path.join(self.source_folder, 'google', '**', 'BUILD.bazel'), recursive=True):
+        for filename in glob.iglob(
+            os.path.join(self.source_folder, "google", "**", "BUILD.bazel"), recursive=True
+        ):
             proto_libraries += parse_proto_libraries(filename, self.source_folder, self.output.error)
 
-        for filename in glob.iglob(os.path.join(self.source_folder, 'grafeas', '**', 'BUILD.bazel'), recursive=True):
+        for filename in glob.iglob(
+            os.path.join(self.source_folder, "grafeas", "**", "BUILD.bazel"), recursive=True
+        ):
             proto_libraries += parse_proto_libraries(filename, self.source_folder, self.output.error)
 
         # Validate that all files exist and all dependencies are found
@@ -124,17 +139,24 @@ class GoogleAPIS(ConanFile):
         def deactivate_library(key):
             if key in all_dict:
                 all_dict[key].is_used = False
+
         #  - Inconvenient macro names from usr/include/sys/syslimits.h in some macOS SDKs: GID_MAX
         #    Patched here: https://github.com/protocolbuffers/protobuf/commit/f138d5de2535eb7dd7c8d0ad5eb16d128ab221fd
         #    https://github.com/conan-io/conan-center-index/pull/16034/files#r1159042324
         #    This was fixed in the v22 release which starts at 4.22 for the C++ library
-        if Version(self.dependencies["protobuf"].ref.version) <= "3.21.9" and self.settings.os == "Macos" or \
-            self.settings.os == "Android":
+        if (
+            Version(self.dependencies["protobuf"].ref.version) <= "3.21.9"
+            and self.settings.os == "Macos"
+            or self.settings.os == "Android"
+        ):
             deactivate_library("//google/storagetransfer/v1:storagetransfer_proto")
             deactivate_library("//google/storagetransfer/v1:storagetransfer_cc_proto")
         #  - Inconvenient macro names from /usr/include/math.h : DOMAIN
-        if (self.settings.os == "Linux" and self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++") or \
-            is_msvc(self):
+        if (
+            self.settings.os == "Linux"
+            and self.settings.compiler == "clang"
+            and self.settings.compiler.libcxx == "libc++"
+        ) or is_msvc(self):
             deactivate_library("//google/cloud/channel/v1:channel_proto")
             deactivate_library("//google/cloud/channel/v1:channel_cc_proto")
         #  - Inconvenient names for android
@@ -182,28 +204,60 @@ class GoogleAPIS(ConanFile):
     _DEPS_FILE = "res/generated_targets.deps"
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
         copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
 
-        copy(self, pattern="*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, pattern="*.so*", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(
+            self,
+            pattern="*.lib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dll",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.so*",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
         with open(os.path.join(self.package_folder, self._DEPS_FILE), "w", encoding="utf-8") as f:
             for lib in filter(lambda u: u.is_used, self._parse_proto_libraries()):
-                interface = 'LIB' if lib.srcs else 'INTERFACE'
+                interface = "LIB" if lib.srcs else "INTERFACE"
                 f.write(f"{lib.cmake_target} {interface} {','.join(lib.cmake_deps)}\n")
 
     def package_info(self):
         with open(os.path.join(self.package_folder, self._DEPS_FILE), "r", encoding="utf-8") as f:
             for line in f.read().splitlines():
-                (name, libtype, deps) = line.rstrip('\n').split(' ')
-                self.cpp_info.components[name].requires = deps.split(',')
+                (name, libtype, deps) = line.rstrip("\n").split(" ")
+                self.cpp_info.components[name].requires = deps.split(",")
                 self.cpp_info.components[name].resdirs = ["res"]
-                if libtype == 'LIB':
+                if libtype == "LIB":
                     self.cpp_info.components[name].libs = [name]
                 self.cpp_info.components[name].set_property("pkg_config_name", name)
                 if self.settings.os in ["Linux", "FreeBSD"]:

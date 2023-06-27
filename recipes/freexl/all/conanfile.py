@@ -13,13 +13,16 @@ required_conan_version = ">=1.55.0"
 
 class FreexlConan(ConanFile):
     name = "freexl"
-    description = "FreeXL is an open source library to extract valid data " \
-                  "from within an Excel (.xls) spreadsheet."
+    description = (
+        "FreeXL is an open source library to extract valid data "
+        "from within an Excel (.xls) spreadsheet."
+    )
     license = ["MPL-1.0", "GPL-2.0-only", "LGPL-2.1-only"]
-    topics = ("excel", "xls")
-    homepage = "https://www.gaia-gis.it/fossil/freexl/index"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/freexl/index"
+    topics = ("excel", "xls")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -93,7 +96,12 @@ class FreexlConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(
+                        self,
+                        os.path.basename(gnu_config),
+                        src=os.path.dirname(gnu_config),
+                        dst=self.source_folder,
+                    )
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
@@ -101,9 +109,26 @@ class FreexlConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "freexl.h", src=os.path.join(self.source_folder, "headers"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "freexl.h",
+                src=os.path.join(self.source_folder, "headers"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -13,13 +20,13 @@ required_conan_version = ">=1.53.0"
 
 class DataFrameConan(ConanFile):
     name = "dataframe"
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/hosseinmoein/DataFrame"
     description = (
         "C++ DataFrame for statistical, Financial, and ML analysis -- in modern C++ "
         "using native types, continuous memory storage, and no pointers are involved"
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/hosseinmoein/DataFrame"
     topics = (
         "dataframe",
         "data-science",
@@ -121,13 +128,15 @@ class DataFrameConan(ConanFile):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
-                textwrap.dedent("""\
+                textwrap.dedent(
+                    """\
                     include(AddInstallRPATHSupport)
                     add_install_rpath_support(BIN_DIRS "${CMAKE_INSTALL_FULL_LIBDIR}"
                                               LIB_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
                                               INSTALL_NAME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}"
                                               USE_LINK_PATH)
-                """),
+                """
+                ),
                 "",
             )
 

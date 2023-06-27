@@ -13,23 +13,23 @@ required_conan_version = ">=1.53.0"
 
 class UniAlgoConan(ConanFile):
     name = "uni-algo"
-    package_type = "library"
     description = "Unicode Algorithms Implementation for C/C++"
     license = ("MIT", "Unlicense")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/uni-algo/uni-algo"
     topics = ("unicode", "utf-8", "utf-16", "header-only")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "header_only": [True, False]
+        "header_only": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "header_only": False
+        "header_only": False,
     }
 
     @property
@@ -96,7 +96,12 @@ class UniAlgoConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self.options.header_only:
             copy(
                 self,

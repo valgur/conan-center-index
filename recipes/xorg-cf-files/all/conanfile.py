@@ -69,7 +69,7 @@ class XorgCfFilesConan(ConanFile):
         tc = AutotoolsToolchain(self)
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, self.conf.get('user.automake:compile-wrapper'))
+            compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper"))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("CPP", f"{compile_wrapper} cl -E")

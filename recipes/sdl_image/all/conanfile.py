@@ -11,10 +11,10 @@ required_conan_version = ">=1.53.0"
 class SDLImageConan(ConanFile):
     name = "sdl_image"
     description = "SDL_image is an image file loading library"
-    topics = ("sdl2", "sdl", "images", "opengl")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org/projects/SDL_image/"
-    license = "MIT"
+    topics = ("sdl2", "sdl", "images", "opengl")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -57,13 +57,14 @@ class SDLImageConan(ConanFile):
         "imageio": False,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not is_apple_os(self):
-            del self.options.imageio
+            self.options.rm_safe("imageio")
 
     def configure(self):
         if self.options.shared:
@@ -168,7 +169,4 @@ class SDLImageConan(ConanFile):
             if self.settings.os == "Macos":
                 self.cpp_info.components["_sdl_image"].frameworks.append("ApplicationServices")
             else:
-                self.cpp_info.components["_sdl_image"].frameworks.extend([
-                    "MobileCoreServices",
-                    "UIKit",
-                ])
+                self.cpp_info.components["_sdl_image"].frameworks.extend(["MobileCoreServices", "UIKit"])

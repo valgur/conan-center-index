@@ -1,18 +1,31 @@
-import os
+# TODO: verify the Conan v2 migration
+
 import glob
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+import os
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
+
+required_conan_version = ">=1.53.0"
+
 
 class OisConan(ConanFile):
     name = "ois"
     description = "Object oriented Input System."
-    topics = ("conan", "ois", "input" )
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wgois/OIS"
-    license = "Zlib"
-    exports_sources = ["CMakeLists.txt", "patches/*"]
-    generators = "cmake"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = "input"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -22,19 +35,8 @@ class OisConan(ConanFile):
         "fPIC": True,
     }
 
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
-    def requirements(self):
-        if self.settings.os == "Linux":
-            self.requires("xorg/system")
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,39 +44,40 @@ class OisConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.settings.os == "Linux":
+            self.requires("xorg/system")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = "OIS-{}".format(self.version)
-        os.rename(extracted_dir, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["OIS_BUILD_SHARED_LIBS"] = self.options.shared
-        self._cmake.definitions["OIS_BUILD_DEMOS"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["OIS_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.variables["OIS_BUILD_DEMOS"] = False
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.md", src=os.path.join(self.source_folder, self._source_subfolder), dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
             os.unlink(pdb_file)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
 
         self.cpp_info.names["pkg_config"] = "OIS"
         self.cpp_info.names["cmake_find_package"] = "OIS"

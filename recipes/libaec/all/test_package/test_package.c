@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <libaec.h>
+#include <stdint.h>
 
 /* Modified from the encoding example in the readme */
 
@@ -11,7 +11,7 @@ int main(void) {
     unsigned char dest[4096];
     size_t idx;
 
-    for(idx=0;idx<source_length;idx++) {
+    for (idx = 0; idx < source_length; idx++) {
         source[idx] = (int32_t)idx;
     }
 

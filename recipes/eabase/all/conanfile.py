@@ -9,11 +9,15 @@ required_conan_version = ">=1.52.0"
 
 class EABaseConan(ConanFile):
     name = "eabase"
-    description = "EABase is a small set of header files that define platform-independent data types and platform feature macros. "
-    topics = ("eastl", "config")
+    description = (
+        "EABase is a small set of header files that define platform-independent "
+        "data types and platform feature macros. "
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/electronicarts/EABase"
+    topics = ("eastl", "config", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -29,10 +33,7 @@ class EABaseConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

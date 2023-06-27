@@ -10,8 +10,8 @@ class ObserverPtrLiteConan(ConanFile):
     name = "observer-ptr-lite"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/observer-ptr-lite"
-    description = ("observer-ptr is a single-file header-only library with a variant of \
-                    std::experimental::observer_ptr for C++98 and later.")
+    description = "observer-ptr is a single-file header-only library with a variant of \
+                    std::experimental::observer_ptr for C++98 and later."
     topics = ("cpp98", "cpp11", "cpp14", "cpp17")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -24,14 +24,18 @@ class ObserverPtrLiteConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
@@ -49,7 +53,9 @@ class ObserverPtrLiteConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
         self.cpp_info.components["observerptrlite"].names["cmake_find_package"] = "observer-ptr-lite"
         self.cpp_info.components["observerptrlite"].names["cmake_find_package_multi"] = "observer-ptr-lite"
-        self.cpp_info.components["observerptrlite"].set_property("cmake_target_name", "nonstd::observer-ptr-lite")
+        self.cpp_info.components["observerptrlite"].set_property(
+            "cmake_target_name", "nonstd::observer-ptr-lite"
+        )
         self.cpp_info.components["observerptrlite"].bindirs = []
         self.cpp_info.components["observerptrlite"].frameworkdirs = []
         self.cpp_info.components["observerptrlite"].libdirs = []

@@ -1,6 +1,6 @@
-#include <stdio.h>
-#include <mongoc/mongoc.h>
 #include <bson/bson.h>
+#include <mongoc/mongoc.h>
+#include <stdio.h>
 
 int main() {
     printf("mongoc version: %s\n", mongoc_get_version());

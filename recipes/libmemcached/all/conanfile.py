@@ -11,32 +11,27 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class LibmemcachedConan(ConanFile):
     name = "libmemcached"
-
-    # Optional metadata
+    description = "libmemcached is a C client library for interfacing to a memcached server"
     license = "BSD License"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libmemcached.org/"
-    description = "libmemcached is a C client library for interfacing to a memcached server"
     topics = ("cache", "network", "cloud")
-    # package_type should usually be "library" (if there is shared option)
-    package_type = "library"
 
-    # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "sasl": [True, False]
+        "sasl": [True, False],
     }
-    default_options = {"shared": False,
-                       "fPIC": True,
-                       "sasl": False}
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                strip_root=True, destination=self.source_folder)
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "sasl": False,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,6 +50,9 @@ class LibmemcachedConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"] and not is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def _patch_source(self):
         apply_conandata_patches(self)
 
@@ -65,7 +63,7 @@ class LibmemcachedConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append('--disable-dependency-tracking')
+        tc.configure_args.append("--disable-dependency-tracking")
         if not self.options.sasl:
             tc.configure_args.append("--disable-sasl")
         tc.generate()
@@ -96,4 +94,3 @@ class LibmemcachedConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["memcached"]
         self.cpp_info.system_libs = ["m"]
-

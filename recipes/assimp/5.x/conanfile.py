@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -18,7 +26,7 @@ class AssimpConan(ConanFile):
         "A library to import and export various 3d-model-formats including "
         "scene-post-processing to generate missing render data."
     )
-    topics = ("assimp", "3d", "game development", "3mf", "collada")
+    topics = ("3d", "game development", "3mf", "collada")
     license = "BSD-3-Clause"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -148,14 +156,20 @@ class AssimpConan(ConanFile):
     def _depends_on_stb(self):
         if Version(self.version) < "5.1.0":
             return False
-        return self.options.with_m3d or self.options.with_m3d_exporter or \
-            self.options.with_pbrt_exporter
+        return self.options.with_m3d or self.options.with_m3d_exporter or self.options.with_pbrt_exporter
 
     @property
     def _depends_on_zlib(self):
-        return self.options.with_assbin or self.options.with_assbin_exporter or \
-            self.options.with_assxml_exporter or self.options.with_blend or self.options.with_fbx or \
-            self.options.with_q3bsp or self.options.with_x or self.options.with_xgl
+        return (
+            self.options.with_assbin
+            or self.options.with_assbin_exporter
+            or self.options.with_assxml_exporter
+            or self.options.with_blend
+            or self.options.with_fbx
+            or self.options.with_q3bsp
+            or self.options.with_x
+            or self.options.with_xgl
+        )
 
     @property
     def _depends_on_openddlparser(self):
@@ -222,7 +236,7 @@ class AssimpConan(ConanFile):
                 tc.variables[definition] = value
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["NOMINMAX"] = 1
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW" # to avoid warnings
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"  # to avoid warnings
         tc.generate()
 
         cd = CMakeDeps(self)
@@ -239,13 +253,17 @@ class AssimpConan(ConanFile):
             ('SET(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Ob2 /DEBUG:FULL /Zi")', ""),
             ('SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_DEBUG /Zi /Od")', ""),
             ('SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")', ""),
-            ('SET(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /PDBALTPATH:%_PDB% /OPT:REF /OPT:ICF")', ""),
-            ("/WX", "")
+            (
+                'SET(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG:FULL /PDBALTPATH:%_PDB% /OPT:REF /OPT:ICF")',
+                "",
+            ),
+            ("/WX", ""),
         ]
 
         for before, after in replace_mapping:
-            replace_in_file(self, os.path.join(
-                self.source_folder, "CMakeLists.txt"), before, after, strict=False)
+            replace_in_file(
+                self, os.path.join(self.source_folder, "CMakeLists.txt"), before, after, strict=False
+            )
         # Take care to not use these vendored libs
         vendors = ["poly2tri", "rapidjson", "utf8cpp", "zip", "unzip", "stb", "zlib", "clipper"]
         if Version(self.version) < "5.1.0":

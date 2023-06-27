@@ -6,11 +6,11 @@
 auto main() -> int {
     boolalpha(std::cout);
 
-    #define eval(expr) #expr << ": " << (expr)
+#define eval(expr) #expr << ": " << (expr)
 
     using std::any;
     std::cout << eval(any(5) == any(5)) << std::endl;
     std::cout << eval(any(5) == any(5u)) << std::endl;
 
-    #undef eval
+#undef eval
 }

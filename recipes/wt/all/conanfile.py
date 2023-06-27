@@ -1,6 +1,22 @@
+# Warnings:
+#   Unexpected method '_required_boost_components'
+#   Unexpected method '_get_library_prefix'
+#   Unexpected method '_strict_options_requirements'
+#   Unexpected method '_get_library_extension'
+#   Unexpected method '_cmakify_path_list'
+#   Unexpected method '_find_library'
+#   Unexpected method '_find_libraries'
+
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
@@ -9,6 +25,7 @@ import shutil
 
 required_conan_version = ">=1.53.0"
 
+
 class WtConan(ConanFile):
     name = "wt"
     description = "Wt is a C++ library for developing web applications"
@@ -16,6 +33,8 @@ class WtConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/emweb/wt"
     topics = ("server", "web", "webapp", "websocket", "cgi", "fastcgi", "orm")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -56,26 +75,34 @@ class WtConan(ConanFile):
         "connector_fcgi": False,
     }
 
+    @property
+    def _required_boost_components(self):
+        return ["program_options", "filesystem", "thread"]
+
+    @property
+    def _get_library_prefix(self):
+        return "" if self.settings.os == "Windows" else "lib"
+
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.connector_fcgi
+            self.options.rm_safe("connector_fcgi")
         else:
-            del self.options.connector_isapi
+            self.options.rm_safe("connector_isapi")
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.with_unwind
+            self.options.rm_safe("with_unwind")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.with_dbo:
-            del self.options.with_sqlite
-            del self.options.with_postgres
-            del self.options.with_mysql
-            del self.options.with_mssql
+            self.options.rm_safe("with_sqlite")
+            self.options.rm_safe("with_postgres")
+            self.options.rm_safe("with_mysql")
+            self.options.rm_safe("with_mssql")
         self._strict_options_requirements()
 
     def layout(self):
@@ -85,10 +112,6 @@ class WtConan(ConanFile):
         self.options["boost"].header_only = False
         for boost_comp in self._required_boost_components:
             setattr(self.options["boost"], f"without_{boost_comp}", False)
-
-    @property
-    def _required_boost_components(self):
-        return ["program_options", "filesystem", "thread"]
 
     def requirements(self):
         if Version(self.version) < "4.6.0":
@@ -113,8 +136,10 @@ class WtConan(ConanFile):
             self.requires("libunwind/1.6.2")
 
     def validate(self):
-        miss_boost_required_comp = any(self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-                                       for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
+            for boost_comp in self._required_boost_components
+        )
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
@@ -126,7 +151,7 @@ class WtConan(ConanFile):
 
     def _get_library_extension(self, dep):
         if self.dependencies[dep].options.shared:
-            if self.settings.os == "Windows" :
+            if self.settings.os == "Windows":
                 if is_msvc(self):
                     return ".lib"
                 else:
@@ -141,24 +166,24 @@ class WtConan(ConanFile):
             else:
                 return ".a"
 
-    @property
-    def _get_library_prefix(self):
-        return "" if self.settings.os == "Windows" else "lib"
-
     def _cmakify_path_list(self, paths):
         return ";".join(paths).replace("\\", "/")
 
     def _find_library(self, libname, dep):
         for path in self.dependencies[dep].cpp_info.aggregated_components().libdirs:
-            lib_fullpath = os.path.join(path, self._get_library_prefix + libname + self._get_library_extension(dep))
+            lib_fullpath = os.path.join(
+                path, self._get_library_prefix + libname + self._get_library_extension(dep)
+            )
             self.output.info("_find_library : " + str(lib_fullpath))
             if os.path.isfile(lib_fullpath):
                 return lib_fullpath
         raise ConanException(f"Library {lib_fullpath} not found")
 
     def _find_libraries(self, dep):
-
-        return [self._find_library(lib, dep) for lib in self.dependencies[dep].cpp_info.aggregated_components().libs]
+        return [
+            self._find_library(lib, dep)
+            for lib in self.dependencies[dep].cpp_info.aggregated_components().libs
+        ]
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -196,10 +221,14 @@ class WtConan(ConanFile):
         if self.options.with_ssl:
             tc.variables["SSL_PREFIX"] = self._cmakify_path_list(self.dependencies["openssl"].package_folder)
             tc.variables["OPENSSL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("openssl"))
-            tc.variables["OPENSSL_INCLUDE_DIR"] = self._cmakify_path_list(self.dependencies["openssl"].cpp_info.aggregated_components().includedirs)
+            tc.variables["OPENSSL_INCLUDE_DIR"] = self._cmakify_path_list(
+                self.dependencies["openssl"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["OPENSSL_FOUND"] = True
         if self.options.get_safe("with_sqlite"):
-            tc.variables["SQLITE3_PREFIX"] = self._cmakify_path_list(self.dependencies["sqlite3"].package_folder)
+            tc.variables["SQLITE3_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["sqlite3"].package_folder
+            )
         if self.options.get_safe("with_mysql"):
             tc.variables["MYSQL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libmysqlclient"))
             libmysqlclient_cppinfo = self.dependencies["libmysqlclient"].cpp_info.aggregated_components()
@@ -207,17 +236,25 @@ class WtConan(ConanFile):
             tc.variables["MYSQL_DEFINITIONS"] = ";".join(f"-D{d}" for d in libmysqlclient_cppinfo.defines)
             tc.variables["MYSQL_FOUND"] = True
         if self.options.get_safe("with_postgres"):
-            tc.variables["POSTGRES_PREFIX"] = self._cmakify_path_list(self.dependencies["libpq"].package_folder)
+            tc.variables["POSTGRES_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["libpq"].package_folder
+            )
             tc.variables["POSTGRES_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("libpq"))
-            tc.variables["POSTGRES_INCLUDE"] = self._cmakify_path_list(self.dependencies["libpq"].cpp_info.aggregated_components().includedirs)
+            tc.variables["POSTGRES_INCLUDE"] = self._cmakify_path_list(
+                self.dependencies["libpq"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["POSTGRES_FOUND"] = True
         if self.options.get_safe("with_mssql") and self.settings.os != "Windows":
             tc.variables["ODBC_PREFIX"] = self._cmakify_path_list(self.dependencies["odbc"].package_folder)
             tc.variables["ODBC_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("odbc"))
-            tc.variables["ODBC_INCLUDE"] = self._cmakify_path_list(self.dependencies["odbc"].cpp_info.aggregated_components().includedirs)
+            tc.variables["ODBC_INCLUDE"] = self._cmakify_path_list(
+                self.dependencies["odbc"].cpp_info.aggregated_components().includedirs
+            )
             tc.variables["ODBC_FOUND"] = True
         if self.options.get_safe("with_unwind"):
-            tc.variables["UNWIND_PREFIX"] = self._cmakify_path_list(self.dependencies["libunwind"].package_folder)
+            tc.variables["UNWIND_PREFIX"] = self._cmakify_path_list(
+                self.dependencies["libunwind"].package_folder
+            )
         if self.settings.os == "Windows":
             tc.variables["CONNECTOR_FCGI"] = False
             tc.variables["CONNECTOR_ISAPI"] = self.options.connector_isapi
@@ -236,26 +273,31 @@ class WtConan(ConanFile):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "find_package(OpenSSL)", "#find_package(OpenSSL)")
         replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindMysql.txt)", "#INCLUDE(cmake/WtFindMysql.txt)")
-        replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindPostgresql.txt)", "#INCLUDE(cmake/WtFindPostgresql.txt)")
+        replace_in_file(
+            self, cmakelists, "INCLUDE(cmake/WtFindPostgresql.txt)", "#INCLUDE(cmake/WtFindPostgresql.txt)"
+        )
         if self.settings.os != "Windows":
-            replace_in_file(self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)")
+            replace_in_file(
+                self, cmakelists, "INCLUDE(cmake/WtFindOdbc.txt)", "#INCLUDE(cmake/WtFindOdbc.txt)"
+            )
 
         # Do not pollute rpath of shared libs of the install tree on macOS please
-        replace_in_file(self,
-            cmakelists,
-            "IF(APPLE)\n  SET(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/lib\")",
-            "if(0)",
+        replace_in_file(
+            self, cmakelists, 'IF(APPLE)\n  SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")', "if(0)"
         )
 
-        replace_in_file(self,
+        replace_in_file(
+            self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
             "TARGET_LINK_LIBRARIES(wt PRIVATE Crypt32.lib)",
-            "TARGET_LINK_LIBRARIES(wt PUBLIC crypt32)"
+            "TARGET_LINK_LIBRARIES(wt PUBLIC crypt32)",
         )
 
         dbo_cmakelsts = os.path.join(self.source_folder, "src", "Wt", "Dbo", "backend", "CMakeLists.txt")
-        replace_in_file(self, dbo_cmakelsts, "FIND_PACKAGE( Sqlite3 REQUIRED)", "FIND_PACKAGE( SQLite3 REQUIRED)")
-        replace_in_file(self, dbo_cmakelsts, '${SQLITE3_LIBRARIES}', '${SQLite3_LIBRARIES}')
+        replace_in_file(
+            self, dbo_cmakelsts, "FIND_PACKAGE( Sqlite3 REQUIRED)", "FIND_PACKAGE( SQLite3 REQUIRED)"
+        )
+        replace_in_file(self, dbo_cmakelsts, "${SQLITE3_LIBRARIES}", "${SQLite3_LIBRARIES}")
 
     def build(self):
         self._patch_sources()
@@ -264,10 +306,14 @@ class WtConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
-        shutil.move(os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin"))
+        shutil.move(
+            os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin")
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "var"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -349,7 +395,9 @@ class WtConan(ConanFile):
 
         # wtdbomssqlserver
         if self.options.get_safe("with_mssql"):
-            self.cpp_info.components["wtdbomssqlserver"].set_property("cmake_target_name", "Wt::DboMSSQLServer")
+            self.cpp_info.components["wtdbomssqlserver"].set_property(
+                "cmake_target_name", "Wt::DboMSSQLServer"
+            )
             self.cpp_info.components["wtdbomssqlserver"].libs = ["wtdbomssqlserver{}".format(suffix)]
             self.cpp_info.components["wtdbomssqlserver"].requires = ["wtdbo"]
             if self.settings.os == "Windows":

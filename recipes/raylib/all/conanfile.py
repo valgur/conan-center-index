@@ -16,6 +16,7 @@ class RaylibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.raylib.com/"
     topics = ("gamedev",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,7 +37,7 @@ class RaylibConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os == "Android":
-            del self.options.opengl_version
+            self.options.rm_safe("opengl_version")
 
     def configure(self):
         if self.options.shared:
@@ -66,7 +67,9 @@ class RaylibConan(ConanFile):
             tc.variables["OPENGL_VERSION"] = "ES 2.0"
         else:
             tc.variables["USE_EXTERNAL_GLFW"] = "ON"
-            tc.variables["OPENGL_VERSION"] = "OFF" if not self.options.opengl_version else self.options.opengl_version
+            tc.variables["OPENGL_VERSION"] = (
+                "OFF" if not self.options.opengl_version else self.options.opengl_version
+            )
         tc.variables["WITH_PIC"] = self.options.get_safe("fPIC", True)
         # Due to a specific logic of cmakedeps_macros.cmake used by CMakeDeps to try to locate shared libs on Windows
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0054"] = "NEW"
@@ -90,7 +93,9 @@ class RaylibConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"raylib": "raylib::raylib"}
+            {
+                "raylib": "raylib::raylib",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -101,7 +106,7 @@ class RaylibConan(ConanFile):
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """)
         save(self, module_file, content)
 
     @property

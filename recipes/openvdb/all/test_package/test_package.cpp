@@ -1,8 +1,7 @@
-#include <openvdb/openvdb.h>
 #include <iostream>
+#include <openvdb/openvdb.h>
 
-int main()
-{
+int main() {
     openvdb::initialize();
     openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
     openvdb::FloatGrid::Accessor accessor = grid->getAccessor();

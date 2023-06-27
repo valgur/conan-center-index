@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -12,12 +20,14 @@ required_conan_version = ">=1.53.0"
 
 class CharlsConan(ConanFile):
     name = "charls"
-    description = "C++ implementation of the JPEG-LS standard for lossless " \
-                  "and near-lossless image compression and decompression."
+    description = (
+        "C++ implementation of the JPEG-LS standard for lossless "
+        "and near-lossless image compression and decompression."
+    )
     license = "BSD-3-Clause"
-    topics = ("jpeg", "JPEG-LS", "compression", "decompression", )
-    homepage = "https://github.com/team-charls/charls"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/team-charls/charls"
+    topics = ("jpeg", "JPEG-LS", "compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -50,13 +60,23 @@ class CharlsConan(ConanFile):
 
         # brace initialization issue for gcc < 5
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration("CharLS can't be compiled by {0} {1}".format(self.settings.compiler,
-                                                                                         self.settings.compiler.version))
+            raise ConanInvalidConfiguration(
+                "CharLS can't be compiled by {0} {1}".format(
+                    self.settings.compiler, self.settings.compiler.version
+                )
+            )
 
         # name lookup issue for gcc == 5 in charls/2.2.0
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) == "5" and Version(self.version) >= "2.2.0":
-            raise ConanInvalidConfiguration("CharLS can't be compiled by {0} {1}".format(self.settings.compiler,
-                                                                                         self.settings.compiler.version))
+        if (
+            self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) == "5"
+            and Version(self.version) >= "2.2.0"
+        ):
+            raise ConanInvalidConfiguration(
+                "CharLS can't be compiled by {0} {1}".format(
+                    self.settings.compiler, self.settings.compiler.version
+                )
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -75,12 +95,14 @@ class CharlsConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -97,7 +119,9 @@ class CharlsConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"charls": "charls::charls"}
+            {
+                "charls": "charls::charls",
+            },
         )
 
     def package_info(self):

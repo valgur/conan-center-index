@@ -1,9 +1,22 @@
+# Warnings:
+#   Unexpected method '_datarootdir'
+#   Unexpected method '_create_cmake_module_variables'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, unix_path_package_info_legacy
@@ -16,13 +29,13 @@ required_conan_version = ">=1.57.0"
 class XapianCoreConan(ConanFile):
     name = "xapian-core"
     description = (
-        "Xapian is a highly adaptable toolkit which allows developers to easily "
-        "add advanced indexing and search facilities to their own applications."
+        "Xapian is a highly adaptable toolkit which allows developers to easily add advanced indexing and"
+        " search facilities to their own applications."
     )
-    topics = ("xapian", "search", "engine", "indexing", "query")
     license = "GPL-2.0-or-later"
-    homepage = "https://xapian.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://xapian.org/"
+    topics = ("xapian", "search", "engine", "indexing", "query")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -38,6 +51,10 @@ class XapianCoreConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    @property
+    def _datarootdir(self):
+        return os.path.join(self.package_folder, "res")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -86,10 +103,7 @@ class XapianCoreConan(ConanFile):
             if check_min_vs(self, "180", raise_invalid=False):
                 tc.extra_cflags.append("-FS")
                 tc.extra_cxxflags.append("-FS")
-        tc.configure_args.extend([
-            "--datarootdir=${prefix}/res",
-            "--disable-documentation",
-        ])
+        tc.configure_args.extend(["--datarootdir=${prefix}/res", "--disable-documentation"])
         env = tc.environment()
         if is_msvc(self):
             msvc_cl_sh = unix_path(self, os.path.join(self.source_folder, "msvc_cl.sh"))
@@ -124,7 +138,9 @@ class XapianCoreConan(ConanFile):
                 cflags.extend(deps_cpp_info.cflags)
 
             env = Environment()
-            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
+            env.append(
+                "CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines]
+            )
             env.append("LIBS", [f"-l{lib}" for lib in libs])
             env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
             env.append("CXXFLAGS", cxxflags)
@@ -146,8 +162,7 @@ class XapianCoreConan(ConanFile):
         autotools.install()
 
         if is_msvc(self) and not self.options.shared:
-            rename(self, f"{self.package_folder}/lib/libxapian.lib",
-                         f"{self.package_folder}/lib/xapian.lib")
+            rename(self, f"{self.package_folder}/lib/libxapian.lib", f"{self.package_folder}/lib/xapian.lib")
 
         rm(self, "xapian-config", f"{self.package_folder}/bin")
         rm(self, "*.la", f"{self.package_folder}/lib")
@@ -157,12 +172,15 @@ class XapianCoreConan(ConanFile):
         rmdir(self, f"{self._datarootdir}/man")
         fix_apple_shared_install_name(self)
 
-        self._create_cmake_module_variables(
-            f"{self.package_folder}/{self._module_file_rel_path}"
-        )
+        self._create_cmake_module_variables(f"{self.package_folder}/{self._module_file_rel_path}")
+
+    @property
+    def _module_file_rel_path(self):
+        return f"lib/cmake/conan-official-{self.name}-variables.cmake"
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             set(XAPIAN_FOUND TRUE)
             set(XAPIAN_INCLUDE_DIR ${xapian_INCLUDE_DIR}
                                    ${xapian_INCLUDE_DIR_RELEASE}
@@ -174,16 +192,9 @@ class XapianCoreConan(ConanFile):
                                  ${xapian_LIBRARIES_RELWITHDEBINFO}
                                  ${xapian_LIBRARIES_MINSIZEREL}
                                  ${xapian_LIBRARIES_DEBUG})
-        """)
+        """
+        )
         save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return f"lib/cmake/conan-official-{self.name}-variables.cmake"
-
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "xapian")

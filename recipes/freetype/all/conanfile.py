@@ -1,8 +1,16 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, collect_libs, copy, export_conandata_patches, load,
-    get, rename, replace_in_file, rmdir, save
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    load,
+    get,
+    rename,
+    replace_in_file,
+    rmdir,
+    save,
 )
 from conan.tools.scm import Version
 import os
@@ -15,10 +23,11 @@ required_conan_version = ">=1.53.0"
 class FreetypeConan(ConanFile):
     name = "freetype"
     description = "FreeType is a freely available software library to render fonts."
+    license = "FTL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org"
-    license = "FTL"
-    topics = ("freetype", "fonts")
+    topics = ("fonts",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -51,7 +60,7 @@ class FreetypeConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_with_brotli_option:
-            del self.options.with_brotli
+            self.options.rm_safe("with_brotli")
 
     def configure(self):
         if self.options.shared:
@@ -109,8 +118,12 @@ class FreetypeConan(ConanFile):
         apply_conandata_patches(self)
         # Do not accidentally enable dependencies we have disabled
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        find_harfbuzz = "find_package(HarfBuzz {})".format("1.3.0" if Version(self.version) < "2.10.2" else "${HARFBUZZ_MIN_VERSION}")
-        if_harfbuzz_found = "if ({})".format("HARFBUZZ_FOUND" if Version(self.version) < "2.11.0" else "HarfBuzz_FOUND")
+        find_harfbuzz = "find_package(HarfBuzz {})".format(
+            "1.3.0" if Version(self.version) < "2.10.2" else "${HARFBUZZ_MIN_VERSION}"
+        )
+        if_harfbuzz_found = "if ({})".format(
+            "HARFBUZZ_FOUND" if Version(self.version) < "2.11.0" else "HarfBuzz_FOUND"
+        )
         replace_in_file(self, cmakelists, find_harfbuzz, "")
         replace_in_file(self, cmakelists, if_harfbuzz_found, "if(0)")
         if not self.options.with_png:
@@ -124,18 +137,26 @@ class FreetypeConan(ConanFile):
             replace_in_file(self, cmakelists, "if (BZIP2_FOUND)", "if(0)")
         if self._has_with_brotli_option:
             # the custom FindBrotliDec of upstream is too fragile
-            replace_in_file(self, cmakelists,
-                                  "find_package(BrotliDec REQUIRED)",
-                                  "find_package(Brotli REQUIRED)\n"
-                                  "set(BROTLIDEC_FOUND 1)\n"
-                                  "set(BROTLIDEC_LIBRARIES \"brotli::brotli\")")
+            replace_in_file(
+                self,
+                cmakelists,
+                "find_package(BrotliDec REQUIRED)",
+                "find_package(Brotli REQUIRED)\n"
+                "set(BROTLIDEC_FOUND 1)\n"
+                'set(BROTLIDEC_LIBRARIES "brotli::brotli")',
+            )
             if not self.options.with_brotli:
                 replace_in_file(self, cmakelists, "find_package(BrotliDec)", "")
                 replace_in_file(self, cmakelists, "if (BROTLIDEC_FOUND)", "if(0)")
 
         config_h = os.path.join(self.source_folder, "include", "freetype", "config", "ftoption.h")
         if self.options.subpixel:
-            replace_in_file(self, config_h, "/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */", "#define FT_CONFIG_OPTION_SUBPIXEL_RENDERING")
+            replace_in_file(
+                self,
+                config_h,
+                "/* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */",
+                "#define FT_CONFIG_OPTION_SUBPIXEL_RENDERING",
+            )
 
     def build(self):
         self._patch_sources()
@@ -159,7 +180,12 @@ class FreetypeConan(ConanFile):
         replace_in_file(self, freetype_config, r"%ft_version%", r"$conan_ftversion")
         replace_in_file(self, freetype_config, r"%LIBSSTATIC_CONFIG%", r"$conan_staticlibs")
         replace_in_file(self, freetype_config, r"-lfreetype", libs)
-        replace_in_file(self, freetype_config, r"export LC_ALL", textwrap.dedent("""\
+        replace_in_file(
+            self,
+            freetype_config,
+            r"export LC_ALL",
+            textwrap.dedent(
+                """\
             export LC_ALL
             BINDIR=$(dirname $0)
             conan_prefix=$(dirname $BINDIR)
@@ -168,11 +194,15 @@ class FreetypeConan(ConanFile):
             conan_libdir=${{conan_prefix}}/lib
             conan_ftversion={version}
             conan_staticlibs="{staticlibs}"
-        """).format(version=version, staticlibs=staticlibs))
+        """
+            ).format(version=version, staticlibs=staticlibs),
+        )
 
     def _extract_libtool_version(self):
         conf_raw = load(self, os.path.join(self.source_folder, "builds", "unix", "configure.raw"))
-        return next(re.finditer(r"^version_info='([0-9:]+)'", conf_raw, flags=re.M)).group(1).replace(":", ".")
+        return (
+            next(re.finditer(r"^version_info='([0-9:]+)'", conf_raw, flags=re.M)).group(1).replace(":", ".")
+        )
 
     @property
     def _libtool_version_txt(self):
@@ -194,16 +224,17 @@ class FreetypeConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_target_rel_path),
-            {"freetype": "Freetype::Freetype"}
+            {
+                "freetype": "Freetype::Freetype",
+            },
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(f"""\
+        content = textwrap.dedent(
+            f"""\
             set(FREETYPE_FOUND TRUE)
             if(DEFINED Freetype_INCLUDE_DIRS)
                 set(FREETYPE_INCLUDE_DIRS ${{Freetype_INCLUDE_DIRS}})
@@ -212,18 +243,23 @@ class FreetypeConan(ConanFile):
                 set(FREETYPE_LIBRARIES ${{Freetype_LIBRARIES}})
             endif()
             set(FREETYPE_VERSION_STRING "{self.version}")
-        """)
+        """
+        )
         save(self, module_file, content)
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(
+                """\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
         save(self, module_file, content)
 
     @property
@@ -244,7 +280,9 @@ class FreetypeConan(ConanFile):
         self.cpp_info.set_property("cmake_module_file_name", "Freetype")
         self.cpp_info.set_property("cmake_file_name", "freetype")
         self.cpp_info.set_property("cmake_target_name", "Freetype::Freetype")
-        self.cpp_info.set_property("cmake_target_aliases", ["freetype"]) # other possible target name in upstream config file
+        self.cpp_info.set_property(
+            "cmake_target_aliases", ["freetype"]
+        )  # other possible target name in upstream config file
         self.cpp_info.set_property("cmake_build_modules", [self._module_vars_rel_path])
         self.cpp_info.set_property("pkg_config_name", "freetype2")
         self.cpp_info.libs = collect_libs(self)

@@ -1,35 +1,49 @@
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
 
+from conan import ConanFile
+from conan.tools.files import copy, download, load, save
+from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.37.0"
+required_conan_version = ">=1.52.0"
+
 
 class GlextConan(ConanFile):
     name = "glext"
+    description = "OpenGL 1.2 and above compatibility profile and extension interfaces"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.khronos.org/registry/OpenGL/index_gl.php"
-    description = "OpenGL 1.2 and above compatibility profile and extension interfaces"
-    topics = ("opengl", "gl", "glext")
+    topics = ("opengl", "gl", "glext", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("opengl/system")
         self.requires("khrplatform/cci.20200529")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
-        tools.download(filename="glext.h", **self.conan_data["sources"][self.version])
+        download(self, filename="glext.h", **self.conan_data["sources"][self.version])
 
     def package(self):
-        self.copy(pattern="glext.h", dst=os.path.join("include", "GL"))
-        license_data = tools.load(os.path.join(self.source_folder, "glext.h"))
+        copy(self, pattern="glext.h", dst=os.path.join("include", "GL"), src=self.source_folder)
+        license_data = load(self, os.path.join(self.source_folder, "glext.h"))
         begin = license_data.find("/*") + len("/*")
         end = license_data.find("*/")
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
-        tools.save("LICENSE", license_data)
-        self.copy("LICENSE", dst="licenses")
+        save(self, "LICENSE", license_data)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

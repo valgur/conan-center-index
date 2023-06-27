@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class CmpConan(ConanFile):
     name = "cmp"
+    description = "An implementation of the MessagePack serialization format in C / msgpack.org[C]"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://msgpack.org"
-    description = "An implementation of the MessagePack serialization format in C / msgpack.org[C]"
     topics = ("msgpack", "serialization")
 
     package_type = "library"
@@ -25,7 +25,8 @@ class CmpConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

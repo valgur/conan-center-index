@@ -1,5 +1,5 @@
-#include <yder.h>
 #include <stdlib.h>
+#include <yder.h>
 
 int main() {
     y_init_logs("test_package", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Logging started");

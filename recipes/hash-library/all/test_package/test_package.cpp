@@ -6,7 +6,7 @@
 #include "sha3.h"
 
 int main(void) {
-    if (CRC32()("abc") != "352441c2") { 
+    if (CRC32()("abc") != "352441c2") {
         return 1;
     }
     if (Keccak()("abc") != "4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45") {

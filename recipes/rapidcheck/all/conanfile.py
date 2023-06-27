@@ -13,11 +13,14 @@ required_conan_version = ">=1.53.0"
 
 class RapidcheckConan(ConanFile):
     name = "rapidcheck"
-    description = "QuickCheck clone for C++ with the goal of being simple to use with as little boilerplate as possible"
+    description = (
+        "QuickCheck clone for C++ with the goal of being simple to use with as little boilerplate as possible"
+    )
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/emil-e/rapidcheck"
-    license = "BSD-2-Clause"
     topics = ("quickcheck", "testing", "property-testing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -65,9 +68,13 @@ class RapidcheckConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
         if self.options.enable_gmock and not self.dependencies["gtest"].options.build_gmock:
-            raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`")
+            raise ConanInvalidConfiguration(
+                "The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,6 +98,21 @@ class RapidcheckConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                """\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
@@ -103,22 +125,11 @@ class RapidcheckConan(ConanFile):
             join(self.package_folder, self._module_file_rel_path),
             {
                 "rapidcheck": "rapidcheck::rapidcheck_rapidcheck",
-                "rapidcheck_catch":"rapidcheck::rapidcheck_catch",
+                "rapidcheck_catch": "rapidcheck::rapidcheck_catch",
                 "rapidcheck_gmock": "rapidcheck::rapidcheck_gmock",
                 "rapidcheck_gtest": "rapidcheck::rapidcheck_gtest",
-            }
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -139,7 +150,10 @@ class RapidcheckConan(ConanFile):
 
         if self.options.enable_catch:
             self.cpp_info.components["rapidcheck_catch"].set_property("cmake_target_name", "rapidcheck_catch")
-            self.cpp_info.components["rapidcheck_catch"].requires = ["rapidcheck_rapidcheck", "catch2::catch2"]
+            self.cpp_info.components["rapidcheck_catch"].requires = [
+                "rapidcheck_rapidcheck",
+                "catch2::catch2",
+            ]
         if self.options.enable_gmock:
             self.cpp_info.components["rapidcheck_gmock"].set_property("cmake_target_name", "rapidcheck_gmock")
             self.cpp_info.components["rapidcheck_gmock"].requires = ["rapidcheck_rapidcheck", "gtest::gtest"]
@@ -151,14 +165,30 @@ class RapidcheckConan(ConanFile):
             self.cpp_info.system_libs.append("m")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         if self.options.enable_catch:
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
         if self.options.enable_gmock:
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
         if self.options.enable_gtest:
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

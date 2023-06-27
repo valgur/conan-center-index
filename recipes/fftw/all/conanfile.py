@@ -9,11 +9,13 @@ required_conan_version = ">=1.54.0"
 
 class FFTWConan(ConanFile):
     name = "fftw"
-    description = "C subroutine library for computing the Discrete Fourier Transform (DFT) in one or more dimensions"
+    description = (
+        "C subroutine library for computing the Discrete Fourier Transform (DFT) in one or more dimensions"
+    )
+    license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.fftw.org/"
-    license = "GPL-2.0"
-    topics = ("fftw", "dft", "dct", "dst")
+    topics = ("dft", "dct", "dst")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -49,7 +51,7 @@ class FFTWConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.threads:
-            del self.options.combinedthreads
+            self.options.rm_safe("combinedthreads")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -59,7 +61,9 @@ class FFTWConan(ConanFile):
             if self.options.openmp:
                 raise ConanInvalidConfiguration("Shared fftw with openmp can't be built on Windows")
             if self.options.threads and not self.options.combinedthreads:
-                raise ConanInvalidConfiguration("Shared fftw with threads and not combinedthreads can't be built on Windows")
+                raise ConanInvalidConfiguration(
+                    "Shared fftw with threads and not combinedthreads can't be built on Windows"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,6 +95,14 @@ class FFTWConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
+    @property
+    def _prec_suffix(self):
+        return {
+            "double": "",
+            "single": "f",
+            "longdouble": "l",
+        }
+
     def package_info(self):
         prec_suffix = self._prec_suffix[str(self.options.precision)]
         cmake_config_name = "FFTW3" + prec_suffix
@@ -121,13 +133,7 @@ class FFTWConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = cmake_namespace
         self.cpp_info.components["fftwlib"].names["cmake_find_package"] = cmake_target_name
         self.cpp_info.components["fftwlib"].names["cmake_find_package_multi"] = cmake_target_name
-        self.cpp_info.components["fftwlib"].set_property("cmake_target_name", f"{cmake_namespace}::{cmake_target_name}")
+        self.cpp_info.components["fftwlib"].set_property(
+            "cmake_target_name", f"{cmake_namespace}::{cmake_target_name}"
+        )
         self.cpp_info.components["fftwlib"].set_property("pkg_config_name", pkgconfig_name)
-
-    @property
-    def _prec_suffix(self):
-        return {
-            "double": "",
-            "single": "f",
-            "longdouble": "l"
-        }

@@ -12,19 +12,20 @@ required_conan_version = ">=1.53.0"
 class AvcppConan(ConanFile):
     name = "avcpp"
     description = "C++ wrapper for FFmpeg"
-    license = "LGPL-2.1", "BSD-3-Clause"
+    license = ("LGPL-2.1", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/h4tr3d/avcpp/"
     topics = ("ffmpeg", "cpp")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -89,7 +90,12 @@ class AvcppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -103,8 +109,8 @@ class AvcppConan(ConanFile):
         self.cpp_info.components["AvCpp"].names["cmake_find_package"] = target_name
         self.cpp_info.components["AvCpp"].names["cmake_find_package_multi"] = target_name
         self.cpp_info.components["AvCpp"].set_property("cmake_target_name", f"avcpp::{target_name}")
-        self.cpp_info.components["AvCpp"].libs = ["avcpp", ]
-        self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg", ]
+        self.cpp_info.components["AvCpp"].libs = ["avcpp"]
+        self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["AvCpp"].system_libs = ["mvec"]
         if self.settings.os == "Windows":

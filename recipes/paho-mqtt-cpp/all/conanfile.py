@@ -16,12 +16,13 @@ class PahoMqttCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eclipse/paho.mqtt.cpp"
     topics = ("mqtt", "iot", "eclipse", "ssl", "paho", "cpp")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "ssl": [True, False, "deprecated"], # TODO: deprecated option, to remove in few months
+        "ssl": [True, False, "deprecated"],  # TODO: deprecated option, to remove in few months
     }
     default_options = {
         "shared": False,
@@ -60,7 +61,7 @@ class PahoMqttCppConan(ConanFile):
             # Symbols are exposed   "_MQTTProperties_free", referenced from: mqtt::connect_options::~connect_options() in test_package.cpp.o
             self.requires("paho-mqtt-c/1.3.9", transitive_headers=True, transitive_libs=True)
         else:
-             # This is the "official tested" version https://github.com/eclipse/paho.mqtt.cpp/releases/tag/v1.1
+            # This is the "official tested" version https://github.com/eclipse/paho.mqtt.cpp/releases/tag/v1.1
             self.requires("paho-mqtt-c/1.3.1", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
@@ -72,8 +73,13 @@ class PahoMqttCppConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
         if self.dependencies["paho-mqtt-c"].options.shared != self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} requires paho-mqtt-c to have a matching 'shared' option.")
-        if Version(self.version) < "1.2.0" and Version(self.dependencies["paho-mqtt-c"].ref.version) >= "1.3.2":
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires paho-mqtt-c to have a matching 'shared' option."
+            )
+        if (
+            Version(self.version) < "1.2.0"
+            and Version(self.dependencies["paho-mqtt-c"].ref.version) >= "1.3.2"
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires paho-mqtt-c =< 1.3.1")
 
     def source(self):

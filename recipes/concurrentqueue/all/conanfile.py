@@ -13,7 +13,8 @@ class ConcurrentqueueConan(ConanFile):
     license = ["BSD-2-Clause", "BSL-1.0"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cameron314/concurrentqueue"
-    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free")
+    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -41,7 +42,12 @@ class ConcurrentqueueConan(ConanFile):
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         for file in ["blockingconcurrentqueue.h", "concurrentqueue.h", "lightweightsemaphore.h"]:
-            copy(self, file, src=self.source_folder, dst=os.path.join(self.package_folder, "include", "moodycamel"))
+            copy(
+                self,
+                file,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "include", "moodycamel"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "concurrentqueue")

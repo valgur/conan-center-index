@@ -14,31 +14,18 @@ sources:
 patches:
   "api.252009":
     - patch_file: "patches/0012-2.5.2-fix-imgui-include-path.diff"
-      base_path: "source_subfolder"
   "api.252005":
     - patch_file: "patches/0006-2.5.2-use-imgui-from-conan.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0012-2.5.2-fix-imgui-include-path.diff"
-      base_path: "source_subfolder"
   "2.5.2":
     - patch_file: "patches/0006-2.5.2-use-imgui-from-conan.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0007-2.5.2-use-diligent-core-dependencies.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0008-2.5.2-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0009-2.5.2-fix-include-path.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0010-2.5.2-fix-render-state-notation-paths.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0011-2.5.2-use-conan-dependencies-part2.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0012-2.5.2-fix-imgui-include-path.diff"
-      base_path: "source_subfolder"
   "cci.20211009":
     - patch_file: "patches/0001-use-imgui-from-conan.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0002-use-conan-dependencies.diff"
-      base_path: "source_subfolder"
     - patch_file: "patches/0005-fix-include-path.diff"
-      base_path: "source_subfolder"

@@ -1,9 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <squirrel.h>
-#include <sqstdio.h>
 #include <sqstdaux.h>
+#include <sqstdio.h>
+#include <squirrel.h>
 
 #ifdef SQUNICODE
 #define scvprintf vfwprintf
@@ -11,25 +11,21 @@
 #define scvprintf vfprintf
 #endif
 
-
-void printfunc(HSQUIRRELVM v,const SQChar *s,...)
-{
+void printfunc(HSQUIRRELVM v, const SQChar *s, ...) {
     va_list vl;
     va_start(vl, s);
     scvprintf(stdout, s, vl);
     va_end(vl);
 }
 
-void errorfunc(HSQUIRRELVM v,const SQChar *s,...)
-{
+void errorfunc(HSQUIRRELVM v, const SQChar *s, ...) {
     va_list vl;
     va_start(vl, s);
     scvprintf(stderr, s, vl);
     va_end(vl);
 }
 
-int main()
-{
+int main() {
     HSQUIRRELVM v;
     v = sq_open(1024);
 

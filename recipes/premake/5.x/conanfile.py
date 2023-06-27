@@ -1,42 +1,138 @@
-from conans import ConanFile, tools, AutoToolsBuildEnvironment, MSBuild
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import glob
 import os
 import re
 
+required_conan_version = ">=1.53.0"
+
 
 class PremakeConan(ConanFile):
     name = "premake"
-    topics = ("conan", "premake", "build", "build-systems")
-    description = "Describe your software project just once, using Premake's simple and easy to read syntax, and build it everywhere"
+    description = (
+        "Describe your software project just once, "
+        "using Premake's simple and easy to read syntax, "
+        "and build it everywhere"
+    )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://premake.github.io"
-    license = "BSD-3-Clause"
+    topics = ("build", "build-systems")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = "patches/**"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "lto": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "lto": False,
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os != "Windows" or self.settings.compiler == "Visual Studio":
-            del self.options.lto
+            self.options.rm_safe("lto")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
-        if hasattr(self, 'settings_build') and tools.cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building not implemented")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @property
     def _msvc_version(self):
@@ -97,27 +193,39 @@ class PremakeConan(ConanFile):
         return config
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         if self.options.get_safe("lto", None) == False:
-            for fn in glob.glob(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname, "*.make")):
-                tools.replace_in_file(fn, "-flto", "", strict=False)
+            for fn in glob.glob(
+                os.path.join(self.source_folder, "build", self._gmake_build_dirname, "*.make")
+            ):
+                replace_in_file(self, fn, "-flto", "", strict=False)
 
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._msvc_build_dirname)):
+            with chdir(self, os.path.join(self.source_folder, "build", self._msvc_build_dirname)):
                 msbuild = MSBuild(self)
-                msbuild.build("Premake5.sln", platforms={"x86": "Win32", "x86_64": "x64"})
+                msbuild.build(
+                    "Premake5.sln",
+                    platforms={
+                        "x86": "Win32",
+                        "x86_64": "x64",
+                    },
+                )
         else:
-            with tools.chdir(os.path.join(self._source_subfolder, "build", self._gmake_build_dirname)):
+            with chdir(self, os.path.join(self.source_folder, "build", self._gmake_build_dirname)):
                 env_build = AutoToolsBuildEnvironment(self)
                 env_build.make(target="Premake5", args=["verbose=1", "config={}".format(self._gmake_config)])
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*premake5.exe", dst="bin", keep_path=False)
-        self.copy(pattern="*premake5", dst="bin", keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(self, pattern="*premake5.exe", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, pattern="*premake5", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
 
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")

@@ -10,7 +10,7 @@ class RapiXMLConan(ConanFile):
     name = "rapidxml"
     description = "RapidXml is an attempt to create the fastest XML parser possible."
     license = ["BSL-1.0", "MIT"]
-    topics = ("rapidxml", "xml", "parser")
+    topics = ("xml", "parser")
     homepage = "http://rapidxml.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -26,15 +26,19 @@ class RapiXMLConan(ConanFile):
         export_conandata_patches(self)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
         copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "rapidxml"))
+        copy(
+            self,
+            "*.hpp",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include", "rapidxml"),
+        )
 
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "rapidxml"))

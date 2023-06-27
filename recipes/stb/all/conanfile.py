@@ -4,26 +4,26 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class StbConan(ConanFile):
     name = "stb"
     description = "single-file public domain libraries for C/C++"
-    topics = ("stb", "single-file")
+    license = ("Unlicense", "MIT")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nothings/stb"
-    license = ("Unlicense", "MIT")
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+    topics = ("single-file", "header-only")
 
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_deprecated": [True, False],
     }
-
     default_options = {
         "with_deprecated": True,
     }
+    no_copy_source = True
 
     @property
     def _version(self):
@@ -33,7 +33,7 @@ class StbConan(ConanFile):
 
     def config_options(self):
         if Version(self._version) < "20210713":
-            del self.options.with_deprecated
+            self.options.rm_safe("with_deprecated")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -42,8 +42,7 @@ class StbConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
@@ -56,8 +55,18 @@ class StbConan(ConanFile):
         if Version(self._version) >= "20210713":
             rmdir(self, os.path.join(self.package_folder, "include", "deprecated"))
         if self.options.get_safe("with_deprecated"):
-            copy(self, "*.h", src=os.path.join(self.source_folder, "deprecated"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "stb_image.c", src=os.path.join(self.source_folder, "deprecated"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "deprecated"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "stb_image.c",
+                src=os.path.join(self.source_folder, "deprecated"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
 
     def package_info(self):
         self.cpp_info.bindirs = []

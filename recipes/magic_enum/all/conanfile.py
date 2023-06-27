@@ -12,14 +12,22 @@ required_conan_version = ">=1.50.0"
 class MagicEnumConan(ConanFile):
     name = "magic_enum"
     description = (
-        "Header-only C++17 library provides static reflection for enums, work "
-        "with any enum type without any macro or boilerplate code."
+        "Header-only C++17 library provides static reflection for enums, "
+        "work with any enum type without any macro or boilerplate code."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Neargye/magic_enum"
-    topics = ("cplusplus", "enum-to-string", "string-to-enum", "serialization",
-              "reflection", "header-only", "compile-time")
+    topics = (
+        "cplusplus",
+        "enum-to-string",
+        "string-to-enum",
+        "serialization",
+        "reflection",
+        "header-only",
+        "compile-time",
+    )
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -50,7 +58,7 @@ class MagicEnumConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -60,7 +68,12 @@ class MagicEnumConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

@@ -5,4 +5,3 @@ sources:
 patches:
   "cci.20200622":
     - patch_file: "patches/zippy-archive-mkdir.patch"
-      base_path: "source_subfolder"

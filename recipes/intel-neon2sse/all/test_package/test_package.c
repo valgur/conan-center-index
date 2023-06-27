@@ -1,8 +1,7 @@
 #include <NEON_2_SSE.h>
 #include <stdio.h>
 
-int main()
-{
+int main() {
     uint64_t a = 0x0102030405060708;
     uint64_t b = 0x0102030405060708;
     union {

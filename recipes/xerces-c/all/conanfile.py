@@ -1,9 +1,19 @@
+# Warnings:
+#   Unexpected method '_validate'
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -12,20 +22,17 @@ required_conan_version = ">=1.53.0"
 
 class XercesCConan(ConanFile):
     name = "xerces-c"
-    description = (
-        "Xerces-C++ is a validating XML parser written in a portable subset of C++"
-    )
-    topics = ("xerces", "XML", "validation", "DOM", "SAX", "SAX2")
+    description = "Xerces-C++ is a validating XML parser written in a portable subset of C++"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://xerces.apache.org/xerces-c/index.html"
-    license = "Apache-2.0"
+    topics = ("xerces", "XML", "validation", "DOM", "SAX", "SAX2")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        # https://xerces.apache.org/xerces-c/build-3.html
         "char_type": ["uint16_t", "char16_t", "wchar_t"],
         "network_accessor": ["curl", "socket", "cfurl", "winsock"],
         "transcoder": ["gnuiconv", "iconv", "icu", "macosunicodeconverter", "windows"],
@@ -87,15 +94,15 @@ class XercesCConan(ConanFile):
     def validate(self):
         if self.settings.os not in ("Windows", "Macos", "Linux"):
             raise ConanInvalidConfiguration("OS is not supported")
-        self._validate("char_type", "wchar_t", ("Windows", ))
-        self._validate("network_accessor", "winsock", ("Windows", ))
-        self._validate("network_accessor", "cfurl", ("Macos", ))
+        self._validate("char_type", "wchar_t", ("Windows",))
+        self._validate("network_accessor", "winsock", ("Windows",))
+        self._validate("network_accessor", "cfurl", ("Macos",))
         self._validate("network_accessor", "socket", ("Linux", "Macos"))
         self._validate("network_accessor", "curl", ("Linux", "Macos"))
-        self._validate("transcoder", "macosunicodeconverter", ("Macos", ))
-        self._validate("transcoder", "windows", ("Windows", ))
+        self._validate("transcoder", "macosunicodeconverter", ("Macos",))
+        self._validate("transcoder", "windows", ("Windows",))
         self._validate("mutex_manager", "posix", ("Linux", "Macos"))
-        self._validate("mutex_manager", "windows", ("Windows", ))
+        self._validate("mutex_manager", "windows", ("Windows",))
 
     def build_requirements(self):
         if self.options.message_loader == "icu" and not can_run(self):
@@ -121,7 +128,10 @@ class XercesCConan(ConanFile):
         tc.variables["mutex-manager"] = self.options.mutex_manager
         # avoid picking up system dependency
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_CURL"] = self.options.network_accessor != "curl"
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_ICU"] = "icu" not in (self.options.transcoder, self.options.message_loader)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_ICU"] = "icu" not in (
+            self.options.transcoder,
+            self.options.message_loader,
+        )
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

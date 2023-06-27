@@ -6,26 +6,26 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class NumCppConan(ConanFile):
     name = "numcpp"
     description = "A Templatized Header Only C++ Implementation of the Python NumPy Library"
-    topics = ("python", "numpy", "numeric")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dpilger26/NumCpp"
-    license = "MIT"
+    topics = ("python", "numpy", "numeric", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "with_boost" : [True, False],
-        "threads" : [True, False],
+        "with_boost": [True, False],
+        "threads": [True, False],
     }
     default_options = {
-        "with_boost" : True,
-        "threads" : False,
+        "with_boost": True,
+        "threads": False,
     }
 
     no_copy_source = True
@@ -54,7 +54,7 @@ class NumCppConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) < "2.5.0":
-            del self.options.with_boost
+            self.options.rm_safe("with_boost")
             self.options.threads = True
 
     def layout(self):
@@ -73,15 +73,18 @@ class NumCppConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
         # since 2.10.0, numcpp requires filesystem
-        if Version(self.version) >= "2.10.0" and \
-            self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "12" and \
-            self.settings.compiler.libcxx == "libstdc++11":
+        if (
+            Version(self.version) >= "2.10.0"
+            and self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "12"
+            and self.settings.compiler.libcxx == "libstdc++11"
+        ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support clang<12 with libstdc++11 due to filesystem library.",
+                f"{self.ref} doesn't support clang<12 with libstdc++11 due to filesystem library."
             )
 
     def source(self):
@@ -92,7 +95,12 @@ class NumCppConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "NumCpp")

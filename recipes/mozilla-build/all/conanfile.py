@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class MozillaBuildConan(ConanFile):
     name = "mozilla-build"
     homepage = "https://wiki.mozilla.org/MozillaBuild"
@@ -27,10 +28,14 @@ class MozillaBuildConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version][1], filename="LICENSE")
         self.run(f"7z x {filename}")
 
-
     def package(self):
         copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "nsinstall.exe", src=os.path.join(self.build_folder, "bin"), dst=os.path.join(self.package_folder, "bin"))
+        copy(
+            self,
+            "nsinstall.exe",
+            src=os.path.join(self.build_folder, "bin"),
+            dst=os.path.join(self.package_folder, "bin"),
+        )
 
     def package_id(self):
         del self.info.settings.build_type

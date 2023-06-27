@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
+find_package(pybind11_json REQUIRED CONFIG)
 
 set(CMAKE_CXX_STANDARD 11)
 

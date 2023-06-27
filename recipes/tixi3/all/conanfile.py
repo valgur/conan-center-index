@@ -4,17 +4,18 @@ from conan import ConanFile
 import os
 import textwrap
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class Tixi3Conan(ConanFile):
     name = "tixi3"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A simple xml interface based on libxml2 and libxslt"
-    topics = ("xml", "xml2", "xslt")
-    homepage = "https://github.com/DLR-SC/tixi"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DLR-SC/tixi"
+    topics = ("xml", "xml2", "xslt")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -25,20 +26,9 @@ class Tixi3Conan(ConanFile):
         "fPIC": True,
     }
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["TIXI_BUILD_EXAMPLES"] = False
-        tc.generate()
-        deps = CMakeDeps(self)
-        deps.generate()
-
-    def requirements(self):
-        self.requires("libxml2/2.9.14")
-        self.requires("libxslt/1.1.34")
-        self.requires("libcurl/7.84.0")
-
-    def layout(self):
-        cmake_layout(self)
+    def export_sources(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -46,31 +36,32 @@ class Tixi3Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
         # tixi is a c library
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
-    def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            files.copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
+    def layout(self):
+        cmake_layout(self)
+
+    def requirements(self):
+        self.requires("libxml2/2.9.14")
+        self.requires("libxslt/1.1.34")
+        self.requires("libcurl/7.84.0")
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["TIXI_BUILD_EXAMPLES"] = False
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
-        files.apply_conandata_patches(self)
+        apply_conandata_patches(self)
 
         cmake = CMake(self)
         cmake.configure()
@@ -79,26 +70,30 @@ class Tixi3Conan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
-        files.save(self, module_file, content)
+            """
+            )
+        save(self, module_file, content)
 
     def package(self):
         cmake = CMake(self)
         cmake.install()
 
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         # provide alias target tixi3 for v1 packages
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"tixi3": "tixi3::tixi3"}
+            {
+                "tixi3": "tixi3::tixi3",
+            },
         )
 
     @property
@@ -109,12 +104,12 @@ class Tixi3Conan(ConanFile):
         self.cpp_info.includedirs.append(os.path.join("include", "tixi3"))
 
         if self.settings.build_type != "Debug":
-            self.cpp_info.libs = ['tixi3']
+            self.cpp_info.libs = ["tixi3"]
         else:
-            self.cpp_info.libs = ['tixi3-d']
+            self.cpp_info.libs = ["tixi3-d"]
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ['shlwapi']
+            self.cpp_info.system_libs = ["shlwapi"]
 
         self.cpp_info.frameworks.extend(["Foundation"])
 

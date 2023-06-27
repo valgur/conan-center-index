@@ -12,10 +12,10 @@ required_conan_version = ">=1.53.0"
 class BackwardCppConan(ConanFile):
     name = "backward-cpp"
     description = "A beautiful stack trace pretty printer for C++"
-    homepage = "https://github.com/bombela/backward-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("backward-cpp", "stack-trace")
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bombela/backward-cpp"
+    topics = "stack-trace"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -51,7 +51,7 @@ class BackwardCppConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.stack_details
+            self.options.rm_safe("stack_details")
         # default option
         if self.settings.os == "Macos":
             self.options.stack_details = "backtrace_symbol"
@@ -89,7 +89,9 @@ class BackwardCppConan(ConanFile):
             if self.settings.arch == "armv8" and Version(self.version) < "1.6":
                 raise ConanInvalidConfiguration("Support for Apple Silicon is only available as of 1.6.")
             if not self._has_stack_details("backtrace_symbol"):
-                raise ConanInvalidConfiguration("Stack details other than backtrace_symbol are not supported on macOS.")
+                raise ConanInvalidConfiguration(
+                    "Stack details other than backtrace_symbol are not supported on macOS."
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -131,7 +133,9 @@ class BackwardCppConan(ConanFile):
         self.cpp_info.defines.append(f"BACKWARD_HAS_LIBUNWIND={int(self._has_stack_walking('libunwind'))}")
         self.cpp_info.defines.append(f"BACKWARD_HAS_BACKTRACE={int(self._has_stack_walking('backtrace'))}")
 
-        self.cpp_info.defines.append(f"BACKWARD_HAS_BACKTRACE_SYMBOL={int(self._has_stack_details('backtrace_symbol'))}")
+        self.cpp_info.defines.append(
+            f"BACKWARD_HAS_BACKTRACE_SYMBOL={int(self._has_stack_details('backtrace_symbol'))}"
+        )
         self.cpp_info.defines.append(f"BACKWARD_HAS_DW={int(self._has_stack_details('dw'))}")
         self.cpp_info.defines.append(f"BACKWARD_HAS_BFD={int(self._has_stack_details('bfd'))}")
         self.cpp_info.defines.append(f"BACKWARD_HAS_DWARF={int(self._has_stack_details('dwarf'))}")

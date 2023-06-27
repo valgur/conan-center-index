@@ -4,8 +4,7 @@
 #include "LIEF/LIEF.hpp"
 #include "LIEF/version.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 2) {
         std::cerr << "Need at least one argument\n" << std::endl;
         return 1;
@@ -20,7 +19,7 @@ int main(int argc, char **argv)
 #elif defined(__APPLE__)
     std::unique_ptr<LIEF::MachO::FatBinary> macho = LIEF::MachO::Parser::parse(argv[1]);
 #else
-    #warning "Non efficient test."
+#warning "Non efficient test."
 #endif
 
     return EXIT_SUCCESS;

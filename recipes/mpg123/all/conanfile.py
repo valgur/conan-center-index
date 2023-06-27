@@ -16,11 +16,13 @@ required_conan_version = ">=1.53.0"
 class Mpg123Conan(ConanFile):
     name = "mpg123"
     description = "Fast console MPEG Audio Player and decoder library"
-    topics = ("mpeg", "audio", "player", "decoder")
+    license = ("LGPL-2.1-or-later", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mpg123.org/"
-    license = "LGPL-2.1-or-later", "GPL-2.0-or-later"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("mpeg", "audio", "player", "decoder")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -67,7 +69,7 @@ class Mpg123Conan(ConanFile):
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -89,10 +91,13 @@ class Mpg123Conan(ConanFile):
 
     def validate(self):
         if not str(self.options.seektable).isdigit():
-            raise ConanInvalidConfiguration(f"The option -o {self.ref.name}:seektable must be an integer number.")
+            raise ConanInvalidConfiguration(
+                f"The option -o {self.ref.name}:seektable must be an integer number."
+            )
         if self.settings.os != "Windows" and self.options.module == "win32":
-            raise ConanInvalidConfiguration(f"The option -o {self.ref.name}:module should not use 'win32' for non-Windows OS")
-
+            raise ConanInvalidConfiguration(
+                f"The option -o {self.ref.name}:module should not use 'win32' for non-Windows OS"
+            )
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -106,7 +111,6 @@ class Mpg123Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -134,23 +138,25 @@ class Mpg123Conan(ConanFile):
         else:
             yes_no = lambda v: "yes" if v else "no"
             tc = AutotoolsToolchain(self)
-            tc.configure_args.extend([
-                f"--enable-moreinfo={yes_no(self.options.moreinfo)}",
-                f"--enable-network={yes_no(self.options.network)}",
-                f"--enable-ntom={yes_no(self.options.flexible_resampling)}",
-                f"--enable-icy={yes_no(self.options.icy)}",
-                f"--enable-id3v2={yes_no(self.options.id3v2)}",
-                f"--enable-ieeefloat={yes_no(self.options.ieeefloat)}",
-                f"--enable-layer1={yes_no(self.options.layer1)}",
-                f"--enable-layer2={yes_no(self.options.layer2)}",
-                f"--enable-layer3={yes_no(self.options.layer3)}",
-                f"--with-audio={self._audio_module}",
-                f"--with-default-audio={self._audio_module}",
-                f"--with-seektable={self.options.seektable}",
-                f"--enable-modules=no",
-                f"--enable-shared={yes_no(self.options.shared)}",
-                f"--enable-static={yes_no(not self.options.shared)}",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-moreinfo={yes_no(self.options.moreinfo)}",
+                    f"--enable-network={yes_no(self.options.network)}",
+                    f"--enable-ntom={yes_no(self.options.flexible_resampling)}",
+                    f"--enable-icy={yes_no(self.options.icy)}",
+                    f"--enable-id3v2={yes_no(self.options.id3v2)}",
+                    f"--enable-ieeefloat={yes_no(self.options.ieeefloat)}",
+                    f"--enable-layer1={yes_no(self.options.layer1)}",
+                    f"--enable-layer2={yes_no(self.options.layer2)}",
+                    f"--enable-layer3={yes_no(self.options.layer3)}",
+                    f"--with-audio={self._audio_module}",
+                    f"--with-default-audio={self._audio_module}",
+                    f"--with-seektable={self.options.seektable}",
+                    f"--enable-modules=no",
+                    f"--enable-shared={yes_no(self.options.shared)}",
+                    f"--enable-static={yes_no(not self.options.shared)}",
+                ]
+            )
             if is_apple_os(self):
                 # Needed for fix_apple_shared_install_name invocation in package method
                 tc.extra_cflags = ["-headerpad_max_install_names"]
@@ -181,7 +187,7 @@ class Mpg123Conan(ConanFile):
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        
+
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -222,7 +228,6 @@ class Mpg123Conan(ConanFile):
             self.cpp_info.components["libout123"].requires.append("tinyalsa::tinyalsa")
         if self.options.module == "win32":
             self.cpp_info.components["libout123"].system_libs.append("winmm")
-
 
         # TODO: Remove after Conan 2.x becomes the standard
         self.cpp_info.filenames["cmake_find_package"] = "mpg123"

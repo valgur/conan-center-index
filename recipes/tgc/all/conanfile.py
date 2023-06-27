@@ -10,9 +10,9 @@ class TgcConan(ConanFile):
     name = "tgc"
     description = "A Tiny Garbage Collector for C."
     license = "BSD-2-Clause"
-    topics = ("garbage-collector",)
-    homepage = "https://github.com/orangeduck/tgc"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/orangeduck/tgc"
+    topics = ("garbage-collector",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -25,7 +25,8 @@ class TgcConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

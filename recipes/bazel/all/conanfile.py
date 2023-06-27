@@ -9,12 +9,13 @@ required_conan_version = ">=1.47.0"
 
 class BazelConan(ConanFile):
     name = "bazel"
-    package_type = "application"
     description = "Bazel is a fast, scalable, multi-language and extensible build system."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bazel.build/"
     topics = ("test", "build", "automation", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -59,10 +60,7 @@ class BazelConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         copy(
             self,

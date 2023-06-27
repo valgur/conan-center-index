@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class PlatformInterfacesConan(ConanFile):
     name = "platform.interfaces"
     description = """platform.interfaces is one of the libraries of the LinksPlatform modular framework, which uses
@@ -45,18 +46,22 @@ class PlatformInterfacesConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, "
-                                            "which is not supported "
-                                            f"by {self.settings.compiler}.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, "
+                "which is not supported "
+                f"by {self.settings.compiler}."
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, "
-                                            "which is not supported "
-                                            "by {self.settings.compiler} {self.settings.compiler.version}.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, "
+                "which is not supported "
+                "by {self.settings.compiler} {self.settings.compiler.version}."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
@@ -64,7 +69,9 @@ class PlatformInterfacesConan(ConanFile):
             download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
 
         if Version(self.version) < "0.3.41":
             copy(
@@ -75,10 +82,7 @@ class PlatformInterfacesConan(ConanFile):
             )
         else:
             copy(
-                self,
-                pattern="*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
+                self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
             )
 
     def package_info(self):

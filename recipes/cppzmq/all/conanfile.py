@@ -10,13 +10,13 @@ required_conan_version = ">=1.52.0"
 class CppZmqConan(ConanFile):
     name = "cppzmq"
     description = "C++ binding for 0MQ"
-    homepage = "https://github.com/zeromq/cppzmq"
     license = "MIT"
-    topics = ("cppzmq", "zmq-cpp", "zmq", "cpp-bind")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/zeromq/cppzmq"
+    topics = ("zmq-cpp", "zmq", "cpp-bind", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-
     no_copy_source = True
 
     def layout(self):
@@ -29,8 +29,7 @@ class CppZmqConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
@@ -45,18 +44,20 @@ class CppZmqConan(ConanFile):
             {
                 "cppzmq": "cppzmq::cppzmq",
                 "cppzmq-static": "cppzmq::cppzmq",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

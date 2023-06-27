@@ -12,12 +12,14 @@ required_conan_version = ">=1.53.0"
 
 class FclConan(ConanFile):
     name = "fcl"
-    description = "C++11 library for performing three types of proximity " \
-                  "queries on a pair of geometric models composed of triangles."
+    description = (
+        "C++11 library for performing three types of proximity queries on a "
+        "pair of geometric models composed of triangles."
+    )
     license = "BSD-3-Clause"
-    topics = ("geometry", "collision")
-    homepage = "https://github.com/flexible-collision-library/fcl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/flexible-collision-library/fcl"
+    topics = ("geometry", "collision")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -67,7 +69,9 @@ class FclConan(ConanFile):
         tc.variables["FCL_TREAT_WARNINGS_AS_ERRORS"] = False
         tc.variables["FCL_HIDE_ALL_SYMBOLS"] = False
         tc.variables["FCL_STATIC_LIBRARY"] = not self.options.shared
-        tc.variables["FCL_USE_X64_SSE"] = False # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
+        tc.variables[
+            "FCL_USE_X64_SSE"
+        ] = False  # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
         tc.variables["FCL_USE_HOST_NATIVE_ARCH"] = False
         tc.variables["FCL_USE_SSE"] = False
         tc.variables["FCL_COVERALLS"] = False
@@ -105,18 +109,22 @@ class FclConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"fcl": "fcl::fcl"}
+            {
+                "fcl": "fcl::fcl",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

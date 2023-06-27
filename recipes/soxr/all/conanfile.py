@@ -5,17 +5,20 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-
 required_conan_version = ">=1.54.0"
 
 
 class SoxrConan(ConanFile):
     name = "soxr"
-    description = "The SoX Resampler library libsoxr performs fast, high-quality one-dimensional sample rate conversion."
-    homepage = "https://sourceforge.net/projects/soxr/"
-    topics = ("resampling", "audio", "sample-rate", "conversion")
+    description = (
+        "The SoX Resampler library libsoxr performs fast, "
+        "high-quality one-dimensional sample rate conversion."
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/soxr/"
+    topics = ("resampling", "audio", "sample-rate", "conversion")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -74,12 +77,16 @@ class SoxrConan(ConanFile):
 
     def _extract_pffft_license(self):
         pffft_c = load(self, os.path.join(self.source_folder, "src", "pffft.c"))
-        return pffft_c[pffft_c.find("/* Copyright")+3:pffft_c.find("modern CPUs.")+13]
+        return pffft_c[pffft_c.find("/* Copyright") + 3 : pffft_c.find("modern CPUs.") + 13]
 
     def package(self):
         copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "LICENCE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE_pffft"), self._extract_pffft_license())
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENSE_pffft"),
+            self._extract_pffft_license(),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "doc"))

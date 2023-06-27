@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -14,9 +22,9 @@ class CeleroConan(ConanFile):
     name = "celero"
     description = "C++ Benchmarking Library"
     license = "Apache-2.0"
-    topics = ("benchmark", "benchmark-tests", "measurements", "microbenchmarks")
-    homepage = "https://github.com/DigitalInBlue/Celero"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DigitalInBlue/Celero"
+    topics = ("benchmark", "benchmark-tests", "measurements", "microbenchmarks")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -85,6 +93,19 @@ class CeleroConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -94,19 +115,10 @@ class CeleroConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"celero": "celero::celero"}
+            {
+                "celero": "celero::celero",
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

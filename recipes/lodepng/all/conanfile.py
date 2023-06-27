@@ -12,9 +12,9 @@ class LodepngConan(ConanFile):
     name = "lodepng"
     description = "PNG encoder and decoder in C and C++, without dependencies."
     license = "Zlib"
-    topics = ("png", "encoder", "decoder")
-    homepage = "https://github.com/lvandeve/lodepng"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/lvandeve/lodepng"
+    topics = ("png", "encoder", "decoder")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -27,7 +27,8 @@ class LodepngConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,7 +43,9 @@ class LodepngConan(ConanFile):
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("lodepng shared doesn't support Visual Studio with static runtime")
+            raise ConanInvalidConfiguration(
+                "lodepng shared doesn't support Visual Studio with static runtime"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

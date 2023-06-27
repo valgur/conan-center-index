@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_required_libuv_version'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -5,7 +8,6 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
-
 
 required_conan_version = ">=1.54.0"
 
@@ -16,7 +18,8 @@ class UvwConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/skypjack/uvw"
-    topics = ("libuv", "io", "networking", "header-only",)
+    topics = ("libuv", "io", "networking", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -59,14 +62,26 @@ class UvwConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("{self.ref} requires C++{self._min_cppstd}, which your compiler doesn't support")
+            raise ConanInvalidConfiguration(
+                "{self.ref} requires C++{self._min_cppstd}, which your compiler doesn't support"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*", src=os.path.join(self.source_folder, "src", "uvw"), dst=os.path.join(self.package_folder, "include", "uvw"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "src"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "src", "uvw"),
+            dst=os.path.join(self.package_folder, "include", "uvw"),
+        )
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

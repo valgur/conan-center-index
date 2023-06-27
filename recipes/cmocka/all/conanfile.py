@@ -9,10 +9,10 @@ required_conan_version = ">=1.53.0"
 
 class CmockaConan(ConanFile):
     name = "cmocka"
-    license = "Apache-2.0"
-    homepage = "https://cmocka.org"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A unit testing framework for C"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://cmocka.org"
     topics = ("unit_test", "unittest", "test", "testing", "mock", "mocking")
 
     package_type = "library"
@@ -63,9 +63,7 @@ class CmockaConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\

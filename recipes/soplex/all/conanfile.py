@@ -18,6 +18,8 @@ class SoPlexConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://soplex.zib.de"
     topics = ("simplex", "solver", "linear", "programming")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -29,7 +31,7 @@ class SoPlexConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_boost": True,
-        "with_gmp": True
+        "with_gmp": True,
     }
 
     @property
@@ -43,6 +45,26 @@ class SoPlexConan(ConanFile):
             "clang": "4",
             "apple-clang": "7",
         }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("zlib/1.2.13", transitive_headers=True)
+        if self.options.with_gmp:
+            # transitive libs as anything using soplex requires __gmpz_init_set_si
+            # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
+            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
+        if self.options.with_boost:
+            self.requires("boost/1.81.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
 
     def _determine_lib_name(self):
         if self.options.shared:
@@ -63,30 +85,12 @@ class SoPlexConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def requirements(self):
-        self.requires("zlib/1.2.13", transitive_headers=True)
-        if self.options.with_gmp:
-            # transitive libs as anything using soplex requires __gmpz_init_set_si
-            # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
-            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
-        if self.options.with_boost:
-            self.requires("boost/1.81.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -107,18 +111,66 @@ class SoPlexConan(ConanFile):
 
     def package(self):
         copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
-        copy(self, pattern="soplex.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
-        copy(self, pattern="soplex.hpp", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
-        copy(self, pattern="soplex_interface.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
-        copy(self, pattern="*.h", src=join(self.source_folder, "src", "soplex"), dst=join(self.package_folder, "include", "soplex"))
-        copy(self, pattern="*.hpp", src=join(self.source_folder, "src", "soplex"), dst=join(self.package_folder, "include", "soplex"))
-        copy(self, pattern="*.h", src=join(self.build_folder, "soplex"), dst=join(self.package_folder, "include", "soplex"))
+        copy(
+            self,
+            pattern="soplex.h",
+            src=join(self.source_folder, "src"),
+            dst=join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="soplex.hpp",
+            src=join(self.source_folder, "src"),
+            dst=join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="soplex_interface.h",
+            src=join(self.source_folder, "src"),
+            dst=join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.h",
+            src=join(self.source_folder, "src", "soplex"),
+            dst=join(self.package_folder, "include", "soplex"),
+        )
+        copy(
+            self,
+            pattern="*.hpp",
+            src=join(self.source_folder, "src", "soplex"),
+            dst=join(self.package_folder, "include", "soplex"),
+        )
+        copy(
+            self,
+            pattern="*.h",
+            src=join(self.build_folder, "soplex"),
+            dst=join(self.package_folder, "include", "soplex"),
+        )
         if self.options.shared:
-            copy(self, pattern="*.so*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.dylib*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
+            copy(
+                self,
+                pattern="*.so*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
+            copy(
+                self,
+                pattern="*.dylib*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
         else:
-            copy(self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.lib", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"), keep_path=False)
+            copy(
+                self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib")
+            )
+            copy(
+                self,
+                pattern="*.lib",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

@@ -12,10 +12,11 @@ required_conan_version = ">=1.53.0"
 class LibmadConan(ConanFile):
     name = "libmad"
     description = "MAD is a high-quality MPEG audio decoder."
-    topics = ("mad", "MPEG", "audio", "decoder")
+    license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.underbit.com/products/mad/"
-    license = "GPL-2.0-or-later"
+    topics = ("mad", "MPEG", "audio", "decoder")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -27,7 +28,8 @@ class LibmadConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,8 +60,10 @@ class LibmadConan(ConanFile):
 
     def build(self):
         replace_in_file(
-            self, os.path.join(self.source_folder, "msvc++", "mad.h"),
-            "# define FPM_INTEL", "# define FPM_DEFAULT",
+            self,
+            os.path.join(self.source_folder, "msvc++", "mad.h"),
+            "# define FPM_INTEL",
+            "# define FPM_DEFAULT",
         )
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
@@ -67,7 +71,9 @@ class LibmadConan(ConanFile):
 
     def package(self):
         for license_file in ("COPYRIGHT", "COPYING", "CREDITS"):
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
         cmake = CMake(self)
         cmake.install()
 

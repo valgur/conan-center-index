@@ -1,27 +1,22 @@
 #include <microhttpd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #define PORT 8888
-#define PAGE                                        \
-    "<html>"                                        \
-        "<head>"                                    \
-            "<title>libmicrohttpd demo</title>"     \
-        "</head>"                                   \
-        "<body>"                                    \
-            "libmicrohttpd demo"                    \
-        "</body>"                                   \
+#define PAGE                                                                                       \
+    "<html>"                                                                                       \
+    "<head>"                                                                                       \
+    "<title>libmicrohttpd demo</title>"                                                            \
+    "</head>"                                                                                      \
+    "<body>"                                                                                       \
+    "libmicrohttpd demo"                                                                           \
+    "</body>"                                                                                      \
     "</html>"
 
-static enum MHD_Result ahc_echo(void * cls,
-        struct MHD_Connection *connection,
-        const char *url,
-        const char *method,
-        const char *version,
-        const char *upload_data,
-        long unsigned int *upload_data_size,
-        void **con_cls) {
+static enum MHD_Result ahc_echo(void *cls, struct MHD_Connection *connection, const char *url,
+                                const char *method, const char *version, const char *upload_data,
+                                long unsigned int *upload_data_size, void **con_cls) {
     struct MHD_Response *response;
     int ret;
 
@@ -46,13 +41,13 @@ static enum MHD_Result ahc_echo(void * cls,
          */
         return MHD_NO;
     }
-    response = MHD_create_response_from_buffer(strlen(PAGE), (void*)PAGE, MHD_RESPMEM_PERSISTENT);
+    response = MHD_create_response_from_buffer(strlen(PAGE), (void *)PAGE, MHD_RESPMEM_PERSISTENT);
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
     MHD_destroy_response(response);
     return ret;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     struct MHD_Daemon *daemon;
 
     // Don't open a port and do not block so CI isn't interrupted.

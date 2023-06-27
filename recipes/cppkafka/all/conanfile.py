@@ -10,16 +10,16 @@ required_conan_version = ">=1.53.0"
 class CppKafkaConan(ConanFile):
     name = "cppkafka"
     description = "Modern C++ Apache Kafka client library (wrapper for librdkafka)"
-    topics = ("librdkafka", "kafka")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mfontanini/cppkafka"
-    license = "MIT"
+    topics = ("librdkafka", "kafka")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-       "shared": [True, False],
-       "fPIC": [True, False],
+        "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
@@ -56,7 +56,7 @@ class CppKafkaConan(ConanFile):
         tc.variables["CPPKAFKA_BUILD_SHARED"] = self.options.shared
         tc.variables["CPPKAFKA_DISABLE_TESTS"] = True
         tc.variables["CPPKAFKA_DISABLE_EXAMPLES"] = True
-        tc.variables["CPPKAFKA_RDKAFKA_STATIC_LIB"] = False # underlying logic is useless
+        tc.variables["CPPKAFKA_RDKAFKA_STATIC_LIB"] = False  # underlying logic is useless
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["NOMINMAX"] = 1
         tc.generate()

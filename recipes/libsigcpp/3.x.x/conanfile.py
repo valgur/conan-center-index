@@ -3,9 +3,17 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, collect_libs, copy, export_conandata_patches, get,
-    rename, replace_in_file, rmdir, save
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rmdir,
+    save,
 )
+from conan.tools.scm import Version
 import glob
 import os
 import textwrap
@@ -15,12 +23,13 @@ required_conan_version = ">=1.53.0"
 
 class LibSigCppConan(ConanFile):
     name = "libsigcpp"
-    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "LGPL-3.0-only"
     description = "libsigc++ implements a typesafe callback system for standard C++."
-    topics = ("callback")
+    license = "LGPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libsigcplusplus/libsigcplusplus"
+    topics = ("callback",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -63,21 +72,14 @@ class LibSigCppConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -86,8 +88,12 @@ class LibSigCppConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if not self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "sigc++config.h.cmake"),
-                                  "define SIGC_DLL 1", "undef SIGC_DLL")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "sigc++config.h.cmake"),
+                "define SIGC_DLL 1",
+                "undef SIGC_DLL",
+            )
 
     def build(self):
         self._patch_sources()
@@ -99,7 +105,9 @@ class LibSigCppConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        for header_file in glob.glob(os.path.join(self.package_folder, "lib", "sigc++-3.0", "include", "*.h")):
+        for header_file in glob.glob(
+            os.path.join(self.package_folder, "lib", "sigc++-3.0", "include", "*.h")
+        ):
             dst = os.path.join(self.package_folder, "include", "sigc++-3.0", os.path.basename(header_file))
             rename(self, header_file, dst)
         for dir_to_remove in ["cmake", "pkgconfig", "sigc++-3.0"]:
@@ -108,7 +116,9 @@ class LibSigCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"sigc-3.0": "sigc++-3::sigc-3.0"}
+            {
+                "sigc-3.0": "sigc++-3::sigc-3.0",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -143,5 +153,7 @@ class LibSigCppConan(ConanFile):
         self.cpp_info.components["sigc++"].names["cmake_find_package"] = "sigc-3.0"
         self.cpp_info.components["sigc++"].names["cmake_find_package_multi"] = "sigc-3.0"
         self.cpp_info.components["sigc++"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["sigc++"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["sigc++"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["sigc++"].set_property("pkg_config_name", "sigc++-3.0")

@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_termcap_path'
+#   Unexpected method '_extract_sources'
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
@@ -9,11 +13,12 @@ required_conan_version = ">=1.53.0"
 
 class TermcapConan(ConanFile):
     name = "termcap"
-    homepage = "https://www.gnu.org/software/termcap"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Enables programs to use display terminals in a terminal-independent manner"
     license = "GPL-2.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/termcap"
     topics = ("terminal", "display", "text", "writing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -24,6 +29,10 @@ class TermcapConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    @property
+    def _termcap_path(self):
+        return os.path.join(self.package_folder, "bin", "etc", "termcap")
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -47,8 +56,14 @@ class TermcapConan(ConanFile):
 
     def _extract_sources(self):
         makefile_text = open(os.path.join(self.source_folder, "Makefile.in")).read()
-        sources = list(f"{self.source_folder}/{src}" for src in re.search("\nSRCS = (.*)\n", makefile_text).group(1).strip().split(" "))
-        headers = list(f"{self.source_folder}/{src}" for src in re.search("\nHDRS = (.*)\n", makefile_text).group(1).strip().split(" "))
+        sources = list(
+            f"{self.source_folder}/{src}"
+            for src in re.search("\nSRCS = (.*)\n", makefile_text).group(1).strip().split(" ")
+        )
+        headers = list(
+            f"{self.source_folder}/{src}"
+            for src in re.search("\nHDRS = (.*)\n", makefile_text).group(1).strip().split(" ")
+        )
         autoconf_text = open(os.path.join(self.source_folder, "configure.in")).read()
         optional_headers = re.search(r"AC_HAVE_HEADERS\((.*)\)", autoconf_text).group(1).strip().split(" ")
         return sources, headers, optional_headers
@@ -60,8 +75,12 @@ class TermcapConan(ConanFile):
         tc.cache_variables["TERMCAP_SOURCES"] = to_cmake_paths(sources)
         tc.cache_variables["TERMCAP_HEADERS"] = to_cmake_paths(headers)
         tc.cache_variables["TERMCAP_INC_OPTS"] = to_cmake_paths(optional_headers)
-        tc.cache_variables["TERMCAP_CAP_FILE"] = os.path.join(self.source_folder, "termcap.src").replace("\\", "/")
-        tc.cache_variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "bin", "etc").replace("\\", "/")
+        tc.cache_variables["TERMCAP_CAP_FILE"] = os.path.join(self.source_folder, "termcap.src").replace(
+            "\\", "/"
+        )
+        tc.cache_variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(
+            self.package_folder, "bin", "etc"
+        ).replace("\\", "/")
         tc.generate()
 
     def _patch_sources(self):
@@ -71,7 +90,7 @@ class TermcapConan(ConanFile):
             for src in self._extract_sources()[0]:
                 txt = open(src).read()
                 with open(src, "w") as f:
-                    f.write("#include \"termcap_intern.h\"\n\n")
+                    f.write('#include "termcap_intern.h"\n\n')
                     f.write(txt)
 
     def build(self):
@@ -84,10 +103,6 @@ class TermcapConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-    @property
-    def _termcap_path(self):
-        return os.path.join(self.package_folder, "bin", "etc", "termcap")
 
     def package_info(self):
         self.cpp_info.libs = ["termcap"]

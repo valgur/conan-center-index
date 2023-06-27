@@ -8,15 +8,22 @@ required_conan_version = ">=1.50.0"
 
 class ConanGTK(ConanFile):
     name = "gtk"
-    url = "https://github.com/conan-io/conan-center-index"
+    description = (
+        "A free and open-source cross-platform widget toolkit for creating graphical user interfaces"
+    )
     license = "LGPL-2.1-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gtk.org"
-    description = "A free and open-source cross-platform widget toolkit for creating graphical user interfaces"
     topics = ("gui", "widget", "graphical")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"version": [2, 3]}
-    default_options = {"version": 2}
+    options = {
+        "version": [2, 3],
+    }
+    default_options = {
+        "version": 2,
+    }
 
     def layout(self):
         pass
@@ -36,7 +43,9 @@ class ConanGTK(ConanFile):
         yum.install([f"gtk{self.options.version}-devel"], update=True, check=True)
 
         apt = package_manager.Apt(self)
-        apt.install(["libgtk2.0-dev"] if self.options.version == 2 else ["libgtk-3-dev"], update=True, check=True)
+        apt.install(
+            ["libgtk2.0-dev"] if self.options.version == 2 else ["libgtk-3-dev"], update=True, check=True
+        )
 
         pacman = package_manager.PacMan(self)
         pacman.install([f"gtk{self.options.version}"], update=True, check=True)

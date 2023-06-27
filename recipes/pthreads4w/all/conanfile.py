@@ -8,21 +8,25 @@ import os
 
 required_conan_version = ">=1.57.0"
 
+
 class Pthreads4WConan(ConanFile):
     name = "pthreads4w"
-    package_type = "library"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://sourceforge.net/projects/pthreads4w/"
     description = "POSIX Threads for Windows"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/pthreads4w/"
     topics = ("pthreads", "windows", "posix")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "exception_scheme": ["CPP", "SEH", "default"],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
         "exception_scheme": "default",
     }
 
@@ -34,6 +38,13 @@ class Pthreads4WConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.os != "Windows":
+            raise ConanInvalidConfiguration("pthreads4w can only target os=Windows")
+
     def build_requirements(self):
         if not is_msvc(self):
             self.build_requires("autoconf/2.71")
@@ -42,16 +53,8 @@ class Pthreads4WConan(ConanFile):
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
 
-    def validate(self):
-        if self.settings.os != "Windows":
-            raise ConanInvalidConfiguration("pthreads4w can only target os=Windows")
-        
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -65,16 +68,22 @@ class Pthreads4WConan(ConanFile):
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 makefile = os.path.join(self.source_folder, "Makefile")
-                replace_in_file(self, makefile,
+                replace_in_file(
+                    self,
+                    makefile,
                     "	copy pthreadV*.lib $(LIBDEST)",
-                    "	if exist pthreadV*.lib copy pthreadV*.lib $(LIBDEST)")
-                replace_in_file(self, makefile,
+                    "	if exist pthreadV*.lib copy pthreadV*.lib $(LIBDEST)",
+                )
+                replace_in_file(
+                    self,
+                    makefile,
                     "	copy libpthreadV*.lib $(LIBDEST)",
-                    "	if exist libpthreadV*.lib copy libpthreadV*.lib $(LIBDEST)")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MD\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MDd\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MT\"", "")
-                replace_in_file(self, makefile, "XCFLAGS=\"/MTd\"", "")
+                    "	if exist libpthreadV*.lib copy libpthreadV*.lib $(LIBDEST)",
+                )
+                replace_in_file(self, makefile, 'XCFLAGS="/MD"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MDd"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MT"', "")
+                replace_in_file(self, makefile, 'XCFLAGS="/MTd"', "")
                 target = {
                     "CPP": "VCE",
                     "SEH": "SSE",
@@ -115,12 +124,6 @@ class Pthreads4WConan(ConanFile):
                 else:
                     autotools.install(target="install-lib-default")
 
-    def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.defines.append(self._exception_scheme_definition)
-        if not self.options.shared:
-            self.cpp_info.defines.append("__PTW32_STATIC_LIB")
-
     @property
     def _exception_scheme_definition(self):
         return {
@@ -128,3 +131,9 @@ class Pthreads4WConan(ConanFile):
             "SEH": "__PTW32_CLEANUP_SEH",
             "default": "__PTW32_CLEANUP_C",
         }[str(self.options.exception_scheme)]
+
+    def package_info(self):
+        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.defines.append(self._exception_scheme_definition)
+        if not self.options.shared:
+            self.cpp_info.defines.append("__PTW32_STATIC_LIB")

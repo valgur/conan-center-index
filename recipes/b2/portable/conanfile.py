@@ -20,7 +20,7 @@ class B2Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
 
     settings = "os", "arch"
-    '''
+    """
     * use_cxx_env: False, True
 
     Indicates if the build will use the CXX and
@@ -39,20 +39,43 @@ class B2Conan(ConanFile):
     toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
     toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
     'CXX' and 'CXXFLAGS' variables for use in subprocesses.
-    '''
+    """
     options = {
-        'use_cxx_env': [False, True],
-        'toolset': [
-            'auto', 'cxx', 'cross-cxx',
-            'acc', 'borland', 'clang', 'como', 'gcc-nocygwin', 'gcc',
-            'intel-darwin', 'intel-linux', 'intel-win32', 'kcc', 'kylix',
-            'mingw', 'mipspro', 'pathscale', 'pgi', 'qcc', 'sun', 'sunpro',
-            'tru64cxx', 'vacpp', 'vc12', 'vc14', 'vc141', 'vc142', 'vc143',
-        ]
+        "use_cxx_env": [False, True],
+        "toolset": [
+            "auto",
+            "cxx",
+            "cross-cxx",
+            "acc",
+            "borland",
+            "clang",
+            "como",
+            "gcc-nocygwin",
+            "gcc",
+            "intel-darwin",
+            "intel-linux",
+            "intel-win32",
+            "kcc",
+            "kylix",
+            "mingw",
+            "mipspro",
+            "pathscale",
+            "pgi",
+            "qcc",
+            "sun",
+            "sunpro",
+            "tru64cxx",
+            "vacpp",
+            "vc12",
+            "vc14",
+            "vc141",
+            "vc142",
+            "vc143",
+        ],
     }
     default_options = {
-        'use_cxx_env': False,
-        'toolset': 'auto'
+        "use_cxx_env": False,
+        "toolset": "auto",
     }
 
     def layout(self):
@@ -66,9 +89,12 @@ class B2Conan(ConanFile):
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration(f"{self.ref} recipe doesn't support cross-build yet")
 
-        if (self.options.toolset == 'cxx' or self.options.toolset == 'cross-cxx') and not self.options.use_cxx_env:
+        if (
+            self.options.toolset == "cxx" or self.options.toolset == "cross-cxx"
+        ) and not self.options.use_cxx_env:
             raise ConanInvalidConfiguration(
-                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'")
+                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,9 +124,12 @@ class B2Conan(ConanFile):
         os.environ.update({"VSCMD_START_DIR": os.getcwd()})
         if not self.options.use_cxx_env:
             # To avoid using the CXX env vars we clear them out for the build.
-            os.environ.update({
-                "CXX": "",
-                "CXXFLAGS": ""})
+            os.environ.update(
+                {
+                    "CXX": "",
+                    "CXXFLAGS": "",
+                }
+            )
         try:
             yield
         finally:
@@ -115,8 +144,8 @@ class B2Conan(ConanFile):
         self.output.info("Build engine..")
         command = ""
         b2_toolset = self.options.toolset
-        use_windows_commands = os.name == 'nt'
-        if b2_toolset == 'auto':
+        use_windows_commands = os.name == "nt"
+        if b2_toolset == "auto":
             if use_windows_commands:
                 # For windows auto detection it can evaluate to a msvc version
                 # that it's not aware of. Most likely because it's a future one
@@ -126,16 +155,16 @@ class B2Conan(ConanFile):
                 with chdir(self, self._b2_engine_dir):
                     with self._bootstrap_env():
                         buf = StringIO()
-                        self.run('guess_toolset && set', buf)
-                        guess_vars = map(
-                            lambda x: x.strip(), buf.getvalue().split("\n"))
+                        self.run("guess_toolset && set", buf)
+                        guess_vars = map(lambda x: x.strip(), buf.getvalue().split("\n"))
                         if "B2_TOOLSET=vcunk" in guess_vars:
-                            b2_toolset = 'msvc'
+                            b2_toolset = "msvc"
                             for kv in guess_vars:
                                 if kv.startswith("B2_TOOLSET_ROOT="):
                                     b2_vcvars = os.path.join(
-                                        kv.split('=')[1].strip(), 'Auxiliary', 'Build', 'vcvars32.bat')
-                                    command += '"'+b2_vcvars+'" && '
+                                        kv.split("=")[1].strip(), "Auxiliary", "Build", "vcvars32.bat"
+                                    )
+                                    command += '"' + b2_vcvars + '" && '
         command += "build" if use_windows_commands else "./build.sh"
 
         if self.options.use_cxx_env:
@@ -146,23 +175,23 @@ class B2Conan(ConanFile):
             if cxxflags:
                 command += f" --cxxflags={cxxflags}"
 
-        if b2_toolset != 'auto':
-            command += " "+str(b2_toolset)
+        if b2_toolset != "auto":
+            command += " " + str(b2_toolset)
         with chdir(self, self._b2_engine_dir):
             with self._bootstrap_env():
                 self.run(command)
 
         self.output.info("Install..")
-        command = os.path.join(
-            self._b2_engine_dir, "b2.exe" if use_windows_commands else "b2")
+        command = os.path.join(self._b2_engine_dir, "b2.exe" if use_windows_commands else "b2")
         if b2_toolset not in ["auto", "cxx", "cross-cxx"]:
             command += " toolset=" + str(b2_toolset)
-        full_command = \
-            (f"{command} --ignore-site-config " +
-             f"--prefix={self._b2_output_dir} " +
-             "--abbreviate-paths " +
-             "install " +
-             "b2-install-layout=portable")
+        full_command = (
+            f"{command} --ignore-site-config "
+            + f"--prefix={self._b2_output_dir} "
+            + "--abbreviate-paths "
+            + "install "
+            + "b2-install-layout=portable"
+        )
         with chdir(self, self._b2_dir):
             self.run(full_command)
 

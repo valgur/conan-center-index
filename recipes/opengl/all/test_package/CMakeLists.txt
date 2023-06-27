@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
 find_package(opengl_system REQUIRED CONFIG)
 
@@ -29,3 +29,4 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE opengl::opengl ${PLATFORM_LIBS})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

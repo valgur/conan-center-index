@@ -4,7 +4,6 @@ from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualBuildEnv
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -12,9 +11,11 @@ class InnoextractConan(ConanFile):
     name = "innoextract"
     description = "Extract contents of Inno Setup installers"
     license = "LicenseRef-LICENSE"
-    topics = ("inno-setup", "decompression")
-    homepage = "https://constexpr.org/innoextract"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://constexpr.org/innoextract"
+    topics = ("inno-setup", "decompression")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
@@ -33,8 +34,7 @@ class InnoextractConan(ConanFile):
         self.info.requires.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -51,8 +51,8 @@ class InnoextractConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        os.remove(os.path.join(self.source_folder, 'cmake', 'FindLZMA.cmake'))
-        os.remove(os.path.join(self.source_folder, 'cmake', 'Findiconv.cmake'))
+        os.remove(os.path.join(self.source_folder, "cmake", "FindLZMA.cmake"))
+        os.remove(os.path.join(self.source_folder, "cmake", "Findiconv.cmake"))
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -64,6 +64,8 @@ class InnoextractConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         bindir = os.path.join(self.package_folder, "bin")

@@ -10,10 +10,11 @@ class LibhydrogenConan(ConanFile):
     name = "libhydrogen"
     description = "A lightweight, secure, easy-to-use crypto library suitable for constrained environments."
     license = "ISC"
-    topics = ("cryptography", "crypto", "gimli")
-    homepage = "https://github.com/jedisct1/libhydrogen"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jedisct1/libhydrogen"
+    topics = ("cryptography", "crypto", "gimli")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -41,8 +42,7 @@ class LibhydrogenConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

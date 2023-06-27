@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class McapConan(ConanFile):
     name = "mcap"
     description = (
@@ -19,7 +20,10 @@ class McapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/foxglove/mcap"
     topics = ("serialization", "deserialization", "recording", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -71,8 +75,15 @@ class McapConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_package_path)
-        copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self._source_package_path, "include"))
+        copy(
+            self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_package_path
+        )
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self._source_package_path, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

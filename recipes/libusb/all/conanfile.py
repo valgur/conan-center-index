@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildToolchain
@@ -15,9 +23,10 @@ class LibUSBConan(ConanFile):
     name = "libusb"
     description = "A cross-platform library to access USB devices"
     license = "LGPL-2.1"
-    homepage = "https://github.com/libusb/libusb"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libusb/libusb"
     topics = ("usb", "device")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -50,7 +59,7 @@ class LibUSBConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "Android"]:
-            del self.options.enable_udev
+            self.options.rm_safe("enable_udev")
         # FIXME: enable_udev should be True for Android, but libudev recipe is missing
         if self.settings.os == "Android":
             self.options.enable_udev = False
@@ -98,27 +107,37 @@ class LibUSBConan(ConanFile):
             solution = f"libusb_{'dll' if self.options.shared else 'static'}_{solution_msvc_year}.vcxproj"
             vcxproj_path = os.path.join(self.source_folder, "msvc", solution)
 
-            #==============================
+            # ==============================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             replace_in_file(
-                self, vcxproj_path,
-                "<WholeProgramOptimization Condition=\"'$(Configuration)'=='Release'\">true</WholeProgramOptimization>",
+                self,
+                vcxproj_path,
+                (
+                    "<WholeProgramOptimization Condition=\"'$(Configuration)'=='Release'\">"
+                    "true"
+                    "</WholeProgramOptimization>"
+                ),
                 "",
             )
             old_toolset = "v141" if Version(self.version) < "1.0.24" else "v142"
             new_toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, vcxproj_path,
+                self,
+                vcxproj_path,
                 f"<PlatformToolset>{old_toolset}</PlatformToolset>",
                 f"<PlatformToolset>{new_toolset}</PlatformToolset>",
             )
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             replace_in_file(
-                self, vcxproj_path,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj_path,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" />'
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
-            #==============================
+            # ==============================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
@@ -131,10 +150,26 @@ class LibUSBConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "libusb.h", src=os.path.join(self.source_folder, "libusb"),
-                                   dst=os.path.join(self.package_folder, "include", "libusb-1.0"))
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(
+                self,
+                "libusb.h",
+                src=os.path.join(self.source_folder, "libusb"),
+                dst=os.path.join(self.package_folder, "include", "libusb-1.0"),
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

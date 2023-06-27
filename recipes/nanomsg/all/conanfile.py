@@ -4,8 +4,8 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 import os
 
-
 required_conan_version = ">=1.53.0"
+
 
 class NanomsgConan(ConanFile):
     name = "nanomsg"
@@ -14,20 +14,21 @@ class NanomsgConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nanomsg/nanomsg"
     topics = ("socket", "protocols", "communication")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "enable_coverage": [True, False],
-        "enable_getaddrinfo_a":[True, False],
+        "enable_getaddrinfo_a": [True, False],
         "enable_tools": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "enable_coverage": False,
-        "enable_getaddrinfo_a":True,
+        "enable_getaddrinfo_a": True,
         "enable_tools": False,
     }
 
@@ -67,7 +68,9 @@ class NanomsgConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

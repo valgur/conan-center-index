@@ -2,9 +2,8 @@
 
 #include <iostream>
 
-int main()
-{
-    asIScriptEngine* const engine = asCreateScriptEngine();
+int main() {
+    asIScriptEngine *const engine = asCreateScriptEngine();
     if (engine) {
         std::cerr << "successfully created engine" << std::endl;
         engine->ShutDownAndRelease();

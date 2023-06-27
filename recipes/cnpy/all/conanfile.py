@@ -11,9 +11,9 @@ class CnpyConan(ConanFile):
     name = "cnpy"
     description = "library to read/write .npy and .npz files in C/C++"
     license = "MIT"
-    topics = ("numpy", "npy", "npz")
-    homepage = "https://github.com/rogersce/cnpy"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rogersce/cnpy"
+    topics = ("numpy", "npy", "npz")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

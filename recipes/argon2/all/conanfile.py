@@ -2,8 +2,16 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir,
-    rename, replace_in_file, rm, rmdir
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -15,10 +23,10 @@ required_conan_version = ">=1.53.0"
 
 class Argon2Conan(ConanFile):
     name = "argon2"
-    license = "Apache 2.0", "CC0-1.0"
-    homepage = "https://github.com/P-H-C/phc-winner-argon2"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Argon2 password hashing library"
+    license = ("Apache 2.0", "CC0-1.0")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/P-H-C/phc-winner-argon2"
     topics = ("crypto", "password hashing")
 
     package_type = "library"
@@ -83,11 +91,13 @@ class Argon2Conan(ConanFile):
             env = VirtualBuildEnv(self)
             env.generate()
             tc = AutotoolsToolchain(self)
-            tc.make_args.extend([
-                "LIBRARY_REL=lib",
-                f"KERNEL_NAME={self._kernel_name}",
-                "RUN_EXT={}".format(".exe" if self.settings.os == "Windows" else ""),
-            ])
+            tc.make_args.extend(
+                [
+                    "LIBRARY_REL=lib",
+                    f"KERNEL_NAME={self._kernel_name}",
+                    "RUN_EXT={}".format(".exe" if self.settings.os == "Windows" else ""),
+                ]
+            )
             tc.generate()
 
     def build(self):
@@ -99,28 +109,33 @@ class Argon2Conan(ConanFile):
                 replace_in_file(self, argon2_header, "__declspec(dllexport)", "")
                 replace_in_file(self, vcxproj, "DynamicLibrary", "StaticLibrary")
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<ClCompile>",
                 "<ClCompile><AdditionalIncludeDirectories>$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>",
             )
-            replace_in_file(self, vcxproj, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", "")
+            replace_in_file(
+                self, vcxproj, "<WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>", ""
+            )
 
-            #==========================
+            # ==========================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             replace_in_file(self, vcxproj, "<WholeProgramOptimization>true</WholeProgramOptimization>", "")
             platform_toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, vcxproj,
+                self,
+                vcxproj,
                 "<PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>",
                 f"<PlatformToolset>{platform_toolset}</PlatformToolset>",
             )
             replace_in_file(
-                self, vcxproj,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-            #==========================
+            # ==========================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msbuild_configuration
@@ -137,7 +152,12 @@ class Argon2Conan(ConanFile):
         bin_folder = os.path.join(self.package_folder, "bin")
         lib_folder = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
             output_folder = os.path.join(self.source_folder, "vs2015", "build")
             copy(self, "*.dll", src=output_folder, dst=bin_folder, keep_path=False)
             copy(self, "*.lib", src=output_folder, dst=lib_folder, keep_path=False)
@@ -152,7 +172,11 @@ class Argon2Conan(ConanFile):
                 rm(self, "*.a", lib_folder)
                 if self.settings.os == "Windows":
                     mkdir(self, bin_folder)
-                    rename(self, os.path.join(lib_folder, "libargon2.dll"), os.path.join(bin_folder, "libargon2.dll"))
+                    rename(
+                        self,
+                        os.path.join(lib_folder, "libargon2.dll"),
+                        os.path.join(bin_folder, "libargon2.dll"),
+                    )
                     copy(self, "libargon2.dll.a", src=self.source_folder, dst=lib_folder)
             else:
                 rm(self, "*.dll", lib_folder)

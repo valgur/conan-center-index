@@ -1,4 +1,82 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, tools
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 from contextlib import contextmanager
 import glob
 import os
@@ -9,7 +87,7 @@ required_conan_version = ">=1.33.0"
 class CunitConan(ConanFile):
     name = "cunit"
     description = "A Unit Testing Framework for C"
-    topics = ("conan", "cunit", "testing")
+    topics = "testing"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://cunit.sourceforge.net/"
     license = "BSD-3-Clause"
@@ -30,23 +108,21 @@ class CunitConan(ConanFile):
         "enable_console": True,
         "with_curses": False,
     }
-    exports_sources = "patches/**"
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if self.options.with_curses == "ncurses":
@@ -58,12 +134,12 @@ class CunitConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires("libtool/2.4.6")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
-        with tools.chdir(self._source_subfolder):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        with chdir(self, self.source_folder):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
 
@@ -75,20 +151,22 @@ class CunitConan(ConanFile):
     def _build_context(self):
         env = {}
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
-                env.update({
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "NM": "dumpbin -symbols",
-                    "OBJDUMP": ":",
-                    "RANLIB": ":",
-                    "STRIP": ":",
-                })
-                with tools.environment_append(env):
+            with vcvars(self.settings):
+                env.update(
+                    {
+                        "AR": "{} lib".format(unix_path(self._user_info_build["automake"].ar_lib)),
+                        "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "NM": "dumpbin -symbols",
+                        "OBJDUMP": ":",
+                        "RANLIB": ":",
+                        "STRIP": ":",
+                    }
+                )
+                with environment_append(self, env):
                     yield
         else:
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     def _configure_autotools(self):
@@ -117,29 +195,31 @@ class CunitConan(ConanFile):
         return self._autotools
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         with self._build_context():
-            with tools.chdir(self._source_subfolder):
-                self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+            with chdir(self, self.source_folder):
+                self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
                 autotools = self._configure_autotools()
                 autotools.make()
 
     def package(self):
-        self.copy("COPYING", src=self._source_subfolder, dst="licenses")
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            with tools.chdir(self._source_subfolder):
+            with chdir(self, self.source_folder):
                 autotools = self._configure_autotools()
                 autotools.install()
 
         if self.settings.compiler == "Visual Studio" and self.options.shared:
-            tools.rename(os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "cunit.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "cunit.dll.lib"),
+                os.path.join(self.package_folder, "lib", "cunit.lib"),
+            )
 
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
-        tools.rmdir(os.path.join(self.package_folder, "bin", "share", "man"))
-        tools.rmdir(os.path.join(self.package_folder, "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rm(self, "*.la", self.package_folder, recursive=True)
+        rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "doc"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "CUnit"

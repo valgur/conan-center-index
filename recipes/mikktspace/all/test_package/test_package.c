@@ -1,13 +1,9 @@
 #include <mikktspace.h>
 #include <stdlib.h>
 
-static int GetNumFaces(const SMikkTSpaceContext *pContext)
-{
-    return 0;
-}
+static int GetNumFaces(const SMikkTSpaceContext *pContext) { return 0; }
 
-int main()
-{
+int main() {
     SMikkTSpaceInterface sInterface = {NULL};
     sInterface.m_getNumFaces = GetNumFaces;
 

@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -10,11 +17,11 @@ required_conan_version = ">=1.54.0"
 
 class GlogConan(ConanFile):
     name = "glog"
+    description = "Google logging library"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/glog/"
-    description = "Google logging library"
     topics = ("logging",)
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -40,7 +47,7 @@ class GlogConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"] or Version(self.version) < "0.5.0":
-            del self.options.with_unwind
+            self.options.rm_safe("with_unwind")
 
     def configure(self):
         if self.options.shared:
@@ -55,7 +62,9 @@ class GlogConan(ConanFile):
         if self.options.with_gflags:
             self.requires("gflags/2.2.2", transitive_headers=True, transitive_libs=True)
         # 0.4.0 requires libunwind unconditionally
-        if self.options.get_safe("with_unwind") or (Version(self.version) < "0.5.0" and self.settings.os in ["Linux", "FreeBSD"]):
+        if self.options.get_safe("with_unwind") or (
+            Version(self.version) < "0.5.0" and self.settings.os in ["Linux", "FreeBSD"]
+        ):
             self.requires("libunwind/1.6.2")
 
     def build_requirements(self):
@@ -92,13 +101,19 @@ class GlogConan(ConanFile):
         apply_conandata_patches(self)
         # do not force PIC
         if Version(self.version) <= "0.5.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "set_target_properties (glog PROPERTIES POSITION_INDEPENDENT_CODE ON)",
-                                  "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "set_target_properties (glog PROPERTIES POSITION_INDEPENDENT_CODE ON)",
+                "",
+            )
         # INFO: avoid "CONAN_LIB::gflags_gflags_nothreads_RELEASE" but the target was not found.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-        "determine_gflags_namespace",
-        "# determine_gflags_namespace")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "determine_gflags_namespace",
+            "# determine_gflags_namespace",
+        )
 
     def build(self):
         self._patch_sources()

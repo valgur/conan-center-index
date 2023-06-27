@@ -12,12 +12,14 @@ required_conan_version = ">=1.53.0"
 
 class QuantlibConan(ConanFile):
     name = "quantlib"
-    description = "QuantLib is a free/open-source library for modeling, trading, and risk management in real-life."
+    description = (
+        "QuantLib is a free/open-source library for modeling, trading, and risk management in real-life."
+    )
     license = "BSD-3-Clause"
-    topics = ("quantitative-finance")
-    homepage = "https://www.quantlib.org"
     url = "https://github.com/conan-io/conan-center-index"
-
+    homepage = "https://www.quantlib.org"
+    topics = "quantitative-finance"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -54,8 +56,7 @@ class QuantlibConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC DLL build is not supported by upstream")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

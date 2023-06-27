@@ -30,23 +30,25 @@ import sys
 def main():
     try:
         if len(sys.argv) < 3:
-            raise ValueError("Incorrect number of command line arguments. Expected arguments: src file, dst file")
+            raise ValueError(
+                "Incorrect number of command line arguments. Expected arguments: src file, dst file"
+            )
 
         if sys.argv[1] == sys.argv[2]:
             raise ValueError("Source and destination files must be different")
 
         with open(sys.argv[1], "r") as src_file, open(sys.argv[2], "w") as dst_file:
-            special_chars = "\'\"\\"
+            special_chars = "'\"\\"
 
             for line in src_file:
-                dst_file.write('\"')
+                dst_file.write('"')
 
                 for i, c in enumerate(line.rstrip()):
                     if special_chars.find(c) != -1:
-                        dst_file.write('\\')
+                        dst_file.write("\\")
                     dst_file.write(c)
 
-                dst_file.write('\\n\"\n')
+                dst_file.write('\\n"\n')
 
         print("File2String: successfully converted {} to {}".format(sys.argv[1], sys.argv[2]))
     except (ValueError, IOError) as error:

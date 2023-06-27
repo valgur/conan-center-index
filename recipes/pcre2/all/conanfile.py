@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -11,12 +18,13 @@ required_conan_version = ">=1.53.0"
 
 class PCRE2Conan(ConanFile):
     name = "pcre2"
+    description = "Perl Compatible Regular Expressions"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.pcre.org/"
-    description = "Perl Compatible Regular Expressions"
     topics = ("regex", "regexp", "perl")
-    license = "BSD-3-Clause"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -56,9 +64,9 @@ class PCRE2Conan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.build_pcre2grep:
-            del self.options.with_zlib
-            del self.options.with_bzip2
-            del self.options.grep_support_callout_fork
+            self.options.rm_safe("with_zlib")
+            self.options.rm_safe("with_bzip2")
+            self.options.rm_safe("grep_support_callout_fork")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -70,14 +78,19 @@ class PCRE2Conan(ConanFile):
             self.requires("bzip2/1.0.8")
 
     def validate(self):
-        if not self.options.build_pcre2_8 and not self.options.build_pcre2_16 and not self.options.build_pcre2_32:
-            raise ConanInvalidConfiguration("At least one of build_pcre2_8, build_pcre2_16 or build_pcre2_32 must be enabled")
+        if (
+            not self.options.build_pcre2_8
+            and not self.options.build_pcre2_16
+            and not self.options.build_pcre2_32
+        ):
+            raise ConanInvalidConfiguration(
+                "At least one of build_pcre2_8, build_pcre2_16 or build_pcre2_32 must be enabled"
+            )
         if self.options.build_pcre2grep and not self.options.build_pcre2_8:
             raise ConanInvalidConfiguration("build_pcre2_8 must be enabled for the pcre2grep program")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -97,7 +110,9 @@ class PCRE2Conan(ConanFile):
         tc.variables["PCRE2_BUILD_PCRE2_16"] = self.options.build_pcre2_16
         tc.variables["PCRE2_BUILD_PCRE2_32"] = self.options.build_pcre2_32
         tc.variables["PCRE2_SUPPORT_JIT"] = self.options.support_jit
-        tc.variables["PCRE2GREP_SUPPORT_CALLOUT_FORK"] = self.options.get_safe("grep_support_callout_fork", False)
+        tc.variables["PCRE2GREP_SUPPORT_CALLOUT_FORK"] = self.options.get_safe(
+            "grep_support_callout_fork", False
+        )
         if Version(self.version) < "10.38":
             # relocatable shared libs on Macos
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
@@ -114,11 +129,13 @@ class PCRE2Conan(ConanFile):
         if Version(self.version) < "10.34":
             replace_in_file(self, cmakelists, "SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
         else:
-            replace_in_file(self, cmakelists, "LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
+            replace_in_file(
+                self, cmakelists, "LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", ""
+            )
         # Avoid CMP0006 error (macos bundle)
-        replace_in_file(self, cmakelists,
-                              "RUNTIME DESTINATION bin",
-                              "RUNTIME DESTINATION bin BUNDLE DESTINATION bin")
+        replace_in_file(
+            self, cmakelists, "RUNTIME DESTINATION bin", "RUNTIME DESTINATION bin BUNDLE DESTINATION bin"
+        )
 
     def build(self):
         self._patch_sources()

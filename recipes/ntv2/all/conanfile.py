@@ -8,11 +8,11 @@ required_conan_version = ">=1.53.0"
 
 class Ntv2Conan(ConanFile):
     name = "ntv2"
+    description = "AJA NTV2 SDK"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aja-video/ntv2"
-    description = "AJA NTV2 SDK"
-    topics = "video", "hardware"
+    topics = ("video", "hardware")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -52,24 +52,40 @@ class Ntv2Conan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         for suffix in ["so", "lib", "a", "dylib", "bc"]:
-            copy(self,
-                 f"*{self._lib_name}.{suffix}",
-                 src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
-                 dst=os.path.join(self.package_folder, "lib"),
-                 keep_path=False)
+            copy(
+                self,
+                f"*{self._lib_name}.{suffix}",
+                src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         if self.settings.os == "Windows" and self.options.shared:
-            copy(self,
-                 "*.dll",
-                 src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
-                 dst=os.path.join(self.package_folder, "bin"),
-                 keep_path=False)
+            copy(
+                self,
+                "*.dll",
+                src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         for lib in ["ajaanc", "ajacc", "ajantv2"]:
-            copy(self,
-                 "*",
-                 src=os.path.join(self.source_folder, "ajalibraries", lib, "includes"),
-                 dst=os.path.join(self.package_folder, "include", lib))
-        copy(self, "ajalibraries/**/*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "ajalibraries/**/*.hh", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*",
+                src=os.path.join(self.source_folder, "ajalibraries", lib, "includes"),
+                dst=os.path.join(self.package_folder, "include", lib),
+            )
+        copy(
+            self,
+            "ajalibraries/**/*.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
+        copy(
+            self,
+            "ajalibraries/**/*.hh",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     @property
     def _lib_name(self):
@@ -84,57 +100,58 @@ class Ntv2Conan(ConanFile):
             os.path.join("include", "ajalibraries"),
             os.path.join("include", "ajalibraries", "ajabase"),
             os.path.join("include", "ajalibraries", "ajantv2", "includes"),
-            os.path.join("include", "ajalibraries", "ajaanc", "includes")
+            os.path.join("include", "ajalibraries", "ajaanc", "includes"),
         ]
 
         if self.settings.os in ("Linux", "FreeBSD"):
-
-            self.cpp_info.defines = ["AJALinux",
-                                     "AJA_LINUX", "NTV2_USE_STDINT"]
-            self.cpp_info.includedirs.extend([
-                os.path.join("include", "ajalibraries",
-                             "ajantv2", "src", "lin"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "pnp", "linux"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "system", "linux")
-            ])
+            self.cpp_info.defines = ["AJALinux", "AJA_LINUX", "NTV2_USE_STDINT"]
+            self.cpp_info.includedirs.extend(
+                [
+                    os.path.join("include", "ajalibraries", "ajantv2", "src", "lin"),
+                    os.path.join("include", "ajalibraries", "ajabase", "pnp", "linux"),
+                    os.path.join("include", "ajalibraries", "ajabase", "system", "linux"),
+                ]
+            )
             self.cpp_info.system_libs = ["pthread", "rt"]
             if self.options.shared:
                 self.cpp_info.system_libs.append("dl")
 
         elif self.settings.os == "Macos":
-
             self.cpp_info.defines = ["AJAMac", "AJA_MAC"]
             if self.options.shared:
                 self.cpp_info.defines.extend(["AJADLL", "AJA_WINDLL"])
-            self.cpp_info.includedirs.extend([
-                os.path.join("include", "ajalibraries",
-                             "ajantv2", "src", "mac"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "pnp", "mac"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "system", "mac")
-            ])
-            self.cpp_info.frameworks = [
-                "CoreFoundation", "Foundation", "IoKit"]
+            self.cpp_info.includedirs.extend(
+                [
+                    os.path.join("include", "ajalibraries", "ajantv2", "src", "mac"),
+                    os.path.join("include", "ajalibraries", "ajabase", "pnp", "mac"),
+                    os.path.join("include", "ajalibraries", "ajabase", "system", "mac"),
+                ]
+            )
+            self.cpp_info.frameworks = ["CoreFoundation", "Foundation", "IoKit"]
 
         elif self.settings.os == "Windows":
-
             self.cpp_info.defines = ["AJAWindows", "AJA_WINDOWS", "MSWindows"]
-            self.cpp_info.includedirs.extend([
-                os.path.join("include", "ajalibraries",
-                             "ajantv2", "src", "win"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "pnp", "windows"),
-                os.path.join("include", "ajalibraries",
-                             "ajabase", "system", "windows")
-            ])
+            self.cpp_info.includedirs.extend(
+                [
+                    os.path.join("include", "ajalibraries", "ajantv2", "src", "win"),
+                    os.path.join("include", "ajalibraries", "ajabase", "pnp", "windows"),
+                    os.path.join("include", "ajalibraries", "ajabase", "system", "windows"),
+                ]
+            )
             self.cpp_info.system_libs = [
-                "advapi32", "comctl32", "netapi32",
-                "odbc32", "psapi", "rpcrt4", "setupapi", "shell32",
-                "shlwapi", "user32", "winmm", "ws2_32", "wsock32"
+                "advapi32",
+                "comctl32",
+                "netapi32",
+                "odbc32",
+                "psapi",
+                "rpcrt4",
+                "setupapi",
+                "shell32",
+                "shlwapi",
+                "user32",
+                "winmm",
+                "ws2_32",
+                "wsock32",
             ]
 
-        self.cpp_info.defines.append(
-            "AJADLL_BUILD" if self.options.shared else "AJASTATIC")
+        self.cpp_info.defines.append("AJADLL_BUILD" if self.options.shared else "AJASTATIC")

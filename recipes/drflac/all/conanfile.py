@@ -10,10 +10,11 @@ required_conan_version = ">=1.53.0"
 class DrflacConan(ConanFile):
     name = "drflac"
     description = "FLAC audio decoder."
-    homepage = "https://mackron.github.io/dr_flac"
-    topics = ("audio", "flac", "sound")
     license = ("Unlicense", "MIT-0")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mackron.github.io/dr_flac"
+    topics = ("audio", "flac", "sound")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,20 +30,23 @@ class DrflacConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "buffer_size": 0, # zero means the default buffer size is used
+        "buffer_size": 0,  # zero means the default buffer size is used
         "no_crc": False,
         "no_ogg": False,
         "no_simd": False,
         "no_stdio": False,
         "no_wchar": False,
     }
-    exports_sources = ["CMakeLists.txt", "dr_flac.c"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dr_flac.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "0.12.39":
-            del self.options.no_wchar
+            self.options.rm_safe("no_wchar")
 
     def configure(self):
         if self.options.shared:
@@ -73,7 +77,9 @@ class DrflacConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

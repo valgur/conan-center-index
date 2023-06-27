@@ -8,13 +8,16 @@ required_conan_version = ">=1.53.0"
 
 class BacnetStackConan(ConanFile):
     name = "bacnet-stack"
+    description = (
+        "BACnet Protocol Stack library provides a BACnet application layer,"
+        " network layer and media access (MAC) layer communications services."
+    )
     license = "GPL-2.0-or-later"
-    homepage = "https://github.com/bacnet-stack/bacnet-stack/"
     url = "https://github.com/conan-io/conan-center-index"
-    description = """
-        BACnet Protocol Stack library provides a BACnet application layer,
-        network layer and media access (MAC) layer communications services."""
-    topics = ("bacnet")
+    homepage = "https://github.com/bacnet-stack/bacnet-stack/"
+    topics = ("bacnet", "networking")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -22,7 +25,7 @@ class BacnetStackConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -42,7 +45,7 @@ class BacnetStackConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -56,7 +59,12 @@ class BacnetStackConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="gpl-2.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "license"))
+        copy(
+            self,
+            pattern="gpl-2.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=os.path.join(self.source_folder, "license"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

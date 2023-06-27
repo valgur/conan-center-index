@@ -12,9 +12,16 @@ class OdeConan(ConanFile):
     name = "ode"
     description = "ODE is an open source, high performance library for simulating rigid body dynamics."
     license = ("LGPL-2.1-or-later", "BSD-3-Clause")
-    topics = ("open-dynamics-engine", "physics", "physics-engine", "physics-simulation", "dynamics", "rigid-body")
-    homepage = "https://www.ode.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.ode.org"
+    topics = (
+        "open-dynamics-engine",
+        "physics",
+        "physics-engine",
+        "physics-simulation",
+        "dynamics",
+        "rigid-body",
+    )
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -53,9 +60,13 @@ class OdeConan(ConanFile):
         if self.options.with_libccd:
             ccd_double_precision = self.dependencies["libccd"].options.enable_double_precision
             if self.options.precision == "single" and ccd_double_precision:
-                raise ConanInvalidConfiguration("ode:precision=single requires libccd:enable_double_precision=False")
+                raise ConanInvalidConfiguration(
+                    "ode:precision=single requires libccd:enable_double_precision=False"
+                )
             elif self.options.precision == "double" and not ccd_double_precision:
-                raise ConanInvalidConfiguration("ode:precision=double requires libccd:enable_double_precision=True")
+                raise ConanInvalidConfiguration(
+                    "ode:precision=double requires libccd:enable_double_precision=True"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,7 +103,9 @@ class OdeConan(ConanFile):
 
     def package(self):
         for license_file in ("COPYING", "LICENSE*"):
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

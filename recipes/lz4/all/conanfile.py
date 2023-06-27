@@ -15,8 +15,9 @@ class LZ4Conan(ConanFile):
     license = ("BSD-2-Clause", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lz4/lz4"
-    topics = ("compression")
+    topics = ("compression",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,8 +45,7 @@ class LZ4Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -100,7 +100,9 @@ class LZ4Conan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._lz4_target: "lz4::lz4"},
+            {
+                self._lz4_target: "lz4::lz4",
+            },
         )
 
     @property
@@ -110,7 +112,9 @@ class LZ4Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "lz4")
         self.cpp_info.set_property("cmake_target_name", self._lz4_target)
-        self.cpp_info.set_property("cmake_target_aliases", ["lz4::lz4"]) # old unofficial target in CCI for lz4, kept for the moment to not break consumers
+        self.cpp_info.set_property(
+            "cmake_target_aliases", ["lz4::lz4"]
+        )  # old unofficial target in CCI for lz4, kept for the moment to not break consumers
         self.cpp_info.set_property("pkg_config_name", "liblz4")
         self.cpp_info.libs = ["lz4"]
         if is_msvc(self) and self.options.shared:

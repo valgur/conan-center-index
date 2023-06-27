@@ -11,11 +11,12 @@ required_conan_version = ">=1.57.0"
 
 class CubicInterpolationConan(ConanFile):
     name = "cubicinterpolation"
-    homepage = "https://github.com/MaxSac/cubic_interpolation"
+    description = "Leightweight interpolation library based on boost and eigen."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Leightweight interpolation library based on boost and eigen."
+    homepage = "https://github.com/MaxSac/cubic_interpolation"
     topics = ("interpolation", "splines", "cubic", "bicubic", "boost", "eigen3")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -27,14 +28,12 @@ class CubicInterpolationConan(ConanFile):
         "fPIC": True,
     }
 
-    _cmake = None
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -53,19 +52,24 @@ class CubicInterpolationConan(ConanFile):
         return ["filesystem", "math", "serialization"]
 
     def validate(self):
-
-        miss_boost_required_comp = any(getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
+        miss_boost_required_comp = any(
+            getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True)
+            for boost_comp in self._required_boost_components
+        )
         if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}",
+                f"{', '.join(self._required_boost_components)}"
             )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, "14")
 
-        if not check_min_vs(self, 192, raise_invalid=False):    
-            raise ConanInvalidConfiguration(f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome")
+        if not check_min_vs(self, 192, raise_invalid=False):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions"
+                " are welcome"
+            )
 
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
@@ -74,7 +78,7 @@ class CubicInterpolationConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = CMakeToolchain(self)  
+        tc = CMakeToolchain(self)
         tc.variables["BUILD_EXAMPLE"] = False
         tc.variables["BUILD_DOCUMENTATION"] = False
         tc.generate()
@@ -99,7 +103,13 @@ class CubicInterpolationConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "CubicInterpolation")
         self.cpp_info.set_property("cmake_target_name", "CubicInterpolation::CubicInterpolation")
         self.cpp_info.libs = ["CubicInterpolation"]
-        self.cpp_info.requires = ["boost::headers", "boost::filesystem", "boost::math", "boost::serialization", "eigen::eigen"]
+        self.cpp_info.requires = [
+            "boost::headers",
+            "boost::filesystem",
+            "boost::math",
+            "boost::serialization",
+            "eigen::eigen",
+        ]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CubicInterpolation"

@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class SevenBitConfConan(ConanFile):
     name = "7bitconf"
-    homepage = "https://github.com/7bitCoder/7bitConf"
     description = "7bitConf is a simple C++17 centralized configuration provider library."
-    topics = ("cpp17", "configuration", "provider", "configuration-files")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/7bitCoder/7bitConf"
+    topics = ("cpp17", "configuration", "provider", "configuration-files")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -32,7 +33,7 @@ class SevenBitConfConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
@@ -105,12 +106,7 @@ class SevenBitConfConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.header_only:
             copy(
                 self,
@@ -137,4 +133,3 @@ class SevenBitConfConan(ConanFile):
 
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.append("m")
-

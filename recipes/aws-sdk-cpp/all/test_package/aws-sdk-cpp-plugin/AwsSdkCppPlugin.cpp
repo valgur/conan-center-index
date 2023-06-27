@@ -10,7 +10,8 @@ AwsSdkCppPlugin::AwsSdkCppPlugin() {
     using namespace Client;
     using namespace S3;
     ClientConfiguration config;
-    auto client = MakeShared<S3Client>("S3Client",
-            MakeShared<DefaultAWSCredentialsProviderChain>("S3Client"), config,
-            AWSAuthV4Signer::PayloadSigningPolicy::Never /*signPayloads*/, true /*useVirtualAddressing*/, US_EAST_1_REGIONAL_ENDPOINT_OPTION::LEGACY);
+    auto client = MakeShared<S3Client>(
+        "S3Client", MakeShared<DefaultAWSCredentialsProviderChain>("S3Client"), config,
+        AWSAuthV4Signer::PayloadSigningPolicy::Never /*signPayloads*/,
+        true /*useVirtualAddressing*/, US_EAST_1_REGIONAL_ENDPOINT_OPTION::LEGACY);
 }

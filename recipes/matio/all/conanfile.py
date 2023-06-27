@@ -1,42 +1,44 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
 
-required_conan_version = ">=1.33.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+
+required_conan_version = ">=1.53.0"
 
 
 class MatioConan(ConanFile):
     name = "matio"
+    description = "Matio is a C library for reading and writing binary MATLAB MAT files."
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/matio/"
-    description = "Matio is a C library for reading and writing binary MATLAB MAT files."
-    topics = ("conan", "matlab", "mat-file", "file-format", "hdf5")
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
-    exports_sources = "CMakeLists.txt", "patches/*"
+    topics = ("matlab", "mat-file", "file-format", "hdf5")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "extended_sparse": [True, False],
         "fPIC": [True, False],
+        "extended_sparse": [True, False],
         "mat73": [True, False],
         "with_hdf5": [True, False],
         "with_zlib": [True, False],
     }
     default_options = {
         "shared": False,
-        "extended_sparse": True,
         "fPIC": True,
+        "extended_sparse": True,
         "mat73": True,
         "with_hdf5": True,
         "with_zlib": True,
     }
 
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -44,9 +46,12 @@ class MatioConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_hdf5:
@@ -59,36 +64,34 @@ class MatioConan(ConanFile):
             raise ConanInvalidConfiguration("Support of version 7.3 MAT files requires HDF5")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
+        tc.variables["MATIO_PIC"] = self.options.get_safe("fPIC", True)
+        tc.variables["MATIO_SHARED"] = self.options.shared
+        tc.variables["MATIO_MAT73"] = self.options.mat73
+        tc.variables["MATIO_WITH_HDF5"] = self.options.with_hdf5
+        tc.variables["MATIO_WITH_ZLIB"] = self.options.with_zlib
+        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = self.options.with_hdf5 and not self.options["hdf5"].shared
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-
-        self._cmake = CMake(self)
-        self._cmake.definitions["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
-        self._cmake.definitions["MATIO_PIC"] = self.options.get_safe("fPIC", True)
-        self._cmake.definitions["MATIO_SHARED"] = self.options.shared
-        self._cmake.definitions["MATIO_MAT73"] = self.options.mat73
-        self._cmake.definitions["MATIO_WITH_HDF5"] = self.options.with_hdf5
-        self._cmake.definitions["MATIO_WITH_ZLIB"] = self.options.with_zlib
-        self._cmake.definitions["HDF5_USE_STATIC_LIBRARIES"] = self.options.with_hdf5 and not self.options["hdf5"].shared
-        self._cmake.configure()
-        return self._cmake
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 
+required_conan_version = ">=1.52.0"
 
 class LestConan(ConanFile):
     name = "lest"
@@ -15,6 +16,7 @@ class LestConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/lest"
     topics = ("testing", "testing-framework", "unit-testing", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

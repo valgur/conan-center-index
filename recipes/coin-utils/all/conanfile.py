@@ -18,13 +18,13 @@ class CoinUtilsConan(ConanFile):
         "CoinUtils is an open-source collection of classes and helper "
         "functions that are generally useful to multiple COIN-OR projects."
     )
-    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/CoinUtils"
-    license = "EPL-2.0"
+    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
 
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,7 +99,7 @@ class CoinUtilsConan(ConanFile):
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -127,7 +127,9 @@ class CoinUtilsConan(ConanFile):
                 cflags.extend(deps_cpp_info.cflags)
 
             env = Environment()
-            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
+            env.append(
+                "CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines]
+            )
             env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in libs])
             env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
             env.append("CXXFLAGS", cxxflags)
@@ -145,7 +147,12 @@ class CoinUtilsConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(
+                        self,
+                        os.path.basename(gnu_config),
+                        src=os.path.dirname(gnu_config),
+                        dst=self.source_folder,
+                    )
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -159,8 +166,11 @@ class CoinUtilsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
         if is_msvc(self):
-            rename(self, os.path.join(self.package_folder, "lib", "libCoinUtils.a"),
-                         os.path.join(self.package_folder, "lib", "CoinUtils.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "libCoinUtils.a"),
+                os.path.join(self.package_folder, "lib", "CoinUtils.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "coinutils")

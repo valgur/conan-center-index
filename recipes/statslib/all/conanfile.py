@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class StatsLibConan(ConanFile):
     name = "statslib"
     description = "A C++ header-only library of statistical distribution functions."
@@ -13,6 +14,7 @@ class StatsLibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.kthohr.com/statslib.html"
     topics = ("statistics", "constexpr", "probability", "stats", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -38,7 +40,9 @@ class StatsLibConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*",

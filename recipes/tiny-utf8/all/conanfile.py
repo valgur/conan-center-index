@@ -9,9 +9,11 @@ required_conan_version = ">=1.50.0"
 
 class Tinyutf8Conan(ConanFile):
     name = "tiny-utf8"
-    description = "Tiny-utf8 is a library for extremely easy integration of Unicode into an arbitrary C++11 project."
+    description = (
+        "Tiny-utf8 is a library for extremely easy integration of Unicode into an arbitrary C++11 project."
+    )
     license = "BSD-3-Clause"
-    topics = ("tiny-utf8", "utf8")
+    topics = "utf8"
     homepage = "https://github.com/DuffsDevice/tiny-utf8"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,15 +30,19 @@ class Tinyutf8Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENCE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinyutf8")

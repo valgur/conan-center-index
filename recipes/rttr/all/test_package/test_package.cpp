@@ -6,9 +6,9 @@
 
 using dblvec = std::vector<double>;
 
-int main()
-{
+int main() {
     auto type = rttr::type::get<dblvec>();
-    std::cout << "type name: " << type.get_name() << std::endl;;
+    std::cout << "type name: " << type.get_name() << std::endl;
+    ;
     return EXIT_SUCCESS;
 }

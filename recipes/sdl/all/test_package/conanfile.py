@@ -20,7 +20,6 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()

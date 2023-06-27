@@ -8,13 +8,15 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class WasmtimeCppConan(ConanFile):
-    name = 'wasmtime-cpp'
+    name = "wasmtime-cpp"
     description = "Standalone JIT-style runtime for WebAssembly, using Cranelift"
-    license = 'Apache-2.0'
-    url = 'https://github.com/conan-io/conan-center-index'
-    homepage = 'https://github.com/bytecodealliance/wasmtime-cpp'
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/bytecodealliance/wasmtime-cpp"
     topics = ("webassembly", "wasm", "wasi", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -30,7 +32,7 @@ class WasmtimeCppConan(ConanFile):
             "msvc": "192",
             "apple-clang": "12",
             "clang": "12",
-            "gcc": "10"
+            "gcc": "10",
         }
 
     def layout(self):
@@ -63,11 +65,14 @@ class WasmtimeCppConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self,
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
             pattern="*.hh",
             dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include")
+            src=os.path.join(self.source_folder, "include"),
         )
 
     def package_info(self):

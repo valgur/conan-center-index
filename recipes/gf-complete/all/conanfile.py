@@ -1,5 +1,82 @@
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import contextlib
 import os
 
@@ -20,41 +97,39 @@ class GfCompleteConan(ConanFile):
         "fPIC": [True, False],
         "neon": [True, False, "auto"],
         "sse": [True, False, "auto"],
-        "avx": [True, False, "auto"]
+        "avx": [True, False, "auto"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "neon": "auto",
         "sse": "auto",
-        "avx": "auto"
+        "avx": "auto",
     }
 
-    exports_sources = "patches/**"
     _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.sse
-            del self.options.avx
+            self.options.rm_safe("sse")
+            self.options.rm_safe("avx")
         if "arm" not in self.settings.arch:
-            del self.options.neon
+            self.options.rm_safe("neon")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         if self.settings.compiler == "Visual Studio":
@@ -69,39 +144,40 @@ class GfCompleteConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires("libtool/2.4.6")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         # Don't build tests and examples (and also tools if Visual Studio)
         to_build = ["src"]
         if self.settings.compiler != "Visual Studio":
             to_build.append("tools")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.am"),
-                              "SUBDIRS = src tools test examples",
-                              "SUBDIRS = {}".format(" ".join(to_build)))
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
+            "SUBDIRS = src tools test examples",
+            "SUBDIRS = {}".format(" ".join(to_build)),
+        )
         # Honor build type settings and fPIC option
         for subdir in ["src", "tools"]:
             for flag in ["-O3", "-fPIC"]:
-                tools.replace_in_file(os.path.join(self._source_subfolder, subdir, "Makefile.am"),
-                                      flag, "")
+                replace_in_file(self, os.path.join(self.source_folder, subdir, "Makefile.am"), flag, "")
 
     @contextlib.contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
+            with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "LD": "{} link -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -134,24 +210,25 @@ class GfCompleteConan(ConanFile):
             if self.options.avx != "auto":
                 conf_args.append("--enable-avx={}".format(yes_no(self.options.avx)))
 
-        self._autotools.configure(args=conf_args, configure_dir=self._source_subfolder)
+        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
 
         return self._autotools
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
+        with chdir(self, self.source_folder):
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["gf_complete"]

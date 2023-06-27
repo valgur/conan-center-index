@@ -1,17 +1,23 @@
+# TODO: verify the Conan v2 migration
+
 import os
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+
+required_conan_version = ">=1.53.0"
 
 
 class OpenTracingConan(ConanFile):
     name = "opentracing-cpp"
     description = "C++ implementation of the OpenTracing API http://opentracing.io"
     license = "Apache-2.0"
-    topics = ("conan", "opentracing")
-    homepage = "https://github.com/opentracing/opentracing-cpp"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/*.patch"]
-    generators = "cmake"
+    homepage = "https://github.com/opentracing/opentracing-cpp"
+    topics = "opentracing"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,15 +32,8 @@ class OpenTracingConan(ConanFile):
         "enable_dynamic_load": False,
     }
 
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,54 +41,51 @@ class OpenTracingConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename(self.name + "-" + self.version, self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename(self.name + "-" + self.version, self.source_folder)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_MOCKTRACER"] = self.options.enable_mocktracer
+        tc.variables["BUILD_DYNAMIC_LOADING"] = self.options.enable_dynamic_load
+        tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
+        tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["ENABLE_LINTING"] = False
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["BUILD_MOCKTRACER"] = self.options.enable_mocktracer
-        self._cmake.definitions[
-            "BUILD_DYNAMIC_LOADING"
-        ] = self.options.enable_dynamic_load
-        self._cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
-        self._cmake.definitions["BUILD_STATIC_LIBS"] = not self.options.shared
-        self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.definitions["ENABLE_LINTING"] = False
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
-
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "OpenTracing"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenTracing"
 
         target_suffix = "" if self.options.shared else "-static"
-        lib_suffix = (
-            "" if self.options.shared or self.settings.os != "Windows" else "-static"
-        )
+        lib_suffix = "" if self.options.shared or self.settings.os != "Windows" else "-static"
         # opentracing
-        self.cpp_info.components["opentracing"].names["cmake_find_package"] = (
-            "opentracing" + target_suffix
-        )
+        self.cpp_info.components["opentracing"].names["cmake_find_package"] = "opentracing" + target_suffix
         self.cpp_info.components["opentracing"].names["cmake_find_package_multi"] = (
             "opentracing" + target_suffix
         )
@@ -101,18 +97,14 @@ class OpenTracingConan(ConanFile):
 
         # opentracing_mocktracer
         if self.options.enable_mocktracer:
-            self.cpp_info.components["opentracing_mocktracer"].names[
-                "cmake_find_package"
-            ] = ("opentracing_mocktracer" + target_suffix)
-            self.cpp_info.components["opentracing_mocktracer"].names[
-                "cmake_find_package_multi"
-            ] = ("opentracing_mocktracer" + target_suffix)
-            self.cpp_info.components["opentracing_mocktracer"].libs = [
-                "opentracing_mocktracer" + lib_suffix
-            ]
-            self.cpp_info.components["opentracing_mocktracer"].requires = [
-                "opentracing"
-            ]
+            self.cpp_info.components["opentracing_mocktracer"].names["cmake_find_package"] = (
+                "opentracing_mocktracer" + target_suffix
+            )
+            self.cpp_info.components["opentracing_mocktracer"].names["cmake_find_package_multi"] = (
+                "opentracing_mocktracer" + target_suffix
+            )
+            self.cpp_info.components["opentracing_mocktracer"].libs = ["opentracing_mocktracer" + lib_suffix]
+            self.cpp_info.components["opentracing_mocktracer"].requires = ["opentracing"]
             if not self.options.shared:
                 self.cpp_info.components["opentracing_mocktracer"].defines.append(
                     "OPENTRACING_MOCK_TRACER_STATIC"

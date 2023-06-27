@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_extracted_license'
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, save
@@ -6,14 +9,16 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class TinyExrConan(ConanFile):
     name = "tinyexr"
     description = "Tiny OpenEXR image loader/saver library"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinyexr"
-    topics = ("exr", "header-only")
+    topics = ("exr", "header-only", "pre-built")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_z": ["zlib", "miniz"],
@@ -30,6 +35,14 @@ class TinyExrConan(ConanFile):
         "with_openmp": False,
     }
 
+    @property
+    def _extracted_license(self):
+        content_lines = open(os.path.join(self.source_folder, "tinyexr.h")).readlines()
+        license_content = []
+        for i in range(3, 27):
+            license_content.append(content_lines[i][:-1])
+        return "\n".join(license_content)
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -45,7 +58,8 @@ class TinyExrConan(ConanFile):
             self.requires("zfp/1.0.0")
 
     def package_id(self):
-        self.info.clear()
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.options.with_thread and self.settings.compiler.get_safe("cppstd"):
@@ -53,14 +67,6 @@ class TinyExrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @property
-    def _extracted_license(self):
-        content_lines = open(os.path.join(self.source_folder, "tinyexr.h")).readlines()
-        license_content = []
-        for i in range(3, 27):
-            license_content.append(content_lines[i][:-1])
-        return "\n".join(license_content)
 
     def build(self):
         apply_conandata_patches(self)
@@ -75,9 +81,14 @@ class TinyExrConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.defines.append("TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0"))
+        self.cpp_info.defines.append(
+            "TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0")
+        )
         self.cpp_info.defines.append("TINYEXR_USE_PIZ={}".format("1" if self.options.with_piz else "0"))
         self.cpp_info.defines.append("TINYEXR_USE_ZFP={}".format("1" if self.options.with_zfp else "0"))
         self.cpp_info.defines.append("TINYEXR_USE_THREAD={}".format("1" if self.options.with_thread else "0"))

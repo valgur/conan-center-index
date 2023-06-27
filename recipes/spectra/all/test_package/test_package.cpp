@@ -13,7 +13,8 @@ int main() {
 
     // Construct eigen solver object, requesting the largest three eigenvalues
 #ifdef SPECTRA_LESS_1_0_0
-    Spectra::SymEigsSolver< double, Spectra::LARGEST_ALGE, Spectra::DenseSymMatProd<double> > eigs(&op, 3, 6);
+    Spectra::SymEigsSolver<double, Spectra::LARGEST_ALGE, Spectra::DenseSymMatProd<double>> eigs(
+        &op, 3, 6);
 #else
     Spectra::SymEigsSolver<Spectra::DenseSymMatProd<double>> eigs(op, 3, 6);
 #endif

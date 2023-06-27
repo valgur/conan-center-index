@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rename, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rename,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
@@ -13,10 +22,10 @@ required_conan_version = ">=1.53.0"
 class Libx265Conan(ConanFile):
     name = "libx265"
     description = "x265 is the leading H.265 / HEVC encoder software library"
-    topics = ("x265", "codec", "video", "H.265")
+    license = ("GPL-2.0-only", "commercial")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.videolan.org/developers/x265.html"
-    license = ("GPL-2.0-only", "commercial")  # https://bitbucket.org/multicoreware/x265/src/default/COPYING
+    topics = ("x265", "codec", "video", "H.265")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -46,7 +55,7 @@ class Libx265Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.with_numa
+            self.options.rm_safe("with_numa")
         # FIXME: Disable assembly by default if host is arm and compiler apple-clang for the moment.
         # Indeed, apple-clang is not able to understand some asm instructions of libx265
         if self.settings.compiler == "apple-clang" and "arm" in self.settings.arch:
@@ -102,9 +111,9 @@ class Libx265Conan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "source", "CMakeLists.txt")
-        replace_in_file(self, cmakelists,
-                                "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",
-                                "if(FALSE)")
+        replace_in_file(
+            self, cmakelists, "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))", "if(FALSE)"
+        )
         if self.settings.os == "Android":
             replace_in_file(self, cmakelists, "list(APPEND PLATFORM_LIBS pthread)", "")
             replace_in_file(self, cmakelists, "list(APPEND PLATFORM_LIBS rt)", "")
@@ -129,8 +138,11 @@ class Libx265Conan(ConanFile):
 
         if is_msvc(self):
             name = "libx265.lib" if self.options.shared else "x265-static.lib"
-            rename(self, os.path.join(self.package_folder, "lib", name),
-                         os.path.join(self.package_folder, "lib", "x265.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", name),
+                os.path.join(self.package_folder, "lib", "x265.lib"),
+            )
 
         if self.settings.os == "Windows" and self.options.shared:
             rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))

@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-int main(int argc, char* argv[])
-{
+int main() {
     std::cout << "fltk version     : " << Fl::version() << std::endl;
     std::cout << "fltk api version : " << Fl::api_version() << std::endl;
     std::cout << "fltk abi version : " << Fl::abi_version() << std::endl;

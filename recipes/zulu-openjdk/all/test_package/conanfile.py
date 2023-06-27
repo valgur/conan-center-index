@@ -12,7 +12,7 @@ class TestPackage(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build(self):
-        pass # nothing to build, but tests should not warn
+        pass  # nothing to build, but tests should not warn
 
     def test(self):
         if cross_building(self):

@@ -3,17 +3,18 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class EcosConan(ConanFile):
     name = "ecos"
     description = "ECOS is a numerical software for solving convex second-order cone programs (SOCPs)."
     license = "GPL-3.0-or-later"
-    topics = ("ecos", "conic-solver")
-    homepage = "https://github.com/embotech/ecos"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/embotech/ecos"
+    topics = ("conic-solver",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,18 +36,9 @@ class EcosConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -56,8 +48,7 @@ class EcosConan(ConanFile):
         pass
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

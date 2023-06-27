@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -17,11 +26,13 @@ required_conan_version = ">=1.53.0"
 
 class AravisConan(ConanFile):
     name = "aravis"
+    description = "A vision library for genicam based cameras."
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AravisProject/aravis"
-    description = "A vision library for genicam based cameras."
     topics = ("usb", "camera")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -49,7 +60,7 @@ class AravisConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.packet_socket
+            self.options.rm_safe("packet_socket")
 
     def configure(self):
         if self.options.shared:
@@ -105,7 +116,9 @@ class AravisConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["usb"] = "enabled" if self.options.usb else "disabled"
         tc.project_options["gst-plugin"] = "enabled" if self.options.gst_plugin else "disabled"
-        tc.project_options["packet-socket"] = "enabled" if self.options.get_safe("packet_socket") else "disabled"
+        tc.project_options["packet-socket"] = (
+            "enabled" if self.options.get_safe("packet_socket") else "disabled"
+        )
         tc.project_options["introspection"] = "enabled" if self.options.introspection else "disabled"
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False

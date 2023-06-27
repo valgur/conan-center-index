@@ -1,12 +1,16 @@
 #include <gdbm.h>
 
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fcntl.h>
 
-#define SET_DATUM_CSTR(DATUM, CSTR) do {(DATUM).dptr=(CSTR); (DATUM).dsize=strlen(CSTR)+1;} while (0)
+#define SET_DATUM_CSTR(DATUM, CSTR)                                                                \
+    do {                                                                                           \
+        (DATUM).dptr = (CSTR);                                                                     \
+        (DATUM).dsize = strlen(CSTR) + 1;                                                          \
+    } while (0)
 
-int main(int argc, char *argv[]) {
+int main() {
     GDBM_FILE file;
     int res;
     gdbm_count_t count;

@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <pciaccess.h>
+#include <stdlib.h>
 
 int main(void) {
     pci_system_init();

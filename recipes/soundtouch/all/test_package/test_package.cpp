@@ -2,7 +2,7 @@
 
 #include "soundtouch/SoundTouch.h"
 
-int main(int argc, char* argv[]) {
+int main() {
     std::cout << "SoundTouch: " << soundtouch::SoundTouch::getVersionString() << "\n";
 
     soundtouch::SoundTouch soundTouch;

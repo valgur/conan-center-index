@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 class Catch2Conan(ConanFile):
     name = "catch2"
     description = "A modern, C++-native, header-only, framework for unit-tests, TDD and BDD"
-    topics = ("header-only", "unit-test", "tdd", "bdd")
-    homepage = "https://github.com/catchorg/Catch2"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/catchorg/Catch2"
+    topics = ("header-only", "unit-test", "tdd", "bdd")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -31,6 +32,7 @@ class Catch2Conan(ConanFile):
         "with_prefix": False,
         "default_reporter": None,
     }
+    no_copy_source = True
 
     @property
     def _default_reporter_str(self):
@@ -64,9 +66,11 @@ class Catch2Conan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
-        tc.cache_variables["CATCH_INSTALL_DOCS"] = False    # these are cmake options, so use cache_variables
+        tc.cache_variables["CATCH_INSTALL_DOCS"] = False  # these are cmake options, so use cache_variables
         tc.cache_variables["CATCH_INSTALL_HELPERS"] = "ON"  # these are cmake options, so use cache_variables
-        tc.cache_variables["CATCH_BUILD_STATIC_LIBRARY"] = str(self.options.with_main)   # these are cmake options, so use cache_variables (str() is required for conan 1.52)
+        tc.cache_variables["CATCH_BUILD_STATIC_LIBRARY"] = str(
+            self.options.with_main
+        )  # these are cmake options, so use cache_variables (str() is required for conan 1.52)
         if self.options.with_prefix:
             tc.preprocessor_definitions["CATCH_CONFIG_PREFIX_ALL"] = 1
         if self.options.get_safe("with_benchmark", False):
@@ -82,22 +86,35 @@ class Catch2Conan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         for cmake_file in ["ParseAndAddCatchTests.cmake", "Catch.cmake", "CatchAddTests.cmake"]:
-            copy(self,
+            copy(
+                self,
                 cmake_file,
                 src=os.path.join(self.source_folder, "contrib"),
                 dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"),
             )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "Catch2")
-        self.cpp_info.set_property("cmake_target_name", "Catch2::Catch2{}".format("WithMain" if self.options.with_main else ""))
-        self.cpp_info.set_property("pkg_config_name", "catch2{}".format("-with-main" if self.options.with_main else ""))
+        self.cpp_info.set_property(
+            "cmake_target_name", "Catch2::Catch2{}".format("WithMain" if self.options.with_main else "")
+        )
+        self.cpp_info.set_property(
+            "pkg_config_name", "catch2{}".format("-with-main" if self.options.with_main else "")
+        )
 
         defines = []
         if self.options.get_safe("with_benchmark", False):
@@ -112,10 +129,16 @@ class Catch2Conan(ConanFile):
             self.cpp_info.components["_catch2"].set_property("pkg_config_name", "catch2")
             self.cpp_info.components["_catch2"].defines = defines
 
-            self.cpp_info.components["catch2_with_main"].builddirs.append(os.path.join("lib", "cmake", "Catch2"))
+            self.cpp_info.components["catch2_with_main"].builddirs.append(
+                os.path.join("lib", "cmake", "Catch2")
+            )
             self.cpp_info.components["catch2_with_main"].libs = ["Catch2WithMain"]
-            self.cpp_info.components["catch2_with_main"].system_libs = ["log"] if self.settings.os == "Android" else []
-            self.cpp_info.components["catch2_with_main"].set_property("cmake_target_name", "Catch2::Catch2WithMain")
+            self.cpp_info.components["catch2_with_main"].system_libs = (
+                ["log"] if self.settings.os == "Android" else []
+            )
+            self.cpp_info.components["catch2_with_main"].set_property(
+                "cmake_target_name", "Catch2::Catch2WithMain"
+            )
             self.cpp_info.components["catch2_with_main"].set_property("pkg_config_name", "catch2-with-main")
             self.cpp_info.components["catch2_with_main"].defines = defines
         else:

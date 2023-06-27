@@ -1,3 +1,6 @@
+# Warnings:
+#   Missing required method 'configure'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -5,29 +8,31 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.53.0"
 
 
 class VectorclassConan(ConanFile):
     name = "vectorclass"
-    description = "C++ class library for using the Single Instruction Multiple " \
-                  "Data (SIMD) instructions to improve performance on modern " \
-                  "microprocessors with the x86 or x86/64 instruction set on " \
-                  "Windows, Linux, and Mac platforms."
+    description = (
+        "C++ class library for using the Single Instruction Multiple Data (SIMD) instructions to improve"
+        " performance on modern microprocessors with the x86 or x86/64 instruction set on Windows, Linux, and"
+        " Mac platforms."
+    )
     license = "Apache-2.0"
-    topics = ("vectorclass", "vector", "simd")
-    homepage = "https://github.com/vectorclass/version2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/vectorclass/version2"
+    topics = ("vector", "simd")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
-
-    exports_sources = "CMakeLists.txt"
 
     @property
     def _min_cppstd(self):
@@ -42,15 +47,25 @@ class VectorclassConan(ConanFile):
             "apple-clang": "9.1",
         }
 
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.os not in ["Linux", "Windows", "Macos"] or self.info.settings.arch not in ["x86", "x86_64"]:
+        if self.info.settings.os not in ["Linux", "Windows", "Macos"] or self.info.settings.arch not in [
+            "x86",
+            "x86_64",
+        ]:
             raise ConanInvalidConfiguration("vectorclass supports Linux/Windows/macOS and x86/x86_64 only.")
 
         if self.info.settings.compiler.get_safe("cppstd"):
@@ -65,12 +80,11 @@ class VectorclassConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.info.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

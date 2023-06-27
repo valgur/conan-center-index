@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
@@ -16,6 +15,7 @@ class LogrConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ngrodzitski/logr"
     topics = ("logger", "development", "util", "utils")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

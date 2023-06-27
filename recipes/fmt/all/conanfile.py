@@ -12,11 +12,12 @@ required_conan_version = ">=1.53.0"
 
 class FmtConan(ConanFile):
     name = "fmt"
-    homepage = "https://github.com/fmtlib/fmt"
     description = "A safe and fast alternative to printf and IOStreams."
-    topics = ("format", "iostream", "printf")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/fmtlib/fmt"
+    topics = ("format", "iostream", "printf")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -45,7 +46,7 @@ class FmtConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_with_os_api_option:
-            del self.options.with_os_api
+            self.options.rm_safe("with_os_api")
         elif str(self.settings.os) == "baremetal":
             self.options.with_os_api = False
 
@@ -95,9 +96,19 @@ class FmtConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="*LICENSE.rst", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            pattern="*LICENSE.rst",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         if self.options.header_only:
-            copy(self, pattern="*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                pattern="*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
         else:
             cmake = CMake(self)
             cmake.install()
@@ -110,7 +121,7 @@ class FmtConan(ConanFile):
         target = "fmt-header-only" if self.options.header_only else "fmt"
         self.cpp_info.set_property("cmake_file_name", "fmt")
         self.cpp_info.set_property("cmake_target_name", f"fmt::{target}")
-        self.cpp_info.set_property("pkg_config_name",  "fmt")
+        self.cpp_info.set_property("pkg_config_name", "fmt")
 
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if self.options.with_fmt_alias:

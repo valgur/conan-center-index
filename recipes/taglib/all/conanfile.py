@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -12,9 +20,9 @@ class TaglibConan(ConanFile):
     name = "taglib"
     description = "TagLib is a library for reading and editing the metadata of several popular audio formats."
     license = ("LGPL-2.1-or-later", "MPL-1.1")
-    topics = ("audio", "metadata")
-    homepage = "https://taglib.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://taglib.org"
+    topics = ("audio", "metadata")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -86,7 +94,9 @@ class TaglibConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "taglib_full_package") # unofficial, to avoid conflicts in pkg_config generator
+        self.cpp_info.set_property(
+            "pkg_config_name", "taglib_full_package"
+        )  # unofficial, to avoid conflicts in pkg_config generator
 
         self.cpp_info.components["tag"].set_property("pkg_config_name", "taglib")
         self.cpp_info.components["tag"].includedirs.append(os.path.join("include", "taglib"))

@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 import os
 import urllib
@@ -11,11 +19,12 @@ required_conan_version = ">=1.53.0"
 
 class LibrealsenseConan(ConanFile):
     name = "librealsense"
+    description = "Intel(R) RealSense(tm) Cross Platform API for accessing Intel RealSense cameras."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/IntelRealSense/librealsense"
-    description = "Intel(R) RealSense(tm) Cross Platform API for accessing Intel RealSense cameras."
     topics = ("usb", "camera")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -28,10 +37,8 @@ class LibrealsenseConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "tools": True,
-        "rsusb_backend": True, # TODO: change to False when CI gets MSVC ATL support
+        "rsusb_backend": True,
     }
-
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -40,7 +47,7 @@ class LibrealsenseConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.rsusb_backend
+            self.options.rm_safe("rsusb_backend")
 
     def configure(self):
         if self.options.shared:
@@ -122,7 +129,9 @@ class LibrealsenseConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.components["fw"].set_property("cmake_target_name", "realsense2::fw")
             self.cpp_info.components["fw"].libs = [f"fw{postfix}"]
-            self.cpp_info.components["realsense-file"].set_property("cmake_target_name", "realsense2::realsense-file")
+            self.cpp_info.components["realsense-file"].set_property(
+                "cmake_target_name", "realsense2::realsense-file"
+            )
             self.cpp_info.components["realsense-file"].libs = [f"realsense-file{postfix}"]
 
         self.cpp_info.components["realsense2"].set_property("cmake_target_name", "realsense2::realsense2")
@@ -134,12 +143,20 @@ class LibrealsenseConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.components["realsense2"].system_libs.extend(["m", "pthread", "udev"])
         elif self.settings.os == "Windows":
-            self.cpp_info.components["realsense2"].system_libs.extend([
-                "cfgmgr32", "setupapi",
-                "sensorsapi", "portabledeviceguids",
-                "winusb",
-                "shlwapi", "mf", "mfplat", "mfreadwrite", "mfuuid"
-            ])
+            self.cpp_info.components["realsense2"].system_libs.extend(
+                [
+                    "cfgmgr32",
+                    "setupapi",
+                    "sensorsapi",
+                    "portabledeviceguids",
+                    "winusb",
+                    "shlwapi",
+                    "mf",
+                    "mfplat",
+                    "mfreadwrite",
+                    "mfuuid",
+                ]
+            )
 
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "realsense2"

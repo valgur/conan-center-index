@@ -12,10 +12,11 @@ class CcfitsConan(ConanFile):
     name = "ccfits"
     description = "CCfits is an object oriented interface to the cfitsio library."
     license = "ISC"
-    topics = ("ccfits", "fits", "image", "nasa", "astronomy", "astrophysics", "space")
-    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/ccfits"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/ccfits"
+    topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,10 +36,7 @@ class CcfitsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -52,8 +50,7 @@ class CcfitsConan(ConanFile):
                 check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

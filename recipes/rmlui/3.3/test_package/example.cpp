@@ -1,7 +1,6 @@
 #include <RmlUi/Core.h>
 
-int main()
-{
+int main() {
     Rml::Core::Shutdown();
     return 0;
 }

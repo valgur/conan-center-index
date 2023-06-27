@@ -6,17 +6,19 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class VirSIMDConan(ConanFile):
     name = "vir-simd"
-    description = "A fallback std::experimental::simd (Parallelism TS 2) implementation with additional features"
+    description = (
+        "A fallback std::experimental::simd (Parallelism TS 2) implementation with additional features"
+    )
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mattkretz/vir-simd"
     topics = ("simd", "parallelism-ts", "cpp17", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -38,7 +40,6 @@ class VirSIMDConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    # same package ID for any package
     def package_id(self):
         self.info.clear()
 
@@ -62,12 +63,11 @@ class VirSIMDConan(ConanFile):
         return
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
-            self,
-            pattern="vir/*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self, pattern="vir/*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
         )
 
     def package_info(self):

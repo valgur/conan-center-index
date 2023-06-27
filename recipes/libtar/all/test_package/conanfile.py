@@ -26,11 +26,13 @@ class TestPackageConan(ConanFile):
     def test(self):
         with tarfile.open("test.tar", "w", format=tarfile.GNU_FORMAT) as f:
             import io
+
             bio = io.BytesIO()
             bio.write(b"secret text\n")
             tarinfo = tarfile.TarInfo("hello_world")
             tarinfo.size = bio.tell()
             import time
+
             tarinfo.mtime = time.time()
             bio.seek(0)
             f.addfile(tarinfo, bio)
@@ -44,6 +46,6 @@ class TestPackageConan(ConanFile):
                 raise ConanException("file not extracted")
             extracted_text = load(self, "hello_world")
             if extracted_text != "secret text\n":
-                raise ConanException(f"File not loaded correctly. Got \"{repr(extracted_text)}\"")
+                raise ConanException(f'File not loaded correctly. Got "{repr(extracted_text)}"')
 
             self.run("libtar -t test.tar", env="conanrun")

@@ -12,11 +12,13 @@ required_conan_version = ">=1.53.0"
 
 class PulseAudioConan(ConanFile):
     name = "pulseaudio"
-    description = "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
-    topics = ("sound",)
+    description = (
+        "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
+    )
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pulseaudio.org/"
-    license = "LGPL-2.1"
+    topics = ("sound",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -51,7 +53,7 @@ class PulseAudioConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if not self.options.with_dbus:
-            del self.options.with_fftw
+            self.options.rm_safe("with_fftw")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -104,14 +106,16 @@ class PulseAudioConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--enable-shared={yes_no(self.options.shared)}",
-            f"--enable-static={yes_no(not self.options.shared)}",
-            f"--enable-glib2={yes_no(self.options.with_glib)}",
-            f"--with-fftw={yes_no(self.options.get_safe('with_fftw'))}",
-            "--with-udev-rules-dir=${prefix}/bin/udev/rules.d",
-            f"--with-systemduserunitdir={os.path.join(self.build_folder, 'ignore')}",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-shared={yes_no(self.options.shared)}",
+                f"--enable-static={yes_no(not self.options.shared)}",
+                f"--enable-glib2={yes_no(self.options.with_glib)}",
+                f"--with-fftw={yes_no(self.options.get_safe('with_fftw'))}",
+                "--with-udev-rules-dir=${prefix}/bin/udev/rules.d",
+                f"--with-systemduserunitdir={os.path.join(self.build_folder, 'ignore')}",
+            ]
+        )
         for lib in ["alsa", "x11", "openssl", "dbus"]:
             tc.configure_args.append(f"--enable-{lib}={yes_no(getattr(self.options, f'with_{lib}'))}")
         # TODO: to remove when automatically handled by AutotoolsToolchain
@@ -141,7 +145,12 @@ class PulseAudioConan(ConanFile):
         self.cpp_info.components["pulse"].set_property("pkg_config_name", "libpulse")
         self.cpp_info.components["pulse"].libs = ["pulse", f"pulsecommon-{self.version}"]
         self.cpp_info.components["pulse"].libdirs.append(os.path.join("lib", "pulseaudio"))
-        self.cpp_info.components["pulse"].requires = ["libiconv::libiconv", "libsndfile::libsndfile", "libcap::libcap", "libtool::libtool"]
+        self.cpp_info.components["pulse"].requires = [
+            "libiconv::libiconv",
+            "libsndfile::libsndfile",
+            "libcap::libcap",
+            "libtool::libtool",
+        ]
         if self.options.with_alsa:
             self.cpp_info.components["pulse"].requires.append("libalsa::libalsa")
         if self.options.get_safe("with_fftw"):
@@ -159,7 +168,9 @@ class PulseAudioConan(ConanFile):
         self.cpp_info.components["pulse-simple"].requires = ["pulse"]
 
         if self.options.with_glib:
-            self.cpp_info.components["pulse-mainloop-glib"].set_property("pkg_config_name", "libpulse-mainloop-glib")
+            self.cpp_info.components["pulse-mainloop-glib"].set_property(
+                "pkg_config_name", "libpulse-mainloop-glib"
+            )
             self.cpp_info.components["pulse-mainloop-glib"].libs = ["pulse-mainloop-glib"]
             self.cpp_info.components["pulse-mainloop-glib"].defines.append("_REENTRANT")
             self.cpp_info.components["pulse-mainloop-glib"].requires = ["pulse", "glib::glib-2.0"]

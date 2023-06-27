@@ -1,35 +1,47 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.53.0"
 
 
 class RmluiConan(ConanFile):
     name = "rmlui"
     description = "RmlUi - The HTML/CSS User Interface Library Evolved"
-    homepage = "https://github.com/mikke89/RmlUi"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    topics = ("conan", "css", "gui", "html", "lua", "rmlui")
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mikke89/RmlUi"
+    topics = ("css", "gui", "html", "lua", "rmlui")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "enable_rtti_and_exceptions": [True, False],
         "font_interface": ["freetype", None],
-        "fPIC": [True, False],
-        "shared": [True, False],
         "with_lua_bindings": [True, False],
-        "with_thirdparty_containers": [True, False]
+        "with_thirdparty_containers": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "enable_rtti_and_exceptions": True,
         "font_interface": "freetype",
-        "fPIC": True,
-        "shared": False,
         "with_lua_bindings": False,
-        "with_thirdparty_containers": True
+        "with_thirdparty_containers": True,
     }
-    build_requires = ["cmake/3.23.2"]
-    exports_sources = ["CMakeLists.txt"]
-    generators = ["cmake", "cmake_find_package"]
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 14
 
     @property
     def _minimum_compilers_version(self):
@@ -40,12 +52,8 @@ class RmluiConan(ConanFile):
             "gcc": "5",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15"
+            "Visual Studio": "15",
         }
-
-    @property
-    def _minimum_cpp_standard(self):
-        return 14
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -53,19 +61,10 @@ class RmluiConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compilers_version.get(
-            str(self.settings.compiler))
-        if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
-        else:
-            if tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                    self.name, self._minimum_cpp_standard, self.settings.compiler, self.settings.compiler.version))
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.font_interface == "freetype":
@@ -74,28 +73,39 @@ class RmluiConan(ConanFile):
         if self.options.with_lua_bindings:
             self.requires("lua/5.3.5")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._minimum_cpp_standard)
+        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
+        if not min_version:
+            self.output.warn(
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
+            )
+        else:
+            if Version(self.settings.compiler.version) < min_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                )
+
+    def build_requirements(self):
+        self.tool_requires("cmake/3.23.2")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if not hasattr(self, "_cmake"):
-            self._cmake = CMake(self)
-            self._cmake.definitions["BUILD_LUA_BINDINGS"] = self.options.with_lua_bindings
-            self._cmake.definitions["BUILD_SAMPLES"] = False
-            self._cmake.definitions["DISABLE_RTTI_AND_EXCEPTIONS"] = not self.options.enable_rtti_and_exceptions
-            self._cmake.definitions["ENABLE_PRECOMPILED_HEADERS"] = True
-            self._cmake.definitions["ENABLE_TRACY_PROFILING"] = False
-            self._cmake.definitions["NO_FONT_INTERFACE_DEFAULT"] = self.options.font_interface is None
-            self._cmake.definitions["NO_THIRDPARTY_CONTAINERS"] = not self.options.with_thirdparty_containers
-
-            self._cmake.configure()
-
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_LUA_BINDINGS"] = self.options.with_lua_bindings
+        tc.variables["BUILD_SAMPLES"] = False
+        tc.variables["DISABLE_RTTI_AND_EXCEPTIONS"] = not self.options.enable_rtti_and_exceptions
+        tc.variables["ENABLE_PRECOMPILED_HEADERS"] = True
+        tc.variables["ENABLE_TRACY_PROFILING"] = False
+        tc.variables["NO_FONT_INTERFACE_DEFAULT"] = self.options.font_interface is None
+        tc.variables["NO_THIRDPARTY_CONTAINERS"] = not self.options.with_thirdparty_containers
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         # The *.cmake files that conan generates using cmake_find_package for CMake's find_package to consume use
@@ -112,22 +122,24 @@ class RmluiConan(ConanFile):
             "LUA_INCLUDE_DIR": "lua_INCLUDE_DIR",
             "LUA_LIBRARIES": "lua_LIBRARIES",
             # disables the built-in generation of package configuration files
-            "if(PkgHelpers_AVAILABLE)": "if(FALSE)"
+            "if(PkgHelpers_AVAILABLE)": "if(FALSE)",
         }
 
-        cmakelists_path = os.path.join(
-            self._source_subfolder, "CMakeLists.txt")
+        cmakelists_path = os.path.join(self.source_folder, "CMakeLists.txt")
 
         for key, value in replace_mapping.items():
-            tools.replace_in_file(cmakelists_path, key, value)
+            replace_in_file(self, cmakelists_path, key, value)
 
     def build(self):
         self._patch_sources()
-        self._configure_cmake().build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self._configure_cmake().install()
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
+        cmake = CMake(self)
+        cmake.install()
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         if not self.options.enable_rtti_and_exceptions:

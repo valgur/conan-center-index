@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
         envvars.save_script("conanbuildenv_pkg_config_path")
 
     def build(self):
-        pass # nothing to do, skip hook warning
+        pass  # nothing to do, skip hook warning
 
     def test(self):
         self.run('bash.exe -c ^"make --version^"')

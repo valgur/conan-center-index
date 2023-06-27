@@ -16,6 +16,7 @@ class Blend2dConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://blend2d.com/"
     topics = ("2d-graphics", "rasterization", "asmjit", "jit")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -90,6 +91,6 @@ class Blend2dConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "blend2d::blend2d")
         self.cpp_info.libs = ["blend2d"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["pthread", "rt",])
+            self.cpp_info.system_libs.extend(["pthread", "rt"])
         if not self.options.shared:
             self.cpp_info.defines.append("BL_STATIC")

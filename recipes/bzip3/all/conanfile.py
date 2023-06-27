@@ -13,6 +13,7 @@ class BZip3Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kspalaiologos/bzip3"
     topics = ("bzip2", "lzma", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -39,7 +40,7 @@ class BZip3Conan(ConanFile):
         #  - MinGW with posix thread supports it out of the box
         #  - otherwise, add pthreads4w to requirements and link it in CMakeLists
         if self.settings.os == "Windows":
-            del self.options.with_thread
+            self.options.rm_safe("with_thread")
 
     def configure(self):
         if self.options.shared:

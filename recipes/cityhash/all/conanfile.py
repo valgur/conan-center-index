@@ -15,9 +15,10 @@ class CityhashConan(ConanFile):
     name = "cityhash"
     description = "CityHash, a family of hash functions for strings."
     license = "MIT"
-    topics = ("hash",)
-    homepage = "https://github.com/google/cityhash"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/cityhash"
+    topics = ("hash",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -70,7 +71,9 @@ class CityhashConan(ConanFile):
                 tc.extra_cxxflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            ar_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper"))
+            ar_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
+            )
             env.define("CC", "cl -nologo")
             env.define("CXX", "cl -nologo")
             env.define("LD", "link -nologo")

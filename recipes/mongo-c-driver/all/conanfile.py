@@ -3,7 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -44,8 +51,6 @@ class MongoCDriverConan(ConanFile):
         "with_icu": True,
         "srv": True,
     }
-
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -168,19 +173,38 @@ class MongoCDriverConan(ConanFile):
         apply_conandata_patches(self)
         to_replace_old_new = [
             # Fix Snappy
-            {"old": "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",
-             "new": "if(ENABLE_SNAPPY MATCHES \"ON\")\n  find_package(Snappy REQUIRED)"},
-            {"old": "SNAPPY_LIBRARIES", "new": "Snappy_LIBRARIES"},
-            {"old": "SNAPPY_INCLUDE_DIRS", "new": "Snappy_INCLUDE_DIRS"},
+            {
+                "old": "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",
+                "new": 'if(ENABLE_SNAPPY MATCHES "ON")\n  find_package(Snappy REQUIRED)',
+            },
+            {
+                "old": "SNAPPY_LIBRARIES",
+                "new": "Snappy_LIBRARIES",
+            },
+            {
+                "old": "SNAPPY_INCLUDE_DIRS",
+                "new": "Snappy_INCLUDE_DIRS",
+            },
             # Fix LibreSSL
-            {"old": "set (SSL_LIBRARIES -ltls -lcrypto)", "new": ""},
+            {
+                "old": "set (SSL_LIBRARIES -ltls -lcrypto)",
+                "new": "",
+            },
         ]
         for old_new in to_replace_old_new:
-            replace_in_file(self, os.path.join(self.source_folder, "src", "libmongoc", "CMakeLists.txt"),
-                                  old_new["old"], old_new["new"])
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "libmongoc", "CMakeLists.txt"),
+                old_new["old"],
+                old_new["new"],
+            )
         # cleanup rpath
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set (CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set (CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)",
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -190,7 +214,12 @@ class MongoCDriverConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "THIRD_PARTY_NOTICES", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "THIRD_PARTY_NOTICES",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -211,13 +240,17 @@ class MongoCDriverConan(ConanFile):
 
         # mongoc
         self.cpp_info.components["mongoc"].set_property("cmake_target_name", f"mongo::{mongoc_target}")
-        self.cpp_info.components["mongoc"].set_property("pkg_config_name", "libmongoc-1.0" if self.options.shared else "libmongoc-static-1.0")
+        self.cpp_info.components["mongoc"].set_property(
+            "pkg_config_name", "libmongoc-1.0" if self.options.shared else "libmongoc-static-1.0"
+        )
 
         self.cpp_info.components["mongoc"].names["cmake_find_package"] = mongoc_target
         self.cpp_info.components["mongoc"].names["cmake_find_package_multi"] = mongoc_target
 
         self.cpp_info.components["mongoc"].includedirs = [os.path.join("include", "libmongoc-1.0")]
-        self.cpp_info.components["mongoc"].libs = ["mongoc-1.0" if self.options.shared else "mongoc-static-1.0"]
+        self.cpp_info.components["mongoc"].libs = [
+            "mongoc-1.0" if self.options.shared else "mongoc-static-1.0"
+        ]
         if not self.options.shared:
             self.cpp_info.components["mongoc"].defines = ["MONGOC_STATIC"]
         self.cpp_info.components["mongoc"].requires = ["bson"]
@@ -244,12 +277,16 @@ class MongoCDriverConan(ConanFile):
         if self.options.with_icu:
             self.cpp_info.components["mongoc"].requires.append("icu::icu")
         if self.options.srv:
-            self.cpp_info.components["mongoc"].system_libs.append("dnsapi" if self.settings.os == "Windows" else "resolv")
+            self.cpp_info.components["mongoc"].system_libs.append(
+                "dnsapi" if self.settings.os == "Windows" else "resolv"
+            )
 
         # bson
         bson_target = "bson_shared" if self.options.shared else "bson_static"
         self.cpp_info.components["bson"].set_property("cmake_target_name", f"mongo::{bson_target}")
-        self.cpp_info.components["bson"].set_property("pkg_config_name", "libbson-1.0" if self.options.shared else "libbson-static-1.0")
+        self.cpp_info.components["bson"].set_property(
+            "pkg_config_name", "libbson-1.0" if self.options.shared else "libbson-static-1.0"
+        )
 
         self.cpp_info.components["bson"].names["cmake_find_package"] = bson_target
         self.cpp_info.components["bson"].names["cmake_find_package_multi"] = bson_target

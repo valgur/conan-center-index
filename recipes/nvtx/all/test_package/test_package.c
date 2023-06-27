@@ -1,8 +1,7 @@
-#include <stdlib.h>
 #include <nvtx3/nvToolsExt.h>
+#include <stdlib.h>
 
-int main()
-{
+int main() {
     nvtxInitialize(NULL);
     nvtxRangeId_t main_range = nvtxRangeStartA("main");
     nvtxRangeEnd(main_range);

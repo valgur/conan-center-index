@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-void factorial(struct bn* n, struct bn* res) {
+void factorial(struct bn *n, struct bn *res) {
     struct bn tmp;
 
     bignum_assign(&tmp, n);

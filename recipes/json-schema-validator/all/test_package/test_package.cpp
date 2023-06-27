@@ -1,5 +1,5 @@
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 #include "nlohmann/json-schema.hpp"
 
@@ -35,31 +35,30 @@ static json person_schema = R"(
 static json bad_person = {{"age", 42}};
 static json good_person = {{"name", "Albert"}, {"age", 42}};
 
-int main()
-{
-	/* json-parse the schema */
+int main() {
+    /* json-parse the schema */
 
-	json_validator validator; // create validator
+    json_validator validator; // create validator
 
-	try {
-		validator.set_root_schema(person_schema); // insert root-schema
-	} catch (const std::exception &e) {
-		std::cerr << "Validation of schema failed, here is why: " << e.what() << "\n";
-		return EXIT_FAILURE;
-	}
+    try {
+        validator.set_root_schema(person_schema); // insert root-schema
+    } catch (const std::exception &e) {
+        std::cerr << "Validation of schema failed, here is why: " << e.what() << "\n";
+        return EXIT_FAILURE;
+    }
 
-	/* json-parse the people - API of 1.0.0, default throwing error handler */
+    /* json-parse the people - API of 1.0.0, default throwing error handler */
 
-	for (auto &person : {bad_person, good_person}) {
-		std::cout << "About to validate this person:\n"
-		          << std::setw(2) << person << std::endl;
-		try {
-			validator.validate(person); // validate the document - uses the default throwing error-handler
-			std::cout << "Validation succeeded\n";
-		} catch (const std::exception &e) {
-			std::cerr << "Validation failed, here is why: " << e.what() << "\n";
-		}
-	}
+    for (auto &person : {bad_person, good_person}) {
+        std::cout << "About to validate this person:\n" << std::setw(2) << person << std::endl;
+        try {
+            validator.validate(
+                person); // validate the document - uses the default throwing error-handler
+            std::cout << "Validation succeeded\n";
+        } catch (const std::exception &e) {
+            std::cerr << "Validation failed, here is why: " << e.what() << "\n";
+        }
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

@@ -11,12 +11,16 @@ class CpppeglibConan(ConanFile):
     name = "cpp-peglib"
     description = "A single file C++11 header-only PEG (Parsing Expression Grammars) library."
     license = "MIT"
-    topics = ("peg", "parser", "header-only")
-    homepage = "https://github.com/yhirose/cpp-peglib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/yhirose/cpp-peglib"
+    topics = ("peg", "parser", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -25,12 +29,8 @@ class CpppeglibConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass

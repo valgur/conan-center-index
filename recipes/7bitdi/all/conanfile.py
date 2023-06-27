@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class SevenBitDIConan(ConanFile):
     name = "7bitdi"
-    homepage = "https://github.com/7bitcoder/7bitDI"
     description = "7bitDI is a simple C++ dependency injection library."
-    topics = ("cpp17", "dependency-injector", "injector", "header-only")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/7bitcoder/7bitDI"
+    topics = ("cpp17", "dependency-injector", "injector", "header-only")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -98,12 +99,7 @@ class SevenBitDIConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.header_only:
             copy(
                 self,

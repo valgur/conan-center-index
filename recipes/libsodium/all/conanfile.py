@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, MSBuildToolchain
@@ -17,8 +25,9 @@ class LibsodiumConan(ConanFile):
     license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://doc.libsodium.org/"
-    topics = "encryption", "signature", "hashing"
+    topics = ("encryption", "signature", "hashing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -122,27 +131,34 @@ class LibsodiumConan(ConanFile):
             sln_folders["msvc"]["193"] = "vs2022"
             default_folder = "vs2022"
 
-        return sln_folders.get(str(self.settings.compiler), {}).get(str(self.settings.compiler.version), default_folder)
+        return sln_folders.get(str(self.settings.compiler), {}).get(
+            str(self.settings.compiler.version), default_folder
+        )
 
     def _build_msvc(self):
         msvc_sln_folder = os.path.join(self.source_folder, "builds", "msvc", self._msvc_sln_folder)
 
-        #==============================
+        # ==============================
         # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
         if self.version == "1.0.18" and self._msvc_sln_folder == "vs2019":
             toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
+                self,
+                os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
                 "<PlatformToolset>v142</PlatformToolset>",
                 f"<PlatformToolset>{toolset}</PlatformToolset>",
             )
         conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
         replace_in_file(
-            self, os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
-            "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-            f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+            self,
+            os.path.join(msvc_sln_folder, "libsodium", "libsodium.vcxproj"),
+            '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+            (
+                f'<Import Project="{conantoolchain_props}" />'
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+            ),
         )
-        #==============================
+        # ==============================
 
         msbuild = MSBuild(self)
         msbuild.build_type = "{}{}".format(
@@ -170,7 +186,13 @@ class LibsodiumConan(ConanFile):
             copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
             inc_src = os.path.join(self.source_folder, "src", "libsodium", "include")
-            copy(self, "*.h", src=inc_src, dst=os.path.join(self.package_folder, "include"), excludes=("*/private/*"))
+            copy(
+                self,
+                "*.h",
+                src=inc_src,
+                dst=os.path.join(self.package_folder, "include"),
+                excludes="*/private/*",
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

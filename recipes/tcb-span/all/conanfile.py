@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class TcbSpanConan(ConanFile):
     name = "tcb-span"
     description = "Implementation of C++20's std::span for older C++ standards"
@@ -31,10 +32,15 @@ class TcbSpanConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE*.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hpp",

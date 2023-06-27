@@ -14,9 +14,9 @@ class LibrttopoConan(ConanFile):
         "standard (ISO 13249 aka SQL/MM) topologies."
     )
     license = "GPL-2.0-or-later"
-    topics = ("topology", "geospatial", "gis")
-    homepage = "https://git.osgeo.org/gitea/rttopo/librttopo"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://git.osgeo.org/gitea/rttopo/librttopo"
+    topics = ("topology", "geospatial", "gis")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -29,7 +29,8 @@ class LibrttopoConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

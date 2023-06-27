@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class ModernCppKafkaConan(ConanFile):
     name = "modern-cpp-kafka"
     description = "A C++ API for Kafka clients (i.e. KafkaProducer, KafkaConsumer, AdminClient)"
@@ -16,6 +17,8 @@ class ModernCppKafkaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/morganstanley/modern-cpp-kafka"
     topics = ("kafka", "librdkafka", "kafkaproducer", "kafkaconsumer", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -52,11 +55,12 @@ class ModernCppKafkaConan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
-
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.h",
@@ -65,6 +69,9 @@ class ModernCppKafkaConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "ModernCppKafka")
         self.cpp_info.set_property("cmake_target_name", "ModernCppKafka::ModernCppKafka")
 

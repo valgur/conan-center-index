@@ -5,8 +5,8 @@
    It must be used with Expat compiled for UTF-8 output.
 */
 
-#include <stdio.h>
 #include "expat.h"
+#include <stdio.h>
 
 #ifdef XML_UNICODE_WCHAR_T
 #include <wchar.h>
@@ -22,43 +22,37 @@
 #define XML_FMT_INT_MOD "l"
 #endif
 
-static void XMLCALL
-startElement(void *userData, const XML_Char *name, const XML_Char **atts)
-{
-  int i;
-  int *depthPtr = (int *)userData;
-  (void)atts;
+static void XMLCALL startElement(void *userData, const XML_Char *name, const XML_Char **atts) {
+    int i;
+    int *depthPtr = (int *)userData;
+    (void)atts;
 
-  for (i = 0; i < *depthPtr; i++)
-    putchar('\t');
+    for (i = 0; i < *depthPtr; i++)
+        putchar('\t');
 #ifdef XML_UNICODE_WCHAR_T
-  fputws(name, stdout);
+    fputws(name, stdout);
 #else
-  puts(name);
+    puts(name);
 #endif
-  *depthPtr += 1;
+    *depthPtr += 1;
 }
 
-static void XMLCALL
-endElement(void *userData, const XML_Char *name)
-{
-  int *depthPtr = (int *)userData;
-  (void)name;
+static void XMLCALL endElement(void *userData, const XML_Char *name) {
+    int *depthPtr = (int *)userData;
+    (void)name;
 
-  *depthPtr -= 1;
+    *depthPtr -= 1;
 }
 
-int
-main(int argc, char *argv[])
-{
-  XML_Parser parser = XML_ParserCreate(NULL);
-  int depth = 0;
-  (void)argc;
-  (void)argv;
+int main(int argc, char *argv[]) {
+    XML_Parser parser = XML_ParserCreate(NULL);
+    int depth = 0;
+    (void)argc;
+    (void)argv;
 
-  XML_SetUserData(parser, &depth);
-  XML_SetElementHandler(parser, startElement, endElement);
-  XML_ParserFree(parser);
-  printf("Test application successfully ran!\n");
-  return 0;
+    XML_SetUserData(parser, &depth);
+    XML_SetElementHandler(parser, startElement, endElement);
+    XML_ParserFree(parser);
+    printf("Test application successfully ran!\n");
+    return 0;
 }

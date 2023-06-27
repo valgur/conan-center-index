@@ -15,7 +15,7 @@ int main() {
     DSVector row1(2);
     row1.add(0, 1.0);
     row1.add(1, 1.0);
-    mysoplex.addRowReal(LPRow(0.0, row1, 2.0)); // x + y <= 2
+    mysoplex.addRowReal(LPRow(0.0, row1, 2.0));      // x + y <= 2
     mysoplex.addRowReal(LPRow(1.0, row1, infinity)); // 1 <= x + y
 
     mysoplex.optimize();

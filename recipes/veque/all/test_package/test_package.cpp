@@ -1,9 +1,7 @@
-#include <iostream>
 #include "veque.hpp"
+#include <iostream>
 
-
-int main()
-{
+int main() {
     veque::veque<float> v;
     v.push_front(1.f);
 

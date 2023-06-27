@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain"

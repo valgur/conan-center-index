@@ -28,24 +28,21 @@
  * and as such provide all the application state for the test.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <glib.h>
-#include <atk/atk.h>
 #include <atk-bridge.h>
-
-
+#include <atk/atk.h>
+#include <glib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static GMainLoop *mainloop;
 
-int main (int argc, char *argv[])
-{
-  atk_bridge_adaptor_init (NULL, NULL);
+int main() {
+    atk_bridge_adaptor_init(NULL, NULL);
 
-  mainloop = g_main_loop_new (NULL, FALSE);
+    mainloop = g_main_loop_new(NULL, FALSE);
 
-  atk_bridge_adaptor_cleanup();
+    atk_bridge_adaptor_cleanup();
 
-  return 0;
+    return 0;
 }

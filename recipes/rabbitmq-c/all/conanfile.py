@@ -9,11 +9,12 @@ required_conan_version = ">=1.53.0"
 
 class RabbitmqcConan(ConanFile):
     name = "rabbitmq-c"
+    description = "This is a C-language AMQP client library for use with v2.0+ of the RabbitMQ broker."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alanxz/rabbitmq-c"
-    description = "This is a C-language AMQP client library for use with v2.0+ of the RabbitMQ broker."
     topics = ("rabbitmq", "message queue")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -37,16 +38,15 @@ class RabbitmqcConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.ssl:
             self.requires("openssl/[>=1.1 <4]")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

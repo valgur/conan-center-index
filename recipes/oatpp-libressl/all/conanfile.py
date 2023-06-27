@@ -7,17 +7,18 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.53.0"
 
 
 class OatppLibresslConan(ConanFile):
     name = "oatpp-libressl"
-    license = "Apache-2.0"
-    homepage = "https://github.com/oatpp/oatpp-libressl"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "oat++ libressl library"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oatpp/oatpp-libressl"
     topics = ("oat++", "oatpp", "libressl")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -34,10 +35,7 @@ class OatppLibresslConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,8 +55,7 @@ class OatppLibresslConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,7 +87,9 @@ class OatppLibresslConan(ConanFile):
         ]
         self.cpp_info.components["_oatpp-libressl"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-libressl"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.components["_oatpp-libressl"].bindirs = [
+                os.path.join("bin", f"oatpp-{self.version}")
+            ]
         else:
             self.cpp_info.components["_oatpp-libressl"].bindirs = []
         self.cpp_info.components["_oatpp-libressl"].libs = ["oatpp-libressl"]

@@ -13,10 +13,12 @@ required_conan_version = ">=1.53.0"
 class GliConan(ConanFile):
     name = "gli"
     description = "OpenGL Image (GLI)"
-    topics = ("opengl", "image")
+    license = "LicenseRef-copying.txt"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/g-truc/gli"
-    license = "LicenseRef-copying.txt"
+    topics = ("opengl", "image", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -61,8 +63,12 @@ class GliConan(ConanFile):
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
         for headers in ("*.hpp", "*.inl", "*.h"):
-            copy(self, headers, src=os.path.join(self.source_folder, "gli"),
-                                dst=os.path.join(self.package_folder, "include", "gli"))
+            copy(
+                self,
+                headers,
+                src=os.path.join(self.source_folder, "gli"),
+                dst=os.path.join(self.package_folder, "include", "gli"),
+            )
 
     def _get_license(self):
         manual = load(self, os.path.join(self.source_folder, "manual.md"))

@@ -93,7 +93,12 @@ class LibdeflateConan(ConanFile):
             copy(self, "*deflate.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder)
             copy(self, "*deflate.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
         else:
-            copy(self, "*deflatestatic.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder)
+            copy(
+                self,
+                "*deflatestatic.lib",
+                dst=os.path.join(self.package_folder, "lib"),
+                src=self.source_folder,
+            )
 
     def _package_make(self):
         autotools = Autotools(self)
@@ -102,7 +107,7 @@ class LibdeflateConan(ConanFile):
             autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}", "PREFIX=/"])
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.a" if self.options.shared else "*.[so|dylib]*", os.path.join(self.package_folder, "lib") )
+        rm(self, "*.a" if self.options.shared else "*.[so|dylib]*", os.path.join(self.package_folder, "lib"))
 
     def package(self):
         copy(self, "COPYING", self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

@@ -14,12 +14,15 @@ required_conan_version = ">=1.53.0"
 
 class ZbarConan(ConanFile):
     name = "zbar"
+    description = (
+        "ZBar is an open source software suite for reading bar codes                   from various sources,"
+        " such as video streams, image files and raw intensity sensors"
+    )
     license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://zbar.sourceforge.net/"
     topics = ("barcode", "scanner", "decoder", "reader", "bar")
-    description = "ZBar is an open source software suite for reading bar codes\
-                   from various sources, such as video streams, image files and raw intensity sensors"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -81,10 +84,16 @@ class ZbarConan(ConanFile):
             raise ConanInvalidConfiguration("Zbar can't be built on Windows")
         if is_apple_os(self) and not self.options.shared:
             raise ConanInvalidConfiguration("Zbar can't be built static on macOS")
-        if self.options.with_xv:            #TODO add when available
-            self.output.warning("There is no Xvideo package available on Conan (yet). This recipe will use the one present on the system (if available).")
+        if self.options.with_xv:  # TODO add when available
+            self.output.warning(
+                "There is no Xvideo package available on Conan (yet). This recipe will use the one present on"
+                " the system (if available)."
+            )
         if Version(self.version) >= "0.22" and cross_building(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can't be built on cross building environment currently because autopoint(part of gettext) doesn't execute correctly.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can't be built on cross building environment currently because autopoint(part of"
+                " gettext) doesn't execute correctly."
+            )
 
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
@@ -106,18 +115,20 @@ class ZbarConan(ConanFile):
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            f"--enable-video={yes_no(self.options.with_video)}",
-            f"--with-imagemagick={yes_no(self.options.with_imagemagick)}",
-            f"--with-gtk={yes_no(self.options.with_gtk)}",
-            f"--with-qt={yes_no(self.options.with_qt)}",
-            f"--with-python={yes_no(self.options.with_python_bindings)}",
-            f"--with-x={yes_no(self.options.with_x)}",
-            f"--with-xshm={yes_no(self.options.with_xshm)}",
-            f"--with-xv={yes_no(self.options.with_xv)}",
-            f"--with-jpeg={yes_no(self.options.with_jpeg)}",
-            f"--enable-pthread={yes_no(self.options.enable_pthread)}",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--enable-video={yes_no(self.options.with_video)}",
+                f"--with-imagemagick={yes_no(self.options.with_imagemagick)}",
+                f"--with-gtk={yes_no(self.options.with_gtk)}",
+                f"--with-qt={yes_no(self.options.with_qt)}",
+                f"--with-python={yes_no(self.options.with_python_bindings)}",
+                f"--with-x={yes_no(self.options.with_x)}",
+                f"--with-xshm={yes_no(self.options.with_xshm)}",
+                f"--with-xv={yes_no(self.options.with_xv)}",
+                f"--with-jpeg={yes_no(self.options.with_jpeg)}",
+                f"--enable-pthread={yes_no(self.options.enable_pthread)}",
+            ]
+        )
         env = tc.environment()
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             # ./libtool: eval: line 961: syntax error near unexpected token `|'
@@ -134,9 +145,12 @@ class ZbarConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                           src=os.path.dirname(gnu_config),
-                           dst=os.path.join(self.source_folder, "config"))
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=os.path.join(self.source_folder, "config"),
+                )
 
         autotools = Autotools(self)
         if Version(self.version) >= "0.22":

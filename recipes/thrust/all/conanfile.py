@@ -9,23 +9,23 @@ required_conan_version = ">=1.52.0"
 
 class ThrustConan(ConanFile):
     name = "thrust"
-    license = "Apache-2.0"
     description = (
-        "Thrust is a parallel algorithms library which resembles "
-        "the C++ Standard Template Library (STL)."
+        "Thrust is a parallel algorithms library which resembles the C++ Standard Template Library (STL)."
     )
-    topics = ("parallel", "stl", "header-only", "cuda", "gpgpu")
-    homepage = "https://thrust.github.io/"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://thrust.github.io/"
+    topics = ("parallel", "stl", "header-only", "cuda", "gpgpu")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
     options = {
         "device_system": ["cuda", "cpp", "omp", "tbb"],
     }
     default_options = {
         "device_system": "tbb",
     }
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -40,8 +40,7 @@ class ThrustConan(ConanFile):
         if self.options.device_system in ["cuda", "omp"]:
             dev = str(self.options.device_system).upper()
             self.output.warning(
-                f"Conan package for {dev} is not available,"
-                f" this package will use {dev} from system."
+                f"Conan package for {dev} is not available, this package will use {dev} from system."
             )
 
     def package_id(self):
@@ -52,10 +51,7 @@ class ThrustConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         for pattern in ["*.h", "*.inl"]:
             copy(

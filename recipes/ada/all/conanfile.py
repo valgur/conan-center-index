@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class AdaConan(ConanFile):
     name = "ada"
     description = "WHATWG-compliant URL parser written in modern C++"
@@ -15,15 +16,16 @@ class AdaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ada-url/ada"
     topics = ("url", "parser", "WHATWG")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -63,7 +65,11 @@ class AdaConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "12.0.0" and self.settings.compiler.libcxx != "libc++":
+        if (
+            self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "12.0.0"
+            and self.settings.compiler.libcxx != "libc++"
+        ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires <charconv>, please use libc++ or upgrade compiler."
             )
@@ -89,7 +95,12 @@ class AdaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

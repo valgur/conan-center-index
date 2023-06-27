@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 
 class GemmlowpConan(ConanFile):
     name = "gemmlowp"
+    description = "Low-precision matrix multiplication"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/gemmlowp"
-    description = "Low-precision matrix multiplication"
     topics = ("gemm", "matrix")
 
     package_type = "library"
@@ -69,7 +69,9 @@ class GemmlowpConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "gemmlowp")
         self.cpp_info.set_property("cmake_target_name", "gemmlowp::gemmlowp")
 
-        self.cpp_info.components["eight_bit_int_gemm"].set_property("cmake_target_name", "gemmlowp::eight_bit_int_gemm")
+        self.cpp_info.components["eight_bit_int_gemm"].set_property(
+            "cmake_target_name", "gemmlowp::eight_bit_int_gemm"
+        )
         self.cpp_info.components["eight_bit_int_gemm"].includedirs.append(os.path.join("include", "gemmlowp"))
         self.cpp_info.components["eight_bit_int_gemm"].libs = ["eight_bit_int_gemm"]
         if is_msvc(self):

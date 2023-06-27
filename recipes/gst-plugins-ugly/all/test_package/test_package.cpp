@@ -3,17 +3,15 @@
 
 #ifdef GST_PLUGINS_UGLY_STATIC
 
-extern "C"
-{
-    GST_PLUGIN_STATIC_DECLARE(asf);
+extern "C" {
+GST_PLUGIN_STATIC_DECLARE(asf);
 }
 
 #endif
 
 #include <iostream>
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
 #ifdef GST_PLUGINS_UGLY_STATIC
@@ -22,7 +20,7 @@ int main(int argc, char * argv[])
 
 #endif
 
-    GstElement * asfdemux = gst_element_factory_make("asfdemux", NULL);
+    GstElement *asfdemux = gst_element_factory_make("asfdemux", NULL);
     if (!asfdemux) {
         std::cerr << "failed to create asfdemux element" << std::endl;
         return -1;

@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "dr_wav.h"
+#include <stdio.h>
 
 int main(void) {
     const char *version = drwav_version_string();

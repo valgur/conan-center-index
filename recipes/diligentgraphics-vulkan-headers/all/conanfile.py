@@ -1,39 +1,56 @@
-from conans import ConanFile, tools
-import glob
+# TODO: verify the Conan v2 migration
+
 import os
 
-required_conan_version = ">=1.33"
+from conan import ConanFile
+from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.52.0"
 
 
 class VulkanHeadersConan(ConanFile):
     name = "diligentgraphics-vulkan-headers"
     description = "Diligent fork of Vulkan Header files."
     license = "Apache-2.0"
-    topics = ("vulkan-headers", "vulkan")
-    homepage = "https://github.com/DiligentGraphics/Vulkan-Headers"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DiligentGraphics/Vulkan-Headers"
+    topics = ("vulkan-headers", "vulkan", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     provides = "vulkan-headers"
     deprecated = "vulkan-headers"
-    no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy("*", dst="include", src=os.path.join(self.source_folder, self._source_subfolder, "include"))
-        self.copy("*", dst=os.path.join("res", "vulkan", "registry"),
-                       src=os.path.join(self.source_folder, self._source_subfolder, "registry"))
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*",
+            dst=os.path.join("res", "vulkan", "registry"),
+            src=os.path.join(self.source_folder, "registry"),
+        )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.filenames["cmake_find_package"] = "VulkanHeaders"
         self.cpp_info.filenames["cmake_find_package_multi"] = "VulkanHeaders"
         self.cpp_info.names["cmake_find_package"] = "Vulkan"

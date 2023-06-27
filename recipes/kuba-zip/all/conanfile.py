@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class ZipConan(ConanFile):
     name = "kuba-zip"
+    description = "A portable, simple zip library written in C"
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kuba--/zip"
-    description = "A portable, simple zip library written in C"
     topics = ("zip", "compression", "c", "miniz", "portable", "hacking")
 
     package_type = "library"

@@ -13,12 +13,14 @@ required_conan_version = ">=1.52.0"
 class PfrConan(ConanFile):
     name = "pfr"
     description = "std::tuple like methods for user defined types without any macro or boilerplate code"
-    topics = ("boost", "reflection", "magic_get")
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/pfr"
-    license = "BSL-1.0"
+    topics = ("boost", "reflection", "magic_get", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -60,10 +62,18 @@ class PfrConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            pattern="LICENSE_1_0.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

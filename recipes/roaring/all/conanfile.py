@@ -16,6 +16,7 @@ class RoaringConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/RoaringBitmap/CRoaring"
     topics = ("bitset", "compression", "index", "format")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -37,9 +38,9 @@ class RoaringConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ("x86", "x86_64"):
-            del self.options.with_avx
+            self.options.rm_safe("with_avx")
         if not str(self.settings.arch).startswith("arm"):
-            del self.options.with_neon
+            self.options.rm_safe("with_neon")
 
     def configure(self):
         if self.options.shared:
@@ -53,8 +54,8 @@ class RoaringConan(ConanFile):
             check_min_cppstd(self, "11")
         if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "11":
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires at least apple-clang 11 to support runtime dispatching.",
-                )
+                f"{self.ref} requires at least apple-clang 11 to support runtime dispatching."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -71,7 +72,9 @@ class RoaringConan(ConanFile):
         tc.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_MACOSX_RPATH OFF)", "")
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_MACOSX_RPATH OFF)", ""
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

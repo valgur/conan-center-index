@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -14,11 +21,10 @@ required_conan_version = ">=1.53.0"
 class MinizipNgConan(ConanFile):
     name = "minizip-ng"
     description = "Fork of the popular zip manipulation library found in the zlib distribution."
-    topics = ("compression", "zip")
-    package_type = "library"
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zlib-ng/minizip-ng"
-    license = "Zlib"
+    topics = ("compression", "zip")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,10 +69,10 @@ class MinizipNgConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_iconv
-            del self.options.with_libbsd
+            self.options.rm_safe("with_iconv")
+            self.options.rm_safe("with_libbsd")
         if not is_apple_os(self):
-            del self.options.with_libcomp
+            self.options.rm_safe("with_libcomp")
 
     def configure(self):
         if self.options.shared:
@@ -76,7 +82,7 @@ class MinizipNgConan(ConanFile):
         if self.options.mz_compatibility:
             self.provides = "minizip"
         if self.options.get_safe("with_libcomp"):
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -139,13 +145,19 @@ class MinizipNgConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if Version(self.version) < "4.0.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
-                                  "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
+                "",
+            )
         else:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "set_target_properties(${MINIZIP_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
-                                  "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "set_target_properties(${MINIZIP_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE 1)",
+                "",
+            )
 
     def build(self):
         self._patch_sources()
@@ -202,6 +214,3 @@ class MinizipNgConan(ConanFile):
             self.cpp_info.components["minizip"].frameworks.extend(["CoreFoundation", "Security"])
         if self.settings.os != "Windows" and self.options.with_iconv:
             self.cpp_info.components["minizip"].requires.append("libiconv::libiconv")
-
-
-

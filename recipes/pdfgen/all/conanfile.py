@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PdfgenConan(ConanFile):
     name = "pdfgen"
     description = "Simple C PDF Writer/Generation library"
@@ -12,6 +13,8 @@ class PdfgenConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AndreRenaud/PDFGen"
     topics = ("pdf", "generation")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -21,7 +24,9 @@ class PdfgenConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports_sources = ["CMakeLists.txt"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -1,24 +1,20 @@
-#include <entt/entt.hpp>
 #include <cstdint>
+#include <entt/entt.hpp>
 
-struct position
-{
+struct position {
     float x;
     float y;
 };
 
-struct velocity
-{
+struct velocity {
     float dx;
     float dy;
 };
 
-void update(entt::registry &registry)
-{
+void update(entt::registry &registry) {
     auto view = registry.view<position, velocity>();
 
-    for (auto entity : view)
-    {
+    for (auto entity : view) {
         // gets only the components that are going to be used ...
 
         auto &vel = view.get<velocity>(entity);
@@ -30,8 +26,7 @@ void update(entt::registry &registry)
     }
 }
 
-void update(std::uint64_t dt, entt::registry &registry)
-{
+void update(std::uint64_t dt, entt::registry &registry) {
     registry.view<position, velocity>().each([dt](auto &pos, auto &vel) {
         // gets all the components of the view at once ...
 
@@ -42,20 +37,22 @@ void update(std::uint64_t dt, entt::registry &registry)
     });
 }
 
-int main()
-{
+int main() {
     entt::registry registry;
     std::uint64_t dt = 16;
 
-    for (auto i = 0; i < 10; ++i)
-    {
+    for (auto i = 0; i < 10; ++i) {
         auto entity = registry.create();
 #ifdef ENTT_LESS_3_4_0
         registry.assign<position>(entity, i * 1.f, i * 1.f);
-        if (i % 2 == 0) { registry.assign<velocity>(entity, i * .1f, i * .1f); }
+        if (i % 2 == 0) {
+            registry.assign<velocity>(entity, i * .1f, i * .1f);
+        }
 #else
         registry.emplace<position>(entity, i * 1.f, i * 1.f);
-        if (i % 2 == 0) { registry.emplace<velocity>(entity, i * .1f, i * .1f); }
+        if (i % 2 == 0) {
+            registry.emplace<velocity>(entity, i * .1f, i * .1f);
+        }
 #endif
     }
 

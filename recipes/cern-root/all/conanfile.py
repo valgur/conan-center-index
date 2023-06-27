@@ -1,10 +1,25 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import glob
 import os
 import shutil
 import stat
 import textwrap
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
+from conan.tools.scm import Version
 
 
 class PythonOption:
@@ -46,18 +61,8 @@ class CernRootConan(ConanFile):
         "python": PythonOption.OFF,
     }
 
-    exports_sources = "patches/*"
-    generators = "cmake", "cmake_find_package"
-
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _minimum_cpp_standard(self):
@@ -77,25 +82,25 @@ class CernRootConan(ConanFile):
             del self.options.fPIC
 
     def requirements(self):
-        self.requires("cfitsio/4.0.0")
-        self.requires("fftw/3.3.9")
+        self.requires("cfitsio/4.2.0")
+        self.requires("fftw/3.3.10")
         self.requires("giflib/5.2.1")
         self.requires("glew/2.2.0")
         self.requires("glu/system")
-        self.requires("libcurl/7.78.0")
-        self.requires("libjpeg/9d")
-        self.requires("libpng/1.6.37")
-        self.requires("libxml2/2.9.12")
-        self.requires("lz4/1.9.3")
+        self.requires("libcurl/8.1.2")
+        self.requires("libjpeg/9e")
+        self.requires("libpng/1.6.39")
+        self.requires("libxml2/2.11.4")
+        self.requires("lz4/1.9.4")
         self.requires("opengl/system")
-        self.requires("openssl/1.1.1l")
-        self.requires("pcre/8.44")
-        self.requires("sqlite3/3.36.0")
-        self.requires("tbb/2020.3")
+        self.requires("openssl/[>=1.1 <4]")
+        self.requires("pcre/8.45")
+        self.requires("sqlite3/3.42.0")
+        self.requires("onetbb/2021.9.0")
         self.requires("xorg/system")
-        self.requires("xxhash/0.8.0")
-        self.requires("xz_utils/5.2.5")
-        self.requires("zstd/1.5.0")
+        self.requires("xxhash/0.8.1")
+        self.requires("xz_utils/5.4.2")
+        self.requires("zstd/1.5.5")
 
     def validate(self):
         self._enforce_minimum_compiler_version()
@@ -103,7 +108,7 @@ class CernRootConan(ConanFile):
 
     def _enforce_minimum_compiler_version(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -112,9 +117,10 @@ class CernRootConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
+                    "{} requires C++{} support. The current compiler {} {} does not support it."
+                    .format(
                         self.name,
                         self._minimum_cpp_standard,
                         self.settings.compiler,
@@ -123,50 +129,45 @@ class CernRootConan(ConanFile):
                 )
 
     def _enforce_libcxx_requirements(self):
-        compiler = self.settings.compiler
-        libcxx = compiler.get_safe("libcxx")
+        libcxx = self.settings.get_safe("compiler.libcxx")
         # ROOT doesn't currently build with libc++.
         # This restriction may be lifted in future if the problems are fixed upstream
         if libcxx and libcxx == "libc++":
-            raise ConanInvalidConfiguration(
-                '{} is incompatible with libc++".'.format(self.name)
-            )
+            raise ConanInvalidConfiguration(f'{self.name} is incompatible with libc++".')
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_source_cmake(self):
-        try:
-            os.remove(os.path.join(self._source_subfolder, "cmake", "modules", "FindTBB.cmake"))
-        except OSError:
-            pass
+        rm(self, "FindTBB.cmake", os.path.join(self.source_folder, "cmake", "modules"))
         # Conan generated cmake_find_packages names differ from
         # names ROOT expects (usually only due to case differences)
         # There is currently no way to change these names
         # see: https://github.com/conan-io/conan/issues/4430
         # Patch ROOT CMake to use Conan dependencies
-        tools.replace_in_file(
-            os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "project(ROOT)",
             textwrap.dedent("""\
                     project(ROOT)
                     # sets the current C runtime on MSVC (MT vs MD vd MTd vs MDd)
-                    include("{install_folder}/conanbuildinfo.cmake")
-                    conan_basic_setup(NO_OUTPUT_DIRS)
                     find_package(OpenSSL REQUIRED)
-                    set(OPENSSL_VERSION ${{OpenSSL_VERSION}})
+                    set(OPENSSL_VERSION ${OpenSSL_VERSION})
                     find_package(LibXml2 REQUIRED)
-                    set(LIBXML2_INCLUDE_DIR ${{LibXml2_INCLUDE_DIR}})
-                    set(LIBXML2_LIBRARIES ${{LibXml2_LIBRARIES}})
+                    set(LIBXML2_INCLUDE_DIR ${LibXml2_INCLUDE_DIR})
+                    set(LIBXML2_LIBRARIES ${LibXml2_LIBRARIES})
                     find_package(SQLite3 REQUIRED)
-                    set(SQLITE_INCLUDE_DIR ${{SQLITE3_INCLUDE_DIRS}})
+                    set(SQLITE_INCLUDE_DIR ${SQLITE3_INCLUDE_DIRS})
                     set(SQLITE_LIBRARIES SQLite::SQLite3)
-            """).format(install_folder=self.install_folder.replace("\\", "/"))
+            """),
         )
-        tools.replace_in_file(os.path.join(self.source_folder, self._source_subfolder, "CMakeLists.txt"),
-                              "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
-                              "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
+            "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)",
+        )
 
     def _fix_source_permissions(self):
         # Fix execute permissions on scripts
@@ -184,8 +185,7 @@ class CernRootConan(ConanFile):
             self._make_file_executable(s)
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         self._patch_source_cmake()
         self._fix_source_permissions()
 
@@ -194,13 +194,15 @@ class CernRootConan(ConanFile):
         st = os.stat(filename)
         os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        cmakelibpath = ";".join(self.deps_cpp_info.lib_paths)
-        cmakeincludepath = ";".join(self.deps_cpp_info.include_paths)
-        self._cmake.definitions.update({
+    def generate(self):
+        lib_paths = []
+        include_paths = []
+        for dep in self.dependencies.values():
+            lib_paths += dep.cpp_info.libdirs
+            include_paths += dep.cpp_info.includedirs
+
+        tc = CMakeToolchain(self)
+        tc.variables.update({
             "BUILD_SHARED_LIBS": True,
             "fail-on-missing": True,
             "CMAKE_CXX_STANDARD": self._cmake_cxx_standard,
@@ -241,9 +243,9 @@ class CernRootConan(ConanFile):
             # COMPILE_DEFINITIONS property is not propagated causing the build to
             # fail on some systems if libcxx != libstdc++11
             "clad": False,
-            # Tell CMake where to look for Conan provided depedencies
-            "CMAKE_LIBRARY_PATH": cmakelibpath.replace("\\", "/"),
-            "CMAKE_INCLUDE_PATH": cmakeincludepath.replace("\\", "/"),
+            # Tell CMake where to look for Conan provided dependencies
+            "CMAKE_LIBRARY_PATH": ";".join(lib_paths).replace("\\", "/"),
+            "CMAKE_INCLUDE_PATH": ";".join(include_paths).replace("\\", "/"),
             # Configure install directories
             # Conan CCI hooks restrict the allowed install directory
             # names but ROOT is very picky about where build/runtime
@@ -254,24 +256,21 @@ class CernRootConan(ConanFile):
             "CMAKE_INSTALL_DATAROOTDIR": "res/share",
             "CMAKE_INSTALL_SYSCONFDIR": "res/etc",
             # Fix some Conan-ROOT CMake variable naming differences
-            "PNG_PNG_INCLUDE_DIR": ";".join(self.deps_cpp_info["libpng"].include_paths).replace("\\", "/"),
-            "LIBLZMA_INCLUDE_DIR": ";".join(self.deps_cpp_info["xz_utils"].include_paths).replace("\\", "/"),
+            "PNG_PNG_INCLUDE_DIR": ";".join(self.dependencies["libpng"].cpp_info.includedirs).replace("\\", "/"),
+            "LIBLZMA_INCLUDE_DIR": ";".join(self.dependencies["xz_utils"].cpp_info.includedirs).replace("\\", "/"),
         })
-        self._cmake.configure(source_folder=self._source_subfolder, build_folder=self._build_subfolder)
-        return self._cmake
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _move_findcmake_conan_to_root_dir(self):
         for f in ["opengl_system", "GLEW", "glu", "TBB", "LibXml2", "ZLIB", "SQLite3"]:
-            shutil.copy(
-                "Find{}.cmake".format(f),
-                os.path.join(
-                    self.source_folder, self._source_subfolder, "cmake", "modules"
-                ),
-            )
+            shutil.copy(f"Find{f}.cmake", os.path.join(self.source_folder, "cmake", "modules"))
 
     @property
     def _cmake_cxx_standard(self):
-        return str(self.settings.compiler.get_safe("cppstd", "11"))
+        return str(self.settings.get_safe("compiler.cppstd", "11"))
 
     @property
     def _cmake_pyrootopt(self):
@@ -282,19 +281,30 @@ class CernRootConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        cmake = CMake(self)
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib", "cmake"), "*Config*.cmake")
-        tools.rmdir(os.path.join(self.package_folder, "res", "README"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "man"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "share", "doc"))
-        tools.rmdir(os.path.join(self.package_folder, "res", "tutorials"))
+        rm(
+            self,
+            "*Config*.cmake",
+            os.path.join(self.package_folder, "lib", "cmake"),
+            recursive=True,
+        )
+        rmdir(self, os.path.join(self.package_folder, "res", "README"))
+        rmdir(self, os.path.join(self.package_folder, "res", "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "res", "tutorials"))
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files
@@ -323,10 +333,8 @@ class CernRootConan(ConanFile):
             "ROOTDataFrame",
         ]
         self.cpp_info.builddirs = [os.path.join("lib", "cmake")]
-        self.cpp_info.build_modules.extend(
-            [
-                os.path.join("lib", "cmake", "RootMacros.cmake"),
-                # os.path.join("lib", "cmake", "ROOTUseFile.cmake"),
-            ]
-        )
+        self.cpp_info.build_modules += [
+            os.path.join("lib", "cmake", "RootMacros.cmake"),
+            # os.path.join("lib", "cmake", "ROOTUseFile.cmake"),
+        ]
         self.cpp_info.resdirs = ["res"]

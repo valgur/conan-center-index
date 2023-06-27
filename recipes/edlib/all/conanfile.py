@@ -11,12 +11,14 @@ required_conan_version = ">=1.54.0"
 
 class EdlibConan(ConanFile):
     name = "edlib"
-    description = "Lightweight, super fast C/C++ (& Python) library for " \
-                  "sequence alignment using edit (Levenshtein) distance."
-    topics = ("sequence-alignment", "edit-distance", "levehnstein-distance", "alignment-path")
+    description = (
+        "Lightweight, super fast C/C++ (& Python) library for "
+        "sequence alignment using edit (Levenshtein) distance."
+    )
     license = "MIT"
-    homepage = "https://github.com/Martinsos/edlib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Martinsos/edlib"
+    topics = ("sequence-alignment", "edit-distance", "levehnstein-distance", "alignment-path")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,7 +44,7 @@ class EdlibConan(ConanFile):
                 "gcc": "5",
                 "clang": "5",
                 "apple-clang": "5.1",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):

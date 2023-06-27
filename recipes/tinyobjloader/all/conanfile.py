@@ -1,11 +1,22 @@
+# Warnings:
+#   Unexpected method '_remove_implementation'
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, get, export_conandata_patches, load, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    get,
+    export_conandata_patches,
+    load,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class TinyObjLoaderConan(ConanFile):
@@ -16,7 +27,8 @@ class TinyObjLoaderConan(ConanFile):
     homepage = "https://github.com/syoyo/tinyobjloader"
     topics = ("loader", "obj", "3d", "wavefront", "geometry")
 
-    settings = "os", "arch", "build_type", "compiler"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -37,17 +49,13 @@ class TinyObjLoaderConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,6 +75,25 @@ class TinyObjLoaderConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _remove_implementation(self, header_fullpath):
+        header_content = load(self, header_fullpath)
+        begin = header_content.find("#ifdef TINYOBJLOADER_IMPLEMENTATION")
+        implementation = header_content[begin:-1]
+        replace_in_file(self, header_fullpath, implementation, "")
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         cmake = CMake(self)
         cmake.install()
@@ -78,25 +105,10 @@ class TinyObjLoaderConan(ConanFile):
         cmake_target = "tinyobjloader_double" if self.options.double else "tinyobjloader"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {cmake_target: "tinyobjloader::tinyobjloader"}
+            {
+                cmake_target: "tinyobjloader::tinyobjloader",
+            },
         )
-
-    def _remove_implementation(self, header_fullpath):
-        header_content = load(self, header_fullpath)
-        begin = header_content.find("#ifdef TINYOBJLOADER_IMPLEMENTATION")
-        implementation = header_content[begin:-1]
-        replace_in_file(self, header_fullpath, implementation, "")
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -106,7 +118,9 @@ class TinyObjLoaderConan(ConanFile):
         suffix = "_double" if self.options.double else ""
         self.cpp_info.set_property("cmake_file_name", "tinyobjloader")
         self.cpp_info.set_property("cmake_target_name", f"tinyobjloader::tinyobjloader{suffix}")
-        self.cpp_info.set_property("cmake_target_aliases", [f"tinyobjloader{suffix}"]) # old target (before 1.0.7)
+        self.cpp_info.set_property(
+            "cmake_target_aliases", [f"tinyobjloader{suffix}"]
+        )  # old target (before 1.0.7)
         self.cpp_info.set_property("pkg_config_name", f"tinyobjloader{suffix}")
         self.cpp_info.libs = [f"tinyobjloader{suffix}"]
         if self.options.double:

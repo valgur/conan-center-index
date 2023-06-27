@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class LlhttpParserConan(ConanFile):
     name = "llhttp"
     description = "http request/response parser for c"
-    topics = ("http", "parser")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nodejs/llhttp"
-    license = "MIT"
+    topics = ("http", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

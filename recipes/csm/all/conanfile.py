@@ -4,20 +4,38 @@ from conan.tools.files import copy, get
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.51.2"
+required_conan_version = ">=1.53.0"
 
 
 class CsmConan(ConanFile):
     name = "csm"
     description = "Community Sensor Model base interface library"
     license = "Unlicense"
-    topics = ("sensor", "camera", "camera-model", "geospatial", "planetary", "planetary-data")
-    homepage = "https://github.com/ngageoint/csm"
     url = "https://github.com/conan-io/conan-center-index"
-    package_type = "shared-library"
-    settings = "os", "arch", "compiler", "build_type"
+    homepage = "https://github.com/ngageoint/csm"
+    topics = ("sensor", "camera", "camera-model", "geospatial", "planetary", "planetary-data")
 
-    exports_sources = "CMakeLists.txt"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

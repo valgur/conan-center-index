@@ -8,7 +8,7 @@ struct timeout_info {
 };
 
 static void on_timeout(verto_ctx *ctx, verto_ev *ev) {
-    struct timeout_info *tinfo = (struct timeout_info *) verto_get_private(ev);
+    struct timeout_info *tinfo = (struct timeout_info *)verto_get_private(ev);
     tinfo->count++;
     printf("callback called: %d\n", tinfo->count);
     fflush(stdout);
@@ -21,8 +21,7 @@ static void on_timeout(verto_ctx *ctx, verto_ev *ev) {
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     verto_ctx *ctx;
     verto_ev *ev;
 
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "verto_new failed\n");
         return 1;
     }
-    struct timeout_info *tinfo = (struct timeout_info*) malloc(sizeof(struct timeout_info));
+    struct timeout_info *tinfo = (struct timeout_info *)malloc(sizeof(struct timeout_info));
     tinfo->count = 0;
     ev = verto_add_timeout(ctx, VERTO_EV_FLAG_NONE, on_timeout, 50);
     if (ev == NULL) {
@@ -49,6 +48,6 @@ int main(int argc, char *argv[])
     free(tinfo);
 
     verto_free(ctx);
-//    verto_cleanup();  // <= munmap_chunk(): invalid pointer here
+    //    verto_cleanup();  // <= munmap_chunk(): invalid pointer here
     return 0;
 }

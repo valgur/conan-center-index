@@ -1,24 +1,29 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get
-import os
 
 required_conan_version = ">=1.52.0"
 
 
 class GsoapConan(ConanFile):
     name = "gsoap"
-    description = "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and " \
-                  "REST XML Web services and generic C/C++ XML data bindings."
+    description = (
+        "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and "
+        "REST XML Web services and generic C/C++ XML data bindings."
+    )
     license = ("gSOAP-1.3b", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/gsoap2"
     topics = ("logging",)
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_openssl": [True, False],
         "with_ipv6": [True, False],
@@ -26,6 +31,7 @@ class GsoapConan(ConanFile):
         "with_c_locale": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_openssl": True,
         "with_ipv6": True,
@@ -33,16 +39,21 @@ class GsoapConan(ConanFile):
         "with_c_locale": True,
     }
 
-    exports_sources = "CMakeLists.txt", "cmake/*.cmake"
-    short_paths = True
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -87,19 +98,29 @@ class GsoapConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "GPLv2_license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "GPLv2_license.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            "LICENSE.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         defines = []
         if self.options.with_openssl:
-            libs = ["gsoapssl++", ]
+            libs = ["gsoapssl++"]
             defines.append("WITH_OPENSSL")
             defines.append("WITH_GZIP")
         else:
-            libs = ["gsoap++", ]
+            libs = ["gsoap++"]
         self.cpp_info.libs = libs
 
         if self.options.with_ipv6:

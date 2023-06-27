@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, load, replace_in_file, rmdir, save
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    copy,
+    get,
+    load,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import json
@@ -13,13 +22,14 @@ import textwrap
 
 required_conan_version = ">=1.53.0"
 
+
 class AbseilConan(ConanFile):
     name = "abseil"
     description = "Abseil Common Libraries (C++) from Google"
-    topics = ("algorithm", "container", "google", "common", "utility")
-    homepage = "https://github.com/abseil/abseil-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/abseil/abseil-cpp"
+    topics = ("algorithm", "container", "google", "common", "utility")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -31,7 +41,6 @@ class AbseilConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -46,7 +55,7 @@ class AbseilConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -61,6 +70,9 @@ class AbseilConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
@@ -73,9 +85,6 @@ class AbseilConan(ConanFile):
         if self.options.shared and is_msvc(self):
             # upstream tries its best to export symbols, but it's broken for the moment
             raise ConanInvalidConfiguration(f"{self.ref} shared not availabe for Visual Studio (yet)")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,19 +107,25 @@ class AbseilConan(ConanFile):
         # In case of cross-build, set CMAKE_SYSTEM_PROCESSOR if not set by toolchain or user
         if cross_building(self):
             toolchain_file = os.path.join(self.generators_folder, "conan_toolchain.cmake")
-            cmake_system_processor_block = textwrap.dedent("""\
+            cmake_system_processor_block = textwrap.dedent(
+                """\
                 if(NOT CMAKE_SYSTEM_PROCESSOR)
                     set(CMAKE_SYSTEM_PROCESSOR {})
                 endif()
-            """.format(str(self.settings.arch)))
+            """.format(
+                    str(self.settings.arch)
+                )
+            )
             save(self, toolchain_file, cmake_system_processor_block, append=True)
 
         # Trick to capture ABI
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        abi_trick_block = textwrap.dedent("""\
+        abi_trick_block = textwrap.dedent(
+            """\
             list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../abi_trick")
             include(conan_abi_test)
-        """)
+        """
+        )
         save(self, cmakelists, abi_trick_block, append=True)
 
     def build(self):
@@ -144,12 +159,15 @@ class AbseilConan(ConanFile):
         components = {}
 
         abs_target_content = load(self, absl_target_file_path)
-        
+
         # Replace the line endings to support building with MSys2 on Windows
         abs_target_content = abs_target_content.replace("\r\n", "\n")
-        
-        cmake_functions = re.findall(r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", abs_target_content)
-        for (cmake_function_name, cmake_function_args) in cmake_functions:
+
+        cmake_functions = re.findall(
+            r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)",
+            abs_target_content,
+        )
+        for cmake_function_name, cmake_function_args in cmake_functions:
             cmake_function_args = re.split(r"[\s|\n]+", cmake_function_args, maxsplit=2)
 
             cmake_imported_target_name = cmake_function_args[0]
@@ -161,32 +179,49 @@ class AbseilConan(ConanFile):
             if cmake_function_name == "add_library":
                 cmake_imported_target_type = cmake_function_args[1]
                 if cmake_imported_target_type in ["STATIC", "SHARED"]:
-                    components[potential_lib_name]["libs"] = [potential_lib_name] if cmake_target_nonamespace != "abseil_dll" else []
+                    components[potential_lib_name]["libs"] = (
+                        [potential_lib_name] if cmake_target_nonamespace != "abseil_dll" else []
+                    )
             elif cmake_function_name == "set_target_properties":
-                target_properties = re.findall(r"(?P<property>INTERFACE_COMPILE_DEFINITIONS|INTERFACE_INCLUDE_DIRECTORIES|INTERFACE_LINK_LIBRARIES)[\n|\s]+(?P<values>.+)", cmake_function_args[2])
+                target_properties = re.findall(
+                    r"(?P<property>INTERFACE_COMPILE_DEFINITIONS|INTERFACE_INCLUDE_DIRECTORIES|INTERFACE_LINK_LIBRARIES)[\n|\s]+(?P<values>.+)",
+                    cmake_function_args[2],
+                )
                 for target_property in target_properties:
                     property_type = target_property[0]
                     if property_type == "INTERFACE_LINK_LIBRARIES":
                         values_list = target_property[1].replace('"', "").split(";")
                         for dependency in values_list:
-                            if dependency.startswith("absl::"): # abseil targets
-                                components[potential_lib_name].setdefault("requires", []).append(dependency.replace("absl::", "absl_"))
-                            else: # system libs or frameworks
+                            if dependency.startswith("absl::"):  # abseil targets
+                                components[potential_lib_name].setdefault("requires", []).append(
+                                    dependency.replace("absl::", "absl_")
+                                )
+                            else:  # system libs or frameworks
                                 if self.settings.os in ["Linux", "FreeBSD"]:
                                     if dependency == "Threads::Threads":
-                                        components[potential_lib_name].setdefault("system_libs", []).append("pthread")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "pthread"
+                                        )
                                     elif "-lm" in dependency:
-                                        components[potential_lib_name].setdefault("system_libs", []).append("m")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "m"
+                                        )
                                     elif "-lrt" in dependency:
-                                        components[potential_lib_name].setdefault("system_libs", []).append("rt")
+                                        components[potential_lib_name].setdefault("system_libs", []).append(
+                                            "rt"
+                                        )
                                 elif self.settings.os == "Windows":
                                     for system_lib in ["bcrypt", "advapi32", "dbghelp"]:
                                         if system_lib in dependency:
-                                            components[potential_lib_name].setdefault("system_libs", []).append(system_lib)
+                                            components[potential_lib_name].setdefault(
+                                                "system_libs", []
+                                            ).append(system_lib)
                                 elif is_apple_os(self):
                                     for framework in ["CoreFoundation"]:
                                         if framework in dependency:
-                                            components[potential_lib_name].setdefault("frameworks", []).append(framework)
+                                            components[potential_lib_name].setdefault(
+                                                "frameworks", []
+                                            ).append(framework)
                     elif property_type == "INTERFACE_COMPILE_DEFINITIONS":
                         values_list = target_property[1].replace('"', "").split(";")
                         for definition in values_list:
@@ -221,7 +256,9 @@ class AbseilConan(ConanFile):
         abseil_components = json.loads(components_json_file)
         for pkgconfig_name, values in abseil_components.items():
             cmake_target = values["cmake_target"]
-            self.cpp_info.components[pkgconfig_name].set_property("cmake_target_name", "absl::{}".format(cmake_target))
+            self.cpp_info.components[pkgconfig_name].set_property(
+                "cmake_target_name", "absl::{}".format(cmake_target)
+            )
             self.cpp_info.components[pkgconfig_name].set_property("pkg_config_name", pkgconfig_name)
             self.cpp_info.components[pkgconfig_name].libs = values.get("libs", [])
             self.cpp_info.components[pkgconfig_name].defines = values.get("defines", [])
@@ -229,10 +266,9 @@ class AbseilConan(ConanFile):
             self.cpp_info.components[pkgconfig_name].frameworks = values.get("frameworks", [])
             self.cpp_info.components[pkgconfig_name].requires = values.get("requires", [])
             if is_msvc(self) and self.settings.compiler.get_safe("cppstd") == "20":
-                self.cpp_info.components[pkgconfig_name].defines.extend([
-                    "_HAS_DEPRECATED_RESULT_OF",
-                    "_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING",
-                ])
+                self.cpp_info.components[pkgconfig_name].defines.extend(
+                    ["_HAS_DEPRECATED_RESULT_OF", "_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING"]
+                )
 
             self.cpp_info.components[pkgconfig_name].names["cmake_find_package"] = cmake_target
             self.cpp_info.components[pkgconfig_name].names["cmake_find_package_multi"] = cmake_target
@@ -241,8 +277,12 @@ class AbseilConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "absl"
 
         self.cpp_info.set_property("cmake_build_modules", [self._cxx_std_module_filepath])
-        self.cpp_info.components["absl_config"].build_modules["cmake_find_package"] = [self._cxx_std_module_filepath]
-        self.cpp_info.components["absl_config"].build_modules["cmake_find_package_multi"] = [self._cxx_std_module_filepath]
+        self.cpp_info.components["absl_config"].build_modules["cmake_find_package"] = [
+            self._cxx_std_module_filepath
+        ]
+        self.cpp_info.components["absl_config"].build_modules["cmake_find_package_multi"] = [
+            self._cxx_std_module_filepath
+        ]
 
 
 class _ABIFile:
@@ -259,9 +299,12 @@ class _ABIFile:
 
     def replace_in_options_file(self, options_filepath):
         for name, value in self.abi.items():
-            replace_in_file(self.conanfile, options_filepath,
-                    "#define ABSL_OPTION_{} 2".format(name),
-                    "#define ABSL_OPTION_{} {}".format(name, value))
+            replace_in_file(
+                self.conanfile,
+                options_filepath,
+                "#define ABSL_OPTION_{} 2".format(name),
+                "#define ABSL_OPTION_{} {}".format(name, value),
+            )
 
     def cxx_std(self):
         return 17 if any([v == "1" for k, v in self.abi.items()]) else 11

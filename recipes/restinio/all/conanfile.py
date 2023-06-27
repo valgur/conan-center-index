@@ -13,11 +13,12 @@ required_conan_version = ">=1.50.0"
 
 class RestinioConan(ConanFile):
     name = "restinio"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/Stiffstream/restinio"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "RESTinio is a header-only C++14 library that gives you an embedded HTTP/Websocket server."
-    topics = ("http-server", "websockets", "rest", "tls-support")
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Stiffstream/restinio"
+    topics = ("http-server", "websockets", "rest", "tls-support", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -32,6 +33,7 @@ class RestinioConan(ConanFile):
         "with_zlib": False,
         "with_pcre": None,
     }
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -91,6 +93,9 @@ class RestinioConan(ConanFile):
                     f"{self.ref} requires C++{minimal_cpp_standard}, which your compiler does not support."
                 )
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["RESTINIO_INSTALL"] = True
@@ -104,9 +109,6 @@ class RestinioConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -119,7 +121,13 @@ class RestinioConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "restinio")
         self.cpp_info.set_property("cmake_target_name", "restinio::restinio")
-        self.cpp_info.defines.extend(["RESTINIO_EXTERNAL_EXPECTED_LITE", "RESTINIO_EXTERNAL_OPTIONAL_LITE",
-                                      "RESTINIO_EXTERNAL_STRING_VIEW_LITE", "RESTINIO_EXTERNAL_VARIANT_LITE"])
+        self.cpp_info.defines.extend(
+            [
+                "RESTINIO_EXTERNAL_EXPECTED_LITE",
+                "RESTINIO_EXTERNAL_OPTIONAL_LITE",
+                "RESTINIO_EXTERNAL_STRING_VIEW_LITE",
+                "RESTINIO_EXTERNAL_VARIANT_LITE",
+            ]
+        )
         if self.options.asio == "boost":
             self.cpp_info.defines.append("RESTINIO_USE_BOOST_ASIO")

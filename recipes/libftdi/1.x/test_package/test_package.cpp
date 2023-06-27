@@ -9,8 +9,7 @@
 
 #include <iostream>
 
-int main(int argc, char **argv)
-{
+int main() {
     int vid = 0x0403;
     int pid = 0x6001;
 
@@ -26,17 +25,14 @@ int main(int argc, char **argv)
     }
 
     for (Ftdi::List::iterator it = devices->begin(); it != devices->end(); ++it) {
-        std::cout << "FTDI (" << &*it << "): "
-        << it->vendor() << ", "
-        << it->description() << ", "
-        << it->serial();
+        std::cout << "FTDI (" << &*it << "): " << it->vendor() << ", " << it->description() << ", "
+                  << it->serial();
 
         // Open test
-        if(it->open() == 0) {
-           std::cout << " (Open OK)";
-        }
-        else {
-           std::cout << " (Open FAILED)";
+        if (it->open() == 0) {
+            std::cout << " (Open OK)";
+        } else {
+            std::cout << " (Open FAILED)";
         }
 
         it->close();

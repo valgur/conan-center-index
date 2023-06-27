@@ -8,11 +8,7 @@ int main() {
 
     bool res = ix::UrlParser::parse(url, protocol, host, path, query, port);
 
-    std::cout
-        << "URL parse result: \n"
-        << "Protocol: " << protocol
-        << "\nHost: " << host
-        << "\nPath: " << path
-        << "\nQuery: " << query
-        << "\nPort: " << port << std::endl;
+    std::cout << "URL parse result: \n"
+              << "Protocol: " << protocol << "\nHost: " << host << "\nPath: " << path
+              << "\nQuery: " << query << "\nPort: " << port << std::endl;
 }

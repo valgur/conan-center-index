@@ -15,9 +15,9 @@ class ImathConan(ConanFile):
         "math operations for computer graphics."
     )
     license = "BSD-3-Clause"
-    topics = ("computer-graphics", "matrix", "openexr", "3d-vector")
-    homepage = "https://github.com/AcademySoftwareFoundation/Imath"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/AcademySoftwareFoundation/Imath"
+    topics = ("computer-graphics", "matrix", "openexr", "3d-vector")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -53,7 +53,7 @@ class ImathConan(ConanFile):
         if is_msvc(self) and self.settings.compiler.get_safe("cppstd"):
             # when msvc is working with a C++ standard level higher
             # than the default, we need the __cplusplus macro to be correct
-            tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"        
+            tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"
         tc.generate()
 
     def build(self):

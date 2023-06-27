@@ -2,29 +2,39 @@ import os
 import shutil
 
 from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.build import can_run
 from conan.tools.build import cross_building
+from conan.tools.cmake import cmake_layout, CMake
 from conan.tools.files import chdir, mkdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-from conans import tools, Meson, RunEnvironment, CMake
-from conan.errors import ConanException
-
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package_multi", "cmake_find_package", "pkg_config", "qmake"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "PkgConfigDeps", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
         self.tool_requires("cmake/3.25.3")
         if self._meson_supported():
             self.tool_requires("meson/1.0.1")
 
+    def layout(self):
+        cmake_layout(self)
+
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
         folder = os.path.join(path, "bin")
         bin_folder = "bin" if self.settings.os == "Windows" else "libexec"
-        save(self, "qt.conf", f"""[Paths]
+        save(
+            self,
+            "qt.conf",
+            f"""[Paths]
 Prefix = {path}
 ArchData = {folder}/archdatadir
 HostData = {folder}/archdatadir
@@ -37,16 +47,20 @@ Imports = {folder}/archdatadir/imports
 Qml2Imports = {folder}/archdatadir/qml
 Translations = {folder}/datadir/translations
 Documentation = {folder}/datadir/doc
-Examples = {folder}/datadir/examples""")
+Examples = {folder}/datadir/examples""",
+        )
 
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     def _meson_supported(self):
-        return False and self.options["qt"].shared and\
-            not cross_building(self) and\
-            not self.settings.os == "Macos" and\
-            not self._is_mingw()
+        return (
+            False
+            and self.options["qt"].shared
+            and not cross_building(self)
+            and not self.settings.os == "Macos"
+            and not self._is_mingw()
+        )
 
     def _qmake_supported(self):
         return self.options["qt"].shared
@@ -58,7 +72,7 @@ Examples = {folder}/datadir/examples""")
         with chdir(self, "qmake_folder"):
             self.output.info("Building with qmake")
 
-            with tools.vcvars(self.settings) if is_msvc(self) else tools.no_op():
+            with vcvars(self.settings) if is_msvc(self) else no_op(self):
                 args = [self.source_folder, "DESTDIR=bin"]
 
                 def _getenvpath(var):
@@ -68,20 +82,20 @@ Examples = {folder}/datadir/examples""")
                         os.environ[var] = val
                     return val
 
-                value = _getenvpath('CC')
+                value = _getenvpath("CC")
                 if value:
-                    args.append(f"QMAKE_CC=\"{value}\"")
+                    args.append(f'QMAKE_CC="{value}"')
 
-                value = _getenvpath('CXX')
+                value = _getenvpath("CXX")
                 if value:
-                    args.append(f"QMAKE_CXX=\"{value}\"")
+                    args.append(f'QMAKE_CXX="{value}"')
 
-                value = _getenvpath('LD')
+                value = _getenvpath("LD")
                 if value:
-                    args.append(f"QMAKE_LINK_C=\"{value}\"")
-                    args.append(f"QMAKE_LINK_C_SHLIB=\"{value}\"")
-                    args.append(f"QMAKE_LINK=\"{value}\"")
-                    args.append(f"QMAKE_LINK_SHLIB=\"{value}\"")
+                    args.append(f'QMAKE_LINK_C="{value}"')
+                    args.append(f'QMAKE_LINK_C_SHLIB="{value}"')
+                    args.append(f'QMAKE_LINK="{value}"')
+                    args.append(f'QMAKE_LINK_SHLIB="{value}"')
 
                 self.run(f"qmake {' '.join(args)}", run_environment=True)
                 if tools.os_info.is_windows:
@@ -96,22 +110,29 @@ Examples = {folder}/datadir/examples""")
         if self._meson_supported():
             self.output.info("Building with Meson")
             mkdir(self, "meson_folder")
-            with tools.environment_append(RunEnvironment(self).vars):
+            with environment_append(self, RunEnvironment(self).vars):
                 meson = Meson(self)
                 try:
-                    meson.configure(build_folder="meson_folder", defs={"cpp_std": "c++11"})
+                    meson.configure(
+                        build_folder="meson_folder",
+                        defs={
+                            "cpp_std": "c++11",
+                        },
+                    )
                 except ConanException:
-                    self.output.info(open("meson_folder/meson-logs/meson-log.txt", 'r').read())
+                    self.output.info(open("meson_folder/meson-logs/meson-log.txt", "r").read())
                     raise
                 meson.build()
 
     def _build_with_cmake_find_package_multi(self):
         self.output.info("Building with cmake_find_package_multi")
         env_build = RunEnvironment(self)
-        with tools.environment_append(env_build.vars):
+        with environment_append(self, env_build.vars):
             cmake = CMake(self, set_cmake_flags=True)
             if self.settings.os == "Macos":
-                cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.15' if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
+                tc.variables["CMAKE_OSX_DEPLOYMENT_TARGET"] = (
+                    "10.15" if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
+                )
 
             cmake.configure()
             cmake.build()
@@ -125,7 +146,7 @@ Examples = {folder}/datadir/examples""")
         if not self._qmake_supported():
             return
         self.output.info("Testing qmake")
-        bin_path = os.path.join("qmake_folder", "bin")
+        bin_path = os.path.join("qmake_folder", self.cpp.build.bindir)
         if self.settings.os == "Macos":
             bin_path = os.path.join(bin_path, "test_package.app", "Contents", "MacOS")
         shutil.copy(os.path.join(self.generators_folder, "qt.conf"), bin_path)
@@ -139,11 +160,11 @@ Examples = {folder}/datadir/examples""")
 
     def _test_with_cmake_find_package_multi(self):
         self.output.info("Testing CMake_find_package_multi")
-        shutil.copy(os.path.join(self.generators_folder, "qt.conf"), "bin")
-        self.run(os.path.join("bin", "test_package"), run_environment=True)
+        shutil.copy(os.path.join(self.generators_folder, "qt.conf"), self.cpp.build.bindir)
+        self.run(os.path.join(self.cpp.build.bindir, "test_package"), run_environment=True)
 
     def test(self):
-        if not cross_building(self, skip_x64_x86=True):
+        if can_run(self):
             self._test_with_qmake()
             self._test_with_meson()
             self._test_with_cmake_find_package_multi()

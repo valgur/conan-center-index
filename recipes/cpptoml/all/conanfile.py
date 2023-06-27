@@ -10,10 +10,11 @@ required_conan_version = ">=1.50.0"
 class CppTomlConan(ConanFile):
     name = "cpptoml"
     description = "cpptoml is a header-only library for parsing TOML "
-    topics = ("toml", "header-only", "configuration")
     license = "MIT"
-    homepage = "https://github.com/skystrife/cpptoml"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/skystrife/cpptoml"
+    topics = ("toml", "header-only", "configuration")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -32,23 +33,32 @@ class CppTomlConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
         # TODO: to remove in conan v2
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"cpptoml": "cpptoml::cpptoml"},
+            {
+                "cpptoml": "cpptoml::cpptoml",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

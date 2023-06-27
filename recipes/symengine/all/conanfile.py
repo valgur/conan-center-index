@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain
 from conan.tools.files import (
@@ -7,8 +9,8 @@ from conan.tools.files import (
     get,
     rm,
     rmdir,
+    export_conandata_patches,
 )
-import os
 
 required_conan_version = ">=1.54.0"
 
@@ -17,11 +19,12 @@ class SymengineConan(ConanFile):
     name = "symengine"
     description = "A fast symbolic manipulation library, written in C++"
     license = "MIT"
-    topics = ("symbolic", "algebra")
-    homepage = "https://symengine.org/"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "https://symengine.org/"
+    topics = ("symbolic", "algebra")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -32,21 +35,9 @@ class SymengineConan(ConanFile):
         "fPIC": True,
         "integer_class": "gmp",
     }
-    short_paths = True
 
-    def requirements(self):
-        if self.options.integer_class == "boostmp":
-            self.requires("boost/1.81.0")
-        else:
-            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
-
-    def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -56,12 +47,26 @@ class SymengineConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.integer_class == "boostmp":
+            self.requires("boost/1.81.0")
+        else:
+            self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_BENCHMARKS"] = False
         tc.variables["INTEGER_CLASS"] = self.options.integer_class
         tc.variables["MSVC_USE_MT"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -71,12 +76,7 @@ class SymengineConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # [CMAKE-MODULES-CONFIG-FILES (KB-H016)]

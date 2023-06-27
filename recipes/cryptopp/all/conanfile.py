@@ -2,8 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, collect_libs, copy, export_conandata_patches, get,
-    rename, replace_in_file, rmdir, save
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rmdir,
+    save,
 )
 from conan.tools.scm import Version
 
@@ -15,10 +22,10 @@ required_conan_version = ">=1.53.0"
 
 class CryptoPPConan(ConanFile):
     name = "cryptopp"
+    description = "Crypto++ Library is a free C++ class library of cryptographic schemes."
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cryptopp.com"
-    license = "BSL-1.0"
-    description = "Crypto++ Library is a free C++ class library of cryptographic schemes."
     topics = ("crypto", "cryptographic", "security")
 
     package_type = "library"
@@ -63,16 +70,19 @@ class CryptoPPConan(ConanFile):
             base_source_dir = os.path.join(self.source_folder, os.pardir)
             get(self, **self.conan_data["sources"][self.version]["cmake"], destination=base_source_dir)
             src_folder = os.path.join(
-                base_source_dir,
-                f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}",
+                base_source_dir, f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}"
             )
             for file in ("CMakeLists.txt", "cryptopp-config.cmake"):
                 rename(self, src=os.path.join(src_folder, file), dst=os.path.join(self.source_folder, file))
             rmdir(self, src_folder)
         else:
             # Get cryptopp-cmake sources
-            get(self, **self.conan_data["sources"][self.version]["cmake"],
-                destination=os.path.join(self.source_folder, "cryptopp-cmake"), strip_root=True)
+            get(
+                self,
+                **self.conan_data["sources"][self.version]["cmake"],
+                destination=os.path.join(self.source_folder, "cryptopp-cmake"),
+                strip_root=True,
+            )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -84,7 +94,11 @@ class CryptoPPConan(ConanFile):
             tc.variables["USE_INTERMEDIATE_OBJECTS_TARGET"] = False
             if self.settings.os == "Android":
                 tc.variables["CRYPTOPP_NATIVE_ARCH"] = True
-            if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) <= "8.4.0":
+            if (
+                self.settings.os == "Macos"
+                and self.settings.arch == "armv8"
+                and Version(self.version) <= "8.4.0"
+            ):
                 tc.variables["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
             # For msvc shared
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
@@ -115,11 +129,19 @@ class CryptoPPConan(ConanFile):
                 )
         # Honor fPIC option
         if Version(self.version) < "8.7.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
+                "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)",
+                "",
+            )
         else:
-            replace_in_file(self, os.path.join(self.source_folder, "cryptopp-cmake", "cryptopp", "CMakeLists.txt"),
-                                "set(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "cryptopp-cmake", "cryptopp", "CMakeLists.txt"),
+                "set(CMAKE_POSITION_INDEPENDENT_CODE 1)",
+                "",
+            )
 
     def build(self):
         self._patch_sources()
@@ -143,19 +165,21 @@ class CryptoPPConan(ConanFile):
             os.path.join(self.package_folder, self._module_file_rel_path),
             {
                 "cryptopp-shared": "cryptopp::cryptopp-shared",
-                "cryptopp-static": "cryptopp::cryptopp-static"
-            }
+                "cryptopp-static": "cryptopp::cryptopp-static",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -182,7 +206,11 @@ class CryptoPPConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "libcryptopp"
         self.cpp_info.components["libcryptopp"].names["cmake_find_package"] = legacy_cmake_target
         self.cpp_info.components["libcryptopp"].names["cmake_find_package_multi"] = legacy_cmake_target
-        self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["libcryptopp"].set_property("cmake_target_name", "cryptopp::cryptopp")
         self.cpp_info.components["libcryptopp"].set_property("pkg_config_name", "libcryptopp")

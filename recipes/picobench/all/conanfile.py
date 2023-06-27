@@ -14,6 +14,8 @@ class PicobenchConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/iboB/picobench"
     topics = ("benchmark", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_cli": [True, False],
@@ -21,6 +23,7 @@ class PicobenchConan(ConanFile):
     default_options = {
         "with_cli": False,
     }
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,7 +58,12 @@ class PicobenchConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

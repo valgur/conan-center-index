@@ -8,12 +8,13 @@ required_conan_version = ">=1.46.0"
 
 class lmdbConan(ConanFile):
     name = "lmdb"
+    description = "Fast and compat memory-mapped key-value database"
     license = "OLDAP-2.8"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://symas.com/lmdb/"
-    description = "Fast and compat memory-mapped key-value database"
     topics = ("database", "key-value", "memory-mapped")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,7 +27,8 @@ class lmdbConan(ConanFile):
         "enable_robust_mutex": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -38,29 +40,21 @@ class lmdbConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LMDB_SRC_DIR"] = os.path.join(self.source_folder, "libraries", "liblmdb").replace("\\", "/")
+        tc.variables["LMDB_SRC_DIR"] = os.path.join(self.source_folder, "libraries", "liblmdb").replace(
+            "\\", "/"
+        )
         tc.variables["LMDB_ENABLE_ROBUST_MUTEX"] = self.options.enable_robust_mutex
         tc.generate()
 
@@ -70,7 +64,12 @@ class lmdbConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=os.path.join(self.source_folder, "libraries", "liblmdb"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE",
+            src=os.path.join(self.source_folder, "libraries", "liblmdb"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -1,14 +1,16 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
-from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
+
 required_conan_version = ">=1.53.0"
+
 
 class OpenColorIOConan(ConanFile):
     name = "opencolorio"
@@ -17,6 +19,8 @@ class OpenColorIOConan(ConanFile):
     homepage = "https://opencolorio.org/"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("colors", "visual", "effects", "animation")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -69,13 +73,22 @@ class OpenColorIOConan(ConanFile):
             check_min_cppstd(self, 11)
 
         # opencolorio>=2.2.0 requires minizip-ng with with_zlib
-        if Version(self.version) >= "2.2.0" and \
-            not self.dependencies["minizip-ng"].options.get_safe("with_zlib", False):
+        if Version(self.version) >= "2.2.0" and not self.dependencies["minizip-ng"].options.get_safe(
+            "with_zlib", False
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires minizip-ng with with_zlib = True.")
 
-        if Version(self.version) == "1.1.1" and self.options.shared and self.dependencies["yaml-cpp"].options.shared:
+        if (
+            Version(self.version) == "1.1.1"
+            and self.options.shared
+            and self.dependencies["yaml-cpp"].options.shared
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires static build yaml-cpp")
-        if Version(self.version) == "2.2.1" and self.options.shared and self.dependencies["minizip-ng"].options.shared:
+        if (
+            Version(self.version) == "2.2.1"
+            and self.options.shared
+            and self.dependencies["minizip-ng"].options.shared
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} requires static build minizip-ng")
 
     def build_requirements(self):
@@ -129,7 +142,7 @@ class OpenColorIOConan(ConanFile):
         apply_conandata_patches(self)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath", "minizip-ng"):
-            rm(self, "Find"+module+".cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
+            rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
 
     def build(self):
         self._patch_sources()
@@ -143,9 +156,12 @@ class OpenColorIOConan(ConanFile):
         cm.install()
 
         if not self.options.shared:
-            copy(self, "*",
+            copy(
+                self,
+                "*",
                 src=os.path.join(self.package_folder, "lib", "static"),
-                dst=os.path.join(self.package_folder, "lib"))
+                dst=os.path.join(self.package_folder, "lib"),
+            )
             rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -157,7 +173,9 @@ class OpenColorIOConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
 
         if Version(self.version) == "1.1.1":
             fix_apple_shared_install_name(self)

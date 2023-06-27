@@ -14,10 +14,11 @@ class LibsrtpRecipe(ConanFile):
         "Protocol (SRTP), the Universal Security Transform (UST), and a supporting"
         "cryptographic kernel."
     )
-    topics = ("srtp",)
-    homepage = "https://github.com/cisco/libsrtp"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/cisco/libsrtp"
+    topics = ("srtp",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -64,7 +65,8 @@ class LibsrtpRecipe(ConanFile):
 
     def build(self):
         replace_in_file(
-            self, os.path.join(self.source_folder, "CMakeLists.txt"),
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "install(TARGETS srtp2 DESTINATION lib)",
             (
                 "include(GNUInstallDirs)\n"

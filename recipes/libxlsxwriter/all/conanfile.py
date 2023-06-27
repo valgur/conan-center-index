@@ -11,12 +11,13 @@ required_conan_version = ">=1.53.0"
 
 class LibxlsxwriterConan(ConanFile):
     name = "libxlsxwriter"
+    description = "A C library for creating Excel XLSX files"
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jmcnamara/libxlsxwriter"
     topics = ("excel", "xlsx")
-    description = "A C library for creating Excel XLSX files"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -42,7 +43,7 @@ class LibxlsxwriterConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.fmemopen
+            self.options.rm_safe("fmemopen")
 
     def configure(self):
         if self.options.shared:
@@ -64,8 +65,7 @@ class LibxlsxwriterConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name}:md5=openssl is not suppported in {self.ref}")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

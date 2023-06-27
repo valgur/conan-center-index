@@ -10,11 +10,12 @@ required_conan_version = ">=1.53.0"
 
 class CpuFeaturesConan(ConanFile):
     name = "cpu_features"
+    description = "A cross platform C99 library to get cpu features at runtime."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/cpu_features"
-    description = "A cross platform C99 library to get cpu features at runtime."
     topics = ("cpu", "features", "cpuid")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -84,7 +85,9 @@ class CpuFeaturesConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "CpuFeatures"
         self.cpp_info.components["libcpu_features"].names["cmake_find_package"] = "cpu_features"
         self.cpp_info.components["libcpu_features"].names["cmake_find_package_multi"] = "cpu_features"
-        self.cpp_info.components["libcpu_features"].set_property("cmake_target_name", "CpuFeatures::cpu_features")
+        self.cpp_info.components["libcpu_features"].set_property(
+            "cmake_target_name", "CpuFeatures::cpu_features"
+        )
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))

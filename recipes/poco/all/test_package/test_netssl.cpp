@@ -1,27 +1,27 @@
-#include "Poco/StreamCopier.h"
-#include "Poco/URI.h"
 #include "Poco/Exception.h"
-#include "Poco/SharedPtr.h"
-#include "Poco/Net/SSLManager.h"
-#include "Poco/Net/KeyConsoleHandler.h"
 #include "Poco/Net/AcceptCertificateHandler.h"
-#include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
 #include "Poco/Net/HTTPResponse.h"
-#include <memory>
+#include "Poco/Net/HTTPSClientSession.h"
+#include "Poco/Net/KeyConsoleHandler.h"
+#include "Poco/Net/SSLManager.h"
+#include "Poco/SharedPtr.h"
+#include "Poco/StreamCopier.h"
+#include "Poco/URI.h"
 #include <iostream>
+#include <memory>
 
 using namespace Poco;
 using namespace Poco::Net;
 
 class SSLInitializer {
-public:
+  public:
     SSLInitializer() { Poco::Net::initializeSSL(); }
 
     ~SSLInitializer() { Poco::Net::uninitializeSSL(); }
 };
 
-int main(int argc, char** argv) {
+int main() {
     SSLInitializer sslInitializer;
 
     SharedPtr<InvalidCertificateHandler> ptrCert = new AcceptCertificateHandler(false);
@@ -34,11 +34,11 @@ int main(int argc, char** argv) {
         HTTPRequest request(HTTPRequest::HTTP_GET, uri.getPath());
         request.set("user-agent", "Poco HTTPSClientSession");
         // FIXME: CCI Jenkins blocks the request making the build fail
-        //s.sendRequest(request);
-        //HTTPResponse response;
-        //std::istream& rs = s.receiveResponse(response);
-        //StreamCopier::copyStream(rs, std::cout);
-    } catch (const Exception& ex) {
+        // s.sendRequest(request);
+        // HTTPResponse response;
+        // std::istream& rs = s.receiveResponse(response);
+        // StreamCopier::copyStream(rs, std::cout);
+    } catch (const Exception &ex) {
         std::cout << ex.displayText() << std::endl;
         return 1;
     }

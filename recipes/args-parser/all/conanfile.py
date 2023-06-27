@@ -6,16 +6,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class ArgsParserConan(ConanFile):
     name = "args-parser"
+    description = "Small C++ header-only library for parsing command line arguments."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/args-parser"
-    license = "MIT"
-    description = "Small C++ header-only library for parsing command line arguments."
-    topics = ("argument", "parsing")
+    topics = ("argument", "parsing", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -46,7 +47,7 @@ class ArgsParserConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -57,7 +58,12 @@ class ArgsParserConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "args-parser"), dst=os.path.join(self.package_folder, "include", "args-parser"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "args-parser"),
+            dst=os.path.join(self.package_folder, "include", "args-parser"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "args-parser")

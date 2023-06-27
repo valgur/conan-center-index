@@ -12,10 +12,11 @@ class HighFiveConan(ConanFile):
     name = "highfive"
     description = "HighFive is a modern header-only C++11 friendly interface for libhdf5."
     license = "Boost Software License 1.0"
-    topics = ("hdf5", "hdf", "data")
-    homepage = "https://github.com/BlueBrain/HighFive"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/BlueBrain/HighFive"
+    topics = ("hdf5", "hdf", "data", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_boost": [True, False],
@@ -29,6 +30,7 @@ class HighFiveConan(ConanFile):
         "with_xtensor": True,
         "with_opencv": False,
     }
+    no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -52,8 +54,7 @@ class HighFiveConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -98,18 +99,22 @@ class HighFiveConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"HighFive": "HighFive::HighFive"},
+            {
+                "HighFive": "HighFive::HighFive",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

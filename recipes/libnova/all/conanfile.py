@@ -15,9 +15,9 @@ class LibnovaConan(ConanFile):
         "astrometry and astrodynamics library."
     )
     license = "LGPL-2.0-only"
-    topics = ("celestial-mechanics", "astrometry", "astrodynamics")
-    homepage = "https://sourceforge.net/projects/libnova"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/libnova"
+    topics = ("celestial-mechanics", "astrometry", "astrodynamics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -56,6 +56,7 @@ class LibnovaConan(ConanFile):
                     try_post(retry_count + 1)
                 else:
                     raise ConanException("All the attempt to generate archive url have failed.")
+
         try_post(0)
 
     def source(self):

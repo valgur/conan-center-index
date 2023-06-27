@@ -6,16 +6,18 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class InjaConan(ConanFile):
     name = "inja"
-    license = "MIT"
-    homepage = "https://github.com/pantor/inja"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Inja is a template engine for modern C++, loosely inspired by jinja for python"
-    topics = ("jinja2", "string templates", "templates engine")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pantor/inja"
+    topics = ("jinja2", "string templates", "templates engine", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -35,6 +37,9 @@ class InjaConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("nlohmann_json/3.11.2")
 
@@ -48,21 +53,22 @@ class InjaConan(ConanFile):
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-        )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "inja")

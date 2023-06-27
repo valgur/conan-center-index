@@ -6,7 +6,8 @@ from conan.tools.apple import is_apple_os
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.49.0"
+required_conan_version = ">=1.52.0"
+
 
 class WatcherConan(ConanFile):
     name = "watcher"
@@ -15,8 +16,10 @@ class WatcherConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/e-dant/watcher/"
     topics = ("watch", "filesystem", "event", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -54,7 +57,7 @@ class WatcherConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
             )
 
     def source(self):
@@ -64,7 +67,9 @@ class WatcherConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

@@ -12,9 +12,10 @@ class GeosConan(ConanFile):
     name = "geos"
     description = "C++11 library for performing operations on two-dimensional vector geometries"
     license = "LGPL-2.1"
-    topics = ("osgeo", "geometry", "topology", "geospatial")
-    homepage = "https://trac.osgeo.org/geos"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://trac.osgeo.org/geos"
+    topics = ("osgeo", "geometry", "topology", "geospatial")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -38,7 +39,7 @@ class GeosConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_inline_option:
-            del self.options.inline
+            self.options.rm_safe("inline")
 
     def configure(self):
         if self.options.shared:
@@ -79,7 +80,12 @@ class GeosConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, "geos.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "geos.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

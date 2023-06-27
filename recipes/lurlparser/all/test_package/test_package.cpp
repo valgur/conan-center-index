@@ -3,7 +3,8 @@
 #include "LUrlParser.h"
 
 int main() {
-    const auto URL = LUrlParser::ParseURL::parseURL("https://John:Dow@github.com:80/corporateshark/LUrlParser");
+    const auto URL =
+        LUrlParser::ParseURL::parseURL("https://John:Dow@github.com:80/corporateshark/LUrlParser");
 
     if (URL.isValid()) {
         std::cout << "Scheme    : " << URL.scheme_ << std::endl;

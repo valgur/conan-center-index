@@ -1,8 +1,7 @@
-#include <toml.hpp>
 #include <iostream>
+#include <toml.hpp>
 
-int main()
-{
+int main() {
     std::stringstream sstr;
     sstr << "title = 'an example toml file'";
     const auto data = toml::parse(sstr);

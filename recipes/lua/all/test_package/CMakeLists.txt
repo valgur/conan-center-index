@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 find_package(lua REQUIRED CONFIG)
@@ -8,3 +8,4 @@ target_link_libraries(${PROJECT_NAME} lua::lua)
 if(COMPILE_AS_CPP)
   target_compile_definitions(${PROJECT_NAME} PRIVATE COMPILE_AS_CPP)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

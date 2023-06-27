@@ -1,22 +1,99 @@
+# TODO: verify the Conan v2 migration
+
 import os
 import re
 
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, load, mkdir, rmdir, save
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
 from conan.tools.scm import Version
-from conans import Meson
+from conan.tools.system import package_manager
+
+required_conan_version = ">=1.53.0"
 
 
 class LibdrmConan(ConanFile):
     name = "libdrm"
-    description = "User space library for accessing the Direct Rendering Manager, on operating systems that support the ioctl interface"
-    topics = ("libdrm", "graphics")
+    description = (
+        "User space library for accessing the Direct Rendering Manager, "
+        "on operating systems that support the ioctl interface"
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/mesa/drm"
-    license = "MIT"
-    generators = "PkgConfigDeps"
+    topics = ("graphics",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,7 +112,7 @@ class LibdrmConan(ConanFile):
         "etnaviv": [True, False],
         "valgrind": [True, False],
         "freedreno-kgsl": [True, False],
-        "udev": [True, False]
+        "udev": [True, False],
     }
     default_options = {
         "shared": False,
@@ -54,31 +131,23 @@ class LibdrmConan(ConanFile):
         "etnaviv": False,
         "valgrind": False,
         "freedreno-kgsl": False,
-        "udev": False
+        "udev": False,
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
-    def build_requirements(self):
-        self.build_requires("meson/0.64.1")
-
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "2.4.111":
-            del self.options.libkms
+            self.options.rm_safe("libkms")
 
     def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.intel:
@@ -90,25 +159,44 @@ class LibdrmConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libdrm supports only Linux or FreeBSD")
 
+    def build_requirements(self):
+        self.build_requires("meson/0.64.1")
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _configure_meson(self):
         meson = Meson(self)
 
-        defs={
-            "cairo-tests" : "disabled" if Version(self.version) >= "2.4.113" else "false",
-            "install-test-programs": "false"
+        defs = {
+            "cairo-tests": "disabled" if Version(self.version) >= "2.4.113" else "false",
+            "install-test-programs": "false",
         }
         if Version(self.version) < "2.4.111":
             defs["libkms"] = "true" if self.options.libkms else "false"
-            
+
         defs["freedreno-kgsl"] = "true" if getattr(self.options, "freedreno-kgsl") else "false"
         defs["udev"] = "true" if self.options.udev else "false"
-            
-        for o in ["intel", "radeon", "amdgpu","nouveau", "vmwgfx", "omap", "exynos",
-                  "freedreno", "tegra", "vc4", "etnaviv", "valgrind"]:
+
+        for o in [
+            "intel",
+            "radeon",
+            "amdgpu",
+            "nouveau",
+            "vmwgfx",
+            "omap",
+            "exynos",
+            "freedreno",
+            "tegra",
+            "vc4",
+            "etnaviv",
+            "valgrind",
+        ]:
             if Version(self.version) >= "2.4.113":
                 defs[o] = "enabled" if getattr(self.options, o) else "disabled"
             else:
@@ -117,10 +205,7 @@ class LibdrmConan(ConanFile):
         defs["datadir"] = os.path.join(self.package_folder, "res")
         defs["mandir"] = os.path.join(self.package_folder, "res", "man")
 
-        meson.configure(
-            defs = defs,
-            source_folder=self._source_subfolder,
-            build_folder=self._build_subfolder)
+        meson.configure(defs=defs, source_folder=self.source_folder, build_folder=self._build_subfolder)
         return meson
 
     def build(self):
@@ -133,21 +218,25 @@ class LibdrmConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         mkdir(self, os.path.join(self.package_folder, "licenses"))
         # Extract the License/s from the header to a file
-        tmp = load(self, os.path.join(self._source_subfolder, "include", "drm", "drm.h"))
+        tmp = load(self, os.path.join(self.source_folder, "include", "drm", "drm.h"))
         license_contents = re.search("\*\/.*(\/\*(\*(?!\/)|[^*])*\*\/)", tmp, re.DOTALL)[1]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package_info(self):
         self.cpp_info.components["libdrm_libdrm"].libs = ["drm"]
-        self.cpp_info.components["libdrm_libdrm"].includedirs.append(os.path.join('include', 'libdrm'))
+        self.cpp_info.components["libdrm_libdrm"].includedirs.append(os.path.join("include", "libdrm"))
         self.cpp_info.components["libdrm_libdrm"].set_property("pkg_config_name", "libdrm")
         if self.settings.os == "Linux":
-            self.cpp_info.components["libdrm_libdrm"].requires = ["linux-headers-generic::linux-headers-generic"]
+            self.cpp_info.components["libdrm_libdrm"].requires = [
+                "linux-headers-generic::linux-headers-generic"
+            ]
 
         if Version(self.version) < "2.4.111":
             if self.options.libkms:
                 self.cpp_info.components["libdrm_libkms"].libs = ["kms"]
-                self.cpp_info.components["libdrm_libkms"].includedirs.append(os.path.join('include', 'libkms'))
+                self.cpp_info.components["libdrm_libkms"].includedirs.append(
+                    os.path.join("include", "libkms")
+                )
                 self.cpp_info.components["libdrm_libkms"].requires = ["libdrm_libdrm"]
                 self.cpp_info.components["libdrm_libkms"].set_property("pkg_config_name", "libkms")
 
@@ -157,32 +246,36 @@ class LibdrmConan(ConanFile):
 
         if self.options.freedreno:
             self.cpp_info.components["libdrm_freedreno"].libs = ["drm_freedreno"]
-            self.cpp_info.components["libdrm_freedreno"].includedirs.append(os.path.join('include', 'libdrm'))
-            self.cpp_info.components["libdrm_freedreno"].includedirs.append(os.path.join('include', 'freedreno'))
+            self.cpp_info.components["libdrm_freedreno"].includedirs.append(os.path.join("include", "libdrm"))
+            self.cpp_info.components["libdrm_freedreno"].includedirs.append(
+                os.path.join("include", "freedreno")
+            )
             self.cpp_info.components["libdrm_freedreno"].requires = ["libdrm_libdrm"]
             self.cpp_info.components["libdrm_freedreno"].set_property("pkg_config_name", "libdrm_freedreno")
 
         if self.options.amdgpu:
             self.cpp_info.components["libdrm_amdgpu"].libs = ["drm_amdgpu"]
-            self.cpp_info.components["libdrm_amdgpu"].includedirs.append(os.path.join('include', 'libdrm'))
+            self.cpp_info.components["libdrm_amdgpu"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_amdgpu"].requires = ["libdrm_libdrm"]
             self.cpp_info.components["libdrm_amdgpu"].set_property("pkg_config_name", "libdrm_amdgpu")
 
         if self.options.nouveau:
             self.cpp_info.components["libdrm_nouveau"].libs = ["drm_nouveau"]
-            self.cpp_info.components["libdrm_nouveau"].includedirs.append(os.path.join('include', 'libdrm'))
+            self.cpp_info.components["libdrm_nouveau"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_nouveau"].requires = ["libdrm_libdrm"]
             self.cpp_info.components["libdrm_nouveau"].set_property("pkg_config_name", "libdrm_nouveau")
 
         if self.options.intel:
             self.cpp_info.components["libdrm_intel"].libs = ["drm_intel"]
-            self.cpp_info.components["libdrm_intel"].includedirs.append(os.path.join('include', 'libdrm'))
-            self.cpp_info.components["libdrm_intel"].requires = ["libdrm_libdrm", "libpciaccess::libpciaccess"]
+            self.cpp_info.components["libdrm_intel"].includedirs.append(os.path.join("include", "libdrm"))
+            self.cpp_info.components["libdrm_intel"].requires = [
+                "libdrm_libdrm",
+                "libpciaccess::libpciaccess",
+            ]
             self.cpp_info.components["libdrm_intel"].set_property("pkg_config_name", "libdrm_intel")
 
         if self.options.radeon:
             self.cpp_info.components["libdrm_radeon"].libs = ["drm_radeon"]
-            self.cpp_info.components["libdrm_radeon"].includedirs.append(os.path.join('include', 'libdrm'))
+            self.cpp_info.components["libdrm_radeon"].includedirs.append(os.path.join("include", "libdrm"))
             self.cpp_info.components["libdrm_radeon"].requires = ["libdrm_libdrm"]
             self.cpp_info.components["libdrm_radeon"].set_property("pkg_config_name", "libdrm_radeon")
-

@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.51.1"
 
+
 class GlazeConan(ConanFile):
     name = "glaze"
     description = "Extremely fast, in memory, JSON and interface library for modern C++"
@@ -15,8 +16,10 @@ class GlazeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/stephenberry/glaze"
     topics = ("json", "memory", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -68,7 +71,12 @@ class GlazeConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hpp",

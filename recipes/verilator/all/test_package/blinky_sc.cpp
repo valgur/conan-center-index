@@ -6,21 +6,15 @@
 
 #include <iostream>
 
-SC_MODULE(BlinkyTop)
-{
+SC_MODULE(BlinkyTop) {
     sc_in<bool> clk;
     sc_signal<bool> led;
 
     Vblinky blinky;
 
-    void led_monitor() {
-        std::cout << sc_time_stamp() << ": led = " << led << "\n";
-    }
+    void led_monitor() { std::cout << sc_time_stamp() << ": led = " << led << "\n"; }
 
-    SC_CTOR(BlinkyTop)
-    : clk("clk")
-    , led("led")
-    , blinky("blinky") {
+    SC_CTOR(BlinkyTop) : clk("clk"), led("led"), blinky("blinky") {
         blinky.i_clk(clk);
         blinky.o_led(led);
 
@@ -29,11 +23,11 @@ SC_MODULE(BlinkyTop)
     }
 };
 
-int main(int argc, char **argv) {
+int main() {
     sc_clock clk("clk", sc_time(1, SC_NS), 0.5);
 
     BlinkyTop top("top");
     top.clk(clk);
 
-    sc_start(sc_time(1<<20, SC_NS));
+    sc_start(sc_time(1 << 20, SC_NS));
 }

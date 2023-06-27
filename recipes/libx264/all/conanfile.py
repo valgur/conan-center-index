@@ -13,13 +13,16 @@ required_conan_version = ">=1.57.0"
 
 class LibX264Conan(ConanFile):
     name = "libx264"
+    description = (
+        "x264 is a free software library and application for encoding video streams into the "
+        "H.264/MPEG-4 AVC compression format"
+    )
+    license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.videolan.org/developers/x264.html"
-    description = "x264 is a free software library and application for encoding video streams into the " \
-                  "H.264/MPEG-4 AVC compression format"
     topics = ("video", "encoding")
-    license = "GPL-2.0"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -33,7 +36,6 @@ class LibX264Conan(ConanFile):
     }
 
     # otherwise build fails with: ln: failed to create symbolic link './Makefile' -> '../../../../../../../../../../../../../j/w/prod/buildsinglereference@2/.conan/data/libx264/cci.20220602/_/_/build/622692a7dbc145becf87f01b017e2a0d93cc644e/src/Makefile': File name too long
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -79,10 +81,10 @@ class LibX264Conan(ConanFile):
         args = {
             "--bit-depth": self.options.bit_depth,
             "--disable-cli": "",
-            "--sbindir": None,          # Not understood by configure
-            "--oldincludedir": None     # Not understood by configure
+            "--sbindir": None,  # Not understood by configure
+            "--oldincludedir": None,  # Not understood by configure
         }
-        args["--disable-shared"] = None # --disable-shared is not understood
+        args["--disable-shared"] = None  # --disable-shared is not understood
         if self.options.shared:
             args["--enable-shared"] = ""
         else:
@@ -96,7 +98,7 @@ class LibX264Conan(ConanFile):
             extra_asflags.append("-arch arm64")
             extra_ldflags.append("-arch arm64")
             args["--host"] = "aarch64-apple-darwin"
-            if self.settings.os != "Macos": # TODO not sure why this is != "Macos" ... shouldn't it be == ??
+            if self.settings.os != "Macos":  # TODO not sure why this is != "Macos" ... shouldn't it be == ??
                 xcrun = XCRun(self)
                 platform_flags = ["-isysroot", xcrun.sdk_path]
                 apple_min_version_flag = AutotoolsToolchain(self).apple_min_version_flag
@@ -109,14 +111,26 @@ class LibX264Conan(ConanFile):
         if self._with_nasm:
             env = Environment()
             # FIXME: get using user_build_info
-            env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", "nasm{}".format(".exe" if self.settings.os == "Windows" else ""))))
+            env.define(
+                "AS",
+                unix_path(
+                    self,
+                    os.path.join(
+                        self.dependencies.build["nasm"].package_folder,
+                        "bin",
+                        "nasm{}".format(".exe" if self.settings.os == "Windows" else ""),
+                    ),
+                ),
+            )
             env.vars(self).save_script("conanbuild_nasm")
         if cross_building(self):
             if self.settings.os == "Android":
                 # the as of ndk does not work well for building libx264
                 env = Environment()
 
-                compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+                compilers_from_conf = self.conf.get(
+                    "tools.build:compiler_executables", default={}, check_type=dict
+                )
                 buildenv_vars = VirtualBuildEnv(self).vars()
                 cc = compilers_from_conf.get("c", buildenv_vars.get("CC", "clang-cl"))
                 env.define("AS", cc)
@@ -153,14 +167,19 @@ class LibX264Conan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if is_msvc(self):
             ext = ".dll.lib" if self.options.shared else ".lib"
-            rename(self, os.path.join(self.package_folder, "lib", f"libx264{ext}"),
-                         os.path.join(self.package_folder, "lib", "x264.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", f"libx264{ext}"),
+                os.path.join(self.package_folder, "lib", "x264.lib"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

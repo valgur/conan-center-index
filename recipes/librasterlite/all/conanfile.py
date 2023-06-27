@@ -2,7 +2,16 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
@@ -18,9 +27,10 @@ class LibrasterliteConan(ConanFile):
         "huge raster coverages using a SpatiaLite DBMS."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("rasterlite", "raster", "spatialite")
-    homepage = "https://www.gaia-gis.it/fossil/librasterlite"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/librasterlite"
+    topics = ("rasterlite", "raster", "spatialite")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -102,7 +112,11 @@ class LibrasterliteConan(ConanFile):
             optflags = ["-D_USE_MATH_DEFINES"]
             if self.options.shared:
                 optflags.append("-DDLL_EXPORT")
-            save(self, os.path.join(self.source_folder, "headers", "config.h"), f"#define VERSION \"{self.version}\"\n")
+            save(
+                self,
+                os.path.join(self.source_folder, "headers", "config.h"),
+                f'#define VERSION "{self.version}"\n',
+            )
             with chdir(self, self.source_folder):
                 self.run(f"nmake -f makefile.vc {target} OPTFLAGS=\"{' '.join(optflags)}\"")
         else:
@@ -114,9 +128,26 @@ class LibrasterliteConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "rasterlite.h", src=os.path.join(self.source_folder, "headers"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "rasterlite.h",
+                src=os.path.join(self.source_folder, "headers"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

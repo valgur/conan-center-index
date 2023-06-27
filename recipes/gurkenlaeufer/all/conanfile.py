@@ -6,7 +6,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
@@ -17,6 +16,7 @@ class GurkenlaeuferConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/paulelsner/gurkenlaeufer"
     topics = ("testing", "header-only", "cucumber", "gherkin")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -61,8 +61,13 @@ class GurkenlaeuferConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder,"licenses"))
-        copy(self, "*.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.h",
+            os.path.join(self.source_folder, "include"),
+            os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         # Folders not used for header-only

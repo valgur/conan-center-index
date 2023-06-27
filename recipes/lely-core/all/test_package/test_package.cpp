@@ -6,11 +6,11 @@
 using namespace lely;
 
 int main() {
-  io::IoGuard io_guard{};
-  io::Context context{};
-  io::Poll poll{context};
+    io::IoGuard io_guard{};
+    io::Context context{};
+    io::Poll poll{context};
 
-  ev::Loop loop{poll.get_poll()};
+    ev::Loop loop{poll.get_poll()};
 
-  loop.run();
+    loop.run();
 }

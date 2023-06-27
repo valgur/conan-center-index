@@ -4,9 +4,7 @@
 
 using Vec3D = std::array<Vc::float_v, 3>;
 
-Vc::float_v scalar_product(Vec3D a, Vec3D b) {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
+Vc::float_v scalar_product(Vec3D a, Vec3D b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 
 int main() {
     Vec3D a{1, 2, 3};

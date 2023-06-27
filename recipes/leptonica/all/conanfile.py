@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 import os
@@ -12,12 +21,14 @@ required_conan_version = ">=1.55.0"
 
 class LeptonicaConan(ConanFile):
     name = "leptonica"
-    url = "https://github.com/conan-io/conan-center-index"
-    description = "Library containing software that is broadly useful for " \
-                  "image processing and image analysis applications."
-    topics = ("image", "multimedia", "format", "graphics")
-    homepage = "http://leptonica.org"
+    description = (
+        "Library containing software that is broadly useful for "
+        "image processing and image analysis applications."
+    )
     license = "BSD 2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://leptonica.org"
+    topics = ("image", "multimedia", "format", "graphics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -172,7 +183,12 @@ class LeptonicaConan(ConanFile):
                 replace_in_file(self, cmakelists_src, "if (JP2K_FOUND)", "if(0)")
                 replace_in_file(self, cmake_configure, "if (JP2K_FOUND)", "if(0)")
         else:
-            replace_in_file(self, cmakelists, "set(JP2K_INCLUDE_DIRS ${OPENJPEG_INCLUDE_DIRS})", "set(JP2K_INCLUDE_DIRS ${OpenJPEG_INCLUDE_DIRS})")
+            replace_in_file(
+                self,
+                cmakelists,
+                "set(JP2K_INCLUDE_DIRS ${OPENJPEG_INCLUDE_DIRS})",
+                "set(JP2K_INCLUDE_DIRS ${OpenJPEG_INCLUDE_DIRS})",
+            )
             if not self.options.with_openjpeg:
                 replace_in_file(self, cmake_configure, "if(JP2K_FOUND)", "if(0)")
 
@@ -185,11 +201,16 @@ class LeptonicaConan(ConanFile):
             if not self.options.with_webp:
                 replace_in_file(self, cmakelists_src, "if (WEBP_FOUND)", "if(0)")
                 replace_in_file(self, cmake_configure, "if (WEBP_FOUND)", "if(0)")
-        replace_in_file(self, cmakelists_src,
-                              "if (WEBP_FOUND)",
-                              "if (WEBP_FOUND)\n"
-                              "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
-                              "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})")
+        replace_in_file(
+            self,
+            cmakelists_src,
+            "if (WEBP_FOUND)",
+            (
+                "if (WEBP_FOUND)\n"
+                "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
+                "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})"
+            ),
+        )
         replace_in_file(self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}")
 
         # Remove detection of fmemopen() on macOS < 10.13
@@ -198,11 +219,12 @@ class LeptonicaConan(ConanFile):
         # deprecation macros.
         if self.settings.os == "Macos" and self.settings.os.version:
             if Version(self.settings.os.version) < "10.13":
-                replace_in_file(self, cmake_configure,
-                                      "set(functions_list\n    "
-                                      "fmemopen\n    fstatat\n)",
-                                      "set(functions_list\n    "
-                                      "fstatat\n)")
+                replace_in_file(
+                    self,
+                    cmake_configure,
+                    "set(functions_list\n    fmemopen\n    fstatat\n)",
+                    "set(functions_list\n    fstatat\n)",
+                )
 
     def build(self):
         self._patch_sources()
@@ -213,7 +235,12 @@ class LeptonicaConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "leptonica-license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "leptonica-license.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))  # since 1.81.0
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -221,7 +248,9 @@ class LeptonicaConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"leptonica": "Leptonica::Leptonica"}
+            {
+                "leptonica": "Leptonica::Leptonica",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

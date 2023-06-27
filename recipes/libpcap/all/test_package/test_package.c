@@ -2,12 +2,11 @@
 
 #include "pcap.h"
 
-int main(void)
-{
+int main(void) {
     char errbuf[PCAP_ERRBUF_SIZE] = {0};
     bpf_u_int32 netp = 0;
     bpf_u_int32 maskp = 0;
-    const char* dev = NULL;
+    const char *dev = NULL;
 
     // device lookup
     dev = pcap_lookupdev(errbuf);

@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
@@ -10,10 +17,11 @@ required_conan_version = ">=1.53.0"
 class LibeventConan(ConanFile):
     name = "libevent"
     description = "libevent - an event notification library"
-    topics = ("event", "notification", "networking", "async")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libevent/libevent"
-    license = "BSD-3-Clause"
+    topics = ("event", "notification", "networking", "async")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -74,9 +82,12 @@ class LibeventConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # relocatable shared libs on macOS
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "AddEventLibrary.cmake"),
-                              "INSTALL_NAME_DIR \"${CMAKE_INSTALL_PREFIX}/lib\"",
-                              "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "cmake", "AddEventLibrary.cmake"),
+            'INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"',
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -94,7 +105,7 @@ class LibeventConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Libevent")
-        self.cpp_info.set_property("pkg_config_name", "libevent") # exist in libevent for historical reason
+        self.cpp_info.set_property("pkg_config_name", "libevent")  # exist in libevent for historical reason
 
         # core
         self.cpp_info.components["core"].set_property("cmake_target_name", "libevent::core")

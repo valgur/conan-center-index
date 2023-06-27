@@ -4,10 +4,10 @@
 #include <stdio.h>
 
 int main() {
-  printf("CryptoPP version: %d\n", CRYPTOPP_VERSION);
+    printf("CryptoPP version: %d\n", CRYPTOPP_VERSION);
 
-  CryptoPP::AutoSeededRandomPool rng;
-  printf("This is a random number from CryptoPP: %d\n", rng.GenerateByte());
+    CryptoPP::AutoSeededRandomPool rng;
+    printf("This is a random number from CryptoPP: %d\n", rng.GenerateByte());
 
-  return 0;
+    return 0;
 }

@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class ScnlibConan(ConanFile):
     name = "scnlib"
     description = "scanf for modern C++"
@@ -17,17 +18,18 @@ class ScnlibConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eliaskosunen/scnlib"
     topics = ("parsing", "io", "scanf")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "header_only": [True, False],
         "shared": [True, False],
         "fPIC": [True, False],
+        "header_only": [True, False],
     }
     default_options = {
-        "header_only": False,
         "shared": False,
         "fPIC": True,
+        "header_only": False,
     }
 
     @property
@@ -45,7 +47,7 @@ class ScnlibConan(ConanFile):
         if self.options.header_only or self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.header_only:
-            del self.options.shared
+            self.options.rm_safe("shared")
 
     def layout(self):
         if self.options.header_only:
@@ -57,14 +59,14 @@ class ScnlibConan(ConanFile):
         if Version(self.version) >= "1.0":
             self.requires("fast_float/5.2.0")
 
+    def package_id(self):
+        if self.info.options.header_only:
+            self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192 if Version(self.version) >= "1.0" else 191)
-
-    def package_id(self):
-        if self.info.options.header_only:
-            self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -95,17 +97,49 @@ class ScnlibConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if self.options.header_only:
-            copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+            copy(
+                self,
+                "*",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
             src_folder = os.path.join(self.source_folder, "src")
             if Version(self.version) >= "1.0":
-                copy(self, "reader_*.cpp", src=src_folder, dst=os.path.join(self.package_folder, "include", "scn", "reader"))
-                copy(self, "vscan.cpp", src=src_folder, dst=os.path.join(self.package_folder, "include", "scn", "scan"))
-                copy(self, "locale.cpp", src=src_folder, dst=os.path.join(self.package_folder, "include", "scn", "detail"))
-                copy(self, "file.cpp", src=src_folder, dst=os.path.join(self.package_folder, "include", "scn", "detail"))
+                copy(
+                    self,
+                    "reader_*.cpp",
+                    src=src_folder,
+                    dst=os.path.join(self.package_folder, "include", "scn", "reader"),
+                )
+                copy(
+                    self,
+                    "vscan.cpp",
+                    src=src_folder,
+                    dst=os.path.join(self.package_folder, "include", "scn", "scan"),
+                )
+                copy(
+                    self,
+                    "locale.cpp",
+                    src=src_folder,
+                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
+                )
+                copy(
+                    self,
+                    "file.cpp",
+                    src=src_folder,
+                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
+                )
             else:
-                copy(self, "*.cpp", src=src_folder, dst=os.path.join(self.package_folder, "include", "scn", "detail"))
+                copy(
+                    self,
+                    "*.cpp",
+                    src=src_folder,
+                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
+                )
         else:
             cmake = CMake(self)
             cmake.install()

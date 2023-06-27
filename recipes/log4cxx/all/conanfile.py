@@ -1,19 +1,27 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
 import textwrap
 
-required_conan_version = ">=1.43.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.53.0"
 
 
 class Log4cxxConan(ConanFile):
     name = "log4cxx"
     description = "Logging framework for C++ patterned after Apache log4j"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://logging.apache.org/log4cxx"
     topics = ("logging", "log")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,37 +32,6 @@ class Log4cxxConan(ConanFile):
         "fPIC": True,
     }
 
-    generators = "cmake", "cmake_find_package", "pkg_config"
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
-    def export_sources(self):
-        self.copy("CMakeLists.txt")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            del self.options.fPIC
-
-    def requirements(self):
-        self.requires("apr/1.7.0")
-        self.requires("apr-util/1.6.1")
-        self.requires("expat/2.4.2")
-        if self.settings.os != "Windows":
-            self.requires("odbc/2.3.9")
-
     @property
     def _compilers_minimum_version(self):
         return {
@@ -64,14 +41,35 @@ class Log4cxxConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("apr/1.7.0")
+        self.requires("apr-util/1.6.1")
+        self.requires("expat/2.4.2")
+        if self.settings.os != "Windows":
+            self.requires("odbc/2.3.9")
+
     def validate(self):
         # TODO: if compiler doesn't support C++17, boost can be used instead
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warn("log4cxx requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif tools.Version(self.settings.compiler.version) < minimum_version:
+        elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("log4cxx requires a compiler that supports at least C++17")
 
     def build_requirements(self):
@@ -79,55 +77,53 @@ class Log4cxxConan(ConanFile):
             self.build_requires("pkgconf/1.7.4")
 
     def source(self):
-        #OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
-        #'source_subfolder\\src\\test\\resources\\output\\xyz\\:'
+        # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
+        # 'source_subfolder\\src\\test\\resources\\output\\xyz\\:'
         pattern = "*[!:]"
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True,
-                  pattern=pattern)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, pattern=pattern)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["LOG4CXX_INSTALL_PDB"] = self.settings.os == "Windows"
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
-    def _configure_cmake(self):
-        if not self._cmake:
-            self._cmake = CMake(self)
-            self._cmake.definitions["BUILD_TESTING"] = False
-            if self.settings.os == "Windows":
-                self._cmake.definitions["LOG4CXX_INSTALL_PDB"] = False
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("NOTICE", src=self._source_subfolder, dst="licenses")
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"log4cxx": "log4cxx::log4cxx"}
+            {
+                "log4cxx": "log4cxx::log4cxx",
+            },
         )
 
-    @staticmethod
-    def _create_cmake_module_alias_targets(module_file, targets):
+    def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(alias=alias, aliased=aliased))
-        tools.save(module_file, content)
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

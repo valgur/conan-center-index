@@ -7,17 +7,15 @@ namespace boost = BOOST_NAMESPACE;
 
 using namespace boost::coroutines;
 
-void cooperative(coroutine<void>::push_type &sink)
-{
-  std::cout << "Hello";
-  sink();
-  std::cout << "world";
+void cooperative(coroutine<void>::push_type &sink) {
+    std::cout << "Hello";
+    sink();
+    std::cout << "world";
 }
 
-int main()
-{
-  coroutine<void>::pull_type source(cooperative);
-  std::cout << ", ";
-  source();
-  std::cout << "!\n";
+int main() {
+    coroutine<void>::pull_type source(cooperative);
+    std::cout << ", ";
+    source();
+    std::cout << "!\n";
 }

@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -10,11 +18,11 @@ required_conan_version = ">=1.53.0"
 
 class CAresConan(ConanFile):
     name = "c-ares"
+    description = "A C library for asynchronous DNS requests"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "A C library for asynchronous DNS requests"
-    topics = ("dns", "resolver", "async")
     homepage = "https://c-ares.haxx.se/"
+    topics = ("dns", "resolver", "async")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

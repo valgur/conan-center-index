@@ -1,23 +1,27 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.33.0"
+import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.52.0"
 
 
 class CotilaConan(ConanFile):
     name = "cotila"
     description = "A compile time linear algebra system"
-    homepage = "https://github.com/calebzulawski/cotila"
-    topics = ("c++", "math", "linear algebra", "compile-time")
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
-    no_copy_source = True
+    homepage = "https://github.com/calebzulawski/cotila"
+    topics = ("c++", "math", "linear algebra", "compile-time", "header-only")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -32,9 +36,15 @@ class CotilaConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, "17")
+            check_min_cppstd(self, "17")
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -44,23 +54,28 @@ class CotilaConan(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("{} {} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name, self.version))
+            self.output.warn(
+                "{} {} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(
+                    self.name, self.version
+                )
+            )
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration("{} {} requires C++17, which your compiler does not support.".format(self.name, self.version))
-
-
-    def package_id(self):
-        self.info.header_only()
+            raise ConanInvalidConfiguration(
+                "{} {} requires C++17, which your compiler does not support.".format(self.name, self.version)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True,
-                  destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="include/*", src=self._source_subfolder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(self, pattern="include/*", src=self.source_folder)
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.names["cmake_find_package"] = "cotila"
         self.cpp_info.names["cmake_find_package_multi"] = "cotila"
-

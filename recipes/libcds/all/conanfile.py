@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -12,9 +19,9 @@ class LibcdsConan(ConanFile):
     name = "libcds"
     description = "C++11 library of Concurrent Data Structures."
     license = "BSL-1.0"
-    topics = ("concurrent", "lock-free", "containers", "hazard-pointer", "rcu")
-    homepage = "https://github.com/khizmax/libcds"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/khizmax/libcds"
+    topics = ("concurrent", "lock-free", "containers", "hazard-pointer", "rcu")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

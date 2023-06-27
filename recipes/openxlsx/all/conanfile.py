@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class OpenXlsxConan(ConanFile):
     name = "openxlsx"
     description = "reading, writing, creating and modifying Microsoft Excel® (.xlsx) files."
@@ -15,6 +16,8 @@ class OpenXlsxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/troldal/OpenXLSX"
     topics = ("excel", "spreadsheet", "xlsx")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -77,7 +80,12 @@ class OpenXlsxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

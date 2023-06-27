@@ -11,25 +11,32 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class PatchElfConan(ConanFile):
     name = "patchelf"
-    package_type = "application"
     description = "A small utility to modify the dynamic linker and RPATH of ELF executables"
-    topics = ("conan", "elf", "linker", "interpreter", "RPATH", "binaries")
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/NixOS/patchelf"
-    license = "GPL-3.0-or-later"
+    topics = ("elf", "linker", "interpreter", "RPATH", "binaries")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def build_requirements(self):
-        self.tool_requires("libtool/2.4.6")
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if not is_apple_os(self) and self.settings.os not in ("FreeBSD", "Linux"):
-            raise ConanInvalidConfiguration("PatchELF is only available for GNU-like operating systems (e.g. Linux)")
+            raise ConanInvalidConfiguration(
+                "PatchELF is only available for GNU-like operating systems (e.g. Linux)"
+            )
+
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.6")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,17 +62,18 @@ class PatchElfConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
 
         autotools = Autotools(self)
         autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

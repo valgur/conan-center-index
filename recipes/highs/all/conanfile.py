@@ -17,6 +17,8 @@ class HiGHSConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.highs.dev/"
     topics = ("simplex", "interior point", "solver", "linear", "programming")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

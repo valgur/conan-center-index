@@ -10,14 +10,15 @@ required_conan_version = ">=1.54.0"
 
 class LibsndfileConan(ConanFile):
     name = "libsndfile"
-    license = "LGPL-2.1"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.mega-nerd.com/libsndfile"
     description = (
         "Libsndfile is a library of C routines for reading and writing files "
         "containing sampled audio data."
     )
+    license = "LGPL-2.1"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.mega-nerd.com/libsndfile"
     topics = ("audio",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -45,9 +46,9 @@ class LibsndfileConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_alsa
+            self.options.rm_safe("with_alsa")
         if Version(self.version) < "1.1.0":
-            del self.options.with_mpeg
+            self.options.rm_safe("with_mpeg")
 
     def configure(self):
         if self.options.shared:
@@ -73,8 +74,12 @@ class LibsndfileConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Sndio"] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Speex"] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
+        tc.variables[
+            "CMAKE_DISABLE_FIND_PACKAGE_Sndio"
+        ] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
+        tc.variables[
+            "CMAKE_DISABLE_FIND_PACKAGE_Speex"
+        ] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SQLite3"] = True  # only used for regtest
         tc.variables["ENABLE_EXTERNAL_LIBS"] = self.options.with_external_libs
         if not self.options.with_external_libs:
@@ -122,10 +127,9 @@ class LibsndfileConan(ConanFile):
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["sndfile"].libs = ["sndfile"]
         if self.options.with_external_libs:
-            self.cpp_info.components["sndfile"].requires.extend([
-                "ogg::ogg", "vorbis::vorbismain", "vorbis::vorbisenc",
-                "flac::flac", "opus::opus",
-            ])
+            self.cpp_info.components["sndfile"].requires.extend(
+                ["ogg::ogg", "vorbis::vorbismain", "vorbis::vorbisenc", "flac::flac", "opus::opus"]
+            )
         if self.options.get_safe("with_mpeg", False):
             self.cpp_info.components["sndfile"].requires.append("mpg123::mpg123")
             self.cpp_info.components["sndfile"].requires.append("libmp3lame::libmp3lame")

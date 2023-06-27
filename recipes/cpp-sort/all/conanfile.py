@@ -8,7 +8,7 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class CppSortConan(ConanFile):
@@ -17,7 +17,9 @@ class CppSortConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Morwenn/cpp-sort"
-    topics = "cpp-sort", "sorting", "algorithms"
+    topics = ("cpp-sort", "sorting", "algorithms", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -32,7 +34,7 @@ class CppSortConan(ConanFile):
             "msvc": "192",
             "apple-clang": "9.4",
             "clang": "3.8",
-            "gcc": "5.5"
+            "gcc": "5.5",
         }
 
     def layout(self):
@@ -72,7 +74,7 @@ class CppSortConan(ConanFile):
             self.output.warn(msg)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -91,7 +93,9 @@ class CppSortConan(ConanFile):
         else:
             license_files = ["LICENSE.txt", "NOTICE.txt"]
         for license_file in license_files:
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
 
         # Remove CMake config files (only files in lib)
         rmdir(self, os.path.join(self.package_folder, "lib"))

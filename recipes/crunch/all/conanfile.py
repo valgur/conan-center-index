@@ -10,16 +10,19 @@ required_conan_version = ">=1.52.0"
 class CrunchConan(ConanFile):
     name = "crunch"
     description = "Advanced DXTc texture compression and transcoding library"
+    license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/BinomialLLC/crunch"
     topics = ("DXTc", "texture", "compression", "decompression", "transcoding")
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "Zlib"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 

@@ -10,11 +10,13 @@ required_conan_version = ">=1.52.0"
 class GnuConfigConan(ConanFile):
     name = "gnu-config"
     description = "The GNU config.guess and config.sub scripts"
-    homepage = "https://savannah.gnu.org/projects/config/"
+    license = ("GPL-3.0-or-later", "autoconf-special-exception")
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("gnu", "config", "autotools", "canonical", "host", "build", "target", "triplet")
-    license = "GPL-3.0-or-later", "autoconf-special-exception"
-    os = "arch", "compiler", "build_type", "arch"
+    homepage = "https://savannah.gnu.org/projects/config/"
+    topics = ("gnu", "config", "autotools", "canonical", "host", "build", "target", "triplet", "header-only")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def export_sources(self):
@@ -27,8 +29,7 @@ class GnuConfigConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)

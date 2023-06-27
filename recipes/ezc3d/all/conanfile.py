@@ -13,9 +13,9 @@ class Ezc3dConan(ConanFile):
     name = "ezc3d"
     description = "EZC3D is an easy to use reader, modifier and writer for C3D format files."
     license = "MIT"
-    topics = ("ezc3d", "c3d")
-    homepage = "https://github.com/pyomeca/ezc3d"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pyomeca/ezc3d"
+    topics = ("c3d",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -78,18 +78,22 @@ class Ezc3dConan(ConanFile):
         # TODO: to remove once cmake_find_package* removed in conan v2
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"ezc3d": "ezc3d::ezc3d"}
+            {
+                "ezc3d": "ezc3d::ezc3d",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -101,7 +105,9 @@ class Ezc3dConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ezc3d")
 
         self.cpp_info.includedirs.append(os.path.join("include", "ezc3d"))
-        lib_suffix = {"Debug": "_debug"}.get(str(self.settings.build_type), "")
+        lib_suffix = {
+            "Debug": "_debug",
+        }.get(str(self.settings.build_type), "")
         self.cpp_info.libs = [f"ezc3d{lib_suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]

@@ -7,27 +7,26 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class Sol2Conan(ConanFile):
     name = "sol2"
-    package_type = "header-library"
     description = "a C++ <-> Lua API wrapper with advanced features and top notch performance"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ThePhD/sol2"
-    topics = ("lua", "c++", "bindings", "scripting")
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+    topics = ("lua", "c++", "bindings", "scripting", "header-only")
 
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_lua": ["lua", "luajit"],
     }
-
     default_options = {
         "with_lua": "lua",
     }
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -77,14 +76,8 @@ class Sol2Conan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -98,11 +91,26 @@ class Sol2Conan(ConanFile):
     def package(self):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
-            copy(self, "*", src=os.path.join(self.source_folder, "sol"), dst=os.path.join(self.package_folder, "include", "sol"))
+            copy(
+                self,
+                "*",
+                src=os.path.join(self.source_folder, "sol"),
+                dst=os.path.join(self.package_folder, "include", "sol"),
+            )
             copy(self, "sol.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
         else:
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "*.hpp",
+                src=os.path.join(self.source_folder, "include"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "sol2")

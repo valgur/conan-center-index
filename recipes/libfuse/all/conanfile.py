@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class LibfuseConan(ConanFile):
     name = "libfuse"
+    description = "The reference implementation of the Linux FUSE interface"
+    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libfuse/libfuse"
-    license = "LGPL-2.1"
-    description = "The reference implementation of the Linux FUSE interface"
-    topics = ("fuse", "libfuse", "filesystem", "linux")
+    topics = ("fuse", "filesystem", "linux")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,7 +30,7 @@ class LibfuseConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
@@ -74,4 +75,3 @@ class LibfuseConan(ConanFile):
         self.cpp_info.system_libs = ["pthread"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["dl", "rt"])
-

@@ -8,12 +8,15 @@ required_conan_version = ">=1.53.0"
 
 class MuparserxConan(ConanFile):
     name = "muparserx"
-    description = "A C++ Library for Parsing Expressions with Strings, Complex Numbers, Vectors, Matrices and more"
+    description = (
+        "A C++ Library for Parsing Expressions with Strings, Complex Numbers, Vectors, Matrices and more"
+    )
     license = "BSD-2-Clause"
-    topics = ("math", "parser")
-    homepage = "https://beltoforion.de/article.php?a=muparserx"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://beltoforion.de/article.php?a=muparserx"
+    topics = ("math", "parser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,8 +39,7 @@ class MuparserxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -50,7 +52,8 @@ class MuparserxConan(ConanFile):
 
     def _patch_sources(self):
         replace_in_file(
-            self, os.path.join(self.source_folder, "CMakeLists.txt"),
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
             "set_property(TARGET muparserx PROPERTY POSITION_INDEPENDENT_CODE TRUE)",
             "",
         )

@@ -6,18 +6,19 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
+
 
 class NamedTypeConan(ConanFile):
     name = "namedtype"
+    description = "Implementation of strong types in C++"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/joboccara/NamedType"
-    description = "Implementation of strong types in C++"
     topics = ("strong types", "header-only")
+
     package_type = "header-library"
-    settings = "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -59,7 +60,9 @@ class NamedTypeConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if self.version == "20190324":
             copy(
                 self,
@@ -76,5 +79,8 @@ class NamedTypeConan(ConanFile):
             )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if self.version == "20190324":
             self.cpp_info.includedirs.append(os.path.join("include", "NamedType"))

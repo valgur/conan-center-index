@@ -1,7 +1,6 @@
 #include "meshoptimizer.h"
 
-int main()
-{
+int main() {
     meshopt_encodeVertexVersion(0);
     meshopt_encodeIndexVersion(1);
 

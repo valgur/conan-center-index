@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class DBCpppConan(ConanFile):
     name = "dbcppp"
     description = ".dbc library for C/C++"
@@ -16,13 +17,16 @@ class DBCpppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xR3b0rn/dbcppp"
     topics = ("can", "dbc", "network")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_tools": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_tools": False,
     }
@@ -83,13 +87,17 @@ class DBCpppConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        rm(self, "KCD2Network.cpp", self.source_folder, recursive=True) # Cannot support KCD because of weird dll issues
+        rm(
+            self, "KCD2Network.cpp", self.source_folder, recursive=True
+        )  # Cannot support KCD because of weird dll issues
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

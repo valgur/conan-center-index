@@ -12,10 +12,11 @@ required_conan_version = ">=1.53.0"
 class AwsCrtCpp(ConanFile):
     name = "aws-crt-cpp"
     description = "C++ wrapper around the aws-c-* libraries. Provides Cross-Platform Transport Protocols and SSL/TLS implementations for C++."
-    license = "Apache-2.0",
+    license = ("Apache-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-crt-cpp"
     topics = ("aws", "amazon", "cloud", "wrapper")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -86,7 +87,9 @@ class AwsCrtCpp(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-crt-cpp"))
@@ -106,7 +109,7 @@ class AwsCrtCpp(ConanFile):
             "aws-c-auth::aws-c-auth-lib",
             "aws-c-mqtt::aws-c-mqtt-lib",
             "aws-c-s3::aws-c-s3-lib",
-            "aws-checksums::aws-checksums-lib"
+            "aws-checksums::aws-checksums-lib",
         ]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

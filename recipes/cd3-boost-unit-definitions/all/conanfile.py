@@ -6,17 +6,20 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class PackageConan(ConanFile):
     name = "cd3-boost-unit-definitions"
-    description = "A collection of pre-defined types and unit instances for working with Boost.Units quantities."
+    description = (
+        "A collection of pre-defined types and unit instances for working with Boost.Units quantities."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CD3/BoostUnitDefinitions"
     topics = ("physical dimensions", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -49,13 +52,8 @@ class PackageConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False
-        )
-        if (
-            minimum_version
-            and Version(self.settings.compiler.version) < minimum_version
-        ):
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -85,9 +83,7 @@ class PackageConan(ConanFile):
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "BoostUnitDefinitions")
-        self.cpp_info.set_property(
-            "cmake_target_name", "BoostUnitDefinitions::BoostUnitDefinitions"
-        )
+        self.cpp_info.set_property("cmake_target_name", "BoostUnitDefinitions::BoostUnitDefinitions")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "BoostUnitDefinitions"

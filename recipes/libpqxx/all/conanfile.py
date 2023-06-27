@@ -10,14 +10,16 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibpqxxConan(ConanFile):
     name = "libpqxx"
     description = "The official C++ client API for PostgreSQL"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jtv/libpqxx"
-    topics = ("libpqxx", "postgres", "postgresql", "database", "db")
+    topics = ("postgres", "postgresql", "database", "db")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -38,13 +40,13 @@ class LibpqxxConan(ConanFile):
             return {
                 "gcc": "7",
                 "clang": "6",
-                "apple-clang": "10"
+                "apple-clang": "10",
             }
         else:
             return {
                 "gcc": "7" if Version(self.version) < "7.5.0" else "8",
                 "clang": "6",
-                "apple-clang": "10"
+                "apple-clang": "10",
             }
 
     @property
@@ -80,7 +82,9 @@ class LibpqxxConan(ConanFile):
             check_min_vs(self, 192)
 
         if is_msvc(self) and self.options.shared and msvc_runtime_flag(self) == "MTd":
-            raise ConanInvalidConfiguration(f"{self.ref} recipes does not support build shared library with MTd runtime.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} recipes does not support build shared library with MTd runtime."
+            )
 
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
@@ -93,10 +97,12 @@ class LibpqxxConan(ConanFile):
             os_version = self.settings.get_safe("os.version")
             if os_version and Version(os_version) < self._mac_os_minimum_required_version:
                 raise ConanInvalidConfiguration(
-                    "Macos Mojave (10.14) and earlier cannot to be built because C++ standard library too old.")
+                    "Macos Mojave (10.14) and earlier cannot to be built "
+                    "because C++ standard library too old."
+                )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -116,7 +122,9 @@ class LibpqxxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
 
         cmake = CMake(self)
         cmake.install()

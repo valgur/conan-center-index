@@ -1,7 +1,7 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #ifdef WIN32
-#    include <winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "mosquitto.h"
@@ -13,14 +13,14 @@
 void connect_callback(struct mosquitto *mosq, void *obj, int result) {}
 void message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message) {}
 
-int main(int argc, char * argv []) {
-    struct mosquitto* st_mosquitto = NULL;
+int main() {
+    struct mosquitto *st_mosquitto = NULL;
 
-    #ifdef WIN32
-        WORD wVersionRequested = MAKEWORD(2, 2);
-        WSADATA wsaData;
-        WSAStartup(wVersionRequested, &wsaData);
-    #endif
+#ifdef WIN32
+    WORD wVersionRequested = MAKEWORD(2, 2);
+    WSADATA wsaData;
+    WSAStartup(wVersionRequested, &wsaData);
+#endif
 
     puts("mosquitto_lib_init");
     if (mosquitto_lib_init() != MOSQ_ERR_SUCCESS) {

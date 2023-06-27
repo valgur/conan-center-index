@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -12,10 +19,11 @@ required_conan_version = ">=1.53.0"
 class LibarchiveConan(ConanFile):
     name = "libarchive"
     description = "Multi-format archive and compression library"
-    topics = "archive", "compression", "tar", "data-compressor", "file-compression"
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libarchive.org"
-    license = "BSD-2-Clause"
+    topics = ("archive", "compression", "tar", "data-compressor", "file-compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -68,7 +76,7 @@ class LibarchiveConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "3.4.2":
-            del self.options.with_mbedtls
+            self.options.rm_safe("with_mbedtls")
 
     def configure(self):
         if self.options.shared:
@@ -114,7 +122,9 @@ class LibarchiveConan(ConanFile):
             # TODO: add cng when available in CCI
             raise ConanInvalidConfiguration("cng recipe not yet available in CCI.")
         if self.options.with_expat and self.options.with_libxml2:
-            raise ConanInvalidConfiguration("libxml2 and expat options are exclusive. They cannot be used together as XML engine")
+            raise ConanInvalidConfiguration(
+                "libxml2 and expat options are exclusive. They cannot be used together as XML engine"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -11,10 +11,10 @@ required_conan_version = ">=1.54.0"
 class LibYAMLConan(ConanFile):
     name = "libyaml"
     description = "LibYAML is a YAML parser and emitter library."
-    topics = ("yaml", "parser", "emitter")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yaml/libyaml"
-    license = "MIT"
+    topics = ("yaml", "parser", "emitter")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,7 +28,7 @@ class LibYAMLConan(ConanFile):
     }
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -56,8 +56,13 @@ class LibYAMLConan(ConanFile):
 
     def package(self):
         # 0.2.2 has LICENSE, 0.2.5 has License, so ignore case
-        copy(self, pattern="License", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"), ignore_case=True)
+        copy(
+            self,
+            pattern="License",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            ignore_case=True,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -65,7 +70,9 @@ class LibYAMLConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"yaml": "yaml::yaml"}
+            {
+                "yaml": "yaml::yaml",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -88,10 +95,7 @@ class LibYAMLConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "yaml")
         self.cpp_info.libs = ["yaml"]
         if is_msvc(self):
-            self.cpp_info.defines = [
-                "YAML_DECLARE_EXPORT" if self.options.shared
-                else "YAML_DECLARE_STATIC"
-            ]
+            self.cpp_info.defines = ["YAML_DECLARE_EXPORT" if self.options.shared else "YAML_DECLARE_STATIC"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "yaml"

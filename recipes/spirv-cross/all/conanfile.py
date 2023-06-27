@@ -11,12 +11,14 @@ required_conan_version = ">=1.54.0"
 
 class SpirvCrossConan(ConanFile):
     name = "spirv-cross"
-    description = "SPIRV-Cross is a practical tool and library for performing " \
-                  "reflection on SPIR-V and disassembling SPIR-V back to high level languages."
+    description = (
+        "SPIRV-Cross is a practical tool and library for performing "
+        "reflection on SPIR-V and disassembling SPIR-V back to high level languages."
+    )
     license = "Apache-2.0"
-    topics = ("reflection", "disassembler", "spirv", "spir-v", "glsl", "hlsl")
-    homepage = "https://github.com/KhronosGroup/SPIRV-Cross"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/SPIRV-Cross"
+    topics = ("reflection", "disassembler", "spirv", "spir-v", "glsl", "hlsl")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -60,21 +62,29 @@ class SpirvCrossConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
             # these options don't contribute to shared binary
-            del self.options.c_api
-            del self.options.util
+            self.options.rm_safe("c_api")
+            self.options.rm_safe("util")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if not self.options.glsl and \
-           (self.options.hlsl or self.options.msl or self.options.cpp or self.options.reflect):
+        if not self.options.glsl and (
+            self.options.hlsl or self.options.msl or self.options.cpp or self.options.reflect
+        ):
             raise ConanInvalidConfiguration("hlsl, msl, cpp and reflect require glsl enabled")
 
-        if self.options.build_executable and \
-           not (self.options.glsl and self.options.hlsl and self.options.msl and
-                self.options.cpp and self.options.reflect and self.options.get_safe("util", True)):
-            raise ConanInvalidConfiguration("executable can't be built without glsl, hlsl, msl, cpp, reflect and util")
+        if self.options.build_executable and not (
+            self.options.glsl
+            and self.options.hlsl
+            and self.options.msl
+            and self.options.cpp
+            and self.options.reflect
+            and self.options.get_safe("util", True)
+        ):
+            raise ConanInvalidConfiguration(
+                "executable can't be built without glsl, hlsl, msl, cpp, reflect and util"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,7 +102,9 @@ class SpirvCrossConan(ConanFile):
         tc.variables["SPIRV_CROSS_ENABLE_CPP"] = self.options.cpp
         tc.variables["SPIRV_CROSS_ENABLE_REFLECT"] = self.options.reflect
         tc.variables["SPIRV_CROSS_ENABLE_C_API"] = self.options.get_safe("c_api", True)
-        tc.variables["SPIRV_CROSS_ENABLE_UTIL"] = self.options.get_safe("util", False) or self.options.build_executable
+        tc.variables["SPIRV_CROSS_ENABLE_UTIL"] = (
+            self.options.get_safe("util", False) or self.options.build_executable
+        )
         tc.variables["SPIRV_CROSS_SKIP_INSTALL"] = False
         tc.variables["SPIRV_CROSS_FORCE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.options.namespace
@@ -114,8 +126,14 @@ class SpirvCrossConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         if self.options.shared and self.options.build_executable:
             for static_lib in [
-                "spirv-cross-core", "spirv-cross-glsl", "spirv-cross-hlsl", "spirv-cross-msl",
-                "spirv-cross-cpp", "spirv-cross-reflect", "spirv-cross-c", "spirv-cross-util",
+                "spirv-cross-core",
+                "spirv-cross-glsl",
+                "spirv-cross-hlsl",
+                "spirv-cross-msl",
+                "spirv-cross-cpp",
+                "spirv-cross-reflect",
+                "spirv-cross-c",
+                "spirv-cross-util",
             ]:
                 rm(self, f"*{static_lib}.*", os.path.join(self.package_folder, "lib"))
 
@@ -183,7 +201,9 @@ class SpirvCrossConan(ConanFile):
             prefix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
             self.cpp_info.components[target_lib].libs = [f"{target_lib}{prefix}"]
             self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "spirv_cross"))
-            self.cpp_info.components[target_lib].defines.append(f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.options.namespace}")
+            self.cpp_info.components[target_lib].defines.append(
+                f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.options.namespace}"
+            )
             self.cpp_info.components[target_lib].requires = requires
             if self.settings.os in ["Linux", "FreeBSD"] and self.options.glsl:
                 self.cpp_info.components[target_lib].system_libs.append("m")
@@ -195,8 +215,12 @@ class SpirvCrossConan(ConanFile):
             # TODO: to remove in conan v2 once legacy generators removed
             self.cpp_info.components[target_lib].names["cmake_find_package"] = target_lib
             self.cpp_info.components[target_lib].names["cmake_find_package_multi"] = target_lib
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
 
         for target_lib, requires in self._spirv_cross_components.items():
             _register_component(target_lib, requires)

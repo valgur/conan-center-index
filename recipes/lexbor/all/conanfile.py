@@ -7,6 +7,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LexborConan(ConanFile):
     name = "lexbor"
     description = "Lexbor is development of an open source HTML Renderer library"
@@ -46,8 +47,14 @@ class LexborConan(ConanFile):
 
     def validate(self):
         # static build on Windows will be support by future release. (https://github.com/lexbor/lexbor/issues/69)
-        if str(self.version) == "2.1.0" and self.options.shared == False and (is_msvc(self) or self._is_mingw):
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support static build on Windows(please use 2.2.0).")
+        if (
+            str(self.version) == "2.1.0"
+            and self.options.shared == False
+            and (is_msvc(self) or self._is_mingw)
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support static build on Windows(please use 2.2.0)."
+            )
 
         if self.options.build_separately:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support build_separately option(yet).")
@@ -70,7 +77,9 @@ class LexborConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -82,7 +91,9 @@ class LexborConan(ConanFile):
         self.cpp_info.components["_lexbor"].set_property("cmake_target_name", f"lexbor::{target}")
 
         self.cpp_info.components["_lexbor"].libs = [target]
-        self.cpp_info.components["_lexbor"].defines = ["LEXBOR_BUILD_SHARED" if self.options.shared else "LEXBOR_BUILD_STATIC"]
+        self.cpp_info.components["_lexbor"].defines = [
+            "LEXBOR_BUILD_SHARED" if self.options.shared else "LEXBOR_BUILD_STATIC"
+        ]
 
         if not self.options.shared:
             self.cpp_info.components["_lexbor"].defines.append("LEXBOR_STATIC")

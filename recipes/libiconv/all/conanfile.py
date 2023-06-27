@@ -2,15 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    rm,
-    rmdir
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -41,8 +33,11 @@ class LibiconvConan(ConanFile):
 
     @property
     def _is_clang_cl(self):
-        return self.settings.compiler == "clang" and self.settings.os == "Windows" and \
-               self.settings.compiler.get_safe("runtime")
+        return (
+            self.settings.compiler == "clang"
+            and self.settings.os == "Windows"
+            and self.settings.compiler.get_safe("runtime")
+        )
 
     @property
     def _msvc_tools(self):
@@ -86,12 +81,22 @@ class LibiconvConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        msvc_version = {"Visual Studio": "12", "msvc": "180"}
-        if is_msvc(self) and Version(self.settings.compiler.version) >= msvc_version[str(self.settings.compiler)]:
+        msvc_version = {
+            "Visual Studio": "12",
+            "msvc": "180",
+        }
+        if (
+            is_msvc(self)
+            and Version(self.settings.compiler.version) >= msvc_version[str(self.settings.compiler)]
+        ):
             # https://github.com/conan-io/conan/issues/6514
             tc.extra_cflags.append("-FS")
         if cross_building(self) and is_msvc(self):
-            triplet_arch_windows = {"x86_64": "x86_64", "x86": "i686", "armv8": "aarch64"}
+            triplet_arch_windows = {
+                "x86_64": "x86_64",
+                "x86": "i686",
+                "armv8": "aarch64",
+            }
             # ICU doesn't like GNU triplet of conan for msvc (see https://github.com/conan-io/conan/issues/12546)
             host_arch = triplet_arch_windows.get(str(self.settings.arch))
             build_arch = triplet_arch_windows.get(str(self._settings_build.arch))
@@ -99,10 +104,7 @@ class LibiconvConan(ConanFile):
             if host_arch and build_arch:
                 host = f"{host_arch}-w64-mingw32"
                 build = f"{build_arch}-w64-mingw32"
-                tc.configure_args.extend([
-                    f"--host={host}",
-                    f"--build={build}",
-                ])
+                tc.configure_args.extend([f"--host={host}", f"--build={build}"])
         env = tc.environment()
         if is_msvc(self) or self._is_clang_cl:
             cc, lib, link = self._msvc_tools
@@ -134,8 +136,11 @@ class LibiconvConan(ConanFile):
         fix_apple_shared_install_name(self)
         if (is_msvc(self) or self._is_clang_cl) and self.options.shared:
             for import_lib in ["iconv", "charset"]:
-                rename(self, os.path.join(self.package_folder, "lib", f"{import_lib}.dll.lib"),
-                             os.path.join(self.package_folder, "lib", f"{import_lib}.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", f"{import_lib}.dll.lib"),
+                    os.path.join(self.package_folder, "lib", f"{import_lib}.lib"),
+                )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")

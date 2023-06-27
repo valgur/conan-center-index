@@ -9,11 +9,13 @@ required_conan_version = ">=1.53.0"
 
 class FreeImageConan(ConanFile):
     name = "freeimage"
-    description = "Open Source library project for developers who would like to support popular graphics image formats"\
-                  "like PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
-    homepage = "https://freeimage.sourceforge.io"
+    description = (
+        "Open Source library project for developers who would like to support popular graphics image"
+        " formatslike PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
+    )
+    license = ("FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
-    license = "FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later"
+    homepage = "https://freeimage.sourceforge.io"
     topics = ("image", "decoding", "graphics")
 
     package_type = "library"
@@ -44,8 +46,6 @@ class FreeImageConan(ConanFile):
         "with_raw": True,
         "with_jxr": True,
     }
-
-    short_paths = True
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)

@@ -9,11 +9,12 @@ required_conan_version = ">=1.46.0"
 class LibschriftConan(ConanFile):
     name = "libschrift"
     description = "A lightweight TrueType font rendering library "
-    topics = ("truetype", "suckless", )
+    license = ("ISC",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tomolt/libschrift"
-    license = "ISC",
+    topics = ("truetype", "suckless")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,7 +25,8 @@ class LibschriftConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = ["CMakeLists.txt"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -32,25 +34,15 @@ class LibschriftConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

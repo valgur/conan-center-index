@@ -1,4 +1,4 @@
-  
+
 // Copyright (C) 2015-2021 Müller <jonathanmueller.dev@gmail.com>
 // This file is subject to the license terms in the LICENSE file
 // found in the top-level directory of this distribution.
@@ -16,11 +16,9 @@
 // alias namespace foonathan::memory as memory for easier access
 #include <foonathan/memory/namespace_alias.hpp>
 
-template <class RawAllocator>
-void do_sth(memory::allocator_reference<RawAllocator> ref);
+template <class RawAllocator> void do_sth(memory::allocator_reference<RawAllocator> ref);
 
-int main()
-{
+int main() {
     using namespace memory::literals;
 
     // storing stateless allocator by reference
@@ -57,9 +55,7 @@ int main()
     do_sth(any3);
 }
 
-template <class RawAllocator>
-void do_sth(memory::allocator_reference<RawAllocator> ref)
-{
+template <class RawAllocator> void do_sth(memory::allocator_reference<RawAllocator> ref) {
     // ref is a full-blown RawAllocator that provides all member functions,
     // so there is no need to use the allocator_traits
 

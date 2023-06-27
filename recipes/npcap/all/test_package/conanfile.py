@@ -35,9 +35,9 @@ class TestPackageConan(ConanFile):
             # Use libpcap DLL as a replacement for npcap DLL
             # It will not provide all the functions
             # but it will cover enough to check that what we compiled is correct
-            files.rm(self, "wpcap.dll", bindir)
-            files.copy(self, "pcap.dll", src=self.deps_cpp_info['libpcap'].bin_paths[0], dst=bindir)
-            files.rename(self, os.path.join(bindir, "pcap.dll"), os.path.join(bindir, "wpcap.dll"))
+            rm(self, "wpcap.dll", bindir)
+            copy(self, "pcap.dll", src=self.dependencies["libpcap"].cpp_info.bindirs[0], dst=bindir)
+            rename(self, os.path.join(bindir, "pcap.dll"), os.path.join(bindir, "wpcap.dll"))
 
             bin_path = os.path.join(bindir, "test_package")
             output = StringIO()

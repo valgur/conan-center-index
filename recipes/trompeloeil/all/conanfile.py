@@ -10,7 +10,7 @@ required_conan_version = ">=1.50.0"
 class TrompeloeilConan(ConanFile):
     name = "trompeloeil"
     description = "Header only C++14 mocking framework"
-    topics = ("trompeloeil", "header-only", "mocking")
+    topics = ("header-only", "mocking")
     homepage = "https://github.com/rollbear/trompeloeil"
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"
@@ -28,15 +28,19 @@ class TrompeloeilConan(ConanFile):
             check_min_cppstd(self, 14)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE*.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "trompeloeil")

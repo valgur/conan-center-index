@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_tsil_size'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -5,17 +8,18 @@ from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class TsilConan(ConanFile):
     name = "tsil"
+    description = "Two-loop Self-energy Integral Library"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.niu.edu/spmartin/TSIL/"
-    description = "Two-loop Self-energy Integral Library"
     topics = ("high-energy", "physics", "hep", "two-loop", "integrals")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -28,11 +32,12 @@ class TsilConan(ConanFile):
         "size": "long",
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _tsil_size(self):
         return "TSIL_SIZE_DOUBLE" if self.options.size == "double" else "TSIL_SIZE_LONG"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -40,18 +45,9 @@ class TsilConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -61,8 +57,7 @@ class TsilConan(ConanFile):
             raise ConanInvalidConfiguration(f"TSIL does not support {self.settings.compiler}")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

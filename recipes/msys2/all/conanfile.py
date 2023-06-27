@@ -33,21 +33,22 @@ class lock:
 
     __del__ = close
 
+
 class MSYS2Conan(ConanFile):
     name = "msys2"
     description = "MSYS2 is a software distro and building platform for Windows"
+    license = "MSYS license"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.msys2.org"
-    license = "MSYS license"
     topics = ("msys", "unix", "subsystem")
 
-    settings = "os", "arch"
-    # "exclude_files" "packages" "additional_packages" values are a comma separated list
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "exclude_files": ["ANY"],
         "packages": ["ANY"],
         "additional_packages": [None, "ANY"],
-        "no_kill": [True, False]
+        "no_kill": [True, False],
     }
     default_options = {
         "exclude_files": "*/link.exe",
@@ -56,12 +57,12 @@ class MSYS2Conan(ConanFile):
         "no_kill": False,
     }
 
-    short_paths = True
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
         del self.info.options.no_kill
 
     def validate(self):
@@ -71,8 +72,9 @@ class MSYS2Conan(ConanFile):
             raise ConanInvalidConfiguration("Only Windows x64 supported")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=False) # Preserve tarball root dir (msys64/)
+        get(
+            self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=False
+        )  # Preserve tarball root dir (msys64/)
 
     def _update_pacman(self):
         with chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
@@ -80,7 +82,9 @@ class MSYS2Conan(ConanFile):
                 self._kill_pacman()
 
                 # https://www.msys2.org/docs/ci/
-                self.run('bash -l -c "pacman --debug --noconfirm --ask 20 -Syuu"')  # Core update (in case any core packages are outdated)
+                self.run(
+                    'bash -l -c "pacman --debug --noconfirm --ask 20 -Syuu"'
+                )  # Core update (in case any core packages are outdated)
                 self._kill_pacman()
                 self.run('bash -l -c "pacman --debug --noconfirm --ask 20 -Syuu"')  # Normal update
                 self._kill_pacman()
@@ -94,15 +98,15 @@ class MSYS2Conan(ConanFile):
     def _kill_pacman(self):
         if self.options.no_kill:
             return
-        if (self.settings.os == "Windows"):
-            taskkill_exe = os.path.join(os.environ.get('SystemRoot'), 'system32', 'taskkill.exe')
+        if self.settings.os == "Windows":
+            taskkill_exe = os.path.join(os.environ.get("SystemRoot"), "system32", "taskkill.exe")
 
             log_out = True
             if log_out:
                 out = subprocess.PIPE
                 err = subprocess.STDOUT
             else:
-                out = open(os.devnull, 'w', encoding='UTF-8')
+                out = open(os.devnull, "w", encoding="UTF-8")
                 err = subprocess.PIPE
 
             if os.path.exists(taskkill_exe):
@@ -122,7 +126,7 @@ class MSYS2Conan(ConanFile):
 
     @property
     def _msys_dir(self):
-        subdir = "msys64" # top-level directoy in tarball
+        subdir = "msys64"  # top-level directoy in tarball
         return os.path.join(self.source_folder, subdir)
 
     def build(self):
@@ -141,23 +145,27 @@ class MSYS2Conan(ConanFile):
         with chdir(self, os.path.join(self._msys_dir, "usr", "bin")):
             for package in packages:
                 self.run(f'bash -l -c "pacman -S {package} --noconfirm"')
-            for package in ['pkgconf']:
+            for package in ["pkgconf"]:
                 self.run(f'bash -l -c "pacman -Rs -d -d $(pacman -Qsq {package}) --noconfirm"')
 
         self._kill_pacman()
 
         # create /tmp dir in order to avoid
         # bash.exe: warning: could not find /tmp, please create!
-        tmp_dir = os.path.join(self._msys_dir, 'tmp')
+        tmp_dir = os.path.join(self._msys_dir, "tmp")
         if not os.path.isdir(tmp_dir):
             os.makedirs(tmp_dir)
-        tmp_name = os.path.join(tmp_dir, 'dummy')
-        with open(tmp_name, 'a', encoding='UTF-8'):
+        tmp_name = os.path.join(tmp_dir, "dummy")
+        with open(tmp_name, "a", encoding="UTF-8"):
             os.utime(tmp_name, None)
 
         # Prepend the PKG_CONFIG_PATH environment variable with an eventual PKG_CONFIG_PATH environment variable
-        replace_in_file(self, os.path.join(self._msys_dir, "etc", "profile"),
-                              'PKG_CONFIG_PATH="', 'PKG_CONFIG_PATH="$PKG_CONFIG_PATH:')
+        replace_in_file(
+            self,
+            os.path.join(self._msys_dir, "etc", "profile"),
+            'PKG_CONFIG_PATH="',
+            'PKG_CONFIG_PATH="$PKG_CONFIG_PATH:',
+        )
 
     def package(self):
         excludes = None
@@ -170,11 +178,21 @@ class MSYS2Conan(ConanFile):
                     if fnmatch.fnmatch(fullname, exclude):
                         os.unlink(fullname)
         # See https://github.com/conan-io/conan-center-index/blob/master/docs/error_knowledge_base.md#kb-h013-default-package-layout
-        copy(self, "*", dst=os.path.join(self.package_folder, "bin", "msys64"), src=self._msys_dir, excludes=excludes)
-        shutil.copytree(os.path.join(self._msys_dir, "usr", "share", "licenses"),
-                        os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            dst=os.path.join(self.package_folder, "bin", "msys64"),
+            src=self._msys_dir,
+            excludes=excludes,
+        )
+        shutil.copytree(
+            os.path.join(self._msys_dir, "usr", "share", "licenses"),
+            os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

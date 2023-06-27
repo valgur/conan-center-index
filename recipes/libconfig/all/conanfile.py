@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibconfigConan(ConanFile):
     name = "libconfig"
     description = "C/C++ library for processing configuration files"
@@ -15,6 +16,8 @@ class LibconfigConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://hyperrealm.github.io/libconfig/"
     topics = ("conf", "config", "cfg", "configuration")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -41,8 +44,8 @@ class LibconfigConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables['BUILD_EXAMPLES'] = False
-        tc.variables['BUILD_TESTS'] = False
+        tc.variables["BUILD_EXAMPLES"] = False
+        tc.variables["BUILD_TESTS"] = False
         if is_apple_os(self):
             tc.preprocessor_definitions["HAVE_XLOCALE_H"] = 1
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
@@ -51,23 +54,26 @@ class LibconfigConan(ConanFile):
     def build(self):
         if Version(self.version) == "1.7.2":
             # https://github.com/hyperrealm/libconfig/issues/119
-            replace_in_file(self,
-                os.path.join(self.source_folder, "lib", "CMakeLists.txt"),
-                "_STDLIB_H",
-                "")
+            replace_in_file(self, os.path.join(self.source_folder, "lib", "CMakeLists.txt"), "_STDLIB_H", "")
         if Version(self.version) == "1.7.3":
-            replace_in_file(self,
+            replace_in_file(
+                self,
                 os.path.join(self.source_folder, "lib", "CMakeLists.txt"),
                 "target_compile_definitions(${libname}++ PUBLIC LIBCONFIGXX_STATIC)",
-                "target_compile_definitions(${libname}++ PUBLIC LIBCONFIG_STATIC LIBCONFIGXX_STATIC)")
+                "target_compile_definitions(${libname}++ PUBLIC LIBCONFIG_STATIC LIBCONFIGXX_STATIC)",
+            )
 
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
 
         cmake = CMake(self)
         cmake.install()

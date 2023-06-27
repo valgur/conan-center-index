@@ -14,14 +14,14 @@ required_conan_version = ">=1.54.0"
 
 class CyrusSaslConan(ConanFile):
     name = "cyrus-sasl"
-    license = "BSD-4-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.cyrusimap.org/sasl/"
     description = (
         "This is the Cyrus SASL API implementation. "
         "It can be used on the client or server side "
         "to provide authentication and authorization services."
     )
+    license = "BSD-4-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.cyrusimap.org/sasl/"
     topics = ("sasl", "authentication", "authorization")
 
     package_type = "library"
@@ -51,7 +51,7 @@ class CyrusSaslConan(ConanFile):
         "with_scram": True,
         "with_otp": True,
         "with_krb4": True,
-        "with_gssapi": False, # FIXME: should be True
+        "with_gssapi": False,  # FIXME: should be True
         "with_plain": True,
         "with_anon": True,
         "with_postgresql": False,
@@ -88,12 +88,10 @@ class CyrusSaslConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Cyrus SASL package is not compatible with Windows yet."
-            )
+            raise ConanInvalidConfiguration("Cyrus SASL package is not compatible with Windows yet.")
         if self.options.with_gssapi:
             raise ConanInvalidConfiguration(
-                f"{self.name}:with_gssapi=True requires krb5 recipe, not yet available in conan-center",
+                f"{self.name}:with_gssapi=True requires krb5 recipe, not yet available in conan-center"
             )
 
     def build_requirements(self):
@@ -116,26 +114,30 @@ class CyrusSaslConan(ConanFile):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         rootpath_no = lambda v, req: unix_path(self, self.dependencies[req].package_folder) if v else "no"
-        tc.configure_args.extend([
-            "--disable-sample",
-            "--disable-macos-framework",
-            "--with-dblib=none",
-            "--with-openssl={}".format(yes_no(self.options.with_openssl)),
-            "--enable-digest={}".format(yes_no(self.options.with_digest)),
-            "--enable-scram={}".format(yes_no(self.options.with_scram)),
-            "--enable-otp={}".format(yes_no(self.options.with_otp)),
-            "--enable-krb4={}".format(yes_no(self.options.with_krb4)),
-            "--enable-gssapi={}".format(yes_no(self.options.with_gssapi)),
-            "--enable-plain={}".format(yes_no(self.options.with_plain)),
-            "--enable-anon={}".format(yes_no(self.options.with_anon)),
-            "--enable-sql={}".format(
-                yes_no(self.options.with_postgresql or self.options.with_mysql or self.options.with_sqlite3),
-            ),
-            "--with-pgsql={}".format(rootpath_no(self.options.with_postgresql, "libpq")),
-            "--with-mysql={}".format(rootpath_no(self.options.with_mysql, "libmysqlclient")),
-            "--without-sqlite",
-            "--with-sqlite3={}".format(rootpath_no(self.options.with_sqlite3, "sqlite3")),
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-sample",
+                "--disable-macos-framework",
+                "--with-dblib=none",
+                "--with-openssl={}".format(yes_no(self.options.with_openssl)),
+                "--enable-digest={}".format(yes_no(self.options.with_digest)),
+                "--enable-scram={}".format(yes_no(self.options.with_scram)),
+                "--enable-otp={}".format(yes_no(self.options.with_otp)),
+                "--enable-krb4={}".format(yes_no(self.options.with_krb4)),
+                "--enable-gssapi={}".format(yes_no(self.options.with_gssapi)),
+                "--enable-plain={}".format(yes_no(self.options.with_plain)),
+                "--enable-anon={}".format(yes_no(self.options.with_anon)),
+                "--enable-sql={}".format(
+                    yes_no(
+                        self.options.with_postgresql or self.options.with_mysql or self.options.with_sqlite3
+                    )
+                ),
+                "--with-pgsql={}".format(rootpath_no(self.options.with_postgresql, "libpq")),
+                "--with-mysql={}".format(rootpath_no(self.options.with_mysql, "libmysqlclient")),
+                "--without-sqlite",
+                "--with-sqlite3={}".format(rootpath_no(self.options.with_sqlite3, "sqlite3")),
+            ]
+        )
         if self.options.with_gssapi:
             tc.configure_args.append("--with-gss_impl=mit")
         tc.generate()
@@ -149,9 +151,12 @@ class CyrusSaslConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                           src=os.path.dirname(gnu_config),
-                           dst=os.path.join(self.source_folder, "config"))
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=os.path.join(self.source_folder, "config"),
+                )
 
     def build(self):
         self._patch_sources()

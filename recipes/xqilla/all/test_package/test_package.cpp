@@ -2,13 +2,12 @@
 
 int main() {
 
-  XQilla xqilla;
-  auto context = xqilla.createContext();
-   
-  if(!context) {
-    return 1;
-  }
+    XQilla xqilla;
+    auto context = xqilla.createContext();
 
-  return 0;
-   
+    if (!context) {
+        return 1;
+    }
+
+    return 0;
 }

@@ -24,12 +24,16 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             with open("test.ini", "w") as fn:
-                fn.write(textwrap.dedent("""\
+                fn.write(
+                    textwrap.dedent(
+                        """\
                     [protocol]
                     version = 1337
                     [user]
                     name = conan-center-index
                     email = info@conan.io
-                    """))
+                    """
+                    )
+                )
             bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
             self.run(bin_path, env="conanrun")

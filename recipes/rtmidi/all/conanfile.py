@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -10,11 +17,12 @@ required_conan_version = ">=1.54.0"
 
 class RtMidiConan(ConanFile):
     name = "rtmidi"
+    description = "Realtime MIDI input/output"
+    license = "MIT+send-patches-upstream"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.music.mcgill.ca/~gary/rtmidi/"
-    description = "Realtime MIDI input/output"
     topics = ("midi",)
-    license = "MIT+send-patches-upstream"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -34,7 +42,7 @@ class RtMidiConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -60,7 +68,9 @@ class RtMidiConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "${ALSA_LIBRARY}", "ALSA::ALSA")
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "${ALSA_LIBRARY}", "ALSA::ALSA"
+        )
 
     def build(self):
         self._patch_sources()
@@ -69,7 +79,9 @@ class RtMidiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

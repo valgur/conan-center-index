@@ -1,39 +1,44 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.33.0"
+import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get
+
+required_conan_version = ">=1.53.0"
 
 
 class AstroInformaticsSO3(ConanFile):
     name = "astro-informatics-so3"
+    description = "Fast and accurate Wigner transforms"
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/astro-informatics/so3"
-    description = "Fast and accurate Wigner transforms"
-    settings = "os", "arch", "compiler", "build_type"
     topics = ("physics", "astrophysics", "radio interferometry")
 
-    options = {"fPIC": [True, False]}
-    default_options = {"fPIC": True}
-
-    generators = "cmake", "cmake_find_package"
-    exports_sources = ["CMakeLists.txt"]
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.cppstd
-        del self.settings.compiler.libcxx
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("fftw/3.3.9")
@@ -46,24 +51,25 @@ class AstroInformaticsSO3(ConanFile):
             )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def cmake(self):
-        if not hasattr(self, "_cmake"):
-            self._cmake = CMake(self)
-            self._cmake.definitions["conan_deps"] = False
-            self._cmake.definitions["BUILD_TESTING"] = False
-            self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["conan_deps"] = False
+        tc.variables["BUILD_TESTING"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        self.cmake.build()
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        self.cmake.install()
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["astro-informatics-so3"]

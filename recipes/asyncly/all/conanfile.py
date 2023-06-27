@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PackageConan(ConanFile):
     name = "asyncly"
     description = "High level concurrency primitives for C++"
@@ -17,6 +18,7 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/goto-opensource/asyncly"
     topics = ("c++", "asynchronous", "communication")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -67,7 +69,9 @@ class PackageConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -87,7 +91,9 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -98,7 +104,11 @@ class PackageConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["asyncly"]
-        self.cpp_info.requires = ["boost::headers", "function2::function2", "prometheus-cpp::prometheus-cpp-core"]
+        self.cpp_info.requires = [
+            "boost::headers",
+            "function2::function2",
+            "prometheus-cpp::prometheus-cpp-core",
+        ]
 
         self.cpp_info.set_property("cmake_file_name", "asyncly")
         self.cpp_info.set_property("cmake_target_name", "asyncly::asyncly")

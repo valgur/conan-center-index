@@ -1,26 +1,26 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int main(int argc, char *argv[])
-{
+int main() {
     int audio_rate = MIX_DEFAULT_FREQUENCY;
     int audio_format = MIX_DEFAULT_FORMAT;
     int audio_channels = 2;
-    const SDL_version * version = Mix_Linked_Version();
+    const SDL_version *version = Mix_Linked_Version();
     printf("%s", "SDL2_mixer version: ");
     printf("%d.", (int)(version->major));
     printf("%d.", (int)(version->minor));
     printf("%d\n", (int)(version->patch));
 
     if (SDL_Init(SDL_INIT_AUDIO) == 0) {
-        int initted = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_MID | MIX_INIT_OPUS);
-        printf("%s %s\n", "Supported MIX_INIT_MOD: " , (initted & MIX_INIT_MOD  ? "Yes" : "No"));
-        printf("%s %s\n", "Supported MIX_INIT_MP3: " , (initted & MIX_INIT_MP3  ? "Yes" : "No"));
-        printf("%s %s\n", "Supported MIX_INIT_OGG: " , (initted & MIX_INIT_OGG  ? "Yes" : "No"));
+        int initted = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG |
+                               MIX_INIT_MID | MIX_INIT_OPUS);
+        printf("%s %s\n", "Supported MIX_INIT_MOD: ", (initted & MIX_INIT_MOD ? "Yes" : "No"));
+        printf("%s %s\n", "Supported MIX_INIT_MP3: ", (initted & MIX_INIT_MP3 ? "Yes" : "No"));
+        printf("%s %s\n", "Supported MIX_INIT_OGG: ", (initted & MIX_INIT_OGG ? "Yes" : "No"));
         printf("%s %s\n", "Supported MIX_INIT_FLAC: ", (initted & MIX_INIT_FLAC ? "Yes" : "No"));
-        printf("%s %s\n", "Supported MIX_INIT_MID: " , (initted & MIX_INIT_MID  ? "Yes" : "No"));
+        printf("%s %s\n", "Supported MIX_INIT_MID: ", (initted & MIX_INIT_MID ? "Yes" : "No"));
         printf("%s %s\n", "Supported MIX_INIT_OPUS: ", (initted & MIX_INIT_OPUS ? "Yes" : "No"));
 
         if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, 4096) == 0) {

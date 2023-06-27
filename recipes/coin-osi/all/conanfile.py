@@ -15,12 +15,13 @@ required_conan_version = ">=1.57.0"
 class CoinOsiConan(ConanFile):
     name = "coin-osi"
     description = "COIN-OR Linear Programming Solver"
-    topics = ("clp", "simplex", "solver", "linear", "programming")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/Osi"
-    license = "EPL-2.0"
+    topics = ("clp", "simplex", "solver", "linear programming")
+
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -75,10 +76,7 @@ class CoinOsiConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--without-blas",
-            "--without-lapack",
-        ])
+        tc.configure_args.extend(["--without-blas", "--without-lapack"])
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
             tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
@@ -108,7 +106,12 @@ class CoinOsiConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -123,8 +126,11 @@ class CoinOsiConan(ConanFile):
         fix_apple_shared_install_name(self)
         if is_msvc(self):
             for l in ("Osi", "OsiCommonTests"):
-                rename(self, os.path.join(self.package_folder, "lib", f"lib{l}.lib"),
-                             os.path.join(self.package_folder, "lib", f"{l}.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", f"lib{l}.lib"),
+                    os.path.join(self.package_folder, "lib", f"{l}.lib"),
+                )
 
     def package_info(self):
         self.cpp_info.components["libosi"].set_property("pkg_config_name", "osi")

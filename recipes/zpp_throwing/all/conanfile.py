@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class ZppThrowingConan(ConanFile):
     name = "zpp_throwing"
     description = "Using coroutines to implement C++ exceptions for freestanding environments"
@@ -43,7 +44,9 @@ class ZppThrowingConan(ConanFile):
         # TODO: currently msvc isn't suppported
         # see https://github.com/eyalz800/zpp_throwing/issues/7
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC (yet). See https://github.com/eyalz800/zpp_throwing/issues/7")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support MSVC (yet). See https://github.com/eyalz800/zpp_throwing/issues/7"
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -60,23 +63,26 @@ class ZppThrowingConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support."
             )
 
-        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "14" and self.settings.compiler.get_safe("libcxx") != "libc++":
-            raise ConanInvalidConfiguration(f"{self.ref} requires libc++ with 'coroutines' supported on your compiler.")
+        if (
+            self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "14"
+            and self.settings.compiler.get_safe("libcxx") != "libc++"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires libc++ with 'coroutines' supported on your compiler."
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
+        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []
@@ -84,4 +90,3 @@ class ZppThrowingConan(ConanFile):
 
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             self.cpp_info.cxxflags.append("-fcoroutines-ts")
-

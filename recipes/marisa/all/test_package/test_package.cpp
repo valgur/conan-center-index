@@ -1,6 +1,5 @@
-#include <cstdlib>
 #include "marisa.h"
-
+#include <cstdlib>
 
 int main() {
     int x = 100;

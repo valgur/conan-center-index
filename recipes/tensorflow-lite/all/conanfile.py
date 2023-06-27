@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_module_file'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -13,12 +16,15 @@ required_conan_version = ">=1.53.0"
 
 class TensorflowLiteConan(ConanFile):
     name = "tensorflow-lite"
+    description = (
+        "TensorFlow Lite is a set of tools that enables on-device machine learning by helping developers run"
+        " their models on mobile, embedded, and IoT devices."
+    )
     license = "Apache-2.0"
-    homepage = "https://www.tensorflow.org/lite/guide"
     url = "https://github.com/conan-io/conan-center-index"
-    description = ("TensorFlow Lite is a set of tools that enables on-device machine learning "
-                   "by helping developers run their models on mobile, embedded, and IoT devices.")
+    homepage = "https://www.tensorflow.org/lite/guide"
     topics = ("machine-learning", "neural-networks", "deep-learning")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -35,10 +41,8 @@ class TensorflowLiteConan(ConanFile):
         "with_ruy": False,
         "with_nnapi": False,
         "with_mmap": True,
-        "with_xnnpack": True
+        "with_xnnpack": True,
     }
-
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -54,16 +58,20 @@ class TensorflowLiteConan(ConanFile):
             "apple-clang": "5.1",
         }
 
+    @property
+    def _module_file(self):
+        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_nnapi
-            del self.options.with_mmap
+            self.options.rm_safe("with_nnapi")
+            self.options.rm_safe("with_mmap")
         if self.settings.os == "Macos":
-            del self.options.with_nnapi
+            self.options.rm_safe("with_nnapi")
 
     def configure(self):
         if self.options.shared:
@@ -109,16 +117,18 @@ class TensorflowLiteConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
-        tc.variables.update({
-            "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": True,
-            "TFLITE_ENABLE_RUY": self.options.with_ruy,
-            "TFLITE_ENABLE_NNAPI": self.options.get_safe("with_nnapi", False),
-            "TFLITE_ENABLE_GPU": False,
-            "TFLITE_ENABLE_XNNPACK": self.options.with_xnnpack,
-            "TFLITE_ENABLE_MMAP": self.options.get_safe("with_mmap", False),
-            "FETCHCONTENT_FULLY_DISCONNECTED": True,
-            "clog_POPULATED": True,
-        })
+        tc.variables.update(
+            {
+                "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": True,
+                "TFLITE_ENABLE_RUY": self.options.with_ruy,
+                "TFLITE_ENABLE_NNAPI": self.options.get_safe("with_nnapi", False),
+                "TFLITE_ENABLE_GPU": False,
+                "TFLITE_ENABLE_XNNPACK": self.options.with_xnnpack,
+                "TFLITE_ENABLE_MMAP": self.options.get_safe("with_mmap", False),
+                "FETCHCONTENT_FULLY_DISCONNECTED": True,
+                "clog_POPULATED": True,
+            }
+        )
         if self.settings.arch == "armv8":
             # Not defined by Conan for Apple Silicon. See https://github.com/conan-io/conan/pull/8026
             tc.variables["CMAKE_SYSTEM_PROCESSOR"] = "arm64"
@@ -132,25 +142,14 @@ class TensorflowLiteConan(ConanFile):
         cmake.configure(build_script_folder=join("tensorflow", "lite"))
         cmake.build()
 
-    @staticmethod
-    def _create_cmake_module_alias_target(conanfile, module_file):
-        aliased = "tensorflowlite::tensorflowlite"
-        alias = "tensorflow::tensorflowlite"
-        content = textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(conanfile, module_file, content)
-
-    @property
-    def _module_file(self):
-        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package(self):
         copy(self, "LICENSE", self.source_folder, join(self.package_folder, "licenses"))
-        copy(self, "*.h", join(self.source_folder, "tensorflow", "lite"), join(self.package_folder, "include", "tensorflow", "lite"))
+        copy(
+            self,
+            "*.h",
+            join(self.source_folder, "tensorflow", "lite"),
+            join(self.package_folder, "include", "tensorflow", "lite"),
+        )
         copy(self, "*.a", self.build_folder, join(self.package_folder, "lib"))
         copy(self, "*.so", self.build_folder, join(self.package_folder, "lib"))
         copy(self, "*.dylib", self.build_folder, join(self.package_folder, "lib"))

@@ -4,8 +4,8 @@
 #include <nuklear.h>
 
 int main() {
-  struct nk_context ctx;
-  nk_init_default(&ctx, NULL);
+    struct nk_context ctx;
+    nk_init_default(&ctx, NULL);
 
-  return 0;
+    return 0;
 }

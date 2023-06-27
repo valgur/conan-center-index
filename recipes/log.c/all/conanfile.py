@@ -8,10 +8,10 @@ required_conan_version = ">=1.53.0"
 
 class LogcConan(ConanFile):
     name = "log.c"
+    description = "A simple logging library implemented in C99"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rxi/log.c"
-    description = "A simple logging library implemented in C99"
     topics = ("logging", "log", "logging-library", "logc", "purec", "c99")
 
     package_type = "library"
@@ -27,7 +27,8 @@ class LogcConan(ConanFile):
         "color": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

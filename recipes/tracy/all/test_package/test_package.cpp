@@ -4,8 +4,8 @@
 #include <Tracy.hpp>
 #endif
 
-int main(int argc, char **argv) {
-  ZoneScopedN("main");
+int main() {
+    ZoneScopedN("main");
 
-  return 0;
+    return 0;
 }

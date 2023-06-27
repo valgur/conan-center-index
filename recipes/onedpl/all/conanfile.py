@@ -5,20 +5,24 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.2 <1.51.0 || >=1.51.2"
+required_conan_version = ">=1.52.0"
 
 
 class OneDplConan(ConanFile):
     name = "onedpl"
-    description = ("OneDPL (Formerly Parallel STL) is an implementation of "
-                   "the C++ standard library algorithms"
-                   "with support for execution policies, as specified in "
-                   "ISO/IEC 14882:2017 standard, commonly called C++17")
+    description = (
+        "OneDPL (Formerly Parallel STL) is an implementation of "
+        "the C++ standard library algorithms"
+        "with support for execution policies, as specified in "
+        "ISO/IEC 14882:2017 standard, commonly called C++17"
+    )
     license = ("Apache-2.0", "LLVM-exception")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/oneapi-src/oneDPL"
-    topics = ("stl", "parallelism")
-    settings = "os", "arch", "build_type", "compiler"
+    topics = ("stl", "parallelism", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "backend": ["tbb", "serial"],
     }
@@ -26,6 +30,9 @@ class OneDplConan(ConanFile):
         "backend": "tbb",
     }
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.backend == "tbb":
@@ -41,20 +48,34 @@ class OneDplConan(ConanFile):
             else:
                 check_min_cppstd(self, 11)
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         version_major = int(str(Version(self.version).major)[0:4])
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         if version_major < 2021:
-            copy(self, "*", src=os.path.join(self.source_folder, "stdlib"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                "*",
+                src=os.path.join(self.source_folder, "stdlib"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
         else:
-            copy(self, "LICENSE.txt", src=os.path.join(self.source_folder, "licensing"), dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                "LICENSE.txt",
+                src=os.path.join(self.source_folder, "licensing"),
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ParallelSTL")

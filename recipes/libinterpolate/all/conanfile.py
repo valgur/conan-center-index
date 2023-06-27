@@ -6,17 +6,20 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class PackageConan(ConanFile):
     name = "libinterpolate"
-    description = "A C++ interpolation library with a simple interface that supports multiple interpolation methods."
+    description = (
+        "A C++ interpolation library with a simple interface that supports multiple interpolation methods."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CD3/libInterpolate"
     topics = ("math", "spline", "interpolation", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -34,7 +37,6 @@ class PackageConan(ConanFile):
             "apple-clang": "10",
         }
 
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -42,19 +44,20 @@ class PackageConan(ConanFile):
         self.requires("boost/1.80.0", transitive_headers=True)
         self.requires("eigen/3.3.7", transitive_headers=True)
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libInterpolate currently only supports Linux. Upstream PR's are welcome (https://github.com/CD3/libInterpolate/issues/14).")
+            raise ConanInvalidConfiguration(
+                "libInterpolate currently only supports Linux. Upstream PR's are welcome"
+                " (https://github.com/CD3/libInterpolate/issues/14)."
+            )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False
-        )
-        if (
-            minimum_version
-            and Version(self.settings.compiler.version) < minimum_version
-        ):
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
@@ -79,17 +82,12 @@ class PackageConan(ConanFile):
             src=os.path.join(self.source_folder, "src"),
         )
 
-    def package_id(self):
-        self.info.clear()
-
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "libInterpolate")
-        self.cpp_info.set_property(
-            "cmake_target_name", "libInterpolate::Interpolate"
-        )
+        self.cpp_info.set_property("cmake_target_name", "libInterpolate::Interpolate")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "libInterpolate"
@@ -98,4 +96,4 @@ class PackageConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "libInterpolate"
         self.cpp_info.components["Interpolate"].names["cmake_find_package"] = "Interpolate"
         self.cpp_info.components["Interpolate"].names["cmake_find_package_multi"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen","boost::boost"]
+        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen", "boost::boost"]

@@ -11,11 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class CycloneDDSConan(ConanFile):
     name = "cyclonedds"
+    description = (
+        "Eclipse Cyclone DDS - An implementation of the OMG Data Distribution Service (DDS) specification"
+    )
     license = "EPL-2.0"
-    homepage = "https://cyclonedds.io/"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Eclipse Cyclone DDS - An implementation"\
-                  " of the OMG Data Distribution Service (DDS) specification"
+    homepage = "https://cyclonedds.io/"
     topics = ("dds", "ipc", "ros", "middleware")
 
     package_type = "library"
@@ -24,8 +25,8 @@ class CycloneDDSConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_ssl": [True, False],
-        "with_shm" : [True, False],
-        "enable_security" : [True, False],
+        "with_shm": [True, False],
+        "enable_security": [True, False],
     }
     default_options = {
         "shared": False,
@@ -34,8 +35,6 @@ class CycloneDDSConan(ConanFile):
         "with_shm": False,
         "enable_security": False,
     }
-
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -65,7 +64,7 @@ class CycloneDDSConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        cmake_layout(self,src_folder="src")
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_shm:
@@ -75,8 +74,9 @@ class CycloneDDSConan(ConanFile):
 
     def validate(self):
         if self.options.enable_security and not self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} currently do not support"\
-                                            "static build and security on")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} currently do not support static build and security on"
+            )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -144,12 +144,7 @@ class CycloneDDSConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["CycloneDDS"].system_libs = ["dl", "pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["CycloneDDS"].system_libs = [
-                "ws2_32",
-                "dbghelp",
-                "bcrypt",
-                "iphlpapi"
-            ]
+            self.cpp_info.components["CycloneDDS"].system_libs = ["ws2_32", "dbghelp", "bcrypt", "iphlpapi"]
 
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "CycloneDDS"

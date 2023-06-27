@@ -11,14 +11,16 @@ required_conan_version = ">=1.54.0"
 
 class LiblslConan(ConanFile):
     name = "liblsl"
-    description = "Lab Streaming Layer is a C++ library for multi-modal " \
-                  "time-synched data transmission over the local network"
+    description = (
+        "Lab Streaming Layer is a C++ library for multi-modal "
+        "time-synched data transmission over the local network"
+    )
     license = "MIT"
-    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal",
-              "transmission")
-    homepage = "https://github.com/sccn/liblsl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sccn/liblsl"
+    topics = ("labstreaminglayer", "lsl", "network", "stream", "signal", "transmission")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -43,10 +45,6 @@ class LiblslConan(ConanFile):
             "apple-clang": "10",
         }
 
-    def requirements(self):
-        self.requires("boost/1.81.0")
-        self.requires("pugixml/1.13")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -58,18 +56,21 @@ class LiblslConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("boost/1.81.0")
+        self.requires("pugixml/1.13")
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -89,7 +90,7 @@ class LiblslConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
                 "set(CMAKE_POSITION_INDEPENDENT_CODE ON)",
-                ""
+                "",
             )
 
     def build(self):

@@ -13,8 +13,7 @@ class TaoCPPPEGTLConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/pegtl"
     description = "Parsing Expression Grammar Template Library"
-    topics = ("peg", "header-only", "cpp",
-              "parsing", "cpp17", "cpp11", "grammar")
+    topics = ("peg", "header-only", "cpp", "parsing", "cpp17", "cpp11", "grammar")
     no_copy_source = True
     settings = "os", "arch", "compiler", "build_type"
 
@@ -33,7 +32,12 @@ class TaoCPPPEGTLConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "pegtl")

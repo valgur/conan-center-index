@@ -13,11 +13,12 @@ required_conan_version = ">=1.54.0"
 class IXWebSocketConan(ConanFile):
     name = "ixwebsocket"
     description = "IXWebSocket is a C++ library for WebSocket client and server development"
-    topics = ("socket", "websocket")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/machinezone/IXWebSocket"
-    license = "BSD-3-Clause"
+    topics = ("socket", "websocket")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -32,8 +33,6 @@ class IXWebSocketConan(ConanFile):
         "with_zlib": True,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         # After version 11.0.8, IXWebSocket is fully compatible with C++ 11.
@@ -45,7 +44,7 @@ class IXWebSocketConan(ConanFile):
             del self.options.fPIC
         if Version(self.version) < "10.1.5":
             # zlib is always required before 10.1.5
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:
@@ -78,7 +77,9 @@ class IXWebSocketConan(ConanFile):
         if self.options.tls == "applessl" and not is_apple_os(self):
             raise ConanInvalidConfiguration("Can only use Apple SSL on Apple.")
         elif not self._can_use_openssl and self.options.tls == "openssl":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support OpenSSL with Windows; use v7.9.3 or newer for this to be valid")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support OpenSSL with Windows; use v7.9.3 or newer for this to be valid"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -108,17 +109,26 @@ class IXWebSocketConan(ConanFile):
         if Version(self.version) < "11.1.4":
             replace_in_file(self, cmakelists, "add_library( ixwebsocket STATIC", "add_library( ixwebsocket")
         if Version(self.version) < "9.8.5":
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib",
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib",
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin",
+            )
         elif Version(self.version) < "11.4.3":
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION lib",
-                                  "ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION lib",
+                "ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin",
+            )
         else:
-            replace_in_file(self, cmakelists,
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                                  "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION bin")
+            replace_in_file(
+                self,
+                cmakelists,
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
+                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION bin",
+            )
 
     def build(self):
         self._patch_sources()

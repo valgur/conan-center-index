@@ -13,12 +13,13 @@ required_conan_version = ">=1.55.0"
 
 class M4Conan(ConanFile):
     name = "m4"
-    package_type = "application"
     description = "GNU M4 is an implementation of the traditional Unix macro processor"
-    topics = ("macro", "preprocessor")
-    homepage = "https://www.gnu.org/software/m4/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/m4/"
+    topics = ("macro", "preprocessor")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -55,18 +56,17 @@ class M4Conan(ConanFile):
             # https://docs.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions
             # Because the %n format is inherently insecure, it is disabled by default. If %n is encountered in a format string,
             # the invalid parameter handler is invoked, as described in Parameter Validation. To enable %n support, see _set_printf_count_output.
-            tc.configure_args.extend([
-                "gl_cv_func_printf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-                "gl_cv_func_snprintf_directive_n=no",
-            ])
+            tc.configure_args.extend(
+                [
+                    "gl_cv_func_printf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                    "gl_cv_func_snprintf_directive_n=no",
+                ]
+            )
             if self.settings.build_type in ("Debug", "RelWithDebInfo"):
                 tc.extra_ldflags.append("-PDB")
         elif self.settings.compiler == "clang" and Version(self.version) < "1.4.19":
-            tc.extra_cflags.extend([
-                "-rtlib=compiler-rt",
-                "-Wno-unused-command-line-argument",
-            ])
+            tc.extra_cflags.extend(["-rtlib=compiler-rt", "-Wno-unused-command-line-argument"])
         if self.settings.os == "Windows":
             tc.configure_args.append("ac_cv_func__set_invalid_parameter_handler=yes")
         env = tc.environment()
@@ -107,6 +107,8 @@ class M4Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

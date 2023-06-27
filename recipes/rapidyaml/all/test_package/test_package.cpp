@@ -1,6 +1,6 @@
-#include <c4/yml/std/std.hpp>
-#include <c4/yml/parse.hpp>
 #include <c4/yml/emit.hpp>
+#include <c4/yml/parse.hpp>
+#include <c4/yml/std/std.hpp>
 
 #include <iostream>
 
@@ -13,7 +13,7 @@ int main() {
 #endif
 
     auto const value = tree["foo"].val();
-    
+
     std::cout << value << std::endl;
 
     auto bar = tree.rootref()["bar"];

@@ -12,12 +12,13 @@ required_conan_version = ">=1.53.0"
 
 class SpdlogConan(ConanFile):
     name = "spdlog"
-    package_type = "library"
     description = "Fast C++ logging library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gabime/spdlog"
     topics = ("logger", "logging", "log-filtering", "file sink", "header-only")
-    license = "MIT"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -74,7 +75,9 @@ class SpdlogConan(ConanFile):
         if self.settings.os != "Windows" and (self.options.wchar_support or self.options.wchar_filenames):
             raise ConanInvalidConfiguration("wchar is only supported under windows")
         if self.options.get_safe("shared") and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Visual Studio build for shared library with MT runtime is not supported"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -115,11 +118,14 @@ class SpdlogConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.header_only:
-            copy(self,
-                 src=os.path.join(self.source_folder, "include"),
-                 pattern="*.h", dst=os.path.join(self.package_folder, "include"),
-                 # Unvendor bundled dependencies https://github.com/gabime/spdlog/commit/18495bf25dad3a4e8c2fe3777a5f79acecde27e3
-                 excludes=("spdlog/fmt/bundled/*"))
+            copy(
+                self,
+                src=os.path.join(self.source_folder, "include"),
+                pattern="*.h",
+                dst=os.path.join(self.package_folder, "include"),
+                # Unvendor bundled dependencies https://github.com/gabime/spdlog/commit/18495bf25dad3a4e8c2fe3777a5f79acecde27e3
+                excludes="spdlog/fmt/bundled/*",
+            )
         else:
             cmake = CMake(self)
             cmake.install()

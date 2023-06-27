@@ -4,18 +4,19 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 import os
 
+required_conan_version = ">=1.53.0"
 
-required_conan_version = ">=1.52.0"
 
 class CgnsConan(ConanFile):
     name = "cgns"
-    description = "Standard for data associated with the numerical solution " \
-                  "of fluid dynamics equations."
-    topics = "data", "cfd", "fluids"
-    homepage = "http://cgns.org/"
+    description = "Standard for data associated with the numerical solution of fluid dynamics equations."
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    homepage = "http://cgns.org/"
+    topics = ("data", "cfd", "fluids")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -38,18 +39,9 @@ class CgnsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -59,13 +51,19 @@ class CgnsConan(ConanFile):
             self.requires("hdf5/1.14.0")
 
     def validate(self):
-        if self.info.options.parallel and not (self.info.options.with_hdf5 and self.dependencies["hdf5"].options.parallel):
+        if self.info.options.parallel and not (
+            self.info.options.with_hdf5 and self.dependencies["hdf5"].options.parallel
+        ):
             raise ConanInvalidConfiguration("The option 'parallel' requires HDF5 with parallel=True")
-        if self.info.options.parallel and self.info.options.with_hdf5 and self.dependencies["hdf5"].options.enable_cxx:
+        if (
+            self.info.options.parallel
+            and self.info.options.with_hdf5
+            and self.dependencies["hdf5"].options.enable_cxx
+        ):
             raise ConanInvalidConfiguration("The option 'parallel' requires HDF5 with enable_cxx=False")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         cmake = CMakeDeps(self)
@@ -109,7 +107,9 @@ class CgnsConan(ConanFile):
 
         if self.options.shared:
             self.cpp_info.components["cgns_shared"].set_property("cmake_target_name", "CGNS::cgns_shared")
-            self.cpp_info.components["cgns_shared"].libs = ["cgnsdll" if self.settings.os == "Windows" else "cgns"]
+            self.cpp_info.components["cgns_shared"].libs = [
+                "cgnsdll" if self.settings.os == "Windows" else "cgns"
+            ]
             self.cpp_info.components["cgns_shared"].libdirs = ["lib"]
             if self.options.with_hdf5:
                 self.cpp_info.components["cgns_shared"].requires = ["hdf5::hdf5"]

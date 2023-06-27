@@ -14,9 +14,10 @@ class SfmlConan(ConanFile):
     name = "sfml"
     description = "Simple and Fast Multimedia Library."
     license = "Zlib"
-    topics = ("multimedia", "games", "graphics", "audio")
-    homepage = "https://www.sfml-dev.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.sfml-dev.org"
+    topics = ("multimedia", "games", "graphics", "audio")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -78,7 +79,9 @@ class SfmlConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["SFML_DEPENDENCIES_INSTALL_PREFIX"] = self.package_folder.replace("\\", "/")
-        tc.cache_variables["SFML_MISC_INSTALL_PREFIX"] = os.path.join(self.package_folder, "licenses").replace("\\", "/")
+        tc.cache_variables["SFML_MISC_INSTALL_PREFIX"] = os.path.join(
+            self.package_folder, "licenses"
+        ).replace("\\", "/")
         tc.variables["SFML_BUILD_WINDOW"] = self.options.window
         tc.variables["SFML_BUILD_GRAPHICS"] = self.options.graphics
         tc.variables["SFML_BUILD_NETWORK"] = self.options.network
@@ -106,18 +109,20 @@ class SfmlConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {values["target"]: f"SFML::{component}" for component, values in self._sfml_components.items()}
+            {values["target"]: f"SFML::{component}" for component, values in self._sfml_components.items()},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -197,58 +202,68 @@ class SfmlConan(ConanFile):
                 "target": "sfml-system",
                 "libs": [f"sfml-system{suffix}"],
                 "system_libs": winmm() + pthread() + rt() + android() + log(),
-            },
+            }
         }
         if self.settings.os in ["Windows", "Android", "iOS"]:
             sfml_main_suffix = "-d" if self.settings.build_type == "Debug" else ""
             sfmlmain_libs = [f"sfml-main{sfml_main_suffix}"]
             if self.settings.os == "Android":
                 sfmlmain_libs.append(f"sfml-activity{suffix}")
-            sfml_components.update({
-                "main": {
-                    "target": "sfml-main",
-                    "libs": sfmlmain_libs,
-                    "system_libs": android() + log(),
-                },
-            })
+            sfml_components.update(
+                {"main": {"target": "sfml-main", "libs": sfmlmain_libs, "system_libs": android() + log()}}
+            )
         if self.options.window:
-            sfml_components.update({
-                "window": {
-                    "target": "sfml-window",
-                    "libs": [f"sfml-window{suffix}"],
-                    "requires": ["system"] + opengl() + xorg() + libudev(),
-                    "system_libs": gdi32() + winmm() + usbhid() + android() + opengles_android(),
-                    "frameworks": foundation() + appkit() + iokit() + carbon() +
-                                  uikit() + coregraphics() + quartzcore() +
-                                  coremotion() + opengles_ios(),
-                },
-            })
+            sfml_components.update(
+                {
+                    "window": {
+                        "target": "sfml-window",
+                        "libs": [f"sfml-window{suffix}"],
+                        "requires": ["system"] + opengl() + xorg() + libudev(),
+                        "system_libs": gdi32() + winmm() + usbhid() + android() + opengles_android(),
+                        "frameworks": foundation()
+                        + appkit()
+                        + iokit()
+                        + carbon()
+                        + uikit()
+                        + coregraphics()
+                        + quartzcore()
+                        + coremotion()
+                        + opengles_ios(),
+                    }
+                }
+            )
         if self.options.graphics:
-            sfml_components.update({
-                "graphics": {
-                    "target": "sfml-graphics",
-                    "libs": [f"sfml-graphics{suffix}"],
-                    "requires": ["window", "freetype::freetype", "stb::stb"],
-                },
-            })
+            sfml_components.update(
+                {
+                    "graphics": {
+                        "target": "sfml-graphics",
+                        "libs": [f"sfml-graphics{suffix}"],
+                        "requires": ["window", "freetype::freetype", "stb::stb"],
+                    }
+                }
+            )
         if self.options.network:
-            sfml_components.update({
-                "network": {
-                    "target": "sfml-network",
-                    "libs": [f"sfml-network{suffix}"],
-                    "requires": ["system"],
-                    "system_libs": ws2_32(),
-                },
-            })
+            sfml_components.update(
+                {
+                    "network": {
+                        "target": "sfml-network",
+                        "libs": [f"sfml-network{suffix}"],
+                        "requires": ["system"],
+                        "system_libs": ws2_32(),
+                    }
+                }
+            )
         if self.options.audio:
-            sfml_components.update({
-                "audio": {
-                    "target": "sfml-audio",
-                    "libs": [f"sfml-audio{suffix}"],
-                    "requires": ["system", "flac::flac", "openal-soft::openal-soft", "vorbis::vorbis"],
-                    "system_libs": android(),
-                },
-            })
+            sfml_components.update(
+                {
+                    "audio": {
+                        "target": "sfml-audio",
+                        "libs": [f"sfml-audio{suffix}"],
+                        "requires": ["system", "flac::flac", "openal-soft::openal-soft", "vorbis::vorbis"],
+                        "system_libs": android(),
+                    }
+                }
+            )
 
         return sfml_components
 
@@ -279,8 +294,12 @@ class SfmlConan(ConanFile):
                 self.cpp_info.components[component].frameworks = frameworks
 
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
-                self.cpp_info.components[component].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-                self.cpp_info.components[component].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+                self.cpp_info.components[component].build_modules["cmake_find_package"] = [
+                    self._module_file_rel_path
+                ]
+                self.cpp_info.components[component].build_modules["cmake_find_package_multi"] = [
+                    self._module_file_rel_path
+                ]
 
         _register_components(self._sfml_components)
 

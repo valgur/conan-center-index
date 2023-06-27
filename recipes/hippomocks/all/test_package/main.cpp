@@ -1,14 +1,13 @@
 #include <HippoMocks/hippomocks.h>
 
 struct Foo {
-public:
-	virtual ~Foo() {}
-	virtual void f() {}
-	virtual void g() = 0;
+  public:
+    virtual ~Foo() {}
+    virtual void f() {}
+    virtual void g() = 0;
 };
 
-int main()
-{
+int main() {
     MockRepository mocks;
     Foo *iamock = mocks.Mock<Foo>();
     mocks.ExpectCall(iamock, Foo::f);

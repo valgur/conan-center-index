@@ -1,11 +1,12 @@
 from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.52.0"
+
 
 class CrowConan(ConanFile):
     name = "crowcpp-crow"
@@ -14,7 +15,9 @@ class CrowConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://crowcpp.org/"
     topics = ("web", "microframework", "header-only")
-    settings = "os", "compiler", "arch", "build_type"
+
+    package_type = "header-only"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "amalgamation": [True, False],
         "with_ssl": [True, False],
@@ -35,8 +38,8 @@ class CrowConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "1.0":
-            del self.options.with_ssl
-            del self.options.with_compression
+            self.options.rm_safe("with_ssl")
+            self.options.rm_safe("with_compression")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -52,7 +55,7 @@ class CrowConan(ConanFile):
                 self.requires("zlib/1.2.13")
 
     def package_id(self):
-        self.info.settings.clear()
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -72,6 +75,8 @@ class CrowConan(ConanFile):
                 tc.variables["CROW_BUILD_TESTS"] = False
                 tc.variables["CROW_AMALGAMATE"] = True
             tc.generate()
+            tc = CMakeDeps(self)
+            tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -84,9 +89,13 @@ class CrowConan(ConanFile):
             else:
                 cmake.build(target="crow_amalgamated")
 
-
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
 
         if self.options.amalgamation:
             copy(
@@ -110,6 +119,8 @@ class CrowConan(ConanFile):
             )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
@@ -132,4 +143,3 @@ class CrowConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Crow"
         self.cpp_info.names["cmake_find_package_multi"] = "Crow"
-

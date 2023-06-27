@@ -12,9 +12,9 @@ class KangaruConan(ConanFile):
     name = "kangaru"
     description = "A dependency injection container for C++11, C++14 and later"
     license = "MIT"
-    topics = ("DI", "IoC", "inversion of control")
-    homepage = "https://github.com/gracicot/kangaru/wiki"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/gracicot/kangaru/wiki"
+    topics = ("DI", "IoC", "inversion of control", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -26,6 +26,7 @@ class KangaruConan(ConanFile):
         "reverse_destruction": True,
         "no_exception": False,
     }
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -64,7 +65,9 @@ class KangaruConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"kangaru": "kangaru::kangaru"}
+            {
+                "kangaru": "kangaru::kangaru",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

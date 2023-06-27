@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 class crc32cConan(ConanFile):
     name = "crc32c"
     description = "CRC32C implementation with support for CPU-specific acceleration instructions"
-    topics = ("crc32c", "crc")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/crc32c"
-    license = "BSD-3-Clause"
+    topics = ("crc",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

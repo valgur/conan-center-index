@@ -18,6 +18,7 @@ class CBlosc2Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Blosc/c-blosc2"
     topics = ("c-blosc", "blosc", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -46,7 +47,7 @@ class CBlosc2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
 
     def configure(self):
         if self.options.shared:
@@ -113,9 +114,7 @@ class CBlosc2Conan(ConanFile):
         apply_conandata_patches(self)
 
         for filename in glob.glob(os.path.join(self.source_folder, "cmake", "Find*.cmake")):
-            if os.path.basename(filename) not in [
-                "FindSIMD.cmake",
-            ]:
+            if os.path.basename(filename) not in ["FindSIMD.cmake"]:
                 rm(self, os.path.basename(filename), os.path.join(self.source_folder, "cmake"))
 
     def build(self):
@@ -127,7 +126,12 @@ class CBlosc2Conan(ConanFile):
     def package(self):
         licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt", "LZ4.txt", "ZLIB.txt", "STDINT.txt"]
         for license_file in licenses:
-            copy(self, pattern=license_file, dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "LICENSES"))
+            copy(
+                self,
+                pattern=license_file,
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=os.path.join(self.source_folder, "LICENSES"),
+            )
 
         cmake = CMake(self)
         cmake.install()
@@ -135,7 +139,12 @@ class CBlosc2Conan(ConanFile):
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            rm(self, pattern=dll_pattern_to_remove, folder=os.path.join(self.package_folder, "bin"), recursive=True)
+            rm(
+                self,
+                pattern=dll_pattern_to_remove,
+                folder=os.path.join(self.package_folder, "bin"),
+                recursive=True,
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "blosc2")

@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -9,11 +17,11 @@ required_conan_version = ">=1.53.0"
 
 class ZstdConan(ConanFile):
     name = "zstd"
+    description = "Zstandard - Fast real-time compression algorithm"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/facebook/zstd"
-    description = "Zstandard - Fast real-time compression algorithm"
     topics = ("zstandard", "compression", "algorithm", "decoder")
-    license = "BSD-3-Clause"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -62,8 +70,12 @@ class ZstdConan(ConanFile):
         apply_conandata_patches(self)
         # Don't force PIC
         if Version(self.version) >= "1.4.5":
-            replace_in_file(self, os.path.join(self.source_folder, "build", "cmake", "lib", "CMakeLists.txt"),
-                                  "POSITION_INDEPENDENT_CODE On", "")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "build", "cmake", "lib", "CMakeLists.txt"),
+                "POSITION_INDEPENDENT_CODE On",
+                "",
+            )
 
     def build(self):
         self._patch_sources()

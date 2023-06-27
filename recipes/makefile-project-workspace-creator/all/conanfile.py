@@ -1,37 +1,53 @@
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import ConanFile, tools
+
+from conan import ConanFile
+from conan.tools.files import copy, get
+
+required_conan_version = ">=1.47.0"
 
 
 class MPCGeneratorConan(ConanFile):
     name = "makefile-project-workspace-creator"
     description = "The Makefile, Project and Workspace Creator"
     license = "BSD-3-Clause"
-    homepage = "https://objectcomputing.com/"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "makefile-project-workspace-creator", "objectcomputing", "installer")
-    settings = "os"
+    homepage = "https://objectcomputing.com/"
+    topics = ("objectcomputing", "installer", "pre-built")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
 
     def requirements(self):
         if self.settings.os == "Windows":
             self.requires("strawberryperl/5.30.0.1")
 
-    def build(self):
-        pass
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
-    def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("MPC-MPC_" + self.version.replace(".", "_"), self._source_subfolder)
+    def build(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="*", src=self._source_subfolder, dst="bin")
-        self.copy(pattern="LICENSE", src=os.path.join(self._source_subfolder, "docs"), dst="licenses")
+        copy(self, pattern="*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        copy(
+            self,
+            pattern="LICENSE",
+            src=os.path.join(self.source_folder, "docs"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info('Appending PATH environment variable: %s' % bin_path)
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
         self.env_info.MPC_ROOT = bin_path

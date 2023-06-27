@@ -1,10 +1,7 @@
-cmake_minimum_required(VERSION 3.13.4)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
-find_package(LLVM REQUIRED)
+find_package(LLVM REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)

@@ -19,7 +19,9 @@ class MozjpegConan(ConanFile):
     license = ("BSD", "BSD-3-Clause", "ZLIB")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mozilla/mozjpeg"
-    topics = ("image", "format", "mozjpeg", "jpg", "jpeg", "picture", "multimedia", "graphics")
+    topics = ("image", "format", "jpg", "jpeg", "picture", "multimedia", "graphics")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -59,7 +61,7 @@ class MozjpegConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_simd_support:
-            del self.options.SIMD
+            self.options.rm_safe("SIMD")
 
     def configure(self):
         if self.options.shared:
@@ -76,7 +78,7 @@ class MozjpegConan(ConanFile):
         if self._use_cmake:
             cmake_layout(self, src_folder="src")
         else:
-            basic_layout(self, src_folder='src')
+            basic_layout(self, src_folder="src")
 
     def build_requirements(self):
         if not self._use_cmake:
@@ -87,8 +89,7 @@ class MozjpegConan(ConanFile):
             self.tool_requires("nasm/2.15.05")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)
@@ -113,7 +114,9 @@ class MozjpegConan(ConanFile):
         tc.variables["WITH_JAVA"] = bool(self.options.java)
         tc.variables["WITH_12BIT"] = bool(self.options.enable12bit)
         tc.variables["CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT"] = False
-        tc.variables["PNG_SUPPORTED"] = False  # PNG and zlib are only required for executables (and static libraries)
+        tc.variables[
+            "PNG_SUPPORTED"
+        ] = False  # PNG and zlib are only required for executables (and static libraries)
         if is_msvc(self):
             tc.variables["WITH_CRT_DLL"] = not is_msvc_static_runtime(self)
         tc.generate()
@@ -121,18 +124,20 @@ class MozjpegConan(ConanFile):
     def generate_autotools(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True))),
-            "--with-simd={}".format(yes_no(self.options.get_safe("SIMD", False))),
-            "--with-arith-enc={}".format(yes_no(self.options.arithmetic_encoder)),
-            "--with-arith-dec={}".format(yes_no(self.options.arithmetic_decoder)),
-            "--with-jpeg7={}".format(yes_no(self.options.libjpeg7_compatibility)),
-            "--with-jpeg8={}".format(yes_no(self.options.libjpeg8_compatibility)),
-            "--with-mem-srcdst={}".format(yes_no(self.options.mem_src_dst)),
-            "--with-turbojpeg={}".format(yes_no(self.options.turbojpeg)),
-            "--with-java={}".format(yes_no(self.options.java)),
-            "--with-12bit={}".format(yes_no(self.options.enable12bit)),
-        ])
+        tc.configure_args.extend(
+            [
+                "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True))),
+                "--with-simd={}".format(yes_no(self.options.get_safe("SIMD", False))),
+                "--with-arith-enc={}".format(yes_no(self.options.arithmetic_encoder)),
+                "--with-arith-dec={}".format(yes_no(self.options.arithmetic_decoder)),
+                "--with-jpeg7={}".format(yes_no(self.options.libjpeg7_compatibility)),
+                "--with-jpeg8={}".format(yes_no(self.options.libjpeg8_compatibility)),
+                "--with-mem-srcdst={}".format(yes_no(self.options.mem_src_dst)),
+                "--with-turbojpeg={}".format(yes_no(self.options.turbojpeg)),
+                "--with-java={}".format(yes_no(self.options.java)),
+                "--with-12bit={}".format(yes_no(self.options.enable12bit)),
+            ]
+        )
         tc.generate()
 
     def generate(self):
@@ -156,7 +161,12 @@ class MozjpegConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()
@@ -169,10 +179,23 @@ class MozjpegConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=os.path.join(self.package_folder, "lib64"))
+        copy(
+            self,
+            pattern="*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.package_folder, "lib64"),
+        )
         rmdir(self, os.path.join(self.package_folder, "lib64"))
         # remove binaries and pdb files
-        for bin_pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
+        for bin_pattern_to_remove in [
+            "cjpeg*",
+            "djpeg*",
+            "jpegtran*",
+            "tjbench*",
+            "wrjpgcom*",
+            "rdjpgcom*",
+            "*.pdb",
+        ]:
             rm(self, pattern=bin_pattern_to_remove, folder=os.path.join(self.package_folder, "bin"))
 
     def _lib_name(self, name):
@@ -189,14 +212,18 @@ class MozjpegConan(ConanFile):
 
         # libjpeg
         self.cpp_info.components["libjpeg"].set_property("cmake_module_target_name", "JPEG::JPEG")
-        self.cpp_info.components["libjpeg"].set_property("cmake_target_name", f"mozjpeg::jpeg{cmake_target_suffix}")
+        self.cpp_info.components["libjpeg"].set_property(
+            "cmake_target_name", f"mozjpeg::jpeg{cmake_target_suffix}"
+        )
         self.cpp_info.components["libjpeg"].set_property("pkg_config_name", "libjpeg")
         self.cpp_info.components["libjpeg"].libs = [self._lib_name("jpeg")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libjpeg"].system_libs.append("m")
         # libturbojpeg
         if self.options.turbojpeg:
-            self.cpp_info.components["libturbojpeg"].set_property("cmake_target_name", f"mozjpeg::turbojpeg{cmake_target_suffix}")
+            self.cpp_info.components["libturbojpeg"].set_property(
+                "cmake_target_name", f"mozjpeg::turbojpeg{cmake_target_suffix}"
+            )
             self.cpp_info.components["libturbojpeg"].set_property("pkg_config_name", "libturbojpeg")
             self.cpp_info.components["libturbojpeg"].libs = [self._lib_name("turbojpeg")]
             if self.settings.os in ["Linux", "FreeBSD"]:
@@ -208,5 +235,9 @@ class MozjpegConan(ConanFile):
         self.cpp_info.components["libjpeg"].names["cmake_find_package"] = "JPEG"
         self.cpp_info.components["libjpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
         if self.options.turbojpeg:
-            self.cpp_info.components["libturbojpeg"].names["cmake_find_package"] = f"turbojpeg{cmake_target_suffix}"
-            self.cpp_info.components["libturbojpeg"].names["cmake_find_package_multi"] = f"turbojpeg{cmake_target_suffix}"
+            self.cpp_info.components["libturbojpeg"].names[
+                "cmake_find_package"
+            ] = f"turbojpeg{cmake_target_suffix}"
+            self.cpp_info.components["libturbojpeg"].names[
+                "cmake_find_package_multi"
+            ] = f"turbojpeg{cmake_target_suffix}"

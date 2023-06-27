@@ -4,16 +4,17 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class TermcolorConan(ConanFile):
     name = "termcolor"
     description = "Termcolor is a header-only C++ library for printing colored messages to the terminal."
-    topics = ("terminal", "color")
     license = "BSD-3-Clause"
-    homepage = "https://github.com/ikalnytskyi/termcolor"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ikalnytskyi/termcolor"
+    topics = ("terminal", "color", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

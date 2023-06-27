@@ -11,9 +11,9 @@ class TinyplyConan(ConanFile):
     name = "tinyply"
     description = "C++11 ply 3d mesh format importer & exporter."
     license = ["Unlicense", "BSD-2-Clause"]
-    topics = ("tinyply", "ply", "geometry", "mesh", "file-format")
-    homepage = "https://github.com/ddiakopoulos/tinyply"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ddiakopoulos/tinyply"
+    topics = ("ply", "geometry", "mesh", "file-format")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -33,12 +33,12 @@ class TinyplyConan(ConanFile):
     def configure(self):
         self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -56,17 +56,17 @@ class TinyplyConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _extract_license(self):
+        readme = load(self, os.path.join(self.source_folder, "readme.md"))
+        begin = readme.find("## License")
+        return readme[begin:]
+
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-    def _extract_license(self):
-        readme = load(self, os.path.join(self.source_folder, "readme.md"))
-        begin = readme.find("## License")
-        return readme[begin:]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinyply")

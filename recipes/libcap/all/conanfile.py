@@ -12,12 +12,14 @@ required_conan_version = ">=1.53.0"
 
 class LibcapConan(ConanFile):
     name = "libcap"
+    description = (
+        "This is a library for getting and setting POSIX.1e (formerly POSIX 6) draft 15 capabilities"
+    )
     license = ("GPL-2.0-only", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
-    description = "This is a library for getting and setting POSIX.1e" \
-                  " (formerly POSIX 6) draft 15 capabilities"
-    topics = ("capabilities")
+    topics = "capabilities"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -80,14 +82,12 @@ class LibcapConan(ConanFile):
         autotools = Autotools(self)
         with chdir(self, os.path.join(self.source_folder, "libcap")):
             autotools.make(target="install-common-cap")
-            install_cap = ("install-shared-cap" if self.options.shared
-                           else "install-static-cap")
+            install_cap = "install-shared-cap" if self.options.shared else "install-static-cap"
             autotools.make(target=install_cap)
 
             if self.options.psx_syscals:
                 autotools.make(target="install-common-psx")
-                install_psx = ("install-shared-psx" if self.options.shared
-                               else "install-static-psx")
+                install_psx = "install-shared-psx" if self.options.shared else "install-static-psx"
                 autotools.make(target=install_psx)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

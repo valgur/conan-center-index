@@ -9,25 +9,29 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class CppCommon(ConanFile):
     name = "cppcommon"
-    description = "C++ Common Library contains reusable components and patterns" \
-        " for error and exceptions handling, filesystem manipulations, math," \
-        " string format and encoding, shared memory, threading, time management" \
-        " and others."
+    description = (
+        "C++ Common Library contains reusable components and patterns"
+        " for error and exceptions handling, filesystem manipulations, math,"
+        " string format and encoding, shared memory, threading, time management"
+        " management and others."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/chronoxor/CppCommon"
     topics = ("utils", "filesystem", "uuid", "synchronization", "queue")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -36,13 +40,7 @@ class CppCommon(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "apple-clang": 10,
-            "clang": 6,
-            "gcc": 7,
-            "Visual Studio": 16,
-            "msvc": 192,
-        }
+        return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16, "msvc": 192}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -98,12 +96,29 @@ class CppCommon(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.inl", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include", "plugins"), src=os.path.join(self.source_folder, "plugins"))
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.inl",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include", "plugins"),
+            src=os.path.join(self.source_folder, "plugins"),
+        )
 
     def package_info(self):
         self.cpp_info.libs = ["cppcommon", "plugin-function", "plugin-interface"]

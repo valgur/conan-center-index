@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibdwarfConan(ConanFile):
     name = "libdwarf"
     description = "A library and a set of command-line tools for reading and writing DWARF2"
@@ -76,19 +77,65 @@ class LibdwarfConan(ConanFile):
 
     def package(self):
         if self.version == "20191104":
-            copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "libdwarf"))
-            rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-libdwarf"))
+            copy(
+                self,
+                pattern="COPYING",
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=os.path.join(self.source_folder, "libdwarf"),
+            )
+            rename(
+                self,
+                os.path.join(self.package_folder, "licenses", "COPYING"),
+                os.path.join(self.package_folder, "licenses", "COPYING-libdwarf"),
+            )
             if self.options.with_dwarfgen:
-                copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "dwarfgen"))
-                rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-dwarfgen"))
-            copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+                copy(
+                    self,
+                    pattern="COPYING",
+                    dst=os.path.join(self.package_folder, "licenses"),
+                    src=os.path.join(self.source_folder, "dwarfgen"),
+                )
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "licenses", "COPYING"),
+                    os.path.join(self.package_folder, "licenses", "COPYING-dwarfgen"),
+                )
+            copy(
+                self,
+                pattern="COPYING",
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=self.source_folder,
+            )
         else:
-            copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "src", "lib", "libdwarf"))
-            rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-libdwarf"))
+            copy(
+                self,
+                pattern="COPYING",
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=os.path.join(self.source_folder, "src", "lib", "libdwarf"),
+            )
+            rename(
+                self,
+                os.path.join(self.package_folder, "licenses", "COPYING"),
+                os.path.join(self.package_folder, "licenses", "COPYING-libdwarf"),
+            )
             if self.options.with_dwarfgen:
-                copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "src", "bin", "dwarfgen"))
-                rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-dwarfgen"))
-            copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+                copy(
+                    self,
+                    pattern="COPYING",
+                    dst=os.path.join(self.package_folder, "licenses"),
+                    src=os.path.join(self.source_folder, "src", "bin", "dwarfgen"),
+                )
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "licenses", "COPYING"),
+                    os.path.join(self.package_folder, "licenses", "COPYING-dwarfgen"),
+                )
+            copy(
+                self,
+                pattern="COPYING",
+                dst=os.path.join(self.package_folder, "licenses"),
+                src=self.source_folder,
+            )
 
         cmake = CMake(self)
         cmake.install()
@@ -100,7 +147,7 @@ class LibdwarfConan(ConanFile):
 
         if self.options.with_dwarfgen:
             bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f'Appending PATH environment variable: {bindir}')
+            self.output.info(f"Appending PATH environment variable: {bindir}")
             self.env_info.PATH.append(bindir)
 
             if self.version != "20191104":

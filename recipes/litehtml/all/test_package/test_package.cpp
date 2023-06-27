@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-int main() {    
+int main() {
     constexpr size_t offset = 5;
     constexpr size_t length = 10;
 
@@ -13,5 +13,5 @@ int main() {
     for (auto c : view) {
         std::cout << c << std::endl;
     }
-  return 0;
+    return 0;
 }

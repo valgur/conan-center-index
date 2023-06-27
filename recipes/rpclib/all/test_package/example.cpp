@@ -20,13 +20,10 @@ int main() {
     srv.bind("sub", s);
     srv.bind("div", &divide);
     srv.bind("mul", [&m](double a, double b) { return m.multiply(a, b); });
-    srv.bind("get", []()
-    {
-        return std::vector<uint32_t>({1,2,3,4,5,6,7});
-    });
+    srv.bind("get", []() { return std::vector<uint32_t>({1, 2, 3, 4, 5, 6, 7}); });
 
     // dont acutally run this, this is just for testing
-    //srv.run();
+    // srv.run();
 
     return 0;
 }

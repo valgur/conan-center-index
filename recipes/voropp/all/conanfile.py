@@ -9,14 +9,13 @@ required_conan_version = ">=1.53.0"
 class VoroppConan(ConanFile):
     name = "voropp"
     description = (
-        "Voro++ is a open source software library for the computation of the "
-        "Voronoi diagram, a widely-used tessellation that has applications in "
-        "many scientific fields."
+        "Voro++ is a open source software library for the computation of the Voronoi diagram, a widely-used"
+        " tessellation that has applications in many scientific fields."
     )
     license = "BSD-3-Clause"
-    topics = ("voro++", "voronoi-diagram", "tesselation")
-    homepage = "http://math.lbl.gov/voro++"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://math.lbl.gov/voro++"
+    topics = ("voro++", "voronoi-diagram", "tesselation")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -29,7 +28,8 @@ class VoroppConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

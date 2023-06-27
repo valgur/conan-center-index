@@ -12,7 +12,7 @@ int main() {
     printf("NSSUTIL version: %s\n", NSSUTIL_GetVersion());
 
     rv = NSS_NoDB_Init("./tmp");
-    if (rv != SECSuccess){
+    if (rv != SECSuccess) {
         printf("NSS_Init failed in directory tmp\n");
         return 1;
     }

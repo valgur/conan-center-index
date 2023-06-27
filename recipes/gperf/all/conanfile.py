@@ -11,12 +11,13 @@ required_conan_version = ">=1.57.0"
 
 class GperfConan(ConanFile):
     name = "gperf"
+    description = "GNU gperf is a perfect hash function generator"
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gperf"
-    description = "GNU gperf is a perfect hash function generator"
-    topics = ("hash-generator", "hash")
+    topics = ("hash-generator", "hash", "pre-built")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -40,8 +41,7 @@ class GperfConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -61,15 +61,15 @@ class GperfConan(ConanFile):
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.append("CPPFLAGS", "-D_WIN32_WINNT=_WIN32_WINNT_WIN8")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
             env.define("STRIP", ":")
-            
-            #Prevent msys2 from performing erroneous path conversions for C++ files
+
+            # Prevent msys2 from performing erroneous path conversions for C++ files
             # when invoking cl.exe as this is already handled by the compile wrapper.
-            env.define("MSYS2_ARG_CONV_EXCL", "-Tp") 
+            env.define("MSYS2_ARG_CONV_EXCL", "-Tp")
             env.vars(self).save_script("conanbuild_gperf_msvc")
 
     def build(self):
@@ -88,6 +88,8 @@ class GperfConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

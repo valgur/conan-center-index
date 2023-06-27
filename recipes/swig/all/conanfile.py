@@ -1,6 +1,82 @@
-from conan import ConanFile
-from conan.tools.files import get
-from conans import AutoToolsBuildEnvironment, tools
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import contextlib
 import functools
 import os
@@ -14,13 +90,8 @@ class SwigConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.swig.org"
     license = "GPL-3.0-or-later"
-    topics = ("swig", "python", "java", "wrapper")
-    exports_sources = "patches/**", "cmake/*"
+    topics = ("python", "java", "wrapper")
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _settings_build(self):
@@ -28,8 +99,11 @@ class SwigConan(ConanFile):
 
     @property
     def _use_pcre2(self):
-        return self.version not in ['4.0.1', '4.0.2']
+        return self.version not in ["4.0.1", "4.0.2"]
 
+    def export_sources(self):
+        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def requirements(self):
         if self._use_pcre2:
@@ -38,7 +112,7 @@ class SwigConan(ConanFile):
             self.requires("pcre/8.45")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.build_requires("winflexbison/2.5.24")
@@ -50,8 +124,7 @@ class SwigConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _user_info_build(self):
@@ -67,17 +140,19 @@ class SwigConan(ConanFile):
         if self.settings.compiler != "Visual Studio":
             env["YACC"] = self._user_info_build["bison"].YACC
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self):
-                env.update({
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "AR": "{} link".format(self._user_info_build["automake"].ar_lib),
-                    "LD": "link",
-                })
-                with tools.environment_append(env):
+            with vcvars(self):
+                env.update(
+                    {
+                        "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "AR": "{} link".format(self._user_info_build["automake"].ar_lib),
+                        "LD": "link",
+                    }
+                )
+                with environment_append(self, env):
                     yield
         else:
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @functools.lru_cache(1)
@@ -89,10 +164,15 @@ class SwigConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
             autotools.link_flags.append("-static")
 
-        libargs = list("-L\"{}\"".format(p) for p in deps_libpaths) + list("-l\"{}\"".format(l) for l in deps_libs)
+        libargs = list('-L"{}"'.format(p) for p in deps_libpaths) + list(
+            '-l"{}"'.format(l) for l in deps_libs
+        )
         args = [
             "{}_LIBS={}".format("PCRE2" if self._use_pcre2 else "PCRE", " ".join(libargs)),
-            "{}_CPPFLAGS={}".format("PCRE2" if self._use_pcre2 else "PCRE", " ".join("-D{}".format(define) for define in deps_defines)),
+            "{}_CPPFLAGS={}".format(
+                "PCRE2" if self._use_pcre2 else "PCRE",
+                " ".join("-D{}".format(define) for define in deps_defines),
+            ),
             "--host={}".format(self.settings.arch),
             "--with-swiglibdir={}".format(self._swiglibdir),
         ]
@@ -119,28 +199,37 @@ class SwigConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
             autotools.libs.extend(["mingwex", "ssp"])
 
-        autotools.configure(args=args, configure_dir=self._source_subfolder,
-                            host=host, build=build)
+        autotools.configure(args=args, configure_dir=self.source_folder, host=host, build=build)
         return autotools
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="COPYRIGHT", dst="licenses", src=self._source_subfolder)
-        self.copy("*", src="cmake", dst=self._module_subfolder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="COPYRIGHT",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(self, "*", src="cmake", dst=self._module_subfolder)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
     @property
@@ -156,14 +245,16 @@ class SwigConan(ConanFile):
         return "conan-official-{}-targets.cmake".format(self.name)
 
     def package_info(self):
-        self.cpp_info.includedirs=[]
+        self.cpp_info.includedirs = []
         self.cpp_info.names["cmake_find_package"] = "SWIG"
         self.cpp_info.names["cmake_find_package_multi"] = "SWIG"
         self.cpp_info.builddirs = [self._module_subfolder]
-        self.cpp_info.build_modules["cmake_find_package"] = \
-            [os.path.join(self._module_subfolder, self._module_file)]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = \
-            [os.path.join(self._module_subfolder, self._module_file)]
+        self.cpp_info.build_modules["cmake_find_package"] = [
+            os.path.join(self._module_subfolder, self._module_file)
+        ]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [
+            os.path.join(self._module_subfolder, self._module_file)
+        ]
 
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bindir))

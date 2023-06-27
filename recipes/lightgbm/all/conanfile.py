@@ -1,35 +1,43 @@
-from conans import CMake, ConanFile, tools
-from conan.tools.microsoft import is_msvc
-import functools
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.33.0"
+import os
+
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.microsoft import is_msvc
+
+required_conan_version = ">=1.53.0"
 
 
 class LightGBMConan(ConanFile):
     name = "lightgbm"
-    description = "A fast, distributed, high performance gradient boosting (GBT, GBDT, GBRT, GBM or MART) framework based on decision tree algorithms, used for ranking, classification and many other machine learning tasks."
-    topics = ("machine-learning", "boosting")
+    description = (
+        "A fast, distributed, high performance gradient boosting "
+        "(GBT, GBDT, GBRT, GBM or MART) framework based on decision tree algorithms, "
+        "used for ranking, classification and many other machine learning tasks."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/LightGBM"
-    license = "MIT"
+    topics = ("machine-learning", "boosting")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake", "cmake_find_package"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_openmp": [True, False]
+        "with_openmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": True
+        "with_openmp": True,
     }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -37,7 +45,10 @@ class LightGBMConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("eigen/3.4.0")
@@ -48,35 +59,35 @@ class LightGBMConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_STATIC_LIB"] = not self.options.shared
+        tc.variables["USE_DEBUG"] = self.settings.build_type == "Debug"
+        tc.variables["USE_OPENMP"] = self.options.with_openmp
+        if self.settings.os == "Macos":
+            tc.variables["APPLE_OUTPUT_DYLIB"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-
-    @functools.lru_cache(1)
-    def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions["BUILD_STATIC_LIB"] = not self.options.shared
-        cmake.definitions["USE_DEBUG"] = self.settings.build_type == "Debug"
-        cmake.definitions["USE_OPENMP"] = self.options.with_openmp
-        if self.settings.os == "Macos":
-            cmake.definitions["APPLE_OUTPUT_DYLIB"] = True
-        cmake.configure()
-        return cmake
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

@@ -11,15 +11,17 @@ required_conan_version = ">=1.50.0"
 
 class MatchitConan(ConanFile):
     name = "matchit"
+    description = (
+        "match(it): A lightweight header-only pattern-matching library for C++17 with macro-free APIs."
+    )
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/BowenFu/matchit.cpp"
-    license = "Apache-2.0"
-    description = ("match(it): A lightweight header-only pattern-matching"
-                   " library for C++17 with macro-free APIs.")
     topics = ("lightweight", "cpp17", "header-only", "pattern-matching")
-    no_copy_source = True
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -58,11 +60,13 @@ class MatchitConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "matchit.h",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "matchit.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "matchit")

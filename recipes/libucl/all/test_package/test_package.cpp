@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << "  FILE\n";
         return 1;
@@ -25,8 +24,7 @@ int main(int argc, char *argv[])
         for (const auto &o : obj) {
             std::cout << "obj: " << o.dump(UCL_EMIT_CONFIG) << std::endl;
         }
-    }
-    else {
+    } else {
         std::cerr << "error: " << err << std::endl;
         return 1;
     }

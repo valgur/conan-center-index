@@ -6,17 +6,16 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class LibPciAccessConan(ConanFile):
     name = "libpciaccess"
     description = "Generic PCI access library"
-    topics = ("pci", "xorg")
+    license = ("MIT", "X11")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/xorg/lib/libpciaccess"
-    license = "MIT", "X11"
+    topics = ("pci", "xorg")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -47,6 +46,7 @@ class LibPciAccessConan(ConanFile):
             if settings.os in ("Linux", "FreeBSD", "SunOS"):
                 return True
             return settings.os == "Windows" and settings.get_safe("os.subsystem") == "cygwin"
+
         if not is_supported(self.settings):
             raise ConanInvalidConfiguration("Unsupported architecture.")
 

@@ -1,8 +1,10 @@
-import functools
+# TODO: verify the Conan v2 migration
 
-from conans import ConanFile, CMake, tools
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class EnchantConan(ConanFile):
@@ -11,45 +13,63 @@ class EnchantConan(ConanFile):
         "Enchant aims to provide a simple but comprehensive abstraction for "
         "dealing with different spell checking libraries in a consistent way"
     )
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://abiword.github.io/enchant/"
-    topics = "enchant", "spell", "spell-check"
-    license = "LGPL-2.1-or-later"
-    settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake", "cmake_find_package_multi"
-    requires = "glib/2.71.3", "hunspell/1.7.0"
+    topics = ("enchant", "spell", "spell-check")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def export_sources(self):
-        self.copy("CMakeLists.txt")
-        self.copy("configmake.h")
-        self.copy("configure.cmake")
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configmake.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configure.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("glib/2.71.3")
+        self.requires("hunspell/1.7.0")
 
     def source(self):
-        root = self._source_subfolder
-        get_args = self.conan_data["sources"][self.version]
-        tools.get(**get_args, destination=root, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
-    def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions["CONAN_enchant_VERSION"] = self.version
-        cmake.configure()
-        return cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CONAN_enchant_VERSION"] = self.version
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
-        self._configure_cmake().build()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
-        self.copy("COPYING.LIB", "licenses", self._source_subfolder)
-        self._configure_cmake().install()
+        copy(self, "COPYING.LIB", "licenses", self.source_folder)
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["enchant"]

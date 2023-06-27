@@ -1,5 +1,9 @@
-from conans import ConanFile, CMake, tools
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile
+from conan.tools.files import copy, get, load, save
 
 required_conan_version = ">=1.33.0"
 
@@ -14,30 +18,22 @@ class UaNodeSetConan(ConanFile):
 
     no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
     def _extract_license(self):
-        content = tools.load(os.path.join(self.source_folder, self._source_subfolder, "AnsiC", "opcua_clientapi.c"))
-        license_contents = content[2:content.find("*/", 1)]
-        tools.save("LICENSE", license_contents)
+        content = load(self, os.path.join(self.source_folder, "AnsiC", "opcua_clientapi.c"))
+        license_contents = content[2 : content.find("*/", 1)]
+        save(self, "LICENSE", license_contents)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
-
     def package(self):
         self._extract_license()
-        self.copy("*", dst="res", src=self._source_subfolder)
-        self.copy("LICENSE", dst="licenses")
-
+        copy(self, "*", dst=os.path.join(self.package_folder, "res"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = ["res"]
-        self.user_info.nodeset_dir = os.path.join(self.package_folder, "res")
-

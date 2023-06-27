@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -8,10 +15,10 @@ required_conan_version = ">=1.53.0"
 
 class CoinLemonConan(ConanFile):
     name = "coin-lemon"
+    description = "LEMON stands for Library for Efficient Modeling and Optimization in Networks."
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://lemon.cs.elte.hu"
-    description = "LEMON stands for Library for Efficient Modeling and Optimization in Networks."
     topics = ("data structures", "algorithms", "graphs", "network")
 
     package_type = "library"
@@ -82,7 +89,7 @@ class CoinLemonConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LEMON")
-        self.cpp_info.set_property("cmake_target_name", "LEMON::LEMON") # no official target name actually
+        self.cpp_info.set_property("cmake_target_name", "LEMON::LEMON")  # no official target name actually
         self.cpp_info.set_property("pkg_config_name", "lemon")
         self.cpp_info.libs = ["lemon" if self.settings.os == "Windows" else "emon"]
         self.cpp_info.defines.append("LEMON_ONLY_TEMPLATES")

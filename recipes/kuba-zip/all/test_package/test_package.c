@@ -1,10 +1,9 @@
 #include <zip/zip.h>
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-int main()
-{
+int main() {
     struct zip_t *zip = zip_open("foo.zip", ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
     {
         zip_entry_open(zip, "foo-1.txt");

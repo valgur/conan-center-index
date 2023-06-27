@@ -1,26 +1,44 @@
-from conans import ConanFile, tools
-from contextlib import contextmanager
 import os
 import shutil
+from contextlib import contextmanager
+
+from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "a.cpp", "b.cpp", "main.c", "main.cpp", "wscript"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def export_sources(self):
+        copy(self, "a.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "b.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "main.c", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "main.cpp", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "wscript", src=self.recipe_folder, dst=self.export_sources_folder)
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
+    def layout(self):
+        cmake_layout(self)
 
     def build(self):
-        if tools.cross_building(self.settings):
+        if not can_run(self):
             return
 
         for src in self.exports_sources:
             shutil.copy(os.path.join(self.source_folder, src), self.build_folder)
 
-        waf_path = tools.which("waf")
+        waf_path = which(self, "waf")
         if waf_path:
             waf_path = waf_path.replace("\\", "/")
             assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
 
-        with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
+        with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
             self.run("waf -h")
             self.run("waf configure")
             self.run("waf")
@@ -32,11 +50,13 @@ class TestPackageConan(ConanFile):
             env["LD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
         elif self.settings.os == "Macos":
             env["DYLD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
-        with tools.environment_append(env):
+        with environment_append(self, env):
             yield
 
     def test(self):
-        if not tools.cross_building(self.settings):
+        if can_run(self):
             with self._add_ld_search_path():
-                self.run(os.path.join("build", "app"), run_environment=True)
-                self.run(os.path.join("build", "app2"), run_environment=True)
+                bin_path = os.path.join(self.cpp.build.bindir, "app")
+                self.run(bin_path, env="conanrun")
+                bin_path = os.path.join(self.cpp.build.bindir, "app2")
+                self.run(bin_path, env="conanrun")

@@ -7,12 +7,12 @@ required_conan_version = ">=1.50.0"
 
 class SysConfigOpenGLConan(ConanFile):
     name = "opengl"
-    version = "system"
     description = "cross-platform virtual conan package for the OpenGL support"
-    topics = ("opengl", "gl")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.opengl.org/"
-    license = "MIT"
+    topics = ("gl",)
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -57,5 +57,5 @@ class SysConfigOpenGLConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["opengl32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            pkg_config = PkgConfig(self, 'gl')
+            pkg_config = PkgConfig(self, "gl")
             pkg_config.fill_cpp_info(self.cpp_info, is_system=self.settings.os != "FreeBSD")

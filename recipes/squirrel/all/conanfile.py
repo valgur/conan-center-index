@@ -8,16 +8,21 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class SquirrelConan(ConanFile):
     name = "squirrel"
-    description = "Squirrel is a high level imperative, object-oriented programming " \
-                  "language, designed to be a light-weight scripting language that " \
-                  "fits in the size, memory bandwidth, and real-time requirements " \
-                  "of applications like video games."
+    description = (
+        "Squirrel is a high level imperative, object-oriented programming "
+        "language, designed to be a light-weight scripting language that "
+        "fits in the size, memory bandwidth, and real-time requirements "
+        "of applications like video games."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.squirrel-lang.org/"
     topics = ("programming-language", "object-oriented", "scripting")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -75,8 +80,15 @@ class SquirrelConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="COPYRIGHT",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -92,7 +104,9 @@ class SquirrelConan(ConanFile):
         suffix = "" if self.options.shared else "_static"
 
         # squirrel
-        self.cpp_info.components["libsquirrel"].set_property("cmake_target_name", f"squirrel::squirrel{suffix}")
+        self.cpp_info.components["libsquirrel"].set_property(
+            "cmake_target_name", f"squirrel::squirrel{suffix}"
+        )
         self.cpp_info.components["libsquirrel"].libs = [f"squirrel{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libsquirrel"].system_libs.append("m")

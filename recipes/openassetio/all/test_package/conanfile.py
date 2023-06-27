@@ -26,7 +26,9 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
-        tc.variables["OPENASSETIOTEST_GLIBCXX_USE_CXX11_ABI"] = self.settings.get_safe("compiler.libcxx") == "libstdc++11"
+        tc.variables["OPENASSETIOTEST_GLIBCXX_USE_CXX11_ABI"] = (
+            self.settings.get_safe("compiler.libcxx") == "libstdc++11"
+        )
         tc.variables["OPENASSETIOTEST_ENABLE_PYTHON"] = self.dependencies["openassetio"].options.with_python
 
         if self.dependencies["openassetio"].options.with_python:
@@ -61,6 +63,7 @@ class TestPackageConan(ConanFile):
         pth = pathlib.Path(
             self.dependencies["cpython"].package_folder,
             self.dependencies["cpython"].cpp_info.components["embed"].libdirs[0],
-            self.dependencies["cpython"].cpp_info.components["embed"].libs[0])
+            self.dependencies["cpython"].cpp_info.components["embed"].libs[0],
+        )
         pth = pth.with_suffix(".lib")
         return pth.as_posix()

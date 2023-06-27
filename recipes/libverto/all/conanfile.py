@@ -8,17 +8,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 import os
 
-
 required_conan_version = ">=1.54.0"
 
 
 class LibVertoConan(ConanFile):
     name = "libverto"
     description = "An async event loop abstraction library."
-    homepage = "https://github.com/latchset/libverto"
-    topics = ("async", "eventloop")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/latchset/libverto"
+    topics = ("async", "eventloop")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -62,7 +62,7 @@ class LibVertoConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.pthread
+            self.options.rm_safe("pthread")
 
     def configure(self):
         if self.options.shared:
@@ -100,7 +100,9 @@ class LibVertoConan(ConanFile):
             raise ConanInvalidConfiguration("Cannot have more then one builtin backend")
         if not self.options.shared:
             if count_externals > 0:
-                raise ConanInvalidConfiguration("Cannot have an external backend when building a static libverto")
+                raise ConanInvalidConfiguration(
+                    "Cannot have an external backend when building a static libverto"
+                )
         if count_builtins > 0 and count_externals > 0:
             raise ConanInvalidConfiguration("Cannot combine builtin and external backends")
         if self.options.with_tevent:
@@ -124,14 +126,20 @@ class LibVertoConan(ConanFile):
         env.generate()
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        yes_no_builtin = lambda v: {"external": "yes", "False": "no", "builtin": "builtin"}[str(v)]
-        tc.configure_args.extend([
-            f"--with-pthread={yes_no(self.options.get_safe('pthread'))}",
-            f"--with-glib={yes_no_builtin(self.options.with_glib)}",
-            f"--with-libev={yes_no_builtin(self.options.with_libev)}",
-            f"--with-libevent={yes_no_builtin(self.options.with_libevent)}",
-            f"--with-tevent={yes_no_builtin(self.options.with_tevent)}",
-            ])
+        yes_no_builtin = lambda v: {
+            "external": "yes",
+            "False": "no",
+            "builtin": "builtin",
+        }[str(v)]
+        tc.configure_args.extend(
+            [
+                f"--with-pthread={yes_no(self.options.get_safe('pthread'))}",
+                f"--with-glib={yes_no_builtin(self.options.with_glib)}",
+                f"--with-libev={yes_no_builtin(self.options.with_libev)}",
+                f"--with-libevent={yes_no_builtin(self.options.with_libevent)}",
+                f"--with-tevent={yes_no_builtin(self.options.with_tevent)}",
+            ]
+        )
         tc.generate()
         pkg = PkgConfigDeps(self)
         pkg.generate()
@@ -144,7 +152,7 @@ class LibVertoConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self,"COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 

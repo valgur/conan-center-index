@@ -5,7 +5,7 @@
 
 int main() {
     apr_uuid_t uuid;
-    char uuid_buffer[APR_UUID_FORMATTED_LENGTH+1];
+    char uuid_buffer[APR_UUID_FORMATTED_LENGTH + 1];
     apr_uuid_get(&uuid);
     apr_uuid_format(uuid_buffer, &uuid);
     uuid_buffer[APR_UUID_FORMATTED_LENGTH] = '\0';

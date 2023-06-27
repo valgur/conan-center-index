@@ -1,26 +1,50 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.files import copy, get, save
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.52.0"
 
 
 class IosCMakeConan(ConanFile):
     name = "ios-cmake"
+    description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
     license = "BSD-3-Clause"
-    settings = "os" , "arch"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/leetal/ios-cmake"
+    topics = ("apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos", "header-only")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "enable_bitcode": [True, False],
         "enable_arc": [True, False],
         "enable_visibility": [True, False],
         "enable_strict_try_compile": [True, False],
-        "toolchain_target": ["auto", "OS", "OS64", "OS64COMBINED",
-                       "SIMULATOR", "SIMULATOR64", "SIMULATORARM64",
-                       "TVOS", "TVOSCOMBINED",
-                       "SIMULATOR_TVOS", "WATCHOS",
-                       "WATCHOSCOMBINED", "SIMULATOR_WATCHOS",
-                       "MAC", "MAC_ARM64", "MAC_CATALYST", "MAC_CATALYST_ARM64"]
+        "toolchain_target": [
+            "auto",
+            "OS",
+            "OS64",
+            "OS64COMBINED",
+            "SIMULATOR",
+            "SIMULATOR64",
+            "SIMULATORARM64",
+            "TVOS",
+            "TVOSCOMBINED",
+            "SIMULATOR_TVOS",
+            "WATCHOS",
+            "WATCHOSCOMBINED",
+            "SIMULATOR_WATCHOS",
+            "MAC",
+            "MAC_ARM64",
+            "MAC_CATALYST",
+            "MAC_CATALYST_ARM64",
+        ],
     }
     default_options = {
         "enable_bitcode": True,
@@ -29,22 +53,26 @@ class IosCMakeConan(ConanFile):
         "enable_strict_try_compile": False,
         "toolchain_target": "auto",
     }
-    description = "ios Cmake toolchain to (cross) compile macOS/iOS/watchOS/tvOS"
-    topics = "conan", "apple", "ios", "cmake", "toolchain", "ios", "tvos", "watchos"
-    exports_sources =  "cmake-wrapper"
-
-    @property
-    def _source_subfolder(self):
-        return os.path.join(self.source_folder, "source_subfolder")
 
     @staticmethod
     def _chmod_plus_x(filename):
-        if os.name == 'posix':
+        if os.name == "posix":
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
+    def export_sources(self):
+        copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
+
     def configure(self):
-        if not tools.is_apple_os(self.settings.os):
+        if not is_apple_os(self.settings.os):
             raise ConanInvalidConfiguration("This package only supports Apple operating systems")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+        # TODO: since we have 2 profiles I am not sure that this is still required
+        #       since this will always be / has to be  a build profile
 
     def _guess_toolchain_target(self, os, arch):
         if os == "iOS":
@@ -63,27 +91,36 @@ class IosCMakeConan(ConanFile):
                 return "TVOS"
             else:
                 return "SIMULATOR_TVOS"
-        raise ConanInvalidConfiguration("Can not guess toolchain_target. Please set the option explicit (or check our os settings)")
-
+        raise ConanInvalidConfiguration(
+            "Can not guess toolchain_target. Please set the option explicit (or check our os settings)"
+        )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("ios-cmake-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        pass # there is nothing to build
+        pass  # there is nothing to build
 
     def package(self):
-        self.copy("cmake-wrapper", dst="bin")
-        self.copy("ios.toolchain.cmake",
-                    src=self._source_subfolder,
-                    dst=os.path.join("lib", "cmake", "ios-cmake"),
-                    keep_path=False)
+        copy(self, "cmake-wrapper", dst=os.path.join(self.package_folder, "bin"))
+        copy(
+            self,
+            "ios.toolchain.cmake",
+            src=self.source_folder,
+            dst=os.path.join("lib", "cmake", "ios-cmake"),
+            keep_path=False,
+        )
         self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
 
-        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder, keep_path=False)
+        copy(
+            self,
+            "LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+            keep_path=False,
+        )
         # satisfy KB-H014 (header_only recipes require headers)
-        tools.save(os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
+        save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
         if self.settings.os == "Macos":
@@ -93,13 +130,13 @@ class IosCMakeConan(ConanFile):
             # this is where I want to be, expecting this as a build_require for a host
             target_os = str(self.settings_target.os)
             arch_flag = self.settings_target.arch
-            target_version= self.settings_target.os.version
-        elif self.settings.os == "iOS": # old style 1 profile, don't use
+            target_version = self.settings_target.os.version
+        elif self.settings.os == "iOS":  # old style 1 profile, don't use
             target_os = str(self.settings.os)
             arch_flag = self.settings.arch
             target_version = self.settings.os.version
         else:
-            #hackingtosh ? hu
+            # hackingtosh ? hu
             raise ConanInvalidConfiguration("Building for iOS on a non Mac platform? Please tell me how!")
 
         if self.options.toolchain_target == "auto":
@@ -107,22 +144,24 @@ class IosCMakeConan(ConanFile):
         else:
             toolchain_target = self.options.toolchain_target
 
-
         if arch_flag == "armv8":
             arch_flag = "arm64"
         elif arch_flag == "armv8.3":
             arch_flag = "arm64e"
 
-        cmake_options = "-DENABLE_BITCODE={} -DENABLE_ARC={} -DENABLE_VISIBILITY={} -DENABLE_STRICT_TRY_COMPILE={}".format(
-            self.options.enable_bitcode,
-            self.options.enable_arc,
-            self.options.enable_visibility,
-            self.options.enable_strict_try_compile
+        cmake_options = (
+            f"-DENABLE_BITCODE={self.options.enable_bitcode} "
+            f"-DENABLE_ARC={self.options.enable_arc} "
+            f"-DENABLE_VISIBILITY={self.options.enable_visibility} "
+            f"-DENABLE_STRICT_TRY_COMPILE={self.options.enable_strict_try_compile}"
         )
         # Note that this, as long as we specify (overwrite) the ARCHS, PLATFORM has just limited effect,
         # but PLATFORM need to be set in the profile so it makes sense, see ios-cmake docs for more info
-        cmake_flags = "-DPLATFORM={} -DDEPLOYMENT_TARGET={} -DARCHS={} {}".format(
-            toolchain_target, target_version, arch_flag, cmake_options
+        cmake_flags = (
+            f"-DPLATFORM={toolchain_target} "
+            f"-DDEPLOYMENT_TARGET={target_version} "
+            f"-DARCHS={arch_flag} "
+            f"{cmake_options}"
         )
 
         self.env_info.CONAN_USER_CMAKE_FLAGS = cmake_flags
@@ -130,11 +169,7 @@ class IosCMakeConan(ConanFile):
         cmake_wrapper = os.path.join(self.package_folder, "bin", "cmake-wrapper")
         self.output.info("Setting CONAN_CMAKE_PROGRAM to: {}".format(cmake_wrapper))
         self.env_info.CONAN_CMAKE_PROGRAM = cmake_wrapper
-        tool_chain = os.path.join(self.package_folder,
-                                    "lib",
-                                    "cmake",
-                                    "ios-cmake",
-                                    "ios.toolchain.cmake")
+        tool_chain = os.path.join(self.package_folder, "lib", "cmake", "ios-cmake", "ios.toolchain.cmake")
         self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = tool_chain
         # add some more env_info, for the case users generate a toolchain file via conan and want to access that info
         self.env_info.CONAN_ENABLE_BITCODE_FLAG = str(self.options.enable_bitcode)
@@ -142,8 +177,3 @@ class IosCMakeConan(ConanFile):
         self.env_info.CONAN_ENABLE_VISIBILITY_FLAG = str(self.options.enable_visibility)
         self.env_info.CONAN_ENABLE_STRICT_TRY_COMPILE_FLAG = str(self.options.enable_strict_try_compile)
         # the rest should be exported from profile info anyway
-
-    def package_id(self):
-        self.info.header_only()
-        # TODO , since we have 2 profiles I am not sure that this is still required
-        # since this will always be / has to be  a build profile

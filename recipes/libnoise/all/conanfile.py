@@ -15,9 +15,9 @@ class LibnoiseConan(ConanFile):
         "multifractal, etc.) and combinations of those techniques."
     )
     license = "LGPL-2.1-or-later"
-    topics = ("graphics", "noise-generator")
-    homepage = "http://libnoise.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://libnoise.sourceforge.net"
+    topics = ("graphics", "noise-generator")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -30,7 +30,8 @@ class LibnoiseConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -44,7 +45,7 @@ class LibnoiseConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

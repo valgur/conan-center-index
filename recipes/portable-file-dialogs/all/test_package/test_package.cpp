@@ -3,8 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main()
-{
+int main() {
     pfd::settings::verbose(true);
 
     return EXIT_SUCCESS;

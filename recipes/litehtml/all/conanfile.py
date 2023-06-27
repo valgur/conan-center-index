@@ -14,10 +14,11 @@ class LitehtmlConan(ConanFile):
     name = "litehtml"
     description = "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support."
     license = "BSD-3-Clause"
-    topics = ("render engine", "html", "parser")
-    homepage = "https://github.com/litehtml/litehtml"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/litehtml/litehtml"
+    topics = ("render engine", "html", "parser")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -67,15 +68,16 @@ class LitehtmlConan(ConanFile):
         pass
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["LITEHTML_UTF8"] = self.options.utf8
         tc.variables["USE_ICU"] = self.options.with_icu
-        tc.variables["EXTERNAL_GUMBO"] = False # FIXME: add cci recipe, and use it unconditionally (option value should be True)
+        tc.variables[
+            "EXTERNAL_GUMBO"
+        ] = False  # FIXME: add cci recipe, and use it unconditionally (option value should be True)
         tc.variables["EXTERNAL_XXD"] = self._with_xxd  # FIXME: should be True unconditionally
         tc.generate()
         deps = CMakeDeps(self)
@@ -99,18 +101,20 @@ class LitehtmlConan(ConanFile):
             {
                 "litehtml": "litehtml::litehtml",
                 "gumbo": "litehtml::gumbo",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -127,15 +131,23 @@ class LitehtmlConan(ConanFile):
         if self.options.with_icu:
             self.cpp_info.components["litehtml_litehtml"].requires.append("icu::icu")
 
-        if True: # FIXME: remove once we use a vendored gumbo library
+        if True:  # FIXME: remove once we use a vendored gumbo library
             self.cpp_info.components["gumbo"].set_property("cmake_target_name", "gumbo")
             self.cpp_info.components["gumbo"].libs = ["gumbo"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components["litehtml_litehtml"].names["cmake_find_package"] = "litehtml"
         self.cpp_info.components["litehtml_litehtml"].names["cmake_find_package_multi"] = "litehtml"
-        self.cpp_info.components["litehtml_litehtml"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["litehtml_litehtml"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["litehtml_litehtml"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["litehtml_litehtml"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         if True:
-            self.cpp_info.components["gumbo"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["gumbo"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["gumbo"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["gumbo"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

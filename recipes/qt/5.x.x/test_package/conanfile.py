@@ -25,7 +25,8 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         qt_install_prefix = self.dependencies["qt"].package_folder.replace("\\", "/")
-        qt_conf = textwrap.dedent(f"""\
+        qt_conf = textwrap.dedent(
+            f"""\
             [Paths]
             Prefix = {qt_install_prefix}
             ArchData = bin/archdatadir
@@ -39,7 +40,8 @@ class TestPackageConan(ConanFile):
             Translations = bin/datadir/translations
             Documentation = bin/datadir/doc
             Examples = bin/datadir/examples
-        """)
+        """
+        )
         save(self, "qt.conf", qt_conf)
 
         VirtualRunEnv(self).generate()

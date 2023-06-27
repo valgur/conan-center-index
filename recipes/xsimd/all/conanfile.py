@@ -8,16 +8,20 @@ from conan.tools.build import check_min_cppstd
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class XsimdConan(ConanFile):
     name = "xsimd"
-    description = "C++ wrappers for SIMD intrinsics and parallelized, optimized mathematical functions (SSE, AVX, NEON, AVX512)"
+    description = (
+        "C++ wrappers for SIMD intrinsics and parallelized, optimized mathematical functions (SSE, AVX, NEON,"
+        " AVX512)"
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xtensor-stack/xsimd"
     topics = ("simd-intrinsics", "vectorization", "simd", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -41,8 +45,11 @@ class XsimdConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.xtl_complex:
@@ -53,7 +60,11 @@ class XsimdConan(ConanFile):
 
     def validate(self):
         # TODO: check supported version (probably >= 8.0.0)
-        if Version(self.version) < "8.0.0" and is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
+        if (
+            Version(self.version) < "8.0.0"
+            and is_apple_os(self)
+            and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]
+        ):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support macOS M1")
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -64,11 +75,21 @@ class XsimdConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -78,19 +99,10 @@ class XsimdConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"xsimd": "xsimd::xsimd"}
+            {
+                "xsimd": "xsimd::xsimd",
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -106,9 +118,12 @@ class XsimdConan(ConanFile):
         self.cpp_info.libdirs = []
 
         ## TODO: workaround for arm compilation issue : https://github.com/xtensor-stack/xsimd/issues/735
-        if Version(self.version) >= "9.0.0" and \
-            is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
-            self.cpp_info.cxxflags.extend(["-flax-vector-conversions", "-fsigned-char",])
+        if (
+            Version(self.version) >= "9.0.0"
+            and is_apple_os(self)
+            and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]
+        ):
+            self.cpp_info.cxxflags.extend(["-flax-vector-conversions", "-fsigned-char"])
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

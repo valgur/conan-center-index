@@ -14,10 +14,12 @@ class MakeConan(ConanFile):
         "GNU Make is a tool which controls the generation of executables and "
         "other non-source files of a program from the program's source files"
     )
-    topics = ("make", "build", "makefile")
-    homepage = "https://www.gnu.org/software/make/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/make/"
+    topics = ("build", "makefile")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -38,8 +40,7 @@ class MakeConan(ConanFile):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -67,13 +68,23 @@ class MakeConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         for make_exe in ("make", "*gnumake.exe"):
-            copy(self, make_exe, src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                make_exe,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 
-        make = os.path.join(self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make")
+        make = os.path.join(
+            self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make"
+        )
         self.conf_info.define("tools.gnu:make_program", make)
 
         # TODO: to remove in conan v2

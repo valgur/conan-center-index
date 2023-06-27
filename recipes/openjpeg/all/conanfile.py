@@ -10,11 +10,11 @@ required_conan_version = ">=1.54.0"
 
 class OpenjpegConan(ConanFile):
     name = "openjpeg"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "OpenJPEG is an open-source JPEG 2000 codec written in C language."
-    topics = ("jpeg2000", "jp2", "openjpeg", "image", "multimedia", "format", "graphics")
-    homepage = "https://github.com/uclouvain/openjpeg"
     license = "BSD 2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/uclouvain/openjpeg"
+    topics = ("jpeg2000", "jp2", "image", "multimedia", "format", "graphics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -46,7 +46,7 @@ class OpenjpegConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.options.build_codec # not used for the moment
+        del self.info.options.build_codec  # not used for the moment
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -86,7 +86,9 @@ class OpenjpegConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"openjp2": "OpenJPEG::OpenJPEG"}
+            {
+                "openjp2": "OpenJPEG::OpenJPEG",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

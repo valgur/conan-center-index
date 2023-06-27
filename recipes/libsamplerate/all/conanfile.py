@@ -16,9 +16,9 @@ class LibsamplerateConan(ConanFile):
         "performing sample rate conversion of audio data."
     )
     license = "BSD-2-Clause"
-    topics = ("audio", "resample-audio-files")
-    homepage = "https://github.com/libsndfile/libsamplerate"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libsndfile/libsamplerate"
+    topics = ("audio", "resample-audio-files")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,8 +63,9 @@ class LibsamplerateConan(ConanFile):
 
     def _patch_sources(self):
         # Disable upstream logic about msvc runtime policy, called before conan toolchain resolution
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "cmake_policy(SET CMP0091 OLD)", "")
+        replace_in_file(
+            self, os.path.join(self.source_folder, "CMakeLists.txt"), "cmake_policy(SET CMP0091 OLD)", ""
+        )
 
     def build(self):
         self._patch_sources()

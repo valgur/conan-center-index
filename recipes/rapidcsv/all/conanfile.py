@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class RapidcsvConan(ConanFile):
     name = "rapidcsv"
     description = "C++ CSV parser library"
@@ -34,7 +35,9 @@ class RapidcsvConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.h",

@@ -10,7 +10,9 @@ class SpanLiteConan(ConanFile):
     name = "span-lite"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/span-lite"
-    description = "span lite - A C++20-like span for C++98, C++11 and later in a single-file header-only library"
+    description = (
+        "span lite - A C++20-like span for C++98, C++11 and later in a single-file header-only library"
+    )
     topics = ("cpp98", "cpp11", "cpp14", "cpp17", "span", "span-implementations")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"
@@ -23,14 +25,18 @@ class SpanLiteConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

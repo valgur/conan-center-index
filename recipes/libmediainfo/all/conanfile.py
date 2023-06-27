@@ -3,8 +3,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file,
-    rm, rmdir, save
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
 )
 from conan.tools.scm import Version
 import os
@@ -15,14 +21,15 @@ required_conan_version = ">=1.53.0"
 
 class LibmediainfoConan(ConanFile):
     name = "libmediainfo"
-    license = ("BSD-2-Clause", "Apache-2.0", "GLPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
-    homepage = "https://mediaarea.net/en/MediaInfo"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "MediaInfo is a convenient unified display of the most relevant "
         "technical and tag data for video and audio files"
     )
+    license = ("BSD-2-Clause", "Apache-2.0", "GLPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mediaarea.net/en/MediaInfo"
     topics = ("video", "audio", "metadata", "tag")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -105,18 +112,22 @@ class LibmediainfoConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"mediainfo": "MediaInfoLib::MediaInfoLib"}
+            {
+                "mediainfo": "MediaInfoLib::MediaInfoLib",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

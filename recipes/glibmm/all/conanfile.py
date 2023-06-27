@@ -15,7 +15,7 @@ from conan.tools.files import (
     replace_in_file,
     rename,
     rm,
-    rmdir
+    rmdir,
 )
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -28,11 +28,12 @@ required_conan_version = ">=1.53.0"
 
 class GlibmmConan(ConanFile):
     name = "glibmm"
-    homepage = "https://gitlab.gnome.org/GNOME/glibmm"
+    description = "glibmm is a C++ API for parts of glib that are useful for C++."
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "glibmm is a C++ API for parts of glib that are useful for C++."
+    homepage = "https://gitlab.gnome.org/GNOME/glibmm"
     topics = ("giomm",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,7 +44,6 @@ class GlibmmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
 
     @property
     def _abi_version(self):
@@ -94,7 +94,9 @@ class GlibmmConan(ConanFile):
             )
 
         if self.dependencies["glib"].options.shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Linking shared glib with the MSVC static runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "Linking shared glib with the MSVC static runtime is not supported"
+            )
 
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")
@@ -112,11 +114,13 @@ class GlibmmConan(ConanFile):
         deps.generate()
 
         tc = MesonToolchain(self)
-        tc.project_options.update({
-            "build-examples": "false",
-            "build-documentation": "false",
-            "msvc14x-parallel-installable": "false"
-        })
+        tc.project_options.update(
+            {
+                "build-examples": "false",
+                "build-documentation": "false",
+                "msvc14x-parallel-installable": "false",
+            }
+        )
         tc.generate()
 
     def _patch_sources(self):
@@ -129,12 +133,12 @@ class GlibmmConan(ConanFile):
             # when building a static build !defined(GLiBMM_GEN_EXTRA_DEFS_STATIC)
             # evaluates to 0
             if not self.options.shared:
-                replace_in_file(self,
-                                      os.path.join(self.source_folder, "tools",
-                                                   "extra_defs_gen", "generate_extra_defs.h"),
-                                      "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
-                                      "#if 0",
-                                      )
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "tools", "extra_defs_gen", "generate_extra_defs.h"),
+                    "#if defined (_MSC_VER) && !defined (GLIBMM_GEN_EXTRA_DEFS_STATIC)",
+                    "#if 0",
+                )
 
             # when using cpp_std=c++NM the /permissive- flag is added which
             # attempts enforcing standard conformant c++ code
@@ -152,12 +156,21 @@ class GlibmmConan(ConanFile):
     def package(self):
         def rename_msvc_static_libs():
             lib_folder = os.path.join(self.package_folder, "lib")
-            rename(self, os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"{self._glibmm_lib}.lib"))
-            rename(self, os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"{self._giomm_lib}.lib"))
-            rename(self, os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
-                   os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"))
+            rename(
+                self,
+                os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"{self._glibmm_lib}.lib"),
+            )
+            rename(
+                self,
+                os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"{self._giomm_lib}.lib"),
+            )
+            rename(
+                self,
+                os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
+                os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"),
+            )
 
         meson = Meson(self)
         meson.install()

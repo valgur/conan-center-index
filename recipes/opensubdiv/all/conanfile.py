@@ -1,8 +1,16 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -11,11 +19,12 @@ required_conan_version = ">=1.54.0"
 
 class OpenSubdivConan(ConanFile):
     name = "opensubdiv"
-    license = "LicenseRef-LICENSE.txt"
-    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "An Open-Source subdivision surface library"
+    license = "LicenseRef-LICENSE.txt"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/PixarAnimationStudios/OpenSubdiv"
     topics = ("cgi", "vfx", "animation", "subdivision surface")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,8 +52,6 @@ class OpenSubdivConan(ConanFile):
         "with_metal": False,
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         if self.options.get_safe("with_metal"):
@@ -68,9 +75,9 @@ class OpenSubdivConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            del self.options.with_dx
+            self.options.rm_safe("with_dx")
         if self.settings.os != "Macos":
-            del self.options.with_metal
+            self.options.rm_safe("with_metal")
 
     def configure(self):
         if self.options.shared:
@@ -133,6 +140,9 @@ class OpenSubdivConan(ConanFile):
         tc.variables["NO_MACOS_FRAMEWORK"] = True
         tc.generate()
 
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
         if self.settings.os == "Macos" and not self._osd_gpu_enabled:
@@ -159,13 +169,17 @@ class OpenSubdivConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenSubdiv")
         target_suffix = "" if self.options.shared else "_static"
 
-        self.cpp_info.components["osdcpu"].set_property("cmake_target_name", f"OpenSubdiv::osdcpu{target_suffix}")
+        self.cpp_info.components["osdcpu"].set_property(
+            "cmake_target_name", f"OpenSubdiv::osdcpu{target_suffix}"
+        )
         self.cpp_info.components["osdcpu"].libs = ["osdCPU"]
         if self.options.with_tbb:
             self.cpp_info.components["osdcpu"].requires = ["onetbb::onetbb"]
 
         if self._osd_gpu_enabled:
-            self.cpp_info.components["osdgpu"].set_property("cmake_target_name", f"OpenSubdiv::osdgpu{target_suffix}")
+            self.cpp_info.components["osdgpu"].set_property(
+                "cmake_target_name", f"OpenSubdiv::osdgpu{target_suffix}"
+            )
             self.cpp_info.components["osdgpu"].libs = ["osdGPU"]
             dl_required = self.options.with_opengl or self.options.with_opencl
             if self.settings.os in ["Linux", "FreeBSD"] and dl_required:

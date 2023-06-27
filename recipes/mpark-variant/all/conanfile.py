@@ -10,11 +10,13 @@ required_conan_version = ">=1.50.0"
 
 class MparkVariantConan(ConanFile):
     name = "mpark-variant"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/mpark/variant"
     description = "C++17 std::variant for C++11/14/17"
     license = "BSL-1.0"
-    topics = ("variant", "mpark-variant")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mpark/variant"
+    topics = ("variant", "mpark-variant", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -29,20 +31,26 @@ class MparkVariantConan(ConanFile):
             check_min_cppstd(self, "11")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"mpark_variant": "mpark_variant::mpark_variant"}
+            {
+                "mpark_variant": "mpark_variant::mpark_variant",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

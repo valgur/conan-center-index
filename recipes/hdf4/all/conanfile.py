@@ -1,17 +1,24 @@
-from conans import ConanFile, CMake, tools
+# TODO: verify the Conan v2 migration
+
 import os
 
-required_conan_version = ">=1.33.0"
+from conan import ConanFile
+from conan.tools.build import cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+
+required_conan_version = ">=1.53.0"
 
 
 class Hdf4Conan(ConanFile):
     name = "hdf4"
     description = "HDF4 is a data model, library, and file format for storing and managing data."
     license = "BSD-3-Clause"
-    topics = ("conan", "hdf4", "hdf", "data")
-    homepage = "https://portal.hdfgroup.org/display/HDF4/HDF4"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://portal.hdfgroup.org/display/HDF4/HDF4"
+    topics = ("hdf", "data")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -28,17 +35,8 @@ class Hdf4Conan(ConanFile):
         "szip_encoding": False,
     }
 
-    exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake", "cmake_find_package"
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -46,11 +44,14 @@ class Hdf4Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if not bool(self.options.szip_support):
-            del self.options.szip_encoding
+            self.options.rm_safe("szip_encoding")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -64,50 +65,59 @@ class Hdf4Conan(ConanFile):
             self.requires("szip/2.1.1")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["HDF4_EXTERNALLY_CONFIGURED"] = True
+        tc.variables["HDF4_EXTERNAL_LIB_PREFIX"] = ""
+        tc.variables["HDF4_NO_PACKAGES"] = True
+        tc.variables["ONLY_SHARED_LIBS"] = self.options.shared
+        tc.variables["HDF4_ENABLE_COVERAGE"] = False
+        tc.variables["HDF4_ENABLE_DEPRECATED_SYMBOLS"] = True
+        tc.variables["HDF4_ENABLE_JPEG_LIB_SUPPORT"] = (
+            True  # HDF can't compile without libjpeg or libjpeg-turbo
+        )
+        tc.variables["HDF4_ENABLE_Z_LIB_SUPPORT"] = True  # HDF can't compile without zlib
+        tc.variables["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
+        tc.variables["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
+        tc.variables["HDF4_PACKAGE_EXTLIBS"] = False
+        tc.variables["HDF4_BUILD_XDR_LIB"] = True
+        tc.variables["BUILD_TESTING"] = False
+        tc.variables["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(self.package_folder, "include", "hdf4")
+        tc.variables["HDF4_BUILD_FORTRAN"] = False
+        tc.variables["HDF4_BUILD_UTILS"] = False
+        tc.variables["HDF4_BUILD_TOOLS"] = False
+        tc.variables["HDF4_BUILD_EXAMPLES"] = False
+        tc.variables["HDF4_BUILD_JAVA"] = False
+        if cross_building(self):
+            tc.variables["H4_PRINTF_LL_TEST_RUN"] = "0"
+            tc.variables["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
+        tc.generate()
+
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["HDF4_EXTERNALLY_CONFIGURED"] = True
-        self._cmake.definitions["HDF4_EXTERNAL_LIB_PREFIX"] = ""
-        self._cmake.definitions["HDF4_NO_PACKAGES"] = True
-        self._cmake.definitions["ONLY_SHARED_LIBS"] = self.options.shared
-        self._cmake.definitions["HDF4_ENABLE_COVERAGE"] = False
-        self._cmake.definitions["HDF4_ENABLE_DEPRECATED_SYMBOLS"] = True
-        self._cmake.definitions["HDF4_ENABLE_JPEG_LIB_SUPPORT"] = True # HDF can't compile without libjpeg or libjpeg-turbo
-        self._cmake.definitions["HDF4_ENABLE_Z_LIB_SUPPORT"] = True # HDF can't compile without zlib
-        self._cmake.definitions["HDF4_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
-        self._cmake.definitions["HDF4_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding") or False
-        self._cmake.definitions["HDF4_PACKAGE_EXTLIBS"] = False
-        self._cmake.definitions["HDF4_BUILD_XDR_LIB"] = True
-        self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.definitions["HDF4_INSTALL_INCLUDE_DIR"] = os.path.join(self.package_folder, "include", "hdf4")
-        self._cmake.definitions["HDF4_BUILD_FORTRAN"] = False
-        self._cmake.definitions["HDF4_BUILD_UTILS"] = False
-        self._cmake.definitions["HDF4_BUILD_TOOLS"] = False
-        self._cmake.definitions["HDF4_BUILD_EXAMPLES"] = False
-        self._cmake.definitions["HDF4_BUILD_JAVA"] = False
-        if tools.cross_building(self):
-            self._cmake.definitions["H4_PRINTF_LL_TEST_RUN"] = "0"
-            self._cmake.definitions["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
-
     def package(self):
-        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         os.remove(os.path.join(self.package_folder, "lib", "libhdf4.settings"))
+
+    def _get_decorated_lib(self, name):
+        libname = name
+        if self.settings.os == "Windows" and self.settings.compiler != "gcc" and not self.options.shared:
+            libname = "lib" + libname
+        if self.settings.build_type == "Debug":
+            libname += "_D" if self.settings.os == "Windows" else "_debug"
+        return libname
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "hdf"
@@ -128,7 +138,7 @@ class Hdf4Conan(ConanFile):
         self.cpp_info.components["hdf"].libs = [self._get_decorated_lib("hdf")]
         self.cpp_info.components["hdf"].requires = [
             "zlib::zlib",
-            "libjpeg-turbo::libjpeg-turbo" if self.options.jpegturbo else "libjpeg::libjpeg"
+            "libjpeg-turbo::libjpeg-turbo" if self.options.jpegturbo else "libjpeg::libjpeg",
         ]
         if self.options.szip_support == "with_libaec":
             self.cpp_info.components["hdf"].requires.append("libaec::libaec")
@@ -146,11 +156,3 @@ class Hdf4Conan(ConanFile):
             self.cpp_info.components["xdr"].defines.append("H4_BUILT_AS_DYNAMIC_LIB=1")
             self.cpp_info.components["hdf"].defines.append("H4_BUILT_AS_DYNAMIC_LIB=1")
             self.cpp_info.components["mfhdf"].defines.append("H4_BUILT_AS_DYNAMIC_LIB=1")
-
-    def _get_decorated_lib(self, name):
-        libname = name
-        if self.settings.os == "Windows" and self.settings.compiler != "gcc" and not self.options.shared:
-            libname = "lib" + libname
-        if self.settings.build_type == "Debug":
-            libname += "_D" if self.settings.os == "Windows" else "_debug"
-        return libname

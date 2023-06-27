@@ -4,20 +4,21 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class ZmqppConan(ConanFile):
     name = "zmqpp"
-    homepage = "https://github.com/zeromq/zmqpp"
+    description = (
+        "This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core"
+        " 0mq provides."
+    )
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    description = (
-        "This C++ binding for 0mq/zmq is a 'high-level' library that hides "
-        "most of the c-style interface core 0mq provides."
-    )
+    homepage = "https://github.com/zeromq/zmqpp"
     topics = ("zmq", "0mq", "zeromq", "message-queue", "asynchronous")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -37,10 +38,7 @@ class ZmqppConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -53,8 +51,7 @@ class ZmqppConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -1,14 +1,88 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import rename, get, apply_conandata_patches, rmdir, mkdir
-from conan.tools.build import cross_building
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
 from conan.tools.scm import Version
-from conans import AutoToolsBuildEnvironment, tools
+from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 import shutil
 
 required_conan_version = ">=1.47.0"
+
 
 class CoinCbcConan(ConanFile):
     name = "coin-cbc"
@@ -32,17 +106,8 @@ class CoinCbcConan(ConanFile):
 
     _autotools = None
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
-
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,7 +115,7 @@ class CoinCbcConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("coin-utils/2.11.4")
@@ -58,7 +123,7 @@ class CoinCbcConan(ConanFile):
         self.requires("coin-clp/1.17.6")
         self.requires("coin-cgl/0.60.3")
         if self.settings.compiler == "Visual Studio" and self.options.parallel:
-            self.requires("pthreads4w/3.0.0")    
+            self.requires("pthreads4w/3.0.0")
 
     @property
     def _settings_build(self):
@@ -71,11 +136,11 @@ class CoinCbcConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20201022")
         self.tool_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.tool_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.tool_requires("automake/1.16.5")
-    
+
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("coin-cbc does not support shared builds on Windows")
@@ -84,20 +149,19 @@ class CoinCbcConan(ConanFile):
             raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(tools.unix_path(self._user_info_build["automake"].compile)),
-                    "AR": "{} lib".format(tools.unix_path(self._user_info_build["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "LD": "{} link -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "AR": "{} lib".format(unix_path(self._user_info_build["automake"].ar_lib)),
                 }
-                with tools.environment_append(env):
+                with environment_append(self, env):
                     yield
         else:
             yield
@@ -120,35 +184,50 @@ class CoinCbcConan(ConanFile):
             if Version(self.settings.compiler.version) >= 12:
                 self._autotools.flags.append("-FS")
             if self.options.parallel:
-                configure_args.append("--with-pthreadsw32-lib={}".format(tools.unix_path(os.path.join(self.deps_cpp_info["pthreads4w"].lib_paths[0], self.deps_cpp_info["pthreads4w"].libs[0] + ".lib"))))
-                configure_args.append("--with-pthreadsw32-incdir={}".format(tools.unix_path(self.deps_cpp_info["pthreads4w"].include_paths[0])))
-        self._autotools.configure(configure_dir=os.path.join(self.source_folder, self._source_subfolder), args=configure_args)
+                configure_args.append(
+                    "--with-pthreadsw32-lib={}".format(
+                        unix_path(
+                            self,
+                            os.path.join(
+                                self.dependencies["pthreads4w"].cpp_info.libdirs[0],
+                                self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib",
+                            ),
+                        )
+                    )
+                )
+                configure_args.append(
+                    "--with-pthreadsw32-incdir={}".format(
+                        unix_path(self.dependencies["pthreads4w"].cpp_info.includedirs[0])
+                    )
+                )
+        self._autotools.configure(configure_dir=self.source_folder, args=configure_args)
         return self._autotools
 
     def build(self):
         apply_conandata_patches(self)
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_SUB,
-                    os.path.join(self._source_subfolder, "config.sub"))
-        shutil.copy(self._user_info_build["gnu-config"].CONFIG_GUESS,
-                    os.path.join(self._source_subfolder, "config.guess"))
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
+        )
+        shutil.copy(
+            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
+        )
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
             autotools.install()
 
         for l in ("CbcSolver", "Cbc", "OsiCbc"):
             os.unlink(f"{self.package_folder}/lib/lib{l}.la")
             if self.settings.compiler == "Visual Studio":
-                rename(self,
-                       f"{self.package_folder}/lib/lib{l}.a",
-                       f"{self.package_folder}/lib/{l}.lib")
+                rename(self, f"{self.package_folder}/lib/lib{l}.a", f"{self.package_folder}/lib/{l}.lib")
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -156,7 +235,12 @@ class CoinCbcConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["libcbc"].libs = ["CbcSolver", "Cbc"]
         self.cpp_info.components["libcbc"].includedirs.append(os.path.join("include", "coin"))
-        self.cpp_info.components["libcbc"].requires = ["coin-clp::osi-clp", "coin-utils::coin-utils", "coin-osi::coin-osi", "coin-cgl::coin-cgl"]
+        self.cpp_info.components["libcbc"].requires = [
+            "coin-clp::osi-clp",
+            "coin-utils::coin-utils",
+            "coin-osi::coin-osi",
+            "coin-cgl::coin-cgl",
+        ]
         self.cpp_info.components["libcbc"].names["pkg_config"] = "cbc"
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.parallel:
             self.cpp_info.components["libcbc"].system_libs.append("pthread")

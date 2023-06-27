@@ -14,10 +14,10 @@ required_conan_version = ">=1.53.0"
 class EpoxyConan(ConanFile):
     name = "libepoxy"
     description = "libepoxy is a library for handling OpenGL function pointer management"
-    topics = ("opengl",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/anholt/libepoxy"
-    license = "MIT"
+    topics = ("opengl",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -44,9 +44,9 @@ class EpoxyConan(ConanFile):
             del self.options.fPIC
             self.options.shared = True
         if self.settings.os != "Linux":
-            del self.options.glx
-            del self.options.egl
-            del self.options.x11
+            self.options.rm_safe("glx")
+            self.options.rm_safe("egl")
+            self.options.rm_safe("x11")
 
     def configure(self):
         if self.options.shared:
@@ -109,11 +109,11 @@ class EpoxyConan(ConanFile):
             self.cpp_info.system_libs = ["dl"]
         self.cpp_info.set_property("pkg_config_name", "epoxy")
         pkgconfig_variables = {
-            'epoxy_has_glx': '1' if self.options.get_safe("glx") else '0',
-            'epoxy_has_egl': '1' if self.options.get_safe("egl") else '0',
-            'epoxy_has_wgl': '1' if self.settings.os == "Windows" else '0',
+            "epoxy_has_glx": "1" if self.options.get_safe("glx") else "0",
+            "epoxy_has_egl": "1" if self.options.get_safe("egl") else "0",
+            "epoxy_has_wgl": "1" if self.settings.os == "Windows" else "0",
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join(f"{key}={value}" for key,value in pkgconfig_variables.items()),
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )

@@ -11,7 +11,7 @@ class TranswarpConan(ConanFile):
     name = "transwarp"
     description = "A header-only C++ library for task concurrency."
     license = "MIT"
-    topics = ("transwarp", "concurrency", "asynchronous")
+    topics = ("concurrency", "asynchronous")
     homepage = "https://github.com/bloomen/transwarp"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,15 +28,19 @@ class TranswarpConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

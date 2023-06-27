@@ -15,10 +15,10 @@ class EntityXConan(ConanFile):
         "EntityX is an EC system that uses C++11 features to provide type-safe "
         "component management, event delivery, etc."
     )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alecthomas/entityx/"
     topics = ("entity", "c++11", "type-safe", "component")
-    license = "MIT"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -49,7 +49,9 @@ class EntityXConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("entityx shared library does not export all symbols with Visual Studio")
+            raise ConanInvalidConfiguration(
+                "entityx shared library does not export all symbols with Visual Studio"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

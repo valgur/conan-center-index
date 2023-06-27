@@ -11,19 +11,16 @@
 // Our simple example problem, version 0.
 struct problem_v0 {
     // Implementation of the objective function.
-    pagmo::vector_double fitness(const pagmo::vector_double &dv) const
-    {
+    pagmo::vector_double fitness(const pagmo::vector_double &dv) const {
         return {dv[0] * dv[3] * (dv[0] + dv[1] + dv[2]) + dv[2]};
     }
     // Implementation of the box bounds.
-    std::pair<pagmo::vector_double, pagmo::vector_double> get_bounds() const
-    {
+    std::pair<pagmo::vector_double, pagmo::vector_double> get_bounds() const {
         return {{1., 1., 1., 1.}, {5., 5., 5., 5.}};
     }
 };
 
-int main()
-{
+int main() {
     // Construct a pagmo::problem from our example problem.
     pagmo::problem p{problem_v0{}};
 

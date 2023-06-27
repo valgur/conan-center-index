@@ -1,7 +1,6 @@
 // cctz upstream example, from:
 // https://github.com/google/cctz/blob/master/examples/example1.cc
 
-
 // Copyright 2016 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,18 +23,17 @@
 #include "cctz/time_zone.h"
 
 int main() {
-  cctz::time_zone lax;
-  load_time_zone("America/Los_Angeles", &lax);
+    cctz::time_zone lax;
+    load_time_zone("America/Los_Angeles", &lax);
 
-  // Time Programming Fundamentals @cppcon
-  const auto tp = cctz::convert(cctz::civil_second(2015, 9, 22, 9, 0, 0), lax);
+    // Time Programming Fundamentals @cppcon
+    const auto tp = cctz::convert(cctz::civil_second(2015, 9, 22, 9, 0, 0), lax);
 
-  cctz::time_zone nyc;
-  load_time_zone("America/New_York", &nyc);
+    cctz::time_zone nyc;
+    load_time_zone("America/New_York", &nyc);
 
-  std::cout << cctz::format("Talk starts at %H:%M:%S %z (%Z)\n", tp, lax);
-  std::cout << cctz::format("Talk starts at %H:%M:%S %z (%Z)\n", tp, nyc);
+    std::cout << cctz::format("Talk starts at %H:%M:%S %z (%Z)\n", tp, lax);
+    std::cout << cctz::format("Talk starts at %H:%M:%S %z (%Z)\n", tp, nyc);
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
-

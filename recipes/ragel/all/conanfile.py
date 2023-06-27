@@ -10,13 +10,15 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class RagelConan(ConanFile):
     name = "ragel"
     description = "Ragel compiles executable finite state machines from regular languages"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.colm.net/open-source/ragel"
-    topics = ("FSM", "regex", "fsm-compiler")
+    topics = ("FSM", "regex", "fsm-compiler", "pre-built")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -70,8 +72,12 @@ class RagelConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="CREDITS", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self, pattern="CREDITS", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()
@@ -81,6 +87,8 @@ class RagelConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

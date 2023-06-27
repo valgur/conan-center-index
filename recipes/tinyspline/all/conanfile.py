@@ -9,15 +9,18 @@ import textwrap
 
 required_conan_version = ">=1.53.0"
 
+
 class TinysplineConan(ConanFile):
     name = "tinyspline"
-    description = "Library for interpolating, transforming, and querying " \
-                  "arbitrary NURBS, B-Splines, and Bezier curves."
+    description = (
+        "Library for interpolating, transforming, and querying arbitrary NURBS, B-Splines, and Bezier curves."
+    )
     license = "MIT"
-    topics = ("tinyspline ", "nurbs", "b-splines", "bezier")
-    homepage = "https://github.com/msteinbeck/tinyspline"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/msteinbeck/tinyspline"
+    topics = ("tinyspline ", "nurbs", "b-splines", "bezier")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -46,17 +49,16 @@ class TinysplineConan(ConanFile):
             self.settings.rm_safe("compiler.libcxx")
             self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         if Version(self.version) >= "0.4.0" and self.options.cxx:
             if self.settings.compiler.cppstd:
                 check_min_cppstd(self, 11)
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -100,6 +102,21 @@ class TinysplineConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                """\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -111,19 +128,10 @@ class TinysplineConan(ConanFile):
         if self.options.cxx:
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {"tinysplinecxx::tinysplinecxx": "tinyspline::libtinysplinecxx"}
+                {
+                    "tinysplinecxx::tinysplinecxx": "tinyspline::libtinysplinecxx",
+                },
             )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -151,9 +159,13 @@ class TinysplineConan(ConanFile):
 
         if self.options.cxx:
             # FIXME: should live in tinysplinecxx-config.cmake (see https://github.com/conan-io/conan/issues/9000)
-            self.cpp_info.components["libtinysplinecxx"].set_property("cmake_target_name", "tinysplinecxx::tinysplinecxx")
+            self.cpp_info.components["libtinysplinecxx"].set_property(
+                "cmake_target_name", "tinysplinecxx::tinysplinecxx"
+            )
             self.cpp_info.components["libtinysplinecxx"].set_property("pkg_config_name", "tinysplinecxx")
-            self.cpp_info.components["libtinysplinecxx"].libs = ["{}tinyspline{}{}".format(lib_prefix, cpp_prefix, lib_suffix)]
+            self.cpp_info.components["libtinysplinecxx"].libs = [
+                "{}tinyspline{}{}".format(lib_prefix, cpp_prefix, lib_suffix)
+            ]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libtinysplinecxx"].system_libs = ["m"]
             if Version(self.version) >= "0.3.0" and self.options.shared and self.settings.os == "Windows":
@@ -166,5 +178,9 @@ class TinysplineConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["libtinyspline"].names["cmake_find_package"] = "tinyspline"
         if self.options.cxx:
-            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]

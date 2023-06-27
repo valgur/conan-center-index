@@ -12,17 +12,15 @@ required_conan_version = ">=1.53.0"
 
 class LibreSSLConan(ConanFile):
     name = "libressl"
-    topics = ("SSL", "TLS", "openssl")
     description = (
         "LibreSSL is a version of the TLS/crypto stack forked from OpenSSL in "
         "2014, with goals of modernizing the codebase, improving security, and "
         "applying best practice development processes."
     )
+    license = ("OpenSSL", "BSD", "ISC")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libressl.org/"
-    license = ("OpenSSL", "BSD", "ISC")
-
-    provides = "openssl"
+    topics = ("SSL", "TLS", "openssl")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -34,6 +32,7 @@ class LibreSSLConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    provides = "openssl"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,7 +57,9 @@ class LibreSSLConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBRESSL_SKIP_INSTALL"] = False
-        tc.variables["LIBRESSL_APPS"] = False # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
+        tc.variables[
+            "LIBRESSL_APPS"
+        ] = False  # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
         tc.variables["LIBRESSL_TESTS"] = False
         tc.variables["ENABLE_ASM"] = True
         tc.variables["ENABLE_EXTRATESTS"] = False
@@ -71,7 +72,8 @@ class LibreSSLConan(ConanFile):
     def _patch_sources(self):
         if Version(self.version) >= "3.1.1":
             replace_in_file(
-                self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                self,
+                os.path.join(self.source_folder, "CMakeLists.txt"),
                 "cmake_minimum_required (VERSION 3.16.4)",
                 "cmake_minimum_required (VERSION 3.15.6)",
             )
@@ -137,8 +139,9 @@ class LibreSSLConan(ConanFile):
 
     def _lib_name(self, name):
         libressl_version = Version(self.version)
-        if self.settings.os == "Windows" and \
-           (libressl_version >= "3.1.0" or (libressl_version < "3.1.0" and self.options.shared)):
+        if self.settings.os == "Windows" and (
+            libressl_version >= "3.1.0" or (libressl_version < "3.1.0" and self.options.shared)
+        ):
             lib_fullpath = glob.glob(os.path.join(self.package_folder, "lib", f"*{name}*"))[0]
             lib_name = os.path.basename(lib_fullpath).split(".")[0].replace("lib", "")
             return lib_name

@@ -10,12 +10,14 @@ required_conan_version = ">=1.54.0"
 
 class CfitsioConan(ConanFile):
     name = "cfitsio"
-    description = "C library for reading and writing data files in FITS " \
-                  "(Flexible Image Transport System) data format"
+    description = (
+        "C library for reading and writing data files in FITS "
+        "(Flexible Image Transport System) data format"
+    )
     license = "ISC"
-    topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
-    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/"
+    topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,9 +44,9 @@ class CfitsioConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_curl
+            self.options.rm_safe("with_curl")
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
 
     def configure(self):
         if self.options.shared:
@@ -57,8 +59,11 @@ class CfitsioConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.2.13")
-        if self.options.threadsafe and self.settings.os == "Windows" and \
-           self.settings.compiler.get_safe("threads") != "posix":
+        if (
+            self.options.threadsafe
+            and self.settings.os == "Windows"
+            and self.settings.compiler.get_safe("threads") != "posix"
+        ):
             self.requires("pthreads4w/3.0.0")
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")

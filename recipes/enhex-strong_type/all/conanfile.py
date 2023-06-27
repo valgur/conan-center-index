@@ -1,33 +1,47 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.52.0"
+
 
 class EnhexStrongTypeConan(ConanFile):
     name = "enhex-strong_type"
-    license = "MIT"
     description = "Create new type from existing type without changing the interface."
-    topics = ("strong_type", "safety")
-    homepage = "https://github.com/Enhex/strong_type"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    no_copy_source = True
-    settings = ("compiler")
+    homepage = "https://github.com/Enhex/strong_type"
+    topics = ("strong_type", "safety", "header-only")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
 
         minimal_version = {
             "Visual Studio": "15",
             "gcc": "7",
             "clang": "5.0",
-            "apple-clang": "9.1"
+            "apple-clang": "9.1",
         }
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         if compiler not in minimal_version:
             self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
@@ -35,16 +49,29 @@ class EnhexStrongTypeConan(ConanFile):
 
         # Exclude compilers not supported
         if compiler_version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration("{} requires a compiler that supports at least C++17. {} {} is not".format(
-                self.name, compiler, tools.Version(self.settings.compiler.version.value)))
+            raise ConanInvalidConfiguration(
+                "{} requires a compiler that supports at least C++17. {} {} is not".format(
+                    self.name, compiler, Version(self.settings.compiler.version.value)
+                )
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy(pattern="LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

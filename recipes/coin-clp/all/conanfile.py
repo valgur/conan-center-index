@@ -3,7 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    mkdir,
+    rename,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -15,12 +24,13 @@ required_conan_version = ">=1.57.0"
 class CoinClpConan(ConanFile):
     name = "coin-clp"
     description = "COIN-OR Linear Programming Solver"
-    topics = ("clp", "simplex", "solver", "linear", "programming")
+    license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/Clp"
-    license = "EPL-2.0"
+    topics = ("clp", "simplex", "solver", "linear programming")
+
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -89,7 +99,7 @@ class CoinClpConan(ConanFile):
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", f"{compile_wrapper} link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -112,7 +122,12 @@ class CoinClpConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(
+                        self,
+                        os.path.basename(gnu_config),
+                        src=os.path.dirname(gnu_config),
+                        dst=self.source_folder,
+                    )
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -129,8 +144,11 @@ class CoinClpConan(ConanFile):
         fix_apple_shared_install_name(self)
         if is_msvc(self):
             for l in ("Clp", "ClpSolver", "OsiClp"):
-                rename(self, os.path.join(self.package_folder, "lib", f"lib{l}.a"),
-                             os.path.join(self.package_folder, "lib", f"{l}.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", f"lib{l}.a"),
+                    os.path.join(self.package_folder, "lib", f"{l}.lib"),
+                )
 
     def package_info(self):
         self.cpp_info.components["clp"].set_property("pkg_config_name", "clp")

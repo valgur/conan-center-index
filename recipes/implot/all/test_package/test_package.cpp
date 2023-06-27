@@ -1,6 +1,6 @@
 #include <implot.h>
 
 int main() {
-	ImPlot::GetCurrentContext();
-	return 0;
+    ImPlot::GetCurrentContext();
+    return 0;
 }

@@ -1,30 +1,34 @@
-from conan import ConanFile
-from conan.tools.files import get, rmdir, copy, rm
-from conan.tools.layout import basic_layout
-from conan.tools.gnu import AutotoolsToolchain, Autotools
-from conan.errors import ConanInvalidConfiguration
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import get, rmdir, copy, rm
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
 
 
 class LibNlConan(ConanFile):
     name = "libnl"
-    description = "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
-    topics = ("netlink")
+    description = (
+        "A collection of libraries providing APIs to netlink protocol based Linux kernel interfaces."
+    )
+    license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.infradead.org/~tgr/libnl/"
-    license = "LGPL-2.1-only"
-    settings = "os", "arch", "compiler", "build_type"
-    options = {"fPIC": [True, False], "shared": [True, False]}
-    default_options = {"fPIC": True, "shared": False}
+    topics = ("netlink",)
 
-    def build_requirements(self):
-        self.tool_requires("bison/3.8.2")
-        self.tool_requires("flex/2.6.4")
-    
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def configure(self):
         if self.options.shared:
@@ -33,12 +37,19 @@ class LibNlConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+        self.tool_requires("flex/2.6.4")
+
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("Libnl is only supported on Linux")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def build_requirements(self):
+        self.tool_requires("bison/3.8.2")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -60,7 +71,7 @@ class LibNlConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["nl"].libs = ["nl-3"]
-        self.cpp_info.components["nl"].includedirs = [os.path.join('include', 'libnl3')]
+        self.cpp_info.components["nl"].includedirs = [os.path.join("include", "libnl3")]
         if self.settings.os != "Windows":
             self.cpp_info.components["nl"].system_libs = ["pthread", "m"]
         self.cpp_info.components["nl-route"].libs = ["nl-route-3"]

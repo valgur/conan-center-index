@@ -18,6 +18,8 @@ class CzmqConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zeromq/czmq"
     topics = ("zmq", "libzmq", "message-queue", "asynchronous")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,8 +33,8 @@ class CzmqConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "enable_drafts": False,
         "fPIC": True,
+        "enable_drafts": False,
         "with_libcurl": True,
         "with_lz4": True,
         "with_libuuid": True,
@@ -47,16 +49,16 @@ class CzmqConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
             # libuuid is not available on Windows
-            del self.options.with_libuuid
+            self.options.rm_safe("with_libuuid")
         if self.settings.os == "Linux":
-            del self.options.with_systemd
+            self.options.rm_safe("with_systemd")
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.enable_drafts:
-            del self.options.with_libcurl
-            del self.options.with_libmicrohttpd
+            self.options.rm_safe("with_libcurl")
+            self.options.rm_safe("with_libmicrohttpd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -76,7 +78,9 @@ class CzmqConan(ConanFile):
 
     def validate(self):
         if is_apple_os(self) and self.options.shared and self.settings.build_type == "Debug":
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared and debug on apple-clang.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared and debug on apple-clang."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -111,7 +115,9 @@ class CzmqConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -121,18 +127,22 @@ class CzmqConan(ConanFile):
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._czmq_target: "czmq::czmq"}
+            {
+                self._czmq_target: "czmq::czmq",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

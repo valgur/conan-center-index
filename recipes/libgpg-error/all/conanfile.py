@@ -10,12 +10,15 @@ required_conan_version = ">=1.57.0"
 
 class GPGErrorConan(ConanFile):
     name = "libgpg-error"
+    description = (
+        "Libgpg-error is a small library that originally defined common error values for "
+        "all GnuPG components."
+    )
+    license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gnupg.org/software/libgpg-error/index.html"
     topics = ("gpg", "gnupg", "encrypt", "pgp", "openpgp")
-    description = "Libgpg-error is a small library that originally defined common error values for all GnuPG " \
-                  "components."
-    license = "GPL-2.0-or-later"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -41,20 +44,24 @@ class GPGErrorConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
+            raise ConanInvalidConfiguration(
+                "This recipe only support Linux. You can contribute Windows and/or Macos support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-dependency-tracking",
-            "--disable-nls",
-            "--disable-languages",
-            "--disable-doc",
-            "--disable-tests",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-dependency-tracking",
+                "--disable-nls",
+                "--disable-languages",
+                "--disable-doc",
+                "--disable-tests",
+            ]
+        )
         if self.options.get_safe("fPIC", True):
             tc.configure_args.append("--with-pic")
         host = None

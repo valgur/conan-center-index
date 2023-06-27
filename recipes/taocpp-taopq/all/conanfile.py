@@ -11,13 +11,14 @@ required_conan_version = ">=1.53.0"
 
 class TaoCPPTaopqConan(ConanFile):
     name = "taocpp-taopq"
+    description = "C++ client library for PostgreSQL"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/taopq"
-    description = "C++ client library for PostgreSQL"
     topics = ("cpp17", "postgresql", "libpq", "data-base", "sql")
 
-    settings = "os", "arch", "build_type", "compiler"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -7,19 +7,20 @@ from conan.tools.files import copy, get, replace_in_file, rmdir, save
 import os
 import textwrap
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=1.53.0"
 
 
 class TensorpipeConan(ConanFile):
     name = "tensorpipe"
-    description = "The TensorPipe project provides a tensor-aware channel to " \
-                  "transfer rich objects from one process to another while " \
-                  "using the fastest transport for the tensors contained " \
-                  "therein (e.g., CUDA device-to-device copy)."
+    description = (
+        "The TensorPipe project provides a tensor-aware channel to transfer rich objects from one process to"
+        " another while using the fastest transport for the tensors contained therein (e.g., CUDA"
+        " device-to-device copy)."
+    )
     license = "BSD-3-Clause"
-    topics = ("tensor", "cuda")
-    homepage = "https://github.com/pytorch/tensorpipe"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/pytorch/tensorpipe"
+    topics = ("tensor", "cuda")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -44,15 +45,15 @@ class TensorpipeConan(ConanFile):
 
     def config_options(self):
         if self.settings.os != "Linux":
-            del self.options.ibv
-            del self.options.shm
-            del self.options.cma
+            self.options.rm_safe("ibv")
+            self.options.rm_safe("shm")
+            self.options.rm_safe("cma")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if not self.options.cuda:
-            del self.options.cuda_ipc
+            self.options.rm_safe("cuda_ipc")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -99,7 +100,10 @@ class TensorpipeConan(ConanFile):
         replace_in_file(
             self,
             cmakelists,
-            "target_include_directories(tensorpipe PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/libnop/include>)",
+            (
+                "target_include_directories(tensorpipe PUBLIC"
+                " $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/libnop/include>)"
+            ),
             "find_package(libnop REQUIRED CONFIG)\ntarget_link_libraries(tensorpipe PUBLIC libnop::libnop)",
         )
 
@@ -108,6 +112,19 @@ class TensorpipeConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
 
     def package(self):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -118,19 +135,10 @@ class TensorpipeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"tensorpipe": "Tensorpipe::Tensorpipe"},
+            {
+                "tensorpipe": "Tensorpipe::Tensorpipe",
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

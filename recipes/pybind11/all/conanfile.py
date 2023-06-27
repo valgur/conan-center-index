@@ -11,7 +11,7 @@ required_conan_version = ">=1.52.0"
 class PyBind11Conan(ConanFile):
     name = "pybind11"
     description = "Seamless operability between C++11 and Python"
-    topics = "pybind11", "python", "binding"
+    topics = ("pybind11", "python", "binding")
     homepage = "https://github.com/pybind/pybind11"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
@@ -22,7 +22,7 @@ class PyBind11Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -45,12 +45,18 @@ class PyBind11Conan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        replace_in_file(self, os.path.join(self.package_folder, "lib", "cmake", "pybind11", "pybind11Common.cmake"),
-                              "if(TARGET pybind11::lto)",
-                              "if(FALSE)")
-        replace_in_file(self, os.path.join(self.package_folder, "lib", "cmake", "pybind11", "pybind11Common.cmake"),
-                              "add_library(",
-                              "# add_library(")
+        replace_in_file(
+            self,
+            os.path.join(self.package_folder, "lib", "cmake", "pybind11", "pybind11Common.cmake"),
+            "if(TARGET pybind11::lto)",
+            "if(FALSE)",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.package_folder, "lib", "cmake", "pybind11", "pybind11Common.cmake"),
+            "add_library(",
+            "# add_library(",
+        )
 
     def package_id(self):
         self.info.clear()

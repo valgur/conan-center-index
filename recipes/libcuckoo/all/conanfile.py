@@ -12,11 +12,13 @@ class LibCuckooConan(ConanFile):
     name = "libcuckoo"
     description = "A high-performance, concurrent hash table"
     license = "Apache-2.0"
-    homepage = "https://github.com/efficient/libcuckoo"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/efficient/libcuckoo"
     topics = ("concurrency", "hashmap", "header-only", "library", "cuckoo")
+
     package_type = "header-library"
-    settings = "arch", "build_type", "compiler", "os"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -33,8 +35,7 @@ class LibCuckooConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,7 +59,6 @@ class LibCuckooConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
-
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libcuckoo")

@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildToolchain
@@ -15,10 +23,12 @@ required_conan_version = ">=1.54.0"
 class LibmicrohttpdConan(ConanFile):
     name = "libmicrohttpd"
     description = "A small C library that is supposed to make it easy to run an HTTP server"
-    homepage = "https://www.gnu.org/software/libmicrohttpd/"
-    topics = ("httpd", "server", "service")
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libmicrohttpd/"
+    topics = ("httpd", "server", "service")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -52,13 +62,13 @@ class LibmicrohttpdConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.epoll
+            self.options.rm_safe("epoll")
         if is_msvc(self):
-            del self.options.with_https
-            del self.options.with_error_messages
-            del self.options.with_postprocessor
-            del self.options.with_digest_authentification
-            del self.options.with_zlib
+            self.options.rm_safe("with_https")
+            self.options.rm_safe("with_error_messages")
+            self.options.rm_safe("with_postprocessor")
+            self.options.rm_safe("with_digest_authentification")
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:
@@ -100,18 +110,20 @@ class LibmicrohttpdConan(ConanFile):
                 VirtualRunEnv(self).generate(scope="build")
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--enable-shared={yes_no(self.options.shared)}",
-                f"--enable-static={yes_no(not self.options.shared)}",
-                f"--enable-https={yes_no(self.options.with_https)}",
-                f"--enable-messages={yes_no(self.options.with_error_messages)}",
-                f"--enable-postprocessor={yes_no(self.options.with_postprocessor)}",
-                f"--enable-dauth={yes_no(self.options.with_digest_authentification)}",
-                f"--enable-epoll={yes_no(self.options.get_safe('epoll'))}",
-                "--disable-doc",
-                "--disable-examples",
-                "--disable-curl",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-shared={yes_no(self.options.shared)}",
+                    f"--enable-static={yes_no(not self.options.shared)}",
+                    f"--enable-https={yes_no(self.options.with_https)}",
+                    f"--enable-messages={yes_no(self.options.with_error_messages)}",
+                    f"--enable-postprocessor={yes_no(self.options.with_postprocessor)}",
+                    f"--enable-dauth={yes_no(self.options.with_digest_authentification)}",
+                    f"--enable-epoll={yes_no(self.options.get_safe('epoll'))}",
+                    "--disable-doc",
+                    "--disable-examples",
+                    "--disable-curl",
+                ]
+            )
             tc.generate()
             AutotoolsDeps(self).generate()
 
@@ -129,32 +141,37 @@ class LibmicrohttpdConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
-            #==============================
+            # ==============================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
             vcxproj_file = os.path.join(self._msvc_sln_folder, "libmicrohttpd.vcxproj")
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 "<WholeProgramOptimization Condition=\"! $(Configuration.StartsWith('Debug'))\">true</WholeProgramOptimization>",
                 "",
             )
             toolset = MSBuildToolchain(self).toolset
             replace_in_file(
-                self, vcxproj_file,
+                self,
+                vcxproj_file,
                 "<PlatformToolset>v143</PlatformToolset>",
                 f"<PlatformToolset>{toolset}</PlatformToolset>",
             )
             conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
             replace_in_file(
-                self, vcxproj_file,
-                "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
-                f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
+                self,
+                vcxproj_file,
+                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
             )
-            #==============================
+            # ==============================
 
             msbuild = MSBuild(self)
             msbuild.build_type = self._msvc_configuration
             msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
-            msbuild.build(sln=os.path.join(self._msvc_sln_folder, "libmicrohttpd.sln"), targets=["libmicrohttpd"])
+            msbuild.build(
+                sln=os.path.join(self._msvc_sln_folder, "libmicrohttpd.sln"), targets=["libmicrohttpd"]
+            )
         else:
             autotools = Autotools(self)
             autotools.configure()
@@ -166,7 +183,9 @@ class LibmicrohttpdConan(ConanFile):
             output_dir = os.path.join(self._msvc_sln_folder, "Output")
             copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "*.h", src=output_dir, dst=os.path.join(self.package_folder, "include"), keep_path=False)
+            copy(
+                self, "*.h", src=output_dir, dst=os.path.join(self.package_folder, "include"), keep_path=False
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

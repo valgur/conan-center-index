@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
-{
+int main() {
     struct libmnt_context *ctx = mnt_new_context();
     if (!ctx) {
         printf("failed to initialize libmount\n");

@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_has_build_profile'
+#   Unexpected method '_has_xkbregistry_option'
+
 import os
 
 from conan import ConanFile
@@ -15,12 +19,13 @@ required_conan_version = ">=1.53.0"
 
 class XkbcommonConan(ConanFile):
     name = "xkbcommon"
-    package_type = "library"
     description = "keymap handling library for toolkits and window systems"
-    topics = ("keyboard", "wayland", "x11", "xkb")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xkbcommon/libxkbcommon"
-    license = "MIT"
+    topics = ("keyboard", "wayland", "x11", "xkb")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -47,9 +52,9 @@ class XkbcommonConan(ConanFile):
 
     def config_options(self):
         if not self._has_xkbregistry_option:
-            del self.options.xkbregistry
+            self.options.rm_safe("xkbregistry")
         if self.settings.os != "Linux":
-            del self.options.with_wayland
+            self.options.rm_safe("with_wayland")
 
     def configure(self):
         if self.options.shared:
@@ -104,7 +109,10 @@ class XkbcommonConan(ConanFile):
         pkg_config_deps = PkgConfigDeps(self)
         if self._has_build_profile and self.options.get_safe("with_wayland"):
             pkg_config_deps.build_context_activated = ["wayland", "wayland-protocols"]
-            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD", "wayland-protocols": "_BUILD"}
+            pkg_config_deps.build_context_suffix = {
+                "wayland": "_BUILD",
+                "wayland-protocols": "_BUILD",
+            }
         pkg_config_deps.generate()
 
     def build(self):
@@ -118,24 +126,54 @@ class XkbcommonConan(ConanFile):
                 get_pkg_config_var = "get_pkgconfig_variable("
 
             if self._has_build_profile:
-                replace_in_file(self, meson_build_file,
-                                "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                                "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)")
-                replace_in_file(self, meson_build_file,
-                                "wayland_protocols_dep = dependency('wayland-protocols', version: '>=1.12', required: false)",
-                                "wayland_protocols_dep = dependency('wayland-protocols_BUILD', version: '>=1.12', required: false, native: true)")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                    (
+                        "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native:"
+                        " true)"
+                    ),
+                )
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    (
+                        "wayland_protocols_dep = dependency('wayland-protocols', version: '>=1.12', required:"
+                        " false)"
+                    ),
+                    (
+                        "wayland_protocols_dep = dependency('wayland-protocols_BUILD', version: '>=1.12',"
+                        " required: false, native: true)"
+                    ),
+                )
             else:
-                replace_in_file(self, meson_build_file,
-                                "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                                "# wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                    "# wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                )
 
-                replace_in_file(self, meson_build_file,
-                                "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not wayland_scanner_dep.found()",
-                                "if not wayland_client_dep.found() or not wayland_protocols_dep.found()")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    (
+                        "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not"
+                        " wayland_scanner_dep.found()"
+                    ),
+                    "if not wayland_client_dep.found() or not wayland_protocols_dep.found()",
+                )
 
-                replace_in_file(self, meson_build_file,
-                                f"wayland_scanner = find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))",
-                                "wayland_scanner = find_program('wayland-scanner')")
+                replace_in_file(
+                    self,
+                    meson_build_file,
+                    (
+                        "wayland_scanner ="
+                        f" find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))"
+                    ),
+                    "wayland_scanner = find_program('wayland-scanner')",
+                )
 
         meson = Meson(self)
         meson.configure()
@@ -158,7 +196,11 @@ class XkbcommonConan(ConanFile):
         if self.options.with_x11:
             self.cpp_info.components["libxkbcommon-x11"].set_property("pkg_config_name", "xkbcommon-x11")
             self.cpp_info.components["libxkbcommon-x11"].libs = ["xkbcommon-x11"]
-            self.cpp_info.components["libxkbcommon-x11"].requires = ["libxkbcommon", "xorg::xcb", "xorg::xcb-xkb"]
+            self.cpp_info.components["libxkbcommon-x11"].requires = [
+                "libxkbcommon",
+                "xorg::xcb",
+                "xorg::xcb-xkb",
+            ]
         if self.options.get_safe("xkbregistry"):
             self.cpp_info.components["libxkbregistry"].set_property("pkg_config_name", "xkbregistry")
             self.cpp_info.components["libxkbregistry"].libs = ["xkbregistry"]
@@ -168,7 +210,9 @@ class XkbcommonConan(ConanFile):
             self.cpp_info.components["xkbcli-interactive-wayland"].includedirs = []
             self.cpp_info.components["xkbcli-interactive-wayland"].requires = ["wayland::wayland-client"]
             if not self._has_build_profile:
-                self.cpp_info.components["xkbcli-interactive-wayland"].requires.append("wayland-protocols::wayland-protocols")
+                self.cpp_info.components["xkbcli-interactive-wayland"].requires.append(
+                    "wayland-protocols::wayland-protocols"
+                )
 
         if Version(self.version) >= "1.0.0":
             bindir = os.path.join(self.package_folder, "bin")

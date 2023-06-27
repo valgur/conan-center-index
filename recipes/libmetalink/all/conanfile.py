@@ -18,10 +18,11 @@ class LibmetalinkConan(ConanFile):
         "It supports both Metalink version 3 and Metalink version 4 (RFC 5854)."
     )
     license = "MIT"
-    topics = ("metalink", "xml")
-    homepage = "https://launchpad.net/libmetalink"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://launchpad.net/libmetalink"
+    topics = ("metalink", "xml")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -70,8 +71,7 @@ class LibmetalinkConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -79,11 +79,13 @@ class LibmetalinkConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--with-libexpat={yes_no(self.options.xml_backend == 'expat')}",
-            f"--with-libxml2={yes_no(self.options.xml_backend == 'libxml2')}",
-            "ac_cv_func_malloc_0_nonnull=yes",
-        ])
+        tc.configure_args.extend(
+            [
+                f"--with-libexpat={yes_no(self.options.xml_backend == 'expat')}",
+                f"--with-libxml2={yes_no(self.options.xml_backend == 'libxml2')}",
+                "ac_cv_func_malloc_0_nonnull=yes",
+            ]
+        )
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -96,7 +98,12 @@ class LibmetalinkConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
 
     def build(self):
         self._patch_sources()

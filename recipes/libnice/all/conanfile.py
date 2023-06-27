@@ -7,29 +7,34 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.errors import ConanInvalidConfiguration
 
+required_conan_version = ">=1.53.0"
+
 
 class LibniceConan(ConanFile):
     name = "libnice"
-    homepage = "https://libnice.freedesktop.org/"
+    description = "a GLib ICE implementation"
     license = ("MPL-1.1", "LGPL-2.1-only")
     url = "https://github.com/conan-io/conan-center-index"
-    description = "a GLib ICE implementation"
+    homepage = "https://libnice.freedesktop.org/"
     topics = ("ice", "stun", "turn")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "crypto_library": ["openssl", "win32"],
         "with_gstreamer": [True, False],
         "with_gtk_doc": [True, False],
-        "with_introspection": [True, False]}
+        "with_introspection": [True, False],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_gstreamer": False,
         "with_gtk_doc": False,
-        "with_introspection": False}
+        "with_introspection": False,
+    }
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -47,23 +52,22 @@ class LibniceConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def validate(self):
-        if self.settings.os != "Windows" and self.options.crypto_library == "win32":
-            raise ConanInvalidConfiguration(
-                f"-o {self.ref}:crypto_library=win32 is not supported on non-Windows")
-        if self.settings.os == "Windows" and self.options.with_gtk_doc:
-            raise ConanInvalidConfiguration(
-                f"-o {self.ref}:with_gtk_doc=True is not support on Windows")
-        if is_msvc_static_runtime(self) and self.dependencies["glib"].options.shared:
-            raise ConanInvalidConfiguration(
-                "-o glib/*:shared=True with static runtime is not supported")
-
     def requirements(self):
         self.requires("glib/2.75.2")
         if self.options.crypto_library == "openssl":
             self.requires("openssl/1.1.1t")
         if self.options.with_gstreamer:
             self.requires("gstreamer/1.19.2")
+
+    def validate(self):
+        if self.settings.os != "Windows" and self.options.crypto_library == "win32":
+            raise ConanInvalidConfiguration(
+                f"-o {self.ref}:crypto_library=win32 is not supported on non-Windows"
+            )
+        if self.settings.os == "Windows" and self.options.with_gtk_doc:
+            raise ConanInvalidConfiguration(f"-o {self.ref}:with_gtk_doc=True is not support on Windows")
+        if is_msvc_static_runtime(self) and self.dependencies["glib"].options.shared:
+            raise ConanInvalidConfiguration("-o glib/*:shared=True with static runtime is not supported")
 
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")
@@ -81,8 +85,9 @@ class LibniceConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["gupnp"] = "disabled"
         tc.project_options["gstreamer"] = "enabled" if self.options.with_gstreamer else "disabled"
-        tc.project_options["crypto-library"] = "auto" if self.options.crypto_library == "win32" else str(
-            self.options.crypto_library)
+        tc.project_options["crypto-library"] = (
+            "auto" if self.options.crypto_library == "win32" else str(self.options.crypto_library)
+        )
 
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
@@ -96,8 +101,12 @@ class LibniceConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, pattern="COPYING*", dst=os.path.join(self.package_folder,
-             "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

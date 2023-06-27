@@ -28,17 +28,19 @@ class TlfunctionrefConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tl-function-ref")
@@ -56,8 +58,7 @@ class TlfunctionrefConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "tl"
         self.cpp_info.components["function-ref"].names["cmake_find_package"] = "function-ref"
         self.cpp_info.components["function-ref"].names["cmake_find_package_multi"] = "function-ref"
-        self.cpp_info.components["function-ref"].set_property(
-            "cmake_target_name", "tl::function-ref")
+        self.cpp_info.components["function-ref"].set_property("cmake_target_name", "tl::function-ref")
         self.cpp_info.components["function-ref"].bindirs = []
         self.cpp_info.components["function-ref"].frameworkdirs = []
         self.cpp_info.components["function-ref"].libdirs = []

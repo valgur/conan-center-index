@@ -13,12 +13,13 @@ required_conan_version = ">=1.53.0"
 
 class Libdc1394Conan(ConanFile):
     name = "libdc1394"
+    description = "libdc1394 provides a complete high level API to control IEEE 1394 based cameras"
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://damien.douxchamps.net/ieee1394/libdc1394/"
-    description = "libdc1394 provides a complete high level API to control IEEE 1394 based cameras"
     topics = ("ieee1394", "camera", "iidc", "dcam")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -57,8 +58,7 @@ class Libdc1394Conan(ConanFile):
             self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -75,7 +75,12 @@ class Libdc1394Conan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(
+                    self,
+                    os.path.basename(gnu_config),
+                    src=os.path.dirname(gnu_config),
+                    dst=self.source_folder,
+                )
 
     def build(self):
         self._patch_sources()

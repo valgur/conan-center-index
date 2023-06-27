@@ -1,14 +1,13 @@
-#include <tensorflow/lite/model.h>
 #include <tensorflow/lite/interpreter.h>
 #include <tensorflow/lite/kernels/register.h>
+#include <tensorflow/lite/model.h>
 #include <tensorflow/lite/optional_debug_tools.h>
 
 #include <iostream>
 #include <memory>
 
-
-int main(int argc, char * argv[]) {
-    if ( argc != 2) {
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
         std::cerr << "Pass model file path as argument" << std::endl;
         return -1;
     }

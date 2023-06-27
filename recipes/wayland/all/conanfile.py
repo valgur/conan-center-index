@@ -15,13 +15,14 @@ required_conan_version = ">=1.53.0"
 class WaylandConan(ConanFile):
     name = "wayland"
     description = (
-        "Wayland is a project to define a protocol for a compositor to talk to "
-        "its clients as well as a library implementation of the protocol"
+        "Wayland is a project to define a protocol for a compositor to talk to its clients as well as a"
+        " library implementation of the protocol"
     )
-    topics = "protocol", "compositor", "display"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://wayland.freedesktop.org"
-    license = "MIT"
+    topics = ("protocol", "compositor", "display")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -79,7 +80,9 @@ class WaylandConan(ConanFile):
             pkg_config_deps.build_context_activated = ["wayland"]
         elif self.dependencies["expat"].is_build_context:  # wayland is being built as build_require
             # If wayland is the build_require, all its dependencies are treated as build_requires
-            pkg_config_deps.build_context_activated = [dep.ref.name for _, dep in self.dependencies.host.items()]
+            pkg_config_deps.build_context_activated = [
+                dep.ref.name for _, dep in self.dependencies.host.items()
+            ]
         pkg_config_deps.generate()
         tc = MesonToolchain(self)
         tc.project_options["libdir"] = "lib"
@@ -94,8 +97,9 @@ class WaylandConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                        "subdir('tests')", "#subdir('tests')")
+        replace_in_file(
+            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
+        )
 
     def build(self):
         self._patch_sources()
@@ -120,14 +124,15 @@ class WaylandConan(ConanFile):
         if self.options.enable_dtd_validation:
             self.cpp_info.components["wayland-scanner"].requires.append("libxml2::libxml2")
         pkgconfig_variables = {
-            'datarootdir': '${prefix}/res',
-            'pkgdatadir': '${datarootdir}/wayland',
-            'bindir': '${prefix}/bin',
-            'wayland_scanner': '${bindir}/wayland-scanner',
+            "datarootdir": "${prefix}/res",
+            "pkgdatadir": "${datarootdir}/wayland",
+            "bindir": "${prefix}/bin",
+            "wayland_scanner": "${bindir}/wayland-scanner",
         }
         self.cpp_info.components["wayland-scanner"].set_property(
             "pkg_config_custom_content",
-            "\n".join(f"{key}={value}" for key,value in pkgconfig_variables.items()))
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
+        )
 
         if self.options.enable_libraries:
             self.cpp_info.components["wayland-server"].libs = ["wayland-server"]
@@ -139,12 +144,13 @@ class WaylandConan(ConanFile):
                 self.cpp_info.components["wayland-server"].system_libs += ["rt"]
             self.cpp_info.components["wayland-server"].set_property("component_version", self.version)
             pkgconfig_variables = {
-                'datarootdir': '${prefix}/res',
-                'pkgdatadir': '${datarootdir}/wayland',
+                "datarootdir": "${prefix}/res",
+                "pkgdatadir": "${datarootdir}/wayland",
             }
             self.cpp_info.components["wayland-server"].set_property(
                 "pkg_config_custom_content",
-                "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()))
+                "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
+            )
 
             self.cpp_info.components["wayland-client"].libs = ["wayland-client"]
             self.cpp_info.components["wayland-client"].set_property("pkg_config_name", "wayland-client")
@@ -155,12 +161,13 @@ class WaylandConan(ConanFile):
                 self.cpp_info.components["wayland-client"].system_libs += ["rt"]
             self.cpp_info.components["wayland-client"].set_property("component_version", self.version)
             pkgconfig_variables = {
-                'datarootdir': '${prefix}/res',
-                'pkgdatadir': '${datarootdir}/wayland',
+                "datarootdir": "${prefix}/res",
+                "pkgdatadir": "${datarootdir}/wayland",
             }
             self.cpp_info.components["wayland-client"].set_property(
                 "pkg_config_custom_content",
-                "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()))
+                "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
+            )
 
             self.cpp_info.components["wayland-cursor"].libs = ["wayland-cursor"]
             self.cpp_info.components["wayland-cursor"].set_property("pkg_config_name", "wayland-cursor")
@@ -172,7 +179,9 @@ class WaylandConan(ConanFile):
             self.cpp_info.components["wayland-egl"].requires = ["wayland-client"]
             self.cpp_info.components["wayland-egl"].set_property("component_version", "18.1.0")
 
-            self.cpp_info.components["wayland-egl-backend"].set_property("pkg_config_name", "wayland-egl-backend")
+            self.cpp_info.components["wayland-egl-backend"].set_property(
+                "pkg_config_name", "wayland-egl-backend"
+            )
             self.cpp_info.components["wayland-egl-backend"].set_property("component_version", "3")
 
             # TODO: to remove in conan v2

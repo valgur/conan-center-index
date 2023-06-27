@@ -1,5 +1,82 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 import textwrap
@@ -11,7 +88,7 @@ class CrashpadConan(ConanFile):
     name = "crashpad"
     description = "Crashpad is a crash-reporting system."
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("conan", "crashpad", "crash", "error", "stacktrace", "collecting", "reporting")
+    topics = ("crash", "error", "stacktrace", "collecting", "reporting")
     license = "Apache-2.0"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md"
     provides = "crashpad", "mini_chromium"
@@ -26,19 +103,14 @@ class CrashpadConan(ConanFile):
         "http_transport": None,
         "with_tls": "openssl",
     }
-    exports_sources = "patches/*"
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     def _minimum_compiler_cxx14(self):
-        return {
-            "apple-clang": 10,
-            "gcc": 5,
-            "clang": "3.9",
-            "Visual Studio": 14,
-        }.get(str(self.settings.compiler))
+        return {"apple-clang": 10, "gcc": 5, "clang": "3.9", "Visual Studio": 14}.get(
+            str(self.settings.compiler)
+        )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,7 +130,7 @@ class CrashpadConan(ConanFile):
         if self.settings.os in ("Linux", "FreeBSD"):
             self.requires("linux-syscall-support/cci.20200813")
         if self.options.http_transport != "socket":
-            del self.options.with_tls
+            self.options.rm_safe("with_tls")
         if self.options.http_transport == "libcurl":
             self.requires("libcurl/7.82.0")
         if self.options.get_safe("with_tls") == "openssl":
@@ -67,28 +139,40 @@ class CrashpadConan(ConanFile):
     def validate(self):
         if self.settings.compiler == "Visual Studio":
             if self.options.http_transport in ("libcurl", "socket"):
-                raise ConanInvalidConfiguration("http_transport={} is not valid when building with Visual Studio".format(self.options.http_transport))
+                raise ConanInvalidConfiguration(
+                    "http_transport={} is not valid when building with Visual Studio".format(
+                        self.options.http_transport
+                    )
+                )
         if self.options.http_transport == "libcurl":
             if not self.options["libcurl"].shared:
                 # FIXME: is this true?
                 self.output.warn("crashpad needs a shared libcurl library")
         min_compiler_version = self._minimum_compiler_cxx14()
         if min_compiler_version:
-            if tools.Version(self.settings.compiler.version) < min_compiler_version:
-                raise ConanInvalidConfiguration("crashpad needs a c++14 capable compiler, version >= {}".format(min_compiler_version))
+            if Version(self.settings.compiler.version) < min_compiler_version:
+                raise ConanInvalidConfiguration(
+                    "crashpad needs a c++14 capable compiler, version >= {}".format(min_compiler_version)
+                )
         else:
-            self.output.warn("This recipe does not know about the current compiler and assumes it has sufficient c++14 supports.")
+            self.output.warn(
+                "This recipe does not know about the current compiler and assumes it has sufficient c++14 supports."
+            )
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, 14)
+            check_min_cppstd(self, 14)
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version]["crashpad"], destination=self._source_subfolder, strip_root=True)
-        tools.get(**self.conan_data["sources"][self.version]["mini_chromium"],
-                  destination=os.path.join(self._source_subfolder, "third_party", "mini_chromium", "mini_chromium"), strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)
+        get(
+            self,
+            **self.conan_data["sources"][self.version]["mini_chromium"],
+            destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"),
+            strip_root=True
+        )
 
     @property
     def _gn_os(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             if self.settings.os == "Macos":
                 return "mac"
             else:
@@ -108,27 +192,31 @@ class CrashpadConan(ConanFile):
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 yield
         else:
             env_defaults = {}
             if self.settings.compiler == "gcc":
-                env_defaults.update({
-                    "CC": "gcc",
-                    "CXX": "g++",
-                    "LD": "g++",
-                })
+                env_defaults.update(
+                    {
+                        "CC": "gcc",
+                        "CXX": "g++",
+                        "LD": "g++",
+                    }
+                )
             elif self.settings.compiler in ("clang", "apple-clang"):
-                env_defaults.update({
-                    "CC": "clang",
-                    "CXX": "clang++",
-                    "LD": "clang++",
-                })
+                env_defaults.update(
+                    {
+                        "CC": "clang",
+                        "CXX": "clang++",
+                        "LD": "clang++",
+                    }
+                )
             env = {}
             for key, value in env_defaults.items():
-                if not tools.get_env(key):
+                if not get_env(self, key):
                     env[key] = value
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @property
@@ -148,20 +236,39 @@ class CrashpadConan(ConanFile):
         return self._version_greater_equal_to_cci_20220219()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
         if self.settings.compiler == "Visual Studio":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "third_party", "zlib", "BUILD.gn"),
-                                  "libs = [ \"z\" ]",
-                                  "libs = [ {} ]".format(", ".join("\"{}.lib\"".format(l) for l in self.deps_cpp_info["zlib"].libs)))
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
+                'libs = [ "z" ]',
+                "libs = [ {} ]".format(
+                    ", ".join('"{}.lib"'.format(l) for l in self.deps_cpp_info["zlib"].libs)
+                ),
+            )
 
         if self.settings.compiler == "gcc":
-            toolchain_path = os.path.join(self._source_subfolder, "third_party", "mini_chromium", "mini_chromium", "build", "config", "BUILD.gn")
+            toolchain_path = os.path.join(
+                self.source_folder,
+                "third_party",
+                "mini_chromium",
+                "mini_chromium",
+                "build",
+                "config",
+                "BUILD.gn",
+            )
             # Remove gcc-incompatible compiler arguments
-            for comp_arg in ("-Wheader-hygiene", "-Wnewline-eof", "-Wstring-conversion", "-Wexit-time-destructors", "-fobjc-call-cxx-cdtors", "-Wextra-semi", "-Wimplicit-fallthrough"):
-                tools.replace_in_file(toolchain_path,
-                                      "\"{}\"".format(comp_arg), "\"\"")
+            for comp_arg in (
+                "-Wheader-hygiene",
+                "-Wnewline-eof",
+                "-Wstring-conversion",
+                "-Wexit-time-destructors",
+                "-fobjc-call-cxx-cdtors",
+                "-Wextra-semi",
+                "-Wimplicit-fallthrough",
+            ):
+                replace_in_file(self, toolchain_path, '"{}"'.format(comp_arg), '""')
 
         autotools = AutoToolsBuildEnvironment(self)
         extra_cflags = autotools.flags + ["-D{}".format(d) for d in autotools.defines]
@@ -171,7 +278,10 @@ class CrashpadConan(ConanFile):
         if self.options.get_safe("fPIC"):
             extra_cflags.append("-fPIC")
         extra_cflags.extend("-I {}".format(inc) for inc in autotools.include_paths)
-        extra_ldflags.extend("-{}{}".format("LIBPATH:" if self.settings.compiler == "Visual Studio" else "L ", libdir) for libdir in autotools.library_paths)
+        extra_ldflags.extend(
+            "-{}{}".format("LIBPATH:" if self.settings.compiler == "Visual Studio" else "L ", libdir)
+            for libdir in autotools.library_paths
+        )
         if self.settings.compiler == "clang":
             if self.settings.compiler.get_safe("libcxx"):
                 stdlib = {
@@ -180,76 +290,161 @@ class CrashpadConan(ConanFile):
                 extra_cflags_cc.append("-stdlib={}".format(stdlib))
                 extra_ldflags.append("-stdlib={}".format(stdlib))
         gn_args = [
-            "host_os=\\\"{}\\\"".format(self._gn_os),
-            "host_cpu=\\\"{}\\\"".format(self._gn_arch),
+            'host_os=\\"{}\\"'.format(self._gn_os),
+            'host_cpu=\\"{}\\"'.format(self._gn_arch),
             "is_debug={}".format(str(self.settings.build_type == "Debug").lower()),
-            "crashpad_http_transport_impl=\\\"{}\\\"".format(self._http_transport_impl),
-            "crashpad_use_boringssl_for_http_transport_socket={}".format(str(self.options.get_safe("with_tls", False) != False).lower()),
-            "extra_cflags=\\\"{}\\\"".format(" ".join(extra_cflags)),
-            "extra_cflags_c=\\\"{}\\\"".format(" ".join(extra_cflags_c)),
-            "extra_cflags_cc=\\\"{}\\\"".format(" ".join(extra_cflags_cc)),
-            "extra_ldflags=\\\"{}\\\"".format(" ".join(extra_ldflags)),
+            'crashpad_http_transport_impl=\\"{}\\"'.format(self._http_transport_impl),
+            "crashpad_use_boringssl_for_http_transport_socket={}".format(
+                str(self.options.get_safe("with_tls", False) != False).lower()
+            ),
+            'extra_cflags=\\"{}\\"'.format(" ".join(extra_cflags)),
+            'extra_cflags_c=\\"{}\\"'.format(" ".join(extra_cflags_c)),
+            'extra_cflags_cc=\\"{}\\"'.format(" ".join(extra_cflags_cc)),
+            'extra_ldflags=\\"{}\\"'.format(" ".join(extra_ldflags)),
         ]
-        with tools.chdir(self._source_subfolder):
+        with chdir(self, self.source_folder):
             with self._build_context():
-                self.run("gn gen out/Default --args=\"{}\"".format(" ".join(gn_args)), run_environment=True)
+                self.run('gn gen out/Default --args="{}"'.format(" ".join(gn_args)), run_environment=True)
                 targets = ["client", "minidump", "crashpad_handler", "snapshot"]
                 if self.settings.os == "Windows":
                     targets.append("crashpad_handler_com")
-                self.run("ninja -C out/Default {targets} -j{parallel}".format(
-                    targets=" ".join(targets),
-                    parallel=tools.cpu_count()), run_environment=True)
+                self.run(
+                    "ninja -C out/Default {targets} -j{parallel}".format(
+                        targets=" ".join(targets), parallel=cpu_count(self)
+                    ),
+                    run_environment=True,
+                )
 
         def lib_filename(name):
-            prefix, suffix = ("", ".lib")  if self.settings.compiler == "Visual Studio" else ("lib", ".a")
+            prefix, suffix = ("", ".lib") if self.settings.compiler == "Visual Studio" else ("lib", ".a")
             return "{}{}{}".format(prefix, name, suffix)
-        tools.rename(os.path.join(self._source_subfolder, "out", "Default", "obj", "client", lib_filename("common")),
-                     os.path.join(self._source_subfolder, "out", "Default", "obj", "client", lib_filename("client_common")))
-        tools.rename(os.path.join(self._source_subfolder, "out", "Default", "obj", "handler", lib_filename("common")),
-                     os.path.join(self._source_subfolder, "out", "Default", "obj", "handler", lib_filename("handler_common")))
+
+        rename(
+            self,
+            os.path.join(self.source_folder, "out", "Default", "obj", "client", lib_filename("common")),
+            os.path.join(
+                self.source_folder, "out", "Default", "obj", "client", lib_filename("client_common")
+            ),
+        )
+        rename(
+            self,
+            os.path.join(self.source_folder, "out", "Default", "obj", "handler", lib_filename("common")),
+            os.path.join(
+                self.source_folder, "out", "Default", "obj", "handler", lib_filename("handler_common")
+            ),
+        )
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
-        self.copy("*.h", src=os.path.join(self._source_subfolder, "client"), dst=os.path.join("include", "client"))
-        self.copy("*.h", src=os.path.join(self._source_subfolder, "util"), dst=os.path.join("include", "util"))
-        self.copy("*.h", src=os.path.join(self._source_subfolder, "third_party", "mini_chromium", "mini_chromium", "base"), dst=os.path.join("include", "base"))
-        self.copy("*.h", src=os.path.join(self._source_subfolder, "third_party", "mini_chromium", "mini_chromium", "build"), dst=os.path.join("include", "build"))
-        self.copy("*.h", src=os.path.join(self._source_subfolder, "out", "Default", "gen", "build"), dst=os.path.join("include", "build"))
+        copy(
+            self, "*.h", src=os.path.join(self.source_folder, "client"), dst=os.path.join("include", "client")
+        )
+        copy(self, "*.h", src=os.path.join(self.source_folder, "util"), dst=os.path.join("include", "util"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "base"),
+            dst=os.path.join("include", "base"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "build"),
+            dst=os.path.join("include", "build"),
+        )
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(self.source_folder, "out", "Default", "gen", "build"),
+            dst=os.path.join("include", "build"),
+        )
 
-        self.copy("*.a", src=os.path.join(self._source_subfolder, "out", "Default"), dst="lib", keep_path=False)
+        copy(
+            self,
+            "*.a",
+            src=os.path.join(self.source_folder, "out", "Default"),
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
-        self.copy("*.lib", src=os.path.join(self._source_subfolder, "out", "Default"), dst="lib", keep_path=False)
-        self.copy("crashpad_handler", src=os.path.join(self._source_subfolder, "out", "Default"), dst="bin", keep_path=False)
-        self.copy("crashpad_handler.exe", src=os.path.join(self._source_subfolder, "out", "Default"), dst="bin", keep_path=False)
-        self.copy("crashpad_handler_com.com", src=os.path.join(self._source_subfolder, "out", "Default"), dst="bin", keep_path=False)
+        copy(
+            self,
+            "*.lib",
+            src=os.path.join(self.source_folder, "out", "Default"),
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "crashpad_handler",
+            src=os.path.join(self.source_folder, "out", "Default"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "crashpad_handler.exe",
+            src=os.path.join(self.source_folder, "out", "Default"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "crashpad_handler_com.com",
+            src=os.path.join(self.source_folder, "out", "Default"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
         if self.settings.os == "Windows":
-            tools.rename(os.path.join(self.package_folder, "bin", "crashpad_handler_com.com"),
-                         os.path.join(self.package_folder, "bin", "crashpad_handler.com"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "bin", "crashpad_handler_com.com"),
+                os.path.join(self.package_folder, "bin", "crashpad_handler.com"),
+            )
 
         # Remove accidentally copied libraries. These are used by the executables, not by the libraries.
-        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*getopt*")
+        rm(self, "*getopt*", os.path.join(self.package_folder, "lib"), recursive=True)
 
-        tools.save(os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake"),
-                   textwrap.dedent("""\
+        save(
+            self,
+            os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake"),
+            textwrap.dedent(
+                """\
                     if(TARGET crashpad::mini_chromium_base)
                         target_compile_features(crashpad::mini_chromium_base INTERFACE cxx_std_14)
                     endif()
-                   """))
+                   """
+            ),
+        )
 
     def package_info(self):
         self.cpp_info.components["mini_chromium_base"].libs = ["base"]
-        self.cpp_info.components["mini_chromium_base"].build_modules = [os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake")]
+        self.cpp_info.components["mini_chromium_base"].build_modules = [
+            os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake")
+        ]
         self.cpp_info.components["mini_chromium_base"].builddirs = [os.path.join("lib", "cmake")]
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             if self.settings.os == "Macos":
-                self.cpp_info.components["mini_chromium_base"].frameworks = ["ApplicationServices", "CoreFoundation", "Foundation", "IOKit", "Security"]
+                self.cpp_info.components["mini_chromium_base"].frameworks = [
+                    "ApplicationServices",
+                    "CoreFoundation",
+                    "Foundation",
+                    "IOKit",
+                    "Security",
+                ]
             else:  # iOS
-                self.cpp_info.components["mini_chromium_base"].frameworks = ["CoreFoundation", "CoreGraphics", "CoreText", "Foundation", "Security"]
+                self.cpp_info.components["mini_chromium_base"].frameworks = [
+                    "CoreFoundation",
+                    "CoreGraphics",
+                    "CoreText",
+                    "Foundation",
+                    "Security",
+                ]
 
         self.cpp_info.components["util"].libs = ["util"]
         self.cpp_info.components["util"].requires = ["mini_chromium_base", "zlib::zlib"]
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             self.cpp_info.components["util"].libs.append("mig_output")
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.components["util"].libs.append("compat")
@@ -276,8 +471,13 @@ class CrashpadConan(ConanFile):
         self.cpp_info.components["context"].requires = ["util"]
 
         self.cpp_info.components["snapshot"].libs = ["snapshot"]
-        self.cpp_info.components["snapshot"].requires = ["context", "client_common", "mini_chromium_base", "util"]
-        if tools.is_apple_os(self.settings.os):
+        self.cpp_info.components["snapshot"].requires = [
+            "context",
+            "client_common",
+            "mini_chromium_base",
+            "util",
+        ]
+        if is_apple_os(self.settings.os):
             self.cpp_info.components["snapshot"].frameworks.extend(["OpenCL"])
 
         self.cpp_info.components["format"].libs = ["format"]
@@ -297,10 +497,20 @@ class CrashpadConan(ConanFile):
             extra_handler_req = ["tool_support"]
 
         self.cpp_info.components["handler_common"].libs = ["handler_common"]
-        self.cpp_info.components["handler_common"].requires = ["client_common", "snapshot", "util"] + extra_handler_common_req
+        self.cpp_info.components["handler_common"].requires = [
+            "client_common",
+            "snapshot",
+            "util",
+        ] + extra_handler_common_req
 
         self.cpp_info.components["handler"].libs = ["handler"]
-        self.cpp_info.components["handler"].requires = ["client", "util", "handler_common", "minidump", "snapshot"] + extra_handler_req
+        self.cpp_info.components["handler"].requires = [
+            "client",
+            "util",
+            "handler_common",
+            "minidump",
+            "snapshot",
+        ] + extra_handler_req
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_path))

@@ -1,6 +1,6 @@
 #include <libusb.h>
 
-int main(int argc, char *argv[]) {
+int main() {
     libusb_device **devs;
 
     int r = libusb_init(NULL);

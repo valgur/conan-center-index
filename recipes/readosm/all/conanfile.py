@@ -2,7 +2,16 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
@@ -14,13 +23,12 @@ required_conan_version = ">=1.58.0"
 class ReadosmConan(ConanFile):
     name = "readosm"
     description = (
-        "ReadOSM is an open source library to extract valid data from within "
-        "an Open Street Map input file."
+        "ReadOSM is an open source library to extract valid data from within an Open Street Map input file."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("osm", "open-street-map", "xml", "protobuf")
-    homepage = "https://www.gaia-gis.it/fossil/readosm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/readosm"
+    topics = ("osm", "open-street-map", "xml", "protobuf")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -93,13 +101,17 @@ class ReadosmConan(ConanFile):
         # fix MinGW
         zlib_lib = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
         replace_in_file(
-            self, os.path.join(self.source_folder, "configure.ac"),
-            "AC_CHECK_LIB(z,", f"AC_CHECK_LIB({zlib_lib},",
+            self,
+            os.path.join(self.source_folder, "configure.ac"),
+            "AC_CHECK_LIB(z,",
+            f"AC_CHECK_LIB({zlib_lib},",
         )
         # Disable tests & examples
         replace_in_file(
-            self, os.path.join(self.source_folder, "Makefile.am"),
-            "SUBDIRS = headers src tests examples", "SUBDIRS = headers src",
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
+            "SUBDIRS = headers src tests examples",
+            "SUBDIRS = headers src",
         )
 
     def build(self):
@@ -118,9 +130,26 @@ class ReadosmConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "readosm.h", src=os.path.join(self.source_folder, "headers"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "readosm.h",
+                src=os.path.join(self.source_folder, "headers"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

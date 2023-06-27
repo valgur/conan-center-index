@@ -1,6 +1,13 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -9,20 +16,21 @@ required_conan_version = ">=1.53.0"
 
 class HdrhistogramcConan(ConanFile):
     name = "hdrhistogram-c"
+    description = "'C' port of High Dynamic Range (HDR) Histogram"
     license = ("BSD-2-Clause", "CC0-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/HdrHistogram/HdrHistogram_c"
-    description = "'C' port of High Dynamic Range (HDR) Histogram"
     topics = ("libraries", "c", "histogram")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     def export_sources(self):
@@ -94,5 +102,7 @@ class HdrhistogramcConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "hdr_histogram"
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package"] = target
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["hdr_histrogram"].set_property("cmake_target_name", f"hdr_histogram::{target}")
+        self.cpp_info.components["hdr_histrogram"].set_property(
+            "cmake_target_name", f"hdr_histogram::{target}"
+        )
         self.cpp_info.components["hdr_histrogram"].requires = ["zlib::zlib"]

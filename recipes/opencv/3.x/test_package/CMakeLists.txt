@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 option(built_contrib "Enabled if opencv is built contrib sfm" OFF)
@@ -10,3 +10,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE opencv_core opencv_imgproc $<TARGE
 if(built_contrib)
     target_compile_definitions(${PROJECT_NAME} PRIVATE BUILT_CONTRIB)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

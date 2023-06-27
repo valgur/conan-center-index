@@ -9,18 +9,14 @@
 
 #include <sigc++/sigc++.h>
 
-void on_print(const std::string& str)
-{
-	std::cout << str;
-}
+void on_print(const std::string &str) { std::cout << str; }
 
-int main()
-{
-	sigc::signal<void(const std::string&)> signal_print;
+int main() {
+    sigc::signal<void(const std::string &)> signal_print;
 
-	signal_print.connect(sigc::ptr_fun(&on_print));
+    signal_print.connect(sigc::ptr_fun(&on_print));
 
-	signal_print.emit("hello world\n");
+    signal_print.emit("hello world\n");
 
-	return 0;
+    return 0;
 }

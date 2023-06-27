@@ -1,5 +1,5 @@
-#include <iostream>
 #include "oatpp-sqlite/Types.hpp"
+#include <iostream>
 
 int main() {
 

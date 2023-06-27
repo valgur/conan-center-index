@@ -5,6 +5,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LibuclConan(ConanFile):
     name = "libucl"
     description = "Universal configuration library parser"
@@ -12,6 +13,8 @@ class LibuclConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/vstakhov/libucl"
     topics = ("universal", "configuration", "language", "parser", "ucl")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -76,7 +79,9 @@ class LibuclConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

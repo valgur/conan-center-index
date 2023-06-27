@@ -18,10 +18,12 @@ class LibUnistringConan(ConanFile):
         "This library provides functions for manipulating Unicode strings and "
         "for manipulating C strings according to the Unicode standard."
     )
-    homepage = "https://www.gnu.org/software/libunistring/"
-    topics = ("unicode", "string")
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libunistring/"
+    topics = ("unicode", "string")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -63,8 +65,7 @@ class LibUnistringConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)

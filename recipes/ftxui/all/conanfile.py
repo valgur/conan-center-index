@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class FTXUIConan(ConanFile):
     name = "ftxui"
     description = "C++ Functional Terminal User Interface."
@@ -34,12 +35,12 @@ class FTXUIConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-			"gcc": "8",
-			"clang": "7",
-			"apple-clang": "12",
-			"Visual Studio": "16",
-			"msvc": "192",
-		}
+            "gcc": "8",
+            "clang": "7",
+            "apple-clang": "12",
+            "Visual Studio": "16",
+            "msvc": "192",
+        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -88,14 +89,16 @@ class FTXUIConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if Version(self.version) >= "4.1.0":
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if Version(self.version) >= "4.1.1":
-            rm(self, "ftxui.pc", os.path.join(self.package_folder, "lib"), )
+            rm(self, "ftxui.pc", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ftxui")

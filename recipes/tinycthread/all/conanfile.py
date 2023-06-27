@@ -1,3 +1,6 @@
+# Warnings:
+#   Missing required method 'config_options'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -7,6 +10,7 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class TinycthreadConan(ConanFile):
     name = "tinycthread"
     description = "Small, portable implementation of the C11 threads API"
@@ -14,8 +18,21 @@ class TinycthreadConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tinycthread/tinycthread"
     topics = ("thread", "c11", "portable")
+
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         self.settings.compiler.rm_safe("libcxx")
@@ -49,7 +66,9 @@ class TinycthreadConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

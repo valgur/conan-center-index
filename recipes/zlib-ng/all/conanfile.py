@@ -13,10 +13,11 @@ required_conan_version = ">=1.53.0"
 class ZlibNgConan(ConanFile):
     name = "zlib-ng"
     description = "zlib data compression library for the next generation systems"
-    topics = ("zlib", "compression")
-    license ="Zlib"
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zlib-ng/zlib-ng/"
+    topics = ("zlib", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -44,7 +45,7 @@ class ZlibNgConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.1.0":
-            del self.options.with_reduced_mem
+            self.options.rm_safe("with_reduced_mem")
 
     def configure(self):
         if self.options.shared:
@@ -57,7 +58,9 @@ class ZlibNgConan(ConanFile):
 
     def validate(self):
         if self.info.options.zlib_compat and not self.info.options.with_gzfileop:
-            raise ConanInvalidConfiguration("The option 'with_gzfileop' must be True when 'zlib_compat' is True.")
+            raise ConanInvalidConfiguration(
+                "The option 'with_gzfileop' must be True when 'zlib_compat' is True."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -92,14 +95,18 @@ class ZlibNgConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        #FIXME: CMake targets are https://github.com/zlib-ng/zlib-ng/blob/29fd4672a2279a0368be936d7cd44d013d009fae/CMakeLists.txt#L914
+        # FIXME: CMake targets are https://github.com/zlib-ng/zlib-ng/blob/29fd4672a2279a0368be936d7cd44d013d009fae/CMakeLists.txt#L914
         suffix = "" if self.options.zlib_compat else "-ng"
         self.cpp_info.set_property("pkg_config_name", f"zlib{suffix}")
         if self.settings.os == "Windows":
             # The library name of zlib-ng is complicated in zlib-ng>=2.0.4:
             # https://github.com/zlib-ng/zlib-ng/blob/2.0.4/CMakeLists.txt#L994-L1016
             base = "zlib" if is_msvc(self) or Version(self.version) < "2.0.4" or self.options.shared else "z"
-            static_flag = "static" if is_msvc(self) and not self.options.shared and Version(self.version) >= "2.0.4" else ""
+            static_flag = (
+                "static"
+                if is_msvc(self) and not self.options.shared and Version(self.version) >= "2.0.4"
+                else ""
+            )
             build_type = "d" if self.settings.build_type == "Debug" else ""
             self.cpp_info.libs = [f"{base}{static_flag}{suffix}{build_type}"]
         else:

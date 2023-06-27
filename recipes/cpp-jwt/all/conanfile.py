@@ -12,11 +12,13 @@ class CppJwtConan(ConanFile):
     name = "cpp-jwt"
     description = "A C++ library for handling JWT tokens"
     license = "MIT"
-    topics = ("jwt", "auth", "header-only")
-    homepage = "https://github.com/arun11299/cpp-jwt"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/arun11299/cpp-jwt"
+    topics = ("jwt", "auth", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

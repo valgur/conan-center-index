@@ -1,36 +1,41 @@
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
 import os
 
-required_conan_version = ">=1.33.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.52.0"
 
 
 class NeargyeSemverConan(ConanFile):
     name = "neargye-semver"
     description = "Semantic Versioning for modern C++"
-    topics = ("conan", "semver", "semantic", "versioning")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Neargye/semver"
-    license = "MIT"
-    generators = "cmake", "cmake_find_package_multi"
-    settings = "compiler", "build_type"
-    no_copy_source = True
+    topics = ("semver", "semantic", "versioning", "header-only")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def configure(self):
         compiler = str(self.settings.compiler)
-        compiler_version = tools.Version(self.settings.compiler.version)
+        compiler_version = Version(self.settings.compiler.version)
 
         min_req_cppstd = "17"
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, min_req_cppstd)
+            check_min_cppstd(self, min_req_cppstd)
         else:
-            self.output.warn("%s recipe lacks information about the %s compiler"
-                             " standard version support." % (self.name, compiler))
+            self.output.warn(
+                f"{self.name} recipe lacks information about the {compiler} "
+                "compiler standard version support."
+            )
 
         minimal_version = {
             "Visual Studio": "16",
@@ -40,24 +45,36 @@ class NeargyeSemverConan(ConanFile):
         }
         # Exclude compilers not supported
         if compiler not in minimal_version:
-            self.output.info("%s requires a compiler that supports at least C++%s" % (self.name, min_req_cppstd))
+            self.output.info(f"{self.name} requires a compiler that supports at least C++{min_req_cppstd}")
             return
         if compiler_version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s. %s %s is not supported." %
-                (self.name, min_req_cppstd, compiler, tools.Version(self.settings.compiler.version.value)))
+                f"{self.name} requires a compiler that supports at least C++{min_req_cppstd}. "
+                f"{compiler} {Version(self.settings.compiler.version.value)} is not supported."
+            )
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
-        self.copy("*.hpp", dst="include", src=os.path.join(self._source_subfolder, "include"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.names["pkg_config"] = "semver"
         self.cpp_info.names["cmake_find_package"] = "semver"
         self.cpp_info.names["cmake_find_package_multi"] = "semver"
-
-    def package_id(self):
-        self.info.header_only()

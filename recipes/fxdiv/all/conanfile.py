@@ -3,17 +3,17 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class FxdivConan(ConanFile):
     name = "fxdiv"
-    description = "C99/C++ header-only library for division via fixed-point " \
-                  "multiplication by inverse."
+    description = "C99/C++ header-only library for division via fixed-point multiplication by inverse."
     license = "MIT"
-    topics = ("integer-division",)
-    homepage = "https://github.com/Maratyszcza/FXdiv"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Maratyszcza/FXdiv"
+    topics = ("integer-division", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -32,7 +32,12 @@ class FxdivConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

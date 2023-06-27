@@ -1,10 +1,9 @@
 #include <iostream>
 
-#include "ozz/base/log.h"
 #include "ozz/base/io/stream.h"
+#include "ozz/base/log.h"
 
-int main()
-{
+int main() {
     ozz::io::File file("test.ozz", "rb");
 
     if (!file.opened()) {

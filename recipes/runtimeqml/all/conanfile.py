@@ -12,20 +12,21 @@ required_conan_version = ">=1.50.0"
 
 class RuntimeQml(ConanFile):
     name = "runtimeqml"
-    homepage = "https://github.com/GIPdA/runtimeqml"
     description = "Enables hot-reloading qml files"
-    topics = ("qt", "hot-reload", "qml", "gui")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    settings = "os", "arch", "compiler", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/GIPdA/runtimeqml"
+    topics = ("qt", "hot-reload", "qml", "gui")
 
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
 
     @property
@@ -41,8 +42,7 @@ class RuntimeQml(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder,
-             self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,10 +50,7 @@ class RuntimeQml(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self)
@@ -69,20 +66,18 @@ class RuntimeQml(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         check_min_vs(self, 191)
         if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(
-                str(self.info.settings.compiler), False)
+            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}, "
+                    "which your compiler does not support."
                 )
         qt = self.dependencies["qt"]
         if not qt.options.qtdeclarative:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires option qt:qtdeclarative=True")
+            raise ConanInvalidConfiguration(f"{self.ref} requires option qt:qtdeclarative=True")
 
     def source(self):
-        get(self, **self.conan_data["sources"][str(self.version)],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -96,8 +91,13 @@ class RuntimeQml(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(
+            self,
+            pattern="LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+            keep_path=False,
+        )
         cmake = CMake(self)
         cmake.install()
 

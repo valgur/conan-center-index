@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
-from conan.tools.files import get, copy, rmdir, replace_in_file, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import (
+    get,
+    copy,
+    rmdir,
+    replace_in_file,
+    export_conandata_patches,
+    apply_conandata_patches,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -10,23 +17,25 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class TrantorConan(ConanFile):
     name = "trantor"
     description = "a non-blocking I/O tcp network lib based on c++14/17"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/an-tao/trantor"
     topics = ("tcp-server", "asynchronous-programming", "non-blocking-io")
-    license = "BSD-3-Clause"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_c_ares": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_c_ares": True,
     }
 
@@ -70,9 +79,14 @@ class TrantorConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version:
             if Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                )
         else:
-            self.output.warn(f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
+            self.output.warn(
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{self._min_cppstd}."
+            )
 
         # TODO: Compilation succeeds, but execution of test_package fails on Visual Studio with MDd
         if is_msvc(self) and self.options.shared and "MDd" in msvc_runtime_flag(self):
@@ -100,7 +114,9 @@ class TrantorConan(ConanFile):
         # fix c-ares imported target
         replace_in_file(self, cmakelists, "c-ares_lib", "c-ares::cares")
         # Cleanup rpath in shared lib
-        replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}\")", "")
+        replace_in_file(
+            self, cmakelists, 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")', ""
+        )
 
     def build(self):
         self._patch_sources()
@@ -109,7 +125,9 @@ class TrantorConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

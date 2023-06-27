@@ -13,16 +13,17 @@ required_conan_version = ">=1.52.0"
 class TaskflowConan(ConanFile):
     name = "taskflow"
     description = (
-        "A fast C++ header-only library to help you quickly write parallel "
-        "programs with complex task dependencies."
+        "A fast C++ header-only library to help you quickly write parallel programs with complex task"
+        " dependencies."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taskflow/taskflow"
     topics = ("tasking", "parallelism", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -69,7 +70,7 @@ class TaskflowConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -80,9 +81,12 @@ class TaskflowConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-                  src=os.path.join(self.source_folder, "taskflow"),
-                  dst=os.path.join(self.package_folder, "include", "taskflow"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "taskflow"),
+            dst=os.path.join(self.package_folder, "include", "taskflow"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -1,23 +1,35 @@
-import os
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.29.1"
+import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.53.0"
 
 
 class IgnitionToolsConan(ConanFile):
     name = "ignition-tools"
-    license = "Apache-2.0"
-    homepage = "https://ignitionrobotics.org/libs/tools"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Provides general purpose classes and functions designed for robotic applications.."
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://ignitionrobotics.org/libs/tools"
     topics = ("ignition", "robotics", "tools")
-    settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
-    generators = "cmake", "cmake_find_package_multi"
-    exports_sources = "CMakeLists.txt", "patches/**"
-    _cmake = None
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     @property
     def _minimum_cpp_standard(self):
@@ -32,9 +44,8 @@ class IgnitionToolsConan(ConanFile):
             "apple-clang": "10",
         }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,11 +53,14 @@ class IgnitionToolsConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+            check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -55,51 +69,50 @@ class IgnitionToolsConan(ConanFile):
                 )
             )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
+            if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
                     "{} requires c++17 support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
+                        self.name, self.settings.compiler, self.settings.compiler.version
                     )
                 )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if self._cmake is not None:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["BUILD_TESTING"] = False
-        self._cmake.configure()
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.variables["BUILD_TESTING"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        cmake = self._configure_cmake()
+        apply_conandata_patches(self)
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "bin"), dll_pattern_to_remove)
+            rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"), recursive=True)
 
     def package_info(self):
-        version_major = tools.Version(self.version).major
-        self.cpp_info.names["cmake_find_package"] = "ignition-tools{}".format(version_major)
-        self.cpp_info.names["cmake_find_package_multi"] = "ignition-tools{}".format(version_major)
+        version_major = Version(self.version).major
+        self.cpp_info.names["cmake_find_package"] = f"ignition-tools{version_major}"
+        self.cpp_info.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
 
-        self.cpp_info.components["libignition-tools"].libs = ["ignition-tools-backward"]
-        self.cpp_info.components["libignition-tools"].includedirs.append("include/ignition/tools{}".format(version_major))
-        self.cpp_info.components["libignition-tools"].names["cmake_find_package"] = "ignition-tools{}".format(version_major)
-        self.cpp_info.components["libignition-tools"].names["cmake_find_package_multi"] = "ignition-tools{}".format(version_major)
-        self.cpp_info.components["libignition-tools"].names["pkg_config"] = "ignition-tools{}".format(version_major)
+        component = self.cpp_info.components["libignition-tools"]
+        component.libs = ["ignition-tools-backward"]
+        component.includedirs.append(f"include/ignition/tools{version_major}")
+        component.names["cmake_find_package"] = f"ignition-tools{version_major}"
+        component.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
+        component.names["pkg_config"] = f"ignition-tools{version_major}"

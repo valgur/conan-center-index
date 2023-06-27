@@ -8,13 +8,15 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class SimdutfConan(ConanFile):
     name = "simdutf"
     description = "Unicode routines (UTF8, UTF16): billions of characters per second."
     license = ("Apache-2.0", "MIT")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/simdutf/simdutf"
-    topics = ("unicode", "transcoding", "neon", "simd", "avx2", "sse2", "utf8", "utf16", )
+    topics = ("unicode", "transcoding", "neon", "simd", "avx2", "sse2", "utf8", "utf16")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -70,7 +72,12 @@ class SimdutfConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

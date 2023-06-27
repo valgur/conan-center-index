@@ -10,11 +10,15 @@ required_conan_version = ">=1.52.0"
 
 class OrcaniaConan(ConanFile):
     name = "orcania"
-    description = "Potluck with different functions for different purposes that can be shared among C programs"
-    homepage = "https://github.com/babelouest/orcania"
-    topics = ("utility", "functions", )
+    description = (
+        "Potluck with different functions for different purposes that can be shared among C programs"
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/babelouest/orcania"
+    topics = ("utility", "functions")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -27,38 +31,28 @@ class OrcaniaConan(ConanFile):
         "enable_base64url": True,
     }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if is_msvc(self) and self.options.enable_base64url:
             self.requires("getopt-for-visual-studio/20200201")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,27 +72,6 @@ class OrcaniaConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def package(self):
-        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
-        cmake.install()
-
-        rmdir(self, os.path.join(self.package_folder, "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-
-        save(self, os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(f"""\
-                set(ORCANIA_VERSION_STRING "{self.version}")
-           """))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Orcania::Orcania-static": "Orcania::Orcania"}
-        )
-
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
@@ -109,6 +82,28 @@ class OrcaniaConan(ConanFile):
                 endif()
             """)
         save(self, module_file, content)
+
+    def package(self):
+        copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
+        cmake.install()
+
+        rmdir(self, os.path.join(self.package_folder, "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+
+        save(
+            self,
+            os.path.join(self.package_folder, self._variable_file_rel_path),
+            f'set(ORCANIA_VERSION_STRING "{self.version}")',
+        )
+
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            ({} if self.options.shared else {"Orcania::Orcania-static": "Orcania::Orcania"}),
+        )
 
     @property
     def _module_file_rel_path(self):
@@ -140,5 +135,11 @@ class OrcaniaConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "Orcania"
         self.cpp_info.names["cmake_find_package_multi"] = "Orcania"
         self.cpp_info.names["pkg_config"] = "liborcania"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path, self._variable_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, self._variable_file_rel_path]
+        self.cpp_info.build_modules["cmake_find_package"] = [
+            self._module_file_rel_path,
+            self._variable_file_rel_path,
+        ]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path,
+            self._variable_file_rel_path,
+        ]

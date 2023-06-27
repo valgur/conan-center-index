@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class MikeLankampFpmConan(ConanFile):
     name = "mikelankamp-fpm"
     description = "C++ header-only fixed-point math library"
@@ -13,6 +14,8 @@ class MikeLankampFpmConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/MikeLankamp/fpm"
     topics = ("fixed-point", "math", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -34,7 +37,9 @@ class MikeLankampFpmConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

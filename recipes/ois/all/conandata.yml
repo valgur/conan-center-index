@@ -5,4 +5,3 @@ sources:
 patches:
   "1.5":
     - patch_file: "patches/1.5/001_export_headers_from_CMAKE_CURRENT_SOURCE_DIR.patch"
-      base_path: "source_subfolder"

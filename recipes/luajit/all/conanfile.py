@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.scm import Version
-from conan.tools.files import get, chdir, replace_in_file, copy, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import (
+    get,
+    chdir,
+    replace_in_file,
+    copy,
+    rmdir,
+    export_conandata_patches,
+    apply_conandata_patches,
+)
 from conan.tools.microsoft import is_msvc, MSBuildToolchain, VCVars, unix_path
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -9,20 +17,27 @@ from conan.tools.build import cross_building
 from conan.errors import ConanInvalidConfiguration
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
 class LuajitConan(ConanFile):
     name = "luajit"
+    description = "LuaJIT is a Just-In-Time Compiler (JIT) for the Lua programming language."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://luajit.org"
-    description = "LuaJIT is a Just-In-Time Compiler (JIT) for the Lua programming language."
     topics = ("lua", "jit")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -42,12 +57,20 @@ class LuajitConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8" and cross_building(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be cross-built to Mac M1. Please, try any version >=2.1")
-        elif Version(self.version) <= "2.1.0-beta1" and self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported by Mac M1. Please, try any version >=2.1")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be cross-built to Mac M1. Please, try any version >=2.1"
+            )
+        elif (
+            Version(self.version) <= "2.1.0-beta1"
+            and self.settings.os == "Macos"
+            and self.settings.arch == "armv8"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is not supported by Mac M1. Please, try any version >=2.1"
+            )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -61,28 +84,30 @@ class LuajitConan(ConanFile):
 
     def _patch_sources(self):
         if not is_msvc(self):
-            buildmode = 'shared' if self.options.shared else 'static'
-            makefile = os.path.join(self.source_folder, 'src', 'Makefile')
-            replace_in_file(self, makefile,
-                                  'BUILDMODE= mixed',
-                                  'BUILDMODE= %s' % buildmode)
-            replace_in_file(self, makefile,
-                                  'TARGET_DYLIBPATH= $(TARGET_LIBPATH)/$(TARGET_DYLIBNAME)',
-                                  'TARGET_DYLIBPATH= $(TARGET_DYLIBNAME)')
+            buildmode = "shared" if self.options.shared else "static"
+            makefile = os.path.join(self.source_folder, "src", "Makefile")
+            replace_in_file(self, makefile, "BUILDMODE= mixed", "BUILDMODE= %s" % buildmode)
+            replace_in_file(
+                self,
+                makefile,
+                "TARGET_DYLIBPATH= $(TARGET_LIBPATH)/$(TARGET_DYLIBNAME)",
+                "TARGET_DYLIBPATH= $(TARGET_DYLIBNAME)",
+            )
             # adjust mixed mode defaults to build either .so or .a, but not both
             if not self.options.shared:
-                replace_in_file(self, makefile,
-                                      'TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)',
-                                      'TARGET_T= $(LUAJIT_T) $(LUAJIT_A)')
-                replace_in_file(self, makefile,
-                                      'TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_SO)',
-                                      'TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_A)')
+                replace_in_file(
+                    self, makefile, "TARGET_T= $(LUAJIT_T) $(LUAJIT_SO)", "TARGET_T= $(LUAJIT_T) $(LUAJIT_A)"
+                )
+                replace_in_file(
+                    self,
+                    makefile,
+                    "TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_SO)",
+                    "TARGET_DEP= $(LIB_VMDEF) $(LUAJIT_A)",
+                )
             else:
-                replace_in_file(self, makefile,
-                                      'TARGET_O= $(LUAJIT_A)',
-                                      'TARGET_O= $(LUAJIT_SO)')
+                replace_in_file(self, makefile, "TARGET_O= $(LUAJIT_A)", "TARGET_O= $(LUAJIT_SO)")
             if "clang" in str(self.settings.compiler):
-                replace_in_file(self, makefile, 'CC= $(DEFAULT_CC)', 'CC= clang')
+                replace_in_file(self, makefile, "CC= $(DEFAULT_CC)", "CC= clang")
 
     @property
     def _macosx_deployment_target(self):
@@ -107,7 +132,7 @@ class LuajitConan(ConanFile):
         self._patch_sources()
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "src")):
-                variant = '' if self.options.shared else 'static'
+                variant = "" if self.options.shared else "static"
                 self.run(f"msvcbuild.bat {variant}", env="conanbuild")
         else:
             with chdir(self, self.source_folder):

@@ -10,9 +10,9 @@ class ParsonConan(ConanFile):
     name = "parson"
     description = "Lightweight JSON library written in C."
     license = "MIT"
-    topics = ("json", "parser")
-    homepage = "https://github.com/kgabis/parson"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kgabis/parson"
+    topics = ("json", "parser")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

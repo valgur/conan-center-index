@@ -3,21 +3,18 @@
 #include "yaclib/async/contract.hpp"
 #include "yaclib/util/result.hpp"
 
-int main()
-{
+int main() {
     auto [f, p] = yaclib::MakeContract<int>();
 
     std::move(p).Set(42);
 
-    if (!f.Ready())
-    {
+    if (!f.Ready()) {
         return EXIT_FAILURE;
     }
 
     yaclib::Result<int> result = std::move(f).Get();
 
-    if (std::move(result).Ok() != 42)
-    {
+    if (std::move(result).Ok() != 42) {
         return EXIT_FAILURE;
     }
 

@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES C)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
+find_package(mysql-connector-c REQUIRED CONFIG)
 find_package(Threads)
 
 add_executable(${PROJECT_NAME} test_package.c)
-target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${PROJECT_NAME} mysql-connector-c::mysql-connector-c ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})

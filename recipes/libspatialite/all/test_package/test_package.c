@@ -1,5 +1,5 @@
-#include <sqlite3.h>
 #include <spatialite.h>
+#include <sqlite3.h>
 
 #include <stdio.h>
 

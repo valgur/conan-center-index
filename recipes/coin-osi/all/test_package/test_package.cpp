@@ -1,7 +1,6 @@
 #include "OsiUnitTests.hpp"
 
-int main(int argc, char *argv[])
-{
+int main() {
     OsiCutsUnitTest();
     return 0;
 }

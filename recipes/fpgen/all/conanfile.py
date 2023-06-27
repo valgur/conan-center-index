@@ -1,29 +1,27 @@
+# TODO: verify the Conan v2 migration
+
 import os
 
-from conans import ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.52.0"
 
 
 class FpgenConan(ConanFile):
     name = "fpgen"
     description = " Functional programming in C++ using C++20 coroutines."
     license = ["MPL2"]
-    topics = (
-        "generators",
-        "coroutines",
-        "c++20",
-        "header-only",
-        "functional-programming",
-        "functional",
-    )
-    homepage = "https://github.com/jay-tux/fpgen/"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "arch", "os", "compiler", "build_type"
-    no_copy_source = True
+    homepage = "https://github.com/jay-tux/fpgen/"
+    topics = ("generators", "coroutines", "c++20", "header-only", "functional-programming", "functional")
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -36,32 +34,21 @@ class FpgenConan(ConanFile):
             "clang": "13",
         }
 
-    def package_id(self):
-        self.info.header_only()
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
-    def source(self):
-        tools.get(
-            **self.conan_data["sources"][self.version],
-            destination=self._source_subfolder,
-            strip_root=True,
-        )
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler == "clang" and "clang" not in str(self.version):
-            raise ConanInvalidConfiguration(
-                f"Use '{self.version}-clang' for Clang support."
-            )
+            raise ConanInvalidConfiguration(f"Use '{self.version}-clang' for Clang support.")
 
-        if (
-            self.settings.compiler == "clang"
-            and not self.settings.compiler.libcxx == "libc++"
-        ):
-            raise ConanInvalidConfiguration(
-                f"Use 'compiler.libcxx=libc++' for {self.name} on Clang."
-            )
+        if self.settings.compiler == "clang" and not self.settings.compiler.libcxx == "libc++":
+            raise ConanInvalidConfiguration(f"Use 'compiler.libcxx=libc++' for {self.name} on Clang.")
 
         if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -69,26 +56,31 @@ class FpgenConan(ConanFile):
             min_length = min(len(lv1), len(lv2))
             return lv1[:min_length] < lv2[:min_length]
 
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler), False
-        )
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} is currently not available for your compiler."
-            )
+            raise ConanInvalidConfiguration(f"{self.name} is currently not available for your compiler.")
         elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++20, which your compiler does not support."
             )
 
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
-        self.copy(
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
             pattern="*.hpp",
             dst=os.path.join("include", "fpgen"),
-            src=self._source_subfolder,
+            src=self.source_folder,
             keep_path=False,
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.includedirs.append(os.path.join("include", "fpgen"))

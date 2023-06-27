@@ -4,17 +4,18 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class GainputConan(ConanFile):
     name = "gainput"
     description = "Cross-platform C++ input library supporting gamepads, keyboard, mouse, touch."
     license = "MIT"
-    topics = ("gainput", "input", "keyboard", "gamepad", "mouse", "multi-touch")
-    homepage = "https://gainput.johanneskuhlmann.de"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gainput.johanneskuhlmann.de"
+    topics = ("input", "keyboard", "gamepad", "mouse", "multi-touch")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -34,10 +35,7 @@ class GainputConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -47,8 +45,7 @@ class GainputConan(ConanFile):
             self.requires("xorg/system")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -70,15 +67,18 @@ class GainputConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        suffix = "{}{}".format("" if self.options.shared else "static",
-                               "-d" if self.settings.build_type == "Debug" else "")
+        suffix = "{}{}".format(
+            "" if self.options.shared else "static", "-d" if self.settings.build_type == "Debug" else ""
+        )
         self.cpp_info.libs = ["gainput" + suffix]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["xinput", "ws2_32"])
         elif self.settings.os == "Android":
             self.cpp_info.system_libs.extend(["native_app_glue", "log", "android"])
         elif is_apple_os(self):
-            self.cpp_info.frameworks.extend(["CoreFoundation", "CoreGraphics", "Foundation", "IOKit", "GameController"])
+            self.cpp_info.frameworks.extend(
+                ["CoreFoundation", "CoreGraphics", "Foundation", "IOKit", "GameController"]
+            )
             if self.settings.os == "iOS":
                 self.cpp_info.frameworks.extend(["UIKit", "CoreMotion"])
             else:

@@ -16,8 +16,7 @@
 
 using namespace ZXing;
 
-int main(int argc, char* argv[])
-{
+int main() {
     int width = 100, height = 100;
     int margin = 10;
     int eccLevel = 8;
@@ -27,16 +26,18 @@ int main(int argc, char* argv[])
     std::string outPath = "output.png";
 
     try {
-        auto writer = MultiFormatWriter(format).setMargin(margin).setEncoding(encoding).setEccLevel(eccLevel);
+        auto writer =
+            MultiFormatWriter(format).setMargin(margin).setEncoding(encoding).setEccLevel(eccLevel);
         auto matrix = writer.encode(text, width, height);
         auto bitmap = ToMatrix<uint8_t>(matrix);
 
-        int success = stbi_write_png(outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
+        int success =
+            stbi_write_png(outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
         if (!success) {
             std::cerr << "Failed to write image: " << outPath << std::endl;
             return -1;
         }
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return -1;
     }

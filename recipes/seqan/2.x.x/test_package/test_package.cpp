@@ -1,13 +1,12 @@
 // Demo program for clipping with Gaps objects.
 
 #include <iostream>
-#include <seqan/sequence.h>
 #include <seqan/align.h>
+#include <seqan/sequence.h>
 
 using namespace seqan;
 
-int main()
-{
+int main() {
     // Create sequence variable and gaps basd on sequence.
     CharString seq("ABCDEFGHIJ");
     Gaps<CharString> gaps(seq);

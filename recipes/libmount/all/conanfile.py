@@ -14,10 +14,10 @@ class LibmountConan(ConanFile):
         "The libmount library is used to parse /etc/fstab, /etc/mtab and "
         "/proc/self/mountinfo files, manage the mtab file, evaluate mount options, etc"
     )
-    topics = ("mount", "linux", "util-linux")
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
-    license = "LGPL-2.1-or-later"
+    topics = ("mount", "linux", "util-linux")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,7 +32,7 @@ class LibmountConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
@@ -48,11 +48,7 @@ class LibmountConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-all-programs",
-            "--enable-libmount",
-            "--enable-libblkid",
-        ])
+        tc.configure_args.extend(["--disable-all-programs", "--enable-libmount", "--enable-libblkid"])
         tc.generate()
 
     def build(self):

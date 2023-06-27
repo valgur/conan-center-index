@@ -3,8 +3,16 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get, load, mkdir,
-    rename, rm, rmdir, save
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    rename,
+    rm,
+    rmdir,
+    save,
 )
 from conan.tools.scm import Version
 import os
@@ -15,16 +23,23 @@ required_conan_version = ">=1.54.0"
 
 class mFASTConan(ConanFile):
     name = "mfast"
-    license = "LGPL-3.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://objectcomputing.com/"
     description = (
         "mFAST is a high performance C++ encoding/decoding library for FAST "
         "(FIX Adapted for STreaming) protocol"
     )
-    topics = ("fast", "fix", "fix-adapted-for-streaming",
-              "financial-information-exchange", "libraries", "cpp")
+    license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://objectcomputing.com/"
+    topics = (
+        "fast",
+        "fix",
+        "fix-adapted-for-streaming",
+        "financial-information-exchange",
+        "libraries",
+        "cpp",
+    )
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,8 +51,6 @@ class mFASTConan(ConanFile):
         "fPIC": True,
         "with_sqlite3": False,
     }
-
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -124,7 +137,11 @@ class mFASTConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, self._old_mfast_config_dir))
         rmdir(self, os.path.join(self.package_folder, "share"))
         if self.options.shared:
-            rm(self, "*_static*" if self.settings.os == "Windows" else "*.a", os.path.join(self.package_folder, "lib"))
+            rm(
+                self,
+                "*_static*" if self.settings.os == "Windows" else "*.a",
+                os.path.join(self.package_folder, "lib"),
+            )
 
         # TODO: several CMake variables should also be emulated (casing issues):
         #       [ ] MFAST_INCLUDE_DIR         - include directories for mFAST
@@ -138,7 +155,10 @@ class mFASTConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._lib_targets_module_file),
-            {values["target"]:"mFAST::{}".format(values["target"]) for values in self._mfast_lib_components.values()}
+            {
+                values["target"]: "mFAST::{}".format(values["target"])
+                for values in self._mfast_lib_components.values()
+            },
         )
 
     @property
@@ -155,21 +175,27 @@ class mFASTConan(ConanFile):
 
     def _extract_fasttypegentarget_macro(self):
         if Version(self.version) < "1.2.2":
-            config_file_content = load(self, os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake"))
+            config_file_content = load(
+                self, os.path.join(self.package_folder, self._old_mfast_config_dir, "mFASTConfig.cmake")
+            )
             begin = config_file_content.find("macro(FASTTYPEGEN_TARGET Name)")
             end = config_file_content.find("endmacro()", begin) + len("endmacro()")
             macro_str = config_file_content[begin:end]
             save(self, os.path.join(self.package_folder, self._fast_type_gen_target_file), macro_str)
         else:
-            rename(self, os.path.join(self.package_folder, self._old_mfast_config_dir, "FastTypeGenTarget.cmake"),
-                         os.path.join(self.package_folder, self._fast_type_gen_target_file))
+            rename(
+                self,
+                os.path.join(self.package_folder, self._old_mfast_config_dir, "FastTypeGenTarget.cmake"),
+                os.path.join(self.package_folder, self._fast_type_gen_target_file),
+            )
 
     def _prepend_exec_target_in_fasttypegentarget(self):
         extension = ".exe" if self.settings.os == "Windows" else ""
         fast_type_filename = "fast_type_gen" + extension
         module_folder_depth = len(os.path.normpath(self._new_mfast_config_dir).split(os.path.sep))
         fast_type_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), fast_type_filename)
-        exec_target_content = textwrap.dedent("""\
+        exec_target_content = textwrap.dedent(
+            """\
             if(NOT TARGET fast_type_gen)
                 if(CMAKE_CROSSCOMPILING)
                     find_program(MFAST_EXECUTABLE fast_type_gen PATHS ENV PATH NO_DEFAULT_PATH)
@@ -180,7 +206,10 @@ class mFASTConan(ConanFile):
                 add_executable(fast_type_gen IMPORTED)
                 set_property(TARGET fast_type_gen PROPERTY IMPORTED_LOCATION ${{MFAST_EXECUTABLE}})
             endif()
-        """.format(fast_type_rel_path=fast_type_rel_path))
+        """.format(
+                fast_type_rel_path=fast_type_rel_path
+            )
+        )
         module_abs_path = os.path.join(self.package_folder, self._fast_type_gen_target_file)
         old_content = load(self, module_abs_path)
         new_content = exec_target_content + old_content
@@ -189,12 +218,14 @@ class mFASTConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -232,14 +263,16 @@ class mFASTConan(ConanFile):
             },
         }
         if self.options.with_sqlite3:
-            components.update({
-                "mfast_sqlite3": {
-                    "comp": "mfast_sqlite3",
-                    "target": "mfast_sqlite3" + target_suffix,
-                    "lib": "mfast_sqlite3" + lib_suffix,
-                    "requires": ["libmfast", "boost::headers", "sqlite3::sqlite3"],
-                },
-            })
+            components.update(
+                {
+                    "mfast_sqlite3": {
+                        "comp": "mfast_sqlite3",
+                        "target": "mfast_sqlite3" + target_suffix,
+                        "lib": "mfast_sqlite3" + lib_suffix,
+                        "requires": ["libmfast", "boost::headers", "sqlite3::sqlite3"],
+                    }
+                }
+            )
         return components
 
     def package_info(self):

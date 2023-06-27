@@ -5,16 +5,20 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class ElfioConan(ConanFile):
     name = "elfio"
+    description = (
+        "A header-only C++ library that provides a simple interface "
+        "for reading and generating files in ELF binary format."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://elfio.sourceforge.net"
-    description = "A header-only C++ library that provides a simple interface for reading and generating files in ELF binary format."
-    topics = ("elfio", "elf")
-    license = "MIT"
+    topics = ("elf", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

@@ -11,10 +11,13 @@ class CreateDmgConan(ConanFile):
     name = "create-dmg"
     description = "A shell script to build fancy DMGs"
     license = "MIT"
-    topics = "command-line", "dmg"
-    homepage = "https://github.com/create-dmg/create-dmg"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/create-dmg/create-dmg"
+    topics = ("command-line", "dmg", "header-only")
+
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -30,16 +33,22 @@ class CreateDmgConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} works only on MacOS")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(self, pattern="create-dmg", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "res", "create-dmg", "support"), src=os.path.join(self.source_folder, "support"))
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "res", "create-dmg", "support"),
+            src=os.path.join(self.source_folder, "support"),
+        )
 
         rmdir(self, os.path.join(self.package_folder, "share"))
 

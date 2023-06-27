@@ -1,14 +1,89 @@
-from conan import ConanFile
-from conan.tools.files import get, rmdir, patch, replace_in_file, rename
-from conan.tools.build import cross_building
-from conan.tools.scm   import Version
-from conans import AutoToolsBuildEnvironment, tools
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 from conan.errors import ConanInvalidConfiguration
 from contextlib import contextmanager
 import os
 import shutil
 
 required_conan_version = ">=1.47.0"
+
 
 class VerilatorConan(ConanFile):
     name = "verilator"
@@ -23,17 +98,12 @@ class VerilatorConan(ConanFile):
     _autotools = None
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
-            
+        export_conandata_patches(self)
+
     @property
     def _needs_old_bison(self):
         return Version(self.version) < "4.100"
@@ -61,7 +131,6 @@ class VerilatorConan(ConanFile):
         if Version(self.version) >= "4.224":
             self.build_requires("autoconf/2.71")
 
-
     def requirements(self):
         if self.settings.os == "Windows":
             self.requires("strawberryperl/5.30.0.1")
@@ -69,28 +138,32 @@ class VerilatorConan(ConanFile):
             self.requires("dirent/1.23.2", private=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
-        if Version(self.version) >= "4.200" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
+        if (
+            Version(self.version) >= "4.200"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "7"
+        ):
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
-        
+
         if self.settings.os == "Windows" and Version(self.version) >= "4.200":
             raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
+
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
             build_env = {
-                "CC": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                "CXX": "{} cl -nologo".format(tools.unix_path(self.deps_user_info["automake"].compile)),
-                "AR": "{} lib".format(tools.unix_path(self.deps_user_info["automake"].ar_lib)),
+                "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
             }
-            with tools.vcvars(self.settings):
-                with tools.environment_append(build_env):
+            with vcvars(self.settings):
+                with environment_append(self, build_env):
                     yield
         else:
             yield
@@ -107,18 +180,18 @@ class VerilatorConan(ConanFile):
             self._autotools.cxx_flags.append("-EHsc")
             self._autotools.defines.append("YY_NO_UNISTD_H")
             self._autotools.flags.append("-FS")
-        conf_args = [
-            "--datarootdir={}/bin/share".format(tools.unix_path(self.package_folder)),
-        ]
-        yacc = tools.get_env("YACC")
+        conf_args = ["--datarootdir={}/bin/share".format(unix_path(self.package_folder))]
+        yacc = get_env(self, "YACC")
         if yacc:
             if yacc.endswith(" -y"):
                 yacc = yacc[:-3]
-        with tools.environment_append({"YACC": yacc}):
+        with environment_append(self, {"YACC": yacc}):
             if Version(self.version) >= "4.224":
-               with tools.chdir(self._source_subfolder):
+                with chdir(self, self.source_folder):
                     self.run("autoconf", win_bash=tools.os_info.is_windows, run_environment=True)
-            self._autotools.configure(args=conf_args, configure_dir=os.path.join(self.build_folder, self._source_subfolder))
+            self._autotools.configure(
+                args=conf_args, configure_dir=os.path.join(self.build_folder, self.source_folder)
+            )
 
         return self._autotools
 
@@ -131,21 +204,25 @@ class VerilatorConan(ConanFile):
         if self.settings.build_type == "Debug":
             args.append("DEBUG=1")
         if self.settings.compiler == "Visual Studio":
-            args.append("PROGLINK={}".format(tools.unix_path(os.path.join(self.build_folder, self._source_subfolder, "msvc_link.sh"))))
+            args.append(
+                "PROGLINK={}".format(
+                    unix_path(self, os.path.join(self.build_folder, self.source_folder, "msvc_link.sh"))
+                )
+            )
         return args
 
     def _patch_sources(self):
         if Version(self.version) < "4.200":
-            for patch_file in self.conan_data.get("patches", {}).get(self.version, []):
-                patch(self, **patch_file)
+            apply_conandata_patches(self)
         try:
-            os.unlink(os.path.join(self._source_subfolder, "src", "config_build.h"))
+            os.unlink(os.path.join(self.source_folder, "src", "config_build.h"))
         except FileNotFoundError:
             pass
 
         if self.settings.compiler == "Visual Studio":
-            replace_in_file(self, os.path.join(self._source_subfolder, "src", "Makefile_obj.in"),
-                                  "${LINK}", "${PROGLINK}")
+            replace_in_file(
+                self, os.path.join(self.source_folder, "src", "Makefile_obj.in"), "${LINK}", "${PROGLINK}"
+            )
 
     def build(self):
         self._patch_sources()
@@ -154,7 +231,7 @@ class VerilatorConan(ConanFile):
             autotools.make(args=self._make_args)
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
             autotools = self._configure_autotools()
             autotools.install(args=self._make_args)
@@ -162,24 +239,45 @@ class VerilatorConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "verilator", "examples"))
-        os.unlink(os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config-version.cmake"))
-        rename(self, os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config.cmake"),
-                     os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"))
-        replace_in_file(self, os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"), 
-                            "${CMAKE_CURRENT_LIST_DIR}", "${CMAKE_CURRENT_LIST_DIR}/../../..")
+        os.unlink(
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config-version.cmake")
+        )
+        rename(
+            self,
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-config.cmake"),
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
+            "${CMAKE_CURRENT_LIST_DIR}",
+            "${CMAKE_CURRENT_LIST_DIR}/../../..",
+        )
         if self.settings.build_type == "Debug":
-            replace_in_file(self, os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
-                                 "verilator_bin", "verilator_bin_dbg")
+            replace_in_file(
+                self,
+                os.path.join(self.package_folder, "bin", "share", "verilator", "verilator-tools.cmake"),
+                "verilator_bin",
+                "verilator_bin_dbg",
+            )
 
-        shutil.move(os.path.join(self.package_folder, "bin", "share", "verilator", "include"), 
-                    os.path.join(self.package_folder))
+        shutil.move(
+            os.path.join(self.package_folder, "bin", "share", "verilator", "include"),
+            os.path.join(self.package_folder),
+        )
 
         if Version(self.version) >= "4.224":
-            shutil.move(os.path.join(self.package_folder, "bin", "share", "verilator", "bin", "verilator_ccache_report"), 
-                    os.path.join(self.package_folder, "bin", "verilator_ccache_report"))
+            shutil.move(
+                os.path.join(
+                    self.package_folder, "bin", "share", "verilator", "bin", "verilator_ccache_report"
+                ),
+                os.path.join(self.package_folder, "bin", "verilator_ccache_report"),
+            )
 
-        shutil.move(os.path.join(self.package_folder, "bin", "share", "verilator", "bin", "verilator_includer"), 
-                    os.path.join(self.package_folder, "bin", "verilator_includer"))
+        shutil.move(
+            os.path.join(self.package_folder, "bin", "share", "verilator", "bin", "verilator_includer"),
+            os.path.join(self.package_folder, "bin", "verilator_includer"),
+        )
 
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "verilator", "bin"))
 

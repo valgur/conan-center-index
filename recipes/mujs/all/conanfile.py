@@ -8,12 +8,14 @@ required_conan_version = ">=1.53.0"
 
 class MujsConan(ConanFile):
     name = "mujs"
-    description = "MuJS is a lightweight Javascript interpreter designed for " \
-                  "embedding in other software to extend them with scripting capabilities."
+    description = (
+        "MuJS is a lightweight Javascript interpreter designed for "
+        "embedding in other software to extend them with scripting capabilities."
+    )
     license = "ISC"
-    topics = ("interpreter", "javascript")
-    homepage = "https://mujs.com"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mujs.com"
+    topics = ("interpreter", "javascript")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -26,7 +28,8 @@ class MujsConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

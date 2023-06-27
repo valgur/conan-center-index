@@ -7,14 +7,17 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class KplotConan(ConanFile):
     name = "kplot"
     description = "open source Cairo plotting library"
     license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kristapsdz/kplot/"
-    topics = ("plot", "cairo", "chart") # no "conan"  and project name in topics
-    settings = "os", "arch", "compiler", "build_type" # even for header only
+    topics = ("plot", "cairo", "chart")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -41,12 +44,12 @@ class KplotConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("cairo/1.17.4")
+
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
-
-    def requirements(self):
-        self.requires("cairo/1.17.4")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -65,7 +68,12 @@ class KplotConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 

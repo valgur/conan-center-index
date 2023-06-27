@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"
     description = "Prometheus Client Library for Modern C++"
@@ -18,6 +19,7 @@ class PrometheusCppConan(ConanFile):
     homepage = "https://github.com/jupp0r/prometheus-cpp"
     topics = ("metrics", "prometheus", "networking")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -84,7 +86,7 @@ class PrometheusCppConan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -108,7 +110,9 @@ class PrometheusCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -118,15 +122,21 @@ class PrometheusCppConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "prometheus-cpp")
 
-        self.cpp_info.components["prometheus-cpp-core"].set_property("cmake_target_name", "prometheus-cpp::core")
+        self.cpp_info.components["prometheus-cpp-core"].set_property(
+            "cmake_target_name", "prometheus-cpp::core"
+        )
         self.cpp_info.components["prometheus-cpp-core"].set_property("pkg_config_name", "prometheus-cpp-core")
         self.cpp_info.components["prometheus-cpp-core"].libs = ["prometheus-cpp-core"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["prometheus-cpp-core"].system_libs = ["pthread", "rt"]
 
         if self.options.with_push:
-            self.cpp_info.components["prometheus-cpp-push"].set_property("cmake_target_name", "prometheus-cpp::push")
-            self.cpp_info.components["prometheus-cpp-push"].set_property("pkg_config_name", "prometheus-cpp-push")
+            self.cpp_info.components["prometheus-cpp-push"].set_property(
+                "cmake_target_name", "prometheus-cpp::push"
+            )
+            self.cpp_info.components["prometheus-cpp-push"].set_property(
+                "pkg_config_name", "prometheus-cpp-push"
+            )
             self.cpp_info.components["prometheus-cpp-push"].libs = ["prometheus-cpp-push"]
             self.cpp_info.components["prometheus-cpp-push"].requires = [
                 "prometheus-cpp-core",
@@ -136,12 +146,16 @@ class PrometheusCppConan(ConanFile):
                 self.cpp_info.components["prometheus-cpp-push"].system_libs = ["pthread", "rt"]
 
         if self.options.with_pull:
-            self.cpp_info.components["prometheus-cpp-pull"].set_property("cmake_target_name", "prometheus-cpp::pull")
-            self.cpp_info.components["prometheus-cpp-pull"].set_property("pkg_config_name", "prometheus-cpp-pull")
+            self.cpp_info.components["prometheus-cpp-pull"].set_property(
+                "cmake_target_name", "prometheus-cpp::pull"
+            )
+            self.cpp_info.components["prometheus-cpp-pull"].set_property(
+                "pkg_config_name", "prometheus-cpp-pull"
+            )
             self.cpp_info.components["prometheus-cpp-pull"].libs = ["prometheus-cpp-pull"]
             self.cpp_info.components["prometheus-cpp-pull"].requires = [
                 "prometheus-cpp-core",
-                "civetweb::civetweb-cpp"
+                "civetweb::civetweb-cpp",
             ]
             if self.options.with_compression:
                 self.cpp_info.components["prometheus-cpp-pull"].requires.append("zlib::zlib")

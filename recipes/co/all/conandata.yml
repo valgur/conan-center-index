@@ -5,4 +5,3 @@ sources:
 patches:
   "2.0.2":
     - patch_file: "patches/001-install-dll.patch"
-      base_path: "source_subfolder"

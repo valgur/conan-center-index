@@ -6,6 +6,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class ValijsonConan(ConanFile):
     name = "valijson"
     description = "Valijson is a header-only JSON Schema Validation library for C++11."
@@ -31,13 +32,15 @@ class ValijsonConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

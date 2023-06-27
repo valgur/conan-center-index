@@ -48,5 +48,5 @@ class TestPackageConan(ConanFile):
                 elif "arm" in self.settings.arch:
                     assert re.search(r"Machine:\s+ARM", output), f"Not found in output: {output}"
 
-            elif self.settings.os == "Windows": # FIXME: It satisfies not only MinGW
+            elif self.settings.os == "Windows":  # FIXME: It satisfies not only MinGW
                 assert re.search(r"PE32.*executable.*Windows", output), f"Not found in output: {output}"

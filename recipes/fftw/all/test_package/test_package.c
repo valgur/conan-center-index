@@ -14,10 +14,9 @@ typedef double real_t;
 
 int main() {
     long size = 256;
-    real_t* input = FFTW_MANGLE(alloc_real)(size);
-    FFTW_MANGLE(complex)* output = FFTW_MANGLE(alloc_complex)(size);
-    FFTW_MANGLE(plan) plan = (FFTW_MANGLE(plan_dft_r2c_1d)(
-          size, input, output, FFTW_ESTIMATE));
+    real_t *input = FFTW_MANGLE(alloc_real)(size);
+    FFTW_MANGLE(complex) *output = FFTW_MANGLE(alloc_complex)(size);
+    FFTW_MANGLE(plan) plan = (FFTW_MANGLE(plan_dft_r2c_1d)(size, input, output, FFTW_ESTIMATE));
     FFTW_MANGLE(execute)(plan);
     FFTW_MANGLE(destroy_plan)(plan);
     FFTW_MANGLE(free)(output);

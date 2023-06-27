@@ -8,13 +8,14 @@ import os
 
 required_conan_version = ">=1.54.0"
 
+
 class Re2Conan(ConanFile):
     name = "re2"
     description = "Fast, safe, thread-friendly regular expression library"
-    topics = ("regex",)
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/re2"
-    license = "BSD-3-Clause"
+    topics = ("regex",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,14 +43,14 @@ class Re2Conan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "20230201":
-            del self.options.with_icu
+            self.options.rm_safe("with_icu")
 
     def configure(self):
         if self.options.shared:

@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.3.0)
-
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_set_vs_runtime()

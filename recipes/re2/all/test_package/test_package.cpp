@@ -1,7 +1,7 @@
 #include <re2/re2.h>
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 int main() {
     assert(RE2::FullMatch("hello", "h.*o"));

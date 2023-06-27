@@ -3,10 +3,17 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.layout import basic_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import chdir, get, download, export_conandata_patches, apply_conandata_patches, rm, copy
+from conan.tools.files import (
+    chdir,
+    get,
+    download,
+    export_conandata_patches,
+    apply_conandata_patches,
+    rm,
+    copy,
+)
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
-
 
 required_conan_version = ">=1.54.0"
 
@@ -14,10 +21,12 @@ required_conan_version = ">=1.54.0"
 class NasRecipe(ConanFile):
     name = "nas"
     description = "The Network Audio System is a network transparent, client/server audio transport system."
-    topics = ("audio", "sound")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.radscan.com/nas.html"
-    license = "Unlicense"
+    topics = ("audio", "sound")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -28,8 +37,8 @@ class NasRecipe(ConanFile):
         "fPIC": True,
     }
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:
@@ -37,8 +46,11 @@ class NasRecipe(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def export_sources(self):
-        export_conandata_patches(self)
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("xorg/system")
 
     def validate(self):
         if self.settings.os not in ("FreeBSD", "Linux"):
@@ -46,9 +58,6 @@ class NasRecipe(ConanFile):
         if self.settings.compiler == "clang":
             # See https://github.com/conan-io/conan-center-index/pull/16267#issuecomment-1469824504
             raise ConanInvalidConfiguration("Recipe cannot be built with clang")
-
-    def requirements(self):
-        self.requires("xorg/system")
 
     def build_requirements(self):
         self.tool_requires("bison/3.7.1")
@@ -60,7 +69,7 @@ class NasRecipe(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0],  strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
         # This library does not come with a License file by itself, package it from an external source
         download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
@@ -102,7 +111,10 @@ class NasRecipe(ConanFile):
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
 
         with chdir(self, self.source_folder):
-            self.run("imake -DUseInstalled -I{} {}".format(self._imake_irulesrc, self._imake_defines), env="conanbuild")
+            self.run(
+                "imake -DUseInstalled -I{} {}".format(self._imake_irulesrc, self._imake_defines),
+                env="conanbuild",
+            )
             autotools = Autotools(self)
             # j1 avoids some errors while trying to run this target
             autotools.make(target="World", args=["-j1"] + self._imake_make_args)
@@ -113,19 +125,24 @@ class NasRecipe(ConanFile):
         tmp_install = os.path.join(self.build_folder, "prefix")
         self.output.warning(tmp_install)
         install_args = [
-                        "DESTDIR={}".format(tmp_install),
-                        "INCDIR=/include",
-                        "ETCDIR=/etc",
-                        "USRLIBDIR=/lib",
-                        "BINDIR=/bin",
-                    ] + self._imake_make_args
+            "DESTDIR={}".format(tmp_install),
+            "INCDIR=/include",
+            "ETCDIR=/etc",
+            "USRLIBDIR=/lib",
+            "BINDIR=/bin",
+        ] + self._imake_make_args
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             # j1 avoids some errors while trying to install
             autotools.install(args=["-j1"] + install_args)
 
         copy(self, "*", src=os.path.join(tmp_install, "bin"), dst=os.path.join(self.package_folder, "bin"))
-        copy(self, "*.h", src=os.path.join(tmp_install, "include"), dst=os.path.join(self.package_folder, "include", "audio"))
+        copy(
+            self,
+            "*.h",
+            src=os.path.join(tmp_install, "include"),
+            dst=os.path.join(self.package_folder, "include", "audio"),
+        )
         copy(self, "*", src=os.path.join(tmp_install, "lib"), dst=os.path.join(self.package_folder, "lib"))
 
         # Both are present in the final build and there does not seem to be an obvious way to tell the build system

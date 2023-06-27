@@ -8,13 +8,15 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class Tabulate(ConanFile):
     name = "tabulate"
     description = "Table Maker for Modern C++"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/tabulate"
-    topics = ("header-only", "cpp17", "tabulate", "table", "cli")
+    topics = ("header-only", "cpp17", "table", "cli")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -53,7 +55,9 @@ class Tabulate(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

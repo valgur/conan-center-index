@@ -12,13 +12,14 @@ required_conan_version = ">=1.54.0"
 
 class OpencoreAmrConan(ConanFile):
     name = "opencore-amr"
-    homepage = "https://sourceforge.net/projects/opencore-amr/"
     description = "OpenCORE Adaptive Multi Rate (AMR) speech codec library implementation."
-    topics = ("audio-codec", "amr", "opencore")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceforge.net/projects/opencore-amr/"
+    topics = ("audio-codec", "amr", "opencore")
+
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -61,10 +62,7 @@ class OpencoreAmrConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--disable-compile-c",
-            "--disable-examples",
-        ])
+        tc.configure_args.extend(["--disable-compile-c", "--disable-examples"])
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
             if check_min_vs(self, "180", raise_invalid=False):
@@ -74,12 +72,14 @@ class OpencoreAmrConan(ConanFile):
         if is_msvc(self):
             env = Environment()
             automake_conf = self.dependencies.build["automake"].conf_info
-            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            compile_wrapper = unix_path(
+                self, automake_conf.get("user.automake:compile-wrapper", check_type=str)
+            )
             ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -93,7 +93,9 @@ class OpencoreAmrConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         autotools = Autotools(self)
         autotools.install()
 
@@ -104,16 +106,17 @@ class OpencoreAmrConan(ConanFile):
 
         if is_msvc(self) and self.options.shared:
             for lib in ("opencore-amrwb", "opencore-amrnb"):
-                rename(self, os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
-                             os.path.join(self.package_folder, "lib", "{}.lib".format(lib)))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", "{}.dll.lib".format(lib)),
+                    os.path.join(self.package_folder, "lib", "{}.lib".format(lib)),
+                )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "opencore-amr")
-        self.cpp_info.set_property(
-            "cmake_target_name", "opencore-amr::opencore-amr")
+        self.cpp_info.set_property("cmake_target_name", "opencore-amr::opencore-amr")
         for lib in ("opencore-amrwb", "opencore-amrnb"):
-            self.cpp_info.components[lib].set_property(
-                "cmake_target_name", f'opencore-amr::{lib}')
+            self.cpp_info.components[lib].set_property("cmake_target_name", f"opencore-amr::{lib}")
             self.cpp_info.components[lib].set_property("pkg_config_name", lib)
             self.cpp_info.components[lib].libs = [lib]
             if self.settings.os in ["Linux", "FreeBSD"]:

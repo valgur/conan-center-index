@@ -3,7 +3,9 @@
 #include <ios>
 #include <iostream>
 
-template <int N> struct Wrapper { static constexpr int i = N; };
+template <int N> struct Wrapper {
+    static constexpr int i = N;
+};
 
 int main() {
     dice::template_library::integral_template_tuple<Wrapper, 0, 5> tup;

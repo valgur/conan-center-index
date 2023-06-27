@@ -15,7 +15,7 @@ class SpdlogSetupConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gegles/spdlog_setup"
-    topics = ('spdlog', 'logging', 'header-only', 'toml', 'cpptoml')
+    topics = ("spdlog", "logging", "header-only", "toml", "cpptoml")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -58,7 +58,9 @@ class SpdlogSetupConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

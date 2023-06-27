@@ -11,9 +11,10 @@ class ExprTkConan(ConanFile):
     name = "exprtk"
     description = "C++ Mathematical Expression Parsing And Evaluation Library ExprTk"
     license = "MIT"
-    topics = ("math", "mathematics", "parser", "lexer", "numerical", "header-only")
-    homepage = "https://www.partow.net/programming/exprtk/index.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.partow.net/programming/exprtk/index.html"
+    topics = ("math", "mathematics", "parser", "lexer", "numerical", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -40,7 +41,7 @@ class ExprTkConan(ConanFile):
         file = os.path.join(self.source_folder, exprtk_header_file)
         file_content = load(self, file)
         license_end = "/MIT                        *"
-        license_contents = file_content[2:file_content.find(license_end) + len(license_end)]
+        license_contents = file_content[2 : file_content.find(license_end) + len(license_end)]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):

@@ -14,13 +14,14 @@ required_conan_version = ">=1.53.0"
 class G3logConan(ConanFile):
     name = "g3log"
     description = (
-        "G3log is an asynchronous, \"crash safe\", logger that is easy to use "
+        'G3log is an asynchronous, "crash safe", logger that is easy to use '
         "with default logging sinks or you can add your own."
     )
     license = "The Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KjellKod/g3log"
     topics = ("logging", "log", "asynchronous")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -76,8 +77,8 @@ class G3logConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not is_msvc(self):
-            del self.options.enable_vectored_exception_handling
-            del self.options.debug_break_at_fatal_signal
+            self.options.rm_safe("enable_vectored_exception_handling")
+            self.options.rm_safe("debug_break_at_fatal_signal")
 
     def configure(self):
         if self.options.shared:
@@ -115,7 +116,9 @@ class G3logConan(ConanFile):
         tc.variables["G3_LOG_FULL_FILENAME"] = self.options.log_full_filename
         tc.variables["ENABLE_FATAL_SIGNALHANDLING"] = self.options.enable_fatal_signal_handling
         if is_msvc(self):
-            tc.variables["ENABLE_VECTORED_EXCEPTIONHANDLING"] = self.options.enable_vectored_exception_handling
+            tc.variables["ENABLE_VECTORED_EXCEPTIONHANDLING"] = (
+                self.options.enable_vectored_exception_handling
+            )
             tc.variables["DEBUG_BREAK_AT_FATAL_SIGNAL"] = self.options.debug_break_at_fatal_signal
         tc.variables["ADD_FATAL_EXAMPLE"] = "OFF"
         tc.variables["ADD_G3LOG_PERFORMANCE"] = "OFF"
@@ -137,7 +140,9 @@ class G3logConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"g3log": "g3log::g3log"},
+            {
+                "g3log": "g3log::g3log",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

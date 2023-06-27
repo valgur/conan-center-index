@@ -16,6 +16,7 @@ class EdynConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xissburg/edyn"
     topics = ("physics", "game-development", "ecs")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,7 +37,7 @@ class EdynConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "gcc": "9.3", # GCC 9.3 started supporting attributes in constructor arguments
+            "gcc": "9.3",  # GCC 9.3 started supporting attributes in constructor arguments
             "clang": "8",
             "apple-clang": "10",
             "Visual Studio": "16",
@@ -87,7 +88,9 @@ class EdynConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

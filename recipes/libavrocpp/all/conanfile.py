@@ -1,5 +1,12 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    replace_in_file,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
@@ -13,17 +20,18 @@ class LibavrocppConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://avro.apache.org/"
-    topics = ("serialization", "deserialization","avro")
+    topics = ("serialization", "deserialization", "avro")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -68,13 +76,14 @@ class LibavrocppConan(ConanFile):
         replace_in_file(self, cmakelists, "SNAPPY_FOUND", "Snappy_FOUND")
         replace_in_file(self, cmakelists, "${SNAPPY_LIBRARIES}", "Snappy::snappy")
         replace_in_file(
-            self, cmakelists,
+            self,
+            cmakelists,
             "target_include_directories(avrocpp_s PRIVATE ${SNAPPY_INCLUDE_DIR})",
             "target_link_libraries(avrocpp_s PRIVATE Snappy::snappy)",
         )
         # Install either static or shared
         target = "avrocpp" if self.options.shared else "avrocpp_s"
-        replace_in_file(self, cmakelists, "install (TARGETS avrocpp avrocpp_s" , f"install (TARGETS {target}")
+        replace_in_file(self, cmakelists, "install (TARGETS avrocpp avrocpp_s", f"install (TARGETS {target}")
 
     def build(self):
         self._patch_sources()
@@ -83,8 +92,12 @@ class LibavrocppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="NOTICE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self, pattern="NOTICE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -99,6 +112,11 @@ class LibavrocppConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         self.cpp_info.requires = [
-            "boost::headers", "boost::filesystem", "boost::iostreams", "boost::program_options",
-            "boost::regex", "boost::system", "snappy::snappy",
+            "boost::headers",
+            "boost::filesystem",
+            "boost::iostreams",
+            "boost::program_options",
+            "boost::regex",
+            "boost::system",
+            "snappy::snappy",
         ]

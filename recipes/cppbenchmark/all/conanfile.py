@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class CppBenchmark(ConanFile):
     name = "cppbenchmark"
     description = "Performance benchmark framework for C++ with nanoseconds measure precision."
@@ -15,15 +16,16 @@ class CppBenchmark(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/chronoxor/CppBenchmark"
     topics = ("utils", "library", "benchmark")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property
@@ -32,13 +34,7 @@ class CppBenchmark(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        return {
-            "apple-clang": 10,
-            "clang": 6,
-            "gcc": 7,
-            "Visual Studio": 16,
-            "msvc": 192,
-        }
+        return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16, "msvc": 192}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -88,7 +84,9 @@ class CppBenchmark(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

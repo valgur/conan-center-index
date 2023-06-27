@@ -14,8 +14,7 @@ struct MockIScenarioCollection : public IScenarioCollection {
     MOCK_CONST_METHOD0(getScenarios, std::list<Scenario>());
 };
 
-TEST(ParserTest, shouldParseOneScenario)
-{
+TEST(ParserTest, shouldParseOneScenario) {
     auto scenariosMock = std::make_shared<MockIScenarioCollection>();
     Parser parser(IParserStateFactoryPtr(new ParserStateFactory(scenariosMock)));
 
@@ -24,4 +23,3 @@ TEST(ParserTest, shouldParseOneScenario)
     parser.parseLine("Given I have entered 1 into the calculator");
     parser.finish();
 }
-

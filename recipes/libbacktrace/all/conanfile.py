@@ -14,10 +14,11 @@ required_conan_version = ">=1.54.0"
 class LibbacktraceConan(ConanFile):
     name = "libbacktrace"
     description = "A C library that may be linked into a C/C++ program to produce symbolic backtraces."
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ianlancetaylor/libbacktrace"
-    license = "BSD-3-Clause"
     topics = ("backtrace", "stack-trace")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -80,7 +81,7 @@ class LibbacktraceConan(ConanFile):
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -101,8 +102,9 @@ class LibbacktraceConan(ConanFile):
         rm(self, "*.la", lib_folder)
         fix_apple_shared_install_name(self)
         if is_msvc(self):
-            rename(self, os.path.join(lib_folder, "libbacktrace.lib"),
-                         os.path.join(lib_folder, "backtrace.lib"))
+            rename(
+                self, os.path.join(lib_folder, "libbacktrace.lib"), os.path.join(lib_folder, "backtrace.lib")
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["backtrace"]

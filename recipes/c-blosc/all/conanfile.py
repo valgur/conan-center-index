@@ -12,9 +12,10 @@ class CbloscConan(ConanFile):
     name = "c-blosc"
     description = "An extremely fast, multi-threaded, meta-compressor library."
     license = "BSD-3-Clause"
-    topics = ("blosc", "compression")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Blosc/c-blosc"
+    topics = ("blosc", "compression")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,7 +44,7 @@ class CbloscConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            del self.options.simd_intrinsics
+            self.options.rm_safe("simd_intrinsics")
 
     def configure(self):
         if self.options.shared:
@@ -110,7 +111,12 @@ class CbloscConan(ConanFile):
     def package(self):
         licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt"]
         for license_file in licenses:
-            copy(self, license_file, src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self,
+                license_file,
+                src=os.path.join(self.source_folder, "LICENSES"),
+                dst=os.path.join(self.package_folder, "licenses"),
+            )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

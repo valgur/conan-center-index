@@ -9,10 +9,10 @@ required_conan_version = ">=1.54.0"
 
 class DoubleConversionConan(ConanFile):
     name = "double-conversion"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/google/double-conversion"
     description = "Efficient binary-decimal and decimal-binary conversion routines for IEEE doubles."
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/double-conversion"
     topics = ("google", "decimal-binary", "conversion")
 
     package_type = "library"

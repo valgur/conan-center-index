@@ -2,8 +2,7 @@
 
 #include <stddef.h>
 
-int main()
-{
+int main() {
     x86_init(opt_none, NULL, NULL);
     x86_cleanup();
     return 0;

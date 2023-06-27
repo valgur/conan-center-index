@@ -20,11 +20,11 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
 
         with_gmock = bool(self.dependencies[self.tested_reference_str].options.build_gmock)
-        tc.cache_variables['WITH_GMOCK'] = with_gmock
+        tc.cache_variables["WITH_GMOCK"] = with_gmock
         if with_gmock:
-            tc.preprocessor_definitions['WITH_GMOCK'] = 1
+            tc.preprocessor_definitions["WITH_GMOCK"] = 1
 
-        tc.variables['WITH_MAIN'] = not bool(self.dependencies[self.tested_reference_str].options.no_main)
+        tc.variables["WITH_MAIN"] = not bool(self.dependencies[self.tested_reference_str].options.no_main)
         tc.generate()
 
     def build(self):

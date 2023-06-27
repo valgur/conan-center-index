@@ -2,24 +2,33 @@ import os
 
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, unix_path_package_info_legacy
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-
 
 required_conan_version = ">=1.57.0"
 
 
 class PkgConfConan(ConanFile):
     name = "pkgconf"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("build", "configuration")
-    homepage = "https://git.sr.ht/~kaniini/pkgconf"
-    license = "ISC"
     description = "package compiler and linker metadata toolkit"
+    license = "ISC"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://git.sr.ht/~kaniini/pkgconf"
+    topics = ("build", "configuration")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,9 +40,6 @@ class PkgConfConan(ConanFile):
         "fPIC": True,
         "enable_lib": False,
     }
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -48,26 +54,22 @@ class PkgConfConan(ConanFile):
             self.options.rm_safe("shared")
         elif self.options.shared:
             self.options.rm_safe("fPIC")
-       
+
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        if not self.info.options.enable_lib:
+            del self.info.settings.compiler
 
     def build_requirements(self):
         self.tool_requires("meson/1.0.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        if not self.options.get_safe("shared", False):
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                                  "'-DLIBPKGCONF_EXPORT'",
-                                  "'-DPKGCONFIG_IS_STATIC'")
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-            "project('pkgconf', 'c',",
-            "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -79,6 +81,23 @@ class PkgConfConan(ConanFile):
             tc.project_options["default_library"] = "static"
         tc.generate()
 
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+
+        if not self.options.get_safe("shared", False):
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "meson.build"),
+                "'-DLIBPKGCONF_EXPORT'",
+                "'-DPKGCONFIG_IS_STATIC'",
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "meson.build"),
+                "project('pkgconf', 'c',",
+                "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],",
+            )
+
     def build(self):
         self._patch_sources()
         meson = Meson(self)
@@ -86,7 +105,7 @@ class PkgConfConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder,"licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         meson = Meson(self)
         meson.install()
@@ -94,23 +113,24 @@ class PkgConfConan(ConanFile):
         if is_msvc(self):
             rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
             if self.options.enable_lib and not self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "libpkgconf.a"),
-                          os.path.join(self.package_folder, "lib", "pkgconf.lib"),)
-        
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", "libpkgconf.a"),
+                    os.path.join(self.package_folder, "lib", "pkgconf.lib"),
+                )
+
         if not self.options.enable_lib:
             rmdir(self, os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "include"))
 
-        
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        rename(self, os.path.join(self.package_folder, "share", "aclocal"),
-                  os.path.join(self.package_folder, "bin", "aclocal"))
+        rename(
+            self,
+            os.path.join(self.package_folder, "share", "aclocal"),
+            os.path.join(self.package_folder, "bin", "aclocal"),
+        )
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-    def package_id(self):
-        if not self.info.options.enable_lib:
-            del self.info.settings.compiler
 
     def package_info(self):
         if self.options.enable_lib:

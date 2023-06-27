@@ -9,10 +9,11 @@ required_conan_version = ">=1.50.0"
 class RangConan(ConanFile):
     name = "rang"
     description = "A Minimal, Header only Modern c++ library for colors in your terminal"
-    homepage = "https://github.com/agauniyal/rang"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Unlicense"
-    topics = ("cli", "colors", "terminal", "console")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/agauniyal/rang"
+    topics = ("cli", "colors", "terminal", "console", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -31,7 +32,12 @@ class RangConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rang")

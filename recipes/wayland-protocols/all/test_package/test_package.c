@@ -1,12 +1,11 @@
 
+#include "xdg-shell-client-protocol.h"
 #include <stdio.h>
 #include <wayland-client.h>
-#include "xdg-shell-client-protocol.h"
 
-// TODO: Need help to write actual test here 
+// TODO: Need help to write actual test here
 
-int main(void)
-{
+int main(void) {
     struct wl_display *display = wl_display_connect(NULL);
     if (display) {
         printf("Connected!\n");

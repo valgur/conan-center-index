@@ -6,18 +6,19 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class PackageConan(ConanFile):
     name = "json_dto"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/Stiffstream/json_dto"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A small header-only helper for converting data between json representation and c++ structs"
-    topics = ("json", "dto", "serialization")
-    settings = "os", "compiler", "build_type", "arch"
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Stiffstream/json_dto"
+    topics = ("json", "dto", "serialization", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -53,10 +54,12 @@ class PackageConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.hpp",

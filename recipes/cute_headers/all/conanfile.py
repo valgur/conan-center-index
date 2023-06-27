@@ -1,39 +1,53 @@
-from conans import ConanFile, tools
-import os
+# TODO: verify the Conan v2 migration
+
 import glob
+import os
+
+from conan import ConanFile
+from conan.tools.files import copy, get, load, save
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=1.52.0"
 
 
 class CuteHeadersConan(ConanFile):
     name = "cute_headers"
     description = "Various single-file cross-platform C/C++ headers implementing self-contained libraries."
-    topics = ("conan", "various", "pure-c")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/RandyGaul/cute_headers"
-    license = "Unlicense"
+    topics = ("various", "pure-c", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        extracted_dir = glob.glob(self.name + "-*/")[0]
+        os.rename(extracted_dir, self.source_folder)
 
     def _extract_license(self):
         file = os.path.join(self.package_folder, "include/cute_math2d.h")
-        file_content = tools.load(file)
-        return file_content[file_content.rfind('/*'):]
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = glob.glob(self.name + "-*/")[0]
-        os.rename(extracted_dir, self._source_subfolder)
+        file_content = load(self, file)
+        return file_content[file_content.rfind("/*") :]
 
     def package(self):
-        self.copy(
+        copy(
+            self,
             pattern="*.h",
-            dst="include",
-            src=self._source_subfolder,
-            excludes=("examples_cute_*", "test_cute_*")
+            dst=os.path.join(self.package_folder, "include"),
+            src=self.source_folder,
+            excludes=("examples_cute_*", "test_cute_*"),
         )
-        tools.save(os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

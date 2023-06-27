@@ -1,6 +1,6 @@
 #include <BRepBuilderAPI_MakeEdge.hxx>
-#include <TopoDS_Edge.hxx>
 #include <GC_MakeCircle.hxx>
+#include <TopoDS_Edge.hxx>
 #include <gce_MakeCirc.hxx>
 #include <gp_Circ.hxx>
 

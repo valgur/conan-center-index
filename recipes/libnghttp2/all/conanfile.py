@@ -2,12 +2,19 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, save, replace_in_file, rmdir, copy
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    get,
+    save,
+    replace_in_file,
+    rmdir,
+    copy,
+)
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
-
 
 required_conan_version = ">=1.53.0"
 
@@ -15,10 +22,11 @@ required_conan_version = ">=1.53.0"
 class Nghttp2Conan(ConanFile):
     name = "libnghttp2"
     description = "HTTP/2 C Library and tools"
-    topics = ("http", "http2")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://nghttp2.org"
-    license = "MIT"
+    topics = ("http", "http2")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -52,9 +60,9 @@ class Nghttp2Conan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_app:
-            del self.options.with_jemalloc
+            self.options.rm_safe("with_jemalloc")
         if Version(self.version) >= "1.52.0":
-            del self.options.with_asio
+            self.options.rm_safe("with_asio")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -77,7 +85,9 @@ class Nghttp2Conan(ConanFile):
 
     def validate(self):
         if self.options.get_safe("with_asio") and is_msvc(self):
-            raise ConanInvalidConfiguration("Build with asio and MSVC is not supported yet, see upstream bug #589")
+            raise ConanInvalidConfiguration(
+                "Build with asio and MSVC is not supported yet, see upstream bug #589"
+            )
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >= 6.0")
 
@@ -115,32 +125,36 @@ class Nghttp2Conan(ConanFile):
         apply_conandata_patches(self)
         if not self.options.shared:
             # easier to patch here rather than have patch 'nghttp_static_include_directories' for each version
-            save(self, os.path.join(self.source_folder, "lib", "CMakeLists.txt"),
-                       "target_include_directories(nghttp2_static INTERFACE\n"
-                       "${CMAKE_CURRENT_BINARY_DIR}/includes\n"
-                       "${CMAKE_CURRENT_SOURCE_DIR}/includes)\n",
-                       append=True)
+            save(
+                self,
+                os.path.join(self.source_folder, "lib", "CMakeLists.txt"),
+                (
+                    "target_include_directories(nghttp2_static INTERFACE\n"
+                    "${CMAKE_CURRENT_BINARY_DIR}/includes\n"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/includes)\n"
+                ),
+                append=True,
+            )
         target_libnghttp2 = "nghttp2" if self.options.shared else "nghttp2_static"
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                              "\n"
-                              "link_libraries(\n"
-                              "  nghttp2\n",
-                              "\n"
-                              "link_libraries(\n"
-                              "  {} ${{CONAN_LIBS}}\n".format(target_libnghttp2))
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+            "\nlink_libraries(\n  nghttp2\n",
+            f"\nlink_libraries(\n  {target_libnghttp2} ${{CONAN_LIBS}}\n",
+        )
         if not self.options.shared and Version(self.version) < "1.52.0":
-            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                                  "\n"
-                                  "  add_library(nghttp2_asio SHARED\n",
-                                  "\n"
-                                  "  add_library(nghttp2_asio\n")
-            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                                  "\n"
-                                  "  target_link_libraries(nghttp2_asio\n"
-                                  "    nghttp2\n",
-                                  "\n"
-                                  "  target_link_libraries(nghttp2_asio\n"
-                                 f"    {target_libnghttp2}\n")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                "\n  add_library(nghttp2_asio SHARED\n",
+                "\n  add_library(nghttp2_asio\n",
+            )
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                "\n  target_link_libraries(nghttp2_asio\n    nghttp2\n",
+                f"\n  target_link_libraries(nghttp2_asio\n    {target_libnghttp2}\n",
+            )
 
     def build(self):
         self._patch_sources()
@@ -149,7 +163,9 @@ class Nghttp2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -165,13 +181,19 @@ class Nghttp2Conan(ConanFile):
             self.cpp_info.components["nghttp2_asio"].set_property("pkg_config_name", "libnghttp2_asio")
             self.cpp_info.components["nghttp2_asio"].libs = ["nghttp2_asio"]
             self.cpp_info.components["nghttp2_asio"].requires = [
-                "nghttp2", "boost::headers", "openssl::openssl",
+                "nghttp2",
+                "boost::headers",
+                "openssl::openssl",
             ]
 
         if self.options.with_app:
             self.cpp_info.components["nghttp2_app"].requires = [
-                "openssl::openssl", "c-ares::c-ares", "libev::libev",
-                "libevent::libevent", "libxml2::libxml2", "zlib::zlib",
+                "openssl::openssl",
+                "c-ares::c-ares",
+                "libev::libev",
+                "libevent::libevent",
+                "libxml2::libxml2",
+                "zlib::zlib",
             ]
             if self.options.with_jemalloc:
                 self.cpp_info.components["nghttp2_app"].requires.append("jemalloc::jemalloc")
@@ -183,4 +205,6 @@ class Nghttp2Conan(ConanFile):
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
         # trick for internal conan usage to pick up in downsteam pc files the pc file including all libs components
-        self.cpp_info.set_property("pkg_config_name", "libnghttp2_asio" if self.options.get_safe("with_asio") else "libnghttp2")
+        self.cpp_info.set_property(
+            "pkg_config_name", "libnghttp2_asio" if self.options.get_safe("with_asio") else "libnghttp2"
+        )

@@ -8,7 +8,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 import os
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -19,11 +18,15 @@ class DragonboxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jk-jeon/dragonbox"
     topics = ("float-to-string", "grisu", "grisu-exact")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
@@ -46,6 +49,10 @@ class DragonboxConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -61,7 +68,7 @@ class DragonboxConan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -76,7 +83,12 @@ class DragonboxConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -84,7 +96,9 @@ class DragonboxConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_module_file_name", "dragonbox")
         self.cpp_info.components["_dragonbox"].set_property("cmake_target_name", "dragonbox::dragonbox")
-        self.cpp_info.components["dragonbox_to_chars_headers"].set_property("cmake_target_name", "dragonbox::dragonbox_to_chars")
+        self.cpp_info.components["dragonbox_to_chars_headers"].set_property(
+            "cmake_target_name", "dragonbox::dragonbox_to_chars"
+        )
         self.cpp_info.components["dragonbox_to_chars_headers"].libs = ["dragonbox_to_chars"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
@@ -94,5 +108,9 @@ class DragonboxConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "dragonbox"
         self.cpp_info.components["_dragonbox"].names["cmake_find_package"] = "dragonbox"
         self.cpp_info.components["_dragonbox"].names["cmake_find_package_multi"] = "dragonbox"
-        self.cpp_info.components["dragonbox_to_chars_headers"].names["cmake_find_package"] = "dragonbox_to_chars"
-        self.cpp_info.components["dragonbox_to_chars_headers"].names["cmake_find_package_multi"] = "dragonbox_to_chars"
+        self.cpp_info.components["dragonbox_to_chars_headers"].names[
+            "cmake_find_package"
+        ] = "dragonbox_to_chars"
+        self.cpp_info.components["dragonbox_to_chars_headers"].names[
+            "cmake_find_package_multi"
+        ] = "dragonbox_to_chars"

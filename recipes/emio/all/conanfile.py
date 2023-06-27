@@ -13,19 +13,18 @@ required_conan_version = ">=1.50.0"
 class EmioConan(ConanFile):
     name = "emio"
     description = "A character input/output library for embedded systems."
-    topics = ("format", "scan", "header-only")
-    homepage = "https://github.com/viatorus/emio"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    settings = "os", "arch", "compiler", "build_type"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/viatorus/emio"
+    topics = ("format", "scan", "header-only")
+
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
+    @property
+    def _min_cppstd(self):
+        return 20
 
     @property
     def _compilers_minimum_version(self):
@@ -35,9 +34,11 @@ class EmioConan(ConanFile):
             "apple-clang": "14",
         }
 
-    @property
-    def _min_cppstd(self):
-        return 20
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -53,10 +54,17 @@ class EmioConan(ConanFile):
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

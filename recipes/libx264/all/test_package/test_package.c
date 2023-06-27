@@ -1,10 +1,9 @@
-#include <stdint.h>
 #include "x264.h"
+#include <stdint.h>
 
 #include <stdlib.h>
 
-int main()
-{
+int main() {
     x264_param_t preset;
     x264_t *encoder;
     x264_param_default_preset(&preset, "ultrafast", "zerolatency");

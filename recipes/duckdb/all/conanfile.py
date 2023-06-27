@@ -1,5 +1,13 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
@@ -8,6 +16,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class DuckdbConan(ConanFile):
     name = "duckdb"
@@ -56,7 +65,6 @@ class DuckdbConan(ConanFile):
         "with_threads": True,
         "with_rdtsc": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -88,7 +96,7 @@ class DuckdbConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -125,13 +133,17 @@ class DuckdbConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self) and not self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "src", "include", "duckdb.h"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "include", "duckdb.h"),
                 "#define DUCKDB_API __declspec(dllimport)",
-                "#define DUCKDB_API"
+                "#define DUCKDB_API",
             )
-            replace_in_file(self, os.path.join(self.source_folder, "src", "include", "duckdb", "common", "winapi.hpp"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "include", "duckdb", "common", "winapi.hpp"),
                 "#define DUCKDB_API __declspec(dllimport)",
-                "#define DUCKDB_API"
+                "#define DUCKDB_API",
             )
 
         cmake = CMake(self)
@@ -139,7 +151,9 @@ class DuckdbConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -9,13 +9,18 @@ required_conan_version = ">=1.50.0"
 
 class BlazeConan(ConanFile):
     name = "blaze"
+    description = "open-source, high-performance C++ math library for dense and sparse arithmetic"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://bitbucket.org/blaze-lib/blaze"
-    description = "open-source, high-performance C++ math library for dense and sparse arithmetic"
-    topics = ("blaze", "math", "algebra", "linear algebra", "high-performance")
-    license = "BSD-3-Clause"
+    topics = ("math", "algebra", "linear algebra", "high-performance", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -24,13 +29,9 @@ class BlazeConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14)
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
         base_source_dir = os.path.join(self.source_folder, os.pardir)
-        get(self, **self.conan_data["sources"][self.version],
-            destination=base_source_dir, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination=base_source_dir, strip_root=True)
         with chdir(self, base_source_dir):
             rmdir(self, self.source_folder)
             rename(self, src=f"blaze-{self.version}", dst=self.source_folder)

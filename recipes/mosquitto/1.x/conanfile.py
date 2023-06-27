@@ -9,12 +9,13 @@ required_conan_version = ">=1.53.0"
 
 class MosquittoConan(ConanFile):
     name = "mosquitto"
+    description = "Eclipse Mosquitto - An open source MQTT broker"
+    license = ("EPL-1.0", "BSD-3-Clause")  # https://lists.spdx.org/g/Spdx-legal/message/2701
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eclipse/mosquitto"
     topics = ("mqtt", "broker", "libwebsockets", "eclipse", "iot")
-    license = "EPL-1.0", "BSD-3-Clause" # https://lists.spdx.org/g/Spdx-legal/message/2701
-    description = "Eclipse Mosquitto - An open source MQTT broker"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -75,7 +76,9 @@ class MosquittoConan(ConanFile):
 
     def package(self):
         for license_file in ("LICENSE.txt", "edl-v10", "epl-v10"):
-            copy(self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(
+                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+            )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

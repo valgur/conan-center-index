@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
@@ -13,10 +22,10 @@ required_conan_version = ">=1.57.0"
 class UnivalueConan(ConanFile):
     name = "univalue"
     description = "High performance RAII C++ JSON library and universal value object class"
-    topics = ("universal", "json", "encoding", "decoding")
     license = "MIT"
-    homepage = "https://github.com/jgarzik/univalue"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jgarzik/univalue"
+    topics = ("universal", "json", "encoding", "decoding")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -76,7 +85,7 @@ class UnivalueConan(ConanFile):
             env.define("CPP", "cl -nologo -EP")
             env.define("LD", "link -nologo")
             env.define("CXXLD", "link -nologo")
-            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -104,8 +113,11 @@ class UnivalueConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "univalue.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "univalue.dll.lib"),
+                os.path.join(self.package_folder, "lib", "univalue.lib"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

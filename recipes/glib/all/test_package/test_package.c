@@ -1,10 +1,9 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#include "gio/gio.h"
 #include "glib.h"
 #include "gmodule.h"
-#include "gio/gio.h"
-
 
 int main() {
     printf("glib %d.%d.%d\n", glib_major_version, glib_minor_version, glib_micro_version);

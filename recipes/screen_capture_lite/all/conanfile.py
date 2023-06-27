@@ -12,13 +12,14 @@ required_conan_version = ">=1.54.0"
 
 class ScreenCaptureLiteConan(ConanFile):
     name = "screen_capture_lite"
-    license = "MIT"
     description = "cross platform screen/window capturing library "
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/smasherprog/screen_capture_lite"
     topics = ("screen-capture", "screen-ercorder")
-    settings = "os", "arch", "compiler", "build_type"
+
     package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -73,9 +74,14 @@ class ScreenCaptureLiteConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support clang with libstdc++")
 
         # Since 17.1.451, screen_capture_lite uses CGPreflightScreenCaptureAccess which is provided by macOS SDK 11 later.
-        if Version(self.version) >= "17.1.451" and \
-            self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) <= "11":
-            raise ConanInvalidConfiguration(f"{self.ref} requires CGPreflightScreenCaptureAccess which support macOS SDK 11 later.")
+        if (
+            Version(self.version) >= "17.1.451"
+            and self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) <= "11"
+        ):
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires CGPreflightScreenCaptureAccess which support macOS SDK 11 later."
+            )
 
     def build_requirements(self):
         if Version(self.version) >= "17.1.596":
@@ -104,7 +110,9 @@ class ScreenCaptureLiteConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
@@ -112,33 +120,28 @@ class ScreenCaptureLiteConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = ["screen_capture_lite_shared" if self.options.shared else "screen_capture_lite_static"]
+        self.cpp_info.libs = [
+            "screen_capture_lite_shared" if self.options.shared else "screen_capture_lite_static"
+        ]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
-            self.cpp_info.requires.extend([
-                "xorg::x11",
-                "xorg::xinerama",
-                "xorg::xext",
-                "xorg::xfixes",
-            ])
+            self.cpp_info.requires.extend(["xorg::x11", "xorg::xinerama", "xorg::xext", "xorg::xfixes"])
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend([
-                "dwmapi",
-                "d3d11",
-                "dxgi",
-            ])
+            self.cpp_info.system_libs.extend(["dwmapi", "d3d11", "dxgi"])
         elif self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend([
-                "AppKit",
-                "AVFoundation",
-                "Carbon",
-                "Cocoa",
-                "CoreFoundation",
-                "CoreGraphics",
-                "CoreMedia",
-                "CoreVideo",
-                "Foundation",
-                "ImageIO",
-            ])
+            self.cpp_info.frameworks.extend(
+                [
+                    "AppKit",
+                    "AVFoundation",
+                    "Carbon",
+                    "Cocoa",
+                    "CoreFoundation",
+                    "CoreGraphics",
+                    "CoreMedia",
+                    "CoreVideo",
+                    "Foundation",
+                    "ImageIO",
+                ]
+            )

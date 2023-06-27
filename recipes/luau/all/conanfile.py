@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LuauConan(ConanFile):
     name = "luau"
     description = "A fast, small, safe, gradually typed embeddable scripting language derived from Lua"
@@ -60,7 +61,7 @@ class LuauConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if Version(self.version) < "0.549":
-            del self.options.native_code_gen
+            self.options.rm_safe("native_code_gen")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -95,9 +96,12 @@ class LuauConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if Version(self.version) >= "0.548" and self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "VM", "include", "luaconf.h"),
-                "#define LUAI_FUNC __attribute__((visibility(\"hidden\"))) extern",
-                "#define LUAI_FUNC extern")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "VM", "include", "luaconf.h"),
+                '#define LUAI_FUNC __attribute__((visibility("hidden"))) extern',
+                "#define LUAI_FUNC extern",
+            )
 
     def build(self):
         self._patch_sources()

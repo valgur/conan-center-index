@@ -13,9 +13,9 @@ class XlntConan(ConanFile):
     name = "xlnt"
     description = "Cross-platform user-friendly xlsx library for C++11+"
     license = "MIT"
-    topics = ("excel", "xlsx", "spreadsheet", "reader", "writer")
-    homepage = "https://github.com/tfussell/xlnt"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/tfussell/xlnt"
+    topics = ("excel", "xlsx", "spreadsheet", "reader", "writer")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

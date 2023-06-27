@@ -1,66 +1,79 @@
-from conans import CMake, tools
-from conan import ConanFile
-from conan.tools.files import get, rmdir
+# TODO: verify the Conan v2 migration
+
 import os
-import functools
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy
+from conan.tools.files import get, rmdir
+
+required_conan_version = ">=1.53.0"
 
 
 class SDLMixerConan(ConanFile):
     name = "sdl_mixer"
     description = "SDL_mixer is a sample multi-channel audio mixer library"
-    topics = ("sdl_mixer", "sdl2", "sdl", "mixer", "audio", "multimedia", "sound", "music")
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.libsdl.org/projects/SDL_mixer/"
-    license = "Zlib"
-    exports_sources = ["CMakeLists.txt"]
-    generators = "cmake", "cmake_find_package_multi"
+    topics = ("sdl2", "sdl", "mixer", "audio", "multimedia", "sound", "music")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False],
-               "fPIC": [True, False],
-               "cmd": [True, False],
-               "wav": [True, False],
-               "flac": [True, False],
-               "mpg123": [True, False],
-               "mad": [True, False],
-               "ogg": [True, False],
-               "opus": [True, False],
-               "mikmod": [True, False],
-               "modplug": [True, False],
-               "fluidsynth": [True, False],
-               "nativemidi": [True, False],
-               "tinymidi": [True, False]}
-    default_options = {"shared": False,
-                       "fPIC": True,
-                       "cmd": False,  # needs sys/wait.h
-                       "wav": True,
-                       "flac": True,
-                       "mpg123": True,
-                       "mad": True,
-                       "ogg": True,
-                       "opus": True,
-                       "mikmod": True,
-                       "modplug": True,
-                       "fluidsynth": False, # TODO: add fluidsynth to Conan Center
-                       "nativemidi": True,
-                       "tinymidi": True}
-    _source_subfolder = "source_subfolder"
-    _build_subfolder = "build_subfolder"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "cmd": [True, False],
+        "wav": [True, False],
+        "flac": [True, False],
+        "mpg123": [True, False],
+        "mad": [True, False],
+        "ogg": [True, False],
+        "opus": [True, False],
+        "mikmod": [True, False],
+        "modplug": [True, False],
+        "fluidsynth": [True, False],
+        "nativemidi": [True, False],
+        "tinymidi": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "cmd": False,
+        "wav": True,
+        "flac": True,
+        "mpg123": True,
+        "mad": True,
+        "ogg": True,
+        "opus": True,
+        "mikmod": True,
+        "modplug": True,
+        "fluidsynth": False,
+        "nativemidi": True,
+        "tinymidi": True,
+    }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            del self.options.tinymidi
+            self.options.rm_safe("tinymidi")
         else:
-            del self.options.nativemidi
+            self.options.rm_safe("nativemidi")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("sdl/2.0.20")
@@ -82,54 +95,63 @@ class SDLMixerConan(ConanFile):
         if self.options.modplug:
             self.requires("libmodplug/0.8.9.0")
         if self.options.fluidsynth:
-            self.requires("fluidsynth/2.2") # TODO: this package is missing on the conan-center-index
+            self.requires("fluidsynth/2.2")  # TODO: this package is missing on the conan-center-index
         if self.settings.os == "Linux":
             if self.options.tinymidi:
                 self.requires("tinymidi/cci.20130325")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-        rmdir(self, os.path.join(self._source_subfolder, "external"))
+        rmdir(self, os.path.join(self.source_folder, "external"))
 
-    @functools.lru_cache(1)
-    def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions["CMD"] = self.options.cmd
-        cmake.definitions["WAV"] = self.options.wav
-        cmake.definitions["FLAC"] = self.options.flac
-        cmake.definitions["MP3_MPG123"] = self.options.mpg123
-        cmake.definitions["MP3_MAD"] = self.options.mad
-        cmake.definitions["OGG"] = self.options.ogg
-        cmake.definitions["OPUS"] = self.options.opus
-        cmake.definitions["MOD_MIKMOD"] = self.options.mikmod
-        cmake.definitions["MOD_MODPLUG"] = self.options.modplug
-        cmake.definitions["MID_FLUIDSYNTH"] = self.options.fluidsynth
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CMD"] = self.options.cmd
+        tc.variables["WAV"] = self.options.wav
+        tc.variables["FLAC"] = self.options.flac
+        tc.variables["MP3_MPG123"] = self.options.mpg123
+        tc.variables["MP3_MAD"] = self.options.mad
+        tc.variables["OGG"] = self.options.ogg
+        tc.variables["OPUS"] = self.options.opus
+        tc.variables["MOD_MIKMOD"] = self.options.mikmod
+        tc.variables["MOD_MODPLUG"] = self.options.modplug
+        tc.variables["MID_FLUIDSYNTH"] = self.options.fluidsynth
         if self.settings.os == "Linux":
-            cmake.definitions["MID_TINYMIDI"] = self.options.tinymidi
-            cmake.definitions["MID_NATIVE"] = False
+            tc.variables["MID_TINYMIDI"] = self.options.tinymidi
+            tc.variables["MID_NATIVE"] = False
         else:
-            cmake.definitions["MID_TINYMIDI"] = False
-            cmake.definitions["MID_NATIVE"] = self.options.nativemidi
+            tc.variables["MID_TINYMIDI"] = False
+            tc.variables["MID_NATIVE"] = self.options.nativemidi
 
-        cmake.definitions["FLAC_DYNAMIC"] = self.options["flac"].shared if self.options.flac else False
-        cmake.definitions["MP3_MPG123_DYNAMIC"] = self.options["mpg123"].shared if self.options.mpg123 else False
-        cmake.definitions["OGG_DYNAMIC"] = self.options["ogg"].shared if self.options.ogg else False
-        cmake.definitions["OPUS_DYNAMIC"] = self.options["opus"].shared if self.options.opus else False
-        cmake.definitions["MOD_MIKMOD_DYNAMIC"] = self.options["libmikmod"].shared if self.options.mikmod else False
-        cmake.definitions["MOD_MODPLUG_DYNAMIC"] = self.options["libmodplug"].shared if self.options.modplug else False
+        tc.variables["FLAC_DYNAMIC"] = self.options["flac"].shared if self.options.flac else False
+        tc.variables["MP3_MPG123_DYNAMIC"] = self.options["mpg123"].shared if self.options.mpg123 else False
+        tc.variables["OGG_DYNAMIC"] = self.options["ogg"].shared if self.options.ogg else False
+        tc.variables["OPUS_DYNAMIC"] = self.options["opus"].shared if self.options.opus else False
+        tc.variables["MOD_MIKMOD_DYNAMIC"] = (
+            self.options["libmikmod"].shared if self.options.mikmod else False
+        )
+        tc.variables["MOD_MODPLUG_DYNAMIC"] = (
+            self.options["libmodplug"].shared if self.options.modplug else False
+        )
+        tc.generate()
 
-        cmake.configure(build_folder=self._build_subfolder)
-
-        return cmake
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(
+            self,
+            pattern="COPYING.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        cmake = CMake(self)
         cmake.install()
 
     def package_info(self):

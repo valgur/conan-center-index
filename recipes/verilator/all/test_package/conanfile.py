@@ -1,31 +1,39 @@
-from conans import ConanFile, CMake, tools
 import os
 
+from conan import ConanFile
+from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout, CMake
 
-class TestVerilatorConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
+
+class TestPackageConan(ConanFile):
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+        if self._with_systemc_example:
+            self.requires("systemc/2.3.3")
+
+    def layout(self):
+        cmake_layout(self)
 
     @property
     def _with_systemc_example(self):
         # systemc is not available on Macos
         return self.settings.os != "Macos"
 
-    def requirements(self):
-        if self._with_systemc_example:
-            self.requires("systemc/2.3.3")
-
     def build(self):
-        if not tools.cross_building(self.settings, skip_x64_x86=True):
+        if can_run(self):
             cmake = CMake(self)
-            cmake.definitions["BUILD_SYSTEMC"] = self._with_systemc_example
+            tc.variables["BUILD_SYSTEMC"] = self._with_systemc_example
             cmake.configure()
             cmake.build()
 
     def test(self):
-        if not tools.cross_building(self.settings, skip_x64_x86=True):
-            with tools.run_environment(self):
-                self.run("perl {} --version".format(os.path.join(self.deps_cpp_info["verilator"].rootpath, "bin", "verilator")), run_environment=True)
-            self.run(os.path.join("bin", "blinky"), run_environment=True)
+        if can_run(self):
+            verilator_path = os.path.join(self.deps_cpp_info["verilator"].rootpath, "bin", "verilator")
+            self.run(f"perl {verilator_path} --version", env="conanrun")
+            self.run(os.path.join("bin", "blinky"), env="conanrun")
             if self._with_systemc_example:
-                self.run(os.path.join("bin", "blinky_sc"), run_environment=True)
+                self.run(os.path.join("bin", "blinky_sc"), env="conanrun")

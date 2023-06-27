@@ -8,12 +8,15 @@ required_conan_version = ">=1.53.0"
 
 class PystringConan(ConanFile):
     name = "pystring"
-    description = "Pystring is a collection of C++ functions which match the " \
-                  "interface and behavior of python's string class methods using std::string."
+    description = (
+        "Pystring is a collection of C++ functions which match the "
+        "interface and behavior of python's string class methods using std::string."
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/imageworks/pystring"
     topics = ("python", "string")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -25,7 +28,8 @@ class PystringConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

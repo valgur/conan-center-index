@@ -1,7 +1,6 @@
 #include <linmath.h>
 
-int main()
-{
+int main() {
     quat q;
     quat_identity(q);
     return 0;

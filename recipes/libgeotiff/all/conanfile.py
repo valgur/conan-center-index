@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    save,
+)
 import os
 import textwrap
 
@@ -9,13 +17,16 @@ required_conan_version = ">=1.53.0"
 
 class LibgeotiffConan(ConanFile):
     name = "libgeotiff"
-    description = "Libgeotiff is an open source library normally hosted on top " \
-                  "of libtiff for reading, and writing GeoTIFF information tags."
+    description = (
+        "Libgeotiff is an open source library normally hosted on top "
+        "of libtiff for reading, and writing GeoTIFF information tags."
+    )
     license = ["MIT", "BSD-3-Clause"]
-    topics = ("geotiff", "tiff")
-    homepage = "https://github.com/OSGeo/libgeotiff"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/OSGeo/libgeotiff"
+    topics = ("geotiff", "tiff")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -70,12 +81,12 @@ class LibgeotiffConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "doc"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_file)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_file))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_target_file),
-            {"geotiff_library": "geotiff::geotiff"}
+            {
+                "geotiff_library": "geotiff::geotiff",
+            },
         )
 
     def _create_cmake_module_variables(self, module_file):

@@ -3,8 +3,14 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, export_conandata_patches, get,
-    replace_in_file, rm, rmdir
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
 )
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -21,9 +27,10 @@ class LibspatialiteConan(ConanFile):
         "core to support fully fledged Spatial SQL capabilities."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("spatialite", "database", "sql", "sqlite", "ogc")
-    homepage = "https://www.gaia-gis.it/fossil/libspatialite"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/libspatialite"
+    topics = ("spatialite", "database", "sql", "sqlite", "ogc")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -78,8 +85,8 @@ class LibspatialiteConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_geos:
-            del self.options.with_rttopo
-            del self.options.gcp
+            self.options.rm_safe("with_rttopo")
+            self.options.rm_safe("gcp")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -130,31 +137,35 @@ class LibspatialiteConan(ConanFile):
 
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
-            tc.configure_args.extend([
-                f"--enable-mathsql={yes_no(self.options.mathsql)}",
-                f"--enable-geocallbacks={yes_no(self.options.geocallbacks)}",
-                f"--enable-knn={yes_no(self.options.knn)}",
-                f"--enable-proj={yes_no(self.options.with_proj)}",
-                f"--enable-iconv={yes_no(self.options.with_iconv)}",
-                f"--enable-freexl={yes_no(self.options.with_freexl)}",
-                f"--enable-epsg={yes_no(self.options.epsg)}",
-                f"--enable-geos={yes_no(self.options.with_geos)}",
-                f"--enable-libxml2={yes_no(self.options.with_libxml2)}",
-                f"--enable-minizip={yes_no(self.options.with_minizip)}",
-                f"--enable-geopackage={yes_no(self.options.geopackage)}",
-                "--disable-gcov",
-                "--disable-examples",
-                "--disable-module-only",
-            ])
+            tc.configure_args.extend(
+                [
+                    f"--enable-mathsql={yes_no(self.options.mathsql)}",
+                    f"--enable-geocallbacks={yes_no(self.options.geocallbacks)}",
+                    f"--enable-knn={yes_no(self.options.knn)}",
+                    f"--enable-proj={yes_no(self.options.with_proj)}",
+                    f"--enable-iconv={yes_no(self.options.with_iconv)}",
+                    f"--enable-freexl={yes_no(self.options.with_freexl)}",
+                    f"--enable-epsg={yes_no(self.options.epsg)}",
+                    f"--enable-geos={yes_no(self.options.with_geos)}",
+                    f"--enable-libxml2={yes_no(self.options.with_libxml2)}",
+                    f"--enable-minizip={yes_no(self.options.with_minizip)}",
+                    f"--enable-geopackage={yes_no(self.options.geopackage)}",
+                    "--disable-gcov",
+                    "--disable-examples",
+                    "--disable-module-only",
+                ]
+            )
             if self.options.with_geos:
-                tc.configure_args.extend([
-                    f"--enable-gcp={yes_no(self.options.gcp)}",
-                    "--enable-geosadvanced=yes",
-                    "--enable-geosreentrant=yes",
-                    "--enable-geosonlyreentrant=no",
-                    "--enable-geos370=yes",
-                    f"--enable-rttopo={yes_no(self.options.with_rttopo)}",
-                ])
+                tc.configure_args.extend(
+                    [
+                        f"--enable-gcp={yes_no(self.options.gcp)}",
+                        "--enable-geosadvanced=yes",
+                        "--enable-geosreentrant=yes",
+                        "--enable-geosonlyreentrant=no",
+                        "--enable-geos370=yes",
+                        f"--enable-rttopo={yes_no(self.options.with_rttopo)}",
+                    ]
+                )
             tc.generate()
 
             deps = AutotoolsDeps(self)
@@ -164,7 +175,9 @@ class LibspatialiteConan(ConanFile):
 
     def _build_msvc(self):
         # Visual Studio build doesn't provide options, we need to manually edit gaiaconfig-msvc.h
-        gaiaconfig_msvc = os.path.join(self.source_folder, "src", "headers", "spatialite", "gaiaconfig-msvc.h")
+        gaiaconfig_msvc = os.path.join(
+            self.source_folder, "src", "headers", "spatialite", "gaiaconfig-msvc.h"
+        )
         if not self.options.mathsql:
             replace_in_file(self, gaiaconfig_msvc, "/* #undef OMIT_MATHSQL */", "#define OMIT_MATHSQL 1")
         if self.options.geocallbacks:
@@ -202,14 +215,18 @@ class LibspatialiteConan(ConanFile):
     def _build_autotools(self):
         # fix MinGW
         replace_in_file(
-            self, os.path.join(self.source_folder, "configure.ac"),
+            self,
+            os.path.join(self.source_folder, "configure.ac"),
             "AC_CHECK_LIB(z,",
             "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
         )
         # Disable tests
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),
-                              "SUBDIRS = src test $(EXAMPLES)",
-                              "SUBDIRS = src $(EXAMPLES)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.am"),
+            "SUBDIRS = src test $(EXAMPLES)",
+            "SUBDIRS = src $(EXAMPLES)",
+        )
 
         autotools = Autotools(self)
         autotools.autoreconf()
@@ -226,12 +243,32 @@ class LibspatialiteConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, "spatialite.h", src=os.path.join(self.source_folder, "src", "headers"),
-                                       dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.h", src=os.path.join(self.source_folder, "src", "headers", "spatialite"),
-                              dst=os.path.join(self.package_folder, "include", "spatialite"))
-            copy(self, "*.lib", src=self.source_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(
+                self,
+                "spatialite.h",
+                src=os.path.join(self.source_folder, "src", "headers"),
+                dst=os.path.join(self.package_folder, "include"),
+            )
+            copy(
+                self,
+                "*.h",
+                src=os.path.join(self.source_folder, "src", "headers", "spatialite"),
+                dst=os.path.join(self.package_folder, "include", "spatialite"),
+            )
+            copy(
+                self,
+                "*.lib",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
         else:
             autotools = Autotools(self)
             autotools.install()

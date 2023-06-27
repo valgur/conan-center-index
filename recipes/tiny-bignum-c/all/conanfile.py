@@ -10,9 +10,9 @@ class TinybignumcConan(ConanFile):
     name = "tiny-bignum-c"
     description = "Small portable multiple-precision unsigned integer arithmetic in C."
     license = "Unlicense"
-    topics = ("bignum", "arbitrary-precision", "multi-precision")
-    homepage = "https://github.com/kokke/tiny-bignum-c"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kokke/tiny-bignum-c"
+    topics = ("bignum", "arbitrary-precision", "multi-precision")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -25,7 +25,8 @@ class TinybignumcConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

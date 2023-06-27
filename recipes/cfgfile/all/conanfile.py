@@ -12,11 +12,13 @@ required_conan_version = ">=1.50.0"
 
 class CfgfileConan(ConanFile):
     name = "cfgfile"
+    description = "Header-only library for reading/saving configuration files with schema defined in sources."
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/cfgfile.git"
-    license = "MIT"
-    description = "Header-only library for reading/saving configuration files with schema defined in sources."
-    topics = ("configuration", "file")
+    topics = ("configuration", "file", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -51,7 +53,7 @@ class CfgfileConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def build_requirements(self):
@@ -84,6 +86,7 @@ class CfgfileConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
+        self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "cfgfile")
         self.cpp_info.set_property("cmake_target_name", "cfgfile::cfgfile")
         self.cpp_info.includedirs.append(os.path.join("include", "cfgfile"))

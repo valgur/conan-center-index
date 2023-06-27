@@ -2,7 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+)
 from conan.tools.microsoft import is_msvc_static_runtime, msvc_runtime_flag
 from conan.tools.scm import Version
 import os
@@ -17,6 +25,7 @@ class GTestConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/googletest"
     topics = ("testing", "google-testing", "unit-test")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -70,7 +79,7 @@ class GTestConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "1.12.0" or self.settings.build_type != "Debug":
-            del self.options.debug_postfix
+            self.options.rm_safe("debug_postfix")
 
     def configure(self):
         if self.options.shared:
@@ -80,7 +89,7 @@ class GTestConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.options.no_main # Only used to expose more targets
+        del self.info.options.no_main  # Only used to expose more targets
 
     def validate(self):
         if self.options.shared and is_msvc_static_runtime(self):

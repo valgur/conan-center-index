@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class HttpParserConan(ConanFile):
     name = "http_parser"
     description = "http request/response parser for c"
-    topics = ("http", "parser")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nodejs/http-parser"
-    license = "MIT"
+    topics = ("http", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -24,6 +25,9 @@ class HttpParserConan(ConanFile):
         "fPIC": True,
     }
 
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -33,9 +37,6 @@ class HttpParserConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

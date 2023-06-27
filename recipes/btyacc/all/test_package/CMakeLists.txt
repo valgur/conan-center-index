@@ -1,9 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
-
+cmake_minimum_required(VERSION 3.15)
 project(test_package C)
-
-include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-conan_basic_setup(TARGETS KEEP_RPATHS)
 
 find_package(btyacc REQUIRED CONFIG)
 if(NOT DEFINED BTYACC_EXECUTABLE)

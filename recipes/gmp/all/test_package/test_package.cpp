@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main (void) {
+int main(void) {
     mpz_class a("1234");
     mpz_class b("4321");
 

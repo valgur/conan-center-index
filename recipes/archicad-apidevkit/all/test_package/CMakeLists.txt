@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.15)
-
 project(test_package CXX)
 
 function(SetCompilerOptions target ac_version)

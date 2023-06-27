@@ -14,7 +14,8 @@
 /**
  * Callback function for the web application on /helloworld url call
  */
-int callback_hello_world (const struct _u_request * request, struct _u_response * response, void * user_data) {
+int callback_hello_world(const struct _u_request *request, struct _u_response *response,
+                         void *user_data) {
     ulfius_set_string_body_response(response, 200, "Hello World!");
     return U_CALLBACK_CONTINUE;
 }
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     if (ulfius_global_init() != U_OK) {
         fprintf(stderr, "Error ulfius_global_init, abort\n");
-        return(1);
+        return (1);
     }
 
     // Avoid running a server on CI
@@ -36,11 +37,12 @@ int main(int argc, char *argv[]) {
         // Initialize instance with the port number
         if (ulfius_init_instance(&instance, PORT, NULL, NULL) != U_OK) {
             fprintf(stderr, "Error ulfius_init_instance, abort\n");
-            return(1);
+            return (1);
         }
 
         // Endpoint list declaration
-        ulfius_add_endpoint_by_val(&instance, "GET", "/helloworld", NULL, 0, &callback_hello_world, NULL);
+        ulfius_add_endpoint_by_val(&instance, "GET", "/helloworld", NULL, 0, &callback_hello_world,
+                                   NULL);
 
         // Start the framework
         if (ulfius_start_framework(&instance) == U_OK) {

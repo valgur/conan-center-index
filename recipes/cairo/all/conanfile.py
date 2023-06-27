@@ -13,7 +13,7 @@ from conan.tools.files import (
     replace_in_file,
     rename,
     rm,
-    rmdir
+    rmdir,
 )
 from conan.tools.gnu import PkgConfigDeps, Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -26,10 +26,11 @@ required_conan_version = ">=1.54.0"
 class CairoConan(ConanFile):
     name = "cairo"
     description = "Cairo is a 2D graphics library with support for multiple output devices"
-    topics = ("graphics")
+    license = ("LGPL-2.1-only", "MPL-1.1")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cairographics.org/"
-    license = ("LGPL-2.1-only", "MPL-1.1")
+    topics = ("graphics",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -52,7 +53,6 @@ class CairoConan(ConanFile):
         "with_xcb": True,
         "with_glib": True,
     }
-    short_paths = True
 
     @property
     def _settings_build(self):
@@ -64,14 +64,14 @@ class CairoConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.with_fontconfig
+            self.options.rm_safe("with_fontconfig")
         if is_msvc(self):
-            del self.options.with_freetype
-            del self.options.with_glib
+            self.options.rm_safe("with_freetype")
+            self.options.rm_safe("with_glib")
         if self.settings.os != "Linux":
-            del self.options.with_xlib
-            del self.options.with_xlib_xrender
-            del self.options.with_xcb
+            self.options.rm_safe("with_xlib")
+            self.options.rm_safe("with_xlib_xrender")
+            self.options.rm_safe("with_xcb")
 
     def configure(self):
         if self.options.shared:
@@ -104,7 +104,9 @@ class CairoConan(ConanFile):
         if is_msvc(self):
             # TODO autotools build results in LNK1127 error from a library in the WindowsSDK on CCI
             #  should be retested in case this is just a CCI environment issue
-            raise ConanInvalidConfiguration("MSVC autotools build is not supported. Use the Meson build instead.")
+            raise ConanInvalidConfiguration(
+                "MSVC autotools build is not supported. Use the Meson build instead."
+            )
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -138,19 +140,21 @@ class CairoConan(ConanFile):
             f"--enable-xlib={is_enabled(self.options.get_safe('with_xlib'))}",
             f"--enable-xlib_xrender={is_enabled(self.options.get_safe('with_xlib_xrender'))}",
             f"--enable-xcb={is_enabled(self.options.get_safe('xcb'))}",
-            "--disable-gtk-doc"
+            "--disable-gtk-doc",
         ]
         if is_msvc(self):
-            tc.make_args +=  [
-                "--directory", directory,
-                "-f", "Makefile.win32",
+            tc.make_args += [
+                "--directory",
+                directory,
+                "-f",
+                "Makefile.win32",
                 f"CFG={str(self.settings.build_type).lower()}",
                 "CAIRO_HAS_FC_FONT=0",
                 f"ZLIB_PATH={dep_path('zlib')}",
                 f"LIBPNG_PATH={dep_path('libpng')}",
                 f"PIXMAN_PATH={dep_path('pixman')}",
                 f"FREETYPE_PATH={dep_path('freetype')}",
-                f"GOBJECT_PATH={dep_path('glib')}"
+                f"GOBJECT_PATH={dep_path('glib')}",
             ]
             tc.extra_cflags += ["-FS"]
 
@@ -169,17 +173,19 @@ class CairoConan(ConanFile):
         tc_main.generate()
 
         if is_msvc(self):
-            tc_gobject = self._create_toolchain("gobject", unix_path(self, os.path.join(self.source_folder, "util", "cairo-gobject")))
+            tc_gobject = self._create_toolchain(
+                "gobject", unix_path(self, os.path.join(self.source_folder, "util", "cairo-gobject"))
+            )
             tc_gobject.generate()
 
         PkgConfigDeps(self).generate()
         deps = AutotoolsDeps(self)
         if is_msvc(self):
             cppflags = deps.vars().get("CPPFLAGS")
-            deps.environment.append('CFLAGS', cppflags.replace("/I", "-I"))
+            deps.environment.append("CFLAGS", cppflags.replace("/I", "-I"))
             ldflags = deps.vars().get("LDFLAGS")
-            deps.environment.define('LDFLAGS', ldflags.replace("/LIBPATH:", "-LIBPATH:"))
-            deps.environment.append('LDFLAGS', deps.vars().get("LIBS"))
+            deps.environment.define("LDFLAGS", ldflags.replace("/LIBPATH:", "-LIBPATH:"))
+            deps.environment.append("LDFLAGS", deps.vars().get("LIBS"))
 
         deps.generate()
 
@@ -191,7 +197,7 @@ class CairoConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "configure.ac"),
                 "FREETYPE_MIN_VERSION=9.7.3",
-                f"FREETYPE_MIN_VERSION={Version(self.dependencies['freetype'].ref.version)}"
+                f"FREETYPE_MIN_VERSION={Version(self.dependencies['freetype'].ref.version)}",
             )
 
         def exclude_tests_and_docs_from_build():
@@ -203,22 +209,39 @@ class CairoConan(ConanFile):
         exclude_tests_and_docs_from_build()
 
         if self.options.get_safe("with_freetype"):
-            replace_in_file(self, os.path.join(self.source_folder, "src", "cairo-ft-font.c"),
-                                  "#if HAVE_UNISTD_H", "#ifdef HAVE_UNISTD_H")
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "cairo-ft-font.c"),
+                "#if HAVE_UNISTD_H",
+                "#ifdef HAVE_UNISTD_H",
+            )
 
         if is_msvc(self):
             # https://cairographics.org/end_to_end_build_for_win32/
             win32_common = os.path.join(self.source_folder, "build", "Makefile.win32.common")
             replace_in_file(self, win32_common, "-MD ", f"-{self.settings.compiler.runtime} ")
             replace_in_file(self, win32_common, "-MDd ", f"-{self.settings.compiler.runtime} ")
-            replace_in_file(self, win32_common, "$(PIXMAN_PATH)/lib/pixman-1.lib",
-                            self.deps_cpp_info["pixman"].libs[0] + ".lib")
-            replace_in_file(self, win32_common, "$(FREETYPE_PATH)/lib/freetype.lib",
-                            self.deps_cpp_info["freetype"].libs[0] + ".lib")
-            replace_in_file(self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib",
-                            self.deps_cpp_info["zlib"].libs[0] + ".lib")
-            replace_in_file(self, win32_common, "$(LIBPNG_PATH)/lib/libpng16.lib",
-                            self.deps_cpp_info["libpng"].libs[0] + ".lib")
+            replace_in_file(
+                self,
+                win32_common,
+                "$(PIXMAN_PATH)/lib/pixman-1.lib",
+                self.deps_cpp_info["pixman"].libs[0] + ".lib",
+            )
+            replace_in_file(
+                self,
+                win32_common,
+                "$(FREETYPE_PATH)/lib/freetype.lib",
+                self.deps_cpp_info["freetype"].libs[0] + ".lib",
+            )
+            replace_in_file(
+                self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib", self.deps_cpp_info["zlib"].libs[0] + ".lib"
+            )
+            replace_in_file(
+                self,
+                win32_common,
+                "$(LIBPNG_PATH)/lib/libpng16.lib",
+                self.deps_cpp_info["libpng"].libs[0] + ".lib",
+            )
 
     def build(self):
         self._patch_sources()
@@ -233,11 +256,18 @@ class CairoConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if is_msvc(self):
             src = os.path.join(self.source_folder, "src")
             inc = os.path.join(self.package_folder, "include", "cairo")
-            copy(self, "cairo-version.h", (src if Version(self.version) >= "1.17.4" else self.source_folder), inc)
+            copy(
+                self,
+                "cairo-version.h",
+                (src if Version(self.version) >= "1.17.4" else self.source_folder),
+                inc,
+            )
             copy(self, "cairo-features.h", src, inc)
             copy(self, "cairo.h", src, inc)
             copy(self, "cairo-deprecated.h", src, inc)
@@ -263,7 +293,11 @@ class CairoConan(ConanFile):
             else:
                 copy(self, "cairo-static.lib", lib_src_path, lib_dest_path)
                 copy(self, "cairo-gobject.lib", cairo_gobject_src_path, lib_dest_path)
-                rename(self, os.path.join(lib_dest_path, "cairo-static.lib"), os.path.join(lib_dest_path, "cairo.lib"))
+                rename(
+                    self,
+                    os.path.join(lib_dest_path, "cairo-static.lib"),
+                    os.path.join(lib_dest_path, "cairo.lib"),
+                )
         else:
             autotools = Autotools(self, namespace="main")
             autotools.install()
@@ -315,7 +349,11 @@ class CairoConan(ConanFile):
         if self.options.get_safe("with_glib", True):
             self.cpp_info.components["cairo-gobject"].set_property("pkg_config_name", "cairo-gobject")
             self.cpp_info.components["cairo-gobject"].libs = ["cairo-gobject"]
-            self.cpp_info.components["cairo-gobject"].requires = ["cairo_", "glib::gobject-2.0", "glib::glib-2.0"]
+            self.cpp_info.components["cairo-gobject"].requires = [
+                "cairo_",
+                "glib::gobject-2.0",
+                "glib::glib-2.0",
+            ]
         if self.settings.os != "Windows":
             if self.options.with_fontconfig:
                 self.cpp_info.components["cairo-fc"].set_property("pkg_config_name", "cairo-fc")
@@ -335,7 +373,9 @@ class CairoConan(ConanFile):
         if is_apple_os(self):
             self.cpp_info.components["cairo-quartz"].set_property("pkg_config_name", "cairo-quartz")
             self.cpp_info.components["cairo-quartz"].requires = ["cairo_"]
-            self.cpp_info.components["cairo-quartz"].frameworks.extend(["CoreFoundation", "CoreGraphics", "ApplicationServices"])
+            self.cpp_info.components["cairo-quartz"].frameworks.extend(
+                ["CoreFoundation", "CoreGraphics", "ApplicationServices"]
+            )
 
             self.cpp_info.components["cairo-quartz-font"].set_property("pkg_config_name", "cairo-quartz-font")
             self.cpp_info.components["cairo-quartz-font"].requires = ["cairo_"]

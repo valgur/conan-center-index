@@ -4,17 +4,18 @@ from conan.tools.files import copy, get, rmdir, save
 import os
 import textwrap
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class CerealConan(ConanFile):
     name = "cereal"
     description = "Serialization header-only library for C++11."
     license = "BSD-3-Clause"
-    topics = ("cereal", "header-only", "serialization", "cpp11")
-    homepage = "https://github.com/USCiLab/cereal"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/USCiLab/cereal"
+    topics = ("header-only", "serialization", "cpp11")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "thread_safe": [True, False],
@@ -22,16 +23,16 @@ class CerealConan(ConanFile):
     default_options = {
         "thread_safe": False,
     }
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,18 +59,22 @@ class CerealConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"cereal": "cereal::cereal"}
+            {
+                "cereal": "cereal::cereal",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property
@@ -79,7 +84,7 @@ class CerealConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cereal")
         self.cpp_info.set_property("cmake_target_name", "cereal::cereal")
-        self.cpp_info.set_property("cmake_target_aliases", ["cereal"]) # target before 1.3.1
+        self.cpp_info.set_property("cmake_target_aliases", ["cereal"])  # target before 1.3.1
         self.cpp_info.bindirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []

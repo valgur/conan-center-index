@@ -10,12 +10,15 @@ required_conan_version = ">=1.51.1"
 
 class CxxOptsConan(ConanFile):
     name = "cxxopts"
-    homepage = "https://github.com/jarro2783/cxxopts"
-    url = "https://github.com/conan-io/conan-center-index"
-    description = "Lightweight C++ option parser library, supporting the standard GNU style syntax for options."
+    description = (
+        "Lightweight C++ option parser library, supporting the standard GNU style syntax for options."
+    )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jarro2783/cxxopts"
     topics = ("option-parser", "positional-arguments ", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "unicode": [True, False],
@@ -62,7 +65,7 @@ class CxxOptsConan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support"
             )
 
     def source(self):
@@ -73,7 +76,12 @@ class CxxOptsConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cxxopts.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "cxxopts.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cxxopts")

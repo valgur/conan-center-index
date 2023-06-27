@@ -5,7 +5,7 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=1.52.0"
 
 
 class CImgConan(ConanFile):
@@ -14,7 +14,8 @@ class CImgConan(ConanFile):
     license = "CeCILL V2"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://cimg.eu"
-    topics = ("physics", "simulation", "robotics", "kinematics", "engine")
+    topics = ("physics", "simulation", "robotics", "kinematics", "engine", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -47,16 +48,16 @@ class CImgConan(ConanFile):
     @property
     def _cimg_defines(self):
         return [
-            ("enable_fftw",    "cimg_use_fftw"),
-            ("enable_jpeg",    "cimg_use_jpeg"),
+            ("enable_fftw", "cimg_use_fftw"),
+            ("enable_jpeg", "cimg_use_jpeg"),
             ("enable_openexr", "cimg_use_openexr"),
-            ("enable_png",     "cimg_use_png"),
-            ("enable_tiff",    "cimg_use_tiff"),
-            ("enable_ffmpeg",  "cimg_use_ffmpeg"),
-            ("enable_opencv",  "cimg_use_opencv"),
-            ("enable_magick",  "cimg_use_magick"),
-            ("enable_xrandr",  "cimg_use_xrandr"),
-            ("enable_xshm",    "cimg_use_xshm"),
+            ("enable_png", "cimg_use_png"),
+            ("enable_tiff", "cimg_use_tiff"),
+            ("enable_ffmpeg", "cimg_use_ffmpeg"),
+            ("enable_opencv", "cimg_use_opencv"),
+            ("enable_magick", "cimg_use_magick"),
+            ("enable_xrandr", "cimg_use_xrandr"),
+            ("enable_xshm", "cimg_use_xshm"),
         ]
 
     def layout(self):
@@ -110,8 +111,12 @@ class CImgConan(ConanFile):
     def package(self):
         copy(self, "Licence*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "CImg.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*", os.path.join(self.source_folder, "plugins"),
-                        os.path.join(self.package_folder, "include", "plugins"))
+        copy(
+            self,
+            "*",
+            os.path.join(self.source_folder, "plugins"),
+            os.path.join(self.package_folder, "include", "plugins"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "CImg")

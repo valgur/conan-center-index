@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -13,10 +21,11 @@ class SdlttfConan(ConanFile):
     name = "sdl_ttf"
     description = "A TrueType font library for SDL"
     license = "Zlib"
-    topics = ("sdl2", "sdl2_ttf", "sdl", "sdl_ttf", "ttf", "font")
-    homepage = "https://www.libsdl.org/projects/SDL_ttf"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libsdl.org/projects/SDL_ttf"
+    topics = ("sdl2", "sdl2_ttf", "sdl", "ttf", "font")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,7 +45,7 @@ class SdlttfConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.20.0":
-            del self.options.with_harfbuzz
+            self.options.rm_safe("with_harfbuzz")
 
     def configure(self):
         if self.options.shared:
@@ -61,7 +70,9 @@ class SdlttfConan(ConanFile):
 
         if Version(self.version) >= "2.20.0":
             if self.options.shared != self.dependencies["sdl"].options.shared:
-                raise ConanInvalidConfiguration("sdl & sdl_ttf must be built with the same 'shared' option value")
+                raise ConanInvalidConfiguration(
+                    "sdl & sdl_ttf must be built with the same 'shared' option value"
+                )
         else:
             if is_msvc(self) and self.options.shared:
                 raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
@@ -88,9 +99,12 @@ class SdlttfConan(ConanFile):
         save(self, os.path.join(self.source_folder, "SDL2_ttfConfig.cmake"), "")
 
         # workaround for a side effect of CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(Freetype REQUIRED)",
-                        "find_package(Freetype REQUIRED MODULE)")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "find_package(Freetype REQUIRED)",
+            "find_package(Freetype REQUIRED MODULE)",
+        )
 
     def build(self):
         self._patch_sources()
@@ -115,7 +129,7 @@ class SdlttfConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SDL2_ttf")
         self.cpp_info.set_property("pkg_config_name", "SDL2_ttf")
 
-        self.cpp_info.components["_sdl2_ttf"].set_property("cmake_target_name",f"SDL2_ttf::SDL2_ttf{suffix}")
+        self.cpp_info.components["_sdl2_ttf"].set_property("cmake_target_name", f"SDL2_ttf::SDL2_ttf{suffix}")
         self.cpp_info.components["_sdl2_ttf"].includedirs.append(os.path.join("include", "SDL2"))
         self.cpp_info.components["_sdl2_ttf"].libs = [f"SDL2_ttf"]
         self.cpp_info.components["_sdl2_ttf"].requires = ["freetype::freetype", "sdl::libsdl2"]

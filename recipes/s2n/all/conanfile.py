@@ -11,10 +11,11 @@ required_conan_version = ">=1.53.0"
 class S2nConan(ConanFile):
     name = "s2n"
     description = "An implementation of the TLS/SSL protocols"
-    topics = ("aws", "amazon", "cloud", )
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aws/s2n-tls"
-    license = "Apache-2.0"
+    topics = ("aws", "amazon", "cloud")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -53,7 +54,7 @@ class S2nConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["UNSAFE_TREAT_WARNINGS_AS_ERRORS"] = False
-        tc.variables["SEARCH_LIBCRYPTO"] = False # see CMakeLists wrapper
+        tc.variables["SEARCH_LIBCRYPTO"] = False  # see CMakeLists wrapper
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -73,7 +74,9 @@ class S2nConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::s2n": "s2n::s2n"}
+            {
+                "AWS::s2n": "s2n::s2n",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -13,10 +13,11 @@ required_conan_version = ">=1.57.0"
 class LibConfuseConan(ConanFile):
     name = "libconfuse"
     description = "Small configuration file parser library for C"
-    topics = ("configuration", "parser")
+    license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinh/libconfuse"
-    license = "ISC"
+    topics = ("configuration", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -69,12 +70,16 @@ class LibConfuseConan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
-                              "SUBDIRS = m4 po src $(EXAMPLES) tests doc",
-                              "SUBDIRS = m4 src")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "Makefile.in"),
+            "SUBDIRS = m4 po src $(EXAMPLES) tests doc",
+            "SUBDIRS = m4 src",
+        )
         if not self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "src", "confuse.h"),
-                                  "__declspec (dllimport)", "")
+            replace_in_file(
+                self, os.path.join(self.source_folder, "src", "confuse.h"), "__declspec (dllimport)", ""
+            )
 
     def build(self):
         self._patch_sources()
@@ -90,8 +95,11 @@ class LibConfuseConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "confuse.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "confuse.dll.lib"),
+                os.path.join(self.package_folder, "lib", "confuse.lib"),
+            )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

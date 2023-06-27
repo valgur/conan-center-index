@@ -10,15 +10,29 @@ required_conan_version = ">=1.53.0"
 
 class CwalkConan(ConanFile):
     name = "cwalk"
-    description = "Path library for C/C++. Cross-Platform for Windows, " \
-                  "MacOS and Linux. Supports UNIX and Windows path styles " \
-                  "on those platforms."
-    url = "https://github.com/conan-io/conan-center-index"
+    description = (
+        "Path library for C/C++. Cross-Platform for Windows, "
+        "MacOS and Linux. Supports UNIX and Windows path styles "
+        "on those platforms."
+    )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://likle.github.io/cwalk/"
-    topics = ("cross-platform", "windows", "macos", "osx", "linux",
-              "path-manipulation", "path", "directory", "file", "file-system",
-              "unc", "path-parsing", "file-path")
+    topics = (
+        "cross-platform",
+        "windows",
+        "macos",
+        "osx",
+        "linux",
+        "path-manipulation",
+        "path",
+        "directory",
+        "file",
+        "file-system",
+        "unc",
+        "path-parsing",
+        "file-path",
+    )
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -69,18 +83,22 @@ class CwalkConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"cwalk": "cwalk::cwalk"}
+            {
+                "cwalk": "cwalk::cwalk",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

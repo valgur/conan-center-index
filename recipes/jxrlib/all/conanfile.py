@@ -10,12 +10,13 @@ required_conan_version = ">=1.52.0"
 
 class JxrlibConan(ConanFile):
     name = "jxrlib"
-    description = "jxrlib is JPEG XR Image Codec reference implementation library released by Microsoft under BSD-2-Clause License."
-    homepage = "https://jxrlib.codeplex.com/"
-    url = "https://github.com/conan-io/conan-center-index"
+    description = "JPEG XR Image Codec reference implementation library"
     license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://jxrlib.codeplex.com/"
     topics = ("jxr", "jpeg", "xr")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,18 +37,9 @@ class JxrlibConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,8 +49,7 @@ class JxrlibConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

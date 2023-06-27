@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
@@ -6,3 +6,4 @@ pkg_check_modules(OsiClp REQUIRED IMPORTED_TARGET osi-clp)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::OsiClp)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

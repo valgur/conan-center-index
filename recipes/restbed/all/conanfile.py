@@ -13,11 +13,14 @@ required_conan_version = ">=1.53.0"
 
 class RestbedConan(ConanFile):
     name = "restbed"
-    homepage = "https://github.com/Corvusoft/restbed"
-    description = "Corvusoft's Restbed framework brings asynchronous RESTful functionality to C++14 applications."
-    topics = ("restful", "server", "client", "json", "http", "ssl", "tls")
+    description = (
+        "Corvusoft's Restbed framework brings asynchronous RESTful functionality to C++14 applications."
+    )
+    license = ("AGPL-3.0-or-later", "LicenseRef-CPL")  # Corvusoft Permissive License (CPL)
     url = "https://github.com/conan-io/conan-center-index"
-    license = "AGPL-3.0-or-later", "LicenseRef-CPL"  # Corvusoft Permissive License (CPL)
+    homepage = "https://github.com/Corvusoft/restbed"
+    topics = ("restful", "server", "client", "json", "http", "ssl", "tls")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -51,7 +54,7 @@ class RestbedConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            del self.options.ipc
+            self.options.rm_safe("ipc")
 
     def configure(self):
         if self.options.shared:
@@ -72,7 +75,8 @@ class RestbedConan(ConanFile):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not"
+                    " support."
                 )
 
     def source(self):
@@ -113,11 +117,11 @@ class RestbedConan(ConanFile):
 
     def package_info(self):
         libname = "restbed"
-        if self.settings.os in ("Windows", ) and self.options.shared:
+        if self.settings.os in ("Windows",) and self.options.shared:
             libname += "-shared"
         self.cpp_info.libs = [libname]
 
-        if self.settings.os in ("FreeBSD", "Linux", ):
+        if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs.extend(["dl", "m"])
-        elif self.settings.os in ("Windows", ):
+        elif self.settings.os in ("Windows",):
             self.cpp_info.system_libs.append("mswsock")

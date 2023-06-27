@@ -2,8 +2,16 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, stdcpp_library
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, export_conandata_patches, copy, get, rmdir, save
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import (
+    apply_conandata_patches,
+    collect_libs,
+    export_conandata_patches,
+    copy,
+    get,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -12,15 +20,14 @@ required_conan_version = ">=1.54.0"
 
 
 class OpenALConan(ConanFile):
-    deprecated = "openal-soft"
-
     name = "openal"
     description = "OpenAL Soft is a software implementation of the OpenAL 3D audio API."
-    topics = ("openal", "audio", "api")
+    license = "LGPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://openal-soft.org/"
-    license = "LGPL-2.0-or-later"
+    topics = ("audio", "api")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -30,6 +37,7 @@ class OpenALConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    deprecated = "openal-soft"
 
     @property
     def _openal_cxx_backend(self):
@@ -81,13 +89,17 @@ class OpenALConan(ConanFile):
             minimum_version = self._minimum_compilers_version.get(str(compiler), False)
             if minimum_version and Version(compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
 
-            if compiler == "clang" and Version(compiler.version) < "9" and \
-               compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11"):
+            if (
+                compiler == "clang"
+                and Version(compiler.version) < "9"
+                and compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11")
+            ):
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) c++ runtime",
+                    f"{self.ref} cannot be built with {compiler} {compiler.version} and "
+                    "stdlibc++(11) c++ runtime"
                 )
 
     def source(self):
@@ -100,6 +112,9 @@ class OpenALConan(ConanFile):
         tc.variables["ALSOFT_EXAMPLES"] = False
         tc.variables["ALSOFT_TESTS"] = False
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SoundIO"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -115,9 +130,7 @@ class OpenALConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\

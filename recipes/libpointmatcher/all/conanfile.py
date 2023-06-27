@@ -11,9 +11,10 @@ class LibpointmatcherConan(ConanFile):
     name = "libpointmatcher"
     description = "An Iterative Closest Point (ICP) library for 2D and 3D mapping in Robotics"
     license = "BSD-3-Clause"
-    topics = ("robotics", "lidar", "point-cloud")
-    homepage = "https://github.com/ethz-asl/libpointmatcher"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ethz-asl/libpointmatcher"
+    topics = ("robotics", "lidar", "point-cloud")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -76,8 +77,12 @@ class LibpointmatcherConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "copyright", src=os.path.join(self.source_folder, "debian"),
-                                dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "copyright",
+            src=os.path.join(self.source_folder, "debian"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

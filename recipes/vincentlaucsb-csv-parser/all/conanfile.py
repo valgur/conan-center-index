@@ -12,13 +12,20 @@ required_conan_version = ">=1.52.0"
 class VincentlaucsbCsvParserConan(ConanFile):
     name = "vincentlaucsb-csv-parser"
     description = "Vince's CSV Parser with simple and intuitive syntax"
-    topics = ("conan", "csv-parser", "csv", "rfc 4180", "parser", "generator")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/vincentlaucsb/csv-parser"
-    license = "MIT"
-    settings = "os", "compiler"
+    topics = ("csv-parser", "csv", "rfc 4180", "parser", "generator", "header-only")
+
     package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         # C++17 recommended: https://github.com/vincentlaucsb/csv-parser/blob/2.1.3/README.md
@@ -29,17 +36,19 @@ class VincentlaucsbCsvParserConan(ConanFile):
         if compiler == "gcc" and compiler_version < "7":
             raise ConanInvalidConfiguration("gcc version < 7 not supported")
 
-    def package_id(self):
-        self.info.clear()
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*",
-             dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "single_include"))
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "single_include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

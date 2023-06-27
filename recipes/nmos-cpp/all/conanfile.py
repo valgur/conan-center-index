@@ -1,12 +1,15 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools import build, files
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import json
 import os
 import re
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools import build
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import export_conandata_patches, load, rmdir, copy, apply_conandata_patches, rm, get
+
 required_conan_version = ">=1.52.0"
+
 
 class NmosCppConan(ConanFile):
     name = "nmos-cpp"
@@ -16,33 +19,39 @@ class NmosCppConan(ConanFile):
     homepage = "https://github.com/sony/nmos-cpp"
     topics = ("amwa", "nmos", "is-04", "is-05", "is-07", "is-08", "is-09", "broadcasting", "network", "media")
 
-    settings = "os", "compiler", "build_type", "arch"
-    # for now, no "shared" option support
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_dnssd": ["mdnsresponder", "avahi"],
     }
-    # "fPIC" is handled automatically by Conan, injecting CMAKE_POSITION_INDEPENDENT_CODE
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_dnssd": "mdnsresponder",
     }
 
-    short_paths = True
-
     def export_sources(self):
-        files.export_conandata_patches(self)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
         if self.settings.os == "Macos":
-            del self.options.with_dnssd
+            self.options.rm_safe("with_dnssd")
         elif self.settings.os == "Linux":
             self.options.with_dnssd = "avahi"
         elif self.settings.os == "Windows":
             self.options.with_dnssd = "mdnsresponder"
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # for now, consistent with project's conanfile.txt
@@ -63,27 +72,25 @@ class NmosCppConan(ConanFile):
         elif self.options.get_safe("with_dnssd") == "avahi":
             self.requires("avahi/0.8")
 
-    def build_requirements(self):
-        # nmos-cpp needs CMake 3.17 or higher but CCI doesn't allow version ranges
-        self.build_requires("cmake/3.24.2")
-
-    def validate(self):
-        if self.info.settings.os in ["Macos"]:
-            raise ConanInvalidConfiguration(f"{self.ref} is not currently supported on {self.info.settings.os}. Contributions welcomed.")
-        if self.info.settings.compiler.get_safe("cppstd"):
-            build.check_min_cppstd(self, 11)
-
     def package_id(self):
         self.info.requires["boost"].minor_mode()
         self.info.requires["nlohmann_json"].patch_mode()
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def validate(self):
+        if self.info.settings.os in ["Macos"]:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is not currently supported on {self.info.settings.os}. Contributions welcomed."
+            )
+        if self.info.settings.compiler.get_safe("cppstd"):
+            build.check_min_cppstd(self, 11)
+
+    def build_requirements(self):
+        # nmos-cpp needs CMake 3.17 or higher but CCI doesn't allow version ranges
+        self.build_requires("cmake/3.24.2")
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
-        files.rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -106,27 +113,31 @@ class NmosCppConan(ConanFile):
         deps.generate()
 
     def build(self):
-        files.apply_conandata_patches(self)
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder="Development")
         cmake.build()
 
     def package(self):
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         cmake_folder = os.path.join(self.package_folder, "lib", "cmake")
-        self._create_components_file_from_cmake_target_file(os.path.join(cmake_folder, "nmos-cpp", "nmos-cpp-targets.cmake"))
+        self._create_components_file_from_cmake_target_file(
+            os.path.join(cmake_folder, "nmos-cpp", "nmos-cpp-targets.cmake")
+        )
         # remove the project's own generated config-file package
-        files.rmdir(self, cmake_folder)
+        rmdir(self, cmake_folder)
 
     def _create_components_file_from_cmake_target_file(self, target_file_path):
         components = {}
 
-        target_content = files.load(self, target_file_path)
+        target_content = load(self, target_file_path)
 
-        cmake_functions = re.findall(r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", target_content)
-        for (cmake_function_name, cmake_function_args) in cmake_functions:
+        cmake_functions = re.findall(
+            r"(?P<func>add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", target_content
+        )
+        for cmake_function_name, cmake_function_args in cmake_functions:
             cmake_function_args = re.split(r"[\s|\n]+", cmake_function_args, maxsplit=2)
 
             cmake_imported_target_name = cmake_function_args[0]
@@ -151,7 +162,9 @@ class NmosCppConan(ConanFile):
                         lib_name = "dnssd"
                     components[component_name]["libs"] = [lib_name]
             elif cmake_function_name == "set_target_properties":
-                target_properties = re.findall(r"(?P<property>INTERFACE_[A-Z_]+)[\n|\s]+\"(?P<values>.+)\"", cmake_function_args[2])
+                target_properties = re.findall(
+                    r"(?P<property>INTERFACE_[A-Z_]+)[\n|\s]+\"(?P<values>.+)\"", cmake_function_args[2]
+                )
                 for target_property in target_properties:
                     property_type = target_property[0]
                     # '\', '$' and '"' are escaped; '$' especially is important here
@@ -175,9 +188,13 @@ class NmosCppConan(ConanFile):
                                 # mdnsresponder overrides cmake_find_package[_multi] names
                                 elif dependency == "DNSSD::DNSSD":
                                     dependency = "mdnsresponder::mdnsresponder"
-                                components[component_name].setdefault("requires" if not match_private else "requires_private", []).append(dependency.lower())
+                                components[component_name].setdefault(
+                                    "requires" if not match_private else "requires_private", []
+                                ).append(dependency.lower())
                             elif "${_IMPORT_PREFIX}/lib/" in dependency:
-                                self.output.warn(f"{self.name} recipe does not handle {property_type} {dependency} (yet)")
+                                self.output.warn(
+                                    f"{self.name} recipe does not handle {property_type} {dependency} (yet)"
+                                )
                             else:
                                 components[component_name].setdefault("system_libs", []).append(dependency)
                     elif property_type == "INTERFACE_COMPILE_DEFINITIONS":
@@ -186,7 +203,10 @@ class NmosCppConan(ConanFile):
                     elif property_type == "INTERFACE_COMPILE_FEATURES":
                         for property_value in property_values:
                             if property_value not in ["cxx_std_11"]:
-                                self.output.warn(f"{self.name} recipe does not handle {property_type} {property_value} (yet)")
+                                self.output.warn(
+                                    f"{self.name} recipe does not handle"
+                                    f" {property_type} {property_value} (yet)"
+                                )
                     elif property_type == "INTERFACE_COMPILE_OPTIONS":
                         for property_value in property_values:
                             # handle forced include (Visual Studio /FI, gcc -include) by relying on includedirs containing "include"
@@ -195,7 +215,10 @@ class NmosCppConan(ConanFile):
                     elif property_type == "INTERFACE_INCLUDE_DIRECTORIES":
                         for property_value in property_values:
                             if property_value not in ["${_IMPORT_PREFIX}/include"]:
-                                self.output.warn(f"{self.name} recipe does not handle {property_type} {property_value} (yet)")
+                                self.output.warn(
+                                    f"{self.name} recipe does not handle"
+                                    f" {property_type} {property_value} (yet)"
+                                )
                     elif property_type == "INTERFACE_LINK_OPTIONS":
                         for property_value in property_values:
                             # workaround required because otherwise "/ignore:4099" gets converted to "\ignore:4099.obj"
@@ -229,7 +252,7 @@ class NmosCppConan(ConanFile):
         self.cpp_info.libdirs = [libdir]
 
         def _register_components():
-            components_json_file = files.load(self, self._components_helper_filepath)
+            components_json_file = load(self, self._components_helper_filepath)
             components = json.loads(components_json_file)
             for component_name, values in components.items():
                 cmake_target = values["cmake_target"]
@@ -246,8 +269,9 @@ class NmosCppConan(ConanFile):
                 self.cpp_info.components[component_name].frameworks = values.get("frameworks", [])
                 self.cpp_info.components[component_name].requires = values.get("requires", [])
                 # hmm, how should private requirements be indicated? this results in a string format error...
-                #self.cpp_info.components[component_name].requires.extend([(r, "private") for r in values.get("requires_private", [])])
+                # self.cpp_info.components[component_name].requires.extend([(r, "private") for r in values.get("requires_private", [])])
                 self.cpp_info.components[component_name].requires.extend(values.get("requires_private", []))
+
         _register_components()
 
         # add nmos-cpp-registry and nmos-cpp-node to the path

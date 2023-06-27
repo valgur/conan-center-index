@@ -1,11 +1,10 @@
-from conan import ConanFile
-from conan.tools.files import get, copy, save
-from conan.tools.layout import basic_layout
 import os
-import textwrap
 
+from conan import ConanFile
+from conan.tools.files import get, copy
+from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class EmbeddedTemplateLibraryConan(ConanFile):
@@ -14,7 +13,8 @@ class EmbeddedTemplateLibraryConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.etlcpp.com/"
-    topics = ("cpp", "embedded", "template", "container", "utility", "framework", "messaging")
+    topics = ("cpp", "embedded", "template", "container", "utility", "framework", "messaging", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -33,26 +33,21 @@ class EmbeddedTemplateLibraryConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             self,
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"etl": "etl::etl"}
+            {
+                "etl": "etl::etl",
+            },
         )
-
-    @staticmethod
-    def _create_cmake_module_alias_targets(conanfile, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(conanfile, module_file, content)
 
     @property
     def _module_file_rel_path(self):

@@ -12,10 +12,11 @@ class SdlnetConan(ConanFile):
     name = "sdl_net"
     description = "A networking library for SDL"
     license = "Zlib"
-    topics = ("sdl2", "sdl2_net", "sdl", "sdl_net", "net", "networking")
-    homepage = "https://www.libsdl.org/projects/SDL_net"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libsdl.org/projects/SDL_net"
+    topics = ("sdl2", "sdl2_net", "sdl", "net", "networking")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,7 +27,8 @@ class SdlnetConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,8 +51,7 @@ class SdlnetConan(ConanFile):
             raise ConanInvalidConfiguration(f"The major versions of {self.name} and sdl must be the same")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -17,9 +17,10 @@ class LibvipsConan(ConanFile):
     name = "libvips"
     description = "libvips is a demand-driven, horizontally threaded image processing library."
     license = "LGPL-2.1-or-later"
-    topics = ("image", "image-processing")
-    homepage = "https://www.libvips.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.libvips.org"
+    topics = ("image", "image-processing")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -169,7 +170,9 @@ class LibvipsConan(ConanFile):
         if self.options.vapi and not self.options.introspection:
             raise ConanInvalidConfiguration("vapi requires introspection")
         if self.options.with_pangocairo and not self.dependencies["pango"].options.with_cairo:
-            raise ConanInvalidConfiguration(f"{self.ref}:with_pangocairo=True requires pango/*:with_cairo=True")
+            raise ConanInvalidConfiguration(
+                f"{self.ref}:with_pangocairo=True requires pango/*:with_cairo=True"
+            )
         if self.options.with_pdfium and self.options.with_poppler:
             raise ConanInvalidConfiguration("pdf support is enabled either with pdfium or poppler")
         if self.options.with_cgif and not (self.options.with_imagequant or self.options.with_quantizr):
@@ -178,10 +181,15 @@ class LibvipsConan(ConanFile):
         # Visual Studio < 2019 doesn't seem to like pointer restrict of pointer restrict in libnsgif
         check_min_vs(self, "192")
 
-        if is_msvc(self) and is_msvc_static_runtime(self) and not self.options.shared and \
-           self.dependencies["glib"].options.shared:
+        if (
+            is_msvc(self)
+            and is_msvc_static_runtime(self)
+            and not self.options.shared
+            and self.dependencies["glib"].options.shared
+        ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} static with MT runtime not supported if glib shared due to conancenter CI limitations"
+                f"{self.ref} static with MT runtime not supported if glib shared due to "
+                f"conancenter CI limitations"
             )
 
         if self.options.with_gsf:
@@ -301,7 +309,10 @@ class LibvipsConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["vips"].system_libs.extend(["m", "pthread"])
         self.cpp_info.components["vips"].requires = [
-            "expat::expat", "glib::glib-2.0", "glib::gio-2.0", "glib::gobject-2.0",
+            "expat::expat",
+            "glib::glib-2.0",
+            "glib::gio-2.0",
+            "glib::gobject-2.0",
         ]
         if self.options.with_cfitsio:
             self.cpp_info.components["vips"].requires.append("cfitsio::cfitsio")
@@ -358,10 +369,12 @@ class LibvipsConan(ConanFile):
         # TODO: to remove once conan v1 support dropped
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     from conan.tools.files import rename
     import glob
+
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
@@ -369,7 +382,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

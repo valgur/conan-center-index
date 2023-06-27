@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package)
+cmake_minimum_required(VERSION 3.15)
+project(test_package LANGUAGES CXX)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+find_package(diligent-core REQUIRED CONFIG)
 
 if(WIN32)
   set(FILE2STRING_PATH "${CONAN_BIN_DIRS_DILIGENT-CORE}/File2String.exe")
@@ -20,5 +19,5 @@ add_custom_command(OUTPUT ${CONVERTED_FILE}
                    VERBATIM)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE diligent-core::diligent-core)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

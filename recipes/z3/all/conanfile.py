@@ -1,7 +1,15 @@
 from conan import ConanFile
 from conan.tools.microsoft import check_min_vs
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, replace_in_file, get, copy, rmdir, save
+from conan.tools.files import (
+    export_conandata_patches,
+    apply_conandata_patches,
+    replace_in_file,
+    get,
+    copy,
+    rmdir,
+    save,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -13,23 +21,24 @@ required_conan_version = ">=1.53.0"
 class Z3Conan(ConanFile):
     name = "z3"
     description = "The Z3 Theorem Prover"
-    topics = ("z3", "theorem", "smt", "satisfiability", "prover", "solver")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Z3Prover/z3"
-    license = "MIT"
+    topics = ("theorem", "smt", "satisfiability", "prover", "solver")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "multithreaded": [True, False],
-        "use_gmp": [True, False]
+        "use_gmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "multithreaded": True,
-        "use_gmp": False
+        "use_gmp": False,
     }
 
     @property
@@ -44,7 +53,7 @@ class Z3Conan(ConanFile):
                 "gcc": "8",
                 "clang": "5",
                 "apple-clang": "9.1",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -109,7 +118,12 @@ class Z3Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=os.path.join(self.source_folder), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.txt",
+            src=os.path.join(self.source_folder),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -120,12 +134,10 @@ class Z3Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "z3::libz3")
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libz3"].libs = [
-            "libz3" if self.settings.os == "Windows" else "z3"]
+        self.cpp_info.components["libz3"].libs = ["libz3" if self.settings.os == "Windows" else "z3"]
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["libz3"]\
-                    .system_libs.extend(["pthread", "m"])
+                self.cpp_info.components["libz3"].system_libs.extend(["pthread", "m"])
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Z3"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Z3"

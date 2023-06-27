@@ -3,11 +3,20 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rm, rename
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rmdir,
+    replace_in_file,
+    collect_libs,
+    rm,
+    rename,
+)
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
-
 
 required_conan_version = ">=1.54.0"
 
@@ -16,10 +25,11 @@ class ProjConan(ConanFile):
     name = "proj"
     description = "Cartographic Projections and Coordinate Transformations Library."
     license = "MIT"
-    topics = "dsp", "proj", "proj4", "projections", "gis", "geospatial"
-    homepage = "https://proj.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://proj.org"
+    topics = ("dsp", "proj4", "projections", "gis", "geospatial")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -45,8 +55,8 @@ class ProjConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "7.0.0":
-            del self.options.with_tiff
-            del self.options.with_curl
+            self.options.rm_safe("with_tiff")
+            self.options.rm_safe("with_curl")
 
     def configure(self):
         if self.options.shared:
@@ -68,7 +78,7 @@ class ProjConan(ConanFile):
             self.tool_requires("sqlite3/3.41.1")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -122,9 +132,7 @@ class ProjConan(ConanFile):
 
         # Let CMake install shared lib with a clean rpath !
         if Version(self.version) >= "7.1.0" and Version(self.version) < "9.0.0":
-            replace_in_file(self, cmakelists,
-                                  "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)",
-                                  "")
+            replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
         # Aggressive workaround against SIP on macOS, to handle sqlite3 executable
         # linked to shared sqlite3 lib
@@ -134,15 +142,16 @@ class ProjConan(ConanFile):
                 pattern = "${EXE_SQLITE3}"
             else:
                 cmake_sqlite_call = "generate_proj_db.cmake"
-                pattern = "\"${EXE_SQLITE3}\""
+                pattern = '"${EXE_SQLITE3}"'
             if can_run(self):
                 lib_paths = self.dependencies["sqlite3"].cpp_info.libdirs
             else:
                 lib_paths = self.dependencies.build["sqlite3"].cpp_info.libdirs
-            replace_in_file(self,
+            replace_in_file(
+                self,
                 os.path.join(self.source_folder, "data", cmake_sqlite_call),
                 f"COMMAND {pattern}",
-                f"COMMAND ${{CMAKE_COMMAND}} -E env \"DYLD_LIBRARY_PATH={':'.join(lib_paths)}\" {pattern}"
+                f"COMMAND ${{CMAKE_COMMAND}} -E env \"DYLD_LIBRARY_PATH={':'.join(lib_paths)}\" {pattern}",
             )
 
         # unvendor nlohmann_json
@@ -162,12 +171,15 @@ class ProjConan(ConanFile):
         # recover the data ... 9.1.0 saves into share/proj rather than res directly
         # the new PROJ_DATA_PATH can't seem to be controlled from conan.
         if Version(self.version) >= "9.1.0":
-            rename(self, src=os.path.join(self.package_folder, "share", "proj"), dst=os.path.join(self.package_folder, "res"))
+            rename(
+                self,
+                src=os.path.join(self.package_folder, "share", "proj"),
+                dst=os.path.join(self.package_folder, "res"),
+            )
         # delete the rest of the deployed data
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
 
     def package_info(self):
         proj_version = Version(self.version)
@@ -193,7 +205,9 @@ class ProjConan(ConanFile):
             libcxx = stdcpp_library(self)
             if libcxx:
                 self.cpp_info.components["projlib"].system_libs.append(libcxx)
-        self.cpp_info.components["projlib"].requires.extend(["nlohmann_json::nlohmann_json", "sqlite3::sqlite3"])
+        self.cpp_info.components["projlib"].requires.extend(
+            ["nlohmann_json::nlohmann_json", "sqlite3::sqlite3"]
+        )
         if self.options.get_safe("with_tiff"):
             self.cpp_info.components["projlib"].requires.append("libtiff::libtiff")
         if self.options.get_safe("with_curl"):

@@ -1,9 +1,8 @@
+#include "hello_world.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "hello_world.h"
 
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char *argv[]) {
     int size;
     uint8_t workspace[64];
     uint8_t encoded[16];

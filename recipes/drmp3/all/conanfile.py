@@ -9,10 +9,11 @@ required_conan_version = ">=1.53.0"
 class Drmp3Conan(ConanFile):
     name = "drmp3"
     description = "MP3 audio decoder."
-    homepage = "https://mackron.github.io/"
-    topics = ("audio", "mp3", "sound")
     license = ("Unlicense", "MIT-0")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://mackron.github.io/"
+    topics = ("audio", "mp3", "sound")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -27,7 +28,10 @@ class Drmp3Conan(ConanFile):
         "no_simd": False,
         "no_stdio": False,
     }
-    exports_sources = ["CMakeLists.txt", "dr_mp3.c"]
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dr_mp3.c", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,7 +62,9 @@ class Drmp3Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

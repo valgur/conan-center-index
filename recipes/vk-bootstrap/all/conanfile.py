@@ -14,9 +14,9 @@ class VkBootstrapConan(ConanFile):
     name = "vk-bootstrap"
     description = "Vulkan bootstraping library."
     license = "MIT"
-    topics = ("vulkan", "bootstrap", "setup")
-    homepage = "https://github.com/charles-lunarg/vk-bootstrap"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/charles-lunarg/vk-bootstrap"
+    topics = ("vulkan", "bootstrap", "setup")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -76,7 +76,7 @@ class VkBootstrapConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
         if is_msvc(self) and self.options.shared:
@@ -90,8 +90,10 @@ class VkBootstrapConan(ConanFile):
         tc.variables["VK_BOOTSTRAP_TEST"] = False
         vulkan_headers = self.dependencies["vulkan-headers"]
         includedirs = ";".join(
-            [os.path.join(vulkan_headers.package_folder, includedir).replace("\\", "/")
-             for includedir in vulkan_headers.cpp_info.includedirs],
+            [
+                os.path.join(vulkan_headers.package_folder, includedir).replace("\\", "/")
+                for includedir in vulkan_headers.cpp_info.includedirs
+            ]
         )
         if Version(self.version) < "0.3.0":
             tc.variables["Vulkan_INCLUDE_DIR"] = includedirs
@@ -99,6 +101,8 @@ class VkBootstrapConan(ConanFile):
             tc.variables["VK_BOOTSTRAP_VULKAN_HEADER_DIR"] = includedirs
         if Version(self.version) >= "0.4.0":
             tc.variables["VK_BOOTSTRAP_WERROR"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

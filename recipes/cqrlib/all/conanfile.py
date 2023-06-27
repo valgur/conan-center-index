@@ -8,13 +8,16 @@ required_conan_version = ">=1.53.0"
 
 class CqrlibConan(ConanFile):
     name = "cqrlib"
-    description = "CQRlib is an ANSI C implementation of a utility library " \
-                  "for quaternion arithmetic and quaternion rotation math."
+    description = (
+        "CQRlib is an ANSI C implementation of a utility library "
+        "for quaternion arithmetic and quaternion rotation math."
+    )
     license = "LGPL-2.1-only"
-    topics = ("cqrlib", "quaternion")
-    homepage = "https://github.com/yayahjb/cqrlib"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/yayahjb/cqrlib"
+    topics = ("quaternion",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -25,7 +28,8 @@ class CqrlibConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

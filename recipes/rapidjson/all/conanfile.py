@@ -9,7 +9,7 @@ required_conan_version = ">=1.50.0"
 class RapidjsonConan(ConanFile):
     name = "rapidjson"
     description = "A fast JSON parser/generator for C++ with both SAX/DOM style API"
-    topics = ("rapidjson", "json", "parser", "generator")
+    topics = ("json", "parser", "generator")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://rapidjson.org"
     license = "MIT"
@@ -20,12 +20,21 @@ class RapidjsonConan(ConanFile):
         basic_layout(self)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True,
-                    destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            pattern="license.txt",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+        copy(
+            self,
+            pattern="*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_id(self):
         self.info.clear()

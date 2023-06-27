@@ -51,7 +51,7 @@ class PackageConan(ConanFile):
         if self.options.with_json == "jsoncpp":
             self.requires("jsoncpp/1.9.5")
         elif self.options.with_json == "rapidjson":
-            self.requires("rapidjson/cci.20220822")        
+            self.requires("rapidjson/cci.20220822")
         elif self.options.with_json == "nlohmann_json":
             self.requires("nlohmann_json/3.11.2")
 
@@ -59,7 +59,9 @@ class PackageConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         if self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -80,7 +82,9 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

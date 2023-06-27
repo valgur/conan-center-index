@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+)
 from conan.tools.scm import Version
 import os
 
@@ -11,10 +20,10 @@ required_conan_version = ">=1.54.0"
 class FlannConan(ConanFile):
     name = "flann"
     description = "Fast Library for Approximate Nearest Neighbors"
-    topics = ("nns", "nearest-neighbor-search", "knn", "kd-tree")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.cs.ubc.ca/research/flann/"
-    license = "BSD-3-Clause"
+    topics = ("nns", "nearest-neighbor-search", "knn", "kd-tree")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -81,15 +90,17 @@ class FlannConan(ConanFile):
             flann_cpp_dir = os.path.join(self.source_folder, "src", "cpp")
             save(self, os.path.join(flann_cpp_dir, "empty.cpp"), "\n")
 
-            replace_in_file(self,
+            replace_in_file(
+                self,
                 os.path.join(flann_cpp_dir, "CMakeLists.txt"),
                 'add_library(flann_cpp SHARED "")',
-                'add_library(flann_cpp SHARED empty.cpp)'
+                "add_library(flann_cpp SHARED empty.cpp)",
             )
-            replace_in_file(self,
+            replace_in_file(
+                self,
                 os.path.join(flann_cpp_dir, "CMakeLists.txt"),
                 'add_library(flann SHARED "")',
-                'add_library(flann SHARED empty.cpp)'
+                "add_library(flann SHARED empty.cpp)",
             )
 
     def build(self):
@@ -112,7 +123,9 @@ class FlannConan(ConanFile):
             else:
                 rmdir(self, os.path.join(self.package_folder, "bin"))
         # Remove static/dynamic libraries depending on the build mode
-        libs_pattern_to_remove = ["*flann_cpp_s.*", "*flann_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*"]
+        libs_pattern_to_remove = (
+            ["*flann_cpp_s.*", "*flann_s.*"] if self.options.shared else ["*flann_cpp.*", "*flann.*"]
+        )
         for lib_pattern_to_remove in libs_pattern_to_remove:
             rm(self, lib_pattern_to_remove, os.path.join(self.package_folder, "lib"))
 

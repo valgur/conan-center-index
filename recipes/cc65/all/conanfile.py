@@ -1,39 +1,108 @@
-from conans import AutoToolsBuildEnvironment, ConanFile, MSBuild, tools
-from conans.errors import ConanInvalidConfiguration
+# Warnings:
+#   Disallowed attribute '_source_subfolder = 'source_subfolder''
+#   Unexpected method '_datadir'
+#   Unexpected method '_samplesdir'
+#   Unexpected method '_make_args'
+#   Unexpected method '_build_msvc'
+#   Unexpected method '_configure_autotools'
+#   Unexpected method '_build_autotools'
+#   Unexpected method '_package_msvc'
+#   Unexpected method '_package_autotools'
+
+# TODO: verify the Conan v2 migration
+
 import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+import os
+
+required_conan_version = ">=1.47.0"
 
 
 class Cc65Conan(ConanFile):
     name = "cc65"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://cc65.github.io/"
     description = "A freeware C compiler for 6502 based systems"
     license = "Zlib"
-    topics = ("conan", "cc65", "compiler", "cmos", "6502", "8bit")
-    exports_sources = "patches/**"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://cc65.github.io/"
+    topics = ("compiler", "cmos", "6502", "8bit")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-
-    _autotools = None
-    _source_subfolder = "source_subfolder"
-
-    def configure(self):
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
-        if self.settings.compiler == "Visual Studio":
-            if self.settings.arch not in ("x86", "x86_64"):
-                raise ConanInvalidConfiguration("Invalid arch")
-            if self.settings.arch == "x86_64":
-                self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
-
-    def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not tools.which("make"):
-            self.build_requires("make/4.2.1")
-
-    def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
 
     @property
     def _datadir(self):
@@ -42,6 +111,50 @@ class Cc65Conan(ConanFile):
     @property
     def _samplesdir(self):
         return os.path.join(self.package_folder, "samples")
+
+    @property
+    def _make_args(self):
+        datadir = self._datadir
+        prefix = self.package_folder
+        samplesdir = self._samplesdir
+        if tools.os_info.is_windows:
+            datadir = unix_path(self, datadir)
+            prefix = unix_path(self, prefix)
+            samplesdir = unix_path(self, samplesdir)
+        args = [f"PREFIX={prefix}", f"datadir={datadir}", f"samplesdir={samplesdir}"]
+        if self.settings.os == "Windows":
+            args.append("EXE_SUFFIX=.exe")
+        return args
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def configure(self):
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.arch not in ("x86", "x86_64"):
+                raise ConanInvalidConfiguration("Invalid arch")
+            if self.settings.arch == "x86_64":
+                self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        if self.settings.compiler == "Visual Studio":
+            if self.settings.arch == "x86_64":
+                self.info.settings.arch = "x86"
+
+    def build_requirements(self):
+        if self.settings.compiler == "Visual Studio" and not which(self, "make"):
+            self.build_requires("make/4.2.1")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        extracted_dir = self.name + "-" + self.version
+        os.rename(extracted_dir, self.source_folder)
 
     def _build_msvc(self):
         msbuild = MSBuild(self)
@@ -53,59 +166,56 @@ class Cc65Conan(ConanFile):
             self.output.warn("{} detected: building x86 instead".format(self.settings.arch))
             arch = "x86"
 
-        msbuild.build(os.path.join(self._source_subfolder, "src", "cc65.sln"),
-                      build_type="Debug" if self.settings.build_type == "Debug" else "Release",
-                      arch=arch, platforms=msvc_platforms)
+        msbuild.build(
+            os.path.join(self.source_folder, "src", "cc65.sln"),
+            build_type="Debug" if self.settings.build_type == "Debug" else "Release",
+            arch=arch,
+            platforms=msvc_platforms,
+        )
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self._source_subfolder, "libsrc")):
+        with chdir(self, os.path.join(self.source_folder, "libsrc")):
             autotools.make()
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
         return self._autotools
-
-    @property
-    def _make_args(self):
-        datadir = self._datadir
-        prefix = self.package_folder
-        samplesdir = self._samplesdir
-        if tools.os_info.is_windows:
-            datadir = tools.unix_path(datadir)
-            prefix = tools.unix_path(prefix)
-            samplesdir = tools.unix_path(samplesdir)
-        args = [
-            "PREFIX={}".format(prefix),
-            "datadir={}".format(datadir),
-            "samplesdir={}".format(samplesdir),
-        ]
-        if self.settings.os == "Windows":
-            args.append("EXE_SUFFIX=.exe")
-        return args
 
     def _build_autotools(self):
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self._source_subfolder)):
+        with chdir(self, os.path.join(self.source_folder)):
             autotools.make(args=self._make_args)
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
         if self.settings.compiler == "Visual Studio":
-            with tools.chdir(os.path.join(self._source_subfolder, "src")):
+            with chdir(self, os.path.join(self.source_folder, "src")):
                 for fn in os.listdir("."):
                     if not fn.endswith(".vcxproj"):
                         continue
-                    tools.replace_in_file(fn, "v141", tools.msvs_toolset(self))
-                    tools.replace_in_file(fn, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
+                    replace_in_file(self, fn, "v141", msvs_toolset(self))
+                    replace_in_file(
+                        self,
+                        fn,
+                        "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>",
+                        "",
+                    )
         if self.settings.os == "Windows":
             # Add ".exe" suffix to calls from cl65 to other utilities
-            for fn, var in (("cc65", "CC65"), ("ca65", "CA65"), ("co65", "CO65"), ("ld65", "LD65"), ("grc65", "GRC")):
+            for fn, var in (
+                ("cc65", "CC65"),
+                ("ca65", "CA65"),
+                ("co65", "CO65"),
+                ("ld65", "LD65"),
+                ("grc65", "GRC"),
+            ):
                 v = "{},".format(var).ljust(5)
-                tools.replace_in_file(os.path.join(self._source_subfolder, "src", "cl65", "main.c"),
-                                      "CmdInit (&{v} CmdPath, \"{n}\");".format(v=v, n=fn),
-                                      "CmdInit (&{v} CmdPath, \"{n}.exe\");".format(v=v, n=fn))
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, "src", "cl65", "main.c"),
+                    'CmdInit (&{v} CmdPath, "{n}");'.format(v=v, n=fn),
+                    'CmdInit (&{v} CmdPath, "{n}.exe");'.format(v=v, n=fn),
+                )
 
     def build(self):
         self._patch_sources()
@@ -115,32 +225,39 @@ class Cc65Conan(ConanFile):
             self._build_autotools()
 
     def _package_msvc(self):
-        self.copy("*.exe", src=os.path.join(self._source_subfolder, "bin"), dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(
+            self,
+            "*.exe",
+            src=os.path.join(self.source_folder, "bin"),
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
         for dir in ("asminc", "cfg", "include", "lib", "target"):
-            self.copy("*", src=os.path.join(self._source_subfolder, dir), dst=os.path.join(self._datadir, dir))
+            copy(self, "*", src=os.path.join(self.source_folder, dir), dst=os.path.join(self._datadir, dir))
 
     def _package_autotools(self):
         autotools = self._configure_autotools()
-        with tools.chdir(os.path.join(self.build_folder, self._source_subfolder)):
+        with chdir(self, os.path.join(self.build_folder, self.source_folder)):
             autotools.install(args=self._make_args)
 
-        tools.rmdir(self._samplesdir)
-        tools.rmdir(os.path.join(self.package_folder, "share"))
+        rmdir(self._samplesdir)
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         if self.settings.compiler == "Visual Studio":
             self._package_msvc()
         else:
             self._package_autotools()
 
-    def package_id(self):
-        del self.info.settings.compiler
-        if self.settings.compiler == "Visual Studio":
-            if self.settings.arch == "x86_64":
-                self.info.settings.arch = "x86"
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: %s" % bindir)
         self.env_info.PATH.append(bindir)

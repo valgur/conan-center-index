@@ -12,11 +12,11 @@ required_conan_version = ">=1.57.0"
 
 class LibsmackerConan(ConanFile):
     name = "libsmacker"
+    description = "A C library for decoding .smk Smacker Video files"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libsmacker.sourceforge.net"
     topics = ("decoding ", "smk", "smacker", "video", "file")
-    license = "LGPL-2.1-or-later"
-    description = "A C library for decoding .smk Smacker Video files"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -87,8 +87,11 @@ class LibsmackerConan(ConanFile):
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "smacker.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "smacker.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "smacker.dll.lib"),
+                os.path.join(self.package_folder, "lib", "smacker.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["smacker"]

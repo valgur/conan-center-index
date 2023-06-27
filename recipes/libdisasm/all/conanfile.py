@@ -12,21 +12,23 @@ required_conan_version = ">=1.57.0"
 
 class LibdisasmConan(ConanFile):
     name = "libdisasm"
-    description = "The libdisasm library provides basic disassembly of Intel x86 instructions from a binary stream."
-    homepage = "http://bastard.sourceforge.net/libdisasm.html"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("disassembler", "x86", "asm")
+    description = (
+        "The libdisasm library provides basic disassembly of Intel x86 instructions from a binary stream."
+    )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://bastard.sourceforge.net/libdisasm.html"
+    topics = ("disassembler", "x86", "asm")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
     }
 
     @property

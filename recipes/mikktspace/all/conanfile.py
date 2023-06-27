@@ -1,7 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, save
-import os
+from conan.tools.files import get, save, copy
 
 required_conan_version = ">=1.53.0"
 
@@ -9,11 +10,12 @@ required_conan_version = ">=1.53.0"
 class MikkTSpaceConan(ConanFile):
     name = "mikktspace"
     description = " A common standard for tangent space used in baking tools to produce normal maps."
-    homepage = "https://github.com/mmikk/MikkTSpace"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Zlib"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mmikk/MikkTSpace"
     topics = ("tangent", "space", "normal")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,7 +26,8 @@ class MikkTSpaceConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -40,8 +43,7 @@ class MikkTSpaceConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

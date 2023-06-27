@@ -2,8 +2,13 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get,
-    replace_in_file, rm, rmdir
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rm,
+    rmdir,
 )
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -17,11 +22,13 @@ required_conan_version = ">=1.53.0"
 
 class FontconfigConan(ConanFile):
     name = "fontconfig"
+    description = "Fontconfig is a library for configuring and customizing font access"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "Fontconfig is a library for configuring and customizing font access"
     homepage = "https://gitlab.freedesktop.org/fontconfig/fontconfig"
     topics = ("fonts", "freedesktop")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -71,19 +78,24 @@ class FontconfigConan(ConanFile):
         deps.generate()
 
         tc = MesonToolchain(self)
-        tc.project_options.update({
-            "doc": "disabled",
-            "nls": "disabled",
-            "tests": "disabled",
-            "tools": "disabled"
-        })
+        tc.project_options.update(
+            {
+                "doc": "disabled",
+                "nls": "disabled",
+                "tests": "disabled",
+                "tools": "disabled",
+            }
+        )
         tc.generate()
 
     def _patch_files(self):
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                        "freetype_req = '>= 21.0.15'",
-                        f"freetype_req = '{Version(self.dependencies['freetype'].ref.version)}'")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "meson.build"),
+            "freetype_req = '>= 21.0.15'",
+            f"freetype_req = '{Version(self.dependencies['freetype'].ref.version)}'",
+        )
 
     def build(self):
         self._patch_files()
@@ -125,18 +137,20 @@ class FontconfigConan(ConanFile):
         self.env_info.FONTCONFIG_FILE = fontconfig_file
         self.env_info.FONTCONFIG_PATH = fontconfig_path
 
+
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     from conan.tools.files import rename
     import glob
+
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
+                libname = os.path.basename(filepath)[0 : -len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

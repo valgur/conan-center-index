@@ -1,22 +1,23 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-
 
 required_conan_version = ">=1.53.0"
 
 
 class Mosquitto(ConanFile):
     name = "mosquitto"
+    description = "Eclipse Mosquitto MQTT library, broker and more"
     license = "EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://mosquitto.org"
-    description = """Eclipse Mosquitto MQTT library, broker and more"""
     topics = ("MQTT", "IoT", "eclipse")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -37,16 +38,15 @@ class Mosquitto(ConanFile):
         "clients": False,
         "broker": False,
         "apps": False,
-        "cjson": True, # https://github.com/eclipse/mosquitto/commit/bbe0afbfbe7bb392361de41e275759ee4ef06b1c
+        "cjson": True,  # https://github.com/eclipse/mosquitto/commit/bbe0afbfbe7bb392361de41e275759ee4ef06b1c
         "build_cpp": True,
         "websockets": False,
         "threading": True,
     }
-    generators = "CMakeDeps"
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -89,10 +89,16 @@ class Mosquitto(ConanFile):
         tc.variables["WITH_LIB_CPP"] = self.options.build_cpp
         tc.variables["WITH_THREADING"] = not is_msvc(self) and self.options.threading
         tc.variables["WITH_WEBSOCKETS"] = self.options.get_safe("websockets", False)
-        tc.variables["STATIC_WEBSOCKETS"] = self.options.get_safe("websockets", False) and not self.dependencies["libwebsockets"].options.shared
+        tc.variables["STATIC_WEBSOCKETS"] = (
+            self.options.get_safe("websockets", False)
+            and not self.dependencies["libwebsockets"].options.shared
+        )
         tc.variables["DOCUMENTATION"] = False
         tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "res").replace("\\", "/")
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.generate()
+
+        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):

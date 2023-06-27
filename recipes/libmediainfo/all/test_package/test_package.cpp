@@ -1,9 +1,9 @@
 #if defined(LIBMEDIAINFO_SHARED)
-# include "MediaInfoDLL/MediaInfoDLL.h"
-# define MEDIAINFO_NS MediaInfoDLL
+#include "MediaInfoDLL/MediaInfoDLL.h"
+#define MEDIAINFO_NS MediaInfoDLL
 #else
-# include "MediaInfo/MediaInfo.h"
-# define MEDIAINFO_NS MediaInfoLib
+#include "MediaInfo/MediaInfo.h"
+#define MEDIAINFO_NS MediaInfoLib
 #endif
 #include "ZenLib/Ztring.h"
 

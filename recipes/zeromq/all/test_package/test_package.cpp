@@ -1,11 +1,10 @@
-#include <zmq.h>
 #include <cstdlib>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
+#include <zmq.h>
 
-int main() try
-{
+int main() try {
     void *context = zmq_ctx_new();
     void *requester = zmq_socket(context, ZMQ_REQ);
 #if defined(WITH_LIBSODIUM)
@@ -15,16 +14,16 @@ int main() try
 #endif
 #if defined(WITH_NORM)
     void *publisher = zmq_socket(context, ZMQ_PUB);
-    if (0 != zmq_bind (publisher, "norm://127.0.0.1:*"))
-        throw std::runtime_error(std::string("zmq_bind with norm://127.0.0.1:* failed: ").append(strerror(errno)));
+    if (0 != zmq_bind(publisher, "norm://127.0.0.1:*"))
+        throw std::runtime_error(
+            std::string("zmq_bind with norm://127.0.0.1:* failed: ").append(strerror(errno)));
     zmq_close(publisher);
 #endif
     zmq_close(requester);
-    zmq_ctx_destroy (context);
+    zmq_ctx_destroy(context);
 
     return EXIT_SUCCESS;
-}
-catch (std::runtime_error & e) {
+} catch (std::runtime_error &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
 }

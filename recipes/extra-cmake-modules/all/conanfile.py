@@ -1,56 +1,84 @@
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import ConanFile, CMake, tools
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file
+
+required_conan_version = ">=1.52.0"
+
 
 class ExtracmakemodulesConan(ConanFile):
     name = "extra-cmake-modules"
+    description = "KDE's CMake modules"
     license = ("MIT", "BSD-2-Clause", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://api.kde.org/ecm/"
-    topics = ("conan", "cmake", "toolchain", "build-settings")
-    description = "KDE's CMake modules"
-    generators = "cmake"
-    no_copy_source = False
+    topics = ("cmake", "toolchain", "build-settings", "header-only")
 
-    _cmake = None
+    package_type = "build-scripts"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("extra-cmake-modules-{}".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["BUILD_HTML_DOCS"] = False
+        tc.variables["BUILD_QTHELP_DOCS"] = False
+        tc.variables["BUILD_MAN_DOCS"] = False
+        tc.variables["SHARE_INSTALL_DIR"] = os.path.join(self.package_folder, "res")
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
+    def _patch_sources(self):
         # KB-H016: do not install Find*.cmake
-        tools.replace_path_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-            "install(FILES ${installFindModuleFiles} DESTINATION ${FIND_MODULES_INSTALL_DIR})", "")
-
-        self._cmake = CMake(self)
-        self._cmake.definitions["BUILD_HTML_DOCS"] = False
-        self._cmake.definitions["BUILD_QTHELP_DOCS"] = False
-        self._cmake.definitions["BUILD_MAN_DOCS"] = False
-        self._cmake.definitions["SHARE_INSTALL_DIR"] = os.path.join(self.package_folder, "res")
-        self._cmake.configure(source_folder=os.path.join(self.source_folder, self._source_subfolder))
-        return self._cmake
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "install(FILES ${installFindModuleFiles} DESTINATION ${FIND_MODULES_INSTALL_DIR})",
+            "",
+        )
 
     def build(self):
-        cmake = self._configure_cmake()
+        self._patch_sources()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("testhelper.h", src=os.path.join(self.source_folder, self._source_subfolder, "tests/ECMAddTests"), dst="res/tests")
-        self.copy("*", src=os.path.join(self.source_folder, self._source_subfolder, "LICENSES"), dst="licenses")
+        copy(
+            self,
+            "testhelper.h",
+            src=os.path.join(self.source_folder, "tests/ECMAddTests"),
+            dst=os.path.join(self.package_folder, "res/tests"),
+        )
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "LICENSES"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         self.cpp_info.resdirs = ["res"]
-        self.cpp_info.builddirs = ["res/ECM/cmake", "res/ECM/kde-modules", "res/ECM/modules", "res/ECM/test-modules", "res/ECM/toolchain"]
-
-    def package_id(self):
-        self.info.header_only()
-
+        self.cpp_info.builddirs = [
+            "res/ECM/cmake",
+            "res/ECM/kde-modules",
+            "res/ECM/modules",
+            "res/ECM/test-modules",
+            "res/ECM/toolchain",
+        ]

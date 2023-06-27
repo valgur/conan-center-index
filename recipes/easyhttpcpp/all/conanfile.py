@@ -12,9 +12,9 @@ class EasyhttpcppConan(ConanFile):
     name = "easyhttpcpp"
     description = "A cross-platform HTTP client library with a focus on usability and speed"
     license = "MIT"
-    topics = ("http", "client", "protocol")
-    homepage = "https://github.com/sony/easyhttpcpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/sony/easyhttpcpp"
+    topics = ("http", "client", "protocol")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -26,8 +26,6 @@ class EasyhttpcppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -60,9 +58,15 @@ class EasyhttpcppConan(ConanFile):
         return comps
 
     def validate(self):
-        if any([not self.dependencies["poco"].options.get_safe(comp, False) for comp in self._required_poco_components]):
+        if any(
+            [
+                not self.dependencies["poco"].options.get_safe(comp, False)
+                for comp in self._required_poco_components
+            ]
+        ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
+                f"{self.ref} requires the following poco options enabled:"
+                f" {', '.join(self._required_poco_components)}"
             )
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -107,8 +111,10 @@ class EasyhttpcppConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["easyhttp"].defines.append("EASYHTTPCPP_DLL")
         self.cpp_info.components["easyhttp"].requires = [
-            "poco::poco_foundation", "poco::poco_data",
-            "poco::poco_datasqlite", "poco::poco_net",
+            "poco::poco_foundation",
+            "poco::poco_data",
+            "poco::poco_datasqlite",
+            "poco::poco_net",
         ]
         if self.settings.os == "Windows":
             self.cpp_info.components["easyhttp"].requires.append("poco::poco_netsslwin")

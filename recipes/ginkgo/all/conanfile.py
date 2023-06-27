@@ -12,14 +12,15 @@ required_conan_version = ">=1.54.0"
 
 class GinkgoConan(ConanFile):
     name = "ginkgo"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/ginkgo-project/ginkgo"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "High-performance linear algebra library for manycore systems, with a "
         "focus on sparse solution of linear systems."
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ginkgo-project/ginkgo"
     topics = ("hpc", "linear-algebra")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -81,9 +82,7 @@ class GinkgoConan(ConanFile):
             )
 
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                "Ginkgo does not support mixing static CRT and shared library"
-            )
+            raise ConanInvalidConfiguration("Ginkgo does not support mixing static CRT and shared library")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -125,46 +124,44 @@ class GinkgoConan(ConanFile):
 
         self.cpp_info.components["ginkgo_core"].set_property("cmake_target_name", "Ginkgo::ginkgo")
         self.cpp_info.components["ginkgo_core"].set_property("pkg_config_name", "ginkgo")
-        self.cpp_info.components["ginkgo_core"].libs = [
-            "ginkgo" + debug_suffix]
+        self.cpp_info.components["ginkgo_core"].libs = ["ginkgo" + debug_suffix]
         self.cpp_info.components["ginkgo_core"].requires = [
-            "ginkgo_omp", "ginkgo_cuda", "ginkgo_reference", "ginkgo_hip"
+            "ginkgo_omp",
+            "ginkgo_cuda",
+            "ginkgo_reference",
+            "ginkgo_hip",
         ]
 
         self.cpp_info.components["ginkgo_cuda"].set_property("cmake_target_name", "Ginkgo::ginkgo_cuda")
-        self.cpp_info.components["ginkgo_cuda"].libs = [
-            "ginkgo_cuda" + debug_suffix]
+        self.cpp_info.components["ginkgo_cuda"].libs = ["ginkgo_cuda" + debug_suffix]
         self.cpp_info.components["ginkgo_cuda"].requires = ["ginkgo_hip"]
 
         self.cpp_info.components["ginkgo_omp"].set_property("cmake_target_name", "Ginkgo::ginkgo_omp")
-        self.cpp_info.components["ginkgo_omp"].libs = [
-            "ginkgo_omp" + debug_suffix]
-        self.cpp_info.components["ginkgo_omp"].requires = [
-            "ginkgo_cuda", "ginkgo_hip"]
+        self.cpp_info.components["ginkgo_omp"].libs = ["ginkgo_omp" + debug_suffix]
+        self.cpp_info.components["ginkgo_omp"].requires = ["ginkgo_cuda", "ginkgo_hip"]
 
         self.cpp_info.components["ginkgo_hip"].set_property("cmake_target_name", "Ginkgo::ginkgo_hip")
-        self.cpp_info.components["ginkgo_hip"].libs = [
-            "ginkgo_hip" + debug_suffix]
+        self.cpp_info.components["ginkgo_hip"].libs = ["ginkgo_hip" + debug_suffix]
 
-        self.cpp_info.components["ginkgo_reference"].set_property("cmake_target_name", "Ginkgo::ginkgo_reference")
-        self.cpp_info.components["ginkgo_reference"].libs = [
-            "ginkgo_reference" + debug_suffix]
+        self.cpp_info.components["ginkgo_reference"].set_property(
+            "cmake_target_name", "Ginkgo::ginkgo_reference"
+        )
+        self.cpp_info.components["ginkgo_reference"].libs = ["ginkgo_reference" + debug_suffix]
 
-        if has_dpcpp_device: # Always add these components
+        if has_dpcpp_device:  # Always add these components
             # See https://github.com/conan-io/conan-center-index/pull/7044#discussion_r698181588
             self.cpp_info.components["ginkgo_core"].requires += ["ginkgo_dpcpp"]
             self.cpp_info.components["ginkgo_core"].requires += ["ginkgo_device"]
 
             self.cpp_info.components["ginkgo_dpcpp"].set_property("cmake_target_name", "Ginkgo::ginkgo_dpcpp")
-            self.cpp_info.components["ginkgo_dpcpp"].libs = [
-                "ginkgo_dpcpp" + debug_suffix]
+            self.cpp_info.components["ginkgo_dpcpp"].libs = ["ginkgo_dpcpp" + debug_suffix]
 
-            self.cpp_info.components["ginkgo_device"].set_property("cmake_target_name", "Ginkgo::ginkgo_device")
-            self.cpp_info.components["ginkgo_device"].libs = [
-                "ginkgo_device" + debug_suffix]
+            self.cpp_info.components["ginkgo_device"].set_property(
+                "cmake_target_name", "Ginkgo::ginkgo_device"
+            )
+            self.cpp_info.components["ginkgo_device"].libs = ["ginkgo_device" + debug_suffix]
 
-            self.cpp_info.components["ginkgo_omp"].requires += [
-                "ginkgo_dpcpp", "ginkgo_device"]
+            self.cpp_info.components["ginkgo_omp"].requires += ["ginkgo_dpcpp", "ginkgo_device"]
             self.cpp_info.components["ginkgo_reference"].requires += ["ginkgo_device"]
             self.cpp_info.components["ginkgo_hip"].requires += ["ginkgo_device"]
             self.cpp_info.components["ginkgo_cuda"].requires += ["ginkgo_device"]

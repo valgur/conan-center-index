@@ -1,18 +1,31 @@
-from conans import ConanFile, CMake, tools
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
+
+from conan import ConanFile
+from conan.tools.apple import is_apple_os
+from conan.tools.build import can_run, cross_building
+from conan.tools.cmake import cmake_layout
+from conan.tools.files import chdir
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    test_type = "explicit"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.build_requires("ninja/1.10.2")
+        self.tool_requires("ninja/1.10.2")
+
+    def layout(self):
+        cmake_layout(self)
 
     @contextmanager
     def _build_context(self):
         if self.settings.compiler == "Visual Studio":
-            with tools.vcvars(self.settings):
+            with vcvars(self.settings):
                 yield
         else:
             compiler_defaults = {}
@@ -32,15 +45,15 @@ class TestPackageConan(ConanFile):
                 }
             env = {}
             for k in ("CC", "CXX", "AR", "LD"):
-                v = tools.get_env(k, compiler_defaults.get(k, None))
+                v = get_env(self, k, compiler_defaults.get(k, None))
                 if v:
                     env[k] = v
-            with tools.environment_append(env):
+            with environment_append(self, env):
                 yield
 
     @property
     def _target_os(self):
-        if tools.is_apple_os(self.settings.os):
+        if is_apple_os(self.settings.os):
             return "mac"
         # Assume gn knows about the os
         return {
@@ -54,16 +67,19 @@ class TestPackageConan(ConanFile):
         }.get(str(self.settings.arch), str(self.settings.arch))
 
     def build(self):
-        if not tools.cross_building(self.settings):
-            with tools.chdir(self.source_folder):
+        if not cross_building(self.settings):
+            with chdir(self, self.source_folder):
                 gn_args = [
                     os.path.relpath(os.path.join(self.build_folder, "bin"), os.getcwd()).replace("\\", "/"),
-                    "--args=\"target_os=\\\"{os_}\\\" target_cpu=\\\"{cpu}\\\"\"".format(os_=self._target_os, cpu=self._target_cpu),
+                    '--args="target_os=\\"{os_}\\" target_cpu=\\"{cpu}\\""'.format(
+                        os_=self._target_os, cpu=self._target_cpu
+                    ),
                 ]
-                self.run("gn gen {}".format(" ".join(gn_args)), run_environment=True)
+                self.run("gn gen {}".format(" ".join(gn_args)), env="conanrun")
             with self._build_context():
-                self.run("ninja -v -j{} -C bin".format(tools.cpu_count()), run_environment=True)
+                self.run("ninja -v -j{} -C bin".format(cpu_count(self)), env="conanrun")
 
     def test(self):
-        if not tools.cross_building(self.settings):
-            self.run(os.path.join("bin", "test_package"), run_environment=True)
+        if can_run(self):
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+            self.run(bin_path, env="conanrun")

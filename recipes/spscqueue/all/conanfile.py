@@ -13,7 +13,7 @@ class SpscqueueConan(ConanFile):
     name = "spscqueue"
     description = "A bounded single-producer single-consumer wait-free and lock-free queue written in C++11."
     license = "MIT"
-    topics = ("spscqueue", "thread", "queue")
+    topics = ("thread", "queue")
     homepage = "https://github.com/rigtorp/SPSCQueue"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,15 +32,19 @@ class SpscqueueConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SPSCQueue")

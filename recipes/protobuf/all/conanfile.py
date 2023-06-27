@@ -2,7 +2,16 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, rename, get, apply_conandata_patches, export_conandata_patches, replace_in_file, rmdir, rm
+from conan.tools.files import (
+    copy,
+    rename,
+    get,
+    apply_conandata_patches,
+    export_conandata_patches,
+    replace_in_file,
+    rmdir,
+    rm,
+)
 from conan.tools.microsoft import check_min_vs, msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -15,11 +24,12 @@ required_conan_version = ">=1.53"
 class ProtobufConan(ConanFile):
     name = "protobuf"
     description = "Protocol Buffers - Google's data interchange format"
-    topics = ("protocol-buffers", "protocol-compiler", "serialization", "rpc", "protocol-compiler")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/protocolbuffers/protobuf"
-    license = "BSD-3-Clause"
+    topics = ("protocol-buffers", "protocol-compiler", "serialization", "rpc", "protocol-compiler")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -37,8 +47,6 @@ class ProtobufConan(ConanFile):
         "lite": False,
         "debug_suffix": True,
     }
-
-    short_paths = True
 
     @property
     def _is_clang_cl(self):
@@ -59,7 +67,7 @@ class ProtobufConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._can_disable_rtti:
-            del self.options.with_rtti
+            self.options.rm_safe("with_rtti")
 
     def configure(self):
         if self.options.shared:
@@ -122,17 +130,18 @@ class ProtobufConan(ConanFile):
         #       allow to create executable imported targets in package_info()
         protobuf_config_cmake = os.path.join(self.source_folder, "cmake", "protobuf-config.cmake.in")
 
-        replace_in_file(self,
+        replace_in_file(
+            self,
             protobuf_config_cmake,
             "@_protobuf_FIND_ZLIB@",
-            "# BEGIN CONAN PATCH\n#_protobuf_FIND_ZLIB@\n# END CONAN PATCH"
+            "# BEGIN CONAN PATCH\n#_protobuf_FIND_ZLIB@\n# END CONAN PATCH",
         )
 
         exe_ext = ".exe" if self.settings.os == "Windows" else ""
         protoc_filename = "protoc" + exe_ext
         module_folder_depth = len(os.path.normpath(self._cmake_install_base_path).split(os.path.sep))
         protoc_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), protoc_filename)
-        protoc_target = textwrap.dedent("""\
+        protoc_target = textwrap.dedent(f"""\
             if(NOT TARGET protobuf::protoc)
                 if(CMAKE_CROSSCOMPILING)
                     find_program(PROTOC_PROGRAM protoc PATHS ENV PATH NO_DEFAULT_PATH)
@@ -145,33 +154,36 @@ class ProtobufConan(ConanFile):
                 add_executable(protobuf::protoc IMPORTED)
                 set_property(TARGET protobuf::protoc PROPERTY IMPORTED_LOCATION ${{Protobuf_PROTOC_EXECUTABLE}})
             endif()
-        """.format(protoc_rel_path=protoc_rel_path))
-        replace_in_file(self,
+        """)
+        replace_in_file(
+            self,
             protobuf_config_cmake,
-            "include(\"${CMAKE_CURRENT_LIST_DIR}/protobuf-targets.cmake\")",
-            protoc_target
+            'include("${CMAKE_CURRENT_LIST_DIR}/protobuf-targets.cmake")',
+            protoc_target,
         )
 
         # Disable a potential warning in protobuf-module.cmake.in
         # TODO: remove this patch? Is it really useful?
         protobuf_module_cmake = os.path.join(self.source_folder, "cmake", "protobuf-module.cmake.in")
-        replace_in_file(self,
+        replace_in_file(
+            self,
             protobuf_module_cmake,
             "if(DEFINED Protobuf_SRC_ROOT_FOLDER)",
             "if(0)\nif(DEFINED Protobuf_SRC_ROOT_FOLDER)",
         )
-        replace_in_file(self,
-            protobuf_module_cmake,
-            "# Define upper case versions of output variables",
-            "endif()",
+        replace_in_file(
+            self, protobuf_module_cmake, "# Define upper case versions of output variables", "endif()"
         )
 
         # https://github.com/protocolbuffers/protobuf/issues/9916
         # it will be solved in protobuf 3.21.0
         if Version(self.version) == "3.20.0":
-            replace_in_file(self, os.path.join(self.source_folder, "src", "google", "protobuf", "port_def.inc"),
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "src", "google", "protobuf", "port_def.inc"),
                 "#elif PROTOBUF_GNUC_MIN(12, 0)",
-                "#elif PROTOBUF_GNUC_MIN(12, 2)")
+                "#elif PROTOBUF_GNUC_MIN(12, 2)",
+            )
 
     def build(self):
         self._patch_sources()
@@ -185,11 +197,22 @@ class ProtobufConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.unlink(os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-config-version.cmake"))
+        os.unlink(
+            os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-config-version.cmake")
+        )
         os.unlink(os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-targets.cmake"))
-        os.unlink(os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-targets-{}.cmake".format(str(self.settings.build_type).lower())))
-        rename(self, os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-config.cmake"),
-                     os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-generate.cmake"))
+        os.unlink(
+            os.path.join(
+                self.package_folder,
+                self._cmake_install_base_path,
+                "protobuf-targets-{}.cmake".format(str(self.settings.build_type).lower()),
+            )
+        )
+        rename(
+            self,
+            os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-config.cmake"),
+            os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-generate.cmake"),
+        )
 
         if not self.options.lite:
             rm(self, "libprotobuf-lite*", os.path.join(self.package_folder, "lib"))
@@ -199,7 +222,9 @@ class ProtobufConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_module_file_name", "Protobuf")
         self.cpp_info.set_property("cmake_file_name", "protobuf")
-        self.cpp_info.set_property("pkg_config_name", "protobuf_full_package") # unofficial, but required to avoid side effects (libprotobuf component "steals" the default global pkg_config name)
+        self.cpp_info.set_property(
+            "pkg_config_name", "protobuf_full_package"
+        )  # unofficial, but required to avoid side effects (libprotobuf component "steals" the default global pkg_config name)
 
         build_modules = [
             os.path.join(self._cmake_install_base_path, "protobuf-generate.cmake"),
@@ -236,7 +261,9 @@ class ProtobufConan(ConanFile):
 
         # libprotobuf-lite
         if self.options.lite:
-            self.cpp_info.components["libprotobuf-lite"].set_property("cmake_target_name", "protobuf::libprotobuf-lite")
+            self.cpp_info.components["libprotobuf-lite"].set_property(
+                "cmake_target_name", "protobuf::libprotobuf-lite"
+            )
             self.cpp_info.components["libprotobuf-lite"].set_property("pkg_config_name", "protobuf-lite")
             self.cpp_info.components["libprotobuf-lite"].builddirs.append(self._cmake_install_base_path)
             self.cpp_info.components["libprotobuf-lite"].libs = [lib_prefix + "protobuf-lite" + lib_suffix]
@@ -253,7 +280,7 @@ class ProtobufConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Protobuf"
         self.cpp_info.filenames["cmake_find_package_multi"] = "protobuf"
-        self.cpp_info.names["pkg_config"] ="protobuf_full_package"
+        self.cpp_info.names["pkg_config"] = "protobuf_full_package"
         for generator in ["cmake_find_package", "cmake_find_package_multi"]:
             self.cpp_info.components["libprotobuf"].build_modules[generator] = build_modules
         if self.options.lite:

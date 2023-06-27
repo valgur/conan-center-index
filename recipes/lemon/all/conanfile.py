@@ -8,11 +8,15 @@ required_conan_version = ">=1.53.0"
 
 class LemonConan(ConanFile):
     name = "lemon"
-    description = "The Lemon program reads a grammar of the input language and emits C-code to implement a parser for that language."
+    description = (
+        "The Lemon program reads a grammar of the input language and "
+        "emits C-code to implement a parser for that language."
+    )
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sqlite.org/lemon.html"
     topics = ("grammar", "lexer", "lalr", "parser", "generator", "sqlite")
-    license = "Unlicense"
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -26,6 +30,10 @@ class LemonConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -43,7 +51,7 @@ class LemonConan(ConanFile):
 
     def _extract_license_text(self):
         header = load(self, os.path.join(self.source_folder, "tool", "lempar.c"))
-        return "\n".join(line.strip(" \n*") for line in header[3:header.find("*******", 1)].splitlines())
+        return "\n".join(line.strip(" \n*") for line in header[3 : header.find("*******", 1)].splitlines())
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license_text())
@@ -51,6 +59,8 @@ class LemonConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

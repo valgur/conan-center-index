@@ -10,11 +10,14 @@ required_conan_version = ">=1.53.0"
 
 class TinyXmlConan(ConanFile):
     name = "tinyxml"
-    description = "TinyXML is a simple, small, C++ XML parser that can be easily integrated into other programs."
+    description = (
+        "TinyXML is a simple, small, C++ XML parser that can be easily integrated into other programs."
+    )
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.grinninglizard.com/tinyxml/"
     topics = ("xml", "parser")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -28,7 +31,8 @@ class TinyXmlConan(ConanFile):
         "with_stl": False,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

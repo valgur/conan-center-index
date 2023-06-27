@@ -1,7 +1,6 @@
-#include <memory>
-#include <aws/core/Aws.h>
 #include <AwsSdkCppPlugin.h>
-
+#include <aws/core/Aws.h>
+#include <memory>
 
 int main() {
     using namespace Aws;
@@ -11,4 +10,3 @@ int main() {
     ShutdownAPI(options);
     return 0;
 }
-

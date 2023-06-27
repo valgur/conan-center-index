@@ -1,10 +1,9 @@
-#include <zzip/zzip.h>
 #include <zzip/plugin.h>
+#include <zzip/zzip.h>
 
 #include <stdio.h>
 
-int main()
-{
+int main() {
     zzip_plugin_io_t plugin = zzip_get_default_io();
 
     printf("zzip code 0 means %s\n", zzip_strerror(0));

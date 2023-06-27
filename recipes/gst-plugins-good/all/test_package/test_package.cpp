@@ -3,17 +3,15 @@
 
 #ifdef GST_PLUGINS_GOOD_STATIC
 
-extern "C"
-{
-    GST_PLUGIN_STATIC_DECLARE(wavparse);
+extern "C" {
+GST_PLUGIN_STATIC_DECLARE(wavparse);
 }
 
 #endif
 
 #include <iostream>
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
     gst_init(&argc, &argv);
 
 #ifdef GST_PLUGINS_GOOD_STATIC
@@ -22,7 +20,7 @@ int main(int argc, char * argv[])
 
 #endif
 
-    GstElement * wavparse = gst_element_factory_make("wavparse", NULL);
+    GstElement *wavparse = gst_element_factory_make("wavparse", NULL);
     if (!wavparse) {
         std::cerr << "failed to create wavparse element" << std::endl;
         return -1;

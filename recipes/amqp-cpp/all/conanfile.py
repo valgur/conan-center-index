@@ -12,11 +12,12 @@ required_conan_version = ">=1.53.0"
 
 class AmqpcppConan(ConanFile):
     name = "amqp-cpp"
+    description = "C++ library for asynchronous non-blocking communication with RabbitMQ"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CopernicaMarketingSoftware/AMQP-CPP"
     topics = ("amqp", "network", "queue")
-    license = "Apache-2.0"
-    description = "C++ library for asynchronous non-blocking communication with RabbitMQ"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -29,6 +30,22 @@ class AmqpcppConan(ConanFile):
         "fPIC": True,
         "linux_tcp_module": True,
     }
+
+    @property
+    def _min_cppstd(self):
+        return "11" if Version(self.version) < "4.3.20" else "17"
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "17": {
+                "gcc": "7.4",
+                "Visual Studio": "15.7",
+                "msvc": "191",
+                "clang": "6",
+                "apple-clang": "10",
+            }
+        }.get(self._min_cppstd, {})
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -48,22 +65,6 @@ class AmqpcppConan(ConanFile):
     def requirements(self):
         if self.options.get_safe("linux_tcp_module"):
             self.requires("openssl/[>=1.1 <4]")
-
-    @property
-    def _min_cppstd(self):
-        return "11" if Version(self.version) < "4.3.20" else "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                "gcc": "7.4",
-                "Visual Studio": "15.7",
-                "msvc": "191",
-                "clang": "6",
-                "apple-clang": "10",
-            },
-        }.get(self._min_cppstd, {})
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -100,6 +101,19 @@ class AmqpcppConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -110,19 +124,10 @@ class AmqpcppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"amqpcpp": "amqpcpp::amqpcpp"}
+            {
+                "amqpcpp": "amqpcpp::amqpcpp",
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

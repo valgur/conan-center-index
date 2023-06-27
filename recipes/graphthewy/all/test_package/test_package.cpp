@@ -1,8 +1,7 @@
-#include <graphthewy/GraphthewyModel.hpp>
 #include <graphthewy/GraphthewyCycle.hpp>
+#include <graphthewy/GraphthewyModel.hpp>
 
-int main(int argc, char** arvg)
-{
+int main(int argc, char **arvg) {
     graphthewy::UndirectedGraph<int>(g);
     g.addVertex(1);
     g.addVertex(2);
@@ -11,7 +10,7 @@ int main(int argc, char** arvg)
     g.link(2, 3);
     g.link(3, 1);
 
-    graphthewy::GraphCycle<graphthewy::UndirectedGraph, int>gc(g);
+    graphthewy::GraphCycle<graphthewy::UndirectedGraph, int> gc(g);
 
     return (gc.hasCycle() == true ? 0 : -1);
 }

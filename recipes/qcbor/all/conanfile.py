@@ -8,13 +8,19 @@ import re
 
 required_conan_version = ">=1.53.0"
 
+
 class QCBORConan(ConanFile):
     name = "qcbor"
-    description = "Comprehensive, powerful, commercial-quality CBOR encoder/decoder that is still suited for small devices."
+    description = (
+        "Comprehensive, powerful, commercial-quality CBOR encoder/decoder "
+        "that is still suited for small devices."
+    )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/laurencelundblade/QCBOR"
     topics = ("serialization", "cbor", "rfc-7049", "rfc-8949")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,7 +41,7 @@ class QCBORConan(ConanFile):
             del self.options.fPIC
 
         if Version(self.version) < "1.2":
-            del self.options.disable_float
+            self.options.rm_safe("disable_float")
 
     def configure(self):
         if self.options.shared:
@@ -43,18 +49,24 @@ class QCBORConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         if Version(self.version) >= "1.2":
-            tc.variables["QCBOR_OPT_DISABLE_FLOAT_HW_USE"] = self.options.disable_float in ["HW_USE", "PREFERRED", "ALL"]
-            tc.variables["QCBOR_OPT_DISABLE_FLOAT_PREFERRED"] = self.options.disable_float in ["PREFERRED", "ALL"]
+            tc.variables["QCBOR_OPT_DISABLE_FLOAT_HW_USE"] = self.options.disable_float in [
+                "HW_USE",
+                "PREFERRED",
+                "ALL",
+            ]
+            tc.variables["QCBOR_OPT_DISABLE_FLOAT_PREFERRED"] = self.options.disable_float in [
+                "PREFERRED",
+                "ALL",
+            ]
             tc.variables["QCBOR_OPT_DISABLE_FLOAT_ALL"] = self.options.disable_float == "ALL"
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
@@ -77,6 +89,7 @@ class QCBORConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["qcbor"]
-        if self.settings.os in ["Linux", "FreeBSD"] and \
-            (Version(self.version) < "1.2" or self.options.disable_float == False):
+        if self.settings.os in ["Linux", "FreeBSD"] and (
+            Version(self.version) < "1.2" or self.options.disable_float == False
+        ):
             self.cpp_info.system_libs.append("m")

@@ -10,13 +10,15 @@ required_conan_version = ">=1.53.0"
 
 class DracoConan(ConanFile):
     name = "draco"
-    description = "Draco is a library for compressing and decompressing 3D " \
-                  "geometric meshes and point clouds. It is intended to " \
-                  "improve the storage and transmission of 3D graphics."
+    description = (
+        "Draco is a library for compressing and decompressing 3D "
+        "geometric meshes and point clouds. It is intended to "
+        "improve the storage and transmission of 3D graphics."
+    )
     license = "Apache-2.0"
-    topics = ("draco", "3d", "graphics", "mesh", "compression", "decompression")
-    homepage = "https://google.github.io/draco/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://google.github.io/draco/"
+    topics = ("3d", "graphics", "mesh", "compression", "decompression")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -41,8 +43,6 @@ class DracoConan(ConanFile):
         "enable_backwards_compatibility": True,
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -54,8 +54,8 @@ class DracoConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.enable_mesh_compression:
-            del self.options.enable_standard_edgebreaker
-            del self.options.enable_predictive_edgebreaker
+            self.options.rm_safe("enable_standard_edgebreaker")
+            self.options.rm_safe("enable_predictive_edgebreaker")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

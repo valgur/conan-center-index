@@ -3,19 +3,17 @@
 using namespace Pistache;
 
 class HelloHandler : public Http::Handler {
-public:
-
+  public:
     HTTP_PROTOTYPE(HelloHandler)
 
-    void onRequest(const Http::Request& request, Http::ResponseWriter response) override{
+    void onRequest(const Http::Request &request, Http::ResponseWriter response) override {
         response.send(Pistache::Http::Code::Ok, "Hello World\n");
     }
 };
 
 int main() {
     Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
-    auto opts = Pistache::Http::Endpoint::options()
-        .threads(1);
+    auto opts = Pistache::Http::Endpoint::options().threads(1);
 
     Http::Endpoint server(addr);
     server.init(opts);
@@ -23,5 +21,5 @@ int main() {
     server.serveThreaded();
     server.shutdown();
 
-	return 0;
+    return 0;
 }

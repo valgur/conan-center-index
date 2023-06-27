@@ -11,10 +11,10 @@ required_conan_version = ">=1.54.0"
 class SnappyConan(ConanFile):
     name = "snappy"
     description = "A fast compressor/decompressor"
-    topics = ("google", "compressor", "decompressor")
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/snappy"
-    license = "BSD-3-Clause"
+    topics = ("google", "compressor", "decompressor")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -31,7 +31,7 @@ class SnappyConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):

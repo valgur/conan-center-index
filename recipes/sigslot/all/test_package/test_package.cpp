@@ -1,12 +1,12 @@
 // https://github.com/palacaze/sigslot/blob/master/example/basic.cpp
-#include <sigslot/signal.hpp>
 #include <iostream>
+#include <sigslot/signal.hpp>
 
 void f() { std::cout << "free function\n"; }
 
 struct s {
     void m() { std::cout << "member function\n"; }
-    static void sm() { std::cout << "static member function\n";  }
+    static void sm() { std::cout << "static member function\n"; }
 };
 
 struct o {
@@ -32,7 +32,7 @@ int main() {
     // on old GCC compilers
 #ifndef __clang__
 #if GCC_VERSION > 70300
-    auto gen_lambda = [](auto && ... /*a*/) { std::cout << "generic lambda\n"; };
+    auto gen_lambda = [](auto &&.../*a*/) { std::cout << "generic lambda\n"; };
     sig.connect(gen_lambda);
 #endif
 #endif

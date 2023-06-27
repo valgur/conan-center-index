@@ -1,22 +1,33 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, collect_libs, get, copy, replace_in_file, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    collect_libs,
+    get,
+    copy,
+    replace_in_file,
+    save,
+)
 from conan.tools.build import cross_building
 import os
 import textwrap
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class SzipConan(ConanFile):
     name = "szip"
-    description = "C Implementation of the extended-Rice lossless compression " \
-                  "algorithm, suitable for use with scientific data."
+    description = (
+        "C Implementation of the extended-Rice lossless compression algorithm, suitable for use with"
+        " scientific data."
+    )
     license = "Szip License"
-    topics = "compression", "decompression"
-    homepage = "https://support.hdfgroup.org/doc_resource/SZIP/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://support.hdfgroup.org/doc_resource/SZIP/"
+    topics = ("compression", "decompression")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -40,32 +51,15 @@ class SzipConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
-
-    def build(self):
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -83,6 +77,33 @@ class SzipConan(ConanFile):
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
 
+    def build(self):
+        apply_conandata_patches(self)
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set (CMAKE_POSITION_INDEPENDENT_CODE ON)",
+            "",
+        )
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                """\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """.format(
+                    alias=alias, aliased=aliased
+                )
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -90,19 +111,10 @@ class SzipConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"szip-shared" if self.options.shared else "szip-static": "szip::szip"}
+            {
+                "szip-shared" if self.options.shared else "szip-static": "szip::szip",
+            },
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -110,7 +122,9 @@ class SzipConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "szip")
-        self.cpp_info.set_property("cmake_target_name", "szip-shared" if self.options.shared else "szip-static")
+        self.cpp_info.set_property(
+            "cmake_target_name", "szip-shared" if self.options.shared else "szip-static"
+        )
         self.cpp_info.libs = collect_libs(self)
 
         if self.settings.os in ["Linux", "FreeBSD"]:

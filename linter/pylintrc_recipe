@@ -15,6 +15,11 @@ disable=fixme,
         missing-function-docstring,
         missing-class-docstring,
         invalid-name,
+        no-member,
+        unused-import,
+        reimported,
+        consider-using-f-string,
+        not-callable,
         wrong-import-order,  # TODO: Remove
         import-outside-toplevel  # TODO: Remove
 

@@ -2,7 +2,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 from conan.tools.scm import Version
 import os
 
@@ -12,10 +19,12 @@ required_conan_version = ">=1.54.0"
 class HighwayConan(ConanFile):
     name = "highway"
     description = "Performance-portable, length-agnostic SIMD with runtime dispatch"
-    topics = ("simd",)
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/highway"
+    topics = ("simd",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -48,7 +57,7 @@ class HighwayConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "0.16.0":
-            del self.options.shared
+            self.options.rm_safe("shared")
         elif self.options.shared:
             self.options.rm_safe("fPIC")
 
@@ -78,9 +87,9 @@ class HighwayConan(ConanFile):
         # Honor fPIC option
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)", "")
-        replace_in_file(self, cmakelists,
-                              "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)",
-                              "")
+        replace_in_file(
+            self, cmakelists, "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)", ""
+        )
 
     def build(self):
         self._patch_sources()

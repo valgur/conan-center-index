@@ -6,9 +6,7 @@ using namespace physx;
 #if defined(_WINDOWS)
 #include <windows.h>
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID    lpvReserved) {
-    return TRUE;
-}
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) { return TRUE; }
 
 #define EXPORTS __declspec(dllexport)
 #else

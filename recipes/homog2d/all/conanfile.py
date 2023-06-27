@@ -8,14 +8,21 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class Homog2dConan(ConanFile):
     name = "homog2d"
-    description = "C++ 2D geometry library, handles points, lines, polylines, planar transformations(and other primitives), using homogeneous coordinates."
+    description = (
+        "C++ 2D geometry library, handles points, lines, polylines, "
+        "planar transformations (and other primitives), using homogeneous coordinates."
+    )
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/skramm/homog2d"
     topics = ("computational-geometry", "homography", "2d-geometric", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -56,7 +63,9 @@ class Homog2dConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="homog2d.hpp",

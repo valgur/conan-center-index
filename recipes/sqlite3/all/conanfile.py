@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan.tools.files import get, load, save, copy
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -17,6 +17,7 @@ class Sqlite3Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.sqlite.org"
     topics = ("sqlite", "database", "sql", "serverless")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -70,25 +71,26 @@ class Sqlite3Conan(ConanFile):
         "enable_unlock_notify": True,
         "enable_default_secure_delete": False,
         "disable_gethostuuid": False,
-        "max_column": None,             # Uses default value from source
-        "max_variable_number": None,    # Uses default value from source
-        "max_blob_size": None,          # Uses default value from source
+        "max_column": None,  # Uses default value from source
+        "max_variable_number": None,  # Uses default value from source
+        "max_blob_size": None,  # Uses default value from source
         "build_executable": True,
         "enable_default_vfs": True,
         "enable_dbpage_vtab": False,
     }
 
-    exports_sources = "CMakeLists.txt"
-
     @property
     def _has_enable_math_function_option(self):
         return Version(self.version) >= "3.35.0"
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_enable_math_function_option:
-            del self.options.enable_math_functions
+            self.options.rm_safe("enable_math_functions")
 
     def configure(self):
         if self.options.shared:
@@ -103,7 +105,9 @@ class Sqlite3Conan(ConanFile):
         if self.options.build_executable:
             if not self.options.enable_default_vfs:
                 # Need to provide custom VFS code: https://www.sqlite.org/custombuild.html
-                raise ConanInvalidConfiguration("build_executable=True cannot be combined with enable_default_vfs=False")
+                raise ConanInvalidConfiguration(
+                    "build_executable=True cannot be combined with enable_default_vfs=False"
+                )
             if self.options.omit_load_extension:
                 raise ConanInvalidConfiguration("build_executable=True requires omit_load_extension=True")
 
@@ -137,7 +141,9 @@ class Sqlite3Conan(ConanFile):
         tc.variables["HAVE_FDATASYNC"] = True
         tc.variables["HAVE_GMTIME_R"] = True
         tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows"
-        tc.variables["HAVE_POSIX_FALLOCATE"] = not (self.settings.os in ["Windows", "Android"] or is_apple_os(self))
+        tc.variables["HAVE_POSIX_FALLOCATE"] = not (
+            self.settings.os in ["Windows", "Android"] or is_apple_os(self)
+        )
         tc.variables["HAVE_STRERROR_R"] = True
         tc.variables["HAVE_USLEEP"] = True
         tc.variables["DISABLE_GETHOSTUUID"] = self.options.disable_gethostuuid
@@ -158,7 +164,7 @@ class Sqlite3Conan(ConanFile):
 
     def _extract_license(self):
         header = load(self, os.path.join(self.source_folder, "sqlite3.h"))
-        license_content = header[3:header.find("***", 1)]
+        license_content = header[3 : header.find("***", 1)]
         return license_content
 
     def package(self):
@@ -168,9 +174,7 @@ class Sqlite3Conan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         #       Indeed CMakeDeps uses 'cmake_file_name' property to qualify CMake variables
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\

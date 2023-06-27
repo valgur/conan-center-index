@@ -22,8 +22,8 @@
 #include <string>
 #include <thread>
 
-#include <grpcpp/grpcpp.h>
 #include "helloworld.grpc.pb.h"
+#include <grpcpp/grpcpp.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -31,92 +31,90 @@ using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
-using helloworld::HelloRequest;
-using helloworld::HelloReply;
 using helloworld::Greeter;
+using helloworld::HelloReply;
+using helloworld::HelloRequest;
 
 class GreeterClient {
- public:
-  GreeterClient(std::shared_ptr<Channel> channel)
-      : stub_(Greeter::NewStub(channel)) {}
+  public:
+    GreeterClient(std::shared_ptr<Channel> channel) : stub_(Greeter::NewStub(channel)) {}
 
-  // Assembles the client's payload, sends it and presents the response back
-  // from the server.
-  std::string SayHello(const std::string& user) {
-    // Data we are sending to the server.
-    HelloRequest request;
-    request.set_name(user);
+    // Assembles the client's payload, sends it and presents the response back
+    // from the server.
+    std::string SayHello(const std::string &user) {
+        // Data we are sending to the server.
+        HelloRequest request;
+        request.set_name(user);
 
-    // Container for the data we expect from the server.
-    HelloReply reply;
+        // Container for the data we expect from the server.
+        HelloReply reply;
 
-    // Context for the client. It could be used to convey extra information to
-    // the server and/or tweak certain RPC behaviors.
-    ClientContext context;
+        // Context for the client. It could be used to convey extra information to
+        // the server and/or tweak certain RPC behaviors.
+        ClientContext context;
 
-    // The actual RPC.
-    Status status = stub_->SayHello(&context, request, &reply);
+        // The actual RPC.
+        Status status = stub_->SayHello(&context, request, &reply);
 
-    // Act upon its status.
-    if (status.ok()) {
-      return reply.message();
-    } else {
-      std::cout << status.error_code() << ": " << status.error_message()
-                << std::endl;
-      return "RPC failed";
+        // Act upon its status.
+        if (status.ok()) {
+            return reply.message();
+        } else {
+            std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+            return "RPC failed";
+        }
     }
-  }
 
- private:
-  std::unique_ptr<Greeter::Stub> stub_;
+  private:
+    std::unique_ptr<Greeter::Stub> stub_;
 };
 
 // Logic and data behind the server's behavior.
 class GreeterServiceImpl final : public Greeter::Service {
-  Status SayHello(ServerContext* context, const HelloRequest* request,
-                  HelloReply* reply) override {
-    std::string prefix("Hello ");
-    reply->set_message(prefix + request->name());
-    return Status::OK;
-  }
+    Status SayHello(ServerContext *context, const HelloRequest *request,
+                    HelloReply *reply) override {
+        std::string prefix("Hello ");
+        reply->set_message(prefix + request->name());
+        return Status::OK;
+    }
 };
 
-int main(int argc, char** argv) {
-  std::string server_address("127.0.0.1:0");
-  GreeterServiceImpl service;
+int main() {
+    std::string server_address("127.0.0.1:0");
+    GreeterServiceImpl service;
 
-  ServerBuilder builder;
-  int selected_port = 0;
-  // Listen on the given address without any authentication mechanism.
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials(), &selected_port);
-  // Register "service" as the instance through which we'll communicate with
-  // clients. In this case it corresponds to an *synchronous* service.
-  builder.RegisterService(&service);
+    ServerBuilder builder;
+    int selected_port = 0;
+    // Listen on the given address without any authentication mechanism.
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials(), &selected_port);
+    // Register "service" as the instance through which we'll communicate with
+    // clients. In this case it corresponds to an *synchronous* service.
+    builder.RegisterService(&service);
 
-  // Finally assemble the server.
+    // Finally assemble the server.
 #ifdef TEST_ACTUAL_SERVER
-  std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::thread serverThread([&](){
-    std::cout << "Server listening on 127.0.0.1:" << selected_port << std::endl;
-    server->Wait();
-    std::cout << "Server closed" << std::endl;
-  });
+    std::unique_ptr<Server> server(builder.BuildAndStart());
+    std::thread serverThread([&]() {
+        std::cout << "Server listening on 127.0.0.1:" << selected_port << std::endl;
+        server->Wait();
+        std::cout << "Server closed" << std::endl;
+    });
 #endif
 
-  // Instantiate the client. It requires a channel, out of which the actual RPCs
-  // are created. This channel models a connection to an endpoint (in this case,
-  // localhost at the selected port). We indicate that the channel isn't
-  // authenticated (use of InsecureChannelCredentials()).
-  std::ostringstream addr;
-  addr << "localhost:" << selected_port;
-  GreeterClient greeter(grpc::CreateChannel(addr.str(), grpc::InsecureChannelCredentials()));
-  std::string user("world");
-  std::string reply = greeter.SayHello(user);
-  std::cout << "Greeter received: " << reply << std::endl;
+    // Instantiate the client. It requires a channel, out of which the actual RPCs
+    // are created. This channel models a connection to an endpoint (in this case,
+    // localhost at the selected port). We indicate that the channel isn't
+    // authenticated (use of InsecureChannelCredentials()).
+    std::ostringstream addr;
+    addr << "localhost:" << selected_port;
+    GreeterClient greeter(grpc::CreateChannel(addr.str(), grpc::InsecureChannelCredentials()));
+    std::string user("world");
+    std::string reply = greeter.SayHello(user);
+    std::cout << "Greeter received: " << reply << std::endl;
 
 #ifdef TEST_ACTUAL_SERVER
-  server->Shutdown();
-  serverThread.join();
+    server->Shutdown();
+    serverThread.join();
 #endif
-  return 0;
+    return 0;
 }

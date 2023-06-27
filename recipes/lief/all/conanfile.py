@@ -10,6 +10,7 @@ import os
 
 required_conan_version = ">=1.57.0"
 
+
 class LiefConan(ConanFile):
     name = "lief"
     description = "Library to Instrument Executable Formats"
@@ -61,7 +62,7 @@ class LiefConan(ConanFile):
                 "apple-clang": "10",
                 "Visual Studio": "15",
                 "msvc": "191",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -103,7 +104,9 @@ class LiefConan(ConanFile):
             )
 
         if self.options.shared and is_msvc(self) and not check_min_vs(self, "191", raise_invalid=False):
-            raise ConanInvalidConfiguration(f"{self.ref} does not support Visual Studio < 15 with shared:True")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support Visual Studio < 15 with shared:True"
+            )
 
         if self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} does not support libstdc++")
@@ -139,8 +142,12 @@ class LiefConan(ConanFile):
             tc.variables["LIEF_OPT_EXTERNAL_SPAN"] = True
         if Version(self.version) >= "0.13.0":
             tc.variables["LIEF_INSTALL"] = True
-            tc.variables["LIEF_EXTERNAL_SPAN_DIR"] = self.dependencies["tcb-span"].cpp_info.includedirs[0].replace("\\", "/")
-            tc.variables["LIEF_EXTERNAL_LEAF_DIR"] = self.dependencies["boost"].cpp_info.includedirs[0].replace("\\", "/")
+            tc.variables["LIEF_EXTERNAL_SPAN_DIR"] = (
+                self.dependencies["tcb-span"].cpp_info.includedirs[0].replace("\\", "/")
+            )
+            tc.variables["LIEF_EXTERNAL_LEAF_DIR"] = (
+                self.dependencies["boost"].cpp_info.includedirs[0].replace("\\", "/")
+            )
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -153,7 +160,9 @@ class LiefConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

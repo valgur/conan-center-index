@@ -13,10 +13,11 @@ required_conan_version = ">=1.53.0"
 class LibuuidConan(ConanFile):
     name = "libuuid"
     description = "Portable uuid C library"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/libuuid/"
-    license = "BSD-3-Clause"
-    topics = "id", "identifier", "unique", "uuid"
+    topics = ("id", "identifier", "unique", "uuid")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

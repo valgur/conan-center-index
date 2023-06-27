@@ -10,9 +10,9 @@ class TinyregexcConan(ConanFile):
     name = "tiny-regex-c"
     description = "Small and portable Regular Expression (regex) library written in C."
     license = "Unlicense"
-    topics = ("regex",)
-    homepage = "https://github.com/kokke/tiny-regex-c"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kokke/tiny-regex-c"
+    topics = ("regex",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -27,7 +27,8 @@ class TinyregexcConan(ConanFile):
         "dot_matches_newline": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -63,4 +64,6 @@ class TinyregexcConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["tiny-regex-c"]
-        self.cpp_info.defines = ["RE_DOT_MATCHES_NEWLINE={}".format("1" if self.options.dot_matches_newline else "0")]
+        self.cpp_info.defines = [
+            "RE_DOT_MATCHES_NEWLINE={}".format("1" if self.options.dot_matches_newline else "0")
+        ]

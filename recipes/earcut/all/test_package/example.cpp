@@ -4,8 +4,7 @@
 #include <vector>
 
 /// The example below is taken directly from https://github.com/mapbox/earcut.hpp#usage.
-int main(int, char **)
-{
+int main(int, char **) {
     // The number type to use for tessellation
     using Coord = double;
 

@@ -34,7 +34,9 @@ class TestPackageConan(ConanFile):
         pkg_config_deps = PkgConfigDeps(self)
         if self._has_build_profile:
             pkg_config_deps.build_context_activated = ["wayland"]
-            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
+            pkg_config_deps.build_context_suffix = {
+                "wayland": "_BUILD",
+            }
         pkg_config_deps.generate()
         virtual_build_env = VirtualBuildEnv(self)
         virtual_build_env.generate()

@@ -10,9 +10,11 @@ class ClipperConan(ConanFile):
     name = "clipper"
     description = "Clipper is an open source freeware polygon clipping library"
     license = "BSL-1.0"
-    topics = ("clipping", "polygon")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.angusj.com/delphi/clipper.php"
+    topics = ("clipping", "polygon")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -38,7 +40,7 @@ class ClipperConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

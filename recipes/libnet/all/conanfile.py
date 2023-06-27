@@ -15,10 +15,12 @@ required_conan_version = ">=1.53.0"
 class LibnetConan(ConanFile):
     name = "libnet"
     description = "Libnet is an API to help with the construction and injection of network packets."
-    topics = ("network")
+    license = ["BSD-2-Clause"]
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://libnet.sourceforge.net/"
-    license = ["BSD-2-Clause"]
+    topics = ("network",)
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -59,8 +61,7 @@ class LibnetConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -76,7 +77,7 @@ class LibnetConan(ConanFile):
                 link_layer = "bpf"
             else:
                 raise ConanException(
-                    f"link-layer unknown for {self.settings.os}, feel free to contribute to libnet recipe",
+                    f"link-layer unknown for {self.settings.os}, feel free to contribute to libnet recipe"
                 )
             tc.configure_args.append(f"--with-link-layer={link_layer}")
         tc.generate()

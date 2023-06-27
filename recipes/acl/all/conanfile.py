@@ -13,10 +13,11 @@ required_conan_version = ">=1.53.0"
 class AclConan(ConanFile):
     name = "acl"
     description = "Commands for Manipulating POSIX Access Control Lists"
-    topics = ("posix",)
     license = "GPL-2.0-or-later"
-    homepage = "https://savannah.nongnu.org/projects/acl/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://savannah.nongnu.org/projects/acl/"
+    topics = ("posix",)
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -62,7 +63,12 @@ class AclConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=os.path.join(self.source_folder, "doc"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING",
+            src=os.path.join(self.source_folder, "doc"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

@@ -1,5 +1,3 @@
 #include "ade/graph.hpp"
 
-int main() {
-  ade::Graph graph;
-}
+int main() { ade::Graph graph; }

@@ -1,8 +1,7 @@
-#include <jinja2cpp/template.h>
 #include <iostream>
+#include <jinja2cpp/template.h>
 
-int main()
-{
+int main() {
     std::string source = R"(
 {{ ("Hello", 'world') | join }}!!!
 {{ ("Hello", 'world') | join(', ') }}!!!

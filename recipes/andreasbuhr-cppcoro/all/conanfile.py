@@ -1,22 +1,102 @@
-import os
-from conans import ConanFile, tools, CMake
-from conans.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.33.0"
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+
+required_conan_version = ">=1.53.0"
+
 
 class AndreasbuhrCppCoroConan(ConanFile):
     name = "andreasbuhr-cppcoro"
     description = "A library of C++ coroutine abstractions for the coroutines TS"
-    topics = ("conan", "cpp", "async", "coroutines")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andreasbuhr/cppcoro"
-    license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
-    provides = "cppcoro"
+    topics = ("cpp", "async", "coroutines")
 
-    exports_sources = "CMakeLists.txt"
-    generators = "cmake"
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -25,12 +105,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    _cmake = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    provides = "cppcoro"
 
     @property
     def _minimum_compilers_version(self):
@@ -45,47 +120,60 @@ class AndreasbuhrCppCoroConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def validate(self):
         # We can't simply check for C++20, because clang and MSVC support the coroutine TS despite not having labeled (__cplusplus macro) C++20 support
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn("{} recipe lacks information about the {} compiler support.".format(
-                self.name, self.settings.compiler))
+            self.output.warn(
+                "{} recipe lacks information about the {} compiler support.".format(
+                    self.name, self.settings.compiler
+                )
+            )
         else:
-            if tools.Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration("{} requires coroutine TS support. The current compiler {} {} does not support it.".format(
-                    self.name, self.settings.compiler, self.settings.compiler.version))
+            if Version(self.settings.compiler.version) < min_version:
+                raise ConanInvalidConfiguration(
+                    "{} requires coroutine TS support. The current compiler {} {} does not support it.".format(
+                        self.name, self.settings.compiler, self.settings.compiler.version
+                    )
+                )
 
         # Currently clang expects coroutine to be implemented in a certain way (under std::experiemental::), while libstdc++ puts them under std::
         # There are also other inconsistencies, see https://bugs.llvm.org/show_bug.cgi?id=48172
         # This should be removed after both gcc and clang implements the final coroutine TS
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libstdc++":
-            raise ConanInvalidConfiguration("{} does not support clang with libstdc++. Use libc++ instead.".format(self.name))
-
-    def configure(self):
-        if self.options.shared:
-            del self.options.fPIC
+            raise ConanInvalidConfiguration(
+                "{} does not support clang with libstdc++. Use libc++ instead.".format(self.name)
+            )
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version], destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_cmake(self):
-        if not self._cmake:
-            self._cmake = CMake(self)
-            if self.settings.os == "Windows" and self.options.shared:
-                self._cmake.definitions["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = "ON"
-            self._cmake.configure()
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = (
+            self.settings.os == "Windows" and self.options.shared
+        )
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("LICENSE.txt", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        cmake = CMake(self)
         cmake.install()
-        tools.rmdir(os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "cppcoro"

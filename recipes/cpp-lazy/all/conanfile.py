@@ -9,6 +9,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class CpplazyConan(ConanFile):
     name = "cpp-lazy"
     description = "C++11/14/17/20 library for lazy evaluation "
@@ -16,6 +17,8 @@ class CpplazyConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/MarcDirven/cpp-lazy"
     topics = ("lazy evaluation", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -40,13 +43,18 @@ class CpplazyConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support apple-clang < 14.0.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         copy(
             self,
             pattern="*.hpp",

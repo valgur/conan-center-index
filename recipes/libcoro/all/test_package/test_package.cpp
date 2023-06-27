@@ -2,14 +2,12 @@
 #include <cstdint>
 #include <iostream>
 
-int main()
-{
+int main() {
     auto task = []() -> coro::task<void> {
         auto fibonacci = []() -> coro::generator<int> {
             int a = 0;
             int b = 1;
-            while (true)
-            {
+            while (true) {
                 co_yield b;
                 int tmp = a;
                 a = b;
@@ -18,12 +16,10 @@ int main()
         };
 
         size_t i = 0;
-        for (int x : fibonacci())
-        {
+        for (int x : fibonacci()) {
             std::cout << x << std::endl;
 
-            if (i++ == 10)
-            {
+            if (i++ == 10) {
                 break;
             }
         }

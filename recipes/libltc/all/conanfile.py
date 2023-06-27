@@ -12,11 +12,12 @@ required_conan_version = ">=1.57.0"
 
 class LibltcConan(ConanFile):
     name = "libltc"
+    description = "Linear/Longitudinal Time Code (LTC) Library"
+    license = "LGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://x42.github.io/libltc/"
-    description = "Linear/Longitudinal Time Code (LTC) Library"
     topics = ("timecode", "smpte", "ltc")
-    license = "LGPL-3.0"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -33,7 +34,7 @@ class LibltcConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
@@ -65,8 +66,12 @@ class LibltcConan(ConanFile):
             tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
-            compile_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper"))
-            lib_wrapper = unix_path(self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper"))
+            compile_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper")
+            )
+            lib_wrapper = unix_path(
+                self, self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
+            )
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("AR", f"{lib_wrapper} lib")
@@ -87,8 +92,11 @@ class LibltcConan(ConanFile):
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
         if is_msvc(self) and self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
-                         os.path.join(self.package_folder, "lib", "ltc.lib"))
+            rename(
+                self,
+                os.path.join(self.package_folder, "lib", "ltc.dll.lib"),
+                os.path.join(self.package_folder, "lib", "ltc.lib"),
+            )
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "ltc")

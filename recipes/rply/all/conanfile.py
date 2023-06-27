@@ -10,10 +10,11 @@ class RplyConan(ConanFile):
     name = "rply"
     description = "ANSI C Library for PLY file format input and output"
     license = "MIT"
-    topics = ("ply", "3d", "reader", "writer")
-    homepage = "https://w3.impa.br/~diego/software/rply"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://w3.impa.br/~diego/software/rply"
+    topics = ("ply", "3d", "reader", "writer")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,7 +25,8 @@ class RplyConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -40,8 +42,7 @@ class RplyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

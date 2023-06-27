@@ -1,54 +1,61 @@
-from conans import AutoToolsBuildEnvironment
-from conan import ConanFile
-from conan.tools.files import get, patch, chdir, rmdir, copy
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
+# TODO: verify the Conan v2 migration
+
 import os
 
-required_conan_version = ">=1.33.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import apply_conandata_patches, export_conandata_patches
+from conan.tools.files import get, chdir, rmdir, copy
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.53.0"
 
 
 class LiburingConan(ConanFile):
     name = "liburing"
+    description = (
+        "helpers to setup and teardown io_uring instances, and also a "
+        "simplified interface for applications that don't need (or want) "
+        "to deal with the full kernel side implementation."
+    )
     license = "GPL-2.0-or-later"
-    homepage = "https://github.com/axboe/liburing"
     url = "https://github.com/conan-io/conan-center-index"
-    description = ("helpers to setup and teardown io_uring instances, and also a simplified interface for "
-                   "applications that don't need (or want) to deal with the full kernel side implementation.")
+    homepage = "https://github.com/axboe/liburing"
     topics = ("asynchronous-io", "async", "kernel")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "with_libc": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "with_libc": True,
     }
 
-    exports_sources = ["patches/*"]
-
-    _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2.2":
-            del self.options.with_libc
+            self.options.rm_safe("with_libc")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("linux-headers-generic/5.13.9")
@@ -57,44 +64,32 @@ class LiburingConan(ConanFile):
         # FIXME: use kernel version of build/host machine.
         # kernel version should be encoded in profile
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration(
-                "liburing is supported only on linux")
+            raise ConanInvalidConfiguration("liburing is supported only on linux")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-              destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-
-        self._autotools = AutoToolsBuildEnvironment(self)
-        args = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         if self.options.get_safe("with_libc") == False:
-            args.append("--nolibc")
-        self._autotools.configure(args=args)
-        self._autotools.flags.append("-std=gnu99")
-        return self._autotools
-
-    def _patch_sources(self):
-        for data in self.conan_data.get("patches", {}).get(self.version, []):
-            patch(self, **data)
+            tc.configure_args.append("--nolibc")
+        tc.extra_cflags.append("-std=gnu99")
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        with chdir(self, self._source_subfolder):
-            autotools = self._configure_autotools()
+        apply_conandata_patches(self)
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE", src=self._source_subfolder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
-        with chdir(self, self._source_subfolder):
-            autotools = self._configure_autotools()
-            install_args = [
-                "ENABLE_SHARED={}".format(1 if self.options.shared else 0)
-            ]
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            install_args = [f"ENABLE_SHARED={1 if self.options.shared else 0}"]
             autotools.install(args=install_args)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

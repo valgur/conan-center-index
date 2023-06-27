@@ -1,7 +1,16 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename, rm, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    copy,
+    export_conandata_patches,
+    get,
+    rename,
+    rm,
+    rmdir,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
@@ -12,11 +21,16 @@ required_conan_version = ">=1.55.0"
 
 class Argtable2Conan(ConanFile):
     name = "argtable2"
-    description = "Argtable is an ANSI C library for parsing GNU style command line options with a minimum of fuss."
-    topics = ("argument", "parsing", "getopt")
+    description = (
+        "Argtable is an ANSI C library for parsing GNU style"
+        " command line options with a minimum of fuss."
+    )
     license = "LGPL-2.0+"
-    homepage = "http://argtable.sourceforge.net/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://argtable.sourceforge.net/"
+    topics = ("argument", "parsing", "getopt")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -80,7 +94,12 @@ class Argtable2Conan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(
+                        self,
+                        os.path.basename(gnu_config),
+                        src=os.path.dirname(gnu_config),
+                        dst=self.source_folder,
+                    )
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
@@ -89,12 +108,33 @@ class Argtable2Conan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_folder = os.path.join(self.source_folder, "src")
-            copy(self, "*.lib", src=output_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "argtable2.h", src=output_folder, dst=os.path.join(self.package_folder, "include"), keep_path=False)
+            copy(
+                self,
+                "*.lib",
+                src=output_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "*.dll",
+                src=output_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+            copy(
+                self,
+                "argtable2.h",
+                src=output_folder,
+                dst=os.path.join(self.package_folder, "include"),
+                keep_path=False,
+            )
             if self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "impargtable2.lib"),
-                             os.path.join(self.package_folder, "lib", "argtable2.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", "impargtable2.lib"),
+                    os.path.join(self.package_folder, "lib", "argtable2.lib"),
+                )
         else:
             autotools = Autotools(self)
             autotools.install()

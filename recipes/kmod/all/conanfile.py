@@ -13,13 +13,16 @@ required_conan_version = ">=1.53.0"
 class KModConan(ConanFile):
     name = "kmod"
     description = "linux kernel module handling library"
-    topics = ("libkmod", "linux", "kernel", "module")
+    license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kmod-project/kmod"
-    license = "LGPL-2.1-only"
+    topics = ("libkmod", "linux", "kernel", "module")
+
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "with_zstd": [True, False],
         "with_xz": [True, False],
         "with_zlib": [True, False],
@@ -28,6 +31,8 @@ class KModConan(ConanFile):
         "logging": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "with_zstd": True,
         "with_xz": True,
         "with_zlib": True,

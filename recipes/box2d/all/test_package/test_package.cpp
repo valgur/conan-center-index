@@ -1,5 +1,5 @@
-#include <iostream>
 #include <Box2D/Box2D.h>
+#include <iostream>
 
 #include <stdio.h>
 
@@ -8,8 +8,7 @@
 // box.
 // There are no graphics for this example. Box2D is meant to be used
 // with your rendering engine in your game engine.
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     B2_NOT_USED(argc);
     B2_NOT_USED(argv);
 
@@ -68,8 +67,7 @@ int main(int argc, char **argv)
     int32 positionIterations = 2;
 
     // This is our little game loop.
-    for (int32 i = 0; i < 60; ++i)
-    {
+    for (int32 i = 0; i < 60; ++i) {
         // Instruct the world to perform a single step of simulation.
         // It is generally best to keep the time step and iterations fixed.
         world.Step(timeStep, velocityIterations, positionIterations);

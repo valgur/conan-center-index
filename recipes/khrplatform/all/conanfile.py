@@ -8,11 +8,13 @@ required_conan_version = ">=1.50.0"
 
 class KhrplatformConan(ConanFile):
     name = "khrplatform"
+    description = "Khronos EGL platform interfaces"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.khronos.org/registry/EGL/"
-    description = "Khronos EGL platform interfaces"
-    topics = ("opengl", "gl", "egl", "khr", "khronos")
+    topics = ("opengl", "gl", "egl", "khr", "khronos", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -36,7 +38,12 @@ class KhrplatformConan(ConanFile):
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        copy(self, "khrplatform.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "KHR"))
+        copy(
+            self,
+            "khrplatform.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include", "KHR"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

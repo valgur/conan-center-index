@@ -13,13 +13,13 @@ required_conan_version = ">=1.54.0"
 
 class CeressolverConan(ConanFile):
     name = "ceres-solver"
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://ceres-solver.org/"
     description = (
         "Ceres Solver is an open source C++ library for modeling "
         "and solving large, complicated optimization problems"
     )
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://ceres-solver.org/"
     topics = ("optimization", "non-linear least squares")
 
     package_type = "library"
@@ -27,7 +27,8 @@ class CeressolverConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "use_glog":  [True, False], #TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
+        # TODO Set to true once gflags with nothreads=False binaries are available. Using MINILOG has a big performance drawback.
+        "use_glog": [True, False],
         "use_gflags": [True, False, "deprecated"],
         "use_custom_blas": [True, False],
         "use_eigen_sparse": [True, False],
@@ -62,7 +63,7 @@ class CeressolverConan(ConanFile):
                 "gcc": "5",
                 "msvc": "190",
                 "Visual Studio": "14",
-            },
+            }
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -72,9 +73,9 @@ class CeressolverConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "2.0":
-            del self.options.use_TBB
-            del self.options.use_CXX11_threads
-            del self.options.use_CXX11
+            self.options.rm_safe("use_TBB")
+            self.options.rm_safe("use_CXX11_threads")
+            self.options.rm_safe("use_CXX11")
 
     def configure(self):
         if self.options.shared:
@@ -102,7 +103,7 @@ class CeressolverConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -111,7 +112,7 @@ class CeressolverConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["MINIGLOG"] = not self.options.use_glog
-        tc.variables["GFLAGS"] = False # useless for the lib itself, gflags is not a direct dependency
+        tc.variables["GFLAGS"] = False  # useless for the lib itself, gflags is not a direct dependency
         tc.variables["SUITESPARSE"] = False
         tc.variables["CXSPARSE"] = False
         tc.variables["LAPACK"] = False
@@ -165,7 +166,9 @@ class CeressolverConan(ConanFile):
         self.cpp_info.components["ceres"].libs = [f"ceres{libsuffix}"]
         self.cpp_info.components["ceres"].includedirs.append(os.path.join("include", "ceres"))
         if not self.options.use_glog:
-            self.cpp_info.components["ceres"].includedirs.append(os.path.join("include", "ceres", "internal", "miniglog"))
+            self.cpp_info.components["ceres"].includedirs.append(
+                os.path.join("include", "ceres", "internal", "miniglog")
+            )
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ceres"].system_libs.append("m")
             if self.options.get_safe("use_CXX11_threads", True):

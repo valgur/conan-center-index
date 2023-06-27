@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.52.0"
 
+
 class Im95ableReaConan(ConanFile):
     name = "im95able-rea"
     description = (
@@ -18,7 +19,10 @@ class Im95ableReaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/im95able/Rea/"
     topics = ("slot_map", "slot_list", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -59,7 +63,9 @@ class Im95ableReaConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         copy(
             self,
             pattern="*.h",

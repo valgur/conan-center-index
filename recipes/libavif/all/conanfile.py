@@ -1,6 +1,14 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+    save,
+)
 import os
 import textwrap
 
@@ -13,7 +21,8 @@ class LibAVIFConan(ConanFile):
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AOMediaCodec/libavif"
-    topics = ("avif")
+    topics = "avif"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -53,8 +62,7 @@ class LibAVIFConan(ConanFile):
             self.requires("dav1d/1.0.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,11 +80,17 @@ class LibAVIFConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(libyuv QUIET)", "find_package(libyuv REQUIRED CONFIG)")
+        replace_in_file(
+            self, cmakelists, "find_package(libyuv QUIET)", "find_package(libyuv REQUIRED CONFIG)"
+        )
         replace_in_file(self, cmakelists, "${LIBYUV_LIBRARY}", "libyuv::libyuv")
-        replace_in_file(self, cmakelists, "find_package(dav1d REQUIRED)", "find_package(dav1d REQUIRED CONFIG)")
+        replace_in_file(
+            self, cmakelists, "find_package(dav1d REQUIRED)", "find_package(dav1d REQUIRED CONFIG)"
+        )
         replace_in_file(self, cmakelists, "${DAV1D_LIBRARY}", "dav1d::dav1d")
-        replace_in_file(self, cmakelists, "find_package(aom REQUIRED)", "find_package(libaom-av1 REQUIRED CONFIG)")
+        replace_in_file(
+            self, cmakelists, "find_package(aom REQUIRED)", "find_package(libaom-av1 REQUIRED CONFIG)"
+        )
         replace_in_file(self, cmakelists, "${AOM_LIBRARIES}", "libaom-av1::libaom-av1")
 
     def build(self):
@@ -98,7 +112,8 @@ class LibAVIFConan(ConanFile):
 
         # TODO: remove in conan v2
         alias = os.path.join(self.package_folder, self._alias_path)
-        content = textwrap.dedent("""\
+        content = textwrap.dedent(
+            """\
             if(TARGET avif::avif AND NOT TARGET avif)
                 add_library(avif INTERFACE IMPORTED)
                 set_property(
@@ -106,7 +121,8 @@ class LibAVIFConan(ConanFile):
                     INTERFACE_LINK_LIBRARIES avif::avif
                 )
             endif()
-        """)
+        """
+        )
         save(self, alias, content)
 
     def package_info(self):
@@ -132,6 +148,4 @@ class LibAVIFConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package"] = "libavif"
         self.cpp_info.filenames["cmake_find_package_multi"] = "libavif"
         self.cpp_info.build_modules["cmake_find_package"] = [self._alias_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = \
-            [self._alias_path]
-
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._alias_path]

@@ -7,13 +7,14 @@ from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
 
+
 class TzConan(ConanFile):
     name = "tz"
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.iana.org/time-zones"
     description = "The Time Zone Database contains data that represent the history of local time for many representative locations around the globe."
-    topics = ("tz", "tzdb", "time", "zone", "date")
+    topics = ("tzdb", "time", "zone", "date")
     settings = "os", "build_type", "arch", "compiler"
 
     @property
@@ -46,7 +47,9 @@ class TzConan(ConanFile):
 
     def _patch_sources(self):
         # INFO: The Makefile enforces /usr/bin/awk, but we want to use tool requirements
-        awk_path = os.path.join(self.dependencies.direct_build['mawk'].package_folder, "bin", "mawk").replace("\\", "/")
+        awk_path = os.path.join(self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk").replace(
+            "\\", "/"
+        )
         replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "AWK=		awk", f"AWK={awk_path}")
 
     def build(self):
@@ -57,7 +60,7 @@ class TzConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         autotools = Autotools(self)
-        destdir = self.package_folder.replace('\\', '/')
+        destdir = self.package_folder.replace("\\", "/")
         autotools.install(args=["-C", self.source_folder.replace("\\", "/"), f"DESTDIR={destdir}"])
         rmdir(self, os.path.join(self.package_folder, "usr", "share", "man"))
         # INFO: The library does not have a public API, it's used to build the zic and zdump tools

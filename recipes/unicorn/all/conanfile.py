@@ -1,3 +1,9 @@
+# Warnings:
+#   Unexpected method '_all_supported_archs'
+#   Unexpected method '_needs_jwasm'
+#   Unexpected method '_jwasm_wrapper'
+#   Unexpected method '_supported_archs'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -15,21 +21,35 @@ required_conan_version = ">=1.54.0"
 class UnicornConan(ConanFile):
     name = "unicorn"
     description = "Unicorn is a lightweight multi-platform, multi-architecture CPU emulator framework."
-    topics = ("emulator", "security", "arm", "framework", "cpu", "mips", "x86-64", "reverse-engineering", "x86", "arm64", "sparc", "m68k")
-    homepage = "https://www.unicorn-engine.org/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = ("GPL-2-or-later", "LGPL-2-or-later")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.unicorn-engine.org/"
+    topics = (
+        "emulator",
+        "security",
+        "arm",
+        "framework",
+        "cpu",
+        "mips",
+        "x86-64",
+        "reverse-engineering",
+        "x86",
+        "arm64",
+        "sparc",
+        "m68k",
+    )
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "supported_archs": ["ANY"],  # comma-separated list of archs
+        "supported_archs": ["ANY"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "supported_archs": ["ANY"],  # defaults to all archs supported by the current version. See `config_options`.
+        "supported_archs": ["ANY"],
     }
 
     @property
@@ -40,6 +60,14 @@ class UnicornConan(ConanFile):
         """
         return sorted(["aarch64", "arm", "m68k", "mips", "sparc", "x86"])
 
+    @property
+    def _needs_jwasm(self):
+        return self.settings.os == "Windows" and not is_msvc(self)
+
+    @property
+    def _jwasm_wrapper(self):
+        return os.path.join(self.build_folder, "jwasm_wrapper.py")
+
     def _supported_archs(self, info=False):
         """
         Get supported architectures of the current build/package (depends on self.options.supported_archs)
@@ -47,10 +75,6 @@ class UnicornConan(ConanFile):
         """
         options = self.info.options if info else self.options
         return sorted(set(str(options.supported_archs).split(",")))
-
-    @property
-    def _needs_jwasm(self):
-        return self.settings.os == "Windows" and not is_msvc(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -74,7 +98,9 @@ class UnicornConan(ConanFile):
         self.info.options.supported_archs = ",".join(self._supported_archs(info=True))
 
     def validate(self):
-        unsupported_archs = [arch for arch in self._supported_archs() if arch not in self._all_supported_archs]
+        unsupported_archs = [
+            arch for arch in self._supported_archs() if arch not in self._all_supported_archs
+        ]
         if unsupported_archs:
             raise ConanInvalidConfiguration(
                 f"Invalid arch(s) in supported_archs option: {unsupported_archs}\n"
@@ -90,10 +116,6 @@ class UnicornConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @property
-    def _jwasm_wrapper(self):
-        return os.path.join(self.build_folder, "jwasm_wrapper.py")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -118,7 +140,11 @@ class UnicornConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if self._needs_jwasm:
-            save(self, self._jwasm_wrapper, textwrap.dedent("""\
+            save(
+                self,
+                self._jwasm_wrapper,
+                textwrap.dedent(
+                    """\
                 #!/usr/bin/env python
                 import os
                 import sys
@@ -136,8 +162,20 @@ class UnicornConan(ConanFile):
                         args.append(arg)
                 print("args:", args)
                 subprocess.run(args, check=True)
-            """))
-            os.chmod(self._jwasm_wrapper, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+            """
+                ),
+            )
+            os.chmod(
+                self._jwasm_wrapper,
+                stat.S_IRUSR
+                | stat.S_IWUSR
+                | stat.S_IXUSR
+                | stat.S_IRGRP
+                | stat.S_IWGRP
+                | stat.S_IXGRP
+                | stat.S_IROTH
+                | stat.S_IXOTH,
+            )
 
     def build(self):
         self._patch_sources()
@@ -157,7 +195,9 @@ class UnicornConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "unicorn")
-        suffix = "-import" if Version(self.version) >= "2.0.0" and is_msvc(self) and self.options.shared else ""
+        suffix = (
+            "-import" if Version(self.version) >= "2.0.0" and is_msvc(self) and self.options.shared else ""
+        )
         self.cpp_info.libs = [f"unicorn{suffix}"]
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["m", "pthread"]

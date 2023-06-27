@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, save
+from conan.tools.files import get, save, copy
 import os
 
 required_conan_version = ">=1.53.0"
@@ -9,13 +9,13 @@ required_conan_version = ">=1.53.0"
 
 class FftConan(ConanFile):
     name = "fft"
-    license = "LicenseRef-LICENSE"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html"
     description = (
         "This is a package to calculate Discrete Fourier/Cosine/Sine "
         "Transforms of 2,3-dimensional sequences of length 2^N."
     )
+    license = "LicenseRef-LICENSE"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html"
     topics = ("fft2d", "fft3d", "dct", "dst", "dft")
 
     package_type = "library"
@@ -35,7 +35,13 @@ class FftConan(ConanFile):
         "threads_begin_n": 65536,
     }
 
-    exports_sources = ["CMakeLists.txt", "fft_build.c", "fft.h", "fft2.h", "fft3.h", "dct.h"]
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft_build.c", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft2.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "fft3.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "dct.h", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -47,15 +53,15 @@ class FftConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
         if not self.options.threads:
-            del self.options.max_threads
-            del self.options.threads_begin_n
+            self.options.rm_safe("max_threads")
+            self.options.rm_safe("threads_begin_n")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
         def _is_power_of_two(n):
-            return (n != 0) and (n & (n-1) == 0)
+            return (n != 0) and (n & (n - 1) == 0)
 
         if self.options.threads:
             if not self.options.max_threads.isdigit():
@@ -83,11 +89,14 @@ class FftConan(ConanFile):
         cmake.build()
 
     def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
-"""Copyright
+        save(
+            self,
+            os.path.join(self.package_folder, "licenses", "LICENSE"),
+            """Copyright
     Copyright(C) 1997,2001 Takuya OOURA (email: ooura@kurims.kyoto-u.ac.jp).
     You may use, copy, modify this code for any purpose and
-    without fee. You may distribute this ORIGINAL package.""")
+    without fee. You may distribute this ORIGINAL package.""",
+        )
         cmake = CMake(self)
         cmake.install()
 

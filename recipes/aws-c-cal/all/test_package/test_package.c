@@ -1,12 +1,12 @@
 #include <aws/cal/cal.h>
 
 int main() {
-    struct aws_allocator* allocator = aws_default_allocator();
+    struct aws_allocator *allocator = aws_default_allocator();
 
     struct aws_logger_standard_options options;
-    options.level    = AWS_LL_TRACE;
+    options.level = AWS_LL_TRACE;
     options.filename = NULL;
-    options.file     = stdout;
+    options.file = stdout;
     struct aws_logger logger;
     aws_logger_init_standard(&logger, allocator, &options);
     aws_logger_set(&logger);

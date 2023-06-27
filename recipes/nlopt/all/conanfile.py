@@ -9,13 +9,15 @@ required_conan_version = ">=1.54.0"
 
 class NloptConan(ConanFile):
     name = "nlopt"
-    description = "Library for nonlinear optimization, wrapping many " \
-                  "algorithms for global and local, constrained or " \
-                  "unconstrained, optimization."
+    description = (
+        "Library for nonlinear optimization, wrapping many "
+        "algorithms for global and local, constrained or "
+        "unconstrained, optimization."
+    )
     license = ["LGPL-2.1-or-later", "MIT"]
-    topics = ("optimization", "nonlinear")
-    homepage = "https://github.com/stevengj/nlopt"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/stevengj/nlopt"
+    topics = ("optimization", "nonlinear")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,8 +65,8 @@ class NloptConan(ConanFile):
     def _patch_sources(self):
         # don't force PIC
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "set (CMAKE_C_FLAGS \"-fPIC ${CMAKE_C_FLAGS}\")", "")
-        replace_in_file(self, cmakelists, "set (CMAKE_CXX_FLAGS \"-fPIC ${CMAKE_CXX_FLAGS}\")", "")
+        replace_in_file(self, cmakelists, 'set (CMAKE_C_FLAGS "-fPIC ${CMAKE_C_FLAGS}")', "")
+        replace_in_file(self, cmakelists, 'set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")', "")
 
     def build(self):
         self._patch_sources()
@@ -75,20 +77,50 @@ class NloptConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         algs_licenses = [
-            {"subdir": "ags"   , "license_name": "COPYRIGHT"},
-            {"subdir": "bobyqa", "license_name": "COPYRIGHT"},
-            {"subdir": "cobyla", "license_name": "COPYRIGHT"},
-            {"subdir": "direct", "license_name": "COPYING"  },
-            {"subdir": "esch"  , "license_name": "COPYRIGHT"},
-            {"subdir": "luskan", "license_name": "COPYRIGHT"},
-            {"subdir": "newuoa", "license_name": "COPYRIGHT"},
-            {"subdir": "slsqp" , "license_name": "COPYRIGHT"},
-            {"subdir": "stogo" , "license_name": "COPYRIGHT"},
+            {
+                "subdir": "ags",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "bobyqa",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "cobyla",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "direct",
+                "license_name": "COPYING",
+            },
+            {
+                "subdir": "esch",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "luskan",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "newuoa",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "slsqp",
+                "license_name": "COPYRIGHT",
+            },
+            {
+                "subdir": "stogo",
+                "license_name": "COPYRIGHT",
+            },
         ]
         for alg_license in algs_licenses:
-            copy(self, alg_license["license_name"],
-                      src=os.path.join(self.source_folder, "src", "algs", alg_license["subdir"]),
-                      dst=os.path.join(self.package_folder, "licenses", alg_license["subdir"]))
+            copy(
+                self,
+                alg_license["license_name"],
+                src=os.path.join(self.source_folder, "src", "algs", alg_license["subdir"]),
+                dst=os.path.join(self.package_folder, "licenses", alg_license["subdir"]),
+            )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

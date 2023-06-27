@@ -1,18 +1,17 @@
+#include <iostream>
 #include <string>
 #include <utility>
-#include <iostream>
 #include <vector>
 
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_split.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 #include "absl/numeric/int128.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_split.h"
 #include "absl/time/time.h"
 #include "absl/types/variant.h"
 
-int main()
-{
+int main() {
     absl::flat_hash_set<std::string> set1;
     absl::flat_hash_map<int, std::string> map1;
     absl::flat_hash_set<std::string> set2 = {

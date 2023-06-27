@@ -11,9 +11,10 @@ class KtxConan(ConanFile):
     name = "ktx"
     description = "Khronos Texture library and tool."
     license = "Apache-2.0"
-    topics = ("texture", "khronos")
-    homepage = "https://github.com/KhronosGroup/KTX-Software"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/KTX-Software"
+    topics = ("texture", "khronos")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -40,7 +41,7 @@ class KtxConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_sse_support:
-            del self.options.sse
+            self.options.rm_safe("sse")
         if self.settings.os in ["iOS", "Android", "Emscripten"]:
             # tools are not build by default if iOS, Android or Emscripten
             self.options.tools = False
@@ -94,7 +95,12 @@ class KtxConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "LICENSES"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -105,7 +111,9 @@ class KtxConan(ConanFile):
         # TODO: back to root level in conan v2
         self.cpp_info.components["libktx"].libs = ["ktx"]
         self.cpp_info.components["libktx"].defines = [
-            "KTX_FEATURE_KTX1", "KTX_FEATURE_KTX2", "KTX_FEATURE_WRITE"
+            "KTX_FEATURE_KTX1",
+            "KTX_FEATURE_KTX2",
+            "KTX_FEATURE_WRITE",
         ]
         if not self.options.shared:
             self.cpp_info.components["libktx"].defines.append("KHRONOS_STATIC")

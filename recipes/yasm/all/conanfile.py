@@ -1,3 +1,7 @@
+# Warnings:
+#   Unexpected method '_generate_autotools'
+#   Unexpected method '_generate_cmake'
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -12,12 +16,13 @@ required_conan_version = ">=1.54.0"
 
 class YASMConan(ConanFile):
     name = "yasm"
-    package_type = "application"
+    description = "Yasm is a complete rewrite of the NASM assembler under the 'new' BSD License"
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/yasm/yasm"
-    description = "Yasm is a complete rewrite of the NASM assembler under the 'new' BSD License"
-    topics = ("yasm", "installer", "assembler")
-    license = "BSD-2-Clause"
+    topics = ("installer", "assembler", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -47,8 +52,7 @@ class YASMConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
 
     def _generate_autotools(self):
         env = VirtualBuildEnv(self)
@@ -56,11 +60,7 @@ class YASMConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         enable_debug = "yes" if self.settings.build_type == "Debug" else "no"
-        tc.configure_args.extend([
-            f"--enable-debug={enable_debug}",
-            "--disable-rpath",
-            "--disable-nls",
-        ])
+        tc.configure_args.extend([f"--enable-debug={enable_debug}", "--disable-rpath", "--disable-nls"])
         tc.generate()
 
     def _generate_cmake(self):
@@ -90,8 +90,12 @@ class YASMConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="BSD.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="BSD.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
+        copy(
+            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()
@@ -104,6 +108,8 @@ class YASMConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 

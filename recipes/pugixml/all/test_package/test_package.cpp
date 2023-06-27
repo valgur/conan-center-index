@@ -1,6 +1,6 @@
-#include <sstream>
-#include <iostream>
 #include "pugixml.hpp"
+#include <iostream>
+#include <sstream>
 
 int main() {
     const unsigned majorVersion = PUGIXML_VERSION / 1000;
@@ -14,11 +14,9 @@ int main() {
 
     pugi::xml_document doc;
     pugi::xml_node node = doc.append_child(PUGIXML_TEXT("PugiXml"));
-    node.append_attribute(PUGIXML_TEXT("Version"))
-        .set_value(version.str().c_str());
+    node.append_attribute(PUGIXML_TEXT("Version")).set_value(version.str().c_str());
 
-    node.append_attribute(PUGIXML_TEXT("wchar_mode"))
-        .set_value(sizeof(PUGIXML_CHAR) != 1);
+    node.append_attribute(PUGIXML_TEXT("wchar_mode")).set_value(sizeof(PUGIXML_CHAR) != 1);
 
     node.append_attribute(PUGIXML_TEXT("header_only"))
 #ifdef PUGIXML_HEADER_ONLY

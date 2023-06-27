@@ -9,14 +9,18 @@ required_conan_version = ">=1.52.0"
 
 class LibmortonConan(ConanFile):
     name = "libmorton"
-    description = "C++ header-only library with methods to efficiently " \
-                  "encode/decode 64, 32 and 16-bit Morton codes and coordinates, in 2D and 3D."
+    description = (
+        "C++ header-only library with methods to efficiently "
+        "encode/decode 64, 32 and 16-bit Morton codes and coordinates, in 2D and 3D."
+    )
     license = "MIT"
-    topics = ("morton", "encoding", "decoding")
-    homepage = "https://github.com/Forceflow/libmorton"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Forceflow/libmorton"
+    topics = ("morton", "encoding", "decoding", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

@@ -1,5 +1,5 @@
-#include <kangaru/kangaru.hpp>
 #include <iostream>
+#include <kangaru/kangaru.hpp>
 
 /**
  * This example only show basic usage of services and the conatainer.
@@ -9,7 +9,7 @@
 struct Camera {};
 
 struct Scene {
-	Camera& camera;
+    Camera &camera;
 };
 
 // This is the configuration of our classes.
@@ -22,15 +22,12 @@ struct CameraService : kgr::single_service<Camera> {};
 // Also, we depends on a camera to be constructed.
 struct SceneService : kgr::service<Scene, kgr::dependency<CameraService>> {};
 
-int main()
-{
-	kgr::container container;
-	
-	// The service function return instances of the normal classes.
-	Scene scene = container.service<SceneService>();
-	Camera& camera = container.service<CameraService>();
-	
-	std::cout
-		<< std::boolalpha
-		<< (&scene.camera == &camera) << std::endl; // outputs true
+int main() {
+    kgr::container container;
+
+    // The service function return instances of the normal classes.
+    Scene scene = container.service<SceneService>();
+    Camera &camera = container.service<CameraService>();
+
+    std::cout << std::boolalpha << (&scene.camera == &camera) << std::endl; // outputs true
 }

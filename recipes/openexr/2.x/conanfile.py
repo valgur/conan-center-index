@@ -12,12 +12,15 @@ required_conan_version = ">=1.54.0"
 
 class OpenEXRConan(ConanFile):
     name = "openexr"
-    description = "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & " \
-                  "Magic for use in computer imaging applications."
-    topics = ("hdr", "image", "picture", "file format", "computer vision")
+    description = (
+        "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & "
+        "Magic for use in computer imaging applications."
+    )
     license = "BSD-3-Clause"
-    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/AcademySoftwareFoundation/openexr"
+    topics = ("hdr", "image", "picture", "file format", "computer vision")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -37,6 +40,9 @@ class OpenEXRConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("zlib/1.2.13")
 
@@ -44,9 +50,6 @@ class OpenEXRConan(ConanFile):
         if Version(self.version) < "2.5.0" and hasattr(self, "settings_build") and cross_building(self):
             # cross-build supported since https://github.com/AcademySoftwareFoundation/openexr/pull/606
             raise ConanInvalidConfiguration("Cross-build not supported before openexr 2.5.0")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -75,19 +78,35 @@ class OpenEXRConan(ConanFile):
             # OpenEXR's build system no longer creates symlinks on windows, starting with commit
             # 7f9e1b410de92de244329b614cf551b30bc30421 (included in 2.5.2).
             for lib in ("OpenEXR", "IlmBase"):
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_LIBDIR}",
-                                      "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_BINDIR}")
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, lib, "config", "LibraryDefine.cmake"),
+                    "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_LIBDIR}",
+                    "${CMAKE_COMMAND} -E chdir ${CMAKE_INSTALL_FULL_BINDIR}",
+                )
 
         # Add  "_d" suffix to lib file names.
         if pkg_version < "2.5.7" and self.settings.build_type == "Debug":
             for lib in ("OpenEXR", "IlmBase"):
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})".replace("@LIB@", lib.upper()),
-                                      "set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}_d${CMAKE_SHARED_LIBRARY_SUFFIX})".replace("@LIB@", lib.upper()))
-                replace_in_file(self, os.path.join(self.source_folder,  lib, "config", "LibraryDefine.cmake"),
-                                      "set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_SHARED_LIBRARY_SUFFIX})",
-                                      "set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}_d${CMAKE_SHARED_LIBRARY_SUFFIX})")
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, lib, "config", "LibraryDefine.cmake"),
+                    "set(verlibname"
+                    " ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})"
+                    .replace("@LIB@", lib.upper()),
+                    "set(verlibname"
+                    " ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${@LIB@_LIB_SUFFIX}_d${CMAKE_SHARED_LIBRARY_SUFFIX})"
+                    .replace("@LIB@", lib.upper()),
+                )
+                replace_in_file(
+                    self,
+                    os.path.join(self.source_folder, lib, "config", "LibraryDefine.cmake"),
+                    "set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_SHARED_LIBRARY_SUFFIX})",
+                    (
+                        "set(baselibname"
+                        " ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}_d${CMAKE_SHARED_LIBRARY_SUFFIX})"
+                    ),
+                )
 
     def build(self):
         self._patch_sources()
@@ -113,7 +132,7 @@ class OpenEXRConan(ConanFile):
                 "IlmBase::IexMath": "OpenEXR::IexMath",
                 "IlmBase::IMath": "OpenEXR::IMath",
                 "IlmBase::IlmThread": "OpenEXR::IlmThread",
-            }
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -146,7 +165,9 @@ class OpenEXRConan(ConanFile):
         include_dir = os.path.join("include", "OpenEXR")
 
         # IlmImfConfig
-        self.cpp_info.components["openexr_ilmimfconfig"].set_property("cmake_target_name", "OpenEXR::IlmImfConfig")
+        self.cpp_info.components["openexr_ilmimfconfig"].set_property(
+            "cmake_target_name", "OpenEXR::IlmImfConfig"
+        )
         self.cpp_info.components["openexr_ilmimfconfig"].includedirs.append(include_dir)
 
         # IlmImf
@@ -155,18 +176,26 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["openexr_ilmimf"].includedirs.append(include_dir)
         self.cpp_info.components["openexr_ilmimf"].libs = [f"IlmImf{lib_suffix}"]
         self.cpp_info.components["openexr_ilmimf"].requires = [
-            "openexr_ilmimfconfig", "ilmbase_iex", "ilmbase_half",
-            "ilmbase_imath", "ilmbase_ilmthread", "zlib::zlib",
+            "openexr_ilmimfconfig",
+            "ilmbase_iex",
+            "ilmbase_half",
+            "ilmbase_imath",
+            "ilmbase_ilmthread",
+            "zlib::zlib",
         ]
 
         # IlmImfUtil
-        self.cpp_info.components["openexr_ilmimfutil"].set_property("cmake_target_name", "OpenEXR::IlmImfUtil")
+        self.cpp_info.components["openexr_ilmimfutil"].set_property(
+            "cmake_target_name", "OpenEXR::IlmImfUtil"
+        )
         self.cpp_info.components["openexr_ilmimfutil"].includedirs.append(include_dir)
         self.cpp_info.components["openexr_ilmimfutil"].libs = [f"IlmImfUtil{lib_suffix}"]
         self.cpp_info.components["openexr_ilmimfutil"].requires = ["openexr_ilmimfconfig", "openexr_ilmimf"]
 
         # IlmBaseConfig
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].set_property("cmake_target_name", "IlmBase::IlmBaseConfig")
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].set_property(
+            "cmake_target_name", "IlmBase::IlmBaseConfig"
+        )
         self.cpp_info.components["ilmbase_ilmbaseconfig"].includedirs.append(include_dir)
 
         # Half
@@ -191,7 +220,11 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["ilmbase_imath"].set_property("cmake_target_name", "IlmBase::IMath")
         self.cpp_info.components["ilmbase_imath"].includedirs.append(include_dir)
         self.cpp_info.components["ilmbase_imath"].libs = [f"Imath{lib_suffix}"]
-        self.cpp_info.components["ilmbase_imath"].requires = ["ilmbase_ilmbaseconfig", "ilmbase_half", "ilmbase_iexmath"]
+        self.cpp_info.components["ilmbase_imath"].requires = [
+            "ilmbase_ilmbaseconfig",
+            "ilmbase_half",
+            "ilmbase_iexmath",
+        ]
 
         # IlmThread
         self.cpp_info.components["ilmbase_ilmthread"].set_property("cmake_target_name", "IlmBase::IlmThread")
@@ -204,8 +237,12 @@ class OpenEXRConan(ConanFile):
         # Convenient component to model official IlmBase.pc
         self.cpp_info.components["ilmbase_conan_pkgconfig"].set_property("pkg_config_name", "IlmBase")
         self.cpp_info.components["ilmbase_conan_pkgconfig"].requires = [
-            "ilmbase_ilmbaseconfig", "ilmbase_half", "ilmbase_iex",
-            "ilmbase_iexmath", "ilmbase_imath", "ilmbase_ilmthread"
+            "ilmbase_ilmbaseconfig",
+            "ilmbase_half",
+            "ilmbase_iex",
+            "ilmbase_iexmath",
+            "ilmbase_imath",
+            "ilmbase_ilmthread",
         ]
 
         if self.options.shared and self.settings.os == "Windows":
@@ -229,25 +266,49 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["openexr_ilmimfutil"].names["cmake_find_package_multi"] = "IlmImfUtil"
         self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package"] = "IlmBaseConfig"
         self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package_multi"] = "IlmBaseConfig"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_half"].names["cmake_find_package"] = "Half"
         self.cpp_info.components["ilmbase_half"].names["cmake_find_package_multi"] = "Half"
-        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_iex"].names["cmake_find_package"] = "Iex"
         self.cpp_info.components["ilmbase_iex"].names["cmake_find_package_multi"] = "Iex"
-        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_iexmath"].names["cmake_find_package"] = "IexMath"
         self.cpp_info.components["ilmbase_iexmath"].names["cmake_find_package_multi"] = "IexMath"
-        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_imath"].names["cmake_find_package"] = "IMath"
         self.cpp_info.components["ilmbase_imath"].names["cmake_find_package_multi"] = "IMath"
-        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package"] = "IlmThread"
         self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package_multi"] = "IlmThread"
-        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package"] = [
+            self._module_file_rel_path
+        ]
+        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]

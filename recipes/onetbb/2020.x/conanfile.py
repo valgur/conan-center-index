@@ -1,9 +1,82 @@
-from conan import ConanFile
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.files import get, replace_in_file, save, chdir, copy
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
 from conan.tools.scm import Version
-from conans import tools as legacy_tools
+from conan.tools.system import package_manager
 import os
 import textwrap
 
@@ -12,16 +85,17 @@ required_conan_version = ">=1.53.0"
 
 class OneTBBConan(ConanFile):
     name = "onetbb"
-    license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/oneapi-src/oneTBB"
     description = (
         "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel "
         "C++ programs that take full advantage of multicore performance, that "
         "are portable, composable and have future-proof scalability."
     )
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/oneapi-src/oneTBB"
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,10 +109,6 @@ class OneTBBConan(ConanFile):
         "tbbmalloc": False,
         "tbbproxy": False,
     }
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _settings_build(self):
@@ -63,20 +133,23 @@ class OneTBBConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def validate(self):
-        if self.settings.os == "Macos":
-            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
-                raise ConanInvalidConfiguration("%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version))
-        if not self.options.shared:
-            self.output.warn("oneTBB strongly discourages usage of static linkage")
-        if self.options.tbbproxy and \
-           (not self.options.shared or \
-            not self.options.tbbmalloc):
-            raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.options.tbbmalloc
         del self.info.options.tbbproxy
+
+    def validate(self):
+        if self.settings.os == "Macos":
+            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
+                raise ConanInvalidConfiguration(
+                    f"{self.name} {self.version} couldn't be built by apple-clang < 8.0"
+                )
+        if not self.options.shared:
+            self.output.warn("oneTBB strongly discourages usage of static linkage")
+        if self.options.tbbproxy and (not self.options.shared or not self.options.tbbmalloc):
+            raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -84,8 +157,11 @@ class OneTBBConan(ConanFile):
                 self.tool_requires("make/4.2.1")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def build(self):
         def add_flag(name, value):
@@ -95,19 +171,20 @@ class OneTBBConan(ConanFile):
                 os.environ[name] = value
 
         # Get the version of the current compiler instead of gcc
-        linux_include = os.path.join(self._source_subfolder, "build", "linux.inc")
+        linux_include = os.path.join(self.source_folder, "build", "linux.inc")
         replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
         replace_in_file(self, linux_include, "= gcc", "= $(CC)")
 
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            replace_in_file(self, os.path.join(self._source_subfolder, "Makefile"), "release", "debug")
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
 
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            save(self,
-                os.path.join(self._source_subfolder, "build", "big_iron_msvc.inc"),
+            save(
+                self,
+                os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
-                textwrap.dedent("""\
-                    LIB_LINK_CMD = {}.exe
+                textwrap.dedent(f"""\
+                    LIB_LINK_CMD = {"xilib" if self.settings.compiler == "intel" else "lib"}.exe
                     LIB_OUTPUT_KEY = /OUT:
                     LIB_LINK_FLAGS =
                     LIB_LINK_LIBS =
@@ -128,7 +205,7 @@ class OneTBBConan(ConanFile):
                     MALLOC_NO_VERSION.DLL =
                     MALLOCPROXY.DLL =
                     MALLOCPROXY.DEF =
-                """.format("xilib" if self.settings.compiler == "intel" else "lib"))
+                """),
             )
             extra = "" if self.options.shared else "extra_inc=big_iron_msvc.inc"
         else:
@@ -138,9 +215,7 @@ class OneTBBConan(ConanFile):
             "x86": "ia32",
             "x86_64": "intel64",
             "armv7": "armv7",
-            "armv8": "arm64"
-            if (self.settings.os == "iOS" or self.settings.os == "Macos")
-            else "aarch64",
+            "armv8": "arm64" if (self.settings.os == "iOS" or self.settings.os == "Macos") else "aarch64",
         }[str(self.settings.arch)]
         extra += " arch=%s" % arch
 
@@ -182,15 +257,15 @@ class OneTBBConan(ConanFile):
                         "12": "vc12",
                         "14": "vc14",
                         "15": "vc14.1",
-                        "16": "vc14.2"
+                        "16": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
                 else:
                     runtime = {
                         "190": "vc14",
                         "191": "vc14.1",
-                        "192": "vc14.2"
+                        "192": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
-            extra += " runtime=%s" % runtime
+            extra += f" runtime={runtime}"
 
             if self.settings.compiler == "intel":
                 extra += " compiler=icl"
@@ -201,18 +276,18 @@ class OneTBBConan(ConanFile):
             cxx_std_value = (
                 cxx_std_flag.split("=")[1]
                 if "=" in cxx_std_flag
-                else cxx_std_flag.split(":")[1]
-                if ":" in cxx_std_flag
-                else None
+                else cxx_std_flag.split(":")[1] if ":" in cxx_std_flag else None
             )
             if cxx_std_value:
                 extra += f" stdver={cxx_std_value}"
 
-        make = legacy_tools.get_env("CONAN_MAKE_PROGRAM", legacy_tools.which("make") or legacy_tools.which("mingw32-make"))
+        make = legacy_tools.get_env(
+            "CONAN_MAKE_PROGRAM", legacy_tools.which("make") or legacy_tools.which("mingw32-make")
+        )
         if not make:
             raise ConanException("This package needs 'make' in the path to build")
 
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:
                 add_flag("CFLAGS", "-mrtm")
@@ -229,27 +304,73 @@ class OneTBBConan(ConanFile):
                 self.run("%s %s %s" % (make, extra, " ".join(targets)))
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._source_subfolder)
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self._source_subfolder, "include"))
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "include", "tbb", "compat"), src=os.path.join(self._source_subfolder, "include", "tbb", "compat"))
-        build_folder = os.path.join(self._source_subfolder, "build")
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include", "tbb", "compat"),
+            src=os.path.join(self.source_folder, "include", "tbb", "compat"),
+        )
+        build_folder = os.path.join(self.source_folder, "build")
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
-        copy(self, pattern=f"*{build_type}*.lib", dst=os.path.join(self.package_folder, "lib"), src=build_folder, keep_path=False)
-        copy(self, pattern=f"*{build_type}*.a", dst=os.path.join(self.package_folder, "lib"), src=build_folder, keep_path=False)
-        copy(self, pattern=f"*{build_type}*.dll", dst=os.path.join(self.package_folder, "bin"), src=build_folder, keep_path=False)
-        copy(self, pattern=f"*{build_type}*.dylib", dst=os.path.join(self.package_folder, "lib"), src=build_folder, keep_path=False)
+        copy(
+            self,
+            pattern=f"*{build_type}*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern=f"*{build_type}*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern=f"*{build_type}*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=build_folder,
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern=f"*{build_type}*.dylib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=build_folder,
+            keep_path=False,
+        )
         # Copy also .dlls to lib folder so consumers can link against them directly when using MinGW
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            copy(self, f"*{build_type}*.dll", dst=os.path.join(self.package_folder, "lib"), src=build_folder, keep_path=False)
+            copy(
+                self,
+                f"*{build_type}*.dll",
+                dst=os.path.join(self.package_folder, "lib"),
+                src=build_folder,
+                keep_path=False,
+            )
 
         if self.settings.os == "Linux":
             extension = "so"
             if self.options.shared:
-                copy(self, f"*{build_type}*.{extension}.*", dst=os.path.join(self.package_folder, "lib"), src=build_folder, keep_path=False)
+                copy(
+                    self,
+                    f"*{build_type}*.{extension}.*",
+                    dst=os.path.join(self.package_folder, "lib"),
+                    src=build_folder,
+                    keep_path=False,
+                )
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 with chdir(self, outputlibdir):
                     for fpath in os.listdir(outputlibdir):
-                        filepath = fpath[0:fpath.rfind("." + extension) + len(extension) + 1]
+                        filepath = fpath[0 : fpath.rfind("." + extension) + len(extension) + 1]
                         self.run(f'ln -s "{fpath}" "{filepath}"', run_environment=True)
 
     def package_info(self):
@@ -272,7 +393,9 @@ class OneTBBConan(ConanFile):
 
             # tbbmalloc_proxy
             if self.options.tbbproxy:
-                self.cpp_info.components["tbbmalloc_proxy"].set_property("cmake_target_name", "TBB::tbbmalloc_proxy")
+                self.cpp_info.components["tbbmalloc_proxy"].set_property(
+                    "cmake_target_name", "TBB::tbbmalloc_proxy"
+                )
                 self.cpp_info.components["tbbmalloc_proxy"].libs = ["tbbmalloc_proxy{}".format(suffix)]
                 self.cpp_info.components["tbbmalloc_proxy"].requires = ["tbbmalloc"]
 

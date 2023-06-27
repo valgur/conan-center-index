@@ -1,22 +1,20 @@
+#include <condition_variable>
 #include <cstdlib>
 #include <iostream>
-#include <thread>
 #include <mutex>
-#include <condition_variable>
+#include <thread>
 
 #include "Spix/QtQmlBot.h"
 
 std::mutex m;
 std::condition_variable cv;
 
-class MyTests : public spix::TestServer
-{
-protected:
+class MyTests : public spix::TestServer {
+  protected:
     void executeTest() override { cv.notify_one(); }
 };
 
-int main(void)
-{
+int main(void) {
     spix::QtQmlBot bot;
     MyTests tests;
     bot.runTestServer(tests);

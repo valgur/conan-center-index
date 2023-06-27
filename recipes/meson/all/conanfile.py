@@ -13,7 +13,7 @@ class MesonConan(ConanFile):
     name = "meson"
     package_type = "application"
     description = "Meson is a project to create the best possible next-generation build system"
-    topics = ("meson", "mesonbuild", "build-system")
+    topics = ("mesonbuild", "build-system")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mesonbuild/meson"
     license = "Apache-2.0"
@@ -30,8 +30,7 @@ class MesonConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
@@ -42,15 +41,27 @@ class MesonConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "bin", "test cases"))
 
         # create wrapper scripts
-        save(self, os.path.join(self.package_folder, "bin", "meson.cmd"), textwrap.dedent("""\
+        save(
+            self,
+            os.path.join(self.package_folder, "bin", "meson.cmd"),
+            textwrap.dedent(
+                """\
             @echo off
             CALL python %~dp0/meson.py %*
-        """))
-        save(self, os.path.join(self.package_folder, "bin", "meson"), textwrap.dedent("""\
+        """
+            ),
+        )
+        save(
+            self,
+            os.path.join(self.package_folder, "bin", "meson"),
+            textwrap.dedent(
+                """\
             #!/usr/bin/env bash
             meson_dir=$(dirname "$0")
             exec "$meson_dir/meson.py" "$@"
-        """))
+        """
+            ),
+        )
 
     @staticmethod
     def _chmod_plus_x(filename):

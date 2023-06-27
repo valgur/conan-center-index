@@ -7,19 +7,18 @@ from conan.tools.microsoft import is_msvc
 from conan.errors import ConanInvalidConfiguration
 import os
 
-
 required_conan_version = ">=1.50.0"
 
 
 class JfalcouEveConan(ConanFile):
     name = "jfalcou-eve"
-    description = ("Expressive Velocity Engine - reimplementation of the old "
-                   "Boost.SIMD on C++20"
-                   )
+    description = "Expressive Velocity Engine - reimplementation of the old Boost.SIMD on C++20"
     license = ("MIT", "BSL-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://jfalcou.github.io/eve/"
     topics = ("cpp", "simd", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
@@ -54,7 +53,9 @@ class JfalcouEveConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self) and Version(self.version.strip("v")) < "2023.02.15":
-            raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC. See https://github.com/jfalcou/eve/issues/1022")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support MSVC. See https://github.com/jfalcou/eve/issues/1022"
+            )
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -72,7 +73,12 @@ class JfalcouEveConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            pattern="*.hpp",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):

@@ -17,11 +17,12 @@ class OpenGrmConan(ConanFile):
         "The OpenGrm Thrax tools compile grammars expressed as regular expressions "
         "and context-dependent rewrite rules into weighted finite-state transducers."
     )
-    topics = ("fst", "wfst", "opengrm", "thrax")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.opengrm.org/twiki/bin/view/GRM/Thrax"
-    license = "Apache-2.0"
+    topics = ("fst", "wfst", "thrax")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -74,7 +75,9 @@ class OpenGrmConan(ConanFile):
 
         # Check stdlib ABI compatibility
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration(f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"')
+            raise ConanInvalidConfiguration(
+                f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"'
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -86,10 +89,7 @@ class OpenGrmConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend([
-            f"--enable-bin={yes_no(self.options.enable_bin)}",
-            "LIBS=-lpthread",
-        ])
+        tc.configure_args.extend([f"--enable-bin={yes_no(self.options.enable_bin)}", "LIBS=-lpthread"])
         tc.make_args.append("-j1")
         tc.generate()
 

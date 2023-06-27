@@ -6,8 +6,7 @@ class A {
 
 ACCESS_PRIVATE_FIELD(A, int, m_i)
 
-int main()
-{
+int main() {
     const A a;
     const int val = access_private::m_i(a);
     if (val == 3) {

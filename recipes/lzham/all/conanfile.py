@@ -2,34 +2,23 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir
-)
-from conan.tools.microsoft import (
-    MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 SLN_FILE = "lzham.sln"
 
 
 class PackageConan(ConanFile):
     name = "lzham"
-
-    description = (
-        "Compression algorithm similar compression ratio and faster "
-        "decompression than LZMA."
-    )
-
+    description = "Compression algorithm similar compression ratio and faster decompression than LZMA."
     license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/richgel999/lzham_codec"
     topics = ("compression", "lz-compression")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -58,12 +47,7 @@ class PackageConan(ConanFile):
             cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         if is_msvc(self):
@@ -85,12 +69,8 @@ class PackageConan(ConanFile):
         apply_conandata_patches(self)
         if is_msvc(self):
             msbuild = MSBuild(self)
-            msbuild.build_type = (
-                "Debug" if self.settings.build_type == "Debug" else "Release"
-            )
-            msbuild.platform = (
-                "Win32" if self.settings.arch == "x86" else msbuild.platform
-            )
+            msbuild.build_type = "Debug" if self.settings.build_type == "Debug" else "Release"
+            msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
             msbuild.build(sln="lzham.sln")
         else:
             cmake = CMake(self)
@@ -99,10 +79,7 @@ class PackageConan(ConanFile):
 
     def package(self):
         copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
 
         if is_msvc(self):
@@ -112,14 +89,14 @@ class PackageConan(ConanFile):
                 pattern=f"lzham_{suffix}.lib",
                 dst=os.path.join(self.package_folder, "lib"),
                 src=os.path.join(self.build_folder, "lib", "x64"),
-                keep_path=False
+                keep_path=False,
             )
             copy(
                 self,
                 pattern=f"lzham_{suffix}.dll",
                 dst=os.path.join(self.package_folder, "bin"),
                 src=os.path.join(self.build_folder, "bin"),
-                keep_path=False
+                keep_path=False,
             )
             copy(
                 self,

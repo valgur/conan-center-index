@@ -13,12 +13,12 @@ required_conan_version = ">=1.53.0"
 class UtilLinuxLibuuidConan(ConanFile):
     name = "util-linux-libuuid"
     description = "Universally unique id library"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/util-linux/util-linux.git"
-    license = "BSD-3-Clause"
-    topics = "id", "identifier", "unique", "uuid"
+    topics = ("id", "identifier", "unique", "uuid")
+
     package_type = "library"
-    provides = "libuuid"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -28,23 +28,7 @@ class UtilLinuxLibuuidConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _has_sys_file_header(self):
-        return self.settings.os in ["FreeBSD", "Linux", "Macos"]
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    provides = "libuuid"
 
     def _minimum_compiler_version(self, compiler, build_type):
         min_version = {
@@ -63,10 +47,30 @@ class UtilLinuxLibuuidConan(ConanFile):
         }
         return min_version.get(str(compiler), {}).get(str(build_type), "0")
 
+    @property
+    def _has_sys_file_header(self):
+        return self.settings.os in ["FreeBSD", "Linux", "Macos"]
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def validate(self):
         min_version = self._minimum_compiler_version(self.settings.compiler, self.settings.build_type)
         if Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version requirement of version {min_version}")
+            raise ConanInvalidConfiguration(
+                f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version"
+                f" requirement of version {min_version}"
+            )
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows")
 
@@ -97,7 +101,12 @@ class UtilLinuxLibuuidConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING.BSD-3-Clause", src=os.path.join(self.source_folder, "Documentation", "licenses"), dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "COPYING.BSD-3-Clause",
+            src=os.path.join(self.source_folder, "Documentation", "licenses"),
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

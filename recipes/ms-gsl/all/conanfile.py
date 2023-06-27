@@ -8,24 +8,26 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class MicrosoftGslConan(ConanFile):
     name = "ms-gsl"
     description = "Microsoft's implementation of the Guidelines Support Library"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/GSL"
-    license = "MIT"
-    topics = ("gsl", "guidelines", "core", "span")
-    no_copy_source = True
+    topics = ("gsl", "guidelines", "core", "span", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "on_contract_violation": ["terminate", "throw", "unenforced"]
+        "on_contract_violation": ["terminate", "throw", "unenforced"],
     }
     default_options = {
-        "on_contract_violation": "terminate"
+        "on_contract_violation": "terminate",
     }
+    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -49,7 +51,10 @@ class MicrosoftGslConan(ConanFile):
 
     def config_options(self):
         if Version(self.version) >= "3.0.0":
-            del self.options.on_contract_violation
+            self.options.rm_safe("on_contract_violation")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -65,17 +70,17 @@ class MicrosoftGslConan(ConanFile):
             if minimum_version:
                 if Version(self.settings.compiler.version) < minimum_version:
                     raise ConanInvalidConfiguration(
-                        f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not fully support.")
+                        f"{self.ref} requires C++{self._minimum_cpp_standard}, "
+                        "which your compiler does not fully support."
+                    )
             else:
-                self.output.warn(f"{self.ref} requires C++{self._minimum_cpp_standard}. "
-                                 "Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}.")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+                self.output.warn(
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}. "
+                    "Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}."
+                )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         pass
@@ -85,9 +90,17 @@ class MicrosoftGslConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            os.path.join(self.source_folder, "include"),
+            os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "Microsoft.GSL")
         self.cpp_info.set_property("cmake_target_name", "Microsoft.GSL::GSL")
 

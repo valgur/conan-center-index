@@ -3,15 +3,13 @@
 #endif
 #include <entityx/entityx.h>
 
-#include <string>
 #include <iostream>
+#include <string>
 
-int
-main(int argc, char **argv)
-{
-	entityx::EntityX ex;
-	entityx::Entity entity = ex.entities.create();
-	std::cout << "Entity = " << entity;
-	entity.destroy();
-	return 0;
+int main() {
+    entityx::EntityX ex;
+    entityx::Entity entity = ex.entities.create();
+    std::cout << "Entity = " << entity;
+    entity.destroy();
+    return 0;
 }

@@ -1,13 +1,10 @@
 #include <Windows.h>
 
-static LRESULT CALLBACK WndProc(HWND hwnd,
-    UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     LRESULT res = 1;
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_DESTROY:
-        ::PostQuitMessage (0);
+        ::PostQuitMessage(0);
         break;
     default:
         res = ::DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -15,10 +12,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd,
     return res;
 }
 
-bool init_context()
-{
-    static const wchar_t * class_name = L"ConanOpenGL";
-    static const wchar_t * window_name = L"Conan OpenGL";
+bool init_context() {
+    static const wchar_t *class_name = L"ConanOpenGL";
+    static const wchar_t *window_name = L"Conan OpenGL";
     WNDCLASSEXW wc = {0};
     wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -26,12 +22,12 @@ bool init_context()
     wc.hInstance = ::GetModuleHandle(NULL);
     wc.hIcon = ::LoadIcon(0, IDI_APPLICATION);
     wc.hCursor = ::LoadCursor(0, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH) ::GetStockObject(WHITE_BRUSH);
+    wc.hbrBackground = (HBRUSH)::GetStockObject(WHITE_BRUSH);
     wc.lpszClassName = class_name;
     if (!::RegisterClassExW(&wc))
         return false;
-    HWND hWnd = ::CreateWindowExW(0, class_name, window_name,
-        WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL, NULL, wc.hInstance, NULL);
+    HWND hWnd = ::CreateWindowExW(0, class_name, window_name, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL,
+                                  NULL, wc.hInstance, NULL);
     if (!hWnd)
         return false;
     HDC hDC = ::GetDC(hWnd);
@@ -46,7 +42,7 @@ bool init_context()
     pfd.cColorBits = 32;
     pfd.cDepthBits = 16;
     int pixel_format = ::ChoosePixelFormat(hDC, &pfd);
-    if(0 == pixel_format)
+    if (0 == pixel_format)
         return false;
     if (!::SetPixelFormat(hDC, pixel_format, &pfd))
         return false;

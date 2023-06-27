@@ -1,5 +1,5 @@
-#include <iostream>
 #include <gflags/gflags.h>
+#include <iostream>
 
 DEFINE_bool(big_menu, true, "Include 'advanced' options in the menu listing");
 DEFINE_string(languages, "english,french,german",

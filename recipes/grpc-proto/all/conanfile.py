@@ -17,11 +17,13 @@ required_conan_version = ">=1.53.0"
 class GRPCProto(ConanFile):
     name = "grpc-proto"
     package_type = "library"
-    description = "gRPC-defined protobufs for peripheral services such as health checking, load balancing, etc"
+    description = (
+        "gRPC-defined protobufs for peripheral services such as health checking, load balancing, etc"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/grpc/grpc-proto"
-    topics = "google", "protos", "api"
+    topics = ("google", "protos", "api")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,14 +33,14 @@ class GRPCProto(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    exports = "helpers.py"
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "helpers.py", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -54,8 +56,8 @@ class GRPCProto(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-       # protobuf symbols are exposed from generated structures
-       # https://github.com/conan-io/conan-center-index/pull/16185#issuecomment-1501174215
+        # protobuf symbols are exposed from generated structures
+        # https://github.com/conan-io/conan-center-index/pull/16185#issuecomment-1501174215
         self.requires("protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self))
         self.requires("googleapis/cci.20230501")
 
@@ -63,8 +65,9 @@ class GRPCProto(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
 
-        if self.options.shared and \
-           not (self.dependencies["protobuf"].options.shared and self.dependencies["googleapis"].options.shared):
+        if self.options.shared and not (
+            self.dependencies["protobuf"].options.shared and self.dependencies["googleapis"].options.shared
+        ):
             raise ConanInvalidConfiguration(
                 "If built as shared, protobuf and googleapis must be shared as well. "
                 "Please, use `protobuf:shared=True` and `googleapis:shared=True`"
@@ -85,7 +88,9 @@ class GRPCProto(ConanFile):
             env.generate(scope="build")
         tc = CMakeToolchain(self)
         googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
-        tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join([p.replace("\\", "/") for p in googleapis_resdirs])
+        tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join(
+            [p.replace("\\", "/") for p in googleapis_resdirs]
+        )
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -93,7 +98,9 @@ class GRPCProto(ConanFile):
     @functools.lru_cache(1)
     def _parse_proto_libraries(self):
         # Generate the libraries to build dynamically
-        proto_libraries = parse_proto_libraries(os.path.join(self.source_folder, 'BUILD.bazel'), self.source_folder, self.output.error)
+        proto_libraries = parse_proto_libraries(
+            os.path.join(self.source_folder, "BUILD.bazel"), self.source_folder, self.output.error
+        )
 
         # Validate that all files exist and all dependencies are found
         all_deps = [it.cmake_target for it in proto_libraries]
@@ -103,6 +110,7 @@ class GRPCProto(ConanFile):
 
         # Mark the libraries we need recursively (C++ context)
         all_dict = {it.cmake_target: it for it in proto_libraries}
+
         def activate_library(proto_library):
             proto_library.is_used = True
             for it_dep in proto_library.deps:
@@ -126,15 +134,47 @@ class GRPCProto(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
         copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
 
-        copy(self, pattern="*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, pattern="*.so*", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(
+            self,
+            pattern="*.lib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dll",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.so*",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.dylib",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            pattern="*.a",
+            src=self.build_folder,
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
 
     def package_info(self):
         # We are not creating components, we can just collect the libraries

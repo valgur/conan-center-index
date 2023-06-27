@@ -14,11 +14,12 @@ required_conan_version = ">=1.55.0"
 
 class LibFDKAACConan(ConanFile):
     name = "libfdk_aac"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A standalone library of the Fraunhofer FDK AAC code from Android"
     license = "https://github.com/mstorsjo/fdk-aac/blob/master/NOTICE"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/opencore-amr/"
     topics = ("multimedia", "audio", "fraunhofer", "aac", "decoder", "encoding", "decoding")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -93,14 +94,16 @@ class LibFDKAACConan(ConanFile):
             replace_in_file(self, makefile_vc, "copy $(LIB_DEF) $(libdir)", "")
             if self.options.shared:
                 replace_in_file(
-                    self, makefile_vc,
+                    self,
+                    makefile_vc,
                     "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                     "all: $(LIB_DEF) $(SHARED_LIB) $(IMP_LIB)",
                 )
                 replace_in_file(self, makefile_vc, "copy $(STATIC_LIB) $(libdir)", "")
             else:
                 replace_in_file(
-                    self, makefile_vc,
+                    self,
+                    makefile_vc,
                     "all: $(LIB_DEF) $(STATIC_LIB) $(SHARED_LIB) $(IMP_LIB) $(PROGS)",
                     "all: $(STATIC_LIB)",
                 )
@@ -114,8 +117,10 @@ class LibFDKAACConan(ConanFile):
             if self.settings.os == "Android" and self._settings_build.os == "Windows":
                 # remove escape for quotation marks, to make ndk on windows happy
                 replace_in_file(
-                    self, os.path.join(self.source_folder, "configure"),
-                    "s/[	 `~#$^&*(){}\\\\|;'\\\''\"<>?]/\\\\&/g", "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g",
+                    self,
+                    os.path.join(self.source_folder, "configure"),
+                    "s/[	 `~#$^&*(){}\\\\|;'\\''\"<>?]/\\\\&/g",
+                    "s/[	 `~#$^&*(){}\\\\|;<>?]/\\\\&/g",
                 )
             autotools.configure()
             autotools.make()
@@ -127,10 +132,13 @@ class LibFDKAACConan(ConanFile):
             cmake.install()
         elif is_msvc(self):
             with chdir(self, self.source_folder):
-                self.run(f"nmake -f Makefile.vc prefix=\"{self.package_folder}\" install")
+                self.run(f'nmake -f Makefile.vc prefix="{self.package_folder}" install')
             if self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
-                             os.path.join(self.package_folder, "lib", "fdk-aac.lib"))
+                rename(
+                    self,
+                    os.path.join(self.package_folder, "lib", "fdk-aac.dll.lib"),
+                    os.path.join(self.package_folder, "lib", "fdk-aac.lib"),
+                )
         else:
             autotools = Autotools(self)
             autotools.install()

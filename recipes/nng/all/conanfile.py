@@ -2,20 +2,21 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
+
 
 class NngConan(ConanFile):
     name = "nng"
     description = "nanomsg-next-generation: light-weight brokerless messaging"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nanomsg/nng"
-    license = "MIT"
     topics = ("nanomsg", "communication", "messaging", "protocols")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -23,7 +24,7 @@ class NngConan(ConanFile):
         "nngcat": [True, False],
         "http": [True, False],
         "tls": [True, False],
-        "max_taskq_threads": ["ANY"]
+        "max_taskq_threads": ["ANY"],
     }
     default_options = {
         "shared": False,
@@ -31,7 +32,7 @@ class NngConan(ConanFile):
         "nngcat": False,
         "http": True,
         "tls": False,
-        "max_taskq_threads": "16"
+        "max_taskq_threads": "16",
     }
 
     def export_sources(self):
@@ -64,9 +65,7 @@ class NngConan(ConanFile):
         }
         minimum_version = compiler_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.settings.compiler} < {minimum_version} is not supported",
-            )
+            raise ConanInvalidConfiguration(f"{self.settings.compiler} < {minimum_version} is not supported")
         if not self.options.max_taskq_threads.value.isdigit():
             raise ConanInvalidConfiguration("max_taskq_threads must be an integral number")
 
@@ -82,6 +81,9 @@ class NngConan(ConanFile):
         tc.variables["NNG_MAX_TASKQ_THREADS"] = self.options.max_taskq_threads
         tc.generate()
 
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
@@ -89,7 +91,12 @@ class NngConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -13,12 +13,12 @@ class Aaplusconan(ConanFile):
     name = "aaplus"
     description = (
         "AA+ is a C++ implementation for the algorithms as presented in the "
-        "book \"Astronomical Algorithms\" by Jean Meeus"
+        'book "Astronomical Algorithms" by Jean Meeus'
     )
     license = "Unlicense"
-    topics = ("aa+", "astronomy", "astronomical-algorithms", "orbital-mechanics")
-    homepage = "http://www.naughter.com/aa.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.naughter.com/aa.html"
+    topics = ("aa+", "astronomy", "astronomical-algorithms", "orbital-mechanics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -67,7 +67,7 @@ class Aaplusconan(ConanFile):
         compiler_version = Version(self.settings.compiler.version)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
         if self.settings.compiler == "clang" and (compiler_version >= "10" and compiler_version < "12"):
@@ -88,16 +88,16 @@ class Aaplusconan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def package(self):
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
-        cmake = CMake(self)
-        cmake.install()
-
     def _extract_license(self):
         aaplus_header = load(self, os.path.join(self.source_folder, "AA+.h"))
         begin = aaplus_header.find("Copyright")
         end = aaplus_header.find("*/", begin)
         return aaplus_header[begin:end]
+
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
+        cmake = CMake(self)
+        cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["aaplus"]

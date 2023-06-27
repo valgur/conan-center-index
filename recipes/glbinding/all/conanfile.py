@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 import os
 
 required_conan_version = ">=1.53.0"
@@ -11,9 +18,9 @@ class GlbindingConan(ConanFile):
     name = "glbinding"
     description = "A C++ binding for the OpenGL API, generated using the gl.xml specification."
     license = "MIT"
-    topics = ("opengl", "binding")
-    homepage = "https://glbinding.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://glbinding.org/"
+    topics = ("opengl", "binding")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -99,7 +106,9 @@ class GlbindingConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_glbinding"].system_libs = ["dl", "pthread"]
         # glbinding-aux
-        self.cpp_info.components["glbinding-aux"].set_property("cmake_target_name", "glbinding::glbinding-aux")
+        self.cpp_info.components["glbinding-aux"].set_property(
+            "cmake_target_name", "glbinding::glbinding-aux"
+        )
         self.cpp_info.components["glbinding-aux"].libs = ["glbinding-aux" + suffix]
         self.cpp_info.components["glbinding-aux"].requires = ["_glbinding"]
         # KHRplatform

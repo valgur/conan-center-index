@@ -1,9 +1,8 @@
 #include <args-parser/all.hpp>
 
-int main()
-{
+int main() {
     static const int argc = 2;
-    static const char * argv[argc] = {"args-parser.test", "-a"};
+    static const char *argv[argc] = {"args-parser.test", "-a"};
 
     Args::CmdLine cmd(argc, argv);
 
@@ -11,13 +10,11 @@ int main()
         cmd.addArgWithFlagOnly('a');
 
         cmd.parse();
-    }
-    catch(const Args::BaseException &)
-    {
+    } catch (const Args::BaseException &) {
         return 1;
     }
 
-    if(cmd.isDefined("-a"))
+    if (cmd.isDefined("-a"))
         return 0;
     else
         return 1;

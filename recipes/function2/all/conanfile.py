@@ -6,16 +6,20 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class Function2Conan(ConanFile):
     name = "function2"
-    description = "Improved and configurable drop-in replacement to std::function that supports move only types, multiple overloads and more"
-    topics = ("function", "functional", "function-wrapper", "type-erasure", "header-only")
+    description = (
+        "Improved and configurable drop-in replacement to std::function "
+        "that supports move only types, multiple overloads and more"
+    )
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Naios/function2"
-    license = "BSL-1.0"
+    topics = ("function", "functional", "function-wrapper", "type-erasure", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -47,7 +51,7 @@ class Function2Conan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -58,7 +62,12 @@ class Function2Conan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.hpp", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*.hpp",
+            os.path.join(self.source_folder, "include"),
+            os.path.join(self.package_folder, "include"),
+        )
 
     def package_info(self):
         self.cpp_info.bindirs = []

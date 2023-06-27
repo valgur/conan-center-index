@@ -10,17 +10,17 @@ required_conan_version = ">=1.53.0"
 
 class CivetwebConan(ConanFile):
     name = "civetweb"
-    license = "MIT"
-    homepage = "https://github.com/civetweb/civetweb"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Embedded C/C++ web server"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/civetweb/civetweb"
     topics = ("web-server", "embedded")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
         "shared": [True, False],
+        "fPIC": [True, False],
         "ssl_dynamic_loading": [True, False],
         "with_caching": [True, False],
         "with_cgi": [True, False],
@@ -36,8 +36,8 @@ class CivetwebConan(ConanFile):
         "with_zlib": [True, False],
     }
     default_options = {
-        "fPIC": True,
         "shared": False,
+        "fPIC": True,
         "ssl_dynamic_loading": False,
         "with_caching": True,
         "with_cgi": True,
@@ -66,7 +66,7 @@ class CivetwebConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_zlib_option:
-            del self.options.with_zlib
+            self.options.rm_safe("with_zlib")
 
     def configure(self):
         if self.options.shared:
@@ -75,7 +75,7 @@ class CivetwebConan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_ssl:
-            del self.options.ssl_dynamic_loading
+            self.options.rm_safe("ssl_dynamic_loading")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -103,8 +103,12 @@ class CivetwebConan(ConanFile):
             openssl_version = Version(self.dependencies["openssl"].ref.version)
             tc.variables["CIVETWEB_ENABLE_SSL"] = self.options.with_ssl
             tc.variables["CIVETWEB_ENABLE_SSL_DYNAMIC_LOADING"] = self.options.ssl_dynamic_loading
-            tc.variables["CIVETWEB_SSL_OPENSSL_API_1_0"] = openssl_version.major == "1" and openssl_version.minor == "0"
-            tc.variables["CIVETWEB_SSL_OPENSSL_API_1_1"] = openssl_version.major == "1" and openssl_version.minor == "1"
+            tc.variables["CIVETWEB_SSL_OPENSSL_API_1_0"] = (
+                openssl_version.major == "1" and openssl_version.minor == "0"
+            )
+            tc.variables["CIVETWEB_SSL_OPENSSL_API_1_1"] = (
+                openssl_version.major == "1" and openssl_version.minor == "1"
+            )
             if Version(self.version) >= "1.16":
                 tc.variables["CIVETWEB_SSL_OPENSSL_API_3_0"] = openssl_version.major == "3"
 
@@ -152,7 +156,9 @@ class CivetwebConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "civetweb")
-        self.cpp_info.set_property("cmake_target_name", "civetweb::civetweb-cpp" if self.options.with_cxx else "civetweb::civetweb")
+        self.cpp_info.set_property(
+            "cmake_target_name", "civetweb::civetweb-cpp" if self.options.with_cxx else "civetweb::civetweb"
+        )
         self.cpp_info.set_property("pkg_config_name", "civetweb")
 
         self.cpp_info.components["_civetweb"].set_property("cmake_target_name", "civetweb::civetweb")
@@ -173,7 +179,9 @@ class CivetwebConan(ConanFile):
             self.cpp_info.components["_civetweb"].requires.append("zlib::zlib")
 
         if self.options.with_cxx:
-            self.cpp_info.components["civetweb-cpp"].set_property("cmake_target_name", "civetweb::civetweb-cpp")
+            self.cpp_info.components["civetweb-cpp"].set_property(
+                "cmake_target_name", "civetweb::civetweb-cpp"
+            )
             self.cpp_info.components["civetweb-cpp"].libs = ["civetweb-cpp"]
             self.cpp_info.components["civetweb-cpp"].requires = ["_civetweb"]
             if self.settings.os in ["Linux", "FreeBSD"]:

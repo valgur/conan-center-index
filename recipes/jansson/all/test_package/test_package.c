@@ -22,9 +22,9 @@
  * it under the terms of the MIT license. See LICENSE for details.
  */
 
+#include <jansson.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <jansson.h>
 
 /* forward refs */
 void print_json(json_t *root);
@@ -40,9 +40,7 @@ void print_json_true(json_t *element, int indent);
 void print_json_false(json_t *element, int indent);
 void print_json_null(json_t *element, int indent);
 
-void print_json(json_t *root) {
-    print_json_aux(root, 0);
-}
+void print_json(json_t *root) { print_json_aux(root, 0); }
 
 void print_json_aux(json_t *element, int indent) {
     switch (json_typeof(element)) {
@@ -77,12 +75,12 @@ void print_json_aux(json_t *element, int indent) {
 
 void print_json_indent(int indent) {
     int i;
-    for (i = 0; i < indent; i++) { putchar(' '); }
+    for (i = 0; i < indent; i++) {
+        putchar(' ');
+    }
 }
 
-const char *json_plural(int count) {
-    return count == 1 ? "" : "s";
-}
+const char *json_plural(int count) { return count == 1 ? "" : "s"; }
 
 void print_json_object(json_t *element, int indent) {
     size_t size;
@@ -98,7 +96,6 @@ void print_json_object(json_t *element, int indent) {
         printf("JSON Key: \"%s\"\n", key);
         print_json_aux(value, indent + 2);
     }
-
 }
 
 void print_json_array(json_t *element, int indent) {
@@ -186,7 +183,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s\n", argv[0]);
         exit(-1);
     }
-
 
     /* parse text into JSON structure */
     json_t *root = load_json(line);

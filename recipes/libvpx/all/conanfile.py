@@ -3,7 +3,15 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file, rename
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    rmdir,
+    replace_in_file,
+    rename,
+)
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag
@@ -16,11 +24,11 @@ required_conan_version = ">=1.57.0"
 
 class LibVPXConan(ConanFile):
     name = "libvpx"
+    description = "WebM VP8/VP9 Codec SDK"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.webmproject.org/code"
-    description = "WebM VP8/VP9 Codec SDK"
-    topics = "vpx", "codec", "web", "VP8", "VP9"
-    license = "BSD-3-Clause"
+    topics = ("vpx", "codec", "web", "VP8", "VP9")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -33,10 +41,9 @@ class LibVPXConan(ConanFile):
         "fPIC": True,
     }
 
-    _arch_options = ['mmx', 'sse', 'sse2', 'sse3', 'ssse3', 'sse4_1', 'avx', 'avx2', 'avx512']
-
+    _arch_options = ["mmx", "sse", "sse2", "sse3", "ssse3", "sse4_1", "avx", "avx2", "avx512"]
     options.update({name: [True, False] for name in _arch_options})
-    default_options.update({name: 'avx' not in name for name in _arch_options})
+    default_options.update({name: "avx" not in name for name in _arch_options})
 
     @property
     def _settings_build(self):
@@ -46,9 +53,9 @@ class LibVPXConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
-        if str(self.settings.arch) not in ['x86', 'x86_64']:
+        if str(self.settings.arch) not in ["x86", "x86_64"]:
             for name in self._arch_options:
                 delattr(self.options, name)
 
@@ -91,62 +98,75 @@ class LibVPXConan(ConanFile):
             # special case, as gcc/g++ is hard-coded in makefile, it implicitly assumes -lstdc++
             tc.extra_ldflags.append("-stdlib=libc++")
 
-        tc.configure_args.extend([
-            "--disable-examples",
-            "--disable-unit-tests",
-            "--disable-tools",
-            "--disable-docs",
-            "--enable-vp9-highbitdepth",
-            "--as=yasm",
-        ])
+        tc.configure_args.extend(
+            [
+                "--disable-examples",
+                "--disable-unit-tests",
+                "--disable-tools",
+                "--disable-docs",
+                "--enable-vp9-highbitdepth",
+                "--as=yasm",
+            ]
+        )
 
         # Note for MSVC: release libs are always built, we just avoid keeping the release lib
         # Note2: Can't use --enable-debug_libs (to help install on Windows),
         #     the makefile's install step fails as it wants to install a library that doesn't exist.
         #     Instead, we will copy the desired library manually in the package step.
         if self.settings.build_type == "Debug":
-            tc.configure_args.extend([
-                # "--enable-debug_libs",
-                "--enable-debug",
-            ])
+            tc.configure_args.extend(
+                [
+                    # "--enable-debug_libs",
+                    "--enable-debug"
+                ]
+            )
 
         if is_msvc(self) and is_msvc_static_runtime(self):
             tc.configure_args.append("--enable-static-msvcrt")
 
-        arch = {'x86': 'x86',
-                'x86_64': 'x86_64',
-                'armv7': 'armv7',
-                'armv8': 'arm64',
-                'mips': 'mips32',
-                'mips64': 'mips64',
-                'sparc': 'sparc'}.get(str(self.settings.arch))
+        arch = {
+            "x86": "x86",
+            "x86_64": "x86_64",
+            "armv7": "armv7",
+            "armv8": "arm64",
+            "mips": "mips32",
+            "mips64": "mips64",
+            "sparc": "sparc",
+        }.get(str(self.settings.arch))
         if str(self.settings.compiler) == "Visual Studio":
             vc_version = self.settings.compiler.version
             compiler = f"vs{vc_version}"
         elif is_msvc(self):
             vc_version = str(self.settings.compiler.version)
-            vc_version = {"170": "11", "180": "12", "190": "14", "191": "15", "192": "16", "193": "17"}[vc_version]
+            vc_version = {
+                "170": "11",
+                "180": "12",
+                "190": "14",
+                "191": "15",
+                "192": "16",
+                "193": "17",
+            }[vc_version]
             compiler = f"vs{vc_version}"
         elif self.settings.compiler in ["gcc", "clang", "apple-clang"]:
-            compiler = 'gcc'
+            compiler = "gcc"
 
         host_os = str(self.settings.os)
-        if host_os == 'Windows':
-            os_name = 'win32' if self.settings.arch == 'x86' else 'win64'
+        if host_os == "Windows":
+            os_name = "win32" if self.settings.arch == "x86" else "win64"
         elif is_apple_os(self):
             if self.settings.arch in ["x86", "x86_64"]:
-                os_name = 'darwin11'
+                os_name = "darwin11"
             elif self.settings.arch == "armv8" and self.settings.os == "Macos":
-                os_name = 'darwin20'
+                os_name = "darwin20"
             else:
                 # Unrecognized toolchain 'arm64-darwin11-gcc', see list of toolchains in ./configure --help
-                os_name = 'darwin'
-        elif host_os == 'Linux':
-            os_name = 'linux'
-        elif host_os == 'Solaris':
-            os_name = 'solaris'
-        elif host_os == 'Android':
-            os_name = 'android'
+                os_name = "darwin"
+        elif host_os == "Linux":
+            os_name = "linux"
+        elif host_os == "Solaris":
+            os_name = "solaris"
+        elif host_os == "Android":
+            os_name = "android"
         target = f"{arch}-{os_name}-{compiler}"
         tc.configure_args.append(f"--target={target}")
         if str(self.settings.arch) in ["x86", "x86_64"]:
@@ -154,20 +174,22 @@ class LibVPXConan(ConanFile):
                 if not self.options.get_safe(name):
                     tc.configure_args.append(f"--disable-{name}")
 
-        tc.update_configure_args({
-            # libvpx does not like --prefix=/ as it fails the test for "libdir
-            # must be a subfolder of prefix" libvpx src/build/make/configure.sh:683
-            "--prefix": f"/{self._install_tmp_folder}",
-            "--libdir": f"/{self._install_tmp_folder}/lib",
-            # several options must not be injected as custom configure doesn't like them
-            "--host": None,
-            "--build": None,
-            "--bindir": None,
-            "--sbindir": None,
-            "--includedir": None,
-            "--oldincludedir": None,
-            "--datarootdir": None,
-        })
+        tc.update_configure_args(
+            {
+                # libvpx does not like --prefix=/ as it fails the test for "libdir
+                # must be a subfolder of prefix" libvpx src/build/make/configure.sh:683
+                "--prefix": f"/{self._install_tmp_folder}",
+                "--libdir": f"/{self._install_tmp_folder}/lib",
+                # several options must not be injected as custom configure doesn't like them
+                "--host": None,
+                "--build": None,
+                "--bindir": None,
+                "--sbindir": None,
+                "--includedir": None,
+                "--oldincludedir": None,
+                "--datarootdir": None,
+            }
+        )
 
         if is_msvc(self):
             # gen_msvs_vcxproj.sh doesn't like custom flags
@@ -185,7 +207,8 @@ class LibVPXConan(ConanFile):
             lto = any(re.finditer("(^| )[/-]GL($| )", cflags))
             if not lto:
                 self.output.info("Disabling LTO")
-                replace_in_file(self,
+                replace_in_file(
+                    self,
                     os.path.join(self.source_folder, "build", "make", "gen_msvs_vcxproj.sh"),
                     "tag_content WholeProgramOptimization true",
                     "tag_content WholeProgramOptimization false",
@@ -196,7 +219,8 @@ class LibVPXConan(ConanFile):
         # The compile script wants to use CC for some of the platforms (Linux, etc),
         # but incorrectly assumes gcc is the compiler for those platforms.
         # This can fail some of the configure tests, and -lpthread isn't added to the link command.
-        replace_in_file(self,
+        replace_in_file(
+            self,
             os.path.join(self.source_folder, "build", "make", "configure.sh"),
             "  LD=${LD:-${CROSS}${link_with_cc:-ld}}",
             """
@@ -206,8 +230,8 @@ class LibVPXConan(ConanFile):
    echo "using compiler as linker"
    LD=${CC}
   fi
-"""
-            )
+""",
+        )
 
     def build(self):
         self._patch_sources()
@@ -221,24 +245,27 @@ class LibVPXConan(ConanFile):
         return f"vpx{suffix}"
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         autotools = Autotools(self)
         autotools.install()
 
         # The workaround requires us to move the outputs into place now
-        rename(self,
-                os.path.join(self.package_folder, self._install_tmp_folder, "include"),
-                os.path.join(self.package_folder, "include")
-                )
+        rename(
+            self,
+            os.path.join(self.package_folder, self._install_tmp_folder, "include"),
+            os.path.join(self.package_folder, "include"),
+        )
 
         if is_msvc(self):
             # Libs are still in the build folder, get from there directly.
             # The makefile cannot correctly install the debug libs (see note about --enable-debug_libs)
             libs_from = os.path.join(
-                    self.build_folder,
-                    "Win32" if self.settings.arch == "x86" else "x64",
-                    "Debug" if self.settings.build_type == "Debug" else "Release"
-                    )
+                self.build_folder,
+                "Win32" if self.settings.arch == "x86" else "x64",
+                "Debug" if self.settings.build_type == "Debug" else "Release",
+            )
             # Copy for msvc, as it will generate a release and debug library, so take what we want
             # Note that libvpx's configure/make doesn't support shared lib builds on windows yet.
             copy(self, f"{self._lib_name}.lib", libs_from, os.path.join(self.package_folder, "lib"))

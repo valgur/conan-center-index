@@ -1,35 +1,106 @@
-from conan import ConanFile
-from conan.tools.files import get, chdir, save, replace_in_file, rmdir, rm
-from conan.tools.microsoft import is_msvc
-from conans import AutoToolsBuildEnvironment, MSBuild, tools
+# TODO: verify the Conan v2 migration
+
+import os
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
 import os
 import re
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibsassConan(ConanFile):
     name = "libsass"
-    license = "MIT"
-    homepage = "libsass.org"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A C/C++ implementation of a Sass compiler"
-    topics = ("Sass", "LibSass", "compiler")
-    settings = "os", "compiler", "build_type", "arch"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "libsass.org"
+    topics = ("Sass", "compiler")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
     }
-
-    _autotools = None
-
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
 
     @property
     def _is_mingw(self):
@@ -41,65 +112,62 @@ class LibsassConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def build_requirements(self):
         if self.settings.os != "Windows":
             self.tool_requires("libtool/2.4.7")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self._source_subfolder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self)
-        args = []
-        args.append("--disable-tests")
-        args.append("--enable-%s" % ("shared" if self.options.shared else "static"))
-        args.append("--disable-%s" % ("static" if self.options.shared else "shared"))
-        self._autotools.configure(args=args)
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = ["--disable-tests"]
+        tc.generate()
 
     def _build_autotools(self):
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             save(self, path="VERSION", content=f"{self.version}")
-            self.run("{} -fiv".format(tools.get_env("AUTORECONF")))
-            autotools = self._configure_autotools()
+            self.run(f"{get_env(self, 'AUTORECONF')} -fiv")
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make()
 
-    @property
-    def _make_program(self):
-        return tools.get_env("CONAN_MAKE_PROGRAM", tools.which("make") or tools.which("mingw32-make"))
-
     def _build_mingw(self):
-        makefile = os.path.join(self._source_subfolder, "Makefile")
+        makefile = os.path.join(self.source_folder, "Makefile")
         replace_in_file(self, makefile, "CFLAGS   += -O2", "")
         replace_in_file(self, makefile, "CXXFLAGS += -O2", "")
         replace_in_file(self, makefile, "LDFLAGS  += -O2", "")
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             env_vars = AutoToolsBuildEnvironment(self).vars
-            env_vars.update({
-                "BUILD": "shared" if self.options.shared else "static",
-                "PREFIX": tools.unix_path(os.path.join(self.package_folder)),
-                # Don't force static link to mingw libs, leave this decision to consumer (through LDFLAGS in env)
-                "STATIC_ALL": "0",
-                "STATIC_LIBGCC": "0",
-                "STATIC_LIBSTDCPP": "0",
-            })
-            with tools.environment_append(env_vars):
+            env_vars.update(
+                {
+                    "BUILD": "shared" if self.options.shared else "static",
+                    "PREFIX": unix_path(self, os.path.join(self.package_folder)),
+                    # Don't force static link to mingw libs, leave this decision to consumer (through LDFLAGS in env)
+                    "STATIC_ALL": "0",
+                    "STATIC_LIBGCC": "0",
+                    "STATIC_LIBSTDCPP": "0",
+                }
+            )
+            with environment_append(self, env_vars):
                 self.run(f"{self._make_program} -f Makefile")
 
     def _build_visual_studio(self):
-        with chdir(self, self._source_subfolder):
+        with chdir(self, self.source_folder):
             properties = {
                 "LIBSASS_STATIC_LIB": "" if self.options.shared else "true",
-                "WholeProgramOptimization": "true" if any(re.finditer("(^| )[/-]GL($| )", tools.get_env("CFLAGS", ""))) else "false",
+                "WholeProgramOptimization": (
+                    "true" if any(re.finditer("(^| )[/-]GL($| )", get_env(self, "CFLAGS", ""))) else "false"
+                ),
             }
             platforms = {
                 "x86": "Win32",
-                "x86_64": "Win64"
+                "x86_64": "Win64",
             }
             msbuild = MSBuild(self)
             msbuild.build(os.path.join("win", "libsass.sln"), platforms=platforms, properties=properties)
@@ -113,24 +181,56 @@ class LibsassConan(ConanFile):
             self._build_autotools()
 
     def _install_autotools(self):
-        with chdir(self, self._source_subfolder):
-            autotools = self._configure_autotools()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def _install_mingw(self):
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "lib"))
-        self.copy("*.a", dst="lib", src=os.path.join(self._source_subfolder, "lib"))
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "lib"),
+        )
+        copy(
+            self,
+            "*.a",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "lib"),
+        )
 
     def _install_visual_studio(self):
-        self.copy("*.h", dst="include", src=os.path.join(self._source_subfolder, "include"))
-        self.copy("*.dll", dst="bin", src=os.path.join(self._source_subfolder, "win", "bin"), keep_path=False)
-        self.copy("*.lib", dst="lib", src=os.path.join(self._source_subfolder, "win", "bin"), keep_path=False)
+        copy(
+            self,
+            "*.h",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+        copy(
+            self,
+            "*.dll",
+            dst=os.path.join(self.package_folder, "bin"),
+            src=os.path.join(self.source_folder, "win", "bin"),
+            keep_path=False,
+        )
+        copy(
+            self,
+            "*.lib",
+            dst=os.path.join(self.package_folder, "lib"),
+            src=os.path.join(self.source_folder, "win", "bin"),
+            keep_path=False,
+        )
 
     def package(self):
-        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self._is_mingw:
             self._install_mingw()
         elif is_msvc(self):
@@ -143,5 +243,5 @@ class LibsassConan(ConanFile):
         self.cpp_info.libs = ["libsass" if is_msvc(self) else "sass"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])
-        if not self.options.shared and tools.stdcpp_library(self):
-            self.cpp_info.system_libs.append(tools.stdcpp_library(self))
+        if not self.options.shared and stdcpp_library(self):
+            self.cpp_info.system_libs.append(stdcpp_library(self))

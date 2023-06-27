@@ -11,9 +11,9 @@ class H3Conan(ConanFile):
     name = "h3"
     description = "Hexagonal hierarchical geospatial indexing system."
     license = "Apache-2.0"
-    topics = ("hierarchical", "geospatial", "indexing")
-    homepage = "https://github.com/uber/h3"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/uber/h3"
+    topics = ("hierarchical", "geospatial", "indexing")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

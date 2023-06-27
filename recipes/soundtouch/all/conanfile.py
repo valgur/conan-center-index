@@ -4,16 +4,21 @@ from conan.tools.files import get, copy, rm, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-
 required_conan_version = ">=1.53.0"
+
 
 class SoundTouchConan(ConanFile):
     name = "soundtouch"
-    description = "an open-source audio processing library that allows changing the sound tempo, pitch and playback rate parameters independently"
+    description = (
+        "an open-source audio processing library that allows changing "
+        "the sound tempo, pitch and playback rate parameters independently"
+    )
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://codeberg.org/soundtouch/soundtouch"
     topics = ("audio", "processing", "tempo", "pitch", "playback")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,7 +49,7 @@ class SoundTouchConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -60,7 +65,12 @@ class SoundTouchConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="COPYING.TXT",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -90,7 +100,9 @@ class SoundTouchConan(ConanFile):
             self.cpp_info.components["_soundtouch"].exelinkflags = openmp_flags
 
         if self.options.with_dll:
-            self.cpp_info.components["SoundTouchDLL"].set_property("cmake_target_name", "SoundTouch::SoundTouchDLL")
+            self.cpp_info.components["SoundTouchDLL"].set_property(
+                "cmake_target_name", "SoundTouch::SoundTouchDLL"
+            )
             self.cpp_info.components["SoundTouchDLL"].libs = ["SoundTouchDLL"]
             self.cpp_info.components["SoundTouchDLL"].requires = ["_soundtouch"]
 

@@ -1,13 +1,22 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
+from conan.tools.files import (
+    apply_conandata_patches,
+    export_conandata_patches,
+    get,
+    copy,
+    rm,
+    rmdir,
+    replace_in_file,
+)
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class Jinja2cppConan(ConanFile):
     name = "jinja2cpp"
@@ -63,7 +72,7 @@ class Jinja2cppConan(ConanFile):
         self.requires("string-view-lite/1.7.0", transitive_headers=True)
         self.requires("variant-lite/2.0.0", transitive_headers=True)
         if self.version == "1.1.0":
-            self.requires("fmt/6.2.1") # not compatible with fmt >= 7.0.0
+            self.requires("fmt/6.2.1")  # not compatible with fmt >= 7.0.0
         else:
             self.requires("nlohmann_json/3.11.2")
             self.requires("fmt/10.0.0")
@@ -98,8 +107,12 @@ class Jinja2cppConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         # Don't force MD for shared lib, allow to honor runtime from profile
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(JINJA2CPP_MSVC_RUNTIME_TYPE \"/MD\")", "")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            'set(JINJA2CPP_MSVC_RUNTIME_TYPE "/MD")',
+            "",
+        )
 
     def build(self):
         self._patch_sources()
@@ -108,7 +121,9 @@ class Jinja2cppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "jinja2cpp"))
@@ -118,4 +133,3 @@ class Jinja2cppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "jinja2cpp")
         self.cpp_info.set_property("cmake_target_name", "jinja2cpp")
         self.cpp_info.libs = ["jinja2cpp"]
-

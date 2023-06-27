@@ -12,6 +12,7 @@ class NanodbcConan(ConanFile):
     topics = ("conan", "nanodbc", "odbc", "database")
     license = "MIT"
     homepage = "https://github.com/nanodbc/nanodbc/"
+
     package_type = "library"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
@@ -30,25 +31,10 @@ class NanodbcConan(ConanFile):
         "with_boost": False,
     }
 
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     @property
     def _min_cppstd(self):
         return 14
-    
+
     @property
     def _compilers_minimum_version(self):
         return {
@@ -58,6 +44,20 @@ class NanodbcConan(ConanFile):
             "msvc": "190",
             "apple-clang": "9.1",  # FIXME: this is a guess
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -95,7 +95,7 @@ class NanodbcConan(ConanFile):
         tc.cache_variables["NANODBC_DISABLE_TESTS"] = True
         tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-        
+
         deps = CMakeDeps(self)
         deps.generate()
 

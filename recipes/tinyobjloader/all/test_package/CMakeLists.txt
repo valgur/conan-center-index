@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
 find_package(tinyobjloader REQUIRED CONFIG)
@@ -15,3 +15,4 @@ endif()
 if(tinyobjloader_VERSION VERSION_GREATER_EQUAL "2")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TINYOBJLOADER_GE_2)
 endif()
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

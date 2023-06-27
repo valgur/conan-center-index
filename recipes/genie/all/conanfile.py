@@ -11,13 +11,16 @@ import os
 
 required_conan_version = ">=1.51.3"
 
+
 class GenieConan(ConanFile):
     name = "genie"
+    description = "Project generator tool"
     license = "BSD-3-clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bkaradzic/GENie"
-    description = "Project generator tool"
-    topics = ("genie", "project", "generator", "build", "build-systems")
+    topics = ("project", "generator", "build", "build-systems")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -44,7 +47,7 @@ class GenieConan(ConanFile):
             self.tool_requires("cccl/1.3")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _os(self):
@@ -57,8 +60,18 @@ class GenieConan(ConanFile):
         }[str(self.settings.os)]
 
     def _patch_compiler(self, cc, cxx):
-        replace_in_file(self, os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make"), "CC  = gcc", f"CC  = {cc}")
-        replace_in_file(self, os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make"), "CXX = g++", f"CXX = {cxx}")
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make"),
+            "CC  = gcc",
+            f"CC  = {cc}",
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make"),
+            "CXX = g++",
+            f"CXX = {cxx}",
+        )
 
     @property
     def _genie_config(self):
@@ -94,20 +107,36 @@ class GenieConan(ConanFile):
             self._patch_compiler(cc, cxx)
 
             autotools = Autotools(self)
-            autotools.make(args=[f"-C {self.source_folder}", f"OS={self._os}", f"config={self._genie_config}"])
+            autotools.make(
+                args=[f"-C {self.source_folder}", f"OS={self._os}", f"config={self._genie_config}"]
+            )
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
-        copy(self, pattern=f"genie{bin_ext}", src=os.path.join(self.source_folder, "bin", self._os), dst=os.path.join(self.package_folder, "bin"))
+        copy(
+            self,
+            pattern=f"genie{bin_ext}",
+            src=os.path.join(self.source_folder, "bin", self._os),
+            dst=os.path.join(self.package_folder, "bin"),
+        )
         if self.settings.build_type == "Debug":
-            copy(self, pattern="*.lua", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder,"res"))
+            copy(
+                self,
+                pattern="*.lua",
+                src=os.path.join(self.source_folder, "src"),
+                dst=os.path.join(self.package_folder, "res"),
+            )
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-        
-        #TODO remove for conan v2
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+
+        # TODO remove for conan v2
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

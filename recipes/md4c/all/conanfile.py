@@ -1,7 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import (
+    apply_conandata_patches,
+    copy,
+    export_conandata_patches,
+    get,
+    replace_in_file,
+    rmdir,
+)
 
 import os
 
@@ -12,9 +19,10 @@ class Md4cConan(ConanFile):
     name = "md4c"
     description = "C Markdown parser. Fast. SAX-like interface. Compliant to CommonMark specification."
     license = "MIT"
-    topics = ("markdown-parser", "markdown")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mity/md4c"
+    topics = ("markdown-parser", "markdown")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -46,7 +54,9 @@ class Md4cConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Windows" and self.options.encoding == "utf-16":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support utf-16 options on non-Windows platforms")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} doesn't support utf-16 options on non-Windows platforms"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,7 +77,7 @@ class Md4cConan(ConanFile):
         replace_in_file(
             self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-            "COMPILE_FLAGS \"-DMD4C_USE_UTF8\"",
+            'COMPILE_FLAGS "-DMD4C_USE_UTF8"',
             "",
         )
 
@@ -78,7 +88,12 @@ class Md4cConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="LICENSE.md",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

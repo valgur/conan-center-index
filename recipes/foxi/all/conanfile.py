@@ -4,22 +4,25 @@ from conan.tools.files import apply_conandata_patches, copy, get, rename, replac
 import glob
 import os
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.53.0"
 
 
 class FoxiConan(ConanFile):
     name = "foxi"
     description = "ONNXIFI with Facebook Extension."
     license = "MIT"
-    topics = ("foxi", "onnxifi")
-    homepage = "https://github.com/houseroad/foxi"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/houseroad/foxi"
+    topics = ("onnxifi",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
     }
 
@@ -32,21 +35,14 @@ class FoxiConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,9 +54,12 @@ class FoxiConan(ConanFile):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_loader)", "")
         replace_in_file(self, cmakelists, "add_msvc_runtime_flag(foxi_dummy)", "")
-        replace_in_file(self, cmakelists,
-                              "DESTINATION lib",
-                              "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib")
+        replace_in_file(
+            self,
+            cmakelists,
+            "DESTINATION lib",
+            "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib",
+        )
 
     def build(self):
         self._patch_sources()
@@ -74,7 +73,9 @@ class FoxiConan(ConanFile):
         cmake.install()
         # Move plugin to bin folder on Windows
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
-            rename(self, src=dll_file, dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
+            rename(
+                self, src=dll_file, dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file))
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["foxi_dummy", "foxi_loader"]

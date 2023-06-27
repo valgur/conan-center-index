@@ -1,12 +1,11 @@
-#include <string>
 #include <fstream>
+#include <string>
 
 #include <cfg.hpp>
 
 #include <iostream>
 
-int main(int argc, char ** argv)
-{
+int main(int argc, char **argv) {
     if (argc < 2) {
         std::cerr << "Need an argument\n";
         return 1;
@@ -14,19 +13,17 @@ int main(int argc, char ** argv)
 
     Cfg::Session cfg;
 
-    std::ifstream stream( argv[1] );
+    std::ifstream stream(argv[1]);
 
     try {
-        Cfg::tag_Session< cfgfile::string_trait_t > s;
+        Cfg::tag_Session<cfgfile::string_trait_t> s;
 
-        cfgfile::read_cfgfile( s, stream, "test.cfg" );
+        cfgfile::read_cfgfile(s, stream, "test.cfg");
 
         stream.close();
 
         cfg = s.get_cfg();
-    }
-    catch( const cfgfile::exception_t<> & x )
-    {
+    } catch (const cfgfile::exception_t<> &x) {
         stream.close();
 
         std::cout << x.desc() << std::endl;
@@ -34,7 +31,7 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    if( cfg.project() == "123" )
+    if (cfg.project() == "123")
         return 0;
     else
         return 1;

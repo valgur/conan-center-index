@@ -72,9 +72,11 @@ class SimdjsonConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not fully support."
             )
 
-        if Version(self.version) >= "2.0.0" and \
-            self.settings.compiler == "gcc" and \
-            Version(self.settings.compiler.version).major == "9":
+        if (
+            Version(self.version) >= "2.0.0"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version).major == "9"
+        ):
             if self.settings.compiler.get_safe("libcxx") == "libstdc++11":
                 raise ConanInvalidConfiguration(f"{self.ref} doesn't support GCC 9 with libstdc++11.")
             if self.settings.build_type == "Debug":
@@ -98,7 +100,9 @@ class SimdjsonConan(ConanFile):
         if Version(self.version) < "1.0.0":
             simd_flags_file = os.path.join(self.source_folder, "cmake", "simdjson-flags.cmake")
             # Those flags are not set in >=1.0.0 since we disable SIMDJSON_DEVELOPER_MODE
-            replace_in_file(self, simd_flags_file, "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)", "")
+            replace_in_file(
+                self, simd_flags_file, "target_compile_options(simdjson-internal-flags INTERFACE -fPIC)", ""
+            )
             replace_in_file(self, simd_flags_file, "-Werror", "")
             replace_in_file(self, simd_flags_file, "/WX", "")
             # Relocatable shared lib on macOS

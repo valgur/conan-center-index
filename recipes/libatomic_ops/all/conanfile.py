@@ -3,35 +3,31 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, rmdir, export_conandata_patches
 import os
 
-
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class Atomic_opsConan(ConanFile):
     name = "libatomic_ops"
-    homepage = "https://github.com/ivmai/libatomic_ops"
     description = "The atomic_ops project (Atomic memory update operations portable implementation)"
-    topics = ("conan", "fmt", "format", "iostream", "printf")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-2.0-or-later"
-    settings = "os", "compiler", "build_type", "arch"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ivmai/libatomic_ops"
+    topics = ("fmt", "format", "iostream", "printf")
 
-    _cmake_options_defaults = (
-        ("assertions",          False,),
-        ("atomic_intrinsics",   True,),
-    )
-
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "assertions": [True, False],
+        "atomic_intrinsics": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "assertions": False,
+        "atomic_intrinsics": True,
     }
-    for option, default in _cmake_options_defaults:
-        options[option] = [True, False]
-        default_options[option] = default
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -41,26 +37,16 @@ class Atomic_opsConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -89,7 +75,9 @@ class Atomic_opsConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Atomic_ops")
-        self.cpp_info.set_property("cmake_target_name", "Atomic_ops::atomic_ops_gpl") # workaround to not define an unofficial target
+        self.cpp_info.set_property(
+            "cmake_target_name", "Atomic_ops::atomic_ops_gpl"
+        )  # workaround to not define an unofficial target
 
         # TODO: Remove on Conan 2.0
         self.cpp_info.names["cmake_find_package"] = "Atomic_ops"
@@ -101,6 +89,8 @@ class Atomic_opsConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["atomic_ops"].system_libs = ["pthread"]
 
-        self.cpp_info.components["atomic_ops_gpl"].set_property("cmake_target_name", "Atomic_ops::atomic_ops_gpl")
+        self.cpp_info.components["atomic_ops_gpl"].set_property(
+            "cmake_target_name", "Atomic_ops::atomic_ops_gpl"
+        )
         self.cpp_info.components["atomic_ops_gpl"].libs = ["atomic_ops_gpl"]
         self.cpp_info.components["atomic_ops_gpl"].requires = ["atomic_ops"]

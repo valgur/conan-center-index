@@ -12,11 +12,24 @@ required_conan_version = ">=1.53.0"
 
 class ConcurrencppConan(ConanFile):
     name = "concurrencpp"
-    description = "Modern concurrency for C++. Tasks, executors, timers and C++20 coroutines to rule them all."
-    homepage = "https://github.com/David-Haim/concurrencpp"
-    topics = ("scheduler", "coroutines", "concurrency", "tasks", "executors", "timers", "await", "multithreading")
+    description = (
+        "Modern concurrency for C++. "
+        "Tasks, executors, timers and C++20 coroutines to rule them all."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/David-Haim/concurrencpp"
+    topics = (
+        "scheduler",
+        "coroutines",
+        "concurrency",
+        "tasks",
+        "executors",
+        "timers",
+        "await",
+        "multithreading",
+    )
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {

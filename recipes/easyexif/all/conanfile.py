@@ -10,35 +10,42 @@ required_conan_version = ">=1.53.0"
 class EasyExifConan(ConanFile):
     name = "easyexif"
     description = "Tiny ISO-compliant C++ EXIF parsing library, third-party dependency free."
-    topics = ("conan", "exif", "image", "multimedia", "format", "graphics")
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mayanklahiri/easyexif"
-    license = "BSD-2-Clause"
-    exports_sources = "CMakeLists.txt"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("exif", "image", "multimedia", "format", "graphics")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False]
+        "fPIC": [True, False],
     }
-    default_options = {"shared": False, "fPIC": True}
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        cmake_layout(self)
+
     def validate(self):
         if self.info.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, 11)
 
-    def layout(self):
-        cmake_layout(self)
-
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -50,7 +57,9 @@ class EasyExifConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

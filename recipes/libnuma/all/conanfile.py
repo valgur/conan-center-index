@@ -12,9 +12,9 @@ class LibnumaConan(ConanFile):
     name = "libnuma"
     description = "NUMA support for Linux."
     license = "LGPL-2.1-or-later"
-    topics = ("numa",)
-    homepage = "https://github.com/numactl/numactl"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/numactl/numactl"
+    topics = ("numa",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,7 +32,7 @@ class LibnumaConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
@@ -57,7 +57,9 @@ class LibnumaConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE.LGPL2.1", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self, "LICENSE.LGPL2.1", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
+        )
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "bin"))

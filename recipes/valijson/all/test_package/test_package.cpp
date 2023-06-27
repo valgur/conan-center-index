@@ -1,9 +1,9 @@
 #include <rapidjson/document.h>
 
 #include <valijson/adapters/rapidjson_adapter.hpp>
-#include <valijson/utils/rapidjson_utils.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
+#include <valijson/utils/rapidjson_utils.hpp>
 #include <valijson/validator.hpp>
 
 #include <iostream>
@@ -24,7 +24,7 @@ using valijson::adapters::RapidJsonAdapter;
 
 #include <valijson/internal/optional.hpp>
 
-void check_document(const Schema& mySchema, const char* filename, bool is_valid_expectation) {
+void check_document(const Schema &mySchema, const char *filename, bool is_valid_expectation) {
     rapidjson::Document myTargetDoc;
     if (!valijson::utils::loadDocument(filename, myTargetDoc)) {
         throw std::runtime_error("Failed to load target document");
@@ -37,7 +37,7 @@ void check_document(const Schema& mySchema, const char* filename, bool is_valid_
     }
 }
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char *argv[]) {
     if (argc != 4) {
         throw std::runtime_error("Expected: binary schema.json valid.json invalid.json");
     }

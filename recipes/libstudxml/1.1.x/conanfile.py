@@ -8,12 +8,15 @@ required_conan_version = ">=1.53.0"
 
 class LibStudXmlConan(ConanFile):
     name = "libstudxml"
-    description = "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
-    topics = ("xml", "xml-parser", "serialization")
+    description = (
+        "A streaming XML pull parser and streaming XML serializer implementation for modern, standard C++."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.codesynthesis.com/projects/libstudxml/"
-    license = "MIT"
+    topics = ("xml", "xml-parser", "serialization")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,7 +27,8 @@ class LibStudXmlConan(ConanFile):
         "fPIC": True,
     }
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -41,8 +45,7 @@ class LibStudXmlConan(ConanFile):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

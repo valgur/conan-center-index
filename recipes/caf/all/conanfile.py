@@ -12,10 +12,10 @@ required_conan_version = ">=1.54.0"
 class CAFConan(ConanFile):
     name = "caf"
     description = "An open source implementation of the Actor Model in C++"
+    license = ("BSD-3-Clause", "BSL-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/actor-framework/actor-framework"
-    topics = "actor-framework", "actor-model", "pattern-matching", "actors"
-    license = "BSD-3-Clause", "BSL-1.0"
+    topics = ("actor-framework", "actor-model", "pattern-matching", "actors")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -42,8 +42,8 @@ class CAFConan(ConanFile):
             "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
-            "clang": "6",   # Should be 5 but clang 5 has a bug that breaks compiling CAF
-                            # see https://github.com/actor-framework/actor-framework/issues/1226
+            "clang": "6",  # Should be 5 but clang 5 has a bug that breaks compiling CAF
+            # see https://github.com/actor-framework/actor-framework/issues/1226
             "apple-clang": "10",
         }
 
@@ -72,8 +72,11 @@ class CAFConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) > "10.0" and \
-           self.settings.arch == "x86":
+        if (
+            self.settings.compiler == "apple-clang"
+            and Version(self.settings.compiler.version) > "10.0"
+            and self.settings.arch == "x86"
+        ):
             raise ConanInvalidConfiguration("clang >= 11.0 does not support x86")
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")

@@ -15,13 +15,13 @@ DEFINE_FLAG(Flags, flag_b)
 DEFINE_FLAG(Flags, flag_c)
 
 int main() {
-  std::cout << +Flags::none.bits << " - " << Flags::none.name << '\n';
-  std::cout << +Flags::flag_a.bits << " - " << Flags::flag_a.name << '\n';
-  std::cout << +Flags::flag_b.bits << " - " << Flags::flag_b.name << '\n';
-  std::cout << +Flags::flag_c.bits << " - " << Flags::flag_c.name << '\n';
+    std::cout << +Flags::none.bits << " - " << Flags::none.name << '\n';
+    std::cout << +Flags::flag_a.bits << " - " << Flags::flag_a.name << '\n';
+    std::cout << +Flags::flag_b.bits << " - " << Flags::flag_b.name << '\n';
+    std::cout << +Flags::flag_c.bits << " - " << Flags::flag_c.name << '\n';
 
-  const auto flags = Flags::flag_a | Flags::flag_b;
+    const auto flags = Flags::flag_a | Flags::flag_b;
 
-  assert(flags & Flags::flag_a);
-  assert(!(flags & Flags::flag_c));
+    assert(flags & Flags::flag_a);
+    assert(!(flags & Flags::flag_c));
 }

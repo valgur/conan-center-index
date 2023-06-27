@@ -11,11 +11,12 @@ required_conan_version = ">=1.52.0"
 class BreakpadConan(ConanFile):
     name = "breakpad"
     description = "A set of client and server components which implement a crash-reporting system"
-    topics = ["crash", "report", "breakpad"]
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/breakpad/breakpad/"
+    topics = ("crash", "report", "breakpad")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -35,7 +36,9 @@ class BreakpadConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("Breakpad can only be built on Linux. For other OSs check sentry-breakpad")
+            raise ConanInvalidConfiguration(
+                "Breakpad can only be built on Linux. For other OSs check sentry-breakpad"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,7 +69,9 @@ class BreakpadConan(ConanFile):
         self.cpp_info.components["libbreakpad"].libs = ["breakpad"]
         self.cpp_info.components["libbreakpad"].includedirs.append(os.path.join("include", "breakpad"))
         self.cpp_info.components["libbreakpad"].system_libs.append("pthread")
-        self.cpp_info.components["libbreakpad"].requires.append("linux-syscall-support::linux-syscall-support")
+        self.cpp_info.components["libbreakpad"].requires.append(
+            "linux-syscall-support::linux-syscall-support"
+        )
 
         self.cpp_info.components["client"].set_property("pkg_config_name", "breakpad-client")
         self.cpp_info.components["client"].libs = ["breakpad_client"]

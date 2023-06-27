@@ -11,10 +11,11 @@ required_conan_version = ">=1.53.0"
 class freeglutConan(ConanFile):
     name = "freeglut"
     description = "Open-source alternative to the OpenGL Utility Toolkit (GLUT) library"
-    topics = ("opengl", "gl", "glut", "utility", "toolkit", "graphics")
+    license = "X11"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://freeglut.sourceforge.net"
-    license = "X11"
+    topics = ("opengl", "gl", "glut", "utility", "toolkit", "graphics")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -60,8 +61,9 @@ class freeglutConan(ConanFile):
             # also, it seems to require `brew cask install xquartz`
             raise ConanInvalidConfiguration(f"{self.ref} does not support macos")
         if Version(self.version) < "3.2.2":
-            if (self.settings.compiler == "gcc" and Version(self.settings.compiler.version) >= "10.0") or \
-                (self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= "11.0"):
+            if (self.settings.compiler == "gcc" and Version(self.settings.compiler.version) >= "10.0") or (
+                self.settings.compiler == "clang" and Version(self.settings.compiler.version) >= "11.0"
+            ):
                 # see https://github.com/dcnieho/FreeGLUT/issues/86
                 raise ConanInvalidConfiguration(f"{self.ref} does not support gcc >= 10 and clang >= 11")
 

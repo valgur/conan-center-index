@@ -1,18 +1,30 @@
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
-from conans.errors import ConanInvalidConfiguration
-import os
-import glob
+# TODO: verify the Conan v2 migration
 
-required_conan_version = ">=1.33.0"
+import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import unix_path
+from conan.tools.scm import Version
+
+required_conan_version = ">=1.47.0"
+
 
 class ElfutilsConan(ConanFile):
     name = "elfutils"
-    description = "A dwarf, dwfl and dwelf functions to read DWARF, find separate debuginfo, symbols and inspect process state."
-    homepage = "https://sourceware.org/elfutils"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("elfutils", "libelf", "libdw", "libasm")
+    description = (
+        "A dwarf, dwfl and dwelf functions to read DWARF, "
+        "find separate debuginfo, symbols and inspect process state."
+    )
     license = ["GPL-1.0-or-later", "LGPL-3.0-or-later", "GPL-2.0-or-later"]
-    
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://sourceware.org/elfutils"
+    topics = ("libelf", "libdw", "libasm")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -33,38 +45,27 @@ class ElfutilsConan(ConanFile):
         "with_sqlite3": False,
     }
 
-    generators = "pkg_config"
-
-    _autotools = None
-    _source_subfolder = "source_subfolder"
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            self.copy(patch["patch_file"])
+        export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
-        if tools.Version(self.version) < "0.186":
-            del self.options.libdebuginfod
+        if Version(self.version) < "0.186":
+            self.options.rm_safe("libdebuginfod")
 
     def configure(self):
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
-    def validate(self):
-        if tools.Version(self.version) >= "0.186":
-            if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
-                raise ConanInvalidConfiguration("Compiler %s not supported. "
-                            "elfutils only supports gcc and clang" % self.settings.compiler)
-        else:
-            if self.settings.compiler in ["Visual Studio", "clang", "apple-clang", "msvc"]:
-                raise ConanInvalidConfiguration("Compiler %s not supported. "
-                            "elfutils only supports gcc" % self.settings.compiler)
-        if self.settings.compiler != "gcc":
-            self.output.warn("Compiler %s is not gcc." % self.settings.compiler)
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")
@@ -80,9 +81,19 @@ class ElfutilsConan(ConanFile):
             # FIXME: missing recipe for libmicrohttpd
             raise ConanInvalidConfiguration("libmicrohttpd is not available (yet) on CCI")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
+    def validate(self):
+        if Version(self.version) >= "0.186":
+            if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
+                raise ConanInvalidConfiguration(
+                    f"Compiler {self.settings.compiler} not supported. elfutils only supports gcc and clang"
+                )
+        else:
+            if self.settings.compiler in ["Visual Studio", "clang", "apple-clang", "msvc"]:
+                raise ConanInvalidConfiguration(
+                    f"Compiler {self.settings.compiler} not supported. elfutils only supports gcc"
+                )
+        if self.settings.compiler != "gcc":
+            self.output.warn(f"Compiler {self.settings.compiler} is not gcc.")
 
     def build_requirements(self):
         self.build_requires("automake/1.16.4")
@@ -90,54 +101,57 @@ class ElfutilsConan(ConanFile):
         self.build_requires("flex/2.6.4")
         self.build_requires("bison/3.7.6")
         self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-    
+
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version],
-                  strip_root=True, destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_autotools(self):
-        if not self._autotools:
-            args = [
-                "--disable-werror",
-                "--enable-static={}".format("no" if self.options.shared else "yes"),
-                "--enable-deterministic-archives",
-                "--enable-silent-rules",
-                "--with-zlib",
-                "--with-bzlib" if self.options.with_bzlib else "--without-bzlib",
-                "--with-lzma" if self.options.with_lzma else "--without-lzma",
-                "--enable-debuginfod" if self.options.debuginfod else "--disable-debuginfod",
-            ]
-            if tools.Version(self.version) >= "0.186":
-                args.append("--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod")
-            args.append('BUILD_STATIC={}'.format("0" if self.options.shared else "1"))
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        args = [
+            "--disable-werror",
+            "--enable-static={}".format("no" if self.options.shared else "yes"),
+            "--enable-deterministic-archives",
+            "--enable-silent-rules",
+            "--with-zlib",
+            "--with-bzlib" if self.options.with_bzlib else "--without-bzlib",
+            "--with-lzma" if self.options.with_lzma else "--without-lzma",
+            "--enable-debuginfod" if self.options.debuginfod else "--disable-debuginfod",
+        ]
+        if Version(self.version) >= "0.186":
+            args.append("--enable-libdebuginfod" if self.options.libdebuginfod else "--disable-libdebuginfod")
+        args.append("BUILD_STATIC={}".format("0" if self.options.shared else "1"))
+        tc.configure(configure_dir=self.source_folder, args=args)
+        tc.generate()
 
-            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-            self._autotools.configure(configure_dir=self._source_subfolder, args=args)
-        return self._autotools
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
-        with tools.chdir(self._source_subfolder):
-            self.run("autoreconf -fiv")
-        autotools = self._configure_autotools()
+        apply_conandata_patches(self)
+        autotools = Autotools(self)
+        autotools.autoreconf()
         autotools.make()
-    
+
     def package(self):
-        self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
-        autotools = self._configure_autotools()
+        copy(
+            self,
+            pattern="COPYING*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
+        autotools = Autotools(self)
         autotools.install()
-        tools.rmdir(os.path.join(self.package_folder, "etc"))
-        tools.rmdir(os.path.join(self.package_folder, "share"))
-        tools.rmdir(os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.options.shared:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.a")
+            rm(self, "*.a", os.path.join(self.package_folder, "lib"), recursive=True)
         else:
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so")
-            tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.so.1")
-        
+            rm(self, "*.so", os.path.join(self.package_folder, "lib"), recursive=True)
+            rm(self, "*.so.1", os.path.join(self.package_folder, "lib"), recursive=True)
+
     def package_info(self):
         # library components
         self.cpp_info.components["libelf"].libs = ["elf"]
@@ -160,76 +174,77 @@ class ElfutilsConan(ConanFile):
 
         # utilities
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with : {}".format(bin_path))
+        self.output.info(f"Appending PATH env var with : {bin_path}")
         self.env_info.PATH.append(bin_path)
 
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
-        
-        addr2line = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
-        self.output.info("Setting ADDR2LINE to {}".format(addr2line))
+
+        addr2line = unix_path(self, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
+        self.output.info(f"Setting ADDR2LINE to {addr2line}")
         self.env_info.ADDR2LINE = addr2line
 
-        ar = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-ar" + bin_ext))
-        self.output.info("Setting AR to {}".format(ar))
+        ar = unix_path(self, os.path.join(self.package_folder, "bin", "eu-ar" + bin_ext))
+        self.output.info(f"Setting AR to {ar}")
         self.env_info.AR = ar
 
-        elfclassify = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
-        self.output.info("Setting ELFCLASSIFY to {}".format(elfclassify))
+        elfclassify = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfclassify" + bin_ext))
+        self.output.info(f"Setting ELFCLASSIFY to {elfclassify}")
         self.env_info.ELFCLASSIFY = elfclassify
 
-        elfcmp = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcmp" + bin_ext))
-        self.output.info("Setting ELFCMP to {}".format(elfcmp))
+        elfcmp = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfcmp" + bin_ext))
+        self.output.info(f"Setting ELFCMP to {elfcmp}")
         self.env_info.ELFCMP = elfcmp
 
-        elfcompress = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
-        self.output.info("Setting ELFCOMPRESS to {}".format(elfcompress))
+        elfcompress = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elfcompress" + bin_ext))
+        self.output.info(f"Setting ELFCOMPRESS to {elfcompress}")
         self.env_info.ELFCOMPRESS = elfcompress
 
-        elflint = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-elflint" + bin_ext))
-        self.output.info("Setting ELFLINT to {}".format(elflint))
+        elflint = unix_path(self, os.path.join(self.package_folder, "bin", "eu-elflint" + bin_ext))
+        self.output.info(f"Setting ELFLINT to {elflint}")
         self.env_info.ELFLINT = elflint
 
-        findtextrel = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
-        self.output.info("Setting FINDTEXTREL to {}".format(findtextrel))
+        findtextrel = unix_path(self, os.path.join(self.package_folder, "bin", "eu-findtextrel" + bin_ext))
+        self.output.info(f"Setting FINDTEXTREL to {findtextrel}")
         self.env_info.FINDTEXTREL = findtextrel
 
-        make_debug_archive = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext))
-        self.output.info("Setting MAKE_DEBUG_ARCHIVE to {}".format(make_debug_archive))
+        make_debug_archive = unix_path(
+            self, os.path.join(self.package_folder, "bin", "eu-make-debug-archive" + bin_ext)
+        )
+        self.output.info(f"Setting MAKE_DEBUG_ARCHIVE to {make_debug_archive}")
         self.env_info.MAKE_DEBUG_ARCHIVE = make_debug_archive
 
-        nm = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-nm" + bin_ext))
-        self.output.info("Setting NM to {}".format(nm))
+        nm = unix_path(self, os.path.join(self.package_folder, "bin", "eu-nm" + bin_ext))
+        self.output.info(f"Setting NM to {nm}")
         self.env_info.NM = nm
 
-        objdump = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-objdump" + bin_ext))
-        self.output.info("Setting OBJDUMP to {}".format(objdump))
+        objdump = unix_path(self, os.path.join(self.package_folder, "bin", "eu-objdump" + bin_ext))
+        self.output.info(f"Setting OBJDUMP to {objdump}")
         self.env_info.OBJDUMP = objdump
 
-        ranlib = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-ranlib" + bin_ext))
-        self.output.info("Setting RANLIB to {}".format(ranlib))
+        ranlib = unix_path(self, os.path.join(self.package_folder, "bin", "eu-ranlib" + bin_ext))
+        self.output.info(f"Setting RANLIB to {ranlib}")
         self.env_info.RANLIB = ranlib
 
-        readelf = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-readelf" + bin_ext))
-        self.output.info("Setting READELF to {}".format(readelf))
+        readelf = unix_path(self, os.path.join(self.package_folder, "bin", "eu-readelf" + bin_ext))
+        self.output.info(f"Setting READELF to {readelf}")
         self.env_info.READELF = readelf
 
-        size = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-size" + bin_ext))
-        self.output.info("Setting SIZE to {}".format(size))
+        size = unix_path(self, os.path.join(self.package_folder, "bin", "eu-size" + bin_ext))
+        self.output.info(f"Setting SIZE to {size}")
         self.env_info.SIZE = size
 
-        stack = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-stack" + bin_ext))
-        self.output.info("Setting STACK to {}".format(stack))
+        stack = unix_path(self, os.path.join(self.package_folder, "bin", "eu-stack" + bin_ext))
+        self.output.info(f"Setting STACK to {stack}")
         self.env_info.STACK = stack
 
-        strings = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-strings" + bin_ext))
-        self.output.info("Setting STRINGS to {}".format(strings))
+        strings = unix_path(self, os.path.join(self.package_folder, "bin", "eu-strings" + bin_ext))
+        self.output.info(f"Setting STRINGS to {strings}")
         self.env_info.STRINGS = strings
 
-        strip = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-strip" + bin_ext))
-        self.output.info("Setting STRIP to {}".format(strip))
+        strip = unix_path(self, os.path.join(self.package_folder, "bin", "eu-strip" + bin_ext))
+        self.output.info(f"Setting STRIP to {strip}")
         self.env_info.STRIP = strip
 
-        unstrip = tools.unix_path(os.path.join(self.package_folder, "bin", "eu-unstrip" + bin_ext))
-        self.output.info("Setting UNSTRIP to {}".format(unstrip))
+        unstrip = unix_path(self, os.path.join(self.package_folder, "bin", "eu-unstrip" + bin_ext))
+        self.output.info(f"Setting UNSTRIP to {unstrip}")
         self.env_info.UNSTRIP = unstrip
-

@@ -10,14 +10,15 @@ required_conan_version = ">=1.50.0"
 
 class GcemConan(ConanFile):
     name = "gcem"
-    description = "A C++ compile-time math library using generalized " \
-                  "constant expressions."
+    description = "A C++ compile-time math library using generalized constant expressions."
     license = "Apache-2.0"
-    topics = ("gcem", "math", "header-only")
-    homepage = "https://github.com/kthohr/gcem"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kthohr/gcem"
+    topics = ("math", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = "os", "arch", "compiler", "build_type",
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -30,31 +31,39 @@ class GcemConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+        copy(
+            self,
+            "*",
+            src=os.path.join(self.source_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+        )
 
         # TODO: to remove in conan v2
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"gcem": "gcem::gcem"},
+            {
+                "gcem": "gcem::gcem",
+            },
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
+            content += textwrap.dedent(
+                f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """)
+            """
+            )
         save(self, module_file, content)
 
     @property

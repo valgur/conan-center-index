@@ -13,9 +13,9 @@ class CjsonConan(ConanFile):
     name = "cjson"
     description = "Ultralightweight JSON parser in ANSI C."
     license = "MIT"
-    topics = ("json", "parser")
-    homepage = "https://github.com/DaveGamble/cJSON"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DaveGamble/cJSON"
+    topics = ("json", "parser")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -79,6 +79,19 @@ class CjsonConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(
+                f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """
+            )
+        save(self, module_file, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -87,24 +100,18 @@ class CjsonConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        targets = {"cjson": "cJSON::cjson"}
+        targets = {
+            "cjson": "cJSON::cjson",
+        }
         if self.options.utils:
-            targets.update({"cjson_utils": "cJSON::cjson_utils"})
+            targets.update(
+                {
+                    "cjson_utils": "cJSON::cjson_utils",
+                }
+            )
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            targets
+            os.path.join(self.package_folder, self._module_file_rel_path), targets
         )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -131,11 +138,17 @@ class CjsonConan(ConanFile):
         self.cpp_info.components["_cjson"].names["cmake_find_package"] = "cjson"
         self.cpp_info.components["_cjson"].names["cmake_find_package_multi"] = "cjson"
         self.cpp_info.components["_cjson"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_cjson"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.components["_cjson"].build_modules["cmake_find_package_multi"] = [
+            self._module_file_rel_path
+        ]
         self.cpp_info.components["_cjson"].names["pkg_config"] = "libcjson"
         if self.options.utils:
             self.cpp_info.components["cjson_utils"].names["cmake_find_package"] = "cjson_utils"
             self.cpp_info.components["cjson_utils"].names["cmake_find_package_multi"] = "cjson_utils"
-            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package"] = [
+                self._module_file_rel_path
+            ]
+            self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package_multi"] = [
+                self._module_file_rel_path
+            ]
             self.cpp_info.components["cjson_utils"].names["pkg_config"] = "libcjson_utils"

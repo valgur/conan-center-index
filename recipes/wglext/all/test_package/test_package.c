@@ -1,14 +1,11 @@
-#include <stdio.h>
-#include <windows.h>
 #include <GL/gl.h>
 #include <GL/wglext.h>
+#include <stdio.h>
+#include <windows.h>
 
-static LRESULT CALLBACK WndProc(HWND hwnd,
-    UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     LRESULT res = 1;
-    switch (uMsg)
-    {
+    switch (uMsg) {
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -18,10 +15,9 @@ static LRESULT CALLBACK WndProc(HWND hwnd,
     return res;
 }
 
-HDC init_context()
-{
-    static const wchar_t * class_name = L"ConanOpenGL";
-    static const wchar_t * window_name = L"Conan OpenGL";
+HDC init_context() {
+    static const wchar_t *class_name = L"ConanOpenGL";
+    static const wchar_t *window_name = L"Conan OpenGL";
     WNDCLASSEXW wc = {0};
     wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -29,12 +25,12 @@ HDC init_context()
     wc.hInstance = GetModuleHandle(NULL);
     wc.hIcon = LoadIcon(0, IDI_APPLICATION);
     wc.hCursor = LoadCursor(0, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
+    wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     wc.lpszClassName = class_name;
     if (!RegisterClassExW(&wc))
         return 0;
-    HWND hWnd = CreateWindowExW(0, class_name, window_name,
-        WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL, NULL, wc.hInstance, NULL);
+    HWND hWnd = CreateWindowExW(0, class_name, window_name, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, NULL,
+                                NULL, wc.hInstance, NULL);
     if (!hWnd)
         return 0;
     HDC hDC = GetDC(hWnd);
@@ -49,7 +45,7 @@ HDC init_context()
     pfd.cColorBits = 32;
     pfd.cDepthBits = 16;
     int pixel_format = ChoosePixelFormat(hDC, &pfd);
-    if(0 == pixel_format)
+    if (0 == pixel_format)
         return 0;
     if (!SetPixelFormat(hDC, pixel_format, &pfd))
         return 0;
@@ -60,15 +56,14 @@ HDC init_context()
     return hDC;
 }
 
-int main()
-{
-	init_context();
-	HDC hDC = GetDC(0);
+int main() {
+    init_context();
+    HDC hDC = GetDC(0);
     PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB =
-        (PFNWGLGETEXTENSIONSSTRINGARBPROC) wglGetProcAddress("wglGetExtensionsStringARB");
+        (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
     if (!wglGetExtensionsStringARB)
         return EXIT_SUCCESS; // ignore headless CI failures
-    const char* ext = wglGetExtensionsStringARB(hDC);
+    const char *ext = wglGetExtensionsStringARB(hDC);
     printf("wglGetExtensionsStringARB: %s\n", ext ? ext : "(null)");
     return EXIT_SUCCESS;
 }

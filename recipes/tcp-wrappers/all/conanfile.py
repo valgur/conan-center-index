@@ -1,16 +1,99 @@
+# Warnings:
+#   Unexpected method '_shext'
+#   Missing required method 'generate'
+
+# TODO: verify the Conan v2 migration
+
 import os
-from conans import AutoToolsBuildEnvironment, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
+
+from conan import ConanFile, conan_version
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.android import android_abi
+from conan.tools.apple import (
+    XCRun,
+    fix_apple_shared_install_name,
+    is_apple_os,
+    to_apple_arch,
+)
+from conan.tools.build import (
+    build_jobs,
+    can_run,
+    check_min_cppstd,
+    cross_building,
+    default_cppstd,
+    stdcpp_library,
+    valid_min_cppstd,
+)
+from conan.tools.cmake import (
+    CMake,
+    CMakeDeps,
+    CMakeToolchain,
+    cmake_layout,
+)
+from conan.tools.env import (
+    Environment,
+    VirtualBuildEnv,
+    VirtualRunEnv,
+)
+from conan.tools.files import (
+    apply_conandata_patches,
+    chdir,
+    collect_libs,
+    copy,
+    download,
+    export_conandata_patches,
+    get,
+    load,
+    mkdir,
+    patch,
+    patches,
+    rename,
+    replace_in_file,
+    rm,
+    rmdir,
+    save,
+    symlinks,
+    unzip,
+)
+from conan.tools.gnu import (
+    Autotools,
+    AutotoolsDeps,
+    AutotoolsToolchain,
+    PkgConfig,
+    PkgConfigDeps,
+)
+from conan.tools.layout import basic_layout
+from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.microsoft import (
+    MSBuild,
+    MSBuildDeps,
+    MSBuildToolchain,
+    NMakeDeps,
+    NMakeToolchain,
+    VCVars,
+    check_min_vs,
+    is_msvc,
+    is_msvc_static_runtime,
+    msvc_runtime_flag,
+    unix_path,
+    unix_path_package_info_legacy,
+    vs_layout,
+)
+from conan.tools.scm import Version
+from conan.tools.system import package_manager
+
+required_conan_version = ">=1.53.0"
 
 
 class TcpWrappersConan(ConanFile):
     name = "tcp-wrappers"
-    homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
     description = "A security tool which acts as a wrapper for TCP daemons"
-    topics = ("conan", "tcp", "ip", "daemon", "wrapper")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD"
-    exports_sources = "patches/**"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
+    topics = ("tcp", "ip", "daemon", "wrapper")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -20,15 +103,15 @@ class TcpWrappersConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "cmake"
 
     @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    def _shext(self):
+        if is_apple_os(self.settings.os):
+            return ".dylib"
+        return ".so"
 
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -38,24 +121,30 @@ class TcpWrappersConan(ConanFile):
         if self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("Visual Studio is not supported")
         if self.options.shared:
-            del self.options.fPIC
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def source(self):
-        tools.get(**self.conan_data["sources"][self.version])
-        os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self.source_folder)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
-        for patch in self.conan_data["patches"][self.version]:
-            tools.patch(**patch)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        with tools.chdir(self._source_subfolder):
+        with chdir(self, self.source_folder):
             autotools = AutoToolsBuildEnvironment(self)
             make_args = [
-                "REAL_DAEMON_DIR={}".format(tools.unix_path(os.path.join(self.package_folder, "bin"))),
+                "REAL_DAEMON_DIR={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),
                 "-j1",
                 "SHEXT={}".format(self._shext),
             ]
@@ -67,25 +156,48 @@ class TcpWrappersConan(ConanFile):
             env_vars["ENV_CFLAGS"] = env_vars["CFLAGS"]
             # env_vars["SHEXT"] = self._shext
             print(env_vars)
-            with tools.environment_append(env_vars):
+            with environment_append(self, env_vars):
                 autotools.make(target="linux", args=make_args)
 
-    @property
-    def _shext(self):
-        if tools.is_apple_os(self.settings.os):
-            return ".dylib"
-        return ".so"
-
     def package(self):
-        self.copy(pattern="DISCLAIMER", src=self._source_subfolder, dst="licenses")
+        copy(
+            self,
+            pattern="DISCLAIMER",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
 
         for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
-            self.copy(exe, src=self._source_subfolder, dst="bin", keep_path=False)
-        self.copy("tcpd.h", src=self._source_subfolder, dst="include", keep_path=False)
+            copy(
+                self,
+                exe,
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "bin"),
+                keep_path=False,
+            )
+        copy(
+            self,
+            "tcpd.h",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=False,
+        )
         if self.options.shared:
-            self.copy("libwrap{}".format(self._shext), src=self._source_subfolder, dst="lib", keep_path=False)
+            copy(
+                self,
+                "libwrap{}".format(self._shext),
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
         else:
-            self.copy("libwrap.a", src=self._source_subfolder, dst="lib", keep_path=False)
+            copy(
+                self,
+                "libwrap.a",
+                src=self.source_folder,
+                dst=os.path.join(self.package_folder, "lib"),
+                keep_path=False,
+            )
 
     def package_info(self):
         self.cpp_info.libs = ["wrap"]

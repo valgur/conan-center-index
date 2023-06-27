@@ -20,12 +20,15 @@ class TestPackageConan(ConanFile):
         output = StringIO()
         self.run("scons --version", output)
         self.output.info(output.getvalue())
-        assert("SCons by Steven Knight" in output.getvalue())
+        assert "SCons by Steven Knight" in output.getvalue()
 
         scons_args = [
-            "-j", str(build_jobs(self)),
-            "-C", self.source_folder,
-            "-f", os.path.join(self.source_folder, "SConstruct"),
+            "-j",
+            str(build_jobs(self)),
+            "-C",
+            self.source_folder,
+            "-f",
+            os.path.join(self.source_folder, "SConstruct"),
         ]
 
         self.run("scons {}".format(" ".join(scons_args)))
