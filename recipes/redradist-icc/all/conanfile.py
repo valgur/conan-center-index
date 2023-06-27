@@ -79,19 +79,23 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.53.0"
+
 
 class ICCConan(ConanFile):
     name = "redradist-icc"
-    homepage = "https://github.com/redradist/Inter-Component-Communication"
-    license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "I.C.C. - Inter Component Communication, This is a library created to simplify communication between "
         "components inside of single application. It is thread safe and could be used for creating "
         "components that works in different threads. "
     )
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/redradist/Inter-Component-Communication"
     topics = ("thread-safe", "active-object", "communication")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,7 +103,7 @@ class ICCConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-    }, "cmake_find_package_multi"
+    }
 
     @property
     def _minimum_cpp_standard(self):
@@ -113,6 +117,20 @@ class ICCConan(ConanFile):
             "clang": "3.3",
             "gcc": "4.9.4",
         }
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -137,17 +155,6 @@ class ICCConan(ConanFile):
                 "support for the required C++{} features is assumed"
             ).format(self.name, compiler, self._minimum_cpp_standard)
             self.output.warn(msg)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

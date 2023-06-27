@@ -79,22 +79,24 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class QtADS(ConanFile):
     name = "qt-advanced-docking-system"
-    license = "LGPL-2.1"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
-    topics = ("qt", "gui")
     description = (
         "Qt Advanced Docking System lets you create customizable layouts "
         "using a full featured window docking system similar to what is found "
         "in many popular integrated development environments (IDEs) such as "
         "Visual Studio."
     )
-    settings = "os", "compiler", "build_type", "arch"
+    license = "LGPL-2.1"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
+    topics = ("qt", "gui")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -102,8 +104,7 @@ class QtADS(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-    }, "cmake_find_package_multi"
-    _qt_version = "5.15.6"
+    }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
@@ -116,6 +117,9 @@ class QtADS(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires(f"qt/{self._qt_version}")
