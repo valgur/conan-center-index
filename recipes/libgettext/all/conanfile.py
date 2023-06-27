@@ -121,7 +121,7 @@ class GetTextConan(ConanFile):
                 tc.configure_args += [f"--host={target}", f"--build={target}"]
 
             if (
-                str(self.settings.compiler) == "Visual Studio"
+                is_msvc(self)
                 and Version(self.settings.compiler.version) >= "12"
             ) or (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler.version) >= "180"):
                 tc.extra_cflags += ["-FS"]

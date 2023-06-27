@@ -1,12 +1,15 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import cmake_layout, CMake
-import os
+from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
+from conan.tools.microsoft import is_msvc
+from conans.errors import ConanInvalidConfiguration
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):
@@ -19,18 +22,21 @@ class TestPackageConan(ConanFile):
     def _extra_flags(self):
         return self.deps_user_info["platform.hashing"].suggested_flags
 
-    def build(self):
-        if self.settings.compiler != "Visual Studio":
+    def validate(self):
+        if not is_msvc(self):
             if not self._extra_flags:
-                raise ConanException(
-                    "Suggested flags are not available for os={}/arch={}".format(
-                        self.settings.os, self.settings.arch
-                    )
+                raise ConanInvalidConfiguration(
+                    f"Suggested flags are not available for os={self.settings.os}/arch={self.settings.arch}"
                 )
 
-        cmake = CMake(self)
-        if self.settings.compiler != "Visual Studio":
+    def generate(self):
+        tc = CMakeToolchain(self)
+        if not is_msvc(self):
             tc.variables["EXTRA_FLAGS"] = self._extra_flags
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 

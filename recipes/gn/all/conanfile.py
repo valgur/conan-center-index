@@ -129,7 +129,7 @@ class GnConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 yield
         else:
@@ -156,11 +156,10 @@ class GnConan(ConanFile):
             with environment_append(self, env):
                 yield
 
-    @staticmethod
-    def _to_gn_platform(os_, compiler):
+    def _to_gn_platform(self, os_, compiler):
         if is_apple_os(self, os_):
             return "darwin"
-        if compiler == "Visual Studio":
+        if is_msvc(self):
             return "msvc"
         # Assume gn knows about the os
         return str(os_).lower()

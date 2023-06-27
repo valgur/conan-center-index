@@ -149,7 +149,7 @@ class NSSConan(ConanFile):
                 raise ConanInvalidConfiguration("nss < 3.74 requires clang < 13 .")
 
     def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not get_env(self, "CONAN_BASH_PATH"):
+        if is_msvc(self) and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
             self.build_requires("mozilla-build/3.3")
@@ -191,7 +191,7 @@ class NSSConan(ConanFile):
         args.append("OS_ARCH=%s" % os_map.get(str(self.settings.os), "UNSUPPORTED_OS"))
         if self.settings.build_type != "Debug":
             args.append("BUILD_OPT=1")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             args.append("NSPR31_LIB_PREFIX=$(NULL)")
 
         args.append("USE_SYSTEM_ZLIB=1")
@@ -255,7 +255,7 @@ class NSSConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with chdir(self, os.path.join(self.source_folder, "nss")):
-            with vcvars(self) if self.settings.compiler == "Visual Studio" else no_op(self):
+            with vcvars(self) if is_msvc(self) else no_op(self):
                 self.run(f"make {' '.join(self._make_args)}", run_environment=True)
 
     def package(self):

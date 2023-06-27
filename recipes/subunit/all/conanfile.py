@@ -122,7 +122,7 @@ class SubunitConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("automake/1.16.3")
 
     def validate(self):
@@ -140,7 +140,7 @@ class SubunitConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
@@ -161,7 +161,7 @@ class SubunitConan(ConanFile):
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.flags.append("-FS")
             self._autotools.cxx_flags.append("-EHsc")
         yes_no = lambda v: "yes" if v else "no"

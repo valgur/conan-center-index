@@ -186,7 +186,7 @@ class YojimboConan(ConanFile):
 
         # Build using premake
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             generator = "vs" + {
                 "16": "2019",
                 "15": "2017",
@@ -203,14 +203,14 @@ class YojimboConan(ConanFile):
         with chdir(self, self.source_folder):
             self.run("premake5 %s" % generator)
 
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 msbuild = MSBuild(self)
                 msbuild.build("Yojimbo.sln")
             else:
                 config = "debug" if self.settings.build_type == "Debug" else "release"
                 config += "_x64"
                 env_build = AutoToolsBuildEnvironment(self)
-                env_build.make(args=["config=%s" % config])
+                env_build.make(args=[f"config={config}"])
 
     def package(self):
         copy(

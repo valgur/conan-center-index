@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.tools.files import (
     apply_conandata_patches,
@@ -373,7 +374,7 @@ class Open62541Conan(ConanFile):
         tc.variables["UA_ENABLE_STATUSCODE_DESCRIPTIONS"] = self.options.readable_statuscodes
         tc.variables["UA_ENABLE_HARDENING"] = self.options.hardening
 
-        if self.settings.compiler == "Visual Studio" and self.options.shared == True:
+        if is_msvc(self) and self.options.shared == True:
             tc.variables["UA_MSVC_FORCE_STATIC_CRT"] = True
 
         tc.variables["UA_COMPILE_AS_CXX"] = self.options.cpp_compatible

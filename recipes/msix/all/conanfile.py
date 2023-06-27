@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -158,7 +159,7 @@ class MsixConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["runtimeobject"]
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 self.cpp_info.system_libs.append("delayimp")
             if self.options.crypto_lib == "crypt32":
                 self.cpp_info.system_libs.extend(["bcrypt", "crypt32", "wintrust"])

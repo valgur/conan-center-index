@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, rmdir
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -38,7 +39,7 @@ class CozConan(ConanFile):
         compiler_version = Version(self.settings.compiler.version)
         if (
             self.settings.os == "Macos"
-            or compiler == "Visual Studio"
+            or is_msvc(self)
             or (compiler == "gcc" and compiler_version < "5.0")
         ):
             raise ConanInvalidConfiguration(

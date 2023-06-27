@@ -160,7 +160,7 @@ class NCursesConan(ConanFile):
     def requirements(self):
         if self.options.with_pcre2:
             self.requires("pcre2/10.37")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.requires("getopt-for-visual-studio/20200201")
             self.requires("dirent/1.23.2")
             if self.options.get_safe("with_extended_colors", False):
@@ -179,7 +179,7 @@ class NCursesConan(ConanFile):
             raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
         if (
             self.options.shared
-            and self.settings.compiler == "Visual Studio"
+            and is_msvc(self)
             and "MT" in self.settings.compiler.runtime
         ):
             raise ConanInvalidConfiguration("Cannot build shared libraries with static (MT) runtime")
@@ -237,7 +237,7 @@ class NCursesConan(ConanFile):
                     "--enable-interop",
                 ]
             )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
             conf_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
             autotools.cxx_flags.append("-EHsc")
@@ -259,7 +259,7 @@ class NCursesConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "cl -nologo",
@@ -375,7 +375,7 @@ class NCursesConan(ConanFile):
         if self._with_tinfo:
             self.cpp_info.components["libcurses"].requires.append("tinfo")
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.components["libcurses"].requires.extend(
                 ["getopt-for-visual-studio::getopt-for-visual-studio", "dirent::dirent"]
             )

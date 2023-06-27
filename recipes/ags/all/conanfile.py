@@ -113,12 +113,12 @@ class AGSConan(ConanFile):
     def configure(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("ags doesn't support OS: {}.".format(self.settings.os))
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             raise ConanInvalidConfiguration(
                 "ags doesn't support compiler: {} on OS: {}.".format(self.settings.compiler, self.settings.os)
             )
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.compiler.version not in self._supported_msvc_versions:
                 raise ConanInvalidConfiguration(
                     "ags doesn't support MSVC version: {}".format(self.settings.compiler.version)
@@ -157,7 +157,7 @@ class AGSConan(ConanFile):
             src=os.path.join(ags_lib_path, "inc"),
         )
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             win_arch = self._convert_arch_to_win_arch(self.settings.arch)
             if self.options.shared:
                 shared_lib = "amd_ags_{arch}.dll".format(arch=win_arch)

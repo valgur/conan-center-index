@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.52.0"
 
@@ -50,7 +51,7 @@ class DiceTemplateLibrary(ConanFile):
             raise ConanInvalidConfiguration(
                 "apple-clang is not supported because a full concept implementation is needed"
             )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration(
                 "MSVC is not supported because a full concept implementation is needed"
             )

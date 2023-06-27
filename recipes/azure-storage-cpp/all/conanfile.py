@@ -166,10 +166,10 @@ class AzureStorageCppConan(ConanFile):
 
         # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
         # https://github.com/conan-io/conan-center-index/issues/4195
-        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
+        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and self.options.shared
             and "MT" in self.settings.compiler.runtime
         ):

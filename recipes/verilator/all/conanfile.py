@@ -113,7 +113,7 @@ class VerilatorConan(ConanFile):
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and "CONAN_BASH_PATH" not in os.environ:
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 self.build_requires("msys2/cci.latest")
                 self.build_requires("automake/1.16.4")
             if self._needs_old_bison:
@@ -137,7 +137,7 @@ class VerilatorConan(ConanFile):
     def requirements(self):
         if self.settings.os == "Windows":
             self.requires("strawberryperl/5.30.0.1")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.requires("dirent/1.23.2", private=True)
 
     def source(self):
@@ -159,7 +159,7 @@ class VerilatorConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             build_env = {
                 "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
                 "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
@@ -179,7 +179,7 @@ class VerilatorConan(ConanFile):
         self._autotools.library_paths = []
         if self.settings.get_safe("compiler.libcxx") == "libc++":
             self._autotools.libs.append("c++")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.cxx_flags.append("-EHsc")
             self._autotools.defines.append("YY_NO_UNISTD_H")
             self._autotools.flags.append("-FS")
@@ -206,7 +206,7 @@ class VerilatorConan(ConanFile):
         ]
         if self.settings.build_type == "Debug":
             args.append("DEBUG=1")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             args.append(
                 "PROGLINK={}".format(
                     unix_path(self, os.path.join(self.build_folder, self.source_folder, "msvc_link.sh"))
@@ -222,7 +222,7 @@ class VerilatorConan(ConanFile):
         except FileNotFoundError:
             pass
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             replace_in_file(
                 self, os.path.join(self.source_folder, "src", "Makefile_obj.in"), "${LINK}", "${PROGLINK}"
             )

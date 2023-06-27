@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.microsoft import is_msvc
 
 
 class TestPackageConan(ConanFile):
@@ -17,7 +18,7 @@ class TestPackageConan(ConanFile):
     @property
     def _can_build(self):
         # FIXME: Python does not distribute debug libraries (use cci CPython recipe)
-        return not (self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug")
+        return not (is_msvc(self) and self.settings.build_type == "Debug")
 
     def build(self):
         if can_run(self):

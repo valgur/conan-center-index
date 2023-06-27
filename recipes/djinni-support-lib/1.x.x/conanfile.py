@@ -8,6 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -85,7 +86,7 @@ class DjinniSuppotLib(ConanFile):
         }
 
     def configure(self):
-        if self.settings.compiler == "Visual Studio" or self.options.shared:
+        if is_msvc(self) or self.options.shared:
             self.options.rm_safe("fPIC")
 
     def layout(self):

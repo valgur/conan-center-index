@@ -149,7 +149,7 @@ class TarConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "gnu", "faccessat.c"),

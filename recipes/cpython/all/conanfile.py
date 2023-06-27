@@ -150,11 +150,11 @@ class CPythonConan(ConanFile):
 
     @property
     def _supports_modules(self):
-        return self.settings.compiler != "Visual Studio" or self.options.shared
+        return not is_msvc(self) or self.options.shared
 
     @property
     def _version_suffix(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             joiner = ""
         else:
             joiner = "."
@@ -174,7 +174,7 @@ class CPythonConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.options.rm_safe("lto")
             self.options.rm_safe("docstrings")
             self.options.rm_safe("pymalloc")
@@ -202,7 +202,7 @@ class CPythonConan(ConanFile):
 
             self.options.rm_safe("with_bsddb")
             self.options.rm_safe("with_lzma")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             # The msbuild generator only works with Visual Studio
             self.generators.append("MSBuildDeps")
 
@@ -213,7 +213,7 @@ class CPythonConan(ConanFile):
     def _with_libffi(self):
         # cpython 3.7.x on MSVC uses an ancient libffi 2.00-beta (which is not available at cci, and is API/ABI incompatible with current 3.2+)
         return self._supports_modules and (
-            self.settings.compiler != "Visual Studio" or Version(self._version_number_only) >= "3.8"
+            not is_msvc(self) or Version(self._version_number_only) >= "3.8"
         )
 
     def requirements(self):
@@ -257,11 +257,11 @@ class CPythonConan(ConanFile):
 
     def validate(self):
         if self.options.shared:
-            if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
+            if is_msvc(self) and "MT" in self.settings.compiler.runtime:
                 raise ConanInvalidConfiguration(
                     "cpython does not support MT(d) runtime when building a shared cpython library"
                 )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.options.optimizations:
                 raise ConanInvalidConfiguration(
                     "This recipe does not support optimized MSVC cpython builds (yet)"
@@ -362,7 +362,7 @@ class CPythonConan(ConanFile):
         apply_conandata_patches(self)
         if self._is_py3 and Version(self._version_number_only) < "3.10":
             replace_in_file(self, os.path.join(self.source_folder, "setup.py"), ":libmpdec.so.2", "mpdec")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             runtime_library = {
                 "MT": "MultiThreaded",
                 "MTd": "MultiThreadedDebug",
@@ -600,7 +600,7 @@ class CPythonConan(ConanFile):
         if self._with_libffi:
             if (
                 Version(self.dependencies["libffi"].cpp_info.version) >= "3.3"
-                and self.settings.compiler == "Visual Studio"
+                and is_msvc(self)
                 and "d" in str(self.settings.compiler.runtime)
             ):
                 raise ConanInvalidConfiguration(
@@ -609,7 +609,7 @@ class CPythonConan(ConanFile):
                 )
 
         self._patch_sources()
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._msvc_build()
         else:
             autotools = Autotools(self)
@@ -637,7 +637,7 @@ class CPythonConan(ConanFile):
         return "bin"
 
     def _copy_essential_dlls(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             # Until MSVC builds support cross building, copy dll's of essential (shared) dependencies to python binary location.
             # These dll's are required when running the layout tool using the newly built python executable.
             dest_path = os.path.join(self.build_folder, self._msvc_artifacts_path)
@@ -758,7 +758,7 @@ class CPythonConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self._is_py2 or not self.options.shared:
                 self._msvc_package_copy()
             else:
@@ -813,12 +813,12 @@ class CPythonConan(ConanFile):
 
     @property
     def _cpython_interpreter_name(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             suffix = ""
         else:
             suffix = self._version_suffix
         python = "python{}".format(suffix)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.build_type == "Debug":
                 python += "_d"
         if self.settings.os == "Windows":
@@ -842,7 +842,7 @@ class CPythonConan(ConanFile):
 
     @property
     def _lib_name(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.build_type == "Debug":
                 lib_ext = "_d"
             else:
@@ -879,7 +879,7 @@ class CPythonConan(ConanFile):
 
         py_version = Version(self._version_number_only)
         # python component: "Build a C extension for Python"
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.components["python"].includedirs = [
                 os.path.join(self._msvc_install_subprefix, "include")
             ]
@@ -966,7 +966,7 @@ class CPythonConan(ConanFile):
             self.output.info("Setting PYTHON environment variable: {}".format(python))
             self.env_info.PYTHON = python
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             pythonhome = os.path.join(self.package_folder, "bin")
         elif is_apple_os(self.settings.os):
             pythonhome = self.package_folder
@@ -977,10 +977,10 @@ class CPythonConan(ConanFile):
             )
         self.user_info.pythonhome = pythonhome
 
-        pythonhome_required = self.settings.compiler == "Visual Studio" or is_apple_os(self.settings.os)
+        pythonhome_required = is_msvc(self) or is_apple_os(self.settings.os)
         self.user_info.module_requires_pythonhome = pythonhome_required
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.options.env_vars:
                 self.output.info("Setting PYTHONHOME environment variable: {}".format(pythonhome))
                 self.env_info.PYTHONHOME = pythonhome

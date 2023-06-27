@@ -165,7 +165,7 @@ class RocksDB(ConanFile):
 
         if (
             self.settings.os == "Windows"
-            and self.settings.compiler == "Visual Studio"
+            and is_msvc(self)
             and Version(self.settings.compiler.version) < "15"
         ):
             raise ConanInvalidConfiguration("Rocksdb requires Visual Studio 15 or later.")
@@ -173,7 +173,7 @@ class RocksDB(ConanFile):
         if (
             self.version == "6.0.2"
             and self.settings.os == "Windows"
-            and self.settings.compiler == "Visual Studio"
+            and is_msvc(self)
             and Version(self.settings.compiler.version) > "15"
         ):
             raise ConanInvalidConfiguration(

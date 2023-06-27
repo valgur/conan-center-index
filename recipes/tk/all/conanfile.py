@@ -128,7 +128,7 @@ class TkConan(ConanFile):
             raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
 
     def build_requirements(self):
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             if self.settings.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.build_requires("msys2/cci.latest")
 
@@ -269,7 +269,7 @@ class TkConan(ConanFile):
     def build(self):
         self._patch_sources()
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._build_nmake()
         else:
             autotools, make_args = self._configure_autotools()
@@ -282,7 +282,7 @@ class TkConan(ConanFile):
             src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
         )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._build_nmake("install")
         else:
             with chdir(self, self.build_folder):
@@ -302,7 +302,7 @@ class TkConan(ConanFile):
             replace_in_file(self, tkConfigShPath, "\nTK_SRC_DIR", "\n#TK_SRC_DIR")
 
     def package_info(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             tk_version = Version(self.version)
             lib_infix = f"{tk_version.major}{tk_version.minor}"
             tk_suffix = "t{}{}{}".format(

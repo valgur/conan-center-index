@@ -6,7 +6,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.microsoft import unix_path
+from conan.tools.microsoft import unix_path, is_msvc
 
 required_conan_version = ">=1.33.0"
 
@@ -51,7 +51,7 @@ class PExportsConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
@@ -64,7 +64,7 @@ class PExportsConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             tc.defines.append("YY_NO_UNISTD_H")
         tc.generate()
 

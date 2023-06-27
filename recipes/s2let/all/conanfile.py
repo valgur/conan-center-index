@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -48,7 +49,7 @@ class S2let(ConanFile):
             self.requires("cfitsio/3.490")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("S2LET requires C99 support for complex numbers.")
 
     def source(self):

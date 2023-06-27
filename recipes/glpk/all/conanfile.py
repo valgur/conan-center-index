@@ -73,7 +73,7 @@ class GlpkConan(ConanFile):
             tc.extra_defines.append("__WOE__")
         if (
             Version(conan_version).major < "2"
-            and self.settings.compiler == "Visual Studio"
+            and is_msvc(self)
             and Version(self.settings.compiler.version) >= "12"
         ) or (self.settings.compiler == "msvc" and Version(self.settings.compiler.version) >= "180"):
             tc.extra_cflags.append("-FS")

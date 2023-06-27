@@ -117,7 +117,7 @@ class XXSDSSDSLLite(ConanFile):
         self.info.header_only()
 
     def package_info(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.defines.append("MSVC_COMPILER")
         self.cpp_info.names["pkgconfig"] = "sdsl-lite"
         self.cpp_info.names["cmake_find_package"] = "sdsl-lite"

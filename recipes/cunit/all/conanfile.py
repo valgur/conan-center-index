@@ -150,7 +150,7 @@ class CunitConan(ConanFile):
     @contextmanager
     def _build_context(self):
         env = {}
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 env.update(
                     {
@@ -175,7 +175,7 @@ class CunitConan(ConanFile):
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
         host, build = None, None
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.flags.append("-FS")
             # MSVC canonical names aren't understood
             host, build = False, False
@@ -209,7 +209,7 @@ class CunitConan(ConanFile):
                 autotools = self._configure_autotools()
                 autotools.install()
 
-        if self.settings.compiler == "Visual Studio" and self.options.shared:
+        if is_msvc(self) and self.options.shared:
             rename(
                 self,
                 os.path.join(self.package_folder, "lib", "cunit.dll.lib"),

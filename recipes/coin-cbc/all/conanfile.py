@@ -122,7 +122,7 @@ class CoinCbcConan(ConanFile):
         self.requires("coin-osi/0.108.6")
         self.requires("coin-clp/1.17.6")
         self.requires("coin-cgl/0.60.3")
-        if self.settings.compiler == "Visual Studio" and self.options.parallel:
+        if is_msvc(self) and self.options.parallel:
             self.requires("pthreads4w/3.0.0")
 
     @property
@@ -138,7 +138,7 @@ class CoinCbcConan(ConanFile):
         self.tool_requires("pkgconf/1.7.4")
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.tool_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.tool_requires("automake/1.16.5")
 
     def validate(self):
@@ -153,7 +153,7 @@ class CoinCbcConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 env = {
                     "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
@@ -178,7 +178,7 @@ class CoinCbcConan(ConanFile):
             "--without-blas",
             "--without-lapack",
         ]
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.cxx_flags.append("-EHsc")
             configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
             if Version(self.settings.compiler.version) >= 12:
@@ -226,7 +226,7 @@ class CoinCbcConan(ConanFile):
 
         for l in ("CbcSolver", "Cbc", "OsiCbc"):
             os.unlink(f"{self.package_folder}/lib/lib{l}.la")
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 rename(self, f"{self.package_folder}/lib/lib{l}.a", f"{self.package_folder}/lib/{l}.lib")
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

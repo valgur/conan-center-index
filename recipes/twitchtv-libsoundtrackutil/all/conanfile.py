@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -77,7 +78,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_CODE_FORMATTING"] = False
         tc.variables["BUILD_TESTING"] = False
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             tc.variables["MSVC_DYNAMIC_RUNTIME"] = self.settings.compiler.runtime in ("MD", "MDd")
         tc.generate()
         tc = CMakeDeps(self)

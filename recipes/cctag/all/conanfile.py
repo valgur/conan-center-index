@@ -10,7 +10,7 @@ from conan.tools.files import (
     replace_in_file,
     rmdir,
 )
-from conan.tools.microsoft import is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 import os
 
 required_conan_version = ">=1.53.0"
@@ -99,7 +99,7 @@ class CCTagConan(ConanFile):
             )
 
         if (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and not self.options.shared
             and is_msvc_static_runtime(self)
             and self.dependencies["onetbb"].options.shared

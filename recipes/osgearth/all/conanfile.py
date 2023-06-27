@@ -231,7 +231,7 @@ class OsgearthConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.options.build_procedural_nodekit = False
 
         if self.settings.compiler == "gcc" and self.settings.compiler.version == "11":
@@ -399,7 +399,7 @@ class OsgearthConan(ConanFile):
 
         osgearth = setup_lib("osgEarth", required_libs)
 
-        if not self.options.shared and self.settings.compiler == "Visual Studio":
+        if not self.options.shared and is_msvc(self):
             osgearth.defines += ["OSGEARTH_LIBRARY_STATIC"]
         if self.options.build_zip_plugin:
             osgearth.requires += ["zstd::zstd"]

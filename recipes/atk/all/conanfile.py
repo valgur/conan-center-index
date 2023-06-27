@@ -15,7 +15,7 @@ from conan.tools.files import (
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 import os
 
 required_conan_version = ">=1.53.0"
@@ -67,7 +67,7 @@ class AtkConan(ConanFile):
             )
 
         if (
-            str(self.settings.compiler) == "Visual Studio"
+            is_msvc(self)
             and not self.options.shared
             and is_msvc_static_runtime(self)
             and self.dependencies["glib"].options.shared

@@ -3,6 +3,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy
 from conan.tools.build import check_min_cppstd
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -55,7 +56,7 @@ class OctoKeygenCPPConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} does not support clang with libc++. Use libstdc++ instead."
             )
-        if self.settings.compiler == "Visual Studio" and self.settings.compiler.runtime in ["MTd", "MT"]:
+        if is_msvc(self) and self.settings.compiler.runtime in ["MTd", "MT"]:
             raise ConanInvalidConfiguration(
                 f"{self.name} does not support MSVC MT/MTd configurations, only MD/MDd is supported"
             )

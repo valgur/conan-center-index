@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -70,7 +71,7 @@ class PupnpConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             # Note, pupnp has build instructions for Visual Studio but they
             # include VC 6 and require pthreads-w32 library.
             # Someone who needs it and has possibility to build it could step in.

@@ -159,10 +159,10 @@ class NcbiCxxToolkit(ConanFile):
             check_min_cppstd(self, 17)
         if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
-        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
+        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
         if (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and self.options.shared
             and "MT" in self.settings.compiler.runtime
         ):
@@ -190,7 +190,7 @@ class NcbiCxxToolkit(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         # Visual Studio sometimes runs "out of heap space"
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             cmake.parallel = False
         cmake.build()
 

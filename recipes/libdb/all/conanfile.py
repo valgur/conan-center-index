@@ -67,7 +67,7 @@ class LibdbConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.options.rm_safe("with_cxx")
 
     def configure(self):
@@ -303,7 +303,7 @@ class LibdbConan(ConanFile):
         if self.options.get_safe("with_cxx"):
             libs.extend(["db_cxx", "db_stl"])
         libs.extend(["db_sql", "db"])
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             libs = ["lib{}".format(lib) for lib in libs]
         return libs
 

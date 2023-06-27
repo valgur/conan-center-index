@@ -144,18 +144,18 @@ class SerfConan(ConanFile):
         }.get(str(self.settings.compiler), str(self.settings.compiler))
 
     def _lib_path_arg(self, path):
-        argname = "LIBPATH:" if self.settings.compiler == "Visual Studio" else "L"
+        argname = "LIBPATH:" if is_msvc(self) else "L"
         return "-{}'{}'".format(argname, path.replace("\\", "/"))
 
     @contextmanager
     def _build_context(self):
         extra_env = {}
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             extra_env["OPENSSL_LIBS"] = ";".join(
                 "{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs
             )
         with environment_append(self, extra_env):
-            with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
+            with vcvars(self.settings) if is_msvc(self) else no_op(self):
                 yield
 
     def build(self):
@@ -190,7 +190,7 @@ class SerfConan(ConanFile):
             "SOURCE_LAYOUT": "False",
         }
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             kwargs.update(
                 {
                     "TARGET_ARCH": str(self.settings.arch),

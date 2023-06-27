@@ -129,7 +129,7 @@ class LibUSBCompatConan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/1.0.24")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.requires("dirent/1.23.2")
 
     @property
@@ -179,7 +179,7 @@ class LibUSBCompatConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             # Use absolute paths of the libraries instead of the library names only.
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
@@ -202,7 +202,7 @@ class LibUSBCompatConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 env = {
                     "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),

@@ -15,6 +15,7 @@ from conan.tools.files import (
     rm,
     rmdir,
 )
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -78,7 +79,7 @@ class DiligentToolsConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def package_id(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if "MD" in self.settings.compiler.runtime:
                 self.info.settings.compiler.runtime = "MD/MDd"
             else:

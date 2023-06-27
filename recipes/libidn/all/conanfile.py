@@ -135,7 +135,7 @@ class LibIdnConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("automake/1.16.3")
 
     def source(self):
@@ -143,7 +143,7 @@ class LibIdnConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
@@ -162,7 +162,7 @@ class LibIdnConan(ConanFile):
         autotools.libs = []
         if not self.options.shared:
             autotools.defines.append("LIBIDN_STATIC")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
                 autotools.flags.append("-FS")
             autotools.link_flags.extend(
@@ -182,7 +182,7 @@ class LibIdnConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.arch in ("x86_64", "armv8", "armv8.3"):
                 ssize = "signed long long int"
             else:

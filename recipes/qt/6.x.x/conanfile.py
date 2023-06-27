@@ -813,7 +813,7 @@ class QtConan(ConanFile):
 
         elif self.settings.os == "WindowsStore":
             if is_msvc(self):
-                if self.settings.compiler == "Visual Studio":
+                if is_msvc(self):
                     msvc_version = str(self.settings.compiler.version)
                 else:
                     msvc_version = {

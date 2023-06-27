@@ -158,7 +158,7 @@ class GtkConan(ConanFile):
     def requirements(self):
         self.requires("gdk-pixbuf/2.42.6")
         self.requires("glib/2.73.0")
-        if self._gtk4 or self.settings.compiler != "Visual Studio":
+        if self._gtk4 or not is_msvc(self):
             self.requires("cairo/1.17.4")
         if self._gtk4:
             self.requires("graphene/1.10.8")
@@ -192,7 +192,7 @@ class GtkConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "this recipes does not support GCC before version 5. contributions are welcome"
             )
-        if str(self.settings.compiler) in ["Visual Studio", "msvc"]:
+        if is_msvc(self):
             if Version(self.version) < "4.2":
                 raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
             if not self.options["gdk-pixbuf"].shared:
@@ -306,7 +306,7 @@ class GtkConan(ConanFile):
             if self.options.with_pango:
                 self.cpp_info.components["gdk-3.0"].requires.extend(["pango::pango_", "pango::pangocairo"])
             self.cpp_info.components["gdk-3.0"].requires.append("gdk-pixbuf::gdk-pixbuf")
-            if self.settings.compiler != "Visual Studio":
+            if not is_msvc(self):
                 self.cpp_info.components["gdk-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
             if self.settings.os == "Linux":
                 self.cpp_info.components["gdk-3.0"].requires.extend(
@@ -319,7 +319,7 @@ class GtkConan(ConanFile):
 
             self.cpp_info.components["gtk+-3.0"].libs = ["gtk-3"]
             self.cpp_info.components["gtk+-3.0"].requires = ["gdk-3.0", "atk::atk"]
-            if self.settings.compiler != "Visual Studio":
+            if not is_msvc(self):
                 self.cpp_info.components["gtk+-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
             self.cpp_info.components["gtk+-3.0"].requires.extend(["gdk-pixbuf::gdk-pixbuf", "glib::gio-2.0"])
             if self.settings.os == "Linux":

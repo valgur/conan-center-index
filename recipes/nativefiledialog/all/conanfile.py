@@ -113,7 +113,7 @@ class NativefiledialogConan(ConanFile):
         os.rename(extracted_dir, self.source_folder)
 
     def build(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             generator = "vs" + {
                 "16": "2019",
                 "15": "2017",
@@ -132,7 +132,7 @@ class NativefiledialogConan(ConanFile):
             os.rename(os.path.join("..", "premake5.lua"), "premake5.lua")
             self.run("premake5 %s" % generator)
 
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 msbuild = MSBuild(self)
                 msbuild.build("NativeFileDialog.sln")
             else:
@@ -143,7 +143,7 @@ class NativefiledialogConan(ConanFile):
 
     def package(self):
         libname = "nfd_d" if self.settings.build_type == "Debug" else "nfd"
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             copy(
                 self,
                 "*%s.lib" % libname,

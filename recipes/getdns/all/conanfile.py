@@ -8,6 +8,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -145,7 +146,7 @@ class GetDnsConan(ConanFile):
 
     def package_info(self):
         libsuffix = ""
-        if self.settings.compiler == "Visual Studio" and not self.options.shared:
+        if is_msvc(self) and not self.options.shared:
             libsuffix = "_static"
 
         self.cpp_info.components["libgetdns"].libs = ["getdns" + libsuffix]

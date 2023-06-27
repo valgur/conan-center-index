@@ -93,7 +93,7 @@ class TllistConan(ConanFile):
 
     def validate(self):
         # tllist relies on __typeof__, not implemented in Visual Studio
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio compiler is not supported")
 
     def source(self):

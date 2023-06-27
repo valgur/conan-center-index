@@ -126,13 +126,13 @@ class TestPackageConan(ConanFile):
 
     @property
     def _cmake_try_FindPythonX(self):
-        if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug":
+        if is_msvc(self) and self.settings.build_type == "Debug":
             return False
         return True
 
     @property
     def _supports_modules(self):
-        return self.settings.compiler != "Visual Studio" or self.options["cpython"].shared
+        return not is_msvc(self) or self.options["cpython"].shared
 
     def build(self):
         if not cross_building(self, skip_x64_x86=True):
@@ -160,7 +160,7 @@ class TestPackageConan(ConanFile):
         tc.variables["Python{}_FIND_IMPLEMENTATIONS".format(py_major)] = "CPython"
         tc.variables["Python{}_FIND_STRATEGY".format(py_major)] = "LOCATION"
 
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             if Version(self._py_version) < Version(self, "3.8"):
                 tc.variables["Python{}_FIND_ABI".format(py_major)] = self._cmake_abi.cmake_arg
 
@@ -170,7 +170,7 @@ class TestPackageConan(ConanFile):
 
         if not cross_building(self, skip_x64_x86=True):
             if self._supports_modules:
-                with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
+                with vcvars(self.settings) if is_msvc(self) else no_op(self):
                     modsrcfolder = (
                         "py2" if Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
                     )

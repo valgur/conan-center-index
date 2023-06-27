@@ -253,7 +253,7 @@ class TBBConan(ConanFile):
             if "MT" in msvc_runtime_flag(self):
                 runtime = "vc_mt"
             else:
-                if self.settings.compiler == "Visual Studio":
+                if is_msvc(self):
                     runtime = {
                         "8": "vc8",
                         "9": "vc9",

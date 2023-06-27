@@ -121,7 +121,7 @@ class Re2CConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "{} -nologo".format(unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
@@ -143,7 +143,7 @@ class Re2CConan(ConanFile):
         if self._autotools:
             return self._autotools
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.flags.append("-FS")
             self._autotools.cxx_flags.append("-EHsc")
         self._autotools.configure(configure_dir=self.source_folder)

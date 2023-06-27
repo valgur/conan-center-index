@@ -156,7 +156,7 @@ class PlatformInterfacesConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         suggested_flags = ""
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             suggested_flags = {
                 "x86_64": "-march=haswell",
                 "armv7": "-march=armv7",

@@ -267,7 +267,7 @@ class GodotCppConan(ConanFile):
         )
 
     def package_info(self):
-        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.libs = [f"lib{self._libname}"]
         else:
             self.cpp_info.libs = [self._libname]

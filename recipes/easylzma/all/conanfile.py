@@ -5,6 +5,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -102,6 +103,6 @@ class EazylzmaConan(ConanFile):
         self.cpp_info.libs = [self._libname]
         if self.options.shared:
             self.cpp_info.defines = ["EASYLZMA_SHARED"]
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if "d" in str(self.settings.compiler.runtime):
                 self.cpp_info.defines.append("DEBUG")

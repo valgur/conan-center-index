@@ -12,6 +12,7 @@ from conan.tools.files import (
     replace_in_file,
     rmdir,
 )
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -48,7 +49,7 @@ class SrtConan(ConanFile):
         return not (
             self.settings.os == "Windows"
             and (
-                self.settings.compiler == "Visual Studio"
+                is_msvc(self)
                 or (self.settings.compiler == "gcc" and self.settings.compiler.get_safe("threads") == "win32")
             )
         )
@@ -85,7 +86,7 @@ class SrtConan(ConanFile):
             tc.variables["ENABLE_STDCXX_SYNC"] = True
         tc.variables["ENABLE_ENCRYPTION"] = True
         tc.variables["USE_OPENSSL_PC"] = False
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             # required to avoid warnings when srt shared, even if openssl shared,
             # otherwise upstream CMakeLists would add /DELAYLOAD:libeay32.dll to link flags
             tc.variables["OPENSSL_USE_STATIC_LIBS"] = True
@@ -122,7 +123,7 @@ class SrtConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.names["pkg_config"] = "srt"
-        suffix = "_static" if self.settings.compiler == "Visual Studio" and not self.options.shared else ""
+        suffix = "_static" if is_msvc(self) and not self.options.shared else ""
         self.cpp_info.libs = ["srt" + suffix]
         if self.options.shared:
             self.cpp_info.defines = ["SRT_DYNAMIC"]

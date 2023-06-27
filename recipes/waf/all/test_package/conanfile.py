@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import copy
+from conan.tools.microsoft import is_msvc
 
 
 class TestPackageConan(ConanFile):
@@ -38,7 +39,7 @@ class TestPackageConan(ConanFile):
             waf_path = waf_path.replace("\\", "/")
             assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
 
-        with vcvars(self.settings) if self.settings.compiler == "Visual Studio" else no_op(self):
+        with vcvars(self.settings) if is_msvc(self) else no_op(self):
             self.run("waf -h")
             self.run("waf configure")
             self.run("waf")

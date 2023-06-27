@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.47.0"
 
@@ -51,7 +52,7 @@ class LibopingConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("liboping is not supported by Visual Studio")
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration(

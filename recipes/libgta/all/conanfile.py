@@ -5,6 +5,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get, replace_in_file, rmdir
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -76,5 +77,5 @@ class LibgtaConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "GTA"
         self.cpp_info.names["pkg_config"] = "gta"
         self.cpp_info.libs = collect_libs(self)
-        if self.settings.compiler == "Visual Studio" and not self.options.shared:
+        if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("GTA_STATIC")

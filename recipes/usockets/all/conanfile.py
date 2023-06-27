@@ -206,7 +206,7 @@ class UsocketsConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("automake/1.16.5")
 
     def source(self):

@@ -294,7 +294,7 @@ class GStPluginsBaseConan(ConanFile):
             add_flag("cpp_link_args", value)
 
         meson = Meson(self)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             add_linker_flag("-lws2_32")
             add_compiler_flag(f"-{self.settings.compiler.runtime}")
             if int(str(self.settings.compiler.version)) < 14:
@@ -353,7 +353,7 @@ class GStPluginsBaseConan(ConanFile):
 
     def _fix_library_names(self, path):
         # regression in 1.16
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with chdir(self, path):
                 for filename_old in glob.glob("*.a"):
                     filename_new = filename_old[3:-2] + ".lib"

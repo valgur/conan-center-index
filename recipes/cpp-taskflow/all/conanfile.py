@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
@@ -94,5 +95,5 @@ class CppTaskflowConan(ConanFile):
 
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("pthread")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.defines.append("_ENABLE_EXTENDED_ALIGNED_STORAGE")

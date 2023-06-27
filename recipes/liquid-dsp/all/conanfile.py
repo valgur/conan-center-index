@@ -127,6 +127,7 @@ class LiquidDspConan(ConanFile):
         return "libliquid.lib"
 
     def export_sources(self):
+        export_conandata_patches(self)
         copy(self, "generate_link_library.bat", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def configure(self):
@@ -140,12 +141,9 @@ class LiquidDspConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("mingw-w64/8.1")
             self.build_requires("automake/1.16.4")
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
@@ -159,7 +157,7 @@ class LiquidDspConan(ConanFile):
             apply_conandata_patches(self)
 
     def _gen_link_library(self):
-        if self.settings.compiler != "Visual Studio" or (not self.options.shared):
+        if not is_msvc(self) or (not self.options.shared):
             return
         self.run("cmd /c generate_link_library.bat")
         with chdir(self, self.source_folder):
@@ -181,7 +179,7 @@ class LiquidDspConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             env = {
                 "CC": "gcc",
                 "CXX": "g++",
@@ -195,7 +193,7 @@ class LiquidDspConan(ConanFile):
 
     @contextmanager
     def _msvc_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 env = {
                     "CC": "cl -nologo",
@@ -220,7 +218,7 @@ class LiquidDspConan(ConanFile):
             cflags.extend(["-s", "-O2", "-DNDEBUG"])
         if self.options.simdoverride:
             configure_args.append("--enable-simdoverride")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             configure_args.append("CFLAGS='{}'".format(" ".join(cflags)))
         configure_args_str = " ".join(configure_args)
         with self._build_context():

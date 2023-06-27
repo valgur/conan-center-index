@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -46,7 +47,7 @@ class FlintConan(ConanFile):
     def requirements(self):
         self.requires("gmp/6.2.1")
         self.requires("mpfr/4.1.0")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.requires("pthreads4w/3.0.0")
 
     def source(self):

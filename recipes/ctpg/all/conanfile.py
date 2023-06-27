@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
@@ -36,8 +37,8 @@ class CTPGConan(ConanFile):
 
     def validate(self):
         ## TODO: In ctpg<=1.3.5, Visual Studio C++ failed to compile ctpg with "error MSB6006: "CL.exe" exited with code -1073741571."
-        if self.settings.compiler == "Visual Studio":
-            raise ConanInvalidConfiguration("{} does not support Visual Studio currently.".format(self.name))
+        if is_msvc(self):
+            raise ConanInvalidConfiguration(f"{self.name} does not support Visual Studio currently.")
 
         if self.settings.get_safe("compiler.cppstd"):
             check_min_cppstd(self, "17")

@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -95,7 +96,7 @@ class MatioConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.libs = ["libmatio"]
         else:
             self.cpp_info.libs = ["matio"]

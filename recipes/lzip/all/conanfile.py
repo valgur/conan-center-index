@@ -109,7 +109,7 @@ class LzipConan(ConanFile):
             self.build_requires("msys2/cci.latest")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def package_id(self):

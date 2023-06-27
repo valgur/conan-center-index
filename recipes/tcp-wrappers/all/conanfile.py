@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path
+from conan.tools.microsoft import unix_path, is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -39,7 +39,7 @@ class TcpWrappersConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
         if self.options.shared:
             self.options.rm_safe("fPIC")

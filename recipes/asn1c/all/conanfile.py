@@ -111,7 +111,7 @@ class Asn1cConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def build_requirements(self):

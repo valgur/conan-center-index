@@ -14,7 +14,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, MSBuildToolchain
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, MSBuildToolchain, check_min_vs
 from conan.tools.scm import Version
 import os
 import textwrap
@@ -103,9 +103,7 @@ class XZUtilsConan(ConanFile):
 
     @property
     def _msvc_sln_folder(self):
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
-            str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
-        ):
+        if check_min_vs(self, 191):
             return "vs2017"
         return "vs2013"
 
@@ -118,7 +116,7 @@ class XZUtilsConan(ConanFile):
             os.path.join(build_script_folder, "liblzma.vcxproj"),
             os.path.join(build_script_folder, "liblzma_dll.vcxproj"),
         ]
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or (
+        if (is_msvc(self) and Version(self.settings.compiler) >= "15") or (
             str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"
         ):
             old_toolset = "v141"

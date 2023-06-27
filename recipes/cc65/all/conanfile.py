@@ -132,7 +132,7 @@ class Cc65Conan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.arch not in ("x86", "x86_64"):
                 raise ConanInvalidConfiguration("Invalid arch")
             if self.settings.arch == "x86_64":
@@ -143,12 +143,12 @@ class Cc65Conan(ConanFile):
 
     def package_id(self):
         del self.info.settings.compiler
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.settings.arch == "x86_64":
                 self.info.settings.arch = "x86"
 
     def build_requirements(self):
-        if self.settings.compiler == "Visual Studio" and not which(self, "make"):
+        if is_msvc(self) and not which(self, "make"):
             self.build_requires("make/4.2.1")
 
     def source(self):
@@ -188,7 +188,7 @@ class Cc65Conan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "src")):
                 for fn in os.listdir("."):
                     if not fn.endswith(".vcxproj"):
@@ -219,7 +219,7 @@ class Cc65Conan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._build_msvc()
         else:
             self._build_autotools()
@@ -247,7 +247,7 @@ class Cc65Conan(ConanFile):
         copy(
             self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._package_msvc()
         else:
             self._package_autotools()

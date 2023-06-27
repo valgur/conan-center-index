@@ -6,6 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, cross_building
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import chdir
+from conan.tools.microsoft import is_msvc
 
 
 class TestPackageConan(ConanFile):
@@ -24,7 +25,7 @@ class TestPackageConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 yield
         else:

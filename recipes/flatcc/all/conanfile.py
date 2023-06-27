@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.47.0"
@@ -61,7 +62,7 @@ class FlatccConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            if self.settings.compiler == "Visual Studio" and self.options.shared:
+            if is_msvc(self) and self.options.shared:
                 # Building flatcc shared libs with Visual Studio is broken
                 raise ConanInvalidConfiguration("Building flatcc libraries shared is not supported")
             if Version(self.version) == "0.6.0" and self.settings.compiler == "gcc":

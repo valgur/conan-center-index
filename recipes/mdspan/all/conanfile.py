@@ -3,6 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -66,7 +67,7 @@ class MDSpanConan(ConanFile):
                 )
 
         if (
-            str(self.settings.compiler) == "Visual Studio"
+            is_msvc(self)
             and "16.6" <= Version(self.settings.compiler.version) < "17.0"
         ):
             raise ConanInvalidConfiguration(

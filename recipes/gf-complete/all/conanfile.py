@@ -132,11 +132,11 @@ class GfCompleteConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.requires("getopt-for-visual-studio/20200201")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.options.shared:
                 raise ConanInvalidConfiguration("gf-complete doesn't support shared with Visual Studio")
             if self.version == "1.03":
@@ -154,7 +154,7 @@ class GfCompleteConan(ConanFile):
         apply_conandata_patches(self)
         # Don't build tests and examples (and also tools if Visual Studio)
         to_build = ["src"]
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             to_build.append("tools")
         replace_in_file(
             self,
@@ -169,7 +169,7 @@ class GfCompleteConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
@@ -188,7 +188,7 @@ class GfCompleteConan(ConanFile):
 
         self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         self._autotools.libs = []
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self._autotools.flags.append("-FS")
         elif "x86" in self.settings.arch:
             self._autotools.flags.append("-mstackrealign")
@@ -233,7 +233,7 @@ class GfCompleteConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["gf_complete"]
 
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             bin_path = os.path.join(self.package_folder, "bin")
             self.output.info("Appending PATH environment variable: {}".format(bin_path))
             self.env_info.PATH.append(bin_path)

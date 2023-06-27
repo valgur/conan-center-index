@@ -90,7 +90,7 @@ class GoogleCloudCppConan(ConanFile):
             raise ConanInvalidConfiguration("Building requires GCC >= 5.4")
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "3.8":
             raise ConanInvalidConfiguration("Building requires clang >= 3.8")
-        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "16":
+        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("Building requires VS >= 2019")
 
     def source(self):
@@ -99,7 +99,7 @@ class GoogleCloudCppConan(ConanFile):
     def generate(self):
         # Do not build in parallel for certain configurations, it fails writting/reading files at the same time
         parallel = not (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and self.settings.compiler.version == "16"
             and self.version in ["1.31.1", "1.30.1"]
         )

@@ -25,6 +25,7 @@ from conan.tools.files import (
     rmdir,
     save,
 )
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.50.2"  # Due to conan.tools.scm.Version
@@ -176,7 +177,7 @@ class LLVMCoreConan(ConanFile):
         tc.variables["LLVM_DYLIB_COMPONENTS"] = self.options.components
         tc.variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", default=False)
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
             tc.variables["LLVM_USE_CRT_{}".format(build_type)] = self.settings.compiler.runtime
 

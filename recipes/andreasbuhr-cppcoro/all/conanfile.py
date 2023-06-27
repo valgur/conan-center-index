@@ -15,6 +15,7 @@ from conan.tools.files import (
     get,
     rmdir,
 )
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -123,7 +124,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         if self.settings.os == "Windows":
             comp.system_libs = ["synchronization"]
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             comp.cxxflags.append("/await")
         elif self.settings.compiler == "gcc":
             comp.cxxflags.append("-fcoroutines")

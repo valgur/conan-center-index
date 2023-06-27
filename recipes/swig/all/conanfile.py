@@ -117,7 +117,7 @@ class SwigConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("winflexbison/2.5.24")
         else:
             self.build_requires("bison/3.8.2")
@@ -140,9 +140,9 @@ class SwigConan(ConanFile):
     @contextlib.contextmanager
     def _build_context(self):
         env = {}
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             env["YACC"] = self._user_info_build["bison"].YACC
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env.update(
                     {
@@ -164,7 +164,7 @@ class SwigConan(ConanFile):
         deps_libpaths = autotools.library_paths
         deps_libs = autotools.libs
         deps_defines = autotools.defines
-        if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
+        if self.settings.os == "Windows" and not is_msvc(self):
             autotools.link_flags.append("-static")
 
         libargs = list(f'-L"{p}"' for p in deps_libpaths) + list(
@@ -184,7 +184,7 @@ class SwigConan(ConanFile):
 
         host, build = None, None
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.output.warn("Visual Studio compiler cannot create ccache-swig. Disabling ccache-swig.")
             args.append("--disable-ccache")
             autotools.flags.append("-FS")
@@ -199,7 +199,7 @@ class SwigConan(ConanFile):
         autotools.libs = []
         autotools.library_paths = []
 
-        if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
+        if self.settings.os == "Windows" and not is_msvc(self):
             autotools.libs.extend(["mingwex", "ssp"])
 
         autotools.configure(args=args, configure_dir=self.source_folder, host=host, build=build)

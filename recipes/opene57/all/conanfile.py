@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, export_conandata_patches, get, rm
-from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -93,7 +93,7 @@ class Opene57Conan(ConanFile):
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_TOOLS"] = self.options.with_tools
         tc.variables["BUILD_TESTS"] = False
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             tc.variables["BUILD_WITH_MT"] = "MT" in msvc_runtime_flag(self)
         else:
             tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)

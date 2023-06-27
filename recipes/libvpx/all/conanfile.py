@@ -133,7 +133,7 @@ class LibVPXConan(ConanFile):
             "mips64": "mips64",
             "sparc": "sparc",
         }.get(str(self.settings.arch))
-        if str(self.settings.compiler) == "Visual Studio":
+        if is_msvc(self):
             vc_version = self.settings.compiler.version
             compiler = f"vs{vc_version}"
         elif is_msvc(self):

@@ -111,7 +111,7 @@ class FtjamConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("ftjam can't be cross-built")
@@ -119,7 +119,7 @@ class FtjamConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("automake/1.16.2")
         if self.settings.os != "Windows":
             self.build_requires("bison/3.7.1")
@@ -145,7 +145,7 @@ class FtjamConan(ConanFile):
                 autotools.libs = []
                 env = autotools.vars
                 with environment_append(self, env):
-                    if self.settings.compiler == "Visual Studio":
+                    if is_msvc(self):
                         with vcvars(self.settings):
                             self.run("nmake -f builds/win32-visualc.mk JAM_TOOLSET={}".format(jam_toolset))
                     else:
@@ -164,7 +164,7 @@ class FtjamConan(ConanFile):
         license_txt = txt[: txt.find("*/") + 3]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_txt)
         if self.settings.os == "Windows":
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 pass
             else:
                 copy(
@@ -179,7 +179,7 @@ class FtjamConan(ConanFile):
                 autotools.install()
 
     def _jam_toolset(self, os, compiler):
-        if compiler == "Visual Studio":
+        if is_msvc(self):
             return "VISUALC"
         if compiler == "intel":
             return "INTELC"

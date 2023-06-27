@@ -56,7 +56,7 @@ class RubyConan(ConanFile):
 
     @property
     def _msvc_optflag(self):
-        if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version) < "14":
+        if is_msvc(self) and Version(self.settings.compiler.version) < "14":
             return "-O2b2xg-"
         else:
             return "-O2sy-"

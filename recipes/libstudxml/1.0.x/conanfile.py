@@ -89,7 +89,7 @@ class LibStudXmlConan(ConanFile):
 
     @property
     def _vc_ver(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             return str(Version(self.settings.compiler.version).major)
         elif self.settings.compiler == "msvc":
             return {

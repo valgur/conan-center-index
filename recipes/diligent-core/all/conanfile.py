@@ -13,6 +13,7 @@ from conan.tools.files import (
     copy,
     apply_conandata_patches,
 )
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -88,7 +89,7 @@ class DiligentCoreConan(ConanFile):
                 self.requires("xkbcommon/1.4.1")
 
     def package_id(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if "MD" in self.settings.compiler.runtime:
                 self.info.settings.compiler.runtime = "MD/MDd"
             else:
@@ -114,7 +115,7 @@ class DiligentCoreConan(ConanFile):
                         self.settings.compiler.version,
                     )
                 )
-        if self.settings.compiler == "Visual Studio" and "MT" in self.settings.compiler.runtime:
+        if is_msvc(self) and "MT" in self.settings.compiler.runtime:
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
 
     def build_requirements(self):

@@ -113,7 +113,7 @@ class PremakeConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os != "Windows" or self.settings.compiler == "Visual Studio":
+        if self.settings.os != "Windows" or is_msvc(self):
             self.options.rm_safe("lto")
 
     def configure(self):
@@ -202,7 +202,7 @@ class PremakeConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "build", self._msvc_build_dirname)):
                 msbuild = MSBuild(self)
                 msbuild.build(

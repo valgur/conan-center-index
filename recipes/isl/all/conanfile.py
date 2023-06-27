@@ -125,7 +125,7 @@ class IslConan(ConanFile):
             # FIXME: missing imath recipe
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
         if (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and Version(self.settings.compiler.version) < 16
             and self.settings.compiler.runtime == "MDd"
         ):
@@ -145,7 +145,7 @@ class IslConan(ConanFile):
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.build_requires("automake/1.16.4")
 
     def source(self):
@@ -153,7 +153,7 @@ class IslConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 env = {
                     "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
@@ -192,7 +192,7 @@ class IslConan(ConanFile):
                     "--with-gmp-prefix={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
                 ]
             )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if Version(self.settings.compiler.version) >= 15:
                 self._autotools.flags.append("-Zf")
             if Version(self.settings.compiler.version) >= 12:

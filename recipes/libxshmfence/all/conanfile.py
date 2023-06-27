@@ -146,7 +146,7 @@ class LibxshmfenceConan(ConanFile):
 
     @contextlib.contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self):
                 env = {
                     "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace("\\", "/")

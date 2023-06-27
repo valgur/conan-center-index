@@ -137,7 +137,7 @@ class CrashpadConan(ConanFile):
             self.requires("openssl/1.1.1o")
 
     def validate(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.options.http_transport in ("libcurl", "socket"):
                 raise ConanInvalidConfiguration(
                     "http_transport={} is not valid when building with Visual Studio".format(
@@ -192,7 +192,7 @@ class CrashpadConan(ConanFile):
 
     @contextmanager
     def _build_context(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with vcvars(self.settings):
                 yield
         else:
@@ -239,7 +239,7 @@ class CrashpadConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
 
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
@@ -280,7 +280,7 @@ class CrashpadConan(ConanFile):
             extra_cflags.append("-fPIC")
         extra_cflags.extend("-I {}".format(inc) for inc in autotools.include_paths)
         extra_ldflags.extend(
-            "-{}{}".format("LIBPATH:" if self.settings.compiler == "Visual Studio" else "L ", libdir)
+            "-{}{}".format("LIBPATH:" if is_msvc(self) else "L ", libdir)
             for libdir in autotools.library_paths
         )
         if self.settings.compiler == "clang":
@@ -317,7 +317,7 @@ class CrashpadConan(ConanFile):
                 )
 
         def lib_filename(name):
-            prefix, suffix = ("", ".lib") if self.settings.compiler == "Visual Studio" else ("lib", ".a")
+            prefix, suffix = ("", ".lib") if is_msvc(self) else ("lib", ".a")
             return "{}{}{}".format(prefix, name, suffix)
 
         rename(

@@ -130,7 +130,7 @@ class PDCursesConan(ConanFile):
             self.requires("xorg/system")
 
     def build_requirements(self):
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             self.build_requires("make/4.2.1")
 
     def source(self):
@@ -150,14 +150,14 @@ class PDCursesConan(ConanFile):
             if self.options.shared:
                 args.append("DLL=Y")
             args = " ".join(args)
-            if self.settings.compiler == "Visual Studio":
+            if is_msvc(self):
                 with vcvars(self):
                     self.run(f"nmake -f Makefile.vc {args}")
             else:
                 self.run("{} libs {}".format(os.environ["CONAN_MAKE_PROGRAM"], args))
 
     def _patch_sources(self):
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "wincon", "Makefile.vc"),
@@ -218,7 +218,7 @@ class PDCursesConan(ConanFile):
             copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
-            if self.settings.compiler != "Visual Studio":
+            if not is_msvc(self):
                 os.rename(
                     os.path.join(self.package_folder, "lib", "pdcurses.a"),
                     os.path.join(self.package_folder, "lib", "libpdcurses.a"),

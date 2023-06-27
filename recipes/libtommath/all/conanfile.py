@@ -125,13 +125,9 @@ class LibTomMathConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and self.settings.compiler != "Visual Studio":
+        if self._settings_build.os == "Windows" and not is_msvc(self):
             self.build_requires("make/4.3")
-        if (
-            self.settings.compiler != "Visual Studio"
-            and self.settings.os != "Windows"
-            and self.options.shared
-        ):
+        if not is_msvc(self) and self.settings.os != "Windows" and self.options.shared:
             self.build_requires("libtool/2.4.6")
 
     def source(self):
@@ -145,14 +141,14 @@ class LibTomMathConan(ConanFile):
         target = target or ""
         autotools = AutoToolsBuildEnvironment(self)
         autotools.libs = []
-        if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
+        if self.settings.os == "Windows" and not is_msvc(self):
             autotools.link_flags.append("-lcrypt32")
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             # FIXME: should be handled by helper
             autotools.link_flags.append("-arch arm64")
         args = autotools.vars
         args.update({"PREFIX": self.package_folder})
-        if self.settings.compiler != "Visual Studio":
+        if not is_msvc(self):
             if get_env(self, "CC"):
                 args["CC"] = get_env(self, "CC")
             if get_env(self, "LD"):
@@ -165,7 +161,7 @@ class LibTomMathConan(ConanFile):
 
         with environment_append(self, args):
             with chdir(self, self.source_folder):
-                if self.settings.compiler == "Visual Studio":
+                if is_msvc(self):
                     if self.options.shared:
                         target = "tommath.dll"
                     else:
@@ -211,7 +207,7 @@ class LibTomMathConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        if self.settings.compiler == "Visual Studio" and self.options.shared:
+        if is_msvc(self) and self.options.shared:
             os.rename(
                 os.path.join(self.package_folder, "lib", "tommath.dll.lib"),
                 os.path.join(self.package_folder, "lib", "tommath.lib"),

@@ -5,6 +5,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -89,7 +90,7 @@ class TidyHtml5Conan(ConanFile):
         suffix = ""
         if self.settings.os == "Windows" and not self.options.shared:
             suffix = "_static"
-        if self.settings.compiler == "Visual Studio" and self.settings.build_type == "Debug":
+        if is_msvc(self) and self.settings.build_type == "Debug":
             suffix += "d"
         self.cpp_info.libs = ["tidy" + suffix]
         if self.settings.os == "Windows" and not self.options.shared:

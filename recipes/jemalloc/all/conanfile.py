@@ -242,21 +242,21 @@ class JemallocConan(ConanFile):
                 )
             )
         if (
-            self.settings.compiler == "Visual Studio"
+            is_msvc(self)
             and self.options.shared
             and "MT" in self.settings.compiler.runtime
         ):
             raise ConanInvalidConfiguration(
                 "Visual Studio build for shared library with MT runtime is not supported"
             )
-        if self.settings.compiler == "Visual Studio" and self.settings.compiler.version != "15":
+        if is_msvc(self) and self.settings.compiler.version != "15":
             # https://github.com/jemalloc/jemalloc/issues/1703
             raise ConanInvalidConfiguration(
                 "Only Visual Studio 15 2017 is supported.  Please fix this if other versions are supported"
             )
         if self.settings.build_type not in ("Release", "Debug", None):
             raise ConanInvalidConfiguration("Only Release and Debug build_types are supported")
-        if self.settings.compiler == "Visual Studio" and self.settings.arch not in ("x86_64", "x86"):
+        if is_msvc(self) and self.settings.arch not in ("x86_64", "x86"):
             raise ConanInvalidConfiguration("Unsupported arch")
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "3.9":
             raise ConanInvalidConfiguration("Unsupported compiler version")
@@ -333,10 +333,10 @@ class JemallocConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             with (
                 tools_legacy.vcvars(self.settings)
-                if self.settings.compiler == "Visual Studio"
+                if is_msvc(self)
                 else tools_legacy.no_op()
             ):
                 with (
@@ -346,7 +346,7 @@ class JemallocConan(ConanFile):
                             "CXX": "cl",
                         }
                     )
-                    if self.settings.compiler == "Visual Studio"
+                    if is_msvc(self)
                     else tools_legacy.no_op()
                 ):
                     with tools_legacy.chdir(self, self.source_folder):
@@ -367,7 +367,7 @@ class JemallocConan(ConanFile):
     @property
     def _library_name(self):
         libname = "jemalloc"
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             if self.options.shared:
                 if self.settings.build_type == "Debug":
                     libname += "d"
@@ -388,7 +388,7 @@ class JemallocConan(ConanFile):
         copy(
             self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
         )
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             arch_subdir = {
                 "x86_64": "x64",
                 "x86": "x86",
@@ -437,7 +437,7 @@ class JemallocConan(ConanFile):
             os.path.join(self.package_folder, "include"),
             os.path.join(self.package_folder, "include", "jemalloc"),
         ]
-        if self.settings.compiler == "Visual Studio":
+        if is_msvc(self):
             self.cpp_info.includedirs.append(os.path.join(self.package_folder, "include", "msvc_compat"))
         if not self.options.shared:
             self.cpp_info.defines = ["JEMALLOC_EXPORT="]

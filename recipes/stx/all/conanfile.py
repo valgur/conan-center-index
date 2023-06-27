@@ -7,6 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -65,7 +66,7 @@ class STXConan(ConanFile):
         if compiler.get_safe("cppstd"):
             check_min_cppstd(self, 17)
 
-        if compiler == "Visual Studio" and compiler_version < 16:
+        if is_msvc(self) and compiler_version < 16:
             raise ConanInvalidConfiguration(
                 "STX requires C++17 language and standard library features which VS < 2019 lacks"
             )
@@ -96,7 +97,7 @@ class STXConan(ConanFile):
                 "which apple-clang < 12 with libc++ lacks"
             )
 
-        if compiler == "Visual Studio" and self.options.shared and Version(self.version) <= "1.0.1":
+        if is_msvc(self) and self.options.shared and Version(self.version) <= "1.0.1":
             raise ConanInvalidConfiguration(
                 "shared library build does not work on windows with STX version <= 1.0.1"
             )
