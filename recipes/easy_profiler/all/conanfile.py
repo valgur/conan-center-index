@@ -118,9 +118,7 @@ class EasyProfilerConan(ConanFile):
                 rm(self, "{}*.dll".format(dll_prefix), os.path.join(self.package_folder, "bin"))
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "easy_profiler": "easy_profiler::easy_profiler",
-            },
+            {"easy_profiler": "easy_profiler::easy_profiler"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

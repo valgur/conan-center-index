@@ -15,7 +15,15 @@ class StatusValueLiteConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/status-value-lite"
-    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "status_value", "status_value-implementations", "header-only")
+    topics = (
+        "cpp98",
+        "cpp11",
+        "cpp14",
+        "cpp17",
+        "status_value",
+        "status_value-implementations",
+        "header-only",
+    )
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"

@@ -99,10 +99,7 @@ class LZ4Conan(ConanFile):
 
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                self._lz4_target: "lz4::lz4",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {self._lz4_target: "lz4::lz4"}
         )
 
     @property

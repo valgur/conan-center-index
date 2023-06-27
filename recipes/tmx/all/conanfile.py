@@ -78,10 +78,7 @@ class TmxConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "tmx": "tmx::tmx",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"tmx": "tmx::tmx"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

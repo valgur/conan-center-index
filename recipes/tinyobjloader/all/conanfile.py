@@ -83,9 +83,7 @@ class TinyObjLoaderConan(ConanFile):
         cmake_target = "tinyobjloader_double" if self.options.double else "tinyobjloader"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                cmake_target: "tinyobjloader::tinyobjloader",
-            },
+            {cmake_target: "tinyobjloader::tinyobjloader"},
         )
 
     def _remove_implementation(self, header_fullpath):

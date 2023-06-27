@@ -248,9 +248,7 @@ class LeptonicaConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "leptonica": "Leptonica::Leptonica",
-            },
+            {"leptonica": "Leptonica::Leptonica"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -161,9 +161,7 @@ required_conan_version = ">=1.52.0"
 
 class ZugConan(ConanFile):
     name = "zug"
-    description = (
-        "Transducers for C++ — Clojure style higher order push/pull sequence transformations"
-    )
+    description = "Transducers for C++ — Clojure style higher order push/pull sequence transformations"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sinusoid.es/zug/"

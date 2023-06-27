@@ -128,10 +128,7 @@ class GlfwConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "glfw": "glfw::glfw",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"glfw": "glfw::glfw"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

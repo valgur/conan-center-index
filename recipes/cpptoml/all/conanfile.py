@@ -42,10 +42,7 @@ class CppTomlConan(ConanFile):
 
         # TODO: to remove in conan v2
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "cpptoml": "cpptoml::cpptoml",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"cpptoml": "cpptoml::cpptoml"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

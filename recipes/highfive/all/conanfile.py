@@ -98,10 +98,7 @@ class HighFiveConan(ConanFile):
 
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "HighFive": "HighFive::HighFive",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"HighFive": "HighFive::HighFive"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

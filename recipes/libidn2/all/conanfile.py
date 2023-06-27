@@ -169,9 +169,7 @@ class LibIdn(ConanFile):
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
                 tc.cxxflags.append("-FS")
-            tc.ldflags.extend(
-                "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs
-            )
+            tc.ldflags.extend("-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args = [
             "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),

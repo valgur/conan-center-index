@@ -90,9 +90,7 @@ class Argtable3Conan(ConanFile):
         target_name = "argtable3" if self.options.shared else "argtable3_static"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                target_name: "argtable3::argtable3",
-            },
+            {target_name: "argtable3::argtable3"},
         )
 
     def package_info(self):

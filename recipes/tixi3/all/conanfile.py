@@ -88,10 +88,7 @@ class Tixi3Conan(ConanFile):
 
         # provide alias target tixi3 for v1 packages
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "tixi3": "tixi3::tixi3",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"tixi3": "tixi3::tixi3"}
         )
 
     @property

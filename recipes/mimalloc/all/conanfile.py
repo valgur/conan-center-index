@@ -207,9 +207,7 @@ class MimallocConan(ConanFile):
         cmake_target = "mimalloc" if self.options.shared else "mimalloc-static"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                cmake_target: "mimalloc::mimalloc",
-            },
+            {cmake_target: "mimalloc::mimalloc"},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

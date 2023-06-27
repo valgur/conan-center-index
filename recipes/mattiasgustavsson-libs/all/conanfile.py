@@ -27,7 +27,6 @@ class MattiasgustavssonLibsConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 

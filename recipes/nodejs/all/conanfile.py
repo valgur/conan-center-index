@@ -27,7 +27,6 @@ class NodejsConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
-
     @property
     def _nodejs_arch(self):
         if str(self.settings.os) == "Linux":

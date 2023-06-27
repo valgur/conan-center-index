@@ -126,10 +126,7 @@ class CzmqConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                self._czmq_target: "czmq::czmq",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {self._czmq_target: "czmq::czmq"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

@@ -84,10 +84,11 @@ required_conan_version = ">=1.52.0"
 class SeqanConan(ConanFile):
     name = "seqan"
     description = (
-        "SeqAn is an open source C++ library of efficient algorithms and data structures for the analysis"
-        " of sequences with the focus on biological data. Our library applies a unique generic design that"
-        " guarantees high performance, generality, extensibility, and integration with other libraries. "
-        "SeqAn is easy to use and simplifies the development of new software tools with a minimal loss of performance."
+        "SeqAn is an open source C++ library of efficient algorithms and data structures for the analysis of"
+        " sequences with the focus on biological data. Our library applies a unique generic design that"
+        " guarantees high performance, generality, extensibility, and integration with other libraries. SeqAn"
+        " is easy to use and simplifies the development of new software tools with a minimal loss of"
+        " performance."
     )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"

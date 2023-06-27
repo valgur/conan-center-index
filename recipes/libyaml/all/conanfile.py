@@ -69,10 +69,7 @@ class LibYAMLConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "yaml": "yaml::yaml",
-            },
+            os.path.join(self.package_folder, self._module_file_rel_path), {"yaml": "yaml::yaml"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

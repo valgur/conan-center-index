@@ -168,9 +168,7 @@ class LibIdnConan(ConanFile):
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
                 tc.cxxflags.append("-FS")
-            tc.ldflags.extend(
-                "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs
-            )
+            tc.ldflags.extend("-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args = [
             "--enable-threads={}".format(yes_no(self.options.threads)),
