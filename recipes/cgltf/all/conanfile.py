@@ -50,7 +50,6 @@ class CgltfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def _create_source_files(self):
         cgltf_c = '#define CGLTF_IMPLEMENTATION\n#include "cgltf.h"\n'

@@ -47,7 +47,6 @@ class DirectShowBaseClassesConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename(f"Windows-classic-samples-{self.version}", self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)

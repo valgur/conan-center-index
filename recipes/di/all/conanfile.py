@@ -71,8 +71,6 @@ class DiConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = "di-" + self.version
-        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
         copy(self, "BSL-1.0.txt", src="", dst=os.path.join(self.package_folder, "licenses"))

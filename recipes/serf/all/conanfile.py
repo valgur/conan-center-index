@@ -142,7 +142,6 @@ class SerfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename(glob.glob("serf-*")[0], self.source_folder)
 
     def generate(self):
         # TODO: fill in generate()

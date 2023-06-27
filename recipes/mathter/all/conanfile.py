@@ -49,7 +49,6 @@ class MathterConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("Mathter-" + self.version, self.source_folder)
 
     def package(self):
         copy(

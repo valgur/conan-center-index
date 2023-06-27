@@ -53,8 +53,6 @@ class LibEstConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = self.name + "-r" + self.version
-        os.rename(extracted_dir, self.source_folder)
 
     def generate(self):
         # TODO:

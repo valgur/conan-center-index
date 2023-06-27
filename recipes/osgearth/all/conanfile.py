@@ -355,7 +355,7 @@ class OsgearthConan(ConanFile):
                 self, os.path.join(self.package_folder, "resources"), os.path.join(self.package_folder, "res")
             )
 
-        if os_info.is_linux:
+        if self.settings.os in ["Linux", "FreeBSD"]:
             rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
 
         rmdir(self, os.path.join(self.package_folder, "cmake"))

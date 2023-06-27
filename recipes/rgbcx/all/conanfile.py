@@ -103,8 +103,6 @@ class RgbcxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = glob.glob("bc7enc-*/")[0]
-        os.rename(extracted_dir, self.source_folder)
 
     def build(self):
         replace_in_file(

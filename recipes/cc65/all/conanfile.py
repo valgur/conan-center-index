@@ -153,8 +153,6 @@ class Cc65Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self.source_folder)
 
     def _build_msvc(self):
         msbuild = MSBuild(self)

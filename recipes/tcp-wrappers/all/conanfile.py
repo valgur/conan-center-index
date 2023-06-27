@@ -51,7 +51,6 @@ class TcpWrappersConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("tcp_wrappers_{}-ipv6.4".format(self.version), self.source_folder)
 
     def generate(self):
         # TODO: fill in generate()

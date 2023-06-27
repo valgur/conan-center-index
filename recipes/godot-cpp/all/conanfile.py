@@ -215,7 +215,6 @@ class GodotCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        rename(self, glob.glob("godot-cpp-*")[0], self.source_folder)
 
     def generate(self):
         # TODO: fill in generate()

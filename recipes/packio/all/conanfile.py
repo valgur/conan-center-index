@@ -85,8 +85,6 @@ class PackioConan(ConanFile):
 
     def source(self):
         files.get(conanfile=self, **self.conan_data["sources"][self.version])
-        extracted_dir = "packio-" + self.version
-        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

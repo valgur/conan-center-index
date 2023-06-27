@@ -109,8 +109,6 @@ class RangelessConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        extracted_dir = glob.glob(self.name + "-*/")[0]
-        os.rename(extracted_dir, self.source_folder)
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

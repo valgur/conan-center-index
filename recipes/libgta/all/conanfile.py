@@ -42,7 +42,6 @@ class LibgtaConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename(self.name + "-" + self.version, self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
