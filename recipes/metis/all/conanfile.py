@@ -1,37 +1,32 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
+from os import path
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches
-from conan.tools.files import copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+
 
 required_conan_version = ">=1.53.0"
 
-
 class METISConan(ConanFile):
     name = "metis"
-    description = (
-        "set of serial programs for partitioning graphs,"
-        " partitioning finite element meshes, and producing"
-        " fill reducing orderings for sparse matrices"
-    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/METIS"
+    description = "set of serial programs for partitioning graphs," \
+                  " partitioning finite element meshes, and producing" \
+                  " fill reducing orderings for sparse matrices"
     topics = ("karypislab", "graph", "partitioning-algorithms")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_64bit_types": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_64bit_types": True,
     }
 
     @property
@@ -39,7 +34,6 @@ class METISConan(ConanFile):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -68,12 +62,13 @@ class METISConan(ConanFile):
         tc.variables["METIS_INSTALL"] = True
         tc.variables["ASSERT"] = self.settings.build_type == "Debug"
         tc.variables["ASSERT2"] = self.settings.build_type == "Debug"
-        tc.variables["METIS_IDX64"] = True
-        tc.variables["METIS_REAL64"] = True
+        tc.variables["METIS_IDX64"] = self.options.with_64bit_types
+        tc.variables["METIS_REAL64"] = self.options.with_64bit_types
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -82,13 +77,14 @@ class METISConan(ConanFile):
         cmake.build()
 
     def package(self):
+        copy(self, pattern="LICENSE", src=self.source_folder, dst=path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = ["metis"]
         self.cpp_info.requires.append("gklib::gklib")
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         if is_msvc(self) or self._is_mingw:
