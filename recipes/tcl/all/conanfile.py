@@ -1,11 +1,6 @@
-# Warnings:
-#   Unexpected method '_get_default_build_system_subdir'
-#   Unexpected method '_get_configure_dir'
-#   Unexpected method '_build_nmake'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.apple import is_apple_os
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,

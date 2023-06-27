@@ -1,9 +1,3 @@
-# Warnings:
-#   Unexpected method '_sources_os_key'
-#   Missing required method 'config_options'
-#   Missing required method 'source'
-#   Missing required method 'generate'
-
 from conan import ConanFile
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
@@ -27,11 +21,9 @@ class WasmtimeConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True,
     }
     no_copy_source = True
 
@@ -49,10 +41,6 @@ class WasmtimeConan(ConanFile):
             "gcc": "5.1",
         }
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     @property
     def _sources_os_key(self):
         if is_msvc(self):
@@ -66,7 +54,7 @@ class WasmtimeConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
-        basic_layout(self, src_folder="src")
+        pass
 
     def package_id(self):
         del self.info.settings.compiler.version
@@ -96,14 +84,6 @@ class WasmtimeConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of architecture/version/os are not available"
             )
-
-    def source(self):
-        # TODO: fill in source()
-        pass
-
-    def generate(self):
-        # TODO: fill in generate()
-        pass
 
     def build(self):
         # This is packaging binaries so the download needs to be in build

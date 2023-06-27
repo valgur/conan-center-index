@@ -1,8 +1,3 @@
-# Warnings:
-#   Unexpected method '_is_clanglc'
-#   Unexpected method '_base_compiler'
-#   Missing required method 'generate'
-
 # TODO: verify the Conan v2 migration
 
 import os
@@ -89,11 +84,14 @@ required_conan_version = ">=1.53.0"
 
 
 class TBBConan(ConanFile):
+    deprecated = "onetbb"
+
     name = "tbb"
     description = (
-        "Intel Threading Building Blocks (Intel TBB) lets you easily write parallel C++ programs that take"
-        " full advantage of multicore performance, that are portable and composable, and that have"
-        " future-proof scalability"
+        "Intel Threading Building Blocks (Intel TBB) lets you easily write "
+        "parallel C++ programs that take full advantage of multicore "
+        "performance, that are portable and composable, and that have "
+        "future-proof scalability"
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -114,7 +112,6 @@ class TBBConan(ConanFile):
         "tbbmalloc": False,
         "tbbproxy": False,
     }
-    deprecated = "onetbb"
 
     @property
     def _settings_build(self):
@@ -155,7 +152,7 @@ class TBBConan(ConanFile):
                 )
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(
-                    "%s %s couldn't be built by apple-clang < 8.0" % (self.name, self.version)
+                    f"{self.name} {self.version} couldn't be built by apple-clang < 8.0"
                 )
         if not self.options.shared:
             self.output.warn("Intel-TBB strongly discourages usage of static linkage")
@@ -194,8 +191,8 @@ class TBBConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
-                textwrap.dedent("""\
-                    LIB_LINK_CMD = {}.exe
+                textwrap.dedent(f"""\
+                    LIB_LINK_CMD = {"xilib" if self.settings.compiler == "intel" else "lib"}.exe
                     LIB_OUTPUT_KEY = /OUT:
                     LIB_LINK_FLAGS =
                     LIB_LINK_LIBS =
@@ -216,7 +213,7 @@ class TBBConan(ConanFile):
                     MALLOC_NO_VERSION.DLL =
                     MALLOCPROXY.DLL =
                     MALLOCPROXY.DEF =
-                """.format("xilib" if self.settings.compiler == "intel" else "lib")),
+                """),
             )
             extra = "" if self.options.shared else "extra_inc=big_iron_msvc.inc"
         else:
@@ -228,7 +225,7 @@ class TBBConan(ConanFile):
             "armv7": "armv7",
             "armv8": "aarch64",
         }[str(self.settings.arch)]
-        extra += " arch=%s" % arch
+        extra += f" arch={arch}"
 
         if str(self._base_compiler) in ("gcc", "clang", "apple-clang"):
             if str(self._base_compiler.libcxx) in ("libstdc++", "libstdc++11"):
@@ -273,7 +270,7 @@ class TBBConan(ConanFile):
                         "191": "vc14.1",
                         "192": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
-            extra += " runtime=%s" % runtime
+            extra += f" runtime={runtime}"
 
             if self.settings.compiler == "intel":
                 extra += " compiler=icl"
@@ -298,7 +295,7 @@ class TBBConan(ConanFile):
                 # intentionally not using vcvars for clang-cl yet
                 context = vcvars(self)
             with context:
-                self.run("%s %s %s" % (make, extra, " ".join(targets)))
+                self.run(f"{make} {extra} {' '.join(targets)}")
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
@@ -306,40 +303,40 @@ class TBBConan(ConanFile):
             self,
             pattern="*.h",
             dst=os.path.join(self.package_folder, "include"),
-            src="%s/include" % self.source_folder,
+            src=os.path.join(self.source_folder, "include"),
         )
         copy(
             self,
             pattern="*",
             dst=os.path.join(self.package_folder, "include/tbb/compat"),
-            src="%s/include/tbb/compat" % self.source_folder,
+            src=os.path.join(self.source_folder, "include/tbb/compat"),
         )
-        build_folder = "%s/build/" % self.source_folder
+        build_folder = os.path.join(self.source_folder, "build")
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
         copy(
             self,
-            pattern="*%s*.lib" % build_type,
+            pattern=f"*{build_type}*.lib",
             dst=os.path.join(self.package_folder, "lib"),
             src=build_folder,
             keep_path=False,
         )
         copy(
             self,
-            pattern="*%s*.a" % build_type,
+            pattern=f"*{build_type}*.a",
             dst=os.path.join(self.package_folder, "lib"),
             src=build_folder,
             keep_path=False,
         )
         copy(
             self,
-            pattern="*%s*.dll" % build_type,
+            pattern=f"*{build_type}*.dll",
             dst=os.path.join(self.package_folder, "bin"),
             src=build_folder,
             keep_path=False,
         )
         copy(
             self,
-            pattern="*%s*.dylib" % build_type,
+            pattern=f"*{build_type}*.dylib",
             dst=os.path.join(self.package_folder, "lib"),
             src=build_folder,
             keep_path=False,
@@ -348,7 +345,7 @@ class TBBConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             copy(
                 self,
-                "*%s*.dll" % build_type,
+                f"*{build_type}*.dll",
                 dst=os.path.join(self.package_folder, "lib"),
                 src=build_folder,
                 keep_path=False,
@@ -357,13 +354,14 @@ class TBBConan(ConanFile):
         if self.settings.os == "Linux":
             extension = "so"
             if self.options.shared:
-                copy(self, "*%s*.%s.*" % (build_type, extension), "lib", build_folder, keep_path=False)
+                copy(self, f"*{build_type}*.{extension}.*", "lib", build_folder, keep_path=False)
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 os.chdir(outputlibdir)
                 for fpath in os.listdir(outputlibdir):
                     self.run(
-                        'ln -s "%s" "%s"'
-                        % (fpath, fpath[0 : fpath.rfind("." + extension) + len(extension) + 1])
+                        'ln -s "{}" "{}"'.format(
+                            fpath, fpath[0 : fpath.rfind("." + extension) + len(extension) + 1]
+                        )
                     )
 
     def package_info(self):
@@ -373,14 +371,14 @@ class TBBConan(ConanFile):
 
         # tbb
         self.cpp_info.components["libtbb"].set_property("cmake_target_name", "TBB::tbb")
-        self.cpp_info.components["libtbb"].libs = ["tbb{}".format(suffix)]
+        self.cpp_info.components["libtbb"].libs = [f"tbb{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libtbb"].system_libs = ["dl", "rt", "pthread"]
 
         # tbbmalloc
         if self.options.tbbmalloc:
             self.cpp_info.components["tbbmalloc"].set_property("cmake_target_name", "TBB::tbbmalloc")
-            self.cpp_info.components["tbbmalloc"].libs = ["tbbmalloc{}".format(suffix)]
+            self.cpp_info.components["tbbmalloc"].libs = [f"tbbmalloc{suffix}"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["tbbmalloc"].system_libs = ["dl", "pthread"]
 
@@ -389,7 +387,7 @@ class TBBConan(ConanFile):
                 self.cpp_info.components["tbbmalloc_proxy"].set_property(
                     "cmake_target_name", "TBB::tbbmalloc_proxy"
                 )
-                self.cpp_info.components["tbbmalloc_proxy"].libs = ["tbbmalloc_proxy{}".format(suffix)]
+                self.cpp_info.components["tbbmalloc_proxy"].libs = [f"tbbmalloc_proxy{suffix}"]
                 self.cpp_info.components["tbbmalloc_proxy"].requires = ["tbbmalloc"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

@@ -12,8 +12,9 @@ required_conan_version = ">=1.53.0"
 class XnnpackConan(ConanFile):
     name = "xnnpack"
     description = (
-        "XNNPACK is a highly optimized library of floating-point neural network inference operators for ARM,"
-        " WebAssembly, and x86 platforms."
+        "XNNPACK is a highly optimized library of floating-point "
+        "neural network inference operators for ARM, WebAssembly, "
+        "and x86 platforms."
     )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"

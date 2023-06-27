@@ -1,17 +1,9 @@
-# Warnings:
-#   Missing required method 'config_options'
-#   Missing required method 'configure'
-#   Missing required method 'source'
-#   Missing required method 'generate'
-#   Missing required method 'build'
-#   Missing required method 'package'
-
 from conan import ConanFile
 from conan.tools.gnu import PkgConfig
 from conan.tools.system import package_manager
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.50.0"
 
 
 class XorgConan(ConanFile):
@@ -24,32 +16,13 @@ class XorgConan(ConanFile):
 
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+
+    def package_id(self):
+        self.info.clear()
 
     def system_requirements(self):
         apt = package_manager.Apt(self)
@@ -260,22 +233,6 @@ class XorgConan(ConanFile):
             update=True,
             check=True,
         )
-
-    def source(self):
-        # TODO: fill in source()
-        pass
-
-    def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def build(self):
-        # TODO: fill in build()
-        pass
-
-    def package(self):
-        # TODO: fill in package()
-        pass
 
     def package_info(self):
         for name in [

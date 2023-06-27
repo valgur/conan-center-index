@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc
 import os
 import textwrap
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.52.0"
 
 
 class UlfiusConan(ConanFile):
@@ -31,8 +31,8 @@ class UlfiusConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "enable_websockets": False,
-        "with_gnutls": False,
+        "enable_websockets": False,  # FIXME: should be True (cannot be True because of missing gnutls recipe)
+        "with_gnutls": False,  # FIXME: should be True
         "with_jansson": True,
         "with_libcurl": True,
         "with_yder": True,
@@ -108,7 +108,7 @@ class UlfiusConan(ConanFile):
             self,
             os.path.join(self.generators_folder, "MHDConfigVersion.cmake"),
             textwrap.dedent(f"""\
-            set(PACKAGE_VERSION "{ self.dependencies['libmicrohttpd'].ref.version }")
+            set(PACKAGE_VERSION "{self.dependencies['libmicrohttpd'].ref.version}")
 
             if(PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
                 set(PACKAGE_VERSION_COMPATIBLE FALSE)
@@ -203,13 +203,7 @@ class UlfiusConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            (
-                {}
-                if self.options.shared
-                else {
-                    "Ulfius::Ulfius-static": "Ulfius::Ulfius",
-                }
-            ),
+            ({} if self.options.shared else {"Ulfius::Ulfius-static": "Ulfius::Ulfius"}),
         )
 
     @property

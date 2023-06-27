@@ -12,9 +12,9 @@ required_conan_version = ">=1.52.0"
 class WilConan(ConanFile):
     name = "wil"
     description = (
-        "The Windows Implementation Libraries (WIL) is a header-only C++ librarycreated to make life easier"
-        " for developers on Windows through readabletype-safe C++ interfaces for common Windows coding"
-        " patterns."
+        "The Windows Implementation Libraries (WIL) is a header-only C++ library"
+        "created to make life easier for developers on Windows through readable"
+        "type-safe C++ interfaces for common Windows coding patterns."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -22,7 +22,9 @@ class WilConan(ConanFile):
     topics = ("win", "header-only")
 
     package_type = "header-library"
+    # only arch is applicable, windows library
     settings = "os", "arch", "compiler", "build_type"
+
     no_copy_source = True
 
     @property

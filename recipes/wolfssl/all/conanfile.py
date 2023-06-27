@@ -14,8 +14,8 @@ required_conan_version = ">=1.54.0"
 class WolfSSLConan(ConanFile):
     name = "wolfssl"
     description = (
-        "wolfSSL (formerly CyaSSL) is a small, fast, portable implementation of TLS/SSL for embedded devices"
-        " to the cloud."
+        "wolfSSL (formerly CyaSSL) is a small, fast, portable implementation "
+        "of TLS/SSL for embedded devices to the cloud."
     )
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"

@@ -12,8 +12,8 @@ required_conan_version = ">=1.59.0"
 class LAConan(ConanFile):
     name = "wg21-linear_algebra"
     description = (
-        "Production-quality reference implementation of P1385: A proposal to add linear algebra support to"
-        " the C++ standard library"
+        "Production-quality reference implementation of P1385: "
+        "A proposal to add linear algebra support to the C++ standard library"
     )
     license = "NCSA"
     url = "https://github.com/conan-io/conan-center-index"

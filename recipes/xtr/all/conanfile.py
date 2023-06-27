@@ -1,9 +1,3 @@
-# Warnings:
-#   Disallowed attribute 'generators = 'make''
-#   Unexpected method 'get_defines'
-#   Missing required method 'configure'
-#   Missing required method 'generate'
-
 # TODO: verify the Conan v2 migration
 
 import os
@@ -183,7 +177,7 @@ class XtrConan(ConanFile):
         # TODO: fill in generate()
         pass
 
-    def get_defines(self):
+    def _get_defines(self):
         defines = []
         enable_io_uring = self.options.get_safe("enable_io_uring")
         if enable_io_uring in (True, False):
@@ -213,7 +207,7 @@ class XtrConan(ConanFile):
         # CPPFLAGS etc.
         env_build_vars["EXCEPTIONS"] = str(int(bool(self.options.enable_exceptions)))
         env_build_vars["LTO"] = str(int(bool(self.options.enable_lto)))
-        env_build_vars["CXXFLAGS"] += "".join([" -D{}".format(d) for d in self.get_defines()])
+        env_build_vars["CXXFLAGS"] += "".join([" -D{}".format(d) for d in self._get_defines()])
         autotools.make(vars=env_build_vars)
         autotools.make(vars=env_build_vars, target="xtrctl")
 
@@ -228,7 +222,7 @@ class XtrConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["xtr"]
         self.cpp_info.system_libs = ["pthread"]
-        self.cpp_info.defines = self.get_defines()
+        self.cpp_info.defines = self._get_defines()
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

@@ -10,8 +10,8 @@ required_conan_version = ">=1.54.0"
 class WTLConan(ConanFile):
     name = "wtl"
     description = (
-        "Windows Template Library (WTL) is a C++ library for developing Windows applications and UI"
-        " components."
+        "Windows Template Library (WTL) is a C++ library for "
+        "developing Windows applications and UI components."
     )
     license = "MS-PL"
     url = "https://github.com/conan-io/conan-center-index"

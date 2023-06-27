@@ -102,8 +102,6 @@ class VkBootstrapConan(ConanFile):
         if Version(self.version) >= "0.4.0":
             tc.variables["VK_BOOTSTRAP_WERROR"] = False
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)

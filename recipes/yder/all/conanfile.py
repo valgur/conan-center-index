@@ -89,17 +89,6 @@ class YderConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package(self):
         copy(self, "LICENSE", os.path.join(self.source_folder), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -113,22 +102,25 @@ class YderConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(f"""\
-                set(YDER_VERSION_STRING "{self.version}")
-           """),
+            'set(YDER_VERSION_STRING "{self.version}\n',
         )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            (
-                {}
-                if self.options.shared
-                else {
-                    "Yder::Yder-static": "Yder::Yder",
-                }
-            ),
+            ({} if self.options.shared else {"Yder::Yder-static": "Yder::Yder"}),
         )
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

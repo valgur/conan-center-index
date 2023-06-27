@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_extracted_license'
-
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, save
@@ -16,9 +13,9 @@ class TinyExrConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinyexr"
-    topics = ("exr", "header-only", "pre-built")
+    topics = ("exr", "header-only")
 
-    package_type = "application"
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_z": ["zlib", "miniz"],
@@ -35,14 +32,6 @@ class TinyExrConan(ConanFile):
         "with_openmp": False,
     }
 
-    @property
-    def _extracted_license(self):
-        content_lines = open(os.path.join(self.source_folder, "tinyexr.h")).readlines()
-        license_content = []
-        for i in range(3, 27):
-            license_content.append(content_lines[i][:-1])
-        return "\n".join(license_content)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -58,8 +47,7 @@ class TinyExrConan(ConanFile):
             self.requires("zfp/1.0.0")
 
     def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
+        self.info.clear()
 
     def validate(self):
         if self.options.with_thread and self.settings.compiler.get_safe("cppstd"):
@@ -67,6 +55,14 @@ class TinyExrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    @property
+    def _extracted_license(self):
+        content_lines = open(os.path.join(self.source_folder, "tinyexr.h")).readlines()
+        license_content = []
+        for i in range(3, 27):
+            license_content.append(content_lines[i][:-1])
+        return "\n".join(license_content)
 
     def build(self):
         apply_conandata_patches(self)
@@ -81,9 +77,6 @@ class TinyExrConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
-        self.cpp_info.includedirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.defines.append(

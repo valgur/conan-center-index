@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_remove_implementation'
-
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
@@ -16,7 +13,7 @@ from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.52.0"
 
 
 class TinyObjLoaderConan(ConanFile):
@@ -75,6 +72,22 @@ class TinyObjLoaderConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def package(self):
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "tinyobjloader"))
+        self._remove_implementation(os.path.join(self.package_folder, "include", "tiny_obj_loader.h"))
+
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        cmake_target = "tinyobjloader_double" if self.options.double else "tinyobjloader"
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                cmake_target: "tinyobjloader::tinyobjloader",
+            },
+        )
+
     def _remove_implementation(self, header_fullpath):
         header_content = load(self, header_fullpath)
         begin = header_content.find("#ifdef TINYOBJLOADER_IMPLEMENTATION")
@@ -91,22 +104,6 @@ class TinyObjLoaderConan(ConanFile):
                 endif()
             """)
         save(self, module_file, content)
-
-    def package(self):
-        cmake = CMake(self)
-        cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "tinyobjloader"))
-        self._remove_implementation(os.path.join(self.package_folder, "include", "tiny_obj_loader.h"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        cmake_target = "tinyobjloader_double" if self.options.double else "tinyobjloader"
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                cmake_target: "tinyobjloader::tinyobjloader",
-            },
-        )
 
     @property
     def _module_file_rel_path(self):

@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class TaoCPPPEGTLConan(ConanFile):

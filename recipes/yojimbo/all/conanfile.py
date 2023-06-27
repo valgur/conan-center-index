@@ -1,6 +1,3 @@
-# Warnings:
-#   Missing required method 'generate'
-
 # TODO: verify the Conan v2 migration
 
 import os

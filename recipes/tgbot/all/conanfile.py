@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_required_boost_components'
-
 # TODO: verify the Conan v2 migration
 
 import os
@@ -104,10 +101,6 @@ class TgbotConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _required_boost_components(self):
-        return ["system"]
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -124,6 +117,10 @@ class TgbotConan(ConanFile):
         self.requires("libcurl/7.84.0")
         self.requires("openssl/1.1.1q")
 
+    @property
+    def _required_boost_components(self):
+        return ["system"]
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
@@ -133,9 +130,8 @@ class TgbotConan(ConanFile):
         )
         if self.options["boost"].header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
-                "{0} requires non header-only boost with these components: {1}".format(
-                    self.name, ", ".join(self._required_boost_components)
-                )
+                f"{self.name} requires non header-only boost with these components: "
+                + ", ".join(self._required_boost_components)
             )
 
     def source(self):

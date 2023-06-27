@@ -1,12 +1,3 @@
-# Warnings:
-#   Disallowed attribute 'version = 'system''
-#   Missing required method 'config_options'
-#   Missing required method 'configure'
-#   Missing required method 'source'
-#   Missing required method 'generate'
-#   Missing required method 'build'
-#   Missing required method 'package'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import PkgConfig
@@ -18,8 +9,9 @@ required_conan_version = ">=1.53.0"
 class SysConfigVAAPIConan(ConanFile):
     name = "vaapi"
     description = (
-        "VA-API is an open-source library and API specification, which provides access to graphics hardware"
-        " acceleration capabilities for video processing."
+        "VA-API is an open-source library and API specification, "
+        "which provides access to graphics hardware acceleration "
+        "capabilities for video processing."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -28,22 +20,6 @@ class SysConfigVAAPIConan(ConanFile):
 
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         pass
@@ -73,22 +49,6 @@ class SysConfigVAAPIConan(ConanFile):
 
         pkg = package_manager.Pkg(self)
         pkg.install(["libva"], update=True, check=True)
-
-    def source(self):
-        # TODO: fill in source()
-        pass
-
-    def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def build(self):
-        # TODO: fill in build()
-        pass
-
-    def package(self):
-        # TODO: fill in package()
-        pass
 
     def package_info(self):
         if self.settings.os in ["Linux", "FreeBSD"]:

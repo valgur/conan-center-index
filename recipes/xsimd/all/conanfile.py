@@ -14,8 +14,8 @@ required_conan_version = ">=1.52.0"
 class XsimdConan(ConanFile):
     name = "xsimd"
     description = (
-        "C++ wrappers for SIMD intrinsics and parallelized, optimized mathematical functions (SSE, AVX, NEON,"
-        " AVX512)"
+        "C++ wrappers for SIMD intrinsics and parallelized, "
+        "optimized mathematical functions (SSE, AVX, NEON, AVX512)"
     )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
@@ -78,17 +78,6 @@ class XsimdConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         includedir = os.path.join(self.source_folder, "include")
@@ -101,6 +90,17 @@ class XsimdConan(ConanFile):
                 "xsimd": "xsimd::xsimd",
             },
         )
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):

@@ -10,8 +10,8 @@ required_conan_version = ">=1.53.0"
 class ZmqppConan(ConanFile):
     name = "zmqpp"
     description = (
-        "This C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core"
-        " 0mq provides."
+        "This C++ binding for 0mq/zmq is a 'high-level' library that hides "
+        "most of the c-style interface core 0mq provides."
     )
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"

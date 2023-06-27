@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_validate_compiler_settings'
-
 # TODO: verify the Conan v2 migration
 
 import os

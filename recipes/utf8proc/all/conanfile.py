@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.47.0"
 
 
 class Utf8ProcConan(ConanFile):

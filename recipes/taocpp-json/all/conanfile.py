@@ -1,7 +1,3 @@
-# Warnings:
-#   Unexpected method '_min_compilers_version'
-#   Unexpected method '_requires_pegtl'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -10,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.51.1"
 
 
 class TaoCPPJSONConan(ConanFile):

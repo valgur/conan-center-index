@@ -1,12 +1,3 @@
-# Warnings:
-#   Unexpected method '_required_boost_components'
-#   Unexpected method '_get_library_prefix'
-#   Unexpected method '_strict_options_requirements'
-#   Unexpected method '_get_library_extension'
-#   Unexpected method '_cmakify_path_list'
-#   Unexpected method '_find_library'
-#   Unexpected method '_find_libraries'
-
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.files import (
@@ -75,14 +66,6 @@ class WtConan(ConanFile):
         "connector_fcgi": False,
     }
 
-    @property
-    def _required_boost_components(self):
-        return ["program_options", "filesystem", "thread"]
-
-    @property
-    def _get_library_prefix(self):
-        return "" if self.settings.os == "Windows" else "lib"
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -112,6 +95,10 @@ class WtConan(ConanFile):
         self.options["boost"].header_only = False
         for boost_comp in self._required_boost_components:
             setattr(self.options["boost"], f"without_{boost_comp}", False)
+
+    @property
+    def _required_boost_components(self):
+        return ["program_options", "filesystem", "thread"]
 
     def requirements(self):
         if Version(self.version) < "4.6.0":
@@ -165,6 +152,10 @@ class WtConan(ConanFile):
                 return ".lib"
             else:
                 return ".a"
+
+    @property
+    def _get_library_prefix(self):
+        return "" if self.settings.os == "Windows" else "lib"
 
     def _cmakify_path_list(self, paths):
         return ";".join(paths).replace("\\", "/")

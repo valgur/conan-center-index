@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_validate'
-
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run
@@ -33,6 +30,7 @@ class XercesCConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        # https://xerces.apache.org/xerces-c/build-3.html
         "char_type": ["uint16_t", "char16_t", "wchar_t"],
         "network_accessor": ["curl", "socket", "cfurl", "winsock"],
         "transcoder": ["gnuiconv", "iconv", "icu", "macosunicodeconverter", "windows"],

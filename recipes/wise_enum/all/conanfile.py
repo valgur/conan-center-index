@@ -7,14 +7,14 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class WiseEnumConan(ConanFile):
     name = "wise_enum"
     description = (
-        "Header-only C++11/14/17 library provides static reflection for enums, work with any enum type"
-        " without any boilerplate code."
+        "Header-only C++11/14/17 library provides static reflection for enums, "
+        "work with any enum type without any boilerplate code."
     )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -22,7 +22,8 @@ class WiseEnumConan(ConanFile):
     topics = (
         "cplusplus",
         "enum-to-string",
-        "string-to-enumserialization",
+        "string-to-enum",
+        "serialization",
         "reflection",
         "header-only",
         "compile-time",

@@ -1,7 +1,3 @@
-# Warnings:
-#   Unexpected method '_termcap_path'
-#   Unexpected method '_extract_sources'
-
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
@@ -29,10 +25,6 @@ class TermcapConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _termcap_path(self):
-        return os.path.join(self.package_folder, "bin", "etc", "termcap")
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -103,6 +95,10 @@ class TermcapConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+
+    @property
+    def _termcap_path(self):
+        return os.path.join(self.package_folder, "bin", "etc", "termcap")
 
     def package_info(self):
         self.cpp_info.libs = ["termcap"]

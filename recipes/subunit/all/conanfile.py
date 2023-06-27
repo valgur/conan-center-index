@@ -101,8 +101,6 @@ class SubunitConan(ConanFile):
         "fPIC": True,
     }
 
-    _autotools = None
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -173,9 +171,9 @@ class SubunitConan(ConanFile):
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(
-                " ".join(
-                    "-I{}".format(inc) for inc in self.dependencies["cppunit"].cpp_info.includedirs
-                ).replace("\\", "/")
+                " ".join(f"-I{inc}" for inc in self.dependencies["cppunit"].cpp_info.includedirs).replace(
+                    "\\", "/"
+                )
             ),
             "CPPUNIT_LIBS='{}'".format(" ".join(self.dependencies["cppunit"].cpp_info.libs)),
         ]
@@ -227,5 +225,5 @@ class SubunitConan(ConanFile):
         self.cpp_info.components["libcppunit_subunit"].names["pkgconfig"] = "libcppunit_subunit"
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

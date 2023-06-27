@@ -15,8 +15,8 @@ required_conan_version = ">=1.53.0"
 class WaylandConan(ConanFile):
     name = "wayland"
     description = (
-        "Wayland is a project to define a protocol for a compositor to talk to its clients as well as a"
-        " library implementation of the protocol"
+        "Wayland is a project to define a protocol for a compositor to talk to "
+        "its clients as well as a library implementation of the protocol"
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

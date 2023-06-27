@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_jni_folder'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy
@@ -112,11 +109,10 @@ class ZuluOpenJDK(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
-        self.cpp_info.includedirs = []
         self.cpp_info.includedirs.append(self._jni_folder)
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         java_home = self.package_folder
         bin_path = os.path.join(java_home, "bin")

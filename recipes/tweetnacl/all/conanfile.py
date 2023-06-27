@@ -121,8 +121,8 @@ class TweetnaclConan(ConanFile):
         if self.settings.os in ("Windows", "Macos"):
             if self.options.shared:
                 raise ConanInvalidConfiguration(
-                    "tweetnacl does not support shared on Windows and Madcos: it needs a randombytes"
-                    " implementation"
+                    "tweetnacl does not support shared on Windows and Madcos: "
+                    "it needs a randombytes implementation"
                 )
 
     def source(self):

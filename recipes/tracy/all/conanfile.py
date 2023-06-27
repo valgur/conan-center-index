@@ -78,11 +78,15 @@ class TracyConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    @property
+    def _tracy_options(self):
+        return [opt for opt in self.options if opt not in ["shared", "fPIC"]]
+
     def generate(self):
         tc = CMakeToolchain(self)
         # Set all tracy options in the correct form
         # For example, TRACY_NO_EXIT
-        for opt in self._tracy_options.keys():
+        for opt in self._tracy_options:
             switch = getattr(self.options, opt)
             opt = f"TRACY_{opt.upper()}"
             tc.variables[opt] = switch
@@ -112,7 +116,7 @@ class TracyConan(ConanFile):
             self.cpp_info.components["tracyclient"].system_libs.append("dl")
 
         # Tracy CMake adds options set to ON as public
-        for opt in self._tracy_options.keys():
+        for opt in self._tracy_options:
             switch = getattr(self.options, opt)
             opt = f"TRACY_{opt.upper()}"
             if switch:

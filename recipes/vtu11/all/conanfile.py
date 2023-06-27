@@ -15,9 +15,9 @@ class PackageConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/phmkopp/vtu11"
-    topics = ("vtu", "c++11", "pre-built")
+    topics = ("vtu", "c++11", "header-only")
 
-    package_type = "application"
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_zlib": [True, False],
@@ -41,8 +41,7 @@ class PackageConan(ConanFile):
             self.requires("zlib/1.2.13", transitive_headers=True)
 
     def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -67,9 +66,6 @@ class PackageConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
-        self.cpp_info.includedirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 

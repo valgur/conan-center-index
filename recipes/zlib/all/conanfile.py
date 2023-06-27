@@ -18,8 +18,8 @@ required_conan_version = ">=1.53.0"
 class ZlibConan(ConanFile):
     name = "zlib"
     description = (
-        "A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention"
-        " Unencumbered by Patents)"
+        "A Massively Spiffy Yet Delicately Unobtrusive Compression Library "
+        "(Also Free, Not to Mention Unencumbered by Patents)"
     )
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"

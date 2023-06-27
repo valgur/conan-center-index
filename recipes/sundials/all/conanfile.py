@@ -12,7 +12,7 @@ class SundialsConan(ConanFile):
     name = "sundials"
     description = (
         "SUNDIALS is a family of software packages implemented with the goal of providing robust time"
-        " integrators and nonlinear solvers that can easily be incorporatedinto existing simulation codes."
+        " integrators and nonlinear solvers that can easily be incorporated into existing simulation codes."
     )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"

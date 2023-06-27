@@ -1,7 +1,3 @@
-# Warnings:
-#   Unexpected method '_generate_autotools'
-#   Unexpected method '_generate_cmake'
-
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -108,10 +104,10 @@ class YASMConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")

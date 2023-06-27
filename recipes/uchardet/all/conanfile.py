@@ -2,83 +2,9 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-import functools
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file, rmdir
 
 required_conan_version = ">=1.53.0"
 
@@ -86,9 +12,10 @@ required_conan_version = ">=1.53.0"
 class UchardetConan(ConanFile):
     name = "uchardet"
     description = (
-        "uchardet is an encoding detector library, which takes a sequence of bytes in an unknown character"
-        " encoding and attempts to determine the encoding of the text. Returned encoding names are"
-        " iconv-compatible."
+        "uchardet is an encoding detector library, which takes a "
+        "sequence of bytes in an unknown character encoding and "
+        "attempts to determine the encoding of the text. "
+        "Returned encoding names are iconv-compatible."
     )
     license = "MPL-1.1"
     url = "https://github.com/conan-io/conan-center-index"
@@ -132,9 +59,7 @@ class UchardetConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
         tc.variables["BUILD_BINARY"] = False
-        tc.variables["BUILD_STATIC"] = (
-            False  # disable building static libraries when self.options.shared is True
-        )
+        tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.generate()
 
     def _patch_sources(self):

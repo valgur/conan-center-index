@@ -1,9 +1,3 @@
-# Warnings:
-#   Unexpected method '_all_supported_archs'
-#   Unexpected method '_needs_jwasm'
-#   Unexpected method '_jwasm_wrapper'
-#   Unexpected method '_supported_archs'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -60,14 +54,6 @@ class UnicornConan(ConanFile):
         """
         return sorted(["aarch64", "arm", "m68k", "mips", "sparc", "x86"])
 
-    @property
-    def _needs_jwasm(self):
-        return self.settings.os == "Windows" and not is_msvc(self)
-
-    @property
-    def _jwasm_wrapper(self):
-        return os.path.join(self.build_folder, "jwasm_wrapper.py")
-
     def _supported_archs(self, info=False):
         """
         Get supported architectures of the current build/package (depends on self.options.supported_archs)
@@ -75,6 +61,10 @@ class UnicornConan(ConanFile):
         """
         options = self.info.options if info else self.options
         return sorted(set(str(options.supported_archs).split(",")))
+
+    @property
+    def _needs_jwasm(self):
+        return self.settings.os == "Windows" and not is_msvc(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -116,6 +106,10 @@ class UnicornConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    @property
+    def _jwasm_wrapper(self):
+        return os.path.join(self.build_folder, "jwasm_wrapper.py")
 
     def generate(self):
         env = VirtualBuildEnv(self)

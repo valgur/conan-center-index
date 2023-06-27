@@ -1,8 +1,9 @@
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools import files
-from conan import ConanFile
 import os
 import textwrap
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, rmdir, save
 
 required_conan_version = ">=1.53.0"
 
@@ -27,8 +28,7 @@ class Tixi3Conan(ConanFile):
     }
 
     def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

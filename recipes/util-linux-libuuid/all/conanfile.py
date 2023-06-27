@@ -68,8 +68,8 @@ class UtilLinuxLibuuidConan(ConanFile):
         min_version = self._minimum_compiler_version(self.settings.compiler, self.settings.build_type)
         if Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
-                f"{self.settings.compiler} {self.settings.compiler.version} does not meet the minimum version"
-                f" requirement of version {min_version}"
+                f"{self.settings.compiler} {self.settings.compiler.version} "
+                f"does not meet the minimum version requirement of version {min_version}"
             )
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows")

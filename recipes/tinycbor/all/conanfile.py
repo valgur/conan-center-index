@@ -14,8 +14,8 @@ required_conan_version = ">=1.55.0"
 class TinycborConan(ConanFile):
     name = "tinycbor"
     description = (
-        "A small CBOR encoder and decoder library, optimized for very fast operation with very small"
-        " footprint."
+        "A small CBOR encoder and decoder library, optimized for very fast "
+        "operation with very small footprint."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

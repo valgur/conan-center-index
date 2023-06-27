@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_extract_yajl_license'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -27,8 +24,8 @@ required_conan_version = ">=1.53.0"
 class XqillaConan(ConanFile):
     name = "xqilla"
     description = (
-        "XQilla is an XQuery and XPath 2 library and command line utility written in C++, implemented on top"
-        " of the Xerces-C library"
+        "XQilla is an XQuery and XPath 2 library and command line utility "
+        "written in C++, implemented on top of the Xerces-C library"
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"

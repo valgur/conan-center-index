@@ -13,9 +13,9 @@ class TinygltfConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinygltf"
-    topics = ("g", "l", "t", "f", "pre-built")
+    topics = ("gltf", "header-only")
 
-    package_type = "application"
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "draco": [True, False],
@@ -39,8 +39,7 @@ class TinygltfConan(ConanFile):
             self.requires("stb/cci.20210910")
 
     def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -62,9 +61,6 @@ class TinygltfConan(ConanFile):
         copy(self, "tiny_gltf.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
-        self.cpp_info.includedirs = []
         self.cpp_info.set_property("cmake_file_name", "TinyGLTF")
         self.cpp_info.set_property("cmake_target_name", "TinyGLTF::TinyGLTF")
         self.cpp_info.bindirs = []

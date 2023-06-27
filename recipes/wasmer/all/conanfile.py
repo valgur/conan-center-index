@@ -1,8 +1,3 @@
-# Warnings:
-#   Unexpected method '_compiler_alias'
-#   Missing required method 'generate'
-#   Missing required method 'build'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -27,11 +22,9 @@ class WasmerConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True,
     }
 
     @property
@@ -78,20 +71,8 @@ class WasmerConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is only available with compiler.runtime=static")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version][str(self.info.settings.os)][
-                str(self.info.settings.arch)
-            ][self._compiler_alias],
-        )
-
-    def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def build(self):
-        # TODO: fill in build()
-        pass
+        data = self.conan_data["sources"][self.version]
+        get(self, **data[str(self.info.settings.os)][str(self.info.settings.arch)][self._compiler_alias])
 
     def package(self):
         copy(

@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_module_file'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -57,10 +54,6 @@ class TensorflowLiteConan(ConanFile):
             "clang": "5",
             "apple-clang": "5.1",
         }
-
-    @property
-    def _module_file(self):
-        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -142,6 +135,21 @@ class TensorflowLiteConan(ConanFile):
         cmake.configure(build_script_folder=join("tensorflow", "lite"))
         cmake.build()
 
+    def _create_cmake_module_alias_target(self, module_file):
+        aliased = "tensorflowlite::tensorflowlite"
+        alias = "tensorflow::tensorflowlite"
+        content = textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
+
+    @property
+    def _module_file(self):
+        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+
     def package(self):
         copy(self, "LICENSE", self.source_folder, join(self.package_folder, "licenses"))
         copy(
@@ -155,7 +163,7 @@ class TensorflowLiteConan(ConanFile):
         copy(self, "*.dylib", self.build_folder, join(self.package_folder, "lib"))
         copy(self, "*.lib", self.build_folder, join(self.package_folder, "lib"), keep_path=False)
         copy(self, "*.dll", self.build_folder, join(self.package_folder, "bin"), keep_path=False)
-        self._create_cmake_module_alias_target(self, join(self.package_folder, self._module_file))
+        self._create_cmake_module_alias_target(join(self.package_folder, self._module_file))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tensorflowlite")

@@ -1,7 +1,3 @@
-# Warnings:
-#   Unexpected method '_datarootdir'
-#   Unexpected method '_create_cmake_module_variables'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -29,8 +25,8 @@ required_conan_version = ">=1.57.0"
 class XapianCoreConan(ConanFile):
     name = "xapian-core"
     description = (
-        "Xapian is a highly adaptable toolkit which allows developers to easily add advanced indexing and"
-        " search facilities to their own applications."
+        "Xapian is a highly adaptable toolkit which allows developers to easily "
+        "add advanced indexing and search facilities to their own applications."
     )
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
@@ -51,10 +47,6 @@ class XapianCoreConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
-
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -174,10 +166,6 @@ class XapianCoreConan(ConanFile):
 
         self._create_cmake_module_variables(f"{self.package_folder}/{self._module_file_rel_path}")
 
-    @property
-    def _module_file_rel_path(self):
-        return f"lib/cmake/conan-official-{self.name}-variables.cmake"
-
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\
             set(XAPIAN_FOUND TRUE)
@@ -193,6 +181,14 @@ class XapianCoreConan(ConanFile):
                                  ${xapian_LIBRARIES_DEBUG})
         """)
         save(self, module_file, content)
+
+    @property
+    def _module_file_rel_path(self):
+        return f"lib/cmake/conan-official-{self.name}-variables.cmake"
+
+    @property
+    def _datarootdir(self):
+        return os.path.join(self.package_folder, "res")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "xapian")

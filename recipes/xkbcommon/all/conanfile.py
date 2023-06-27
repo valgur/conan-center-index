@@ -1,7 +1,3 @@
-# Warnings:
-#   Unexpected method '_has_build_profile'
-#   Unexpected method '_has_xkbregistry_option'
-
 import os
 
 from conan import ConanFile
@@ -131,16 +127,16 @@ class XkbcommonConan(ConanFile):
                     meson_build_file,
                     "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
                     (
-                        "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native:"
-                        " true)"
+                        "wayland_scanner_dep = "
+                        "dependency('wayland-scanner_BUILD', required: false, native: true)"
                     ),
                 )
                 replace_in_file(
                     self,
                     meson_build_file,
                     (
-                        "wayland_protocols_dep = dependency('wayland-protocols', version: '>=1.12', required:"
-                        " false)"
+                        "wayland_protocols_dep = "
+                        "dependency('wayland-protocols', version: '>=1.12', required: false)"
                     ),
                     (
                         "wayland_protocols_dep = dependency('wayland-protocols_BUILD', version: '>=1.12',"
@@ -159,8 +155,8 @@ class XkbcommonConan(ConanFile):
                     self,
                     meson_build_file,
                     (
-                        "if not wayland_client_dep.found() or not wayland_protocols_dep.found() or not"
-                        " wayland_scanner_dep.found()"
+                        "if not wayland_client_dep.found() or not wayland_protocols_dep.found() "
+                        "or not wayland_scanner_dep.found()"
                     ),
                     "if not wayland_client_dep.found() or not wayland_protocols_dep.found()",
                 )
@@ -169,8 +165,8 @@ class XkbcommonConan(ConanFile):
                     self,
                     meson_build_file,
                     (
-                        "wayland_scanner ="
-                        f" find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))"
+                        "wayland_scanner = "
+                        f"find_program(wayland_scanner_dep.{get_pkg_config_var}'wayland_scanner'))"
                     ),
                     "wayland_scanner = find_program('wayland-scanner')",
                 )

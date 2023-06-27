@@ -1,6 +1,3 @@
-# Warnings:
-#   Missing required method 'configure'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -14,9 +11,10 @@ required_conan_version = ">=1.53.0"
 class VectorclassConan(ConanFile):
     name = "vectorclass"
     description = (
-        "C++ class library for using the Single Instruction Multiple Data (SIMD) instructions to improve"
-        " performance on modern microprocessors with the x86 or x86/64 instruction set on Windows, Linux, and"
-        " Mac platforms."
+        "C++ class library for using the Single Instruction Multiple "
+        "Data (SIMD) instructions to improve performance on modern "
+        "microprocessors with the x86 or x86/64 instruction set on "
+        "Windows, Linux, and Mac platforms."
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"

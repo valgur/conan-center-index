@@ -1,12 +1,8 @@
-# Warnings:
-#   Missing required method 'config_options'
+import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, load, save
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc
-import os
 
 required_conan_version = ">=1.54.0"
 
@@ -35,6 +31,8 @@ class TinycthreadConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         self.settings.compiler.rm_safe("libcxx")
         self.settings.compiler.rm_safe("cppstd")
 

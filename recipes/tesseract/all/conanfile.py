@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_libname'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -65,16 +62,6 @@ class TesseractConan(ConanFile):
                 "apple-clang": "11",
             },
         }.get(self._min_cppstd, {})
-
-    @property
-    def _libname(self):
-        suffix = ""
-        if self.settings.os == "Windows":
-            v = Version(self.version)
-            suffix += f"{v.major}{v.minor}"
-            if self.settings.build_type == "Debug":
-                suffix += "d"
-        return f"tesseract{suffix}"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -155,17 +142,6 @@ class TesseractConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package(self):
         cmake = CMake(self)
         cmake.install()
@@ -184,6 +160,17 @@ class TesseractConan(ConanFile):
                 "libtesseract": "Tesseract::libtesseract",
             },
         )
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -226,3 +213,13 @@ class TesseractConan(ConanFile):
         ]
         self.cpp_info.components["libtesseract"].set_property("pkg_config_name", "tesseract")
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+
+    @property
+    def _libname(self):
+        suffix = ""
+        if self.settings.os == "Windows":
+            v = Version(self.version)
+            suffix += f"{v.major}{v.minor}"
+            if self.settings.build_type == "Debug":
+                suffix += "d"
+        return f"tesseract{suffix}"

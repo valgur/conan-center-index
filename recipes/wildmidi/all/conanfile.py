@@ -10,8 +10,8 @@ required_conan_version = ">=1.53.0"
 class WildmidiConan(ConanFile):
     name = "wildmidi"
     description = (
-        "WildMIDI is a simple software midi player which has a core softsynth library that can be used in"
-        " other applications."
+        "WildMIDI is a simple software midi player which has a "
+        "core softsynth library that can be used in other applications."
     )
     license = "LGPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"

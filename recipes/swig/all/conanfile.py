@@ -167,17 +167,17 @@ class SwigConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio":
             autotools.link_flags.append("-static")
 
-        libargs = list('-L"{}"'.format(p) for p in deps_libpaths) + list(
-            '-l"{}"'.format(l) for l in deps_libs
+        libargs = list(f'-L"{p}"' for p in deps_libpaths) + list(
+            f'-l"{l}"' for l in deps_libs
         )
         args = [
             "{}_LIBS={}".format("PCRE2" if self._use_pcre2 else "PCRE", " ".join(libargs)),
             "{}_CPPFLAGS={}".format(
                 "PCRE2" if self._use_pcre2 else "PCRE",
-                " ".join("-D{}".format(define) for define in deps_defines),
+                " ".join(f"-D{define}" for define in deps_defines),
             ),
-            "--host={}".format(self.settings.arch),
-            "--with-swiglibdir={}".format(self._swiglibdir),
+            f"--host={self.settings.arch}",
+            f"--with-swiglibdir={self._swiglibdir}",
         ]
         if self.settings.os == "Linux":
             args.append("LIBS=-ldl")
@@ -210,8 +210,6 @@ class SwigConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with chdir(self, os.path.join(self.source_folder)):
-            self.run("./autogen.sh", win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = Autotools(self)
             autotools.configure()
@@ -245,7 +243,7 @@ class SwigConan(ConanFile):
 
     @property
     def _module_file(self):
-        return "conan-official-{}-targets.cmake".format(self.name)
+        return f"conan-official-{self.name}-targets.cmake"
 
     def package_info(self):
         self.cpp_info.includedirs = []

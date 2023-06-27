@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_compiler_cpp_support'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc

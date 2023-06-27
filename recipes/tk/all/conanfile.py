@@ -1,10 +1,3 @@
-# Warnings:
-#   Unexpected method '_get_default_build_system'
-#   Unexpected method '_get_configure_folder'
-#   Unexpected method '_build_nmake'
-#   Unexpected method '_configure_autotools'
-#   Missing required method 'generate'
-
 # TODO: verify the Conan v2 migration
 
 import os
@@ -111,10 +104,6 @@ class TkConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -140,7 +129,7 @@ class TkConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.compiler != "Visual Studio":
-            if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
+            if self.settings.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
                 self.build_requires("msys2/cci.latest")
 
     def source(self):
@@ -315,7 +304,7 @@ class TkConan(ConanFile):
     def package_info(self):
         if self.settings.compiler == "Visual Studio":
             tk_version = Version(self.version)
-            lib_infix = "{}{}".format(tk_version.major, tk_version.minor)
+            lib_infix = f"{tk_version.major}{tk_version.minor}"
             tk_suffix = "t{}{}{}".format(
                 "" if self.options.shared else "s",
                 "g" if self.settings.build_type == "Debug" else "",
@@ -323,7 +312,7 @@ class TkConan(ConanFile):
             )
         else:
             tk_version = Version(self.version)
-            lib_infix = "{}.{}".format(tk_version.major, tk_version.minor)
+            lib_infix = f"{tk_version.major}.{tk_version.minor}"
             tk_suffix = ""
         self.cpp_info.libs = ["tk{}{}".format(lib_infix, tk_suffix), "tkstub{}".format(lib_infix)]
         if self.settings.os == "Macos":

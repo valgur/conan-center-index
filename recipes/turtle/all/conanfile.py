@@ -9,8 +9,8 @@ required_conan_version = ">=1.53.0"
 class TurtleConan(ConanFile):
     name = "turtle"
     description = (
-        "Turtle is a C++ mock object library based on Boost with a focus on usability, simplicity and"
-        " flexibility."
+        "Turtle is a C++ mock object library based on Boost "
+        "with a focus on usability, simplicity and flexibility."
     )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"

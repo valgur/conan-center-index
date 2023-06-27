@@ -1,7 +1,3 @@
-# Warnings:
-#   Disallowed attribute 'generators = 'PkgConfigDeps''
-#   Unexpected method '_pc_data_path'
-
 from conan import ConanFile
 from conan.tools.files import (
     rmdir,
@@ -13,7 +9,7 @@ from conan.tools.files import (
     export_conandata_patches,
     copy,
 )
-from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.gnu import AutotoolsToolchain, Autotools, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 
@@ -28,8 +24,8 @@ required_conan_version = ">=1.54.0"
 class XorgProtoConan(ConanFile):
     name = "xorg-proto"
     description = (
-        "This package provides the headers and specification documents defining the core protocol and (many)"
-        " extensions for the X Window System."
+        "This package provides the headers and specification documents defining "
+        "the core protocol and (many) extensions for the X Window System."
     )
     license = "X11"
     url = "https://github.com/conan-io/conan-center-index"
@@ -46,10 +42,6 @@ class XorgProtoConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    @property
-    def _pc_data_path(self):
-        return os.path.join(self.package_folder, "res", "pc_data.yml")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -84,12 +76,19 @@ class XorgProtoConan(ConanFile):
             env.define("CC", f"{compile_wrapper} cl -nologo")
         tc.generate(env)
 
+        tc = PkgConfigDeps(self)
+        tc.generate()
+
     def build(self):
         apply_conandata_patches(self)
 
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
+
+    @property
+    def _pc_data_path(self):
+        return os.path.join(self.package_folder, "res", "pc_data.yml")
 
     def package(self):
         copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -110,9 +109,6 @@ class XorgProtoConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         for filename, name_version in yaml.safe_load(open(self._pc_data_path)).items():
             self.cpp_info.components[filename].filenames["pkg_config"] = filename
             self.cpp_info.components[filename].libdirs = []

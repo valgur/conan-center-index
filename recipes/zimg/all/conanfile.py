@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_msbuild_configuration'
-
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
@@ -116,8 +113,8 @@ class ZimgConan(ConanFile):
                     vcxproj_file,
                     '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
                     (
-                        f'<Import Project="{conantoolchain_props}" /><Import'
-                        ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                        f'<Import Project="{conantoolchain_props}" />'
+                        '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
                     ),
                 )
             # ==========================

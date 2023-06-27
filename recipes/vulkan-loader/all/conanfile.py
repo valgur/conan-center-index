@@ -1,6 +1,3 @@
-# Warnings:
-#   Unexpected method '_is_pkgconf_needed'
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
