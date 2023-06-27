@@ -570,18 +570,17 @@ class CPythonConan(ConanFile):
         projects = self._solution_projects
         self.output.info("Building {} Visual Studio projects: {}".format(len(projects), projects))
 
-        with no_op(self):
-            for project_i, project in enumerate(projects, 1):
-                self.output.info("[{}/{}] Building project '{}'...".format(project_i, len(projects), project))
-                project_file = os.path.join(self.source_folder, "PCbuild", project + ".vcxproj")
-                self._upgrade_single_project_file(project_file)
-                msbuild.build(
-                    project_file,
-                    upgrade_project=False,
-                    build_type="Debug" if self.settings.build_type == "Debug" else "Release",
-                    platforms=self._msvc_archs,
-                    properties=msbuild_properties,
-                )
+        for project_i, project in enumerate(projects, 1):
+            self.output.info("[{}/{}] Building project '{}'...".format(project_i, len(projects), project))
+            project_file = os.path.join(self.source_folder, "PCbuild", project + ".vcxproj")
+            self._upgrade_single_project_file(project_file)
+            msbuild.build(
+                project_file,
+                upgrade_project=False,
+                build_type="Debug" if self.settings.build_type == "Debug" else "Release",
+                platforms=self._msvc_archs,
+                properties=msbuild_properties,
+            )
 
     def build(self):
         # FIXME: these checks belong in validate, but the versions of dependencies are not available there yet

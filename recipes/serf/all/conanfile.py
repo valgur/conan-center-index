@@ -77,7 +77,7 @@ from conan.tools.microsoft import (
 )
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import glob
 import os
 import re
@@ -155,7 +155,7 @@ class SerfConan(ConanFile):
                 "{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs
             )
         with environment_append(self, extra_env):
-            with vcvars(self.settings) if is_msvc(self) else no_op(self):
+            with vcvars(self.settings) if is_msvc(self) else nullcontext():
                 yield
 
     def build(self):

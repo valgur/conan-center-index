@@ -1,6 +1,7 @@
 # TODO: verify the Conan v2 migration
 
 import os
+from contextlib import nullcontext
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -170,7 +171,7 @@ class TestPackageConan(ConanFile):
 
         if not cross_building(self, skip_x64_x86=True):
             if self._supports_modules:
-                with vcvars(self.settings) if is_msvc(self) else no_op(self):
+                with vcvars(self.settings) if is_msvc(self) else nullcontext():
                     modsrcfolder = (
                         "py2" if Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
                     )
@@ -302,6 +303,6 @@ class TestPackageConan(ConanFile):
             with (
                 environment_append(self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome})
                 if self.deps_user_info["cpython"].module_requires_pythonhome == "True"
-                else no_op(self)
+                else nullcontext()
             ):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

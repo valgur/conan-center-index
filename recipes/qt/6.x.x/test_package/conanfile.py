@@ -1,5 +1,6 @@
 import os
 import shutil
+from contextlib import nullcontext
 
 from conan import ConanFile
 from conan.errors import ConanException
@@ -72,7 +73,7 @@ Examples = {folder}/datadir/examples""",
         with chdir(self, "qmake_folder"):
             self.output.info("Building with qmake")
 
-            with vcvars(self.settings) if is_msvc(self) else no_op(self):
+            with vcvars(self.settings) if is_msvc(self) else nullcontext():
                 args = [self.source_folder, "DESTDIR=bin"]
 
                 def _getenvpath(var):

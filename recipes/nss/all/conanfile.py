@@ -1,6 +1,7 @@
 # TODO: verify the Conan v2 migration
 
 import os
+from contextlib import nullcontext
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -255,7 +256,7 @@ class NSSConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         with chdir(self, os.path.join(self.source_folder, "nss")):
-            with vcvars(self) if is_msvc(self) else no_op(self):
+            with vcvars(self) if is_msvc(self) else nullcontext():
                 self.run(f"make {' '.join(self._make_args)}", run_environment=True)
 
     def package(self):

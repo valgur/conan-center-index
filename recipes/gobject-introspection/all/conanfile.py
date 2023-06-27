@@ -7,6 +7,7 @@
 # TODO: verify the Conan v2 migration
 
 import os
+from contextlib import nullcontext
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -191,7 +192,7 @@ class GobjectIntrospectionConan(ConanFile):
         with (
             environment_append(self, VisualStudioBuildEnvironment(self).vars)
             if is_msvc(self)
-            else no_op(self)
+            else nullcontext()
         ):
             meson = self._configure_meson()
             meson.install()

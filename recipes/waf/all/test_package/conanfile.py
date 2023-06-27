@@ -1,6 +1,6 @@
 import os
 import shutil
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 
 from conan import ConanFile
 from conan.tools.build import can_run
@@ -39,7 +39,7 @@ class TestPackageConan(ConanFile):
             waf_path = waf_path.replace("\\", "/")
             assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
 
-        with vcvars(self.settings) if is_msvc(self) else no_op(self):
+        with vcvars(self.settings) if is_msvc(self) else nullcontext():
             self.run("waf -h")
             self.run("waf configure")
             self.run("waf")

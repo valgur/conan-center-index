@@ -1,6 +1,7 @@
 # TODO: verify the Conan v2 migration
 
 import os
+from contextlib import nullcontext
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -288,7 +289,7 @@ class TBBConan(ConanFile):
                 add_flag("CXXFLAGS", "-mrtm")
 
             targets = ["tbb", "tbbmalloc", "tbbproxy"]
-            context = no_op(self)
+            context = nullcontext()
             if self.settings.compiler == "intel":
                 context = intel_compilervars(self)
             elif is_msvc(self):
