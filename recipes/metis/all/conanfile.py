@@ -7,14 +7,17 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 
 required_conan_version = ">=1.53.0"
 
+
 class METISConan(ConanFile):
     name = "metis"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/KarypisLab/METIS"
-    description = "set of serial programs for partitioning graphs," \
-                  " partitioning finite element meshes, and producing" \
-                  " fill reducing orderings for sparse matrices"
+    description = (
+        "set of serial programs for partitioning graphs,"
+        " partitioning finite element meshes, and producing"
+        " fill reducing orderings for sparse matrices"
+    )
     topics = ("karypislab", "graph", "partitioning-algorithms")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -76,11 +76,15 @@ class GDCMConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         if is_msvc_static_runtime(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} does not support shared and static runtime together.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support shared and static runtime together."
+            )
         if self.info.options.with_zlibng:
             zlib_ng = self.dependencies["zlib-ng"]
             if not zlib_ng.options.zlib_compat:
-                raise ConanInvalidConfiguration(f"{self.ref} requires the dependency option zlib-ng:zlib_compat=True")
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires the dependency option zlib-ng:zlib_compat=True"
+                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -114,7 +118,12 @@ class GDCMConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="Copyright.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="Copyright.txt",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -123,7 +132,9 @@ class GDCMConan(ConanFile):
             rm(self, "[!gs]*.dll", bin_dir)
             rm(self, "*.pdb", bin_dir)
 
-        rm(self, "[!U]*.cmake", os.path.join(self.package_folder, "lib", self._gdcm_subdir)) #leave UseGDCM.cmake untouched
+        rm(
+            self, "[!U]*.cmake", os.path.join(self.package_folder, "lib", self._gdcm_subdir)
+        )  # leave UseGDCM.cmake untouched
         rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_variables(os.path.join(self.package_folder, self._gdcm_cmake_variables_path))
 
@@ -195,17 +206,19 @@ class GDCMConan(ConanFile):
 
     @property
     def _gdcm_libraries(self):
-        gdcm_libs = ["gdcmcharls",
-                     "gdcmCommon",
-                     "gdcmDICT",
-                     "gdcmDSED",
-                     "gdcmIOD",
-                     "gdcmjpeg12",
-                     "gdcmjpeg16",
-                     "gdcmjpeg8",
-                     "gdcmMEXD",
-                     "gdcmMSFF",
-                     "socketxx"]
+        gdcm_libs = [
+            "gdcmcharls",
+            "gdcmCommon",
+            "gdcmDICT",
+            "gdcmDSED",
+            "gdcmIOD",
+            "gdcmjpeg12",
+            "gdcmjpeg16",
+            "gdcmjpeg8",
+            "gdcmMEXD",
+            "gdcmMSFF",
+            "socketxx",
+        ]
         if self.settings.os == "Windows":
             gdcm_libs.append("gdcmgetopt")
         return gdcm_libs
@@ -238,7 +251,9 @@ class GDCMConan(ConanFile):
 
         self.cpp_info.components["gdcmDSED"].requires.extend(["gdcmCommon", zlib()])
         self.cpp_info.components["gdcmIOD"].requires.extend(["gdcmDSED", "gdcmCommon", "expat::expat"])
-        self.cpp_info.components["gdcmMSFF"].requires.extend(["gdcmIOD", "gdcmDSED", "gdcmDICT", "openjpeg::openjpeg"])
+        self.cpp_info.components["gdcmMSFF"].requires.extend(
+            ["gdcmIOD", "gdcmDSED", "gdcmDICT", "openjpeg::openjpeg"]
+        )
         if self.options.with_json:
             self.cpp_info.components["gdcmMSFF"].requires.append("json-c::json-c")
         if self.settings.os != "Windows":
@@ -247,8 +262,12 @@ class GDCMConan(ConanFile):
                 self.cpp_info.components["gdcmMSFF"].requires.append("libiconv::libiconv")
         if not self.options.shared:
             self.cpp_info.components["gdcmDICT"].requires.extend(["gdcmDSED", "gdcmIOD"])
-            self.cpp_info.components["gdcmMEXD"].requires.extend(["gdcmMSFF", "gdcmDICT", "gdcmDSED", "gdcmIOD", "socketxx"])
-            self.cpp_info.components["gdcmMSFF"].requires.extend(["gdcmjpeg8", "gdcmjpeg12", "gdcmjpeg16", "gdcmcharls"])
+            self.cpp_info.components["gdcmMEXD"].requires.extend(
+                ["gdcmMSFF", "gdcmDICT", "gdcmDSED", "gdcmIOD", "socketxx"]
+            )
+            self.cpp_info.components["gdcmMSFF"].requires.extend(
+                ["gdcmjpeg8", "gdcmjpeg12", "gdcmjpeg16", "gdcmcharls"]
+            )
 
             if self.settings.os == "Windows":
                 self.cpp_info.components["gdcmCommon"].system_libs = ["ws2_32", "crypt32"]
