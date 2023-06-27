@@ -167,9 +167,7 @@ class SwigConan(ConanFile):
         if self.settings.os == "Windows" and not is_msvc(self):
             autotools.link_flags.append("-static")
 
-        libargs = list(f'-L"{p}"' for p in deps_libpaths) + list(
-            f'-l"{l}"' for l in deps_libs
-        )
+        libargs = list(f'-L"{p}"' for p in deps_libpaths) + list(f'-l"{l}"' for l in deps_libs)
         args = [
             "{}_LIBS={}".format("PCRE2" if self._use_pcre2 else "PCRE", " ".join(libargs)),
             "{}_CPPFLAGS={}".format(

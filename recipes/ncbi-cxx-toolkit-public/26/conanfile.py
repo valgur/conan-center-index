@@ -161,11 +161,7 @@ class NcbiCxxToolkit(ConanFile):
             raise ConanInvalidConfiguration("This operating system is not supported")
         if is_msvc(self) and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
-        if (
-            is_msvc(self)
-            and self.options.shared
-            and "MT" in self.settings.compiler.runtime
-        ):
+        if is_msvc(self) and self.options.shared and "MT" in self.settings.compiler.runtime:
             raise ConanInvalidConfiguration("This configuration is not supported")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("This version of GCC is not supported")

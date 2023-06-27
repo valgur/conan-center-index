@@ -99,9 +99,7 @@ class GoogleCloudCppConan(ConanFile):
     def generate(self):
         # Do not build in parallel for certain configurations, it fails writting/reading files at the same time
         parallel = not (
-            is_msvc(self)
-            and self.settings.compiler.version == "16"
-            and self.version in ["1.31.1", "1.30.1"]
+            is_msvc(self) and self.settings.compiler.version == "16" and self.version in ["1.31.1", "1.30.1"]
         )
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared

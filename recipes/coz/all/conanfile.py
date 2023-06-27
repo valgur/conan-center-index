@@ -37,11 +37,7 @@ class CozConan(ConanFile):
     def validate(self):
         compiler = self.settings.compiler
         compiler_version = Version(self.settings.compiler.version)
-        if (
-            self.settings.os == "Macos"
-            or is_msvc(self)
-            or (compiler == "gcc" and compiler_version < "5.0")
-        ):
+        if self.settings.os == "Macos" or is_msvc(self) or (compiler == "gcc" and compiler_version < "5.0"):
             raise ConanInvalidConfiguration(
                 f"coz doesn't support compiler: {self.settings.compiler} on OS: {self.settings.os}."
             )

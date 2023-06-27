@@ -92,7 +92,7 @@ class ZbarConan(ConanFile):
         if Version(self.version) >= "0.22" and cross_building(self):
             raise ConanInvalidConfiguration(
                 f"{self.ref} can't be built on cross building environment currently because "
-                f"autopoint (part of gettext) doesn't execute correctly."
+                "autopoint (part of gettext) doesn't execute correctly."
             )
 
     def build_requirements(self):

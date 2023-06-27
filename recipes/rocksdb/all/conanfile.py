@@ -163,11 +163,7 @@ class RocksDB(ConanFile):
         if self.settings.arch not in ["x86_64", "ppc64le", "ppc64", "mips64", "armv8"]:
             raise ConanInvalidConfiguration("Rocksdb requires 64 bits")
 
-        if (
-            self.settings.os == "Windows"
-            and is_msvc(self)
-            and Version(self.settings.compiler.version) < "15"
-        ):
+        if self.settings.os == "Windows" and is_msvc(self) and Version(self.settings.compiler.version) < "15":
             raise ConanInvalidConfiguration("Rocksdb requires Visual Studio 15 or later.")
 
         if (

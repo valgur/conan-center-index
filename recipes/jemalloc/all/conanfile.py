@@ -241,11 +241,7 @@ class JemallocConan(ConanFile):
                     self.settings.compiler.version
                 )
             )
-        if (
-            is_msvc(self)
-            and self.options.shared
-            and "MT" in self.settings.compiler.runtime
-        ):
+        if is_msvc(self) and self.options.shared and "MT" in self.settings.compiler.runtime:
             raise ConanInvalidConfiguration(
                 "Visual Studio build for shared library with MT runtime is not supported"
             )
@@ -334,11 +330,7 @@ class JemallocConan(ConanFile):
     def build(self):
         self._patch_sources()
         if is_msvc(self):
-            with (
-                tools_legacy.vcvars(self.settings)
-                if is_msvc(self)
-                else tools_legacy.no_op()
-            ):
+            with tools_legacy.vcvars(self.settings) if is_msvc(self) else tools_legacy.no_op():
                 with (
                     tools_legacy.environment_append(
                         {
