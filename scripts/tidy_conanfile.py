@@ -38,7 +38,8 @@ class ConanFileDetails:
         conanfile_lines = conanfile_source.splitlines(keepends=True)
         # Formatting the file breaks inspect.getsourcefile()
         # conanfile = _format_source(conanfile)
-        exec(conanfile_source, globals(), globals())
+        sys.path.insert(0, str(conanfile_path.parent))
+        eval(compile(conanfile_source, str(conanfile_path), "exec"), globals(), globals())
         conanfile_class = [
             value
             for value in globals().values()
