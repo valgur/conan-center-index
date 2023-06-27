@@ -47,12 +47,23 @@ class ConanFileDetails:
         ][0]
 
         defs = extract_definitions(conanfile_source)
+        # Keep only methods
         class_def = defs[conanfile_class.__name__]
         defs = {
             name: details
             for name, details in defs.items()
             if details["start_line"] > class_def["start_line"]
             and details["end_line"] <= class_def["end_line"]
+            and details["type"] == "FunctionDef"
+        }
+        # Exclude inner functions
+        defs = {
+            name: details
+            for name, details in defs.items()
+            if not any(
+                details["start_line"] > other["start_line"] and details["end_line"] <= other["end_line"]
+                for other in defs.values()
+            )
         }
 
         def get_method_source(method):
@@ -77,9 +88,8 @@ class ConanFileDetails:
             if f"# TODO: fill in {method}" not in source:
                 methods[method] = source
 
-        class_details = extract_definitions(conanfile_source)[conanfile_class.__name__]
-        self.head: str = "".join(conanfile_lines[: class_details["start_line"] - 1])
-        self.tail: str = "".join(conanfile_lines[class_details["end_line"] :])
+        self.head: str = "".join(conanfile_lines[: class_def["start_line"] - 1])
+        self.tail: str = "".join(conanfile_lines[class_def["end_line"] :])
         self.class_name: str = conanfile_class.__name__
         self.attrs: dict[str, object] = attrs
         self.methods: dict[str, str] = methods
