@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import ast
 import inspect
 import io
 import os
@@ -13,16 +14,30 @@ from conan import ConanFile
 from conans.model.version import Version
 
 
+def extract_definitions(file_path):
+    source = Path(file_path).read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    definitions = {}
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+            definitions[node.name] = {
+                "type": type(node).__name__,
+                "start_line": node.lineno,
+                "end_line": node.end_lineno,
+            }
+    return definitions
+
+
 class ConanFileDetails:
     def __init__(self, conanfile_path):
         conanfile_path = Path(conanfile_path)
-        conanfile = conanfile_path.read_text(encoding="utf-8")
+        conanfile_source = conanfile_path.read_text(encoding="utf-8")
         # Formatting the file breaks inspect.getsourcefile()
         # conanfile = _format_source(conanfile)
-        eval(compile(conanfile, str(conanfile_path), "exec"), globals(), locals())
+        exec(conanfile_source, globals(), globals())
         conanfile_class = [
             value
-            for value in locals().values()
+            for value in globals().values()
             if inspect.isclass(value) and issubclass(value, ConanFile) and value != ConanFile
         ][0]
 
@@ -44,7 +59,11 @@ class ConanFileDetails:
             elif value is not None:
                 attrs[attr] = value
 
-        self.head: str = re.split(r"class\s+\w+\(ConanFile\):", conanfile, flags=re.MULTILINE)[0]
+        class_details = extract_definitions(conanfile_path)[conanfile_class.__name__]
+        self.head: str = "".join(
+            conanfile_source.splitlines(keepends=True)[: class_details["start_line"] - 1]
+        )
+        self.tail: str = "".join(conanfile_source.splitlines(keepends=True)[class_details["end_line"] :])
         self.class_name: str = conanfile_class.__name__
         self.attrs: dict[str, object] = attrs
         self.props: dict[str, str] = props
@@ -84,7 +103,7 @@ class ConanFileDetails:
             return self.attrs["package_type"] == "application"
         if self.build_system is not None:
             return False
-        if "options" in self.attrs and "shared" in self.attrs["options"] or "fPIC" in self.attrs["options"]:
+        if "shared" in self.attrs.get("options", []) or "fPIC" in self.attrs.get("options", []):
             return False
         if "layout" in self.methods and self.is_method_empty("layout"):
             return True
@@ -449,6 +468,9 @@ def tidy_conanfile(conanfile_path, write=True):
     if cur_group:
         for method in cur_group:
             add_method(method)
+
+    result.write("\n")
+    result.write(details.tail)
 
     processed_source = result.getvalue()
     processed_source = re.sub(r"^# Warnings:\n(?:# +.+\n)+", "", processed_source)
