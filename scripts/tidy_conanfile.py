@@ -349,6 +349,7 @@ def tidy_conanfile(conanfile_path, write=True):
 
     if "options" in details.attrs:
         details.attrs["options"] = reorder_opts(details.attrs["options"])
+    if "default_options" in details.attrs:
         details.attrs["default_options"] = reorder_opts(details.attrs["default_options"])
 
     result = io.StringIO()
