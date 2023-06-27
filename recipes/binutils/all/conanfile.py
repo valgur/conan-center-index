@@ -327,7 +327,7 @@ class _GNUTriplet:
         return "-".join(p for p in (self.machine, self.vendor, self.os, self.abi) if p)
 
     @classmethod
-    def from_archos(cls, archos: _ArchOs) -> "_GNUTriplet":
+    def from_archos(cls, archos: "_ArchOs") -> "_GNUTriplet":
         gnu_machine = cls.calculate_gnu_machine(archos)
         gnu_vendor = cls.calculate_gnu_vendor(archos)
         gnu_os = cls.calculate_gnu_os(archos)
@@ -387,7 +387,7 @@ class _GNUTriplet:
     }
 
     @classmethod
-    def calculate_gnu_machine(cls, archos: _ArchOs) -> str:
+    def calculate_gnu_machine(cls, archos: "_ArchOs") -> str:
         return cls.ARCH_TO_GNU_MACHINE_LUT[archos.arch]
 
     UNKNOWN_OS_ALIASES = ("unknown", "none")
@@ -402,7 +402,7 @@ class _GNUTriplet:
     }
 
     @classmethod
-    def calculate_gnu_os(cls, archos: _ArchOs) -> typing.Optional[str]:
+    def calculate_gnu_os(cls, archos: "_ArchOs") -> typing.Optional[str]:
         if archos.os in ("baremetal",):
             if archos.arch in ("x86", "x86_64"):
                 return None
@@ -413,7 +413,7 @@ class _GNUTriplet:
     OS_TO_GNU_VENDOR_LUT = {"Windows": "w64", "baremetal": None}
 
     @classmethod
-    def calculate_gnu_vendor(cls, archos: _ArchOs) -> typing.Optional[str]:
+    def calculate_gnu_vendor(cls, archos: "_ArchOs") -> typing.Optional[str]:
         if archos.os in ("baremetal", "Android"):
             return None
         if archos.os in ("Macos", "iOS", "tvOS", "watchOS"):
@@ -421,7 +421,7 @@ class _GNUTriplet:
         return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os, "pc")
 
     @classmethod
-    def calculate_gnu_abi(self, archos: _ArchOs) -> typing.Optional[str]:
+    def calculate_gnu_abi(self, archos: "_ArchOs") -> typing.Optional[str]:
         if archos.os in ("baremetal",):
             if archos.arch in ("armv7",):
                 return "eabi"
@@ -653,7 +653,7 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
             _ArchOs.from_triplet(_GNUTriplet.from_text("x86_64-linux-android29")),
         )
 
-    def _test_osarch_to_gnutriplet(self, archos: _ArchOs, gnuobj_ref: _GNUTriplet, triplet_ref: str):
+    def _test_osarch_to_gnutriplet(self, archos: "_ArchOs", gnuobj_ref: "_GNUTriplet", triplet_ref: str):
         gnuobj = _GNUTriplet.from_archos(archos)
         self.assertEqual(gnuobj_ref, gnuobj)
         self.assertEqual(triplet_ref, gnuobj.triplet)
