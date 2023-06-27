@@ -79,21 +79,28 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class PlatformInterfacesConan(ConanFile):
     name = "platform.equality"
-    license = "LGPL-3.0-or-later"
-    homepage = "https://github.com/linksplatform/Equality"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "platform.delegates is one of the libraries of the LinksPlatform modular framework, "
         "which uses innovations from the C++20 standard, for slow parody any typing dictionary and others."
     )
+    license = "LGPL-3.0-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/linksplatform/Equality"
     topics = ("linksplatform", "cpp20", "equality", "ranges", "any", "header-only")
-    settings = "compiler"
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 20
 
     @property
     def _internal_cpp_subfolder(self):
@@ -108,29 +115,25 @@ class PlatformInterfacesConan(ConanFile):
             "apple-clang": "11",
         }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 20
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
 
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "platform.equality/{} requires C++{} with {}, which is not supported by {} {}.".format(
-                    self.version,
-                    self._minimum_cpp_standard,
-                    self.settings.compiler,
-                    self.settings.compiler,
-                    self.settings.compiler.version,
-                )
+                f"platform.equality/{self.version} requires C++{self._minimum_cpp_standard} with"
+                f" {self.settings.compiler}, which is not supported by"
+                f" {self.settings.compiler} {self.settings.compiler.version}."
             )
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -143,5 +146,6 @@ class PlatformInterfacesConan(ConanFile):
         copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=self._internal_cpp_subfolder)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

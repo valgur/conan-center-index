@@ -16,7 +16,6 @@ required_conan_version = ">=1.53.0"
 
 class GRPCProto(ConanFile):
     name = "grpc-proto"
-    package_type = "library"
     description = (
         "gRPC-defined protobufs for peripheral services such as health checking, load balancing, etc"
     )
@@ -24,6 +23,8 @@ class GRPCProto(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/grpc/grpc-proto"
     topics = ("google", "protos", "api")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

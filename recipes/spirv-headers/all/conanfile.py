@@ -3,17 +3,21 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class SpirvheadersConan(ConanFile):
     name = "spirv-headers"
-    homepage = "https://github.com/KhronosGroup/SPIRV-Headers"
     description = "Header files for the SPIRV instruction set."
     license = "MIT-KhronosGroup"
-    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "khronos")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/SPIRV-Headers"
+    topics = ("spirv", "spirv-v", "vulkan", "opengl", "opencl", "khronos", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")

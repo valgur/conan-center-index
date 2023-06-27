@@ -79,7 +79,7 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class TarConan(ConanFile):
@@ -87,13 +87,13 @@ class TarConan(ConanFile):
     description = (
         "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
     )
-    topics = "archive"
     license = "GPL-3-or-later"
-    homepage = "https://www.gnu.org/software/tar/"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+    homepage = "https://www.gnu.org/software/tar/"
+    topics = "archive"
 
-    _autotools = None
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
@@ -103,10 +103,16 @@ class TarConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        pass
+
     def requirements(self):
         self.requires("bzip2/1.0.8")
         self.requires("lzip/1.21")
         self.requires("xz_utils/5.2.5")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -116,21 +122,17 @@ class TarConan(ConanFile):
         if not self.options["bzip2"].build_executable:
             raise ConanInvalidConfiguration("bzip2:build_executable must be enabled")
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()
-        self._autotools.libs = []
         bzip2_exe = "bzip2"  # FIXME: get from bzip2 recipe
         lzip_exe = "lzip"  # FIXME: get from lzip recipe
         lzma_exe = "lzma"  # FIXME: get from xz_utils recipe
         xz_exe = "xz"  # FIXME: get from xz_utils recipe
-        args = [
+        tc.configure_args = [
             "--disable-acl",
             "--disable-nls",
             "--disable-rpath",
@@ -144,8 +146,7 @@ class TarConan(ConanFile):
             "--with-xz={}".format(xz_exe),
             # "--without-zstd",  # FIXME: this will use system zstd (current zstd recipe does not build programs)
         ]
-        self._autotools.configure(args=args, configure_dir=self.source_folder)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -169,7 +170,7 @@ class TarConan(ConanFile):
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
 
         tar_bin = os.path.join(self.package_folder, "bin", "tar")

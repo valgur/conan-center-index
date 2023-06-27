@@ -17,8 +17,11 @@ class SemimapConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hogliux/semimap"
-    topics = ("containers", "constexpr", "hashmap", "header-only")
+    topics = ("containers", "constexpr", "hashmap", "header-only", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

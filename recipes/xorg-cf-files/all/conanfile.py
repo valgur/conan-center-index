@@ -13,13 +13,22 @@ required_conan_version = ">=1.57.0"
 
 class XorgCfFilesConan(ConanFile):
     name = "xorg-cf-files"
-    # package_type = "build-scripts" # see https://github.com/conan-io/conan/issues/13431
     description = "Imake configuration files & templates"
-    topics = ("imake", "xorg", "template", "configuration", "obsolete")
     license = "MIT"
-    homepage = "https://gitlab.freedesktop.org/xorg/util/cf"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.freedesktop.org/xorg/util/cf"
+    topics = ("imake", "xorg", "template", "configuration", "obsolete")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     @property
     def _settings_build(self):
@@ -27,6 +36,10 @@ class XorgCfFilesConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")

@@ -78,21 +78,31 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class XXSDSSDSLLite(ConanFile):
     name = "xxsds-sdsl-lite"
     description = "SDSL - Succinct Data Structure Library"
-    homepage = "https://github.com/xxsds/sdsl-lite"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
-    topics = ("sdsl", "succint", "data-structures")
-    settings = "compiler"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/xxsds/sdsl-lite"
+    topics = ("sdsl", "succint", "data-structures", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
     provides = "sdsl-lite"
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -113,10 +123,10 @@ class XXSDSSDSLLite(ConanFile):
         )
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if is_msvc(self):
             self.cpp_info.defines.append("MSVC_COMPILER")
         self.cpp_info.names["pkgconfig"] = "sdsl-lite"

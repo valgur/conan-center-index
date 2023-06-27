@@ -296,12 +296,9 @@ class CPythonConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--enable-shared={}".format(yes_no(self.options.shared)),
             "--with-doc-strings={}".format(yes_no(self.options.docstrings)),
             "--with-pymalloc={}".format(yes_no(self.options.pymalloc)),
@@ -312,9 +309,9 @@ class CPythonConan(ConanFile):
             "--with-pydebug={}".format(yes_no(self.settings.build_type == "Debug")),
         ]
         if self._is_py2:
-            conf_args.extend(["--enable-unicode={}".format(yes_no(self.options.unicode))])
+            tc.configure_args.extend(["--enable-unicode={}".format(yes_no(self.options.unicode))])
         if self._is_py3:
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "--with-system-libmpdec",
                     "--with-openssl={}".format(self.dependencies["openssl"].cpp_info.rootpath),
@@ -324,9 +321,9 @@ class CPythonConan(ConanFile):
                 ]
             )
         if self.settings.compiler == "intel":
-            conf_args.extend(["--with-icc"])
+            tc.configure_args.extend(["--with-icc"])
         if get_env(self, "CC") or self.settings.compiler != "gcc":
-            conf_args.append("--without-gcc")
+            tc.configure_args.append("--without-gcc")
         if self.options.with_tkinter:
             tcltk_includes = []
             tcltk_libs = []
@@ -337,7 +334,7 @@ class CPythonConan(ConanFile):
             if self.settings.os == "Linux" and not self.options["tk"].shared:
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend(["-l{}".format(lib) for lib in ("X11", "Xss")])
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "--with-tcltk-includes={}".format(" ".join(tcltk_includes)),
                     "--with-tcltk-libs={}".format(" ".join(tcltk_libs)),
@@ -345,7 +342,7 @@ class CPythonConan(ConanFile):
             )
         if self.settings.os in ("Linux", "FreeBSD"):
             # Building _testembed fails due to missing pthread/rt symbols
-            self._autotools.link_flags.append("-lpthread")
+            tc.ldflags.append("-lpthread")
 
         build = None
         if cross_building(self) and not cross_building(self, skip_x64_x86=True):
@@ -353,8 +350,7 @@ class CPythonConan(ConanFile):
             build = get_gnu_triplet(
                 self, str(self.settings.os), str(self.settings.arch), str(self.settings.compiler)
             )
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder, build=build)
-        return self._autotools
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

@@ -8,12 +8,21 @@ required_conan_version = ">=1.52.0"
 
 class MozillaBuildConan(ConanFile):
     name = "mozilla-build"
-    homepage = "https://wiki.mozilla.org/MozillaBuild"
     description = "Mozilla build requirements on Windows"
-    topics = ("mozilla", "build")
-    url = "https://github.com/conan-io/conan-center-index"
-    settings = "arch", "build_type", "compiler", "os"
     license = "MPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://wiki.mozilla.org/MozillaBuild"
+    topics = ("mozilla", "build", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.build_type
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -37,11 +46,10 @@ class MozillaBuildConan(ConanFile):
             dst=os.path.join(self.package_folder, "bin"),
         )
 
-    def package_id(self):
-        del self.info.settings.build_type
-        del self.info.settings.compiler
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
         binpath = os.path.join(self.package_folder, "bin")
         self.output.info(f"Adding to PATH: {binpath}")

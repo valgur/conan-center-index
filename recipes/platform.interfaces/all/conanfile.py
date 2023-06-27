@@ -1,3 +1,6 @@
+# Warnings:
+#   Unexpected method '_subfolder_sources'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -11,14 +14,19 @@ required_conan_version = ">=1.52.0"
 
 class PlatformInterfacesConan(ConanFile):
     name = "platform.interfaces"
-    description = """platform.interfaces is one of the libraries of the LinksPlatform modular framework, which uses
-    innovations from the C++20 standard, for easier use of static polymorphism. It also includes some auxiliary
-    structures for more convenient work with containers."""
+    description = (
+        "platform.interfaces is one of the libraries of the LinksPlatform modular framework, which uses"
+        " innovations from the C++20 standard, for easier use of static polymorphism. It also includes some"
+        " auxiliary structures for more convenient work with containers."
+    )
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/linksplatform/Interfaces"
     topics = ("platform", "concepts", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

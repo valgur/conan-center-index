@@ -9,12 +9,15 @@ required_conan_version = ">=1.50.0"
 
 class NlohmannJsonConan(ConanFile):
     name = "nlohmann_json"
-    homepage = "https://github.com/nlohmann/json"
     description = "JSON for Modern C++ parser and generator."
-    topics = ("json", "header-only")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/nlohmann/json"
+    topics = ("json", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

@@ -6,16 +6,18 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class UncrustifyConan(ConanFile):
     name = "uncrustify"
     description = "Code beautifier"
     license = "GPL-2.0-or-later"
-    topics = ("beautifier", "command-line")
-    homepage = "https://github.com/uncrustify/uncrustify"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/uncrustify/uncrustify"
+    topics = ("beautifier", "command-line")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):

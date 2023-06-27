@@ -7,19 +7,28 @@ from conan.tools.files import get, copy
 from conan.tools.build import check_min_cppstd
 import os
 
-
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class Rangev3Conan(ConanFile):
     name = "range-v3"
-    license = "BSL-1.0"
-    homepage = "https://github.com/ericniebler/range-v3"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Experimental range library for C++11/14/17"
+    license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ericniebler/range-v3"
     topics = ("range", "range-library", "proposal", "iterator", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    @property
+    def _min_cppstd(self):
+        if is_msvc(self):
+            return "17"
+        else:
+            return "14"
 
     @property
     def _compilers_minimum_version(self):
@@ -29,13 +38,6 @@ class Rangev3Conan(ConanFile):
             "Visual Studio": "16",  # TODO: remove when only Conan2 is supported
             "clang": "3.6" if Version(self.version) < "0.10.0" else "3.9",
         }
-
-    @property
-    def _min_cppstd(self):
-        if is_msvc(self):
-            return "17"
-        else:
-            return "14"
 
     def layout(self):
         basic_layout(self)

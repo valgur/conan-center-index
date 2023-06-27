@@ -10,17 +10,18 @@ class PdqsortConan(ConanFile):
     name = "pdqsort"
     description = "Pattern-defeating quicksort."
     license = "Zlib"
-    topics = "sort"
-    homepage = "https://github.com/orlp/pdqsort"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+    homepage = "https://github.com/orlp/pdqsort"
+    topics = ("sort", "header-only")
 
-    def package_id(self):
-        self.info.clear()
+    package_type = "heder-library"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

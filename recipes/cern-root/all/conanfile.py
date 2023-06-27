@@ -9,7 +9,7 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -31,38 +31,29 @@ class PythonOption:
     ALL = [OFF, SYSTEM]
 
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CernRootConan(ConanFile):
     name = "cern-root"
-    # version format is intentional, ROOT does not follow strict SemVer.
-    # see: https://root.cern/about/versioning/
-    license = "LGPL-2.1-or-later"  # of ROOT itself, the recipe is under MIT license.
-    homepage = "https://root.cern/"
-    # ROOT itself is located at: https://github.com/root-project/root
-    url = "https://github.com/conan-io/conan-center-index"
     description = "CERN ROOT data analysis framework."
+    license = "LGPL-2.1-or-later"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://root.cern/"
     topics = ("data-analysis", "physics")
-    settings = ("os", "compiler", "build_type", "arch")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
-        # Don't allow static build as it is not supported
-        # see: https://sft.its.cern.ch/jira/browse/ROOT-6446
-        # FIXME: shared option should be reinstated when hooks issue is resolved
-        # (see: https://github.com/conan-io/hooks/issues/252)
-        # "shared": [True],
+        "shared": [True, False],
         "fPIC": [True, False],
-        "python": PythonOption.ALL,
+        "python": ["off", "system"],
     }
     default_options = {
-        # "shared": True,
+        "shared": False,
         "fPIC": True,
-        # default python=off as there is currently no libpython in Conan center
-        "python": PythonOption.OFF,
+        "python": "off",
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     @property
     def _minimum_cpp_standard(self):
@@ -77,9 +68,19 @@ class CernRootConan(ConanFile):
             "apple-clang": "5.1",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("cfitsio/4.2.0")
@@ -112,19 +113,13 @@ class CernRootConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self._minimum_cpp_standard,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
-                    )
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def _enforce_libcxx_requirements(self):
@@ -136,57 +131,6 @@ class CernRootConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_source_cmake(self):
-        rm(self, "FindTBB.cmake", os.path.join(self.source_folder, "cmake", "modules"))
-        # Conan generated cmake_find_packages names differ from
-        # names ROOT expects (usually only due to case differences)
-        # There is currently no way to change these names
-        # see: https://github.com/conan-io/conan/issues/4430
-        # Patch ROOT CMake to use Conan dependencies
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "project(ROOT)",
-            textwrap.dedent("""\
-                    project(ROOT)
-                    # sets the current C runtime on MSVC (MT vs MD vd MTd vs MDd)
-                    find_package(OpenSSL REQUIRED)
-                    set(OPENSSL_VERSION ${OpenSSL_VERSION})
-                    find_package(LibXml2 REQUIRED)
-                    set(LIBXML2_INCLUDE_DIR ${LibXml2_INCLUDE_DIR})
-                    set(LIBXML2_LIBRARIES ${LibXml2_LIBRARIES})
-                    find_package(SQLite3 REQUIRED)
-                    set(SQLITE_INCLUDE_DIR ${SQLITE3_INCLUDE_DIRS})
-                    set(SQLITE_LIBRARIES SQLite::SQLite3)
-            """),
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
-            "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)",
-        )
-
-    def _fix_source_permissions(self):
-        # Fix execute permissions on scripts
-        scripts = [
-            filename
-            for pattern in (
-                os.path.join("**", "configure"),
-                os.path.join("**", "*.sh"),
-                os.path.join("**", "*.csh"),
-                os.path.join("**", "*.bat"),
-            )
-            for filename in glob.glob(os.path.join(self.source_folder, pattern), recursive=True)
-        ]
-        for s in scripts:
-            self._make_file_executable(s)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        self._patch_source_cmake()
-        self._fix_source_permissions()
 
     @staticmethod
     def _make_file_executable(filename):
@@ -268,6 +212,57 @@ class CernRootConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
+
+    def _patch_source_cmake(self):
+        rm(self, "FindTBB.cmake", os.path.join(self.source_folder, "cmake", "modules"))
+        # Conan generated cmake_find_packages names differ from
+        # names ROOT expects (usually only due to case differences)
+        # There is currently no way to change these names
+        # see: https://github.com/conan-io/conan/issues/4430
+        # Patch ROOT CMake to use Conan dependencies
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "project(ROOT)",
+            textwrap.dedent("""\
+                project(ROOT)
+                # sets the current C runtime on MSVC (MT vs MD vd MTd vs MDd)
+                find_package(OpenSSL REQUIRED)
+                set(OPENSSL_VERSION ${OpenSSL_VERSION})
+                find_package(LibXml2 REQUIRED)
+                set(LIBXML2_INCLUDE_DIR ${LibXml2_INCLUDE_DIR})
+                set(LIBXML2_LIBRARIES ${LibXml2_LIBRARIES})
+                find_package(SQLite3 REQUIRED)
+                set(SQLITE_INCLUDE_DIR ${SQLITE3_INCLUDE_DIRS})
+                set(SQLITE_LIBRARIES SQLite::SQLite3)
+            """),
+        )
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
+            "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)",
+        )
+
+    def _fix_source_permissions(self):
+        # Fix execute permissions on scripts
+        scripts = [
+            filename
+            for pattern in (
+                os.path.join("**", "configure"),
+                os.path.join("**", "*.sh"),
+                os.path.join("**", "*.csh"),
+                os.path.join("**", "*.bat"),
+            )
+            for filename in glob.glob(os.path.join(self.source_folder, pattern), recursive=True)
+        ]
+        for s in scripts:
+            self._make_file_executable(s)
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        self._patch_source_cmake()
+        self._fix_source_permissions()
 
     def _move_findcmake_conan_to_root_dir(self):
         for f in ["opengl_system", "GLEW", "glu", "TBB", "LibXml2", "ZLIB", "SQLite3"]:

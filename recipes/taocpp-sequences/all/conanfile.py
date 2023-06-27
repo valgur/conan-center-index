@@ -9,13 +9,16 @@ required_conan_version = ">=1.50.0"
 
 class TaoCPPSequencesonan(ConanFile):
     name = "taocpp-sequences"
+    description = "Variadic templates and std::integer_sequence support library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/sequences"
-    description = "Variadic templates and std::integer_sequence support library"
-    topics = ("variadic-template", "template", "interger-sequence")
-    no_copy_source = True
+    topics = ("variadic-template", "template", "interger-sequence", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")

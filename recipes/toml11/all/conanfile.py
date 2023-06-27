@@ -9,12 +9,15 @@ required_conan_version = ">=1.50.0"
 
 class Toml11Conan(ConanFile):
     name = "toml11"
+    description = "TOML for Modern C++"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ToruNiina/toml11"
-    description = "TOML for Modern C++"
-    topics = ("toml", "c-plus-plus-11", "c-plus-plus", "parser", "serializer")
-    license = "MIT"
+    topics = ("toml", "c-plus-plus-11", "c-plus-plus", "parser", "serializer", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

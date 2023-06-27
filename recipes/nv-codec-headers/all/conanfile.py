@@ -2,109 +2,41 @@
 
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.tools.files import chdir, get, load, rmdir, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
-required_conan_version = ">=1.35.0"
+required_conan_version = ">=1.52.0"
 
 
 class FFNvEncHeaders(ConanFile):
     name = "nv-codec-headers"
     description = "FFmpeg version of headers required to interface with Nvidia's codec APIs"
-    topics = ("ffmpeg", "video", "nvidia", "headers")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/FFmpeg/nv-codec-headers"
-    license = "MIT"
-    settings = "os"
+    topics = ("ffmpeg", "video", "nvidia", "headers", "header-only")
 
-    _autotools = None
-    _source_subfolder = "source_subfolder"
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
     def build_requirements(self):
         if self._settings_build.os == "Windows":
             if "CONAN_MAKE_PROGRAM" not in os.environ:
                 self.build_requires("make/4.2.1")
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -112,11 +44,11 @@ class FFNvEncHeaders(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()
-        return self._autotools
 
     def build(self):
-        autotools = self._configure_autotools()
-        with chdir(self, os.path.join(self.build_folder, self.source_folder)):
+        autotools = Autotools(self)
+        autotools.configure()
+        with chdir(self, self.source_folder):
             autotools.make()
 
     def _extract_license(self):
@@ -129,12 +61,14 @@ class FFNvEncHeaders(ConanFile):
 
     def package(self):
         self._extract_license()
-
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.install()
         with chdir(self, os.path.join(self.build_folder, self.source_folder)):
             autotools.install(args=["PREFIX={}".format(self.package_folder)])
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         self.cpp_info.names["pkg_config"] = "ffnvcodec"

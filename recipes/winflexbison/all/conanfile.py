@@ -1,19 +1,25 @@
+# Warnings:
+#   Missing required method 'config_options'
+#   Missing required method 'configure'
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, save
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class WinflexbisonConan(ConanFile):
     name = "winflexbison"
     description = "Flex and Bison for Windows"
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lexxmark/winflexbison"
     topics = ("flex", "bison")
-    license = "GPL-3.0-or-later"
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):

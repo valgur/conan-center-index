@@ -8,16 +8,22 @@ required_conan_version = ">=1.50.0"
 
 class ReaderWriterQueue(ConanFile):
     name = "readerwriterqueue"
+    description = "A fast single-producer, single-consumer lock-free queue for C++"
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cameron314/readerwriterqueue"
-    description = "A fast single-producer, single-consumer lock-free queue for C++"
-    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free")
-    license = "BSD-2-Clause"
+    topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    settings = "os"
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -34,9 +40,6 @@ class ReaderWriterQueue(ConanFile):
             dst=os.path.join(self.package_folder, "include", "readerwriterqueue"),
             excludes=["benchmarks", "tests"],
         )
-
-    def package_id(self):
-        self.info.clear()
 
     def package_info(self):
         self.cpp_info.bindirs = []

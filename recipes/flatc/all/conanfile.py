@@ -78,7 +78,7 @@ class FlatcConan(ConanFile):
         self.cpp_info.includedirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: %s" % bin_path)
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
         self.cpp_info.builddirs.append("bin/cmake")
         self.cpp_info.build_modules.append("bin/cmake/BuildFlatBuffers.cmake")

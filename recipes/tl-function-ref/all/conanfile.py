@@ -11,11 +11,17 @@ class TlfunctionrefConan(ConanFile):
     name = "tl-function-ref"
     description = "A lightweight, non-owning reference to a callable."
     license = "CC0-1.0"
-    topics = ("function_ref", "callable")
-    homepage = "https://github.com/TartanLlama/function_ref"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/TartanLlama/function_ref"
+    topics = ("function_ref", "callable", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -23,9 +29,6 @@ class TlfunctionrefConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

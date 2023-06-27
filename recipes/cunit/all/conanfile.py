@@ -81,17 +81,19 @@ from contextlib import contextmanager
 import glob
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CunitConan(ConanFile):
     name = "cunit"
     description = "A Unit Testing Framework for C"
-    topics = "testing"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://cunit.sourceforge.net/"
-    license = "BSD-3-Clause"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = "testing"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -109,7 +111,9 @@ class CunitConan(ConanFile):
         "with_curses": False,
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -124,13 +128,12 @@ class CunitConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        pass
+
     def requirements(self):
         if self.options.with_curses == "ncurses":
             self.requires("ncurses/6.2")
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
         self.build_requires("libtool/2.4.6")
@@ -169,17 +172,14 @@ class CunitConan(ConanFile):
             with environment_append(self, env):
                 yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         host, build = None, None
         if is_msvc(self):
-            self._autotools.flags.append("-FS")
+            tc.cxxflags.append("-FS")
             # MSVC canonical names aren't understood
             host, build = False, False
-        conf_args = [
+        tc.configure_args = [
             "--datarootdir={}".format(os.path.join(self.package_folder, "bin", "share").replace("\\", "/")),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
             "--enable-automated" if self.options.enable_automated else "--disable-automated",
@@ -187,26 +187,22 @@ class CunitConan(ConanFile):
             "--enable-console" if self.options.enable_console else "--disable-console",
             "--enable-curses" if self.options.with_curses != False else "--disable-curses",
         ]
-        if self.options.shared:
-            conf_args.extend(["--enable-shared", "--disable-static"])
-        else:
-            conf_args.extend(["--disable-shared", "--enable-static"])
-        self._autotools.configure(args=conf_args, host=host, build=build)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
             with chdir(self, self.source_folder):
-                self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.autoreconf()
+                autotools.configure()
                 autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
             with chdir(self, self.source_folder):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
 
         if is_msvc(self) and self.options.shared:

@@ -198,23 +198,18 @@ class MingwConan(ConanFile):
             self.output.info("Building binutils ...")
             mkdir(self, os.path.join(self.build_folder, "binutils"))
             with chdir(self, os.path.join(self.build_folder, "binutils")):
-                autotools = AutoToolsBuildEnvironment(self)
-                conf_args = [
+                tc = AutotoolsToolchain(self)
+                tc.configure_args = [
                     "--enable-silent-rules",
                     "--with-sysroot={}".format(self.package_folder),
                     "--disable-nls",
                     "--disable-shared",
                 ]
                 if build_multilib:
-                    conf_args.append("--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32")
-                conf_args.extend(with_gmp_mpfc_mpc)
-                autotools.configure(
-                    configure_dir=os.path.join(self.build_folder, "sources", "binutils"),
-                    args=conf_args,
-                    target=target_tag,
-                    host=False,
-                    build=False,
-                )
+                    tc.configure_args.append("--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32")
+                tc.configure_args.extend(with_gmp_mpfc_mpc)
+                tc.generate()
+                autotools = Autotools(self)
                 autotools.make()
                 autotools.install()
 
@@ -222,12 +217,12 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "mingw-w64-tools"))
             with chdir(self, os.path.join(self.build_folder, "mingw-w64-tools")):
                 autotools = AutoToolsBuildEnvironment(self)
-                conf_args = []
+                tc.configure_args = []
                 autotools.configure(
                     configure_dir=os.path.join(
                         self.build_folder, "sources", "mingw-w64", "mingw-w64-tools", "widl"
                     ),
-                    args=conf_args,
+                    args=tc.configure_args,
                     target=target_tag,
                     host=False,
                     build=False,
@@ -239,7 +234,7 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "mingw-w64-headers"))
             with chdir(self, os.path.join(self.build_folder, "mingw-w64-headers")):
                 autotools = AutoToolsBuildEnvironment(self)
-                conf_args = [
+                tc.configure_args = [
                     "--enable-silent-rules",
                     "--with-widl={}".format(os.path.join(self.package_folder, "bin")),
                     "--enable-sdk=all",
@@ -249,7 +244,7 @@ class MingwConan(ConanFile):
                     configure_dir=os.path.join(
                         self.build_folder, "sources", "mingw-w64", "mingw-w64-headers"
                     ),
-                    args=conf_args,
+                    args=tc.configure_args,
                     target=False,
                     host=target_tag,
                     build=host_tag,
@@ -283,23 +278,23 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "gcc"))
             with chdir(self, os.path.join(self.build_folder, "gcc")):
                 autotools_gcc = AutoToolsBuildEnvironment(self)
-                conf_args = [
+                tc.configure_args = [
                     "--enable-silent-rules",
                     "--enable-languages=c,c++",
                     "--with-sysroot={}".format(self.package_folder),
                     "--disable-shared",
                 ]
                 if build_multilib:
-                    conf_args.append("--enable-targets=all")
-                    conf_args.append("--enable-multilib")
+                    tc.configure_args.append("--enable-targets=all")
+                    tc.configure_args.append("--enable-multilib")
                 else:
-                    conf_args.append("--disable-multilib")
-                conf_args.extend(with_gmp_mpfc_mpc)
+                    tc.configure_args.append("--disable-multilib")
+                tc.configure_args.extend(with_gmp_mpfc_mpc)
                 if self.options.exception == "sjlj":
-                    conf_args.append("--enable-sjlj-exceptions")
+                    tc.configure_args.append("--enable-sjlj-exceptions")
                 if self.options.threads == "posix":
                     # Some specific options which need to be set for posix thread. Otherwise it fails compiling.
-                    conf_args.extend(
+                    tc.configure_args.extend(
                         [
                             "--enable-silent-rules",
                             "--enable-threads=posix",
@@ -310,7 +305,7 @@ class MingwConan(ConanFile):
                 autotools_gcc.libs = []
                 autotools_gcc.configure(
                     configure_dir=os.path.join(self.build_folder, "sources", "gcc"),
-                    args=conf_args,
+                    args=tc.configure_args,
                     target=target_tag,
                     host=False,
                     build=False,
@@ -329,18 +324,18 @@ class MingwConan(ConanFile):
                 mkdir(self, os.path.join(self.build_folder, "mingw-w64-crt"))
                 with chdir(self, os.path.join(self.build_folder, "mingw-w64-crt")):
                     autotools = AutoToolsBuildEnvironment(self)
-                    conf_args = [
+                    tc.configure_args = [
                         "--enable-silent-rules",
                         "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
                         "--with-sysroot={}".format(self.package_folder),
                     ]
                     if build_multilib:
-                        conf_args.append("--enable-lib32")
+                        tc.configure_args.append("--enable-lib32")
                     autotools.configure(
                         configure_dir=os.path.join(
                             self.build_folder, "sources", "mingw-w64", "mingw-w64-crt"
                         ),
-                        args=conf_args,
+                        args=tc.configure_args,
                         target=False,
                         host=target_tag,
                         build=False,
@@ -354,7 +349,7 @@ class MingwConan(ConanFile):
                     mkdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads"))
                     with chdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")):
                         autotools = AutoToolsBuildEnvironment(self)
-                        conf_args = [
+                        tc.configure_args = [
                             "--enable-silent-rules",
                             "--disable-shared",
                             "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
@@ -367,7 +362,7 @@ class MingwConan(ConanFile):
                                 "mingw-w64-libraries",
                                 "winpthreads",
                             ),
-                            args=conf_args,
+                            args=tc.configure_args,
                             target=False,
                             host=target_tag,
                             build=False,

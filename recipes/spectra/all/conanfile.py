@@ -12,10 +12,13 @@ class SpectraConan(ConanFile):
     name = "spectra"
     description = "A header-only C++ library for large scale eigenvalue problems."
     license = "MPL-2.0"
-    topics = ("eigenvalue", "header-only")
-    homepage = "https://spectralib.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://spectralib.org"
+    topics = ("eigenvalue", "header-only", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

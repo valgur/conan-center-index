@@ -10,11 +10,14 @@ required_conan_version = ">=1.52.0"
 class PolylabelConan(ConanFile):
     name = "polylabel"
     description = "A fast algorithm for finding the pole of inaccessibility of a polygon."
-    topics = ("polygon", "pole-of-inaccessibility")
     license = "ISC"
-    homepage = "https://github.com/mapbox/polylabel"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mapbox/polylabel"
+    topics = ("polygon", "pole-of-inaccessibility", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

@@ -13,17 +13,20 @@ class XbyakConan(ConanFile):
         "assemble x86(IA32), x64(AMD64, x86-64) mnemonic."
     )
     license = "BSD-3-Clause"
-    topics = ("jit", "assembler")
-    homepage = "https://github.com/herumi/xbyak"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/herumi/xbyak"
+    topics = ("jit", "assembler", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

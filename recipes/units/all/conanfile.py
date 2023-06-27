@@ -15,6 +15,8 @@ class UnitsConan(ConanFile):
         "library built on c++14 with no dependencies"
     )
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/nholthaus/units"
     topics = (
         "unit-conversion",
         "dimensional-analysis",
@@ -24,9 +26,10 @@ class UnitsConan(ConanFile):
         "header-only",
         "no-dependencies",
     )
-    homepage = "https://github.com/nholthaus/units"
-    url = "https://github.com/conan-io/conan-center-index"
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -41,6 +44,9 @@ class UnitsConan(ConanFile):
             "Visual Studio": "14",
             "msvc": "190",
         }
+
+    def layout(self):
+        pass
 
     def package_id(self):
         self.info.clear()

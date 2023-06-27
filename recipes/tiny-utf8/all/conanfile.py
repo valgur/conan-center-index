@@ -13,11 +13,17 @@ class Tinyutf8Conan(ConanFile):
         "Tiny-utf8 is a library for extremely easy integration of Unicode into an arbitrary C++11 project."
     )
     license = "BSD-3-Clause"
-    topics = "utf8"
-    homepage = "https://github.com/DuffsDevice/tiny-utf8"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DuffsDevice/tiny-utf8"
+    topics = ("utf8", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

@@ -78,20 +78,29 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class Thelink2012AnyConan(ConanFile):
     name = "thelink2012-any"
-    license = "BSL-1.0"
     description = (
         "Implementation of std::experimental::any, including small object optimization, for C++11 compilers"
     )
-    topics = ("any", "c++11", "data-structures")
-    homepage = "https://github.com/thelink2012/any"
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/thelink2012/any"
+    topics = ("any", "c++11", "data-structures", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -104,10 +113,10 @@ class Thelink2012AnyConan(ConanFile):
         copy(self, "LICENSE*", "licenses", self.source_folder)
         copy(self, "any.hpp", "include", self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.names["cmake_find_package"] = "any"
         self.cpp_info.names["cmake_find_package_multi"] = "any"
         self.cpp_info.set_property("cmake_target_name", "any::any")

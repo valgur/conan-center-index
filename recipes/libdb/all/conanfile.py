@@ -118,29 +118,29 @@ class LibdbConan(ConanFile):
                 self.settings.compiler in ["apple-clang", "clang"]
                 and Version(self.settings.compiler.version) >= "12"
             ):
-                self._autotools.flags.append("-Wno-error=implicit-function-declaration")
-            conf_args = [
+                tc.cxxflags.append("-Wno-error=implicit-function-declaration")
+            tc.configure_args = [
                 "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
                 "--enable-mingw" if self._mingw_build else "--disable-mingw",
                 "--enable-compat185",
                 "--enable-sql",
             ]
             if self.options.with_cxx:
-                conf_args.extend(["--enable-cxx", "--enable-stl"])
+                tc.configure_args.extend(["--enable-cxx", "--enable-stl"])
             else:
-                conf_args.extend(["--disable-cxx", "--disable-stl"])
+                tc.configure_args.extend(["--disable-cxx", "--disable-stl"])
 
             if self.options.shared:
-                conf_args.extend(["--enable-shared", "--disable-static"])
+                tc.configure_args.extend(["--enable-shared", "--disable-static"])
             else:
-                conf_args.extend(["--disable-shared", "--enable-static"])
+                tc.configure_args.extend(["--disable-shared", "--enable-static"])
             if self.options.with_tcl:
-                conf_args.append(
+                tc.configure_args.append(
                     "--with-tcl={}".format(
                         unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))
                     )
                 )
-            self._autotools.configure(configure_dir=os.path.join(self.source_folder, "dist"), args=conf_args)
+            tc.generate()
             if self.settings.os == "Windows" and self.options.shared:
                 replace_in_file(
                     self,
@@ -250,14 +250,14 @@ class LibdbConan(ConanFile):
                 shared_suffix = "" if self.options.shared else "s"
                 debug_suffix = "d" if self.settings.build_type == "Debug" else ""
                 version_suffix = "".join(self._major_minor_version)
-                return "{}{}{}{}".format(lib, version_suffix, shared_suffix, debug_suffix)
+                return f"{lib}{version_suffix}{shared_suffix}{debug_suffix}"
 
             msvc_libs = [_lib_to_msvc_lib(lib) for lib in self._libs]
             for lib, msvc_lib in zip(self._libs, msvc_libs):
                 rename(
                     self,
-                    os.path.join(libdir, "{}.lib".format(msvc_lib)),
-                    os.path.join(libdir, "{}.lib".format(lib)),
+                    os.path.join(libdir, f"{msvc_lib}.lib"),
+                    os.path.join(libdir, f"{lib}.lib"),
                 )
         else:
             autotools = Autotools(self)

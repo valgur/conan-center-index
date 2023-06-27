@@ -7,7 +7,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 import os
 
-
 required_conan_version = ">=1.54.0"
 
 
@@ -18,6 +17,7 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://invisible-island.net/mawk/mawk.html"
     topics = ("awk", "app", "interpreter", "programming-language")
+
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -25,12 +25,12 @@ class PackageConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":

@@ -10,10 +10,13 @@ class PsimdConan(ConanFile):
     name = "psimd"
     description = "Portable 128-bit SIMD intrinsics."
     license = "MIT"
-    topics = "simd"
-    homepage = "https://github.com/Maratyszcza/psimd"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Maratyszcza/psimd"
+    topics = ("simd", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

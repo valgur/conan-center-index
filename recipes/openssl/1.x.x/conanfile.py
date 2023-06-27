@@ -85,19 +85,19 @@ class OpenSSLVersion:
 
 class OpenSSLConan(ConanFile):
     name = "openssl"
-    package_type = "library"
+    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
+    license = "OpenSSL"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/openssl/openssl"
-    license = "OpenSSL"
     topics = ("ssl", "tls", "encryption", "security")
-    description = "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "no_threads": [True, False],
-        "no_zlib": [True, False],
         "shared": [True, False],
         "fPIC": [True, False],
+        "no_threads": [True, False],
+        "no_zlib": [True, False],
         "no_asm": [True, False],
         "enable_weak_ssl_ciphers": [True, False],
         "386": [True, False],

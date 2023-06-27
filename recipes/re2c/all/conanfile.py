@@ -80,19 +80,19 @@ from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class Re2CConan(ConanFile):
     name = "re2c"
     description = "re2c is a free and open-source lexer generator for C, C++ and Go."
-    topics = ("lexer", "language", "tokenizer", "flex")
+    license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://re2c.org/"
-    license = "Unlicense"
-    settings = "os", "arch", "build_type", "compiler"
+    topics = ("lexer", "language", "tokenizer", "flex")
 
-    _autotools = None
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
@@ -109,15 +109,18 @@ class Re2CConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def package_id(self):
         del self.info.settings.compiler
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextmanager
     def _build_context(self):
@@ -140,19 +143,17 @@ class Re2CConan(ConanFile):
             yield
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            self._autotools.flags.append("-FS")
-            self._autotools.cxx_flags.append("-EHsc")
-        self._autotools.configure(configure_dir=self.source_folder)
-        return self._autotools
+            tc.cxxflags.append("-FS")
+            tc.cxxflags.append("-EHsc")
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make(args=["V=1"])
 
     def package(self):
@@ -177,6 +178,10 @@ class Re2CConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

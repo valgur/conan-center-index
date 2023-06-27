@@ -33,7 +33,6 @@ import yaml
 
 required_conan_version = ">=1.53.0"
 
-
 # When adding (or removing) an option, also add this option to the list in
 # `rebuild-dependencies.yml` and re-run that script.
 CONFIGURE_OPTIONS = (
@@ -75,11 +74,12 @@ CONFIGURE_OPTIONS = (
 class BoostConan(ConanFile):
     name = "boost"
     description = "Boost provides free peer-reviewed portable C++ source libraries"
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.boost.org"
-    license = "BSL-1.0"
     topics = ("libraries", "cpp")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -163,14 +163,6 @@ class BoostConan(ConanFile):
     no_copy_source = True
     _cached_dependencies = None
 
-    def export(self):
-        copy(
-            self, f"dependencies/{self._dependency_filename}", src=self.recipe_folder, dst=self.export_folder
-        )
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
     @property
     def _min_compiler_version_default_cxx11(self):
         # Minimum compiler version having c++ standard >= 11
@@ -237,6 +229,17 @@ class BoostConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
+
+    def export(self):
+        copy(
+            self,
+            f"dependencies/{self._dependency_filename}",
+            src=self.recipe_folder,
+            dst=self.export_folder,
+        )
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     @property
     def _is_clang_cl(self):
@@ -446,6 +449,84 @@ class BoostConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def _with_dependency(self, dependency):
+        """
+        Return true when dependency is required according to the dependencies-x.y.z.yml file
+        """
+        for name, reqs in self._dependencies["requirements"].items():
+            if dependency in reqs:
+                if not self.options.get_safe(f"without_{name}", True):
+                    return True
+        return False
+
+    @property
+    def _with_zlib(self):
+        return not self.options.header_only and self._with_dependency("zlib") and self.options.zlib
+
+    @property
+    def _with_bzip2(self):
+        return not self.options.header_only and self._with_dependency("bzip2") and self.options.bzip2
+
+    @property
+    def _with_lzma(self):
+        return not self.options.header_only and self._with_dependency("lzma") and self.options.lzma
+
+    @property
+    def _with_zstd(self):
+        return not self.options.header_only and self._with_dependency("zstd") and self.options.zstd
+
+    @property
+    def _with_icu(self):
+        return (
+            not self.options.header_only
+            and self._with_dependency("icu")
+            and self.options.get_safe("i18n_backend_icu")
+        )
+
+    @property
+    def _with_iconv(self):
+        return (
+            not self.options.header_only
+            and self._with_dependency("iconv")
+            and self.options.get_safe("i18n_backend_iconv") == "libiconv"
+        )
+
+    @property
+    def _with_stacktrace_backtrace(self):
+        return not self.options.header_only and self.options.get_safe("with_stacktrace_backtrace", False)
+
+    def requirements(self):
+        if self._with_zlib:
+            self.requires("zlib/1.2.13")
+        if self._with_bzip2:
+            self.requires("bzip2/1.0.8")
+        if self._with_lzma:
+            self.requires("xz_utils/5.4.2")
+        if self._with_zstd:
+            self.requires("zstd/1.5.5")
+        if self._with_stacktrace_backtrace:
+            self.requires("libbacktrace/cci.20210118", transitive_headers=True, transitive_libs=True)
+
+        if self._with_icu:
+            self.requires("icu/72.1")
+        if self._with_iconv:
+            self.requires("libiconv/1.17")
+
+    def package_id(self):
+        del self.info.options.i18n_backend
+
+        if self.info.options.header_only:
+            self.info.clear()
+        else:
+            del self.info.options.debug_level
+            del self.info.options.filesystem_version
+            del self.info.options.pch
+            del (
+                self.info.options.python_executable
+            )  # PATH to the interpreter is not important, only version matters
+            if self.info.options.without_python:
+                del self.info.options.python_version
+
     @property
     def _cxx11_boost_libraries(self):
         libraries = ["fiber", "json", "nowide", "url"]
@@ -524,84 +605,6 @@ class BoostConan(ConanFile):
                         f"Boost.{{{','.join(self._cxx11_boost_libraries)}}} requires a c++11 compiler "
                         "(please set compiler.cppstd or use a newer compiler)"
                     )
-
-    def _with_dependency(self, dependency):
-        """
-        Return true when dependency is required according to the dependencies-x.y.z.yml file
-        """
-        for name, reqs in self._dependencies["requirements"].items():
-            if dependency in reqs:
-                if not self.options.get_safe(f"without_{name}", True):
-                    return True
-        return False
-
-    @property
-    def _with_zlib(self):
-        return not self.options.header_only and self._with_dependency("zlib") and self.options.zlib
-
-    @property
-    def _with_bzip2(self):
-        return not self.options.header_only and self._with_dependency("bzip2") and self.options.bzip2
-
-    @property
-    def _with_lzma(self):
-        return not self.options.header_only and self._with_dependency("lzma") and self.options.lzma
-
-    @property
-    def _with_zstd(self):
-        return not self.options.header_only and self._with_dependency("zstd") and self.options.zstd
-
-    @property
-    def _with_icu(self):
-        return (
-            not self.options.header_only
-            and self._with_dependency("icu")
-            and self.options.get_safe("i18n_backend_icu")
-        )
-
-    @property
-    def _with_iconv(self):
-        return (
-            not self.options.header_only
-            and self._with_dependency("iconv")
-            and self.options.get_safe("i18n_backend_iconv") == "libiconv"
-        )
-
-    @property
-    def _with_stacktrace_backtrace(self):
-        return not self.options.header_only and self.options.get_safe("with_stacktrace_backtrace", False)
-
-    def requirements(self):
-        if self._with_zlib:
-            self.requires("zlib/1.2.13")
-        if self._with_bzip2:
-            self.requires("bzip2/1.0.8")
-        if self._with_lzma:
-            self.requires("xz_utils/5.4.2")
-        if self._with_zstd:
-            self.requires("zstd/1.5.5")
-        if self._with_stacktrace_backtrace:
-            self.requires("libbacktrace/cci.20210118", transitive_headers=True, transitive_libs=True)
-
-        if self._with_icu:
-            self.requires("icu/72.1")
-        if self._with_iconv:
-            self.requires("libiconv/1.17")
-
-    def package_id(self):
-        del self.info.options.i18n_backend
-
-        if self.info.options.header_only:
-            self.info.clear()
-        else:
-            del self.info.options.debug_level
-            del self.info.options.filesystem_version
-            del self.info.options.pch
-            del (
-                self.info.options.python_executable
-            )  # PATH to the interpreter is not important, only version matters
-            if self.info.options.without_python:
-                del self.info.options.python_version
 
     def build_requirements(self):
         if not self.options.header_only:

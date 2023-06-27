@@ -85,17 +85,25 @@ import sys
 import textwrap
 import time
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=1.47.0"
 
 
 class GnConan(ConanFile):
     name = "gn"
     description = "GN is a meta-build system that generates build files for Ninja."
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("build", "system", "ninja")
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gn.googlesource.com/"
+    topics = ("build", "system", "ninja", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     @property
     def _minimum_compiler_version_supporting_cxx17(self):
@@ -117,15 +125,12 @@ class GnConan(ConanFile):
                     " Assuming it does."
                 )
 
-    def package_id(self):
-        del self.info.settings.compiler
-
-    def source(self):
-        tools_files.get(self, **self.conan_data["sources"][self.version], destination=self.source_folder)
-
     def build_requirements(self):
         # FIXME: add cpython build requirements for `build/gen.py`.
         self.build_requires("ninja/1.10.2")
+
+    def source(self):
+        tools_files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @contextmanager
     def _build_context(self):
@@ -164,6 +169,17 @@ class GnConan(ConanFile):
         # Assume gn knows about the os
         return str(os_).lower()
 
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = [
+            "--no-last-commit-position",
+            "--host={}".format(self._to_gn_platform(self.settings.os, self.settings.compiler)),
+        ]
+        if self.settings.build_type == "Debug":
+            tc.configure_args.append("-d")
+        self.run(f"{sys.executable} build/gen.py {' '.join(tc.configure_args)}", run_environment=True)
+        tc.generate()
+
     def build(self):
         with chdir(self, self.source_folder):
             with self._build_context():
@@ -172,27 +188,14 @@ class GnConan(ConanFile):
                     self,
                     os.path.join("src", "gn", "last_commit_position.h"),
                     textwrap.dedent("""\
-                                #pragma once
-                                #define LAST_COMMIT_POSITION "1"
-                                #define LAST_COMMIT_POSITION_NUM 1
-                                """),
-                )
-                conf_args = [
-                    "--no-last-commit-position",
-                    "--host={}".format(self._to_gn_platform(self.settings.os, self.settings.compiler)),
-                ]
-                if self.settings.build_type == "Debug":
-                    conf_args.append("-d")
-                self.run(
-                    "{} build/gen.py {}".format(sys.executable, " ".join(conf_args)), run_environment=True
+                        #pragma once
+                        #define LAST_COMMIT_POSITION "1"
+                        #define LAST_COMMIT_POSITION_NUM 1
+                        """),
                 )
                 # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
                 time.sleep(1)
-                build_args = [
-                    "-C",
-                    "out",
-                    "-j{}".format(cpu_count(self)),
-                ]
+                build_args = ["-C", "out", "-j"]
                 self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 
     def package(self):
@@ -212,6 +215,9 @@ class GnConan(ConanFile):
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []

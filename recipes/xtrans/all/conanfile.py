@@ -8,21 +8,26 @@ required_conan_version = ">=1.47"
 
 class XtransConan(ConanFile):
     name = "xtrans"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "MIT"
-    homepage = "https://www.x.org/wiki/"
     description = "X Network Transport layer shared code"
-    settings = "os", "arch", "compiler", "build_type"
-    topics = ("x11", "xorg")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.x.org/wiki/"
+    topics = ("x11", "xorg", "pre-built")
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
 
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.arch
         del self.info.settings.build_type
+
+    def validate(self):
+        if self.settings.os not in ["Linux", "FreeBSD"]:
+            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
 
     def system_requirements(self):
         apt = package_manager.Apt(self)

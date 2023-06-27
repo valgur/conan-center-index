@@ -79,20 +79,23 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class SiConan(ConanFile):
     name = "si"
+    description = (
+        "A header only c++ library that provides type safety and user defined literals for handling physical"
+        " values defined in the International System of Units."
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bernedom/SI"
-    description = (
-        "A header only c++ library that provides type safety and user defined literals for"
-        " handling physical values defined in the International System of Units."
-    )
-    topics = ("physical units", "SI-unit-conversion", "cplusplus-library", "cplusplus-17")
+    topics = ("physical units", "SI-unit-conversion", "cplusplus-library", "cplusplus-17", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -104,6 +107,12 @@ class SiConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, "17")
@@ -112,15 +121,11 @@ class SiConan(ConanFile):
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    "'si' requires C++17, which your compiler ({} {}) does not support.".format(
-                        self.settings.compiler, self.settings.compiler.version
-                    )
+                    "'si' requires C++17, which your compiler"
+                    f" ({self.settings.compiler} {self.settings.compiler.version}) does not support."
                 )
         else:
             self.output.warn("'si' requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -139,6 +144,9 @@ class SiConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "SI")
         self.cpp_info.set_property("cmake_target_name", "SI::SI")
 

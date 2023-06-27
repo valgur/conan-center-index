@@ -11,12 +11,15 @@ required_conan_version = ">=1.50.0"
 
 class XtlConan(ConanFile):
     name = "xtl"
+    description = "The x template library"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xtensor-stack/xtl"
-    description = "The x template library"
-    topics = ("templates", "containers", "algorithms")
+    topics = ("templates", "containers", "algorithms", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -27,6 +30,9 @@ class XtlConan(ConanFile):
             "Visual Studio": "15",
             "msvc": "191",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -46,9 +52,6 @@ class XtlConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++14, which your compiler does not support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

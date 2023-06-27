@@ -12,10 +12,12 @@ class NVTXConan(ConanFile):
         "The NVIDIA Tools Extension SDK (NVTX) is a C-based API for annotating "
         "events, code ranges, and resources in your applications."
     )
-    homepage = "https://github.com/NVIDIA/NVTX"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
-    topics = ("profiler", "nvidia", "nsight")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/NVIDIA/NVTX"
+    topics = ("profiler", "nvidia", "nsight", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

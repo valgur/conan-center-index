@@ -81,17 +81,19 @@ from contextlib import contextmanager
 import os
 import shutil
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class CoinCbcConan(ConanFile):
     name = "coin-cbc"
     description = "COIN-OR Branch-and-Cut solver"
-    topics = ("clp", "simplex", "solver", "linear", "programming")
+    license = ("EPL-2.0",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/Clp"
-    license = ("EPL-2.0",)
-    settings = "os", "arch", "build_type", "compiler"
+    topics = ("clp", "simplex", "solver", "linear", "programming")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -102,9 +104,10 @@ class CoinCbcConan(ConanFile):
         "fPIC": True,
         "parallel": False,
     }
-    generators = "pkg_config"
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -117,6 +120,9 @@ class CoinCbcConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("coin-utils/2.11.4")
         self.requires("coin-osi/0.108.6")
@@ -125,9 +131,12 @@ class CoinCbcConan(ConanFile):
         if is_msvc(self) and self.options.parallel:
             self.requires("pthreads4w/3.0.0")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
+    def validate(self):
+        if self.settings.os == "Windows" and self.options.shared:
+            raise ConanInvalidConfiguration("coin-cbc does not support shared builds on Windows")
+        # FIXME: This issue likely comes from very old autotools versions used to produce configure.
+        if hasattr(self, "settings_build") and cross_building(self) and self.options.shared:
+            raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
     @property
     def _user_info_build(self):
@@ -140,13 +149,6 @@ class CoinCbcConan(ConanFile):
             self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
-
-    def validate(self):
-        if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("coin-cbc does not support shared builds on Windows")
-        # FIXME: This issue likely comes from very old autotools versions used to produce configure.
-        if hasattr(self, "settings_build") and cross_building(self) and self.options.shared:
-            raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -166,42 +168,31 @@ class CoinCbcConan(ConanFile):
         else:
             yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        configure_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
+        tc.configure_args = [
             "--enable-cbc-parallel={}".format(yes_no(self.options.parallel)),
             "--without-blas",
             "--without-lapack",
         ]
         if is_msvc(self):
-            self._autotools.cxx_flags.append("-EHsc")
-            configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
+            tc.cxxflags.append("-EHsc")
+            tc.configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
             if Version(self.settings.compiler.version) >= 12:
-                self._autotools.flags.append("-FS")
+                tc.cxxflags.append("-FS")
             if self.options.parallel:
-                configure_args.append(
-                    "--with-pthreadsw32-lib={}".format(
-                        unix_path(
-                            self,
-                            os.path.join(
-                                self.dependencies["pthreads4w"].cpp_info.libdirs[0],
-                                self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib",
-                            ),
-                        )
-                    )
+                pthreads_path = os.path.join(
+                    self.dependencies["pthreads4w"].cpp_info.libdirs[0],
+                    self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib",
                 )
-                configure_args.append(
+                tc.configure_args.append("--with-pthreadsw32-lib={}".format(unix_path(self, pthreads_path)))
+                tc.configure_args.append(
                     "--with-pthreadsw32-incdir={}".format(
                         unix_path(self.dependencies["pthreads4w"].cpp_info.includedirs[0])
                     )
                 )
-        self._autotools.configure(configure_dir=self.source_folder, args=configure_args)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -252,5 +243,5 @@ class CoinCbcConan(ConanFile):
         self.cpp_info.components["osi-cbc"].names["pkg_config"] = "osi-cbc"
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

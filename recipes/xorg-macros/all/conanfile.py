@@ -13,14 +13,15 @@ required_conan_version = ">=1.57"
 class XorgMacrosConan(ConanFile):
     name = "xorg-macros"
     description = "GNU autoconf macros shared across X.Org projects"
-    topics = ("autoconf", "macros", "build", "system", "m4")
     license = "MIT"
-    homepage = "https://gitlab.freedesktop.org/xorg/util/macros"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os"
+    homepage = "https://gitlab.freedesktop.org/xorg/util/macros"
+    topics = ("autoconf", "macros", "build", "system", "m4", "header-only")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _settings_build(self):
@@ -29,8 +30,11 @@ class XorgMacrosConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -39,8 +43,8 @@ class XorgMacrosConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("automake/1.16.5")
 
-    def package_id(self):
-        self.info.clear()
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _datarootdir(self):
@@ -71,6 +75,9 @@ class XorgMacrosConan(ConanFile):
         rmdir(self, os.path.join(self._datarootdir, "util-macros"))
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.names["pkg_config"] = "xorg-macros"
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []

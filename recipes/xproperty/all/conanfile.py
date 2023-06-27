@@ -12,11 +12,14 @@ class XpropertyConan(ConanFile):
     name = "xproperty"
     description = "Traitlets-like C++ properties and implementation of the observer pattern."
     license = "BSD-3-Clause"
-    topics = ("observer", "traitlets")
-    homepage = "https://github.com/jupyter-xeus/xproperty"
     url = "https://github.com/conan-io/conan-center-index"
-    no_copy_source = True
+    homepage = "https://github.com/jupyter-xeus/xproperty"
+    topics = ("observer", "traitlets", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")

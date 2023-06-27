@@ -78,7 +78,7 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class TinydirConan(ConanFile):
@@ -88,11 +88,17 @@ class TinydirConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cxong/tinydir"
     topics = ("portable", "filesystem", "directory", "posix", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
 
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -100,3 +106,7 @@ class TinydirConan(ConanFile):
     def package(self):
         copy(self, "tinydir.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

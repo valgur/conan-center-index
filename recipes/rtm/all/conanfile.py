@@ -78,15 +78,27 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.52.0"
+
 
 class Rtmonan(ConanFile):
     name = "rtm"
     description = "Realtime Math"
-    topics = ("realtime", "math")
     license = "MIT"
-    homepage = "https://github.com/nfrechette/rtm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/nfrechette/rtm"
+    topics = ("realtime", "math", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -102,5 +114,6 @@ class Rtmonan(ConanFile):
             src=os.path.join(self.source_folder, "includes"),
         )
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

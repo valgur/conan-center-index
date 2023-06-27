@@ -78,32 +78,21 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class SourceLocationConan(ConanFile):
     name = "source_location"
+    description = "source_location header for some older compilers"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Rechip/source_location"
-    description = "source_location header for some older compilers"
     topics = ("cpp", "header-only")
-    settings = ["compiler"]
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+    no_copy_source = True
 
     @property
     def _minimum_compilers_version(self):
@@ -113,6 +102,12 @@ class SourceLocationConan(ConanFile):
             "clang": "9",
             "apple-clang": "12",
         }
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -129,5 +124,20 @@ class SourceLocationConan(ConanFile):
                 " support."
             )
 
-    def package_id(self):
-        self.info.header_only()
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def package(self):
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
+        copy(
+            self,
+            pattern="*",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

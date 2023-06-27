@@ -8,22 +8,24 @@ required_conan_version = ">=1.50.0"
 
 class ObserverPtrLiteConan(ConanFile):
     name = "observer-ptr-lite"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/martinmoene/observer-ptr-lite"
     description = (
         "observer-ptr is a single-file header-only library with a variant of                    "
         " std::experimental::observer_ptr for C++98 and later."
     )
-    topics = ("cpp98", "cpp11", "cpp14", "cpp17")
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martinmoene/observer-ptr-lite"
+    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    def package_id(self):
-        self.info.clear()
-
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

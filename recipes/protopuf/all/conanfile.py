@@ -6,7 +6,6 @@ from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.50.0"
 
 
@@ -20,7 +19,10 @@ class ProtopufConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/PragmaTwice/protopuf"
     topics = ("serialization", "protobuf", "metaprogramming", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

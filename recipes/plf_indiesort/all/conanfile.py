@@ -13,17 +13,20 @@ class PlfindiesortConan(ConanFile):
         "access containers, and increased performance for the sorting of large types."
     )
     license = "Zlib"
-    topics = ("algorithm", "sort", "header-only")
-    homepage = "https://plflib.org/indiesort.htm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://plflib.org/indiesort.htm"
+    topics = ("algorithm", "sort", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

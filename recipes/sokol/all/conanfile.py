@@ -9,11 +9,14 @@ required_conan_version = ">=1.50.0"
 class SokolConan(ConanFile):
     name = "sokol"
     description = "Simple STB-style cross-platform libraries for C and C++, written in C."
-    topics = ("graphics", "3d")
+    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/floooh/sokol"
-    license = "Zlib"
+    topics = ("graphics", "3d", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

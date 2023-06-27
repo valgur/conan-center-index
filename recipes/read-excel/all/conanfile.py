@@ -11,15 +11,17 @@ required_conan_version = ">=1.50.0"
 
 class ReadExcelConan(ConanFile):
     name = "read-excel"
+    description = (
+        "This is very simple implementation of the Excel 97-2003 format (BIFF8) written in C++. "
+        "Supported reading only."
+    )
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/read-excel"
-    license = "MIT"
-    description = (
-        "This is very simple implementation of the Excel 97-2003 format (BIFF8) written in C++. Supported"
-        " reading only."
-    )
-    topics = ("read", "excel", "biff8")
-    settings = "compiler"
+    topics = ("read", "excel", "biff8", "header-library")
+
+    package_type = "header-only"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -35,6 +37,12 @@ class ReadExcelConan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -44,9 +52,6 @@ class ReadExcelConan(ConanFile):
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
                 " support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,9 +67,6 @@ class ReadExcelConan(ConanFile):
             src=os.path.join(self.source_folder, "read-excel"),
             dst=os.path.join(self.package_folder, "include", "read-excel"),
         )
-
-    def package_id(self):
-        self.info.clear()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "read-excel")

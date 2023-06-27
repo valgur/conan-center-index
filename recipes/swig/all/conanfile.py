@@ -81,7 +81,7 @@ import contextlib
 import functools
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class SwigConan(ConanFile):
@@ -90,10 +90,12 @@ class SwigConan(ConanFile):
         "SWIG is a software development tool that connects programs written in C and C++ with a variety of"
         " high-level programming languages."
     )
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.swig.org"
-    license = "GPL-3.0-or-later"
     topics = ("python", "java", "wrapper")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -108,11 +110,17 @@ class SwigConan(ConanFile):
         copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self._use_pcre2:
             self.requires("pcre2/10.40")
         else:
             self.requires("pcre/8.45")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
@@ -122,9 +130,6 @@ class SwigConan(ConanFile):
         else:
             self.build_requires("bison/3.8.2")
         self.build_requires("automake/1.16.5")
-
-    def package_id(self):
-        del self.info.settings.compiler
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -158,8 +163,7 @@ class SwigConan(ConanFile):
             with environment_append(self, env):
                 yield
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
+    def generate(self):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         deps_libpaths = autotools.library_paths
         deps_libs = autotools.libs

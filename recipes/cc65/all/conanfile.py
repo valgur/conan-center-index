@@ -172,7 +172,8 @@ class Cc65Conan(ConanFile):
             arch=arch,
             platforms=msvc_platforms,
         )
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         with chdir(self, os.path.join(self.source_folder, "libsrc")):
             autotools.make()
 
@@ -182,7 +183,8 @@ class Cc65Conan(ConanFile):
         return self._autotools
 
     def _build_autotools(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         with chdir(self, os.path.join(self.source_folder)):
             autotools.make(args=self._make_args)
 
@@ -236,7 +238,8 @@ class Cc65Conan(ConanFile):
             copy(self, "*", src=os.path.join(self.source_folder, dir), dst=os.path.join(self._datadir, dir))
 
     def _package_autotools(self):
-        autotools = self._configure_autotools()
+        autotools = Autotools(self)
+        autotools.configure()
         with chdir(self, os.path.join(self.build_folder, self.source_folder)):
             autotools.install(args=self._make_args)
 

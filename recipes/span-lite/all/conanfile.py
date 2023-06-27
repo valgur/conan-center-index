@@ -8,14 +8,17 @@ required_conan_version = ">=1.50.0"
 
 class SpanLiteConan(ConanFile):
     name = "span-lite"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/martinmoene/span-lite"
     description = (
         "span lite - A C++20-like span for C++98, C++11 and later in a single-file header-only library"
     )
-    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "span", "span-implementations")
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martinmoene/span-lite"
+    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "span", "span-implementations", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

@@ -13,6 +13,7 @@ from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.54.0"
 
+
 # This recipe includes a selftest to test conversion of os/arch to triplets (and vice verse)
 # Run it using `python -m unittest conanfile.py`
 
@@ -20,13 +21,13 @@ required_conan_version = ">=1.54.0"
 class BinutilsConan(ConanFile):
     name = "binutils"
     description = "The GNU Binutils are a collection of binary tools."
-    package_type = "application"
     license = "GPL-2.0-or-later"
-    url = "https://github.com/conan-io/conan-center-index/"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/binutils"
     topics = ("gnu", "ld", "linker", "as", "assembler", "objcopy", "objdump")
-    settings = "os", "arch", "compiler", "build_type"
 
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "multilib": [True, False],
         "with_libquadmath": [True, False],
@@ -35,7 +36,6 @@ class BinutilsConan(ConanFile):
         "target_triplet": [None, "ANY"],
         "prefix": [None, "ANY"],
     }
-
     default_options = {
         "multilib": True,
         "with_libquadmath": True,
@@ -46,9 +46,6 @@ class BinutilsConan(ConanFile):
             None
         ),  # Initialized in configure (NOT config_options, because it depends on target_{arch,os})
     }
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     @property
     def _settings_build(self):
@@ -96,6 +93,15 @@ class BinutilsConan(ConanFile):
         self.output.info(f"binutils:target_arch={self.options.target_arch}")
         self.output.info(f"binutils:target_os={self.options.target_os}")
         self.output.info(f"binutils:target_triplet={self.options.target_triplet}")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("zlib/1.2.13")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if is_msvc(self):
@@ -145,9 +151,6 @@ class BinutilsConan(ConanFile):
                     f" os={settings_target.os}"
                 )
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def _raise_unsupported_configuration(self, key, value):
         raise ConanInvalidConfiguration(
             "This configuration is unsupported by this conan recip. Please consider adding support."
@@ -163,9 +166,6 @@ class BinutilsConan(ConanFile):
         if self.version >= "2.39":
             self.tool_requires("bison/3.8.2")
             self.tool_requires("flex/2.6.4")
-
-    def requirements(self):
-        self.requires("zlib/1.2.13")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -213,6 +213,10 @@ class BinutilsConan(ConanFile):
     def package_info(self):
         target_bindir = os.path.join(self._exec_prefix, str(self.options.target_triplet), "bin")
         self.cpp_info.bindirs = ["bin", target_bindir]
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
 
         absolute_target_bindir = os.path.join(self.package_folder, target_bindir)
 

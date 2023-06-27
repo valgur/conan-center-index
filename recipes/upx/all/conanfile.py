@@ -79,18 +79,26 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class UPXConan(ConanFile):
     name = "upx"
     description = "UPX - the Ultimate Packer for eXecutables "
-    license = "GPL-2.0-or-later", "special-exception-for-compressed-executables"
+    license = ("GPL-2.0-or-later", "special-exception-for-compressed-executables")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://upx.github.io/"
-    topics = ("packer", "executable", "compression", "size", "reduction", "small", "footprintt")
-    no_copy_source = True
-    settings = "os", "arch"
+    topics = ("packer", "executable", "compression", "size", "reduction", "small", "footprintt", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def _conan_data_sources(self):
         # Don't surround this with try/catch to catch unknown versions
@@ -118,6 +126,9 @@ class UPXConan(ConanFile):
             copy(self, "upx", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")

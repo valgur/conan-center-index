@@ -9,12 +9,15 @@ required_conan_version = ">=1.50.0"
 
 class TslHopscotchMapConan(ConanFile):
     name = "tsl-hopscotch-map"
-    license = "MIT"
     description = "C++ implementation of a fast hash map and hash set using hopscotch hashing"
-    topics = ("structure", "hash map", "hash set")
-    homepage = "https://github.com/Tessil/hopscotch-map"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Tessil/hopscotch-map"
+    topics = ("structure", "hash map", "hash set", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

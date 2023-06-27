@@ -123,12 +123,9 @@ class Asn1cConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        conf_args = [f"--datarootdir={unix_path(self._datarootdir)}"]
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return self._autotools
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = [f"--datarootdir={unix_path(self._datarootdir)}"]
+        tc.generate()
 
     def build(self):
         with chdir(self, self.source_folder):
@@ -151,7 +148,7 @@ class Asn1cConan(ConanFile):
         self.cpp_info.includedirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
 
         # asn1c cannot use environment variables to specify support files path

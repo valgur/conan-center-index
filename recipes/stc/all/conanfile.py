@@ -16,8 +16,22 @@ class StcConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tylov/STC"
-    topics = ("containers", "string", "vector", "map", "set", "deque", "bitset", "random", "list")
+    topics = (
+        "containers",
+        "string",
+        "vector",
+        "map",
+        "set",
+        "deque",
+        "bitset",
+        "random",
+        "list",
+        "header-only",
+    )
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

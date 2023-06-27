@@ -81,7 +81,7 @@ import contextlib
 import functools
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibIdnConan(ConanFile):
@@ -90,10 +90,12 @@ class LibIdnConan(ConanFile):
         "GNU Libidn is a fully documented implementation of the Stringprep, Punycode and IDNA 2003"
         " specifications."
     )
-    homepage = "https://www.gnu.org/software/libidn/"
-    topics = ("encode", "decode", "internationalized", "domain", "name")
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libidn/"
+    topics = ("encode", "decode", "internationalized", "domain", "name")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -122,6 +124,9 @@ class LibIdnConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         self.requires("libiconv/1.16")
@@ -156,29 +161,24 @@ class LibIdnConan(ConanFile):
         else:
             yield
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        autotools.libs = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         if not self.options.shared:
-            autotools.defines.append("LIBIDN_STATIC")
+            tc.defines.append("LIBIDN_STATIC")
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
-                autotools.flags.append("-FS")
-            autotools.link_flags.extend(
+                tc.cxxflags.append("-FS")
+            tc.ldflags.extend(
                 "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs
             )
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
+        tc.configure_args = [
             "--enable-threads={}".format(yes_no(self.options.threads)),
             "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]
-        autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -189,7 +189,8 @@ class LibIdnConan(ConanFile):
                 ssize = "signed long int"
             replace_in_file(self, os.path.join(self.source_folder, "lib", "stringprep.h"), "ssize_t", ssize)
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make(args=["V=1"])
 
     def package(self):
@@ -213,5 +214,5 @@ class LibIdnConan(ConanFile):
                 self.cpp_info.defines = ["LIBIDN_STATIC"]
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

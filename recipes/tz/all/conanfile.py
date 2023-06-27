@@ -10,15 +10,17 @@ required_conan_version = ">=1.53.0"
 
 class TzConan(ConanFile):
     name = "tz"
-    license = "Unlicense"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.iana.org/time-zones"
     description = (
         "The Time Zone Database contains data that represent the history of local time for many"
         " representative locations around the globe."
     )
+    license = "Unlicense"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.iana.org/time-zones"
     topics = ("tzdb", "time", "zone", "date")
-    settings = "os", "build_type", "arch", "compiler"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):

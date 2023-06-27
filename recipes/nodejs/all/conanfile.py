@@ -12,16 +12,21 @@ required_conan_version = ">=1.59.0"
 class NodejsConan(ConanFile):
     name = "nodejs"
     description = "nodejs binaries for use in recipes"
-    topics = ("node", "javascript", "runtime")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://nodejs.org"
-    license = "MIT"
-    settings = "os", "arch", "compiler"
-    no_copy_source = True
+    topics = ("node", "javascript", "runtime", "pre-built")
 
-    @property
-    def _source_subfolder(self):
-        return os.path.join(self.source_folder, "source_subfolder")
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
 
     @property
     def _nodejs_arch(self):
@@ -85,6 +90,9 @@ class NodejsConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
         bin_dir = os.path.join(self.package_folder, "bin")
         self.output.info("Appending PATH environment variable: {}".format(bin_dir))
         self.env_info.PATH.append(bin_dir)

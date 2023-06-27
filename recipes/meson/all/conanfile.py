@@ -11,13 +11,14 @@ required_conan_version = ">=1.52.0"
 
 class MesonConan(ConanFile):
     name = "meson"
-    package_type = "application"
     description = "Meson is a project to create the best possible next-generation build system"
-    topics = ("mesonbuild", "build-system")
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mesonbuild/meson"
-    license = "Apache-2.0"
-    no_copy_source = True
+    topics = ("mesonbuild", "build-system", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -73,6 +74,8 @@ class MesonConan(ConanFile):
 
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         if Version(conan_version).major < 2:
             self.env_info.PATH.append(meson_root)

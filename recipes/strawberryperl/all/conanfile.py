@@ -11,9 +11,11 @@ class StrawberryPerlConan(ConanFile):
     name = "strawberryperl"
     description = "Strawberry Perl for Windows."
     license = ("Artistic-1.0", "GPL-1.0")
-    homepage = "http://strawberryperl.com"
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("perl", "interpreter", "windows")
+    homepage = "http://strawberryperl.com"
+    topics = ("perl", "interpreter", "windows", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -65,6 +67,8 @@ class StrawberryPerlConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

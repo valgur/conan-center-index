@@ -79,21 +79,27 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class SjsonCppConan(ConanFile):
     name = "sjson-cpp"
     description = "An Simplified JSON (SJSON) C++ reader and writer"
-    topics = ("json", "sjson", "simplified")
     license = "MIT"
-    homepage = "https://github.com/nfrechette/sjson-cpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/nfrechette/sjson-cpp"
+    topics = ("json", "sjson", "simplified", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
 
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -110,3 +116,7 @@ class SjsonCppConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "includes"),
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -80,7 +80,7 @@ from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibIdn(ConanFile):
@@ -89,10 +89,13 @@ class LibIdn(ConanFile):
         "GNU Libidn is a fully documented implementation of the Stringprep, Punycode and IDNA 2003"
         " specifications."
     )
-    homepage = "https://www.gnu.org/software/libidn/"
-    topics = ("libidn", "encode", "decode", "internationalized", "domain", "name")
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gnu.org/software/libidn/"
+    topics = ("libidn", "encode", "decode", "internationalized", "domain", "name")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -101,9 +104,10 @@ class LibIdn(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    settings = "os", "arch", "compiler", "build_type"
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -118,6 +122,9 @@ class LibIdn(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("libiconv/1.16")
 
@@ -127,10 +134,6 @@ class LibIdn(ConanFile):
                 "Shared libraries are not supported on Windows due to libtool limitation"
             )
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
@@ -139,6 +142,10 @@ class LibIdn(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @contextmanager
     def _build_context(self):
@@ -156,28 +163,22 @@ class LibIdn(ConanFile):
             yield
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+        tc = AutotoolsToolchain(self)
         if not self.options.shared:
-            self._autotools.defines.append("IDN2_STATIC")
+            tc.defines.append("IDN2_STATIC")
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
-                self._autotools.flags.append("-FS")
-            self._autotools.link_flags.extend(
+                tc.cxxflags.append("-FS")
+            tc.ldflags.extend(
                 "-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.libdirs
             )
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
+        tc.configure_args = [
             "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -205,5 +206,5 @@ class LibIdn(ConanFile):
                 self.cpp_info.defines = ["IDN2_STATIC"]
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

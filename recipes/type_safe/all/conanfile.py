@@ -79,22 +79,34 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.52.0"
+
 
 class TypeSafe(ConanFile):
     name = "type_safe"
     description = "Zero overhead utilities for preventing bugs at compile time"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://foonathan.net/type_safe"
-    license = "MIT"
-    topics = ("c++", "strong typing", "vocabulary-types")
+    topics = ("c++", "strong typing", "vocabulary-types", "header-only")
 
-    settings = "compiler"
-
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    _source_subfolder = "source_subfolder"
+    no_copy_source = True
+
+    def configure(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, "11")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         self.requires("debug_assert/1.3.3")
+
+    def package_id(self):
+        self.info.clear()
 
     @property
     def _repo_folder(self):
@@ -105,10 +117,6 @@ class TypeSafe(ConanFile):
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self.source_folder)
 
-    def configure(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
-
     def package(self):
         copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
         copy(
@@ -118,5 +126,6 @@ class TypeSafe(ConanFile):
             dst=os.path.join(self.package_folder, "include/"),
         )
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

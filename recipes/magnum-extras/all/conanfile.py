@@ -230,5 +230,5 @@ class MagnumExtrasConan(ConanFile):
 
         if self.options.player or self.options.ui_gallery:
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment variable: %s" % bin_path)
+            self.output.info(f"Appending PATH environment variable: {bin_path}")
             self.env_info.path.append(bin_path)

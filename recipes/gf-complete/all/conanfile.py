@@ -80,17 +80,18 @@ from conan.tools.system import package_manager
 import contextlib
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class GfCompleteConan(ConanFile):
     name = "gf-complete"
     description = "A library for Galois Field arithmetic"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ceph/gf-complete"
-    license = "BSD-3-Clause"
     topics = ("galois field", "math", "algorithms")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -106,8 +107,6 @@ class GfCompleteConan(ConanFile):
         "sse": "auto",
         "avx": "auto",
     }
-
-    _autotools = None
 
     @property
     def _settings_build(self):
@@ -130,6 +129,9 @@ class GfCompleteConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if is_msvc(self):
@@ -182,44 +184,35 @@ class GfCompleteConan(ConanFile):
         else:
             yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            self._autotools.flags.append("-FS")
+            tc.cxxflags.append("-FS")
         elif "x86" in self.settings.arch:
-            self._autotools.flags.append("-mstackrealign")
+            tc.cxxflags.append("-mstackrealign")
 
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
+        tc.configure_args = [
         ]
 
         if "arm" in self.settings.arch:
             if self.options.neon != "auto":
-                conf_args.append("--enable-neon={}".format(yes_no(self.options.neon)))
+                tc.configure_args.append("--enable-neon={}".format(yes_no(self.options.neon)))
 
         if self.settings.arch in ["x86", "x86_64"]:
             if self.options.sse != "auto":
-                conf_args.append("--enable-sse={}".format(yes_no(self.options.sse)))
+                tc.configure_args.append("--enable-sse={}".format(yes_no(self.options.sse)))
 
             if self.options.avx != "auto":
-                conf_args.append("--enable-avx={}".format(yes_no(self.options.avx)))
+                tc.configure_args.append("--enable-avx={}".format(yes_no(self.options.avx)))
 
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-
-        return self._autotools
+        tc.generate()
 
     def build(self):
         self._patch_sources()
-        with chdir(self, self.source_folder):
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
         with self._build_context():
             autotools = Autotools(self)
+            autotools.autoreconf()
             autotools.configure()
             autotools.make()
 
@@ -235,5 +228,5 @@ class GfCompleteConan(ConanFile):
 
         if not is_msvc(self):
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment variable: {}".format(bin_path))
+            self.output.info(f"Appending PATH environment variable: {bin_path}")
             self.env_info.PATH.append(bin_path)

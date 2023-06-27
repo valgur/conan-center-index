@@ -1,3 +1,15 @@
+# Warnings:
+#   Unexpected method '_is_msvc'
+#   Unexpected method '_is_debug'
+#   Unexpected method '_patch_msvc'
+#   Unexpected method '_build_msvc'
+#   Unexpected method '_configure_autotools'
+#   Unexpected method '_patch_unix'
+#   Unexpected method '_package_msvc'
+#   Unexpected method '_remove'
+#   Unexpected method '_package_unix'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import functools
@@ -80,7 +92,7 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class NetSnmpConan(ConanFile):
@@ -90,10 +102,12 @@ class NetSnmpConan(ConanFile):
         "for monitoring the health and welfare of network equipment "
         "(eg. routers), computer equipment and even devices like UPSs."
     )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.net-snmp.org/"
     topics = "snmp"
-    license = "BSD-3-Clause"
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -106,22 +120,8 @@ class NetSnmpConan(ConanFile):
         "with_ipv6": True,
     }
 
-    def requirements(self):
-        self.requires("openssl/1.1.1m")
-
-    @property
-    def _is_msvc(self):
-        return self.settings.compiler in ("Visual Studio", "msvc")
-
     def export_sources(self):
         export_conandata_patches(self)
-
-    def validate(self):
-        if self.settings.os == "Windows" and not is_msvc(self):
-            raise ConanInvalidConfiguration("net-snmp is setup to build only with MSVC on Windows")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -133,9 +133,22 @@ class NetSnmpConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        pass
+
+    def requirements(self):
+        self.requires("openssl/1.1.1m")
+
+    def validate(self):
+        if self.settings.os == "Windows" and not is_msvc(self):
+            raise ConanInvalidConfiguration("net-snmp is setup to build only with MSVC on Windows")
+
     def build_requirements(self):
         if is_msvc(self):
             self.build_requires("strawberryperl/5.30.0.1")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _is_debug(self):
@@ -173,13 +186,13 @@ class NetSnmpConan(ConanFile):
             with vcvars(self):
                 self.run("nmake /nologo libsnmp", cwd="win32")
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
+    def generate(self):
         disabled_link_type = "static" if self.options.shared else "shared"
         debug_flag = "enable" if self._is_debug else "disable"
         ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
         ssl_path = self.deps_cpp_info["openssl"].rootpath
-        args = [
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = [
             "--with-defaults",
             "--without-rpm",
             "--without-pcre",
@@ -194,10 +207,7 @@ class NetSnmpConan(ConanFile):
             f"--{ipv6_flag}-ipv6",
             f"--with-openssl={ssl_path}",
         ]
-        autotools = AutoToolsBuildEnvironment(self)
-        autotools.libs = []
-        autotools.configure(args=args)
-        return autotools
+        tc.generate()
 
     def _patch_unix(self):
         replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
@@ -221,7 +231,8 @@ class NetSnmpConan(ConanFile):
         else:
             self._patch_unix()
             os.chmod("configure", os.stat("configure").st_mode | stat.S_IEXEC)
-            self._configure_autotools().make(target="snmplib", args=["NOAUTODEPS=1"])
+            autotools = Autotools(self)
+            autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
 
     def _package_msvc(self):
         cfg = "debug" if self._is_debug else "release"
@@ -239,7 +250,8 @@ class NetSnmpConan(ConanFile):
             os.remove(path)
 
     def _package_unix(self):
-        self._configure_autotools().install(args=["NOAUTODEPS=1"])
+        autotools = Autotools(self)
+        autotools.install(args=["NOAUTODEPS=1"])
         remove_files_by_mask(self.package_folder, "README")
         rmdir(self, os.path.join(self.package_folder, "bin"))
         lib_dir = os.path.join(self.package_folder, "lib")

@@ -10,11 +10,14 @@ required_conan_version = ">=1.50.0"
 class TayweeArgsConan(ConanFile):
     name = "taywee-args"
     description = "A simple, small, flexible, single-header C++11 argument parsing library"
-    topics = ("args", "argument-parser", "header-only")
     license = "MIT"
-    homepage = "https://github.com/Taywee/args"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Taywee/args"
+    topics = ("args", "argument-parser", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

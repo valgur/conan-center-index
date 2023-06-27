@@ -79,17 +79,20 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class Sqlpp11Conan(ConanFile):
     name = "sqlpp11"
+    description = "A type safe SQL template library for C++"
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rbock/sqlpp11"
-    description = "A type safe SQL template library for C++"
-    topics = ("sql", "dsl", "embedded", "data-base")
+    topics = ("sql", "dsl", "embedded", "data-base", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -105,8 +108,14 @@ class Sqlpp11Conan(ConanFile):
             "apple-clang": "10",
         }
 
+    def layout(self):
+        pass
+
     def requirements(self):
         self.requires("date/3.0.1")
+
+    def package_id(self):
+        self.info.clear
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -123,9 +132,6 @@ class Sqlpp11Conan(ConanFile):
                 self.output.warn(
                     f"{self.name} requires C++14. Your compiler is unknown. Assuming it supports C++14."
                 )
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

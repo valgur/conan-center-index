@@ -10,9 +10,11 @@ class OpenGLRegistryConan(ConanFile):
     name = "opengl-registry"
     description = "OpenGL, OpenGL ES, and OpenGL ES-SC API and Extension Registry."
     license = "Apache-2.0"
-    topics = "opengl"
-    homepage = "https://github.com/KhronosGroup/OpenGL-Registry"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/OpenGL-Registry"
+    topics = ("opengl", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 

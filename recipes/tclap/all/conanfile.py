@@ -79,15 +79,27 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.52.0"
+
 
 class TclapConan(ConanFile):
     name = "tclap"
-    license = "MIT"
-    homepage = "http://github.com/xguerin/tclap"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Templatized Command Line Argument Parser"
-    topics = ("c++", "commandline parser")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://github.com/xguerin/tclap"
+    topics = ("c++", "commandline parser", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -104,7 +116,7 @@ class TclapConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "tclap"
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
 
-    def package_id(self):
-        self.info.header_only()
+        self.cpp_info.names["pkg_config"] = "tclap"

@@ -82,7 +82,7 @@ import functools
 import os
 import textwrap
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class NCursesConan(ConanFile):
@@ -91,11 +91,13 @@ class NCursesConan(ConanFile):
         "The ncurses (new curses) library is a free software emulation of curses in System V Release 4.0"
         " (SVr4), and more"
     )
-    topics = ("terminal", "screen", "tui")
+    license = "X11"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/ncurses"
-    license = "X11"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("terminal", "screen", "tui")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -120,8 +122,6 @@ class NCursesConan(ConanFile):
         "with_tinfo": "auto",
         "with_pcre2": False,
     }
-
-    generators = "pkg_config"
 
     @property
     def _settings_build(self):
@@ -157,6 +157,9 @@ class NCursesConan(ConanFile):
         if not self.options.with_widec:
             self.options.rm_safe("with_extended_colors")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         if self.options.with_pcre2:
             self.requires("pcre2/10.37")
@@ -166,9 +169,26 @@ class NCursesConan(ConanFile):
             if self.options.get_safe("with_extended_colors", False):
                 self.requires("naive-tsearch/0.1.1")
 
-    def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+    @property
+    def _suffix(self):
+        res = ""
+        if self.options.with_reentrant:
+            res += "t"
+        if self.options.with_widec:
+            res += "w"
+        return res
+
+    @property
+    def _lib_suffix(self):
+        res = self._suffix
+        if self.options.shared:
+            if self.settings.os == "Windows":
+                res += ".dll"
+        return res
+
+    def package_id(self):
+        self.info.options.with_ticlib = self._with_ticlib
+        self.info.options.with_tinfo = self._with_tinfo
 
     def validate(self):
         if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and cross_building(
@@ -189,14 +209,17 @@ class NCursesConan(ConanFile):
                     "ticlib cannot be built separately as a shared library on Windows"
                 )
 
+    def build_requirements(self):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
+    def generate(self):
         autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--with-shared={}".format(yes_no(self.options.shared)),
             "--with-cxx-shared={}".format(yes_no(self.options.shared)),
             "--with-normal={}".format(yes_no(not self.options.shared)),
@@ -223,7 +246,7 @@ class NCursesConan(ConanFile):
         build = None
         host = None
         if self.settings.os == "Windows":
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "--disable-macros",
                     "--disable-termcap",
@@ -235,7 +258,7 @@ class NCursesConan(ConanFile):
             )
         if is_msvc(self):
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
-            conf_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
+            tc.configure_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
             autotools.cxx_flags.append("-EHsc")
             if Version(self.settings.compiler.version) >= 12:
                 autotools.flags.append("-FS")
@@ -243,12 +266,14 @@ class NCursesConan(ConanFile):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
             autotools.libs.extend(["mingwex", "ssp"])
         if build:
-            conf_args.append(f"ac_cv_build={build}")
+            tc.configure_args.append(f"ac_cv_build={build}")
         if host:
-            conf_args.append(f"ac_cv_host={host}")
-            conf_args.append(f"ac_cv_target={host}")
-        autotools.configure(args=conf_args, configure_dir=self.source_folder, host=host, build=build)
-        return autotools
+            tc.configure_args.append(f"ac_cv_host={host}")
+            tc.configure_args.append(f"ac_cv_target={host}")
+        tc.generate()
+
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -321,27 +346,6 @@ class NCursesConan(ConanFile):
         )
 
     @property
-    def _suffix(self):
-        res = ""
-        if self.options.with_reentrant:
-            res += "t"
-        if self.options.with_widec:
-            res += "w"
-        return res
-
-    @property
-    def _lib_suffix(self):
-        res = self._suffix
-        if self.options.shared:
-            if self.settings.os == "Windows":
-                res += ".dll"
-        return res
-
-    def package_id(self):
-        self.info.options.with_ticlib = self._with_ticlib
-        self.info.options.with_tinfo = self._with_tinfo
-
-    @property
     def _module_subfolder(self):
         return os.path.join("lib", "cmake")
 
@@ -409,7 +413,7 @@ class NCursesConan(ConanFile):
 
         if self.options.with_progs:
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment variable: {}".format(bin_path))
+            self.output.info(f"Appending PATH environment variable: {bin_path}")
             self.env_info.PATH.append(bin_path)
 
         terminfo = os.path.join(self.package_folder, "res", "terminfo")

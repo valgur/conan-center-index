@@ -36,6 +36,8 @@ class GoogleCloudCppConan(ConanFile):
     name = "google-cloud-cpp"
     description = "C++ Client Libraries for Google Cloud Services"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/googleapis/google-cloud-cpp"
     topics = (
         "google",
         "cloud",
@@ -45,8 +47,7 @@ class GoogleCloudCppConan(ConanFile):
         "google-cloud-spanner",
         "google-cloud-bigtable",
     )
-    homepage = "https://github.com/googleapis/google-cloud-cpp"
-    url = "https://github.com/conan-io/conan-center-index"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -93,6 +94,19 @@ class GoogleCloudCppConan(ConanFile):
             self.options["protobuf"].shared = True
             self.options["grpc"].shared = True
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("protobuf/3.21.9", transitive_headers=True)
+        self.requires("grpc/1.50.1", transitive_headers=True)
+        self.requires("nlohmann_json/3.10.0")
+        self.requires("crc32c/1.1.1")
+        self.requires("abseil/20220623.0", transitive_headers=True)
+        self.requires("libcurl/7.88.1")
+        self.requires("openssl/[>=1.1 <4]")
+        self.requires("zlib/1.2.13")
+
     def validate(self):
         # As-of 2022-03, google-cloud-cpp only supports "Visual Studio >= 2019",
         # and Visual Studio < 2019 is out of mainline support.
@@ -133,25 +147,12 @@ class GoogleCloudCppConan(ConanFile):
                 " Please, use `protobuf/*:shared=True`, and `grpc/*:shared=True`."
             )
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def requirements(self):
-        self.requires("protobuf/3.21.9", transitive_headers=True)
-        self.requires("grpc/1.50.1", transitive_headers=True)
-        self.requires("nlohmann_json/3.10.0")
-        self.requires("crc32c/1.1.1")
-        self.requires("abseil/20220623.0", transitive_headers=True)
-        self.requires("libcurl/7.88.1")
-        self.requires("openssl/[>=1.1 <4]")
-        self.requires("zlib/1.2.13")
-
     def build_requirements(self):
         # For the grpc-cpp-plugin executable
         self.tool_requires("grpc/1.50.1")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

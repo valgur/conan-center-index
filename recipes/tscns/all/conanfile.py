@@ -16,7 +16,11 @@ class TscnsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/MengRao/tscns/"
     topics = ("timestamp", "x86_64", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

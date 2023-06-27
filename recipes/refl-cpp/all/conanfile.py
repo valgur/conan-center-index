@@ -19,7 +19,11 @@ class ReflCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/veselink1/refl-cpp"
     topics = ("header", "header-only", "reflection", "modern", "metaprogramming")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

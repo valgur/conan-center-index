@@ -78,14 +78,11 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class PlatformInterfacesConan(ConanFile):
     name = "platform.hashing"
-    license = "LGPL-3.0-only"
-    homepage = "https://github.com/linksplatform/Hashing"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
         "platform.hashing is one of the libraries of the LinksPlatform modular framework, "
         "which contains std::hash specializations for:\n"
@@ -93,9 +90,18 @@ class PlatformInterfacesConan(ConanFile):
         " - types constrained by std::ranges::range\n"
         " - std::any"
     )
-    topics = ("linksplatform", "cpp20", "hashing", "any", "ranges", "native")
-    settings = "compiler", "arch"
+    license = "LGPL-3.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/linksplatform/Hashing"
+    topics = ("linksplatform", "cpp20", "hashing", "any", "ranges", "native", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 20
 
     @property
     def _internal_cpp_subfolder(self):
@@ -110,41 +116,31 @@ class PlatformInterfacesConan(ConanFile):
             "apple-clang": "14",
         }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 20
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
 
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "{}/{} requires c++{}, which is not supported by {} {}.".format(
-                    self.name,
-                    self.version,
-                    self._minimum_cpp_standard,
-                    self.settings.compiler,
-                    self.settings.compiler.version,
-                )
+                f"{self.name}/{self.version} requires c++{self._minimum_cpp_standard}, which is not supported"
+                f" by {self.settings.compiler} {self.settings.compiler.version}."
             )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
 
         if self.settings.arch in ("x86",):
-            raise ConanInvalidConfiguration(
-                "{} does not support arch={}".format(self.name, self.settings.arch)
-            )
-
-    def package_id(self):
-        self.info.header_only()
+            raise ConanInvalidConfiguration(f"{self.name} does not support arch={self.settings.arch}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

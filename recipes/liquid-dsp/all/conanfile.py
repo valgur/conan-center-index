@@ -80,27 +80,33 @@ from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LiquidDspConan(ConanFile):
     name = "liquid-dsp"
     description = "Digital signal processing library for software-defined radios (and more)"
-    topics = ("dsp", "sdr", "liquid-dsp")
+    license = ("MIT",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jgaeddert/liquid-dsp"
-    license = ("MIT",)
-    settings = "os", "arch", "build_type", "compiler"
+    topics = ("dsp", "sdr", "liquid-dsp")
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
         "simdoverride": [True, False],
     }
     default_options = {
         "shared": False,
+        "fPIC": True,
         "simdoverride": False,
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     @property
     def _libname(self):
@@ -130,13 +136,20 @@ class LiquidDspConan(ConanFile):
         export_conandata_patches(self)
         copy(self, "generate_link_library.bat", src=self.recipe_folder, dst=self.export_sources_folder)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
+    def layout(self):
+        pass
+
+    def validate(self):
+        if hasattr(self, "settings_build") and cross_building(self):
+            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
@@ -145,12 +158,12 @@ class LiquidDspConan(ConanFile):
             self.build_requires("mingw-w64/8.1")
             self.build_requires("automake/1.16.4")
 
-    def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         if self.settings.os == "Windows":

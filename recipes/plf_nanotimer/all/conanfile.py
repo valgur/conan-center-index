@@ -10,17 +10,20 @@ class PlfnanotimerConan(ConanFile):
     name = "plf_nanotimer"
     description = "A simple C++ 03/11/etc timer class for ~microsecond-precision cross-platform benchmarking."
     license = "Zlib"
-    topics = ("timer", "benchmark")
-    homepage = "https://plflib.org/nanotimer.htm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://plflib.org/nanotimer.htm"
+    topics = ("timer", "benchmark", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -79,7 +79,7 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class MqttCPPConan(ConanFile):
@@ -88,15 +88,12 @@ class MqttCPPConan(ConanFile):
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/redboltz/mqtt_cpp"
-    topics = ("mqtt", "boost", "asio")
+    topics = ("mqtt", "boost", "asio", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def requirements(self):
-        self.requires("boost/1.79.0")
-
-    def package_id(self):
-        self.info.header_only()
+    no_copy_source = True
 
     @property
     def _compilers_minimum_version(self):
@@ -106,6 +103,15 @@ class MqttCPPConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        pass
+
+    def requirements(self):
+        self.requires("boost/1.79.0")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -140,6 +146,9 @@ class MqttCPPConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "mqtt_cpp")
         self.cpp_info.set_property("cmake_target_name", "mqtt_cpp::mqtt_cpp")
 

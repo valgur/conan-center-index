@@ -10,10 +10,14 @@ class PngppConan(ConanFile):
     name = "pngpp"
     description = "A C++ wrapper for libpng library."
     license = "BSD-3-Clause"
-    topics = ("png++", "png")
-    homepage = "https://www.nongnu.org/pngpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.nongnu.org/pngpp"
+    topics = ("png++", "png", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

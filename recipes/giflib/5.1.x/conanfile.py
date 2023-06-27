@@ -218,8 +218,6 @@ class GiflibConan(ConanFile):
         env_build = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         yes_no = lambda v: "yes" if v else "no"
         args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
         with chdir(self, self.source_folder):
             if is_apple_os(self.settings.os):

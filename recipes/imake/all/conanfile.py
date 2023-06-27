@@ -87,7 +87,7 @@ class ImakeConan(ConanFile):
                 tc.extra_cxxflags.append("-FS")
 
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--enable-ccmakedep={}".format(yes_no(self.options.ccmakedep)),
             "--enable-cleanlinks={}".format(yes_no(self.options.cleanlinks)),
             "--enable-makeg={}".format(yes_no(self.options.makeg)),
@@ -98,7 +98,7 @@ class ImakeConan(ConanFile):
             "--enable-xmkmf={}".format(yes_no(self.options.xmkmf)),
         ]
         if "CPP" in os.environ:
-            conf_args.extend(["--with-script-preproc-cmd={}".format(os.environ["CPP"])])
+            tc.configure_args.extend(["--with-script-preproc-cmd={}".format(os.environ["CPP"])])
 
         env = tc.environment()
         if is_msvc(self):
@@ -136,5 +136,5 @@ class ImakeConan(ConanFile):
         self.cpp_info.resdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

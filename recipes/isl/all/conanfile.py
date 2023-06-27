@@ -80,7 +80,7 @@ from conan.tools.system import package_manager
 from contextlib import contextmanager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class IslConan(ConanFile):
@@ -89,19 +89,27 @@ class IslConan(ConanFile):
         "isl is a library for manipulating sets and relations of integer points bounded by linear"
         " constraints."
     )
-    topics = ("integer", "set", "library")
     license = "MIT"
-    homepage = "https://libisl.sourceforge.io"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://libisl.sourceforge.io"
+    topics = ("integer", "set", "library")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_int": ["gmp", "imath", "imath-32"]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_int": ["gmp", "imath", "imath-32"],
+    }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_int": "gmp",
     }
 
-    _autotools = None
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -112,6 +120,13 @@ class IslConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_int == "gmp":
+            self.requires("gmp/6.2.1")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -134,14 +149,6 @@ class IslConan(ConanFile):
                 "isl fails to link with this version of visual studio and MDd runtime"
             )
 
-    def requirements(self):
-        if self.options.with_int == "gmp":
-            self.requires("gmp/6.2.1")
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
@@ -150,6 +157,10 @@ class IslConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @contextmanager
     def _build_context(self):
@@ -174,19 +185,14 @@ class IslConan(ConanFile):
             yield
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--with-int={}".format(self.options.with_int),
             "--enable-portable-binary",
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
         ]
         if self.options.with_int == "gmp":
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "--with-gmp=system",
                     "--with-gmp-prefix={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
@@ -194,11 +200,10 @@ class IslConan(ConanFile):
             )
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= 15:
-                self._autotools.flags.append("-Zf")
+                tc.cxxflags.append("-Zf")
             if Version(self.settings.compiler.version) >= 12:
-                self._autotools.flags.append("-FS")
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return self._autotools
+                tc.cxxflags.append("-FS")
+        tc.generate()
 
     def build(self):
         with self._build_context():

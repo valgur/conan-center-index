@@ -323,5 +323,5 @@ class IceoryxConan(ConanFile):
             _register_components(self._iceoryx_components["1.0.X"])
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

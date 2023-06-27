@@ -81,7 +81,7 @@ from conan.errors import ConanInvalidConfiguration
 import contextlib
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class MpirConan(ConanFile):
@@ -89,13 +89,12 @@ class MpirConan(ConanFile):
     description = (
         "MPIR is a highly optimised library for bignum arithmeticforked from the GMP bignum library."
     )
-    topics = ("multiprecision", "math", "mathematics")
+    license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mpir.org/"
-    license = "LGPL-3.0-or-later"
+    topics = ("multiprecision", "math", "mathematics")
 
-    provides = []
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -109,8 +108,7 @@ class MpirConan(ConanFile):
         "enable_cxx": True,
         "enable_gmpcompat": True,
     }
-
-    _autotools = None
+    provides = []
 
     @property
     def _settings_build(self):
@@ -131,6 +129,9 @@ class MpirConan(ConanFile):
         if self.options.enable_gmpcompat:
             self.provides.append("gmp")
 
+    def layout(self):
+        pass
+
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross-building doesn't work (yet)")
@@ -150,6 +151,10 @@ class MpirConan(ConanFile):
             strip_root=True,
             destination=self.source_folder,
         )
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @property
     def _platforms(self):
@@ -228,9 +233,8 @@ class MpirConan(ConanFile):
             args.append("--enable-gmpcompat" if self.options.enable_gmpcompat else "--disable-gmpcompat")
 
             # compiler checks are written for C89 but compilers that default to C99 treat implicit functions as error
-            self._autotools.flags.append("-Wno-implicit-function-declaration")
-            self._autotools.configure(args=args)
-        return self._autotools
+            tc.cxxflags.append("-Wno-implicit-function-declaration")
+            tc.generate()
 
     def _patch_new_msvc_version(self, ver, toolset):
         new_dir = os.path.join(self.source_folder, f"build.vc{ver}")
@@ -298,7 +302,8 @@ class MpirConan(ConanFile):
             with chdir(self, self.source_folder), self._build_context():
                 # relocatable shared lib on macOS
                 replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.configure()
                 autotools.make()
 
     def package(self):
@@ -335,7 +340,7 @@ class MpirConan(ConanFile):
             )
         else:
             with chdir(self, self.source_folder), self._build_context():
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
             rmdir(self, os.path.join(self.package_folder, "share"))
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))

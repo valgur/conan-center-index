@@ -81,7 +81,7 @@ import contextlib
 import os
 import textwrap
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LzipConan(ConanFile):
@@ -89,13 +89,21 @@ class LzipConan(ConanFile):
     description = (
         "Lzip is a lossless data compressor with a user interface similar to the one of gzip or bzip2"
     )
-    topics = ("compressor", "lzma")
     license = "GPL-v2-or-later"
-    homepage = "https://www.nongnu.org/lzip/"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+    homepage = "https://www.nongnu.org/lzip/"
+    topics = ("compressor", "lzma")
 
-    _autotools = None
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     @property
     def _settings_build(self):
@@ -104,16 +112,27 @@ class LzipConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
-    def package_id(self):
-        del self.info.settings.compiler
+    def build_requirements(self):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
 
     def _detect_compilers(self):
         rmdir(self, "detectdir")
@@ -150,13 +169,10 @@ class LzipConan(ConanFile):
         with environment_append(self, env):
             yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        conf_args = []
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return self._autotools
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args = []
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -168,7 +184,8 @@ class LzipConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             with environment_append(
                 self,
                 {
@@ -181,5 +198,5 @@ class LzipConan(ConanFile):
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

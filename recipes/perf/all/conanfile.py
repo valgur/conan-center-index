@@ -79,20 +79,29 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class Perf(ConanFile):
     name = "perf"
     description = "Linux profiling with performance counters"
-    topics = ("linux", "profiling")
+    license = "GPL-2.0 WITH Linux-syscall-note"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://perf.wiki.kernel.org/index.php"
-    license = "GPL-2.0 WITH Linux-syscall-note"
-    settings = "os", "compiler", "build_type", "arch"
+    topics = ("linux", "profiling", "pre-built")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -105,13 +114,16 @@ class Perf(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.make_args = ["NO_LIBPYTHON=1"]
+        tc.generate()
+
     def build(self):
         apply_conandata_patches(self)
-        autotools = AutoToolsBuildEnvironment(self)
+        autotools = Autotools(self)
         with chdir(self, os.path.join(self.build_folder, self.source_folder, "tools", "perf")):
-            vars = autotools.vars
-            vars["NO_LIBPYTHON"] = "1"
-            autotools.make(vars=vars)
+            autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -125,6 +137,10 @@ class Perf(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: %s" % bin_path)
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

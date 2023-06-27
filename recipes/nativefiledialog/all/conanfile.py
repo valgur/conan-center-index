@@ -78,16 +78,41 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.53.0"
+
 
 class NativefiledialogConan(ConanFile):
     name = "nativefiledialog"
+    description = "A tiny, neat C library that portably invokes native file open and save dialogs."
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mlabbe/nativefiledialog"
-    description = "A tiny, neat C library that portably invokes native file open and save dialogs."
     topics = ("dialog", "gui")
-    settings = "os", "compiler", "build_type", "arch"
-    generators = ("pkg_config",)
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+        if self.settings.arch not in ["x86", "x86_64"]:
+            raise ConanInvalidConfiguration(f"architecture {self.settings.arch} is not supported")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     @property
     def _source_subfolder(self):
@@ -100,17 +125,15 @@ class NativefiledialogConan(ConanFile):
     def build_requirements(self):
         self.build_requires("premake/5.0.0-alpha15")
 
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
-        if self.settings.arch not in ["x86", "x86_64"]:
-            raise ConanInvalidConfiguration("architecture %s is not supported" % self.settings.arch)
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = self.name + "-release_" + self.version
         os.rename(extracted_dir, self.source_folder)
+
+    def generate(self):
+        # TODO: fill in generate()
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
         if is_msvc(self):
@@ -130,7 +153,7 @@ class NativefiledialogConan(ConanFile):
         os.makedirs(subdir)
         with chdir(self, subdir):
             os.rename(os.path.join("..", "premake5.lua"), "premake5.lua")
-            self.run("premake5 %s" % generator)
+            self.run(f"premake5 {generator}")
 
             if is_msvc(self):
                 msbuild = MSBuild(self)
@@ -146,7 +169,7 @@ class NativefiledialogConan(ConanFile):
         if is_msvc(self):
             copy(
                 self,
-                "*%s.lib" % libname,
+                f"*{libname}.lib",
                 dst=os.path.join(self.package_folder, "lib"),
                 src=self.source_folder,
                 keep_path=False,
@@ -154,7 +177,7 @@ class NativefiledialogConan(ConanFile):
         else:
             copy(
                 self,
-                "*%s.a" % libname,
+                f"*{libname}.a",
                 dst=os.path.join(self.package_folder, "lib"),
                 src=self.source_folder,
                 keep_path=False,

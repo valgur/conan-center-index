@@ -10,11 +10,14 @@ required_conan_version = ">=1.50.0"
 class TrompeloeilConan(ConanFile):
     name = "trompeloeil"
     description = "Header only C++14 mocking framework"
-    topics = ("header-only", "mocking")
-    homepage = "https://github.com/rollbear/trompeloeil"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rollbear/trompeloeil"
+    topics = ("header-only", "mocking")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

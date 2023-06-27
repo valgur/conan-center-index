@@ -79,21 +79,30 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class So5extraConan(ConanFile):
     name = "so5extra"
-    license = "BSD-3-Clause"
-    homepage = "https://github.com/Stiffstream/so5extra"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A collection of various SObjectizer's extensions."
-    topics = ("concurrency", "actor-framework", "actors", "agents", "sobjectizer")
+    license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Stiffstream/so5extra"
+    topics = ("concurrency", "actor-framework", "actors", "agents", "sobjectizer", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
 
     def requirements(self):
         self.requires("sobjectizer/5.7.4")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         minimal_cpp_standard = "17"
@@ -108,22 +117,18 @@ class So5extraConan(ConanFile):
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
             self.output.warn(
-                "%s recipe lacks information about the %s compiler standard version support"
-                % (self.name, compiler)
+                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
             )
             self.output.warn(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
             return
 
         version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
+                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

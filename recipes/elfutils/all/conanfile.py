@@ -109,7 +109,7 @@ class ElfutilsConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        args = [
+        tc.configure_args = [
             "--disable-werror",
             "--enable-static={}".format("no" if self.options.shared else "yes"),
             "--enable-deterministic-archives",

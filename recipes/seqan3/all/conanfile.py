@@ -79,20 +79,23 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class Seqan3Conan(ConanFile):
     name = "seqan3"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/seqan/seqan3"
     description = (
         "SeqAn3 is the new version of the popular SeqAn template library for the analysis of biological"
         " sequences."
     )
-    topics = ("cpp20", "algorithms", "data structures", "biological sequences")
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/seqan/seqan3"
+    topics = ("cpp20", "algorithms", "data structures", "biological sequences", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -100,6 +103,9 @@ class Seqan3Conan(ConanFile):
         return {
             "gcc": "10",
         }
+
+    def layout(self):
+        pass
 
     def package_id(self):
         self.info.header_only()

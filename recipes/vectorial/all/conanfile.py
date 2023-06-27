@@ -9,18 +9,21 @@ required_conan_version = ">=1.50.0"
 class VectorialConan(ConanFile):
     name = "vectorial"
     description = "Vector math library with NEON/SSE support"
-    topics = ("math", "vector")
     license = "BSD-2-Clause"
-    homepage = "https://github.com/scoopr/vectorial"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/scoopr/vectorial"
+    topics = ("math", "vector", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

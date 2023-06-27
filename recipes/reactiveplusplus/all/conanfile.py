@@ -16,10 +16,13 @@ class ReactivePlusPlusConan(ConanFile):
         "declarative form."
     )
     license = "BSL-1.0"
-    topics = ("reactivex", "asynchronous", "event", "observable", "values-distributed-in-time")
-    homepage = "https://github.com/victimsnino/ReactivePlusPlus"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/victimsnino/ReactivePlusPlus"
+    topics = ("reactivex", "asynchronous", "event", "observable", "values-distributed-in-time", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

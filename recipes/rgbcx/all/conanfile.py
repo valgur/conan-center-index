@@ -79,14 +79,27 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.52.0"
+
 
 class RgbcxConan(ConanFile):
     name = "rgbcx"
     description = "High-performance scalar BC1-5 encoders."
-    homepage = "https://github.com/richgel999/bc7enc"
+    license = ("MIT", "Unlicense")
     url = "https://github.com/conan-io/conan-center-index"
-    topics = ("BC1", "BC5", "BCx", "encoding")
-    license = "MIT", "Unlicense"
+    homepage = "https://github.com/richgel999/bc7enc"
+    topics = ("BC1", "BC5", "BCx", "encoding", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -106,5 +119,6 @@ class RgbcxConan(ConanFile):
         copy(self, "rgbcx_table4.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

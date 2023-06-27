@@ -9,12 +9,13 @@ required_conan_version = ">=1.52.0"
 
 class NinjaConan(ConanFile):
     name = "ninja"
-    package_type = "application"
     description = "Ninja is a small build system with a focus on speed"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ninja-build/ninja"
     topics = "build"
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -48,6 +49,8 @@ class NinjaConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2
         if Version(conan_version).major < 2:

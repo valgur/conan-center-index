@@ -79,15 +79,20 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.52.0"
+
 
 class PipesConan(ConanFile):
     name = "pipes"
     description = "Pipelines for expressive code on collections in C++"
     license = "MIT"
-    topics = "functional-programming"
-    homepage = "https://github.com/joboccara/pipes"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "compiler"
+    homepage = "https://github.com/joboccara/pipes"
+    topics = ("functional-programming", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -109,27 +114,23 @@ class PipesConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self._minimum_cpp_standard,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
-                    )
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
+    def layout(self):
+        pass
+
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        os.rename("pipes-{}".format(self.version), self.source_folder)
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
@@ -140,3 +141,7 @@ class PipesConan(ConanFile):
             src=os.path.join(self.source_folder, "include"),
             keep_path=True,
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -85,12 +85,14 @@ required_conan_version = ">=1.53.0"
 
 class LibxshmfenceConan(ConanFile):
     name = "libxshmfence"
-    license = "X11"
-    homepage = "https://gitlab.freedesktop.org/xorg/lib/libxshmfence"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "Shared memory 'SyncFence' synchronization primitive"
+    license = "X11"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.freedesktop.org/xorg/lib/libxshmfence"
     topics = ("shared", "memory", "syncfence", "synchronization", "interprocess")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,10 +101,6 @@ class LibxshmfenceConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    generators = "pkg_config"
-
-    _autotools = None
 
     @property
     def _settings_build(self):
@@ -126,6 +124,12 @@ class LibxshmfenceConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("xorg-proto/2022.2")
+
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(
@@ -137,9 +141,6 @@ class LibxshmfenceConan(ConanFile):
         self.build_requires("pkgconf/1.9.3")
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-
-    def requirements(self):
-        self.requires("xorg-proto/2022.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -158,6 +159,8 @@ class LibxshmfenceConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc.generate()
+        tc = PkgConfigDeps(self)
         tc.generate()
 
     def build(self):

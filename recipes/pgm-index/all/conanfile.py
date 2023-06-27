@@ -17,10 +17,21 @@ class PgmIndexConan(ConanFile):
         "predecessor, range searches and updates in arrays"
     )
     license = "Apache-2.0"
-    topics = ("data-structure", "spatial-index", "b-tree", "compression", "database", "machine-learning")
-    homepage = "https://pgm.di.unipi.it"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://pgm.di.unipi.it"
+    topics = (
+        "data-structure",
+        "spatial-index",
+        "b-tree",
+        "compression",
+        "database",
+        "machine-learning",
+        "header-only",
+    )
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

@@ -135,10 +135,6 @@ class TkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def generate(self):
-        # TODO: fill in generate()
-        pass
-
     def _patch_sources(self):
         for build_system in ("unix", "win"):
             config_dir = self._get_configure_folder(build_system)
@@ -240,20 +236,17 @@ class TkConan(ConanFile):
                 cwd=self._get_configure_folder("win"),
             )
 
-    def _configure_autotools(self):
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         tcl_root = self.deps_cpp_info["tcl"].rootpath
-        make_args = ["TCL_GENERIC_DIR={}".format(os.path.join(tcl_root, "include")).replace("\\", "/")]
-        if self._autotools:
-            return self._autotools, make_args
+        tc.make_args = ["TCL_GENERIC_DIR={}".format(os.path.join(tcl_root, "include")).replace("\\", "/")]
 
         tclConfigShFolder = os.path.join(tcl_root, "lib").replace("\\", "/")
 
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--with-tcl={}".format(unix_path(self, tclConfigShFolder)),
             "--enable-threads",
-            "--enable-shared={}".format(yes_no(self.options.shared)),
             "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
             "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
             "--with-x={}".format(yes_no(self.settings.os == "Linux")),
@@ -261,10 +254,8 @@ class TkConan(ConanFile):
         ]
 
         if self.settings.os == "Windows":
-            self._autotools.defines.extend(["UNICODE", "_UNICODE", "_ATL_XP_TARGETING"])
-        self._autotools.libs = []
-        self._autotools.configure(configure_dir=self._get_configure_folder(), args=conf_args)
-        return self._autotools, make_args
+            tc.defines.extend(["UNICODE", "_UNICODE", "_ATL_XP_TARGETING"])
+        tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -272,8 +263,9 @@ class TkConan(ConanFile):
         if is_msvc(self):
             self._build_nmake()
         else:
-            autotools, make_args = self._configure_autotools()
-            autotools.make(args=make_args)
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(
@@ -286,9 +278,9 @@ class TkConan(ConanFile):
             self._build_nmake("install")
         else:
             with chdir(self, self.build_folder):
-                autotools, make_args = self._configure_autotools()
-                autotools.install(args=make_args)
-                autotools.make(target="install-private-headers", args=make_args)
+                autotools = Autotools(self)
+                autotools.install()
+                autotools.make(target="install-private-headers")
                 rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "man"))
         rmdir(self, os.path.join(self.package_folder, "share"))

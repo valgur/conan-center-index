@@ -1,3 +1,12 @@
+# Warnings:
+#   Unexpected method '_cc'
+#   Unexpected method '_lib_path_arg'
+#   Unexpected method '_build_context'
+#   Unexpected method '_static_ext'
+#   Unexpected method '_shared_ext'
+#   Unexpected method '_version_major'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -82,6 +91,8 @@ import glob
 import os
 import re
 
+required_conan_version = ">=1.53.0"
+
 
 class SerfConan(ConanFile):
     name = "serf"
@@ -90,9 +101,11 @@ class SerfConan(ConanFile):
         " Runtime (APR) library."
     )
     license = "Apache-2.0"
-    topics = ("apache", "http", "library")
-    homepage = "https://serf.apache.org/"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://serf.apache.org/"
+    topics = ("apache", "http", "library")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -116,6 +129,9 @@ class SerfConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def layout(self):
+        pass
+
     def requirements(self):
         self.requires("apr-util/1.6.1")
         self.requires("zlib/1.2.12")
@@ -127,6 +143,10 @@ class SerfConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         os.rename(glob.glob("serf-*")[0], self.source_folder)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         apply_conandata_patches(self)

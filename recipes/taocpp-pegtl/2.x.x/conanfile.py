@@ -4,28 +4,31 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class TaoCPPPEGTLConan(ConanFile):
     name = "taocpp-pegtl"
+    description = "Parsing Expression Grammar Template Library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/pegtl"
-    description = "Parsing Expression Grammar Template Library"
     topics = ("peg", "header-only", "cpp", "parsing", "cpp17", "cpp11", "grammar")
-    no_copy_source = True
-    settings = "os", "arch", "compiler", "build_type"
 
-    def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

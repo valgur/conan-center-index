@@ -14,7 +14,10 @@ class WyhashConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wangyi-fudan/wyhash"
     topics = ("bloom-filter", "hash", "random-number-generators", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

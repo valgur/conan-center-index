@@ -10,14 +10,17 @@ required_conan_version = ">=1.50.0"
 
 class SpyConan(ConanFile):
     name = "spy"
-    license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://jfalcou.github.io/spy/"
     description = (
         "C++ 17 for constexpr-proof detection and classification of informations about OS, compiler, etc..."
     )
-    topics = ("c++17", "config", "metaprogramming")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://jfalcou.github.io/spy/"
+    topics = ("c++17", "config", "metaprogramming", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -32,6 +35,9 @@ class SpyConan(ConanFile):
             "clang": "6",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -52,9 +58,6 @@ class SpyConan(ConanFile):
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
                 " support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

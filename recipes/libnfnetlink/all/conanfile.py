@@ -79,17 +79,19 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibnfnetlinkConan(ConanFile):
     name = "libnfnetlink"
+    description = "low-level library for netfilter related kernel/userspace communication"
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnfnetlink/index.html"
-    description = "low-level library for netfilter related kernel/userspace communication"
     topics = ("netlink", "netfilter")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -99,29 +101,25 @@ class LibnfnetlinkConan(ConanFile):
         "fPIC": True,
     }
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def validate(self):
-        if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libnfnetlink is only supported on Linux")
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
-        autotools = AutoToolsBuildEnvironment(self)
-        conf_args = []
-        if self.options.shared:
-            conf_args.extend(["--enable-shared", "--disable-static"])
-        else:
-            conf_args.extend(["--disable-shared", "--enable-static"])
-        autotools.configure(configure_dir=self.source_folder, args=conf_args)
-        return autotools
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.os != "Linux":
+            raise ConanInvalidConfiguration("libnfnetlink is only supported on Linux")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.generate()
 
     def build(self):
         autotools = Autotools(self)

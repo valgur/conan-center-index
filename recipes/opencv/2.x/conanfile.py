@@ -19,7 +19,6 @@ import textwrap
 
 required_conan_version = ">=1.54.0"
 
-
 OPENCV_MAIN_MODULES_OPTIONS = (
     "calib3d",
     "contrib",
@@ -44,12 +43,13 @@ OPENCV_EXTRA_MODULES_OPTIONS = ("androidcamera", "nonfree", "ocl", "viz")
 
 class OpenCVConan(ConanFile):
     name = "opencv"
-    license = "BSD-3-Clause"
-    homepage = "https://opencv.org"
     description = "OpenCV (Open Source Computer Vision Library)"
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://opencv.org"
     topics = ("computer-vision", "deep-learning", "image-processing")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

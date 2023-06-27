@@ -12,11 +12,14 @@ class XorstrConan(ConanFile):
     name = "xorstr"
     description = "A heavily vectorized c++17 compile time string encryption."
     license = "Apache-2.0"
-    topics = ("encryption", "string", "vectorized")
-    homepage = "https://github.com/JustasMasiulis/xorstr"
     url = "https://github.com/conan-io/conan-center-index"
-    no_copy_source = True
+    homepage = "https://github.com/JustasMasiulis/xorstr"
+    topics = ("encryption", "string", "vectorized", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _min_cppstd(self):

@@ -78,17 +78,27 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class STTreeConan(ConanFile):
     name = "st_tree"
+    description = "A fast and flexible c++ template class for tree data structures"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "A fast and flexible c++ template class for tree data structures"
-    topics = ("stl", "container", "data-structures")
     homepage = "https://github.com/erikerlandson/st_tree"
+    topics = ("stl", "container", "data-structures", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -110,9 +120,9 @@ class STTreeConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib"))
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.filenames["cmake_find_package"] = "st_tree"
         self.cpp_info.filenames["cmake_find_package_multi"] = "st_tree"

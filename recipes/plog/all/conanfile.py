@@ -13,6 +13,10 @@ class PlogConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/SergiusTheBest/plog"
     topics = ("logging", "header-only", "portable")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):
@@ -36,5 +40,8 @@ class PlogConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []

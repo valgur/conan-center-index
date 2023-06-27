@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class WaylandProtocolsConan(ConanFile):
@@ -16,11 +16,18 @@ class WaylandProtocolsConan(ConanFile):
         "Wayland is a project to define a protocol for a compositor to talk to its clients as well as a"
         " library implementation of the protocol"
     )
-    topics = ("wayland",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/wayland/wayland-protocols"
-    license = "MIT"
+    topics = ("wayland", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -31,9 +38,6 @@ class WaylandProtocolsConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/1.1.1")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

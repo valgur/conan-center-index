@@ -1,3 +1,8 @@
+# Warnings:
+#   Unexpected method '_compiler_alias'
+#   Missing required method 'generate'
+#   Missing required method 'build'
+
 from conan import ConanFile
 from conan.tools.files import get, copy, download
 from conan.tools.scm import Version
@@ -5,20 +10,22 @@ from conan.errors import ConanInvalidConfiguration
 
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class WasmedgeConan(ConanFile):
     name = "wasmedge"
     description = (
-        "WasmEdge is a lightweight, high-performance, and extensible WebAssembly runtime"
-        "for cloud native, edge, and decentralized applications."
+        "WasmEdge is a lightweight, high-performance, and extensible WebAssembly runtime for cloud native,"
+        " edge, and decentralized applications. "
         "It powers serverless apps, embedded functions, microservices, smart contracts, and IoT devices."
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/WasmEdge/WasmEdge/"
     topics = ("webassembly", "wasm", "wasi", "emscripten")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -32,6 +39,13 @@ class WasmedgeConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        pass
+
+    def package_id(self):
+        del self.info.settings.compiler.version
+        self.info.settings.compiler = self._compiler_alias
+
     def validate(self):
         try:
             self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
@@ -41,10 +55,6 @@ class WasmedgeConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of version/os/arch/compiler are not available"
             )
-
-    def package_id(self):
-        del self.info.settings.compiler.version
-        self.info.settings.compiler = self._compiler_alias
 
     def source(self):
         # This is packaging binaries so the download needs to be in build

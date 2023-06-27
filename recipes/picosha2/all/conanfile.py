@@ -15,7 +15,10 @@ class PicoSHA2Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/okdshin/PicoSHA2"
     topics = ("sha256", "hash", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

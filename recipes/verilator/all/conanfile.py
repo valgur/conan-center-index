@@ -87,18 +87,17 @@ required_conan_version = ">=1.47.0"
 
 class VerilatorConan(ConanFile):
     name = "verilator"
-    license = "LGPL-3.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.veripool.org/wiki/verilator"
     description = (
         "Verilator compiles synthesizable Verilog and Synthesis assertions into single- or multithreaded C++"
         " or SystemC code"
     )
-    topics = ("verilog", "hdl", "eda", "simulator", "hardware", "fpga")
+    license = "LGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.veripool.org/wiki/verilator"
+    topics = ("verilog", "hdl", "eda", "simulator", "hardware", "fpga", "pre-built")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-
-    _autotools = None
 
     @property
     def _settings_build(self):
@@ -106,6 +105,33 @@ class VerilatorConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def layout(self):
+        pass
+
+    def requirements(self):
+        if self.settings.os == "Windows":
+            self.requires("strawberryperl/5.30.0.1")
+        if is_msvc(self):
+            self.requires("dirent/1.23.2", private=True)
+
+    def package_id(self):
+        # Verilator is a executable-only package, so the compiler version does not matter
+        del self.info.settings.compiler.version
+
+    def validate(self):
+        if hasattr(self, "settings_build") and cross_building(self):
+            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
+
+        if (
+            Version(self.version) >= "4.200"
+            and self.settings.compiler == "gcc"
+            and Version(self.settings.compiler.version) < "7"
+        ):
+            raise ConanInvalidConfiguration("GCC < version 7 is not supported")
+
+        if self.settings.os == "Windows" and Version(self.version) >= "4.200":
+            raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
 
     @property
     def _needs_old_bison(self):
@@ -134,28 +160,8 @@ class VerilatorConan(ConanFile):
         if Version(self.version) >= "4.224":
             self.build_requires("autoconf/2.71")
 
-    def requirements(self):
-        if self.settings.os == "Windows":
-            self.requires("strawberryperl/5.30.0.1")
-        if is_msvc(self):
-            self.requires("dirent/1.23.2", private=True)
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
-
-        if (
-            Version(self.version) >= "4.200"
-            and self.settings.compiler == "gcc"
-            and Version(self.settings.compiler.version) < "7"
-        ):
-            raise ConanInvalidConfiguration("GCC < version 7 is not supported")
-
-        if self.settings.os == "Windows" and Version(self.version) >= "4.200":
-            raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
 
     @contextmanager
     def _build_context(self):
@@ -171,32 +177,20 @@ class VerilatorConan(ConanFile):
         else:
             yield
 
-    def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
-        self._autotools.library_paths = []
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         if self.settings.get_safe("compiler.libcxx") == "libc++":
-            self._autotools.libs.append("c++")
+            tc.libs.append("c++")
         if is_msvc(self):
-            self._autotools.cxx_flags.append("-EHsc")
-            self._autotools.defines.append("YY_NO_UNISTD_H")
-            self._autotools.flags.append("-FS")
-        conf_args = ["--datarootdir={}/bin/share".format(unix_path(self.package_folder))]
+            tc.cxxflags.append("-EHsc")
+            tc.defines.append("YY_NO_UNISTD_H")
+            tc.cxxflags.append("-FS")
+        tc.configure_args = ["--datarootdir={}/bin/share".format(unix_path(self.package_folder))]
         yacc = get_env(self, "YACC")
         if yacc:
             if yacc.endswith(" -y"):
                 yacc = yacc[:-3]
-        with environment_append(self, {"YACC": yacc}):
-            if Version(self.version) >= "4.224":
-                with chdir(self, self.source_folder):
-                    self.run("autoconf", win_bash=tools.os_info.is_windows, run_environment=True)
-            self._autotools.configure(
-                args=conf_args, configure_dir=os.path.join(self.build_folder, self.source_folder)
-            )
-
-        return self._autotools
+        tc.generate()
 
     @property
     def _make_args(self):
@@ -230,13 +224,15 @@ class VerilatorConan(ConanFile):
     def build(self):
         self._patch_sources()
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.make(args=self._make_args)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             autotools.install(args=self._make_args)
 
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "man"))
@@ -284,21 +280,22 @@ class VerilatorConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "bin", "share", "verilator", "bin"))
 
-    def package_id(self):
-        # Verilator is a executable-only package, so the compiler version does not matter
-        del self.info.settings.compiler.version
-
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
+
         bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
+        self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)
 
         verilator_bin = "verilator_bin_dbg" if self.settings.build_type == "Debug" else "verilator_bin"
-        self.output.info("Setting VERILATOR_BIN environment variable to {}".format(verilator_bin))
+        self.output.info(f"Setting VERILATOR_BIN environment variable to {verilator_bin}")
         self.env_info.VERILATOR_BIN = verilator_bin
 
         verilator_root = os.path.join(self.package_folder)
-        self.output.info("Setting VERILATOR_ROOT environment variable to {}".format(verilator_root))
+        self.output.info(f"Setting VERILATOR_ROOT environment variable to {verilator_root}")
         self.env_info.VERILATOR_ROOT = verilator_root
 
         self.cpp_info.builddirs.append(os.path.join("bin", "share", "verilator"))

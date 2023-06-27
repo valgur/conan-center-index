@@ -156,21 +156,23 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.52.0"
+
 
 class ZugConan(ConanFile):
     name = "zug"
+    description = (
+        "Transducers for C++ — Clojure style higher order push/pull sequence transformations"
+    )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sinusoid.es/zug/"
-    description = (
-        "Transducers for C++ — Clojure style higher order push/pull         sequence transformations"
-    )
-    topics = ("transducer", "algorithm", "signals")
-    settings = ("compiler", "arch", "os", "build_type")
-    no_copy_source = True
+    topics = ("transducer", "algorithm", "signals", "header-only")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     @property
     def _compilers_minimum_version(self):
@@ -180,6 +182,12 @@ class ZugConan(ConanFile):
             "clang": "3.5",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -194,8 +202,8 @@ class ZugConan(ConanFile):
         if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++14")
 
-    def package_id(self):
-        self.info.header_only()
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(
@@ -209,5 +217,8 @@ class ZugConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if is_msvc(self):
             self.cpp_info.cxxflags = ["/Zc:externConstexpr"]

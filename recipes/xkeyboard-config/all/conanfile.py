@@ -8,23 +8,25 @@ required_conan_version = ">=1.50.0"
 
 class XkeyboardConfigConan(ConanFile):
     name = "xkeyboard-config"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "MIT"
-    homepage = "https://www.freedesktop.org/wiki/Software/XKeyboardConfig/"
     description = "The non-arch keyboard configuration database for X Window."
-    settings = (
-        "os",
-        "compiler",
-        "build_type",
-    )  # no arch here, because the xkeyboard-config system package is arch independant
-    topics = ("x11", "xorg", "keyboard")
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.freedesktop.org/wiki/Software/XKeyboardConfig/"
+    topics = ("x11", "xorg", "keyboard", "header-only")
+
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
-
-    def package_id(self):
-        self.info.clear()
 
     def system_requirements(self):
         apt = package_manager.Apt(self)

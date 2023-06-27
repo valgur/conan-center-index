@@ -1,8 +1,9 @@
-from conan import ConanFile
-from conan.tools.files import copy, download, save
 import os
 import stat
+import textwrap
 
+from conan import ConanFile
+from conan.tools.files import copy, download, save
 
 required_conan_version = ">=1.47.0"
 
@@ -16,7 +17,9 @@ class OpenApiGeneratorConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://openapi-generator.tech"
-    topics = ("api", "sdk", "generator", "openapi")
+    topics = ("api", "sdk", "generator", "openapi", "pre-built")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -62,19 +65,19 @@ class OpenApiGeneratorConan(ConanFile):
             save(
                 self,
                 path=os.path.join(self.package_folder, "bin", "openapi-generator.bat"),
-                content="""\
-                         java -classpath %CLASSPATH% org.openapitools.codegen.OpenAPIGenerator %*
-                         """,
+                content=textwrap.dedent("""\
+                     java -classpath %CLASSPATH% org.openapitools.codegen.OpenAPIGenerator %*
+                     """),
             )
         else:
             bin_path = os.path.join(self.package_folder, "bin", "openapi-generator")
             save(
                 self,
                 path=bin_path,
-                content="""\
-                         #!/bin/bash
-                         java -classpath $CLASSPATH org.openapitools.codegen.OpenAPIGenerator $@
-                         """,
+                content=textwrap.dedent("""\
+                     #!/bin/bash
+                     java -classpath $CLASSPATH org.openapitools.codegen.OpenAPIGenerator $@
+                     """),
             )
             st = os.stat(bin_path)
             os.chmod(bin_path, st.st_mode | stat.S_IEXEC)

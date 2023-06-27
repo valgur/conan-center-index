@@ -13,17 +13,20 @@ class PlfstackConan(ConanFile):
         "better performance than standard library containers in a stack context."
     )
     license = "Zlib"
-    topics = ("container", "stack", "header-only")
-    homepage = "https://plflib.org/stack.htm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://plflib.org/stack.htm"
+    topics = ("container", "stack", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

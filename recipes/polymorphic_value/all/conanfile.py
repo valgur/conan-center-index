@@ -7,17 +7,20 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class PolymorphictValueConan(ConanFile):
     name = "polymorphic_value"
-    homepage = "https://github.com/jbcoe/polymorphic_value"
     description = "Production-quality reference implementation of P0201r2: A polymorphic value-type for C++"
-    topics = ("std", "vocabulary-type", "value-semantics")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/jbcoe/polymorphic_value"
+    topics = ("std", "vocabulary-type", "value-semantics", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -32,6 +35,12 @@ class PolymorphictValueConan(ConanFile):
             "clang": "8",
             "apple-clang": "11",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -54,12 +63,6 @@ class PolymorphictValueConan(ConanFile):
                     )
                 )
 
-    def package_id(self):
-        self.info.clear()
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -74,6 +77,9 @@ class PolymorphictValueConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "polymorphic_value")
         self.cpp_info.set_property("cmake_target_name", "polymorphic_value::polymorphic_value")
 

@@ -13,19 +13,23 @@ class PlfcolonyConan(ConanFile):
         "while maintaining pointer/iterator/reference validity to non-erased elements."
     )
     license = "Zlib"
-    topics = ("container", "bucket", "unordered", "header-only")
-    homepage = "https://github.com/mattreecebentley/plf_colony"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mattreecebentley/plf_colony"
+    topics = ("container", "bucket", "unordered", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def package_id(self):
-        self.info.clear()
-
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

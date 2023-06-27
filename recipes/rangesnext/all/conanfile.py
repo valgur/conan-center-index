@@ -79,23 +79,27 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
+required_conan_version = ">=1.52.0"
+
 
 class RangesnextConan(ConanFile):
     name = "rangesnext"
     description = "ranges features for C++23 ported to C++20"
-    topics = ("ranges", "backport", "backport-cpp")
+    license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cor3ntin/rangesnext"
-    license = "BSL-1.0"
-    settings = "compiler"
+    topics = ("ranges", "backport", "backport-cpp", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
-    _compilers_minimum_version = {
-        "gcc": "10",
-        "Visual Studio": "19",
-        "clang": "13",
-    }
-    _source_subfolder = "source_subfolder"
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -119,3 +123,7 @@ class RangesnextConan(ConanFile):
             src=self.source_folder,
         )
         copy(self, pattern="*", dst=os.path.join(self.package_folder, "include"), src=include_folder)
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

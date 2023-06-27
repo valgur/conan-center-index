@@ -84,18 +84,30 @@ required_conan_version = ">=1.47.0"
 
 class MoldConan(ConanFile):
     name = "mold"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/rui314/mold/"
-    license = "AGPL-3.0"
     description = (
         "mold is a faster drop-in replacement for existing Unix linkers. It is several times faster than the"
         " LLVM lld linker"
     )
+    license = "AGPL-3.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/rui314/mold/"
     topics = ("ld", "linkage", "compilation")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    generators = "make"
+    def layout(self):
+        pass
+
+    def requirements(self):
+        self.requires("zlib/1.2.12")
+        self.requires("openssl/1.1.1q")
+        self.requires("xxhash/0.8.1")
+        self.requires("onetbb/2021.3.0")
+        self.requires("mimalloc/2.0.6")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.build_type == "Debug":
@@ -121,6 +133,9 @@ class MoldConan(ConanFile):
             raise ConanInvalidConfiguration("Clang version 12 or higher required")
         if self.settings.compiler == "apple-clang" and "armv8" == self.settings.arch:
             raise ConanInvalidConfiguration(f"{self.name} is still not supported by Mac M1.")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _get_include_path(self, dependency):
         include_path = self.deps_cpp_info[dependency].rootpath
@@ -160,21 +175,16 @@ class MoldConan(ConanFile):
             "MOLD_LDFLAGS += -L{} -lmimalloc".format(self.dependencies["mimalloc"].cpp_info.libdirs[0]),
         )
 
-    def requirements(self):
-        self.requires("zlib/1.2.12")
-        self.requires("openssl/1.1.1q")
-        self.requires("xxhash/0.8.1")
-        self.requires("onetbb/2021.3.0")
-        self.requires("mimalloc/2.0.6")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.make_args = ["SYSTEM_TBB=1", "SYSTEM_MIMALLOC=1"]
+        tc.generate()
 
     def build(self):
         self._patch_sources()
         with chdir(self, self.source_folder):
-            autotools = AutoToolsBuildEnvironment(self)
-            autotools.make(target="mold", args=["SYSTEM_TBB=1", "SYSTEM_MIMALLOC=1"])
+            autotools = Autotools(self)
+            autotools.make(target="mold")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -187,9 +197,6 @@ class MoldConan(ConanFile):
             keep_path=False,
         )
 
-    def package_id(self):
-        del self.info.settings.compiler
-
     def package_info(self):
         bindir = os.path.join(self.package_folder, "bin")
         mold_location = os.path.join(bindir, "bindir")
@@ -199,6 +206,9 @@ class MoldConan(ConanFile):
         self.env_info.LD = mold_location
         self.buildenv_info.prepend_path("MOLD_ROOT", bindir)
         self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
 
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])

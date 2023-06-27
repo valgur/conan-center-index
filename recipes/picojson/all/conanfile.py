@@ -8,12 +8,15 @@ required_conan_version = ">=1.50.0"
 
 class PicoJSONConan(ConanFile):
     name = "picojson"
+    description = "A C++ JSON parser/serializer"
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kazuho/picojson"
-    description = "A C++ JSON parser/serializer"
     topics = ("json", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

@@ -156,7 +156,7 @@ class BisonConan(ConanFile):
         self._patch_sources()
         autotools = Autotools(self)
         autotools.configure()
-        autotools.install()
+        autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

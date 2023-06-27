@@ -10,17 +10,28 @@ class RxcppConan(ConanFile):
     name = "rxcpp"
     description = "C++11 library for composing operations on streams of asynchronous events."
     license = "Apache-2.0"
-    topics = ("rxcpp", "reactivex", "asynchronous", "event", "observable", "values-distributed-in-time")
-    homepage = "https://github.com/ReactiveX/RxCpp"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/ReactiveX/RxCpp"
+    topics = (
+        "rxcpp",
+        "reactivex",
+        "asynchronous",
+        "event",
+        "observable",
+        "values-distributed-in-time",
+        "header-only",
+    )
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -9,13 +9,19 @@ required_conan_version = ">=1.50.0"
 
 class TlOptionalConan(ConanFile):
     name = "tl-optional"
+    description = "C++11/14/17 std::optional with functional-style extensions and reference support"
+    license = "CC0-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tl.tartanllama.xyz"
-    description = "C++11/14/17 std::optional with functional-style extensions and reference support"
-    topics = ("cpp11", "cpp14", "cpp17", "optional")
-    license = "CC0-1.0"
+    topics = ("cpp11", "cpp14", "cpp17", "optional", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -23,9 +29,6 @@ class TlOptionalConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

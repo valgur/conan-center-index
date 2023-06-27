@@ -21,9 +21,9 @@ class MoltenVKConan(ConanFile):
         "on iOS and macOS."
     )
     license = "Apache-2.0"
-    topics = ("khronos", "vulkan", "metal")
-    homepage = "https://github.com/KhronosGroup/MoltenVK"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/MoltenVK"
+    topics = ("khronos", "vulkan", "metal")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -46,7 +46,6 @@ class MoltenVKConan(ConanFile):
     def _dependencies_filename(self):
         return f"dependencies-{self.version}.yml"
 
-    @property
     @functools.lru_cache(1)
     def _dependencies_versions(self):
         dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)

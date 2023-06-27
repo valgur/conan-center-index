@@ -130,10 +130,7 @@ class OpenldapConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         tc.configure_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
             "--with-cyrus_sasl={}".format(yes_no(self.options.with_cyrus_sasl)),
-            "--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True))),
             "--without-fetch",
             "--with-tls=openssl",
             "--enable-auditlog",
@@ -143,7 +140,7 @@ class OpenldapConan(ConanFile):
 
         # Need to link to -pthread instead of -lpthread for gcc 8 shared=True
         # on CI job. Otherwise, linking fails.
-        self._autotools.libs.remove("pthread")
+        tc.libs.remove("pthread")
         self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace("-lpthread", "-pthread")
 
         tc.generate()
@@ -165,7 +162,7 @@ class OpenldapConan(ConanFile):
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")
         self.env_info.PATH.append(bin_path)
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
 
         self.cpp_info.libs = ["ldap", "lber"]
         if self.settings.os in ["Linux", "FreeBSD"]:

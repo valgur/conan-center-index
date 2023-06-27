@@ -81,28 +81,32 @@ from contextlib import contextmanager
 import os
 import textwrap
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class CrashpadConan(ConanFile):
     name = "crashpad"
     description = "Crashpad is a crash-reporting system."
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("crash", "error", "stacktrace", "collecting", "reporting")
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://chromium.googlesource.com/crashpad/crashpad/+/master/README.md"
-    provides = "crashpad", "mini_chromium"
+    topics = ("crash", "error", "stacktrace", "collecting", "reporting")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "http_transport": ["libcurl", "socket", None],
         "with_tls": ["openssl", False],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "http_transport": None,
         "with_tls": "openssl",
     }
+    provides = ("crashpad", "mini_chromium")
 
     def _minimum_compiler_cxx14(self):
         return {"apple-clang": 10, "gcc": 5, "clang": "3.9", "Visual Studio": 14}.get(
@@ -120,9 +124,12 @@ class CrashpadConan(ConanFile):
         elif self.settings.os == "Android":
             self.options.http_transport = "socket"
 
-    def build_requirements(self):
-        self.build_requires("ninja/1.10.2")
-        self.build_requires("gn/cci.20210429")
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         # FIXME: use mini_chromium conan package instead of embedded package (if possible)
@@ -162,6 +169,10 @@ class CrashpadConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 14)
 
+    def build_requirements(self):
+        self.build_requires("ninja/1.10.2")
+        self.build_requires("gn/cci.20210429")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)
         get(
@@ -170,6 +181,10 @@ class CrashpadConan(ConanFile):
             destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"),
             strip_root=True,
         )
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @property
     def _gn_os(self):
@@ -512,5 +527,5 @@ class CrashpadConan(ConanFile):
         ] + extra_handler_req
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

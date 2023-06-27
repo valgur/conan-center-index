@@ -13,20 +13,21 @@ from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.apple import is_apple_os, to_apple_arch
 import os
 
-
 required_conan_version = ">=1.52.0"
 
 
 class PSevenZipConan(ConanFile):
     name = "p7zip"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "p7zip is a quick port of 7z.exe and 7za.exe (command line version of 7zip, see www.7-zip.org) for"
-        " Unix"
+        "p7zip is a quick port of 7z.exe and 7za.exe "
+        "(command line version of 7zip, see www.7-zip.org) for Unix"
     )
     license = ("LGPL-2.1", "Unrar")
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/p7zip/"
     topics = ("7zip", "zip", "compression", "decompression")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):

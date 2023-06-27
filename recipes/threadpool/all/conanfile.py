@@ -9,12 +9,15 @@ required_conan_version = ">=1.50.0"
 
 class ThreadpoolConan(ConanFile):
     name = "threadpool"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/progschj/ThreadPool"
     description = "A simple C++11 Thread Pool implementation."
     license = "Zlib"
-    topics = ("c++11", "thread", "pool")
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/progschj/ThreadPool"
+    topics = ("c++11", "thread", "pool", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

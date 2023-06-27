@@ -81,16 +81,18 @@ import contextlib
 import glob
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class SubunitConan(ConanFile):
     name = "subunit"
     description = "A streaming protocol for test results"
-    topics = ("subunit", "streaming", "protocol", "test", "results")
-    license = "Apache-2.0", "BSD-3-Clause"
-    homepage = "https://launchpad.net/subunit"
+    license = ("Apache-2.0", "BSD-3-Clause")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://launchpad.net/subunit"
+    topics = ("subunit", "streaming", "protocol", "test", "results")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -116,14 +118,11 @@ class SubunitConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("cppunit/1.15.1")
-
-    def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
-        if is_msvc(self):
-            self.build_requires("automake/1.16.3")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -135,8 +134,18 @@ class SubunitConan(ConanFile):
                 "Due to weird make error involving missing config.h file in sysroot"
             )
 
+    def build_requirements(self):
+        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
+        if is_msvc(self):
+            self.build_requires("automake/1.16.3")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -157,17 +166,12 @@ class SubunitConan(ConanFile):
             yield
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        self._autotools.libs = []
+        tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            self._autotools.flags.append("-FS")
-            self._autotools.cxx_flags.append("-EHsc")
+            tc.cxxflags.append("-FS")
+            tc.cxxflags.append("-EHsc")
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
+        tc.configure_args = [
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(
@@ -177,8 +181,7 @@ class SubunitConan(ConanFile):
             ),
             "CPPUNIT_LIBS='{}'".format(" ".join(self.dependencies["cppunit"].cpp_info.libs)),
         ]
-        self._autotools.configure(args=conf_args, configure_dir=self.source_folder)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -190,7 +193,8 @@ class SubunitConan(ConanFile):
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             # Avoid installing i18n + perl things in arch-dependent folders or in a `local` subfolder
             install_args = [
                 "INSTALLARCHLIB={}".format(os.path.join(self.package_folder, "lib").replace("\\", "/")),

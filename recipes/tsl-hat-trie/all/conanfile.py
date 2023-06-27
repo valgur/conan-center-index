@@ -9,13 +9,16 @@ required_conan_version = ">=1.50.0"
 
 class TslHatTrieConan(ConanFile):
     name = "tsl-hat-trie"
-    license = "MIT"
     description = "C++ implementation of a fast and memory efficient HAT-trie."
-    topics = ("string", "trie", "structure", "hash map", "hash set")
-    homepage = "https://github.com/Tessil/hat-trie"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/Tessil/hat-trie"
+    topics = ("string", "trie", "structure", "hash map", "hash set", "header-only")
 
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")

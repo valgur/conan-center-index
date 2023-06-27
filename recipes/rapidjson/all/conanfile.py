@@ -3,21 +3,27 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.52.0"
 
 
 class RapidjsonConan(ConanFile):
     name = "rapidjson"
     description = "A fast JSON parser/generator for C++ with both SAX/DOM style API"
-    topics = ("json", "parser", "generator")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://rapidjson.org"
-    license = "MIT"
+    topics = ("json", "parser", "generator", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):
         basic_layout(self)
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -36,10 +42,10 @@ class RapidjsonConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
         )
 
-    def package_id(self):
-        self.info.clear()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("cmake_file_name", "RapidJSON")
         self.cpp_info.set_property("cmake_target_name", "rapidjson")
 

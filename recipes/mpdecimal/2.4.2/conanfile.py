@@ -284,13 +284,10 @@ class MpdecimalConan(ConanFile):
                 shutil.copy("libmpdec-{}.lib".format(self.version), dist_folder)
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        tc = AutotoolsToolchain(self)
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            self._autotools.link_flags.append("-arch arm64")
-        self._autotools.configure()
-        return self._autotools
+            tc.ldflags.append("-arch arm64")
+        tc.generate()
 
     def build(self):
         self._patch_sources()
@@ -298,7 +295,8 @@ class MpdecimalConan(ConanFile):
             self._build_msvc()
         else:
             with chdir(self, self.source_folder):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.configure()
                 autotools.make()
 
     def package(self):
@@ -321,7 +319,7 @@ class MpdecimalConan(ConanFile):
             copy(self, "*.dll", src=distfolder, dst=os.path.join(self.package_folder, "bin"))
         else:
             with chdir(self, os.path.join(self.build_folder, self.source_folder)):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
             rmdir(self, os.path.join(self.package_folder, "share"))
 

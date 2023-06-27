@@ -27,9 +27,6 @@ class MattiasgustavssonLibsConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
-    @property
-    def _source_subfolder(self):
-        return os.path.join(self.source_folder, "source_subfolder")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

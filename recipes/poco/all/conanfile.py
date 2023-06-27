@@ -20,15 +20,15 @@ required_conan_version = ">=1.54.0"
 
 class PocoConan(ConanFile):
     name = "poco"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://pocoproject.org"
-    topics = ("building", "networking", "server", "mobile", "embedded")
-    license = "BSL-1.0"
     description = (
         "Modern, powerful open source C++ class libraries for building "
         "network- and internet-based applications that run on desktop, server, "
         "mobile and embedded systems."
     )
+    license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://pocoproject.org"
+    topics = ("building", "networking", "server", "mobile", "embedded")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

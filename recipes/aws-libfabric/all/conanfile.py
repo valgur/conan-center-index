@@ -179,9 +179,7 @@ class LibfabricConan(ConanFile):
         pass
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        tc = AutotoolsToolchain(self)
         with chdir(self, self.source_folder):
             self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
 
@@ -191,9 +189,7 @@ class LibfabricConan(ConanFile):
             "shared": "dl",
         }[str(v)]
         yes_no = lambda v: "yes" if v else "no"
-        args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
+        tc.configure_args = [
             "--with-bgq-progress={}".format(self.options.bgq_progress),
             "--with-bgq-mr={}".format(self.options.bgq_mr),
         ]
@@ -205,8 +201,7 @@ class LibfabricConan(ConanFile):
             args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":
             args.append("--enable-debug")
-        self._autotools.configure(args=args, configure_dir=self.source_folder)
-        return self._autotools
+        tc.generate()
 
     def build(self):
         autotools = Autotools(self)

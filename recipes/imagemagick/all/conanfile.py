@@ -378,49 +378,48 @@ class ImageMagicConan(ConanFile):
                     },
                 )
 
-    def _build_configure(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+    def generate(self):
+        if not is_msvc(self):
+            tc = AutotoolsToolchain(self)
 
-        # FIXME: workaround for xorg/system adding system includes https://github.com/conan-io/conan-center-index/issues/6880
-        if "/usr/include/uuid" in self._autotools.include_paths:
-            self._autotools.include_paths.remove("/usr/include/uuid")
+            def yes_no(o):
+                return "yes" if o else "no"
 
-        def yes_no(o):
-            return "yes" if o else "no"
+            tc.configure_args = [
+                "--disable-openmp",
+                "--disable-docs",
+                "--with-perl=no",
+                "--with-x=no",
+                "--with-fontconfig=no",
+                "--enable-shared={}".format(yes_no(self.options.shared)),
+                "--enable-static={}".format(yes_no(not self.options.shared)),
+                "--enable-hdri={}".format(yes_no(self.options.hdri)),
+                "--with-quantum-depth={}".format(self.options.quantum_depth),
+                "--with-zlib={}".format(yes_no(self.options.with_zlib)),
+                "--with-bzlib={}".format(yes_no(self.options.with_bzlib)),
+                "--with-lzma={}".format(yes_no(self.options.with_lzma)),
+                "--with-lcms={}".format(yes_no(self.options.with_lcms)),
+                "--with-openexr={}".format(yes_no(self.options.with_openexr)),
+                "--with-heic={}".format(yes_no(self.options.with_heic)),
+                "--with-jbig={}".format(yes_no(self.options.with_jbig)),
+                "--with-jpeg={}".format(yes_no(self.options.with_jpeg)),
+                "--with-openjp2={}".format(yes_no(self.options.with_openjp2)),
+                "--with-pango={}".format(yes_no(self.options.with_pango)),
+                "--with-png={}".format(yes_no(self.options.with_png)),
+                "--with-tiff={}".format(yes_no(self.options.with_tiff)),
+                "--with-webp={}".format(yes_no(self.options.with_webp)),
+                "--with-xml={}".format(yes_no(self.options.with_xml2)),
+                "--with-freetype={}".format(yes_no(self.options.with_freetype)),
+                "--with-djvu={}".format(yes_no(self.options.with_djvu)),
+                "--with-utilities={}".format(yes_no(self.options.utilities)),
+            ]
+            tc.generate()
 
-        args = [
-            "--disable-openmp",
-            "--disable-docs",
-            "--with-perl=no",
-            "--with-x=no",
-            "--with-fontconfig=no",
-            "--enable-shared={}".format(yes_no(self.options.shared)),
-            "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--enable-hdri={}".format(yes_no(self.options.hdri)),
-            "--with-quantum-depth={}".format(self.options.quantum_depth),
-            "--with-zlib={}".format(yes_no(self.options.with_zlib)),
-            "--with-bzlib={}".format(yes_no(self.options.with_bzlib)),
-            "--with-lzma={}".format(yes_no(self.options.with_lzma)),
-            "--with-lcms={}".format(yes_no(self.options.with_lcms)),
-            "--with-openexr={}".format(yes_no(self.options.with_openexr)),
-            "--with-heic={}".format(yes_no(self.options.with_heic)),
-            "--with-jbig={}".format(yes_no(self.options.with_jbig)),
-            "--with-jpeg={}".format(yes_no(self.options.with_jpeg)),
-            "--with-openjp2={}".format(yes_no(self.options.with_openjp2)),
-            "--with-pango={}".format(yes_no(self.options.with_pango)),
-            "--with-png={}".format(yes_no(self.options.with_png)),
-            "--with-tiff={}".format(yes_no(self.options.with_tiff)),
-            "--with-webp={}".format(yes_no(self.options.with_webp)),
-            "--with-xml={}".format(yes_no(self.options.with_xml2)),
-            "--with-freetype={}".format(yes_no(self.options.with_freetype)),
-            "--with-djvu={}".format(yes_no(self.options.with_djvu)),
-            "--with-utilities={}".format(yes_no(self.options.utilities)),
-        ]
-        self._autotools.configure(args=args)
-
-        return self._autotools
+            tc = AutotoolsDeps(self)
+            # FIXME: workaround for xorg/system adding system includes https://github.com/conan-io/conan-center-index/issues/6880
+            if "/usr/include/uuid" in tc.include_paths:
+                tc.include_paths.remove("/usr/include/uuid")
+            tc.generate()
 
     def package(self):
         with chdir(self, self.source_folder):
@@ -479,7 +478,7 @@ class ImageMagicConan(ConanFile):
     def package_info(self):
         # FIXME model official FindImageMagick https://cmake.org/cmake/help/latest/module/FindImageMagick.html
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
 
         core_requires = []

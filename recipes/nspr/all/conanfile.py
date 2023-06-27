@@ -81,20 +81,21 @@ import contextlib
 import functools
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class NsprConan(ConanFile):
     name = "nspr"
-    homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR"
     description = (
         "Netscape Portable Runtime (NSPR) provides a platform-neutral API for system level and libc-like"
         " functions."
     )
-    topics = "libc"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MPL-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR"
+    topics = "libc"
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -124,6 +125,9 @@ class NsprConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        pass
 
     def validate(self):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1658671
@@ -158,11 +162,10 @@ class NsprConan(ConanFile):
         else:
             yield
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        conf_args = [
+        tc.configure_args = [
             "--with-mozilla={}".format(yes_no(self.options.with_mozilla)),
             "--enable-64bit={}".format(
                 yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))
@@ -173,7 +176,7 @@ class NsprConan(ConanFile):
             "--disable-cplus",
         ]
         if is_msvc(self):
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
                     "--enable-static-rtl={}".format(yes_no("MT" in msvc_runtime_flag(self))),
@@ -181,7 +184,7 @@ class NsprConan(ConanFile):
                 ]
             )
         elif self.settings.os == "Android":
-            conf_args.extend(
+            tc.configure_args.extend(
                 [
                     "--with-android-ndk={}".format(get_env(self, ["NDK_ROOT"])),
                     "--with-android-version={}".format(self.settings.os.api_level),
@@ -190,23 +193,23 @@ class NsprConan(ConanFile):
                 ]
             )
         elif self.settings.os == "Windows":
-            conf_args.append("--enable-win32-target={}".format(self.options.win32_target))
-        env = autotools.vars
+            tc.configure_args.append("--enable-win32-target={}".format(self.options.win32_target))
+        env = tc.vars
         if self.settings.os == "Macos":
             if self.settings.arch == "armv8":
                 # conan adds `-arch`, which conflicts with nspr's apple silicon support
                 env["CFLAGS"] = env["CFLAGS"].replace("-arch arm64", "")
                 env["CXXFLAGS"] = env["CXXFLAGS"].replace("-arch arm64", "")
 
-        autotools.configure(args=conf_args, vars=env)
-        return autotools
+        tc.generate()
 
     def build(self):
         with chdir(self, self.source_folder):
             # relocatable shared libs on macOS
             replace_in_file(self, "configure", "-install_name @executable_path/", "-install_name @rpath/")
             with self._build_context():
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.configure()
                 autotools.make()
 
     def package(self):
@@ -215,7 +218,7 @@ class NsprConan(ConanFile):
         )
         with chdir(self, self.source_folder):
             with self._build_context():
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

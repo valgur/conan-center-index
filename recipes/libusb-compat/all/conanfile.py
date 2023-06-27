@@ -89,17 +89,19 @@ import re
 import shlex
 import shutil
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibUSBCompatConan(ConanFile):
     name = "libusb-compat"
     description = "A compatibility layer allowing applications written for libusb-0.1 to work with libusb-1.0"
     license = ("LGPL-2.1", "BSD-3-Clause")
-    homepage = "https://github.com/libusb/libusb-compat-0.1"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/libusb/libusb-compat-0.1"
     topics = ("libusb", "compatibility", "usb")
-    settings = "os", "compiler", "build_type", "arch"
+
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -111,8 +113,9 @@ class LibUSBCompatConan(ConanFile):
         "enable_logging": False,
     }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
+    @property
+    def _settings_build(self):
+        return self.settings_build if hasattr(self, "settings_build") else self.settings
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -127,14 +130,13 @@ class LibUSBCompatConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("libusb/1.0.24")
         if is_msvc(self):
             self.requires("dirent/1.23.2")
-
-    @property
-    def _settings_build(self):
-        return self.settings_build if hasattr(self, "settings_build") else self.settings
 
     def build_requirements(self):
         self.build_requires("gnu-config/cci.20201022")
@@ -176,29 +178,19 @@ class LibUSBCompatConan(ConanFile):
         tc.generate()
 
     def _configure_autotools(self):
-        if self._autotools:
-            return self._autotools
-        self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        tc = AutotoolsToolchain(self)
         if is_msvc(self):
             # Use absolute paths of the libraries instead of the library names only.
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
-            self._autotools.libs = (
+            tc.libs = (
                 list(unix_path(self, l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
             )
-        conf_args = [
+        tc.configure_args = [
             "--disable-examples-build",
             "--enable-log" if self.options.enable_logging else "--disable-log",
         ]
-        if self.options.shared:
-            conf_args.extend(["--enable-shared", "--disable-static"])
-        else:
-            conf_args.extend(["--disable-shared", "--enable-static"])
-        pkg_config_paths = [unix_path(self, os.path.abspath(self.install_folder))]
-        self._autotools.configure(
-            args=conf_args, configure_dir=self.source_folder, pkg_config_paths=pkg_config_paths
-        )
-        return self._autotools
+        tc.generate()
 
     @contextmanager
     def _build_context(self):
@@ -269,7 +261,8 @@ class LibUSBCompatConan(ConanFile):
     def build(self):
         self._patch_sources()
         with self._build_context():
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
         if self.settings.os == "Windows":
             cmakelists_in = load(self, "CMakeLists.txt.in")
             sources, headers = self._extract_autotools_variables()
@@ -293,7 +286,7 @@ class LibUSBCompatConan(ConanFile):
             cmake.install()
         else:
             with self._build_context():
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
 
             os.unlink(os.path.join(self.package_folder, "bin", "libusb-config"))

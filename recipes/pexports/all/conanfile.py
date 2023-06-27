@@ -8,19 +8,19 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.microsoft import unix_path, is_msvc
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.47.0"
 
 
 class PExportsConan(ConanFile):
     name = "pexports"
     description = "pexports is a program to extract exported symbols from a PE image (executable)."
-    homepage = "https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/"
     license = "GPL-2.0-or-later"
-    topics = ("windows", "dll", "PE", "symbols", "import", "library")
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
+    homepage = "https://sourceforge.net/projects/mingw/files/MinGW/Extension/pexports/"
+    topics = ("windows", "dll", "PE", "symbols", "import", "library")
 
-    _autotools = None
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _settings_build(self):
@@ -29,17 +29,24 @@ class PExportsConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        None
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def build_requirements(self):
         self.build_requires("automake/1.16.3")
         if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
-
-    def package_id(self):
-        del self.info.settings.compiler
 
     def source(self):
         filename = "pexports.tar.xz"
@@ -86,5 +93,5 @@ class PExportsConan(ConanFile):
         self.cpp_info.libdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

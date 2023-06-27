@@ -9,11 +9,15 @@ required_conan_version = ">=1.52.0"
 class PopplerDataConan(ConanFile):
     name = "poppler-data"
     description = "encoding files for use with poppler, enable CJK and Cyrrilic"
-    homepage = "https://poppler.freedesktop.org/"
-    topics = ("poppler", "pdf", "rendering")
-    license = "BSD-3-Clause", "GPL-2.0-or-later", "MIT"
+    license = ("BSD-3-Clause", "GPL-2.0-or-later", "MIT")
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://poppler.freedesktop.org/"
+    topics = ("poppler", "pdf", "rendering", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

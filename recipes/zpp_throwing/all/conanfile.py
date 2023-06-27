@@ -16,8 +16,11 @@ class ZppThrowingConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eyalz800/zpp_throwing"
-    topics = ("coroutines", "exceptions", "header-only")
+    topics = ("coroutines", "exceptions", "header-only", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

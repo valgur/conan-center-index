@@ -17,8 +17,11 @@ class WinMDConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/microsoft/winmd"
-    topics = ("native", "C++", "WinRT", "WinMD")
+    topics = ("native", "C++", "WinRT", "WinMD", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -68,6 +71,9 @@ class WinMDConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         if not is_msvc(self):
             # ignore shadowing errors
             self.cpp_info.cppflags = ["-fpermissive"]

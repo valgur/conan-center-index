@@ -6,18 +6,20 @@ from conan.tools.files import get, copy
 from conan.errors import ConanInvalidConfiguration
 import os
 
-
 required_conan_version = ">=1.51.3"
 
 
 class TomlPlusPlusConan(ConanFile):
     name = "tomlplusplus"
     description = "Header-only TOML config file parser and serializer for modern C++."
-    topics = ("tomlformoderncpp", "tomlcpp", "toml", "json", "header-only")
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/marzer/tomlplusplus"
-    license = "MIT"
-    settings = ("compiler", "arch", "os", "build_type")
+    topics = ("tomlformoderncpp", "tomlcpp", "toml", "json", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -35,6 +37,9 @@ class TomlPlusPlusConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
         }
+
+    def layout(self):
+        pass
 
     def package_id(self):
         self.info.clear()
@@ -63,7 +68,7 @@ class TomlPlusPlusConan(ConanFile):
                 f"The current compiler {compiler} is unable to build version 2.1.0"
             )
 
-    def source(self):
+    def build(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):

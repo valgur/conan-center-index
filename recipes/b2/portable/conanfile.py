@@ -13,35 +13,25 @@ required_conan_version = ">=1.47.0"
 
 class B2Conan(ConanFile):
     name = "b2"
-    homepage = "https://www.bfgroup.xyz/b2/"
     description = "B2 makes it easy to build C++ projects, everywhere."
-    topics = ("installer", "builder", "build", "build-system")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.bfgroup.xyz/b2/"
+    topics = ("installer", "builder", "build", "build-system", "pre-built")
 
-    settings = "os", "arch"
-    """
-    * use_cxx_env: False, True
-
-    Indicates if the build will use the CXX and
-    CXXFLAGS environment variables. The common use is to add additional flags
-    for building on specific platforms or for additional optimization options.
-
-    * toolset: 'auto', 'cxx', 'cross-cxx',
-    'acc', 'borland', 'clang', 'como', 'gcc-nocygwin', 'gcc',
-    'intel-darwin', 'intel-linux', 'intel-win32', 'kcc', 'kylix',
-    'mingw', 'mipspro', 'pathscale', 'pgi', 'qcc', 'sun', 'sunpro',
-    'tru64cxx', 'vacpp', 'vc12', 'vc14', 'vc141', 'vc142', 'vc143'
-
-    Specifies the toolset to use for building. The default of 'auto' detects
-    a usable compiler for building and should be preferred. The 'cxx' toolset
-    uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx'
-    toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
-    toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
-    'CXX' and 'CXXFLAGS' variables for use in subprocesses.
-    """
+    package_type = "application"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        # Indicates if the build will use the CXX and
+        # CXXFLAGS environment variables. The common use is to add additional flags
+        # for building on specific platforms or for additional optimization options.
         "use_cxx_env": [False, True],
+        # Specifies the toolset to use for building. The default of 'auto' detects
+        # a usable compiler for building and should be preferred. The 'cxx' toolset
+        # uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx'
+        # toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
+        # toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
+        # 'CXX' and 'CXXFLAGS' variables for use in subprocesses.
         "toolset": [
             "auto",
             "cxx",
@@ -82,6 +72,8 @@ class B2Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
         del self.info.options.use_cxx_env
         del self.info.options.toolset
 
@@ -204,6 +196,8 @@ class B2Conan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2
         self.env_info.PATH.append(self._pkg_bin_dir)

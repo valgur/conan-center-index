@@ -78,17 +78,20 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.52.0"
+
 
 class SeqanConan(ConanFile):
     name = "seqan"
+    description = (
+        "SeqAn is an open source C++ library of efficient algorithms and data structures for the analysis"
+        " of sequences with the focus on biological data. Our library applies a unique generic design that"
+        " guarantees high performance, generality, extensibility, and integration with other libraries. "
+        "SeqAn is easy to use and simplifies the development of new software tools with a minimal loss of performance."
+    )
+    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/seqan/seqan"
-    description = """
-SeqAn is an open source C++ library of efficient algorithms and data structures for the analysis of sequences
-with the focus on biological data. Our library applies a unique generic design that guarantees high performance,
-generality, extensibility, and integration with other libraries.
-SeqAn is easy to use and simplifies the development of new software tools with a minimal loss of performance.
-"""
     topics = (
         "conan",
         "cpp98",
@@ -98,9 +101,12 @@ SeqAn is easy to use and simplifies the development of new software tools with a
         "algorithms",
         "data structures",
         "biological sequences",
+        "header-only",
     )
-    license = "BSD-3-Clause"
-    settings = "compiler"
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -124,6 +130,12 @@ SeqAn is easy to use and simplifies the development of new software tools with a
         else:
             self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         extracted_dir = "seqan-seqan-v" + self.version
@@ -139,5 +151,6 @@ SeqAn is easy to use and simplifies the development of new software tools with a
         )
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
-    def package_id(self):
-        self.info.header_only()
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

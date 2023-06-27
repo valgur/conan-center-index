@@ -78,29 +78,34 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
+required_conan_version = ">=1.52.0"
+
 
 class QuaternionsConan(ConanFile):
     name = "quaternions"
     description = "A blazingly fast C++ library to work with quaternions."
-    topics = "mathematics"
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ferd36/quaternions"
-    license = "MIT"
-    settings = "compiler"
+    topics = ("mathematics", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def configure(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
 
+    def layout(self):
+        pass
+
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        url = self.conan_data["sources"][self.version]["url"]
-        extracted_dir = self.name + "-" + os.path.splitext(os.path.basename(url))[0]
-        os.rename(extracted_dir, self.source_folder)
         replace_in_file(
             self,
             os.path.join(self.source_folder, "include", "quaternion.h"),
@@ -116,3 +121,7 @@ class QuaternionsConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "include"),
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

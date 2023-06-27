@@ -8,22 +8,25 @@ required_conan_version = ">=1.50.0"
 
 class ScopeLiteConan(ConanFile):
     name = "scope-lite"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/martinmoene/scope-lite"
     description = (
         "scope lite - A migration path to C++ library extensions scope_exit, scope_fail,                    "
         " scope_success, unique_resource in a single-file header-only library"
     )
-    topics = ("cpp98", "cpp11", "scope", "library extensions")
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martinmoene/scope-lite"
+    topics = ("cpp98", "cpp11", "scope", "library extensions", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

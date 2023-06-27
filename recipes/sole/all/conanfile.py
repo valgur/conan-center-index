@@ -17,8 +17,12 @@ class SoleConan(ConanFile):
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/r-lyeh-archived/sole"
-    topics = ("uuid", "header-only")
+    topics = ("uuid", "header-only", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)

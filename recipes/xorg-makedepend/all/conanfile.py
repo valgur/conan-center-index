@@ -12,10 +12,12 @@ required_conan_version = ">=1.53.0"
 class XorgMakedepend(ConanFile):
     name = "xorg-makedepend"
     description = "Utility to parse C source files to make dependency lists for Makefiles"
-    topics = ("xorg", "dependency", "obsolete")
     license = "MIT"
-    homepage = "https://gitlab.freedesktop.org/xorg/util/makedepend"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.freedesktop.org/xorg/util/makedepend"
+    topics = ("xorg", "dependency", "obsolete")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -25,26 +27,26 @@ class XorgMakedepend(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def configure(self):
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def requirements(self):
         self.requires("xorg-macros/1.19.3")
         self.requires("xorg-proto/2022.2")
 
-    def build_requirements(self):
-        self.build_requires("pkgconf/1.7.4")
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Windows is not supported by xorg-makedepend")
 
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def package_id(self):
-        del self.info.settings.compiler
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def build_requirements(self):
+        self.build_requires("pkgconf/1.7.4")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -81,5 +83,5 @@ class XorgMakedepend(ConanFile):
         self.cpp_info.includedirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

@@ -10,12 +10,15 @@ required_conan_version = ">=1.50.0"
 
 class TlConan(ConanFile):
     name = "tl"
+    description = "tl is a collection of generic C++ libraries"
+    license = "CC0-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tl.tartanllama.xyz"
-    description = "tl is a collection of generic C++ libraries"
-    topics = ("c++", "utilities")
-    license = "CC0-1.0"
+    topics = ("c++", "utilities", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property
@@ -31,6 +34,9 @@ class TlConan(ConanFile):
             "Visual Studio": "15",
             "msvc": "191",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -51,9 +57,6 @@ class TlConan(ConanFile):
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
                 " support."
             )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

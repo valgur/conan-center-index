@@ -103,8 +103,6 @@ class ConanFileDetails:
 
     @property
     def is_header_only(self):
-        if self.is_application:
-            return False
         if "package_info" in self.methods and 'self.cpp_info.libs = ["' in self.methods["package_info"]:
             return False
         if "package_type" in self.attrs:
@@ -122,6 +120,8 @@ class ConanFileDetails:
 
     @property
     def is_application(self):
+        if self.is_header_only:
+            return False
         if "package_info" in self.methods and 'self.cpp_info.libs = ["' in self.methods["package_info"]:
             return False
         if "package_type" in self.attrs:

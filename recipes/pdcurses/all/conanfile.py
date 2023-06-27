@@ -183,7 +183,8 @@ class PDCursesConan(ConanFile):
             self._build_windows()
         else:
             with chdir(self, os.path.join(self.source_folder, "x11")):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
+                autotools.configure()
                 autotools.make()
 
     @property
@@ -225,7 +226,7 @@ class PDCursesConan(ConanFile):
                 )
         else:
             with chdir(self, os.path.join(self.source_folder, "x11")):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
                 rmdir(self, os.path.join(self.package_folder, "bin"))
 

@@ -1015,5 +1015,5 @@ class GdalConan(ConanFile):
         if self.options.tools:
             self.buildenv_info.prepend_path("GDAL_DATA", gdal_data_path)
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment variable: {}".format(bin_path))
+            self.output.info(f"Appending PATH environment variable: {bin_path}")
             self.env_info.PATH.append(bin_path)

@@ -1,3 +1,8 @@
+# Warnings:
+#   Disallowed attribute 'generators = 'pkg_config''
+#   Unexpected method '_configure_autotools'
+#   Missing required method 'generate'
+
 # TODO: verify the Conan v2 migration
 
 import os
@@ -80,20 +85,21 @@ from conan.tools.system import package_manager
 import functools
 import os
 
-required_conan_version = ">=1.36.0"
+required_conan_version = ">=1.53.0"
 
 
 class Librasterlite2Conan(ConanFile):
     name = "librasterlite2"
     description = (
-        "librasterlite2 is an open source library that stores and retrieves "
-        "huge raster coverages using a SpatiaLite DBMS."
+        "librasterlite2 is an open source library that stores and retrieves huge raster coverages using a"
+        " SpatiaLite DBMS."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    topics = ("rasterlite", "raster", "spatialite")
-    homepage = "https://www.gaia-gis.it/fossil/librasterlite2"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.gaia-gis.it/fossil/librasterlite2"
+    topics = ("rasterlite", "raster", "spatialite")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -114,8 +120,6 @@ class Librasterlite2Conan(ConanFile):
         "with_zstd": True,
     }
 
-    generators = "pkg_config"
-
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
@@ -132,6 +136,9 @@ class Librasterlite2Conan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         self.requires("cairo/1.17.4")
@@ -187,12 +194,10 @@ class Librasterlite2Conan(ConanFile):
             "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.libs[0]),
         )
 
-    @functools.lru_cache(1)
-    def _configure_autotools(self):
+    def generate(self):
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        args = [
-            "--enable-static={}".format(yes_no(not self.options.shared)),
-            "--enable-shared={}".format(yes_no(self.options.shared)),
+        tc.configure_args = [
             "--disable-gcov",
             "--enable-openjpeg={}".format(yes_no(self.options.with_openjpeg)),
             "--enable-webp={}".format(yes_no(self.options.with_webp)),
@@ -200,14 +205,11 @@ class Librasterlite2Conan(ConanFile):
             "--enable-lz4={}".format(yes_no(self.options.with_lz4)),
             "--enable-zstd={}".format(yes_no(self.options.with_zstd)),
         ]
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
-        autotools.configure(args=args)
-        return autotools
+        tc.generate()
 
     def build(self):
         self._patch_sources()
         with chdir(self, self.source_folder):
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared libs on macOS
             replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
@@ -219,16 +221,16 @@ class Librasterlite2Conan(ConanFile):
                     "#! /bin/sh\n",
                     "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
                 )
-            with run_environment(self):
-                autotools = self._configure_autotools()
-                autotools.make()
+            autotools = Autotools(self)
+            autotools.autoreconf()
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with chdir(self, self.source_folder):
-            with run_environment(self):
-                autotools = self._configure_autotools()
-                autotools.install()
+            autotools = Autotools(self)
+            autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

@@ -80,7 +80,7 @@ from conan.tools.system import package_manager
 import os
 import contextlib
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class UsocketsConan(ConanFile):
@@ -90,13 +90,17 @@ class UsocketsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/uNetworking/uSockets"
     topics = ("socket", "network", "web")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
         "fPIC": [True, False],
         "with_ssl": [False, "openssl", "wolfssl"],
         "eventloop": ["syscall", "libuv", "gcd", "boost"],
     }
     default_options = {
+        "shared": False,
         "fPIC": True,
         "with_ssl": False,
         "eventloop": "syscall",
@@ -143,6 +147,27 @@ class UsocketsConan(ConanFile):
             del self.options.fPIC
             self.options.eventloop = "libuv"
 
+    def configure(self):
+        if not self._minimum_cpp_standard:
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        pass
+
+    def requirements(self):
+        if self.options.with_ssl == "openssl":
+            self.requires("openssl/1.1.1s")
+        elif self.options.with_ssl == "wolfssl":
+            self.requires("wolfssl/5.5.1")
+
+        if self.options.eventloop == "libuv":
+            self.requires("libuv/1.44.2")
+        elif self.options.eventloop == "gcd":
+            self.requires("libdispatch/5.3.2")
+        elif self.options.eventloop == "boost":
+            self.requires("boost/1.81.0")
+
     def validate(self):
         if self.options.eventloop == "syscall" and self.info.settings.os == "Windows":
             raise ConanInvalidConfiguration("syscall is not supported on Windows")
@@ -185,24 +210,6 @@ class UsocketsConan(ConanFile):
                 f" C++{cppstd}."
             )
 
-    def configure(self):
-        if not self._minimum_cpp_standard:
-            self.settings.rm_safe("compiler.libcxx")
-            self.settings.rm_safe("compiler.cppstd")
-
-    def requirements(self):
-        if self.options.with_ssl == "openssl":
-            self.requires("openssl/1.1.1s")
-        elif self.options.with_ssl == "wolfssl":
-            self.requires("wolfssl/5.5.1")
-
-        if self.options.eventloop == "libuv":
-            self.requires("libuv/1.44.2")
-        elif self.options.eventloop == "gcd":
-            self.requires("libdispatch/5.3.2")
-        elif self.options.eventloop == "boost":
-            self.requires("boost/1.81.0")
-
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
@@ -211,6 +218,10 @@ class UsocketsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def generate(self):
+        # TODO: fill in generate()
+        pass
 
     def _patch_sources(self):
         apply_conandata_patches(self)

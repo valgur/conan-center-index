@@ -79,29 +79,34 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-requires_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class WilzegersAutotestConan(ConanFile):
     name = "wilzegers-autotest"
+    description = "Autotest facilitates the testing of class interfaces"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.com/wilzegers/autotest"
-    description = "Autotest facilitates the testing of class interfaces"
-    topics = ("autotest", "testing")
-    settings = "compiler"
+    topics = ("autotest", "testing", "header-only")
 
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler != "clang":
             raise ConanInvalidConfiguration("Only clang allowed")
 
-    def package_id(self):
-        self.info.header_only()
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(
@@ -113,3 +118,7 @@ class WilzegersAutotestConan(ConanFile):
         copy(
             self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

@@ -270,7 +270,7 @@ class JemallocConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        conf_args = [
+        tc.configure_args = [
             "--with-jemalloc-prefix={}".format(self.options.prefix),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
             "--enable-cxx" if self.options.enable_cxx else "--disable-cxx",
@@ -288,8 +288,7 @@ class JemallocConan(ConanFile):
             "--enable-libdl" if self.options.enable_libdl else "--disable-libdl",
         ]
         if self.options.enable_prof:
-            conf_args.append("--enable-prof")
-        tc.configure_args = conf_args
+            tc.configure_args.append("--enable-prof")
         tc.generate()
 
     @property
@@ -366,7 +365,7 @@ class JemallocConan(ConanFile):
             else:
                 toolset = tools_legacy.msvs_toolset(self.settings)
                 toolset_number = "".join(c for c in toolset if c in string.digits)
-                libname += "-vc{}-{}".format(toolset_number, self._msvc_build_type)
+                libname += f"-vc{toolset_number}-{self._msvc_build_type}"
         else:
             if self.settings.os == "Windows":
                 if not self.options.shared:
@@ -409,7 +408,8 @@ class JemallocConan(ConanFile):
                 os.path.join(self.package_folder, "include", "msvc_compat"),
             )
         else:
-            autotools = self._configure_autotools()
+            autotools = Autotools(self)
+            autotools.configure()
             # Use install_lib_XXX and install_include to avoid mixing binaries and dll's
             autotools.make(target="install_lib_shared" if self.options.shared else "install_lib_static")
             autotools.make(target="install_include")

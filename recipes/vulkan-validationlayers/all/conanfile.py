@@ -29,17 +29,22 @@ class VulkanValidationLayersConan(ConanFile):
     name = "vulkan-validationlayers"
     description = "Khronos official Vulkan validation layers for Windows, Linux, Android, and MacOS."
     license = "Apache-2.0"
-    topics = ("vulkan", "validation-layers")
-    homepage = "https://github.com/KhronosGroup/Vulkan-ValidationLayers"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/KhronosGroup/Vulkan-ValidationLayers"
+    topics = ("vulkan", "validation-layers")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "with_wsi_xcb": [True, False],
         "with_wsi_xlib": [True, False],
         "with_wsi_wayland": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "with_wsi_xcb": True,
         "with_wsi_xlib": True,
         "with_wsi_wayland": True,
@@ -99,6 +104,10 @@ class VulkanValidationLayersConan(ConanFile):
             self.options.rm_safe("with_wsi_xcb")
             self.options.rm_safe("with_wsi_xlib")
             self.options.rm_safe("with_wsi_wayland")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

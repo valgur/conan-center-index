@@ -3,17 +3,20 @@ from conan.tools.files import get, download, copy, collect_libs
 from conan.errors import ConanInvalidConfiguration
 from os.path import join
 
+required_conan_version = ">=1.47.0"
+
 
 class NpcapConan(ConanFile):
     name = "npcap"
     description = "Windows port of the libpcap library"
-    homepage = "https://npcap.com/"
-    url = "https://github.com/conan-io/conan-center-index"
     license = "LicenseRef-NPCAP"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://npcap.com/"
     topics = ("pcap", "windows", "packet-capture")
-    settings = "os", "arch", "build_type", "compiler"
 
-    # not needed but supress warning message from conan commands
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+
     def layout(self):
         pass
 

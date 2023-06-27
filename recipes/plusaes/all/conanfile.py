@@ -79,21 +79,27 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class PlusaesConan(ConanFile):
     name = "plusaes"
     description = "Header only C++ AES cipher library"
-    topics = ("encryption", "header-only")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/kkAyataka/plusaes"
+    topics = ("encryption", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
 
     def package_id(self):
-        self.info.header_only()
+        self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -107,3 +113,7 @@ class PlusaesConan(ConanFile):
         include_dir = os.path.join(root_dir, "include")
         copy(self, pattern="LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=root_dir)
         copy(self, pattern="*plusaes.hpp", dst=os.path.join(self.package_folder, "include"), src=include_dir)
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

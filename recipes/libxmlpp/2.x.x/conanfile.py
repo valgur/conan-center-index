@@ -160,18 +160,18 @@ import shutil
 import os
 import functools
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibXMLPlusPlus(ConanFile):
-    # FIXME: naming the library "libxml++" causes conan not to add it to the
-    # environment path on windows
     name = "libxmlpp"
     description = "libxml++ (a.k.a. libxmlplusplus) provides a C++ interface to XML files"
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libxmlplusplus/libxmlplusplus"
     topics = ["xml", "parser", "wrapper"]
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -181,7 +181,6 @@ class LibXMLPlusPlus(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    generators = "pkg_config"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -193,6 +192,9 @@ class LibXMLPlusPlus(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         self.requires("libxml2/2.9.14")
@@ -215,6 +217,20 @@ class LibXMLPlusPlus(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def generate(self):
+        tc = MesonToolchain(self)
+        tc.project_options = {
+            "build-examples": "false",
+            "build-tests": "false",
+            "build-documentation": "false",
+            "msvc14x-parallel-installable": "false",
+            "default_library": "shared" if self.options.shared else "static",
+        }
+        tc.generate()
+
+        tc = PkgConfigDeps(self)
+        tc.generate()
+
     def _patch_sources(self):
         apply_conandata_patches(self)
 
@@ -228,35 +244,18 @@ class LibXMLPlusPlus(ConanFile):
                 self, os.path.join(self.source_folder, "meson.build"), "cpp_std=c++", "cpp_std=vc++"
             )
 
-    @functools.lru_cache(1)
-    def _configure_meson(self):
-        meson = Meson(self)
-        defs = {
-            "build-examples": "false",
-            "build-tests": "false",
-            "build-documentation": "false",
-            "msvc14x-parallel-installable": "false",
-            "default_library": "shared" if self.options.shared else "static",
-        }
-        meson.configure(
-            defs=defs,
-            build_folder=self._build_subfolder,
-            source_folder=self.source_folder,
-            pkg_config_paths=[self.install_folder],
-        )
-        return meson
-
     def build(self):
         self._patch_sources()
         with environment_append(self, RunEnvironment(self).vars):
-            meson = self._configure_meson()
+            meson = Meson(self)
+            meson.configure()
             meson.build()
 
     def package(self):
         lib_version = "2.6" if Version(self.version) <= "2.42.1" else "5.0"
 
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        meson = self._configure_meson()
+        meson = Meson()
         meson.install()
 
         shutil.move(

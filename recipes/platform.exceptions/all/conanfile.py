@@ -79,21 +79,28 @@ from conan.tools.scm import Version
 from conan.tools.system import package_manager
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=1.52.0"
 
 
 class PlatformExceptionsConan(ConanFile):
     name = "platform.exceptions"
-    license = "MIT"
-    homepage = "https://github.com/linksplatform/Exceptions"
-    url = "https://github.com/conan-io/conan-center-index"
     description = (
-        "platform.exceptions is one of the libraries of the LinksPlatform modular framework, "
-        "to ensure exceptions"
+        "platform.exceptions is one of the libraries of the LinksPlatform modular framework, to ensure"
+        " exceptions"
     )
-    topics = ("linksplatform", "cpp20", "exceptions", "any", "ranges", "native")
-    settings = "compiler", "arch"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/linksplatform/Exceptions"
+    topics = ("linksplatform", "cpp20", "exceptions", "any", "ranges", "native", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    @property
+    def _minimum_cpp_standard(self):
+        return 20
 
     @property
     def _internal_cpp_subfolder(self):
@@ -108,9 +115,8 @@ class PlatformExceptionsConan(ConanFile):
             "apple-clang": "11",
         }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 20
+    def layout(self):
+        pass
 
     def requirements(self):
         if Version(self.version) >= "0.3.0":
@@ -118,32 +124,25 @@ class PlatformExceptionsConan(ConanFile):
         else:
             self.requires("platform.delegates/0.1.3")
 
+    def package_id(self):
+        self.info.clear()
+
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
             self.output.warn(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
 
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "{}/{} requires c++{}, which is not supported by {} {}.".format(
-                    self.name,
-                    self.version,
-                    self._minimum_cpp_standard,
-                    self.settings.compiler,
-                    self.settings.compiler.version,
-                )
+                f"{self.name}/{self.version} requires c++{self._minimum_cpp_standard}, which is not supported"
+                f" by {self.settings.compiler} {self.settings.compiler.version}."
             )
 
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
-
-    def package_id(self):
-        self.info.header_only()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -151,3 +150,7 @@ class PlatformExceptionsConan(ConanFile):
     def package(self):
         copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=self._internal_cpp_subfolder)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+
+    def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

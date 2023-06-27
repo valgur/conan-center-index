@@ -81,18 +81,19 @@ import functools
 import os
 import shutil
 
-required_conan_version = ">=1.36.0"
+required_conan_version = ">=1.53.0"
 
 
 class SqlcipherConan(ConanFile):
     name = "sqlcipher"
+    description = "SQLite extension that provides 256 bit AES encryption of database files."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.zetetic.net/sqlcipher/"
-    description = "SQLite extension that provides 256 bit AES encryption of database files."
     topics = ("database", "encryption", "SQLite")
 
-    settings = "os", "compiler", "build_type", "arch"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -130,6 +131,9 @@ class SqlcipherConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        pass
 
     def requirements(self):
         if self.options.crypto_library == "openssl":
@@ -242,7 +246,7 @@ class SqlcipherConan(ConanFile):
 
     def _generate_autotools(self):
         yes_no = lambda v: "yes" if v else "no"
-        args = [
+        tc.configure_args = [
             "--enable-tempstore={}".format(self._temp_store_autotools_value),
             "--disable-tcl",
         ]

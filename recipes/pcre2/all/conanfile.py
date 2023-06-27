@@ -184,7 +184,7 @@ class PCRE2Conan(ConanFile):
 
         if self.options.build_pcre2grep:
             bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH environment variable: {}".format(bin_path))
+            self.output.info(f"Appending PATH environment variable: {bin_path}")
             self.env_info.PATH.append(bin_path)
             # FIXME: This is a workaround to avoid ConanException. zlib and bzip2
             # are optional requirements of pcre2grep executable, not of any pcre2 lib.

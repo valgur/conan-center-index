@@ -11,10 +11,13 @@ class ZstrConan(ConanFile):
     name = "zstr"
     description = "A C++ header-only ZLib wrapper."
     license = "MIT"
-    topics = ("zlib", "wrapper", "compression")
-    homepage = "https://github.com/mateidavid/zstr"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mateidavid/zstr"
+    topics = ("zlib", "wrapper", "compression", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

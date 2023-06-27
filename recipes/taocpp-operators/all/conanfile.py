@@ -9,13 +9,16 @@ required_conan_version = ">=1.50.0"
 
 class TaoCPPOperatorsConan(ConanFile):
     name = "taocpp-operators"
+    description = "A highly efficient, move-aware operators library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/taocpp/operators"
-    description = "A highly efficient, move-aware operators library"
     topics = ("cpp", "cpp11", "header-only", "operators")
-    no_copy_source = True
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")

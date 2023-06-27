@@ -175,7 +175,7 @@ class FtjamConan(ConanFile):
                 )
         else:
             with chdir(self, self.source_folder):
-                autotools = self._configure_autotools()
+                autotools = Autotools(self)
                 autotools.install()
 
     def _jam_toolset(self, os, compiler):

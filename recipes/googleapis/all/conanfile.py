@@ -19,12 +19,13 @@ required_conan_version = ">=1.53.0"
 
 class GoogleAPIS(ConanFile):
     name = "googleapis"
-    package_type = "library"
     description = "Public interface definitions of Google APIs"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/googleapis/googleapis"
     topics = ("google", "protos", "api")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -200,8 +201,6 @@ class GoogleAPIS(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    _DEPS_FILE = "res/generated_targets.deps"
 
     def package(self):
         copy(

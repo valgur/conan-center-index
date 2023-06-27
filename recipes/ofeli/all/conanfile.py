@@ -1,7 +1,5 @@
 # TODO: verify the Conan v2 migration
 
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -9,19 +7,40 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import chdir, copy, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.40.0"
+required_conan_version = ">=1.53.0"
 
 
 class OfeliConan(ConanFile):
     name = "ofeli"
     description = "An Object Finite Element Library"
-    topics = ("finite-element", "finite-element-library", "finite-element-analysis", "finite-element-solver")
     license = "LGPL-3.0-or-later"
-    homepage = "http://ofeli.org/index.html"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://ofeli.org/index.html"
+    topics = ("finite-element", "finite-element-library", "finite-element-analysis", "finite-element-solver")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    _autotools = None
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     @property
     def _doc_folder(self):

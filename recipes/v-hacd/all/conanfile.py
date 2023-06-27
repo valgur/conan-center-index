@@ -13,10 +13,13 @@ class VhacdConan(ConanFile):
     name = "v-hacd"
     description = 'The V-HACD library decomposes a 3D surface into a set of "near" convex parts.'
     license = "BSD-3-Clause"
-    topics = ("3d", "mesh", "shape", "decomposition", "convex")
-    homepage = "https://github.com/kmammou/v-hacd"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/kmammou/v-hacd"
+    topics = ("3d", "mesh", "shape", "decomposition", "convex", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

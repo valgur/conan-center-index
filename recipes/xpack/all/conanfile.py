@@ -14,7 +14,10 @@ class XpackConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/xyz347/xpack"
     topics = ("json", "bson", "reflection", "xml", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     @property

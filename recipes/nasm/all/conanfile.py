@@ -20,13 +20,13 @@ required_conan_version = ">=1.55.0"
 
 class NASMConan(ConanFile):
     name = "nasm"
-    package_type = "application"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.nasm.us"
     description = "The Netwide Assembler, NASM, is an 80x86 and x86-64 assembler"
     license = "BSD-2-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.nasm.us"
     topics = ("installer", "assembler")
 
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -112,6 +112,8 @@ class NASMConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

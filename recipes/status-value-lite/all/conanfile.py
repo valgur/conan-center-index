@@ -8,22 +8,25 @@ required_conan_version = ">=1.50.0"
 
 class StatusValueLiteConan(ConanFile):
     name = "status-value-lite"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/martinmoene/status-value-lite"
     description = (
         "status-value - A class for status and optional value for C++11 and "
         "later, C++98 variant provided in a single-file header-only library"
     )
-    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "status_value", "status_value-implementations")
     license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/martinmoene/status-value-lite"
+    topics = ("cpp98", "cpp11", "cpp14", "cpp17", "status_value", "status_value-implementations", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

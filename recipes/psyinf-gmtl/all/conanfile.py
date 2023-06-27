@@ -3,7 +3,6 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-
 required_conan_version = ">=1.50.0"
 
 
@@ -17,7 +16,10 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/psyinf/gmtl"
     topics = ("linear-algebra", "collision", "vector", "matrix", "template", "math", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
     no_copy_source = True
 
     def layout(self):

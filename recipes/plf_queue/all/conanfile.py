@@ -10,17 +10,20 @@ class PlfqueueConan(ConanFile):
     name = "plf_queue"
     description = "A C++ data container replicating std::queue functionality but with better performance."
     license = "Zlib"
-    topics = ("container", "queue", "header-only")
-    homepage = "https://plflib.org/queue.htm"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://plflib.org/queue.htm"
+    topics = ("container", "queue", "header-only")
+
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def package_id(self):
-        self.info.clear()
+    no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -78,18 +78,27 @@ from conan.tools.microsoft import (
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=1.52.0"
 
 
 class TllistConan(ConanFile):
     name = "tllist"
+    description = "A C header file only implementation of a typed linked list."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://codeberg.org/dnkl/tllist"
-    description = "A C header file only implementation of a typed linked list."
-    topics = ("list", "utils", "typed-linked-list")
-    settings = "os", "arch", "build_type", "compiler"
+    topics = ("list", "utils", "typed-linked-list", "header-only")
+
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    no_copy_source = True
+
+    def layout(self):
+        pass
+
+    def package_id(self):
+        self.info.clear()
 
     def validate(self):
         # tllist relies on __typeof__, not implemented in Visual Studio
@@ -103,8 +112,8 @@ class TllistConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
-    def package_id(self):
-        self.info.header_only()
-
     def package_info(self):
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("pkg_config_name", "tllist")

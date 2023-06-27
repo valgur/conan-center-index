@@ -10,12 +10,16 @@ required_conan_version = ">=1.50.0"
 class ProtozeroConan(ConanFile):
     name = "protozero"
     description = "Minimalist protocol buffer decoder and encoder in C++."
-    topics = "protobuf"
     license = "BSD-2-Clause"
-    homepage = "https://github.com/mapbox/protozero"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/mapbox/protozero"
+    topics = ("protobuf", "header-only")
+
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
@@ -23,9 +27,6 @@ class ProtozeroConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
