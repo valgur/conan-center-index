@@ -1,0 +1,24 @@
+#!/bin/bash
+
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+migrated_root=$HOME/tmp/conan/recipes
+git checkout upstream/master
+for recipe_dir in recipes/*; do
+    recipe=$(basename $recipe_dir)
+    echo
+    echo -e "${BLUE}Migrating $recipe${NC}"
+    git checkout upstream/master
+    git branch -D "migrate/$recipe"
+    git checkout -b "migrate/$recipe"
+    black -l 110 --preview --quiet "$recipe_dir"
+    git add "$recipe_dir"
+    git commit -m "$recipe: autoformat"
+    rm -rf "$recipe_dir"
+    cp -r "$migrated_root/$recipe" "$recipe_dir"
+    git add "$recipe_dir"
+    git commit -m "$recipe: migrate to Conan v2"
+done
+
+git switch -c upstream/master
