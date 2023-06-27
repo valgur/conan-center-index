@@ -27,9 +27,9 @@ class TomlPlusPlusConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16"
-            if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0"
-            else "15",
+            "Visual Studio": (
+                "16" if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0" else "15"
+            ),
             "msvc": "192" if Version(self.version) < "2.2.0" or Version(self.version) >= "3.0.0" else "191",
             "gcc": "7",
             "clang": "5",

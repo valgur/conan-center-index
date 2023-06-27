@@ -113,7 +113,8 @@ class GnConan(ConanFile):
                     raise ConanInvalidConfiguration("gn requires a compiler supporting c++17")
             else:
                 self.output.warn(
-                    "gn recipe does not recognize the compiler. gn requires a compiler supporting c++17. Assuming it does."
+                    "gn recipe does not recognize the compiler. gn requires a compiler supporting c++17."
+                    " Assuming it does."
                 )
 
     def package_id(self):
@@ -171,13 +172,11 @@ class GnConan(ConanFile):
                 save(
                     self,
                     os.path.join("src", "gn", "last_commit_position.h"),
-                    textwrap.dedent(
-                        """\
+                    textwrap.dedent("""\
                                 #pragma once
                                 #define LAST_COMMIT_POSITION "1"
                                 #define LAST_COMMIT_POSITION_NUM 1
-                                """
-                    ),
+                                """),
                 )
                 conf_args = [
                     "--no-last-commit-position",

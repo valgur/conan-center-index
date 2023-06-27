@@ -85,7 +85,10 @@ required_conan_version = ">=1.33.0"
 
 class LibSixelConan(ConanFile):
     name = "libsixel"
-    description = "A SIXEL encoder/decoder implementation derived from kmiya's sixel (https://github.com/saitoha/sixel)."
+    description = (
+        "A SIXEL encoder/decoder implementation derived from kmiya's sixel"
+        " (https://github.com/saitoha/sixel)."
+    )
     topics = "sixel"
     license = "MIT"
     homepage = "https://github.com/libsixel/libsixel"

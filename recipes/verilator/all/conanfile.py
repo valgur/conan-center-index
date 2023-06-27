@@ -90,7 +90,10 @@ class VerilatorConan(ConanFile):
     license = "LGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.veripool.org/wiki/verilator"
-    description = "Verilator compiles synthesizable Verilog and Synthesis assertions into single- or multithreaded C++ or SystemC code"
+    description = (
+        "Verilator compiles synthesizable Verilog and Synthesis assertions into single- or multithreaded C++"
+        " or SystemC code"
+    )
     topics = ("verilog", "hdl", "eda", "simulator", "hardware", "fpga")
 
     settings = "os", "arch", "compiler", "build_type"

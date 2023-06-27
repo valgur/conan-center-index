@@ -247,8 +247,10 @@ class SDLConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
                 "find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED)",
-                'find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED '
-                'PATHS "${WAYLAND_BIN_DIR}" NO_DEFAULT_PATH)',
+                (
+                    "find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED "
+                    'PATHS "${WAYLAND_BIN_DIR}" NO_DEFAULT_PATH)'
+                ),
             )
 
     def _define_toolchain(self):

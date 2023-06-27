@@ -86,7 +86,10 @@ required_conan_version = ">=1.33.0"
 
 class SwigConan(ConanFile):
     name = "swig"
-    description = "SWIG is a software development tool that connects programs written in C and C++ with a variety of high-level programming languages."
+    description = (
+        "SWIG is a software development tool that connects programs written in C and C++ with a variety of"
+        " high-level programming languages."
+    )
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.swig.org"
     license = "GPL-3.0-or-later"

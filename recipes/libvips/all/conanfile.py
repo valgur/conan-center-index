@@ -189,7 +189,7 @@ class LibvipsConan(ConanFile):
         ):
             raise ConanInvalidConfiguration(
                 f"{self.ref} static with MT runtime not supported if glib shared due to "
-                f"conancenter CI limitations"
+                "conancenter CI limitations"
             )
 
         if self.options.with_gsf:

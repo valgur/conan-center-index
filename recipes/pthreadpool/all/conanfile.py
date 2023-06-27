@@ -60,9 +60,9 @@ class PthreadpoolConan(ConanFile):
         tc.cache_variables["PTHREADPOOL_SYNC_PRIMITIVE"] = self.options.sync_primitive
         tc.variables["PTHREADPOOL_BUILD_TESTS"] = False
         tc.variables["PTHREADPOOL_BUILD_BENCHMARKS"] = False
-        tc.cache_variables[
-            "FXDIV_SOURCE_DIR"
-        ] = "dummy"  # this value doesn't really matter, it's just to avoid a download
+        tc.cache_variables["FXDIV_SOURCE_DIR"] = (
+            "dummy"  # this value doesn't really matter, it's just to avoid a download
+        )
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
         deps = CMakeDeps(self)

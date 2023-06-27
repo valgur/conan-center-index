@@ -122,16 +122,14 @@ class LzipConan(ConanFile):
             save(
                 self,
                 "CMakeLists.txt",
-                textwrap.dedent(
-                    """\
+                textwrap.dedent("""\
                 cmake_minimum_required(VERSION 2.8)
                 project(test C CXX)
                 message(STATUS "CC=${CMAKE_C_COMPILER}")
                 message(STATUS "CXX=${CMAKE_CXX_COMPILER}")
                 file(WRITE cc.txt "${CMAKE_C_COMPILER}")
                 file(WRITE cxx.txt "${CMAKE_CXX_COMPILER}")
-                """
-                ),
+                """),
             )
             CMake(self).configure(source_folder="detectdir", build_folder="detectdir")
             cc = load(self, "cc.txt").strip()

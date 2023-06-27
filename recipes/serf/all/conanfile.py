@@ -85,7 +85,10 @@ import re
 
 class SerfConan(ConanFile):
     name = "serf"
-    description = "The serf library is a high performance C-based HTTP client library built upon the Apache Portable Runtime (APR) library."
+    description = (
+        "The serf library is a high performance C-based HTTP client library built upon the Apache Portable"
+        " Runtime (APR) library."
+    )
     license = "Apache-2.0"
     topics = ("apache", "http", "library")
     homepage = "https://serf.apache.org/"
@@ -173,12 +176,16 @@ class SerfConan(ConanFile):
                 + (["-fPIC"] if self.options.get_safe("fPIC") else [])
                 + autotools.flags
             ),
-            "LINKFLAGS": " ".join(self.deps_cpp_info.sharedlinkflags)
-            + " "
-            + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.libdirs),
-            "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines)
-            + " "
-            + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.includedirs),
+            "LINKFLAGS": (
+                " ".join(self.deps_cpp_info.sharedlinkflags)
+                + " "
+                + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.libdirs)
+            ),
+            "CPPFLAGS": (
+                " ".join("-D{}".format(d) for d in autotools.defines)
+                + " "
+                + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.includedirs)
+            ),
             "CC": self._cc,
             "SOURCE_LAYOUT": "False",
         }

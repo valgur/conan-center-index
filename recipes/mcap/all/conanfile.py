@@ -13,8 +13,8 @@ required_conan_version = ">=1.52.0"
 class McapConan(ConanFile):
     name = "mcap"
     description = (
-        "MCAP is a modular, performant, and serialization-agnostic container file format for pub/sub messages, "
-        "primarily intended for use in robotics applications."
+        "MCAP is a modular, performant, and serialization-agnostic container file format for pub/sub"
+        " messages, primarily intended for use in robotics applications."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

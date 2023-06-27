@@ -117,9 +117,9 @@ class LibkmlConan(ConanFile):
         self._register_components(
             {
                 "kmlbase": {
-                    "defines": ["LIBKML_DLL"]
-                    if self.settings.os == "Windows" and self.options.shared
-                    else [],
+                    "defines": (
+                        ["LIBKML_DLL"] if self.settings.os == "Windows" and self.options.shared else []
+                    ),
                     "system_libs": ["m"] if self.settings.os in ["Linux", "FreeBSD"] else [],
                     "requires": [
                         "boost::headers",

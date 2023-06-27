@@ -124,10 +124,7 @@ class PlatformInterfacesConan(ConanFile):
 
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "platform.equality/{} "
-                "requires C++{} with {}, "
-                "which is not supported "
-                "by {} {}.".format(
+                "platform.equality/{} requires C++{} with {}, which is not supported by {} {}.".format(
                     self.version,
                     self._minimum_cpp_standard,
                     self.settings.compiler,

@@ -101,11 +101,13 @@ class Hdf5Conan(ConanFile):
         if self.options.parallel and not self.options.enable_unsupported:
             if self.options.enable_cxx:
                 raise ConanInvalidConfiguration(
-                    "Parallel and C++ options are mutually exclusive, forcefully allow with enable_unsupported=True"
+                    "Parallel and C++ options are mutually exclusive, forcefully allow with"
+                    " enable_unsupported=True"
                 )
             if self.options.get_safe("threadsafe", False):
                 raise ConanInvalidConfiguration(
-                    "Parallel and Threadsafe options are mutually exclusive, forcefully allow with enable_unsupported=True"
+                    "Parallel and Threadsafe options are mutually exclusive, forcefully allow with"
+                    " enable_unsupported=True"
                 )
         if (
             self.options.szip_support == "with_szip"
@@ -221,24 +223,20 @@ class Hdf5Conan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
 
         # add the additional hdf5_hl_cxx target when both CXX and HL components are specified
-        content += textwrap.dedent(
-            """\
+        content += textwrap.dedent("""\
                 if(TARGET HDF5::HL AND TARGET HDF5::CXX AND NOT TARGET hdf5::hdf5_hl_cpp)
                     add_library(hdf5::hdf5_hl_cpp INTERFACE IMPORTED)
                     set_property(TARGET hdf5::hdf5_hl_cpp PROPERTY INTERFACE_LINK_LIBRARIES HDF5::HL_CXX)
                 endif()
-            """
-        )
+            """)
         save(self, module_file, content)
 
     def _create_cmake_module_variables(self, module_file, is_parallel):

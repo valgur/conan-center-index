@@ -128,15 +128,13 @@ class DataFrameConan(ConanFile):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
-                textwrap.dedent(
-                    """\
+                textwrap.dedent("""\
                     include(AddInstallRPATHSupport)
                     add_install_rpath_support(BIN_DIRS "${CMAKE_INSTALL_FULL_LIBDIR}"
                                               LIB_DIRS "${CMAKE_INSTALL_FULL_BINDIR}"
                                               INSTALL_NAME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}"
                                               USE_LINK_PATH)
-                """
-                ),
+                """),
                 "",
             )
 

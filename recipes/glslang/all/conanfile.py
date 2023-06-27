@@ -23,8 +23,7 @@ required_conan_version = ">=1.54.0"
 class GlslangConan(ConanFile):
     name = "glslang"
     description = (
-        "Khronos-reference front end for GLSL/ESSL, "
-        "partial front end for HLSL, and a SPIR-V generator."
+        "Khronos-reference front end for GLSL/ESSL, partial front end for HLSL, and a SPIR-V generator."
     )
     license = ["BSD-3-Clause", "NVIDIA"]
     url = "https://github.com/conan-io/conan-center-index"

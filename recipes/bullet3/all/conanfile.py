@@ -72,9 +72,9 @@ class Bullet3Conan(ConanFile):
         tc.variables["USE_GRAPHICAL_BENCHMARK"] = self.options.graphical_benchmark
         tc.variables["USE_DOUBLE_PRECISION"] = self.options.double_precision
         tc.variables["BULLET2_MULTITHREADING"] = self.options.bt2_thread_locks
-        tc.variables[
-            "USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"
-        ] = self.options.soft_body_multi_body_dynamics_world
+        tc.variables["USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"] = (
+            self.options.soft_body_multi_body_dynamics_world
+        )
         tc.variables["BUILD_ENET"] = self.options.network_support
         tc.variables["BUILD_CLSOCKET"] = self.options.network_support
         tc.variables["BUILD_CPU_DEMOS"] = False
@@ -105,8 +105,7 @@ class Bullet3Conan(ConanFile):
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(BULLET_FOUND 1)
             set(BULLET_USE_FILE "lib/cmake/bullet/UseBullet.cmake")
             set(BULLET_DEFINITIONS {" ".join(self._bullet_definitions)})
@@ -124,8 +123,7 @@ class Bullet3Conan(ConanFile):
                                     ${{Bullet_LIB_DIRS_DEBUG}})
             set(BULLET_ROOT_DIR "${{CMAKE_CURRENT_LIST_DIR}}/../../..")
             set(BULLET_VERSION_STRING {self.version})
-        """
-        )
+        """)
         save(self, module_file, content)
 
     @property

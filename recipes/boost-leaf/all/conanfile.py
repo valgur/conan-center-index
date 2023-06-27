@@ -69,7 +69,8 @@ class BoostLEAFConan(ConanFile):
 
         if minimum_version and lazy_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support"
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler"
+                f" ({compiler}-{version}) does not support"
             )
 
     def source(self):

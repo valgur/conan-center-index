@@ -105,9 +105,11 @@ class AtSpi2CoreConan(ConanFile):
             self,
             os.path.join(self.source_folder, "bus", "meson.build"),
             "if x11_dep.found()",
-            "if get_option('x11').enabled()"
-            if Version(self.version) >= "2.47.1"
-            else "if x11_option == 'yes'",
+            (
+                "if get_option('x11').enabled()"
+                if Version(self.version) >= "2.47.1"
+                else "if x11_option == 'yes'"
+            ),
         )
         replace_in_file(
             self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"

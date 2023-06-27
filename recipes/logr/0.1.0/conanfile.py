@@ -8,6 +8,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
+
 class LogrConan(ConanFile):
     name = "logr"
     description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
@@ -77,7 +78,10 @@ class LogrConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["LOGR_WITH_SPDLOG_BACKEND"] = self.options.backend == "spdlog"
         tc.cache_variables["LOGR_WITH_GLOG_BACKEND"] = self.options.backend == "glog"
-        tc.cache_variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = self.options.backend in ["log4cplus", "log4cplus-unicode"]
+        tc.cache_variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = self.options.backend in [
+            "log4cplus",
+            "log4cplus-unicode",
+        ]
         tc.cache_variables["LOGR_INSTALL"] = True
         tc.cache_variables["LOGR_BUILD_TESTS"] = False
         tc.cache_variables["LOGR_BUILD_EXAMPLES"] = False
@@ -93,7 +97,9 @@ class LogrConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+        )
         cmake = CMake(self)
         cmake.install()
 

@@ -85,7 +85,10 @@ required_conan_version = ">=1.33.0"
 
 class IslConan(ConanFile):
     name = "isl"
-    description = "isl is a library for manipulating sets and relations of integer points bounded by linear constraints."
+    description = (
+        "isl is a library for manipulating sets and relations of integer points bounded by linear"
+        " constraints."
+    )
     topics = ("integer", "set", "library")
     license = "MIT"
     homepage = "https://libisl.sourceforge.io"
@@ -113,7 +116,8 @@ class IslConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration(
-                "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)"
+                "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import"
+                " libraries)"
             )
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("Apple M1 is not yet supported. Contributions are welcome")

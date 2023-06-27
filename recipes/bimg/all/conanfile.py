@@ -264,7 +264,9 @@ class bimgConan(ConanFile):
             # Build project folder and path from given settings
             projFolder = f"gmake-{gmake_os_to_proj[str(self.settings.os)]}"
             if self.settings.os == "Windows" or compiler_str not in ["gcc", "apple-clang"]:
-                projFolder += f"-{compiler_str}"  # mingw-gcc or mingw-clang for windows; -clang for linux (where gcc on linux has no extra)
+                projFolder += (  # mingw-gcc or mingw-clang for windows; -clang for linux (where gcc on linux has no extra)
+                    f"-{compiler_str}"
+                )
             if os_to_use_arch_config_suffix[str(self.settings.os)]:
                 projFolder += gmake_arch_to_genie_suffix[str(self.settings.arch)]
             proj_path = os.path.sep.join([self._bimg_path, ".build", "projects", projFolder])

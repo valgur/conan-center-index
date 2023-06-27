@@ -374,8 +374,7 @@ class DCMTKConan(ConanFile):
                 "dcmtls",
                 "dcmsr",
                 "dcmqrdb",
-            ]
-            + openssl(),
+            ] + openssl(),
             "dcmrt": ["ofstd", "oflog", "dcmdata", "dcmimgle"],
             "dcmiod": ["dcmdata", "ofstd", "oflog"],
             "dcmfg": ["dcmiod", "dcmdata", "ofstd", "oflog"],

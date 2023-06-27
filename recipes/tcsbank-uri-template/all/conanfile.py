@@ -150,7 +150,8 @@ class TCSBankUriTemplateConan(ConanFile):
         elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
             raise ConanInvalidConfiguration(
                 'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
-                ' or "compiler.libcxx=libc++"' % self.name
+                ' or "compiler.libcxx=libc++"'
+                % self.name
             )
 
     def source(self):

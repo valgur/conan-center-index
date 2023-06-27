@@ -194,8 +194,7 @@ class mFASTConan(ConanFile):
         fast_type_filename = "fast_type_gen" + extension
         module_folder_depth = len(os.path.normpath(self._new_mfast_config_dir).split(os.path.sep))
         fast_type_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), fast_type_filename)
-        exec_target_content = textwrap.dedent(
-            """\
+        exec_target_content = textwrap.dedent("""\
             if(NOT TARGET fast_type_gen)
                 if(CMAKE_CROSSCOMPILING)
                     find_program(MFAST_EXECUTABLE fast_type_gen PATHS ENV PATH NO_DEFAULT_PATH)
@@ -206,10 +205,7 @@ class mFASTConan(ConanFile):
                 add_executable(fast_type_gen IMPORTED)
                 set_property(TARGET fast_type_gen PROPERTY IMPORTED_LOCATION ${{MFAST_EXECUTABLE}})
             endif()
-        """.format(
-                fast_type_rel_path=fast_type_rel_path
-            )
-        )
+        """.format(fast_type_rel_path=fast_type_rel_path))
         module_abs_path = os.path.join(self.package_folder, self._fast_type_gen_target_file)
         old_content = load(self, module_abs_path)
         new_content = exec_target_content + old_content
@@ -218,14 +214,12 @@ class mFASTConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

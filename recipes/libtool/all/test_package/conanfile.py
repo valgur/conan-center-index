@@ -172,7 +172,8 @@ class TestPackageConan(ConanFile):
         cmake.build(target="static_lib")
         install_prefix = unix_path(self, self.sis_package_folder)
         self.run(
-            f"cmake --install . --config {self.settings.build_type} --prefix {install_prefix} --component static_lib"
+            f"cmake --install . --config {self.settings.build_type} --prefix {install_prefix} --component"
+            " static_lib"
         )
 
         with chdir(self, autotools_sis_folder):

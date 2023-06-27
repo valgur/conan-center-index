@@ -384,9 +384,9 @@ class OpenSSLConan(ConanFile):
         has_darwin_arm = self._full_version >= "1.1.1i" or is_1_0
         return {
             "Linux-x86-clang": ("%slinux-generic32" % self._target_prefix) if is_1_0 else "linux-x86-clang",
-            "Linux-x86_64-clang": ("%slinux-x86_64" % self._target_prefix)
-            if is_1_0
-            else "linux-x86_64-clang",
+            "Linux-x86_64-clang": (
+                ("%slinux-x86_64" % self._target_prefix) if is_1_0 else "linux-x86_64-clang"
+            ),
             "Linux-x86-*": ("%slinux-generic32" % self._target_prefix) if is_1_0 else "linux-x86",
             "Linux-x86_64-*": "%slinux-x86_64" % self._target_prefix,
             "Linux-armv4-*": "linux-armv4",
@@ -494,9 +494,10 @@ class OpenSSLConan(ConanFile):
         ancestor = next((self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None)
         if not ancestor:
             raise ConanInvalidConfiguration(
-                f"Unsupported configuration ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\n"
-                f"Please open an issue at {self.url}.\n"
-                f"Alternatively, set the CONAN_OPENSSL_CONFIGURATION environment variable into your conan profile."
+                "Unsupported configuration"
+                f" ({self.settings.os}/{self.settings.arch}/{self.settings.compiler}).\nPlease open an issue"
+                f" at {self.url}.\nAlternatively, set the CONAN_OPENSSL_CONFIGURATION environment variable"
+                " into your conan profile."
             )
         return ancestor
 
@@ -884,8 +885,7 @@ class OpenSSLConan(ConanFile):
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(OPENSSL_FOUND TRUE)
             if(DEFINED OpenSSL_INCLUDE_DIR)
                 set(OPENSSL_INCLUDE_DIR ${OpenSSL_INCLUDE_DIR})
@@ -922,9 +922,7 @@ class OpenSSLConan(ConanFile):
             if(DEFINED OpenSSL_VERSION)
                 set(OPENSSL_VERSION ${OpenSSL_VERSION})
             endif()
-        """
-            % {"config": str(self.settings.build_type).upper()}
-        )
+        """ % {"config": str(self.settings.build_type).upper()})
         save(self, module_file, content)
 
     @property

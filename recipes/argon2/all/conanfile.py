@@ -133,7 +133,10 @@ class Argon2Conan(ConanFile):
                 self,
                 vcxproj,
                 '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" /><Import'
+                    ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
             # ==========================
 

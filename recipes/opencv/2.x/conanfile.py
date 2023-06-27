@@ -156,18 +156,20 @@ class OpenCVConan(ConanFile):
             "contrib": {
                 "is_built": self.options.contrib,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "ml", "objdetect", "video"],
-                "requires": [
-                    "opencv_calib3d",
-                    "opencv_features2d",
-                    "opencv_imgproc",
-                    "opencv_ml",
-                    "opencv_objdetect",
-                    "opencv_video",
-                ]
-                + opencv_highgui()
-                + opencv_nonfree()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    [
+                        "opencv_calib3d",
+                        "opencv_features2d",
+                        "opencv_imgproc",
+                        "opencv_ml",
+                        "opencv_objdetect",
+                        "opencv_video",
+                    ]
+                    + opencv_highgui()
+                    + opencv_nonfree()
+                    + eigen()
+                    + tbb()
+                ),
             },
             "core": {
                 "is_built": True,
@@ -188,26 +190,30 @@ class OpenCVConan(ConanFile):
             "gpu": {
                 "is_built": self.options.get_safe("gpu"),
                 "mandatory_options": ["calib3d", "imgproc", "legacy", "objdetect", "photo", "video"],
-                "requires": [
-                    "opencv_calib3d",
-                    "opencv_imgproc",
-                    "opencv_legacy",
-                    "opencv_objdetect",
-                    "opencv_photo",
-                    "opencv_video",
-                ]
-                + eigen()
-                + tbb(),
+                "requires": (
+                    [
+                        "opencv_calib3d",
+                        "opencv_imgproc",
+                        "opencv_legacy",
+                        "opencv_objdetect",
+                        "opencv_photo",
+                        "opencv_video",
+                    ]
+                    + eigen()
+                    + tbb()
+                ),
             },
             "highgui": {
                 "is_built": self.options.highgui,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_imgproc"]
-                + opencv_androidcamera()
-                + imageformats_deps()
-                + gtk()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    ["opencv_imgproc"]
+                    + opencv_androidcamera()
+                    + imageformats_deps()
+                    + gtk()
+                    + eigen()
+                    + tbb()
+                ),
                 "system_libs": [
                     (
                         self.settings.os == "Windows",
@@ -236,10 +242,9 @@ class OpenCVConan(ConanFile):
             "legacy": {
                 "is_built": self.options.legacy,
                 "mandatory_options": ["calib3d", "ml", "video"],
-                "requires": ["opencv_calib3d", "opencv_ml", "opencv_video"]
-                + opencv_highgui()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    ["opencv_calib3d", "opencv_ml", "opencv_video"] + opencv_highgui() + eigen() + tbb()
+                ),
             },
             "ml": {"is_built": self.options.ml, "requires": ["opencv_core"] + eigen() + tbb()},
             "objdetect": {
@@ -255,36 +260,42 @@ class OpenCVConan(ConanFile):
             "stitching": {
                 "is_built": self.options.stitching,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "objdetect"],
-                "requires": ["opencv_calib3d", "opencv_features2d", "opencv_imgproc", "opencv_objdetect"]
-                + opencv_gpu()
-                + opencv_nonfree()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    ["opencv_calib3d", "opencv_features2d", "opencv_imgproc", "opencv_objdetect"]
+                    + opencv_gpu()
+                    + opencv_nonfree()
+                    + eigen()
+                    + tbb()
+                ),
             },
             "superres": {
                 "is_built": self.options.get_safe("superres"),
                 "mandatory_options": ["imgproc", "video"],
-                "requires": ["opencv_imgproc", "opencv_video"]
-                + opencv_gpu()
-                + opencv_highgui()
-                + opencv_ocl()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    ["opencv_imgproc", "opencv_video"]
+                    + opencv_gpu()
+                    + opencv_highgui()
+                    + opencv_ocl()
+                    + eigen()
+                    + tbb()
+                ),
             },
             "ts": {
                 "is_built": self.options.get_safe("ts"),
                 "is_part_of_world": False,
                 "mandatory_options": ["calib3d", "features2d", "highgui", "imgproc", "video"],
-                "requires": [
-                    "opencv_core",
-                    "opencv_calib3d",
-                    "opencv_features2d",
-                    "opencv_highgui",
-                    "opencv_imgproc",
-                    "opencv_video",
-                ]
-                + eigen()
-                + tbb(),
+                "requires": (
+                    [
+                        "opencv_core",
+                        "opencv_calib3d",
+                        "opencv_features2d",
+                        "opencv_highgui",
+                        "opencv_imgproc",
+                        "opencv_video",
+                    ]
+                    + eigen()
+                    + tbb()
+                ),
             },
             "video": {
                 "is_built": self.options.video,
@@ -294,17 +305,19 @@ class OpenCVConan(ConanFile):
             "videostab": {
                 "is_built": self.options.videostab,
                 "mandatory_options": ["calib3d", "features2d", "highgui", "imgproc", "photo", "video"],
-                "requires": [
-                    "opencv_calib3d",
-                    "opencv_features2d",
-                    "opencv_highgui",
-                    "opencv_imgproc",
-                    "opencv_photo",
-                    "opencv_video",
-                ]
-                + opencv_gpu()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    [
+                        "opencv_calib3d",
+                        "opencv_features2d",
+                        "opencv_highgui",
+                        "opencv_imgproc",
+                        "opencv_photo",
+                        "opencv_video",
+                    ]
+                    + opencv_gpu()
+                    + eigen()
+                    + tbb()
+                ),
             },
             # Extra modules
             "androidcamera": {
@@ -315,26 +328,30 @@ class OpenCVConan(ConanFile):
             "nonfree": {
                 "is_built": self.options.nonfree,
                 "mandatory_options": ["calib3d", "features2d", "imgproc"],
-                "requires": ["opencv_calib3d", "opencv_features2d", "opencv_imgproc"]
-                + opencv_gpu()
-                + opencv_ocl()
-                + eigen()
-                + tbb(),
+                "requires": (
+                    ["opencv_calib3d", "opencv_features2d", "opencv_imgproc"]
+                    + opencv_gpu()
+                    + opencv_ocl()
+                    + eigen()
+                    + tbb()
+                ),
             },
             "ocl": {
                 "is_built": self.options.ocl,
                 "mandatory_options": ["calib3d", "features2d", "imgproc", "ml", "objdetect", "video"],
-                "requires": [
-                    "opencv_calib3d",
-                    "opencv_core",
-                    "opencv_features2d",
-                    "opencv_imgproc",
-                    "opencv_ml",
-                    "opencv_objdetect",
-                    "opencv_video",
-                ]
-                + eigen()
-                + tbb(),
+                "requires": (
+                    [
+                        "opencv_calib3d",
+                        "opencv_core",
+                        "opencv_features2d",
+                        "opencv_imgproc",
+                        "opencv_ml",
+                        "opencv_objdetect",
+                        "opencv_video",
+                    ]
+                    + eigen()
+                    + tbb()
+                ),
                 "frameworks": [(self.settings.os == "Macos", ["OpenCL"])],
             },
             "viz": {"is_built": self.options.viz, "requires": ["opencv_core", "vtk::vtk"] + eigen() + tbb()},
@@ -625,14 +642,12 @@ class OpenCVConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

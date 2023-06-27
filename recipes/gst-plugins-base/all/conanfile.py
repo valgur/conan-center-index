@@ -318,19 +318,21 @@ class GStPluginsBaseConan(ConanFile):
         defs["gl_platform"] = gl_platform
         defs["gl_winsys"] = gl_winsys
         defs["alsa"] = "enabled" if self.options.get_safe("with_libalsa") else "disabled"
-        defs[
-            "cdparanoia"
-        ] = "disabled"  # "enabled" if self.options.with_cdparanoia else "disabled" # TODO: cdparanoia
-        defs[
-            "libvisual"
-        ] = "disabled"  # "enabled" if self.options.with_libvisual else "disabled" # TODO: libvisual
+        defs["cdparanoia"] = (
+            "disabled"  # "enabled" if self.options.with_cdparanoia else "disabled" # TODO: cdparanoia
+        )
+        defs["libvisual"] = (
+            "disabled"  # "enabled" if self.options.with_libvisual else "disabled" # TODO: libvisual
+        )
         defs["ogg"] = "enabled" if self.options.with_ogg else "disabled"
         defs["opus"] = "enabled" if self.options.with_opus else "disabled"
         defs["pango"] = "enabled" if self.options.with_pango else "disabled"
         defs["theora"] = "enabled" if self.options.with_theora else "disabled"
         defs[
             "tremor"
-        ] = "disabled"  # "enabled" if self.options.with_tremor else "disabled" # TODO: tremor - only useful on machines without floating-point support
+        ] = (  # "enabled" if self.options.with_tremor else "disabled" # TODO: tremor - only useful on machines without floating-point support
+            "disabled"
+        )
         defs["vorbis"] = "enabled" if self.options.with_vorbis else "disabled"
         defs["x11"] = "enabled" if self.options.get_safe("with_xorg") else "disabled"
         defs["xshm"] = "enabled" if self.options.get_safe("with_xorg") else "disabled"
@@ -341,8 +343,10 @@ class GStPluginsBaseConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
 
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.build()
@@ -360,8 +364,10 @@ class GStPluginsBaseConan(ConanFile):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.install()

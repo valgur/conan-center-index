@@ -10,12 +10,10 @@ import os
 
 required_conan_version = ">=1.50.0"
 
+
 class LogrConan(ConanFile):
     name = "logr"
-    description = (
-        "Logger frontend substitution for spdlog, glog, etc "
-        "for server/desktop applications"
-    )
+    description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/ngrodzitski/logr"
@@ -77,18 +75,10 @@ class LogrConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = (
-            self.options.backend == "spdlog"
-        )
-        tc.variables["LOGR_WITH_GLOG_BACKEND"] = (
-            self.options.backend == "glog"
-        )
-        tc.variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = (
-            self.options.backend == "log4cplus"
-        )
-        tc.variables["LOGR_WITH_BOOSTLOG_BACKEND"] = (
-            self.options.backend == "boostlog"
-        )
+        tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = self.options.backend == "spdlog"
+        tc.variables["LOGR_WITH_GLOG_BACKEND"] = self.options.backend == "glog"
+        tc.variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = self.options.backend == "log4cplus"
+        tc.variables["LOGR_WITH_BOOSTLOG_BACKEND"] = self.options.backend == "boostlog"
         tc.variables["LOGR_INSTALL"] = True
         tc.variables["LOGR_CONAN_PACKAGING"] = True
         tc.variables["LOGR_BUILD_TESTS"] = False
@@ -100,8 +90,7 @@ class LogrConan(ConanFile):
         deps.generate()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

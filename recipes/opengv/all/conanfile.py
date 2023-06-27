@@ -64,9 +64,9 @@ class opengvConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_PYTHON"] = self.options.with_python_bindings
-        tc.variables[
-            "BUILD_POSITION_INDEPENDENT_CODE"
-        ] = self.settings.os != "Windows" and self.options.get_safe("fPIC", True)
+        tc.variables["BUILD_POSITION_INDEPENDENT_CODE"] = (
+            self.settings.os != "Windows" and self.options.get_safe("fPIC", True)
+        )
         tc.generate()
 
         cd = CMakeDeps(self)
@@ -95,14 +95,12 @@ class opengvConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

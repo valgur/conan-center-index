@@ -141,9 +141,11 @@ class FreetypeConan(ConanFile):
                 self,
                 cmakelists,
                 "find_package(BrotliDec REQUIRED)",
-                "find_package(Brotli REQUIRED)\n"
-                "set(BROTLIDEC_FOUND 1)\n"
-                'set(BROTLIDEC_LIBRARIES "brotli::brotli")',
+                (
+                    "find_package(Brotli REQUIRED)\n"
+                    "set(BROTLIDEC_FOUND 1)\n"
+                    'set(BROTLIDEC_LIBRARIES "brotli::brotli")'
+                ),
             )
             if not self.options.with_brotli:
                 replace_in_file(self, cmakelists, "find_package(BrotliDec)", "")
@@ -184,8 +186,7 @@ class FreetypeConan(ConanFile):
             self,
             freetype_config,
             r"export LC_ALL",
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             export LC_ALL
             BINDIR=$(dirname $0)
             conan_prefix=$(dirname $BINDIR)
@@ -194,8 +195,7 @@ class FreetypeConan(ConanFile):
             conan_libdir=${{conan_prefix}}/lib
             conan_ftversion={version}
             conan_staticlibs="{staticlibs}"
-        """
-            ).format(version=version, staticlibs=staticlibs),
+        """).format(version=version, staticlibs=staticlibs),
         )
 
     def _extract_libtool_version(self):
@@ -233,8 +233,7 @@ class FreetypeConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(FREETYPE_FOUND TRUE)
             if(DEFINED Freetype_INCLUDE_DIRS)
                 set(FREETYPE_INCLUDE_DIRS ${{Freetype_INCLUDE_DIRS}})
@@ -243,23 +242,18 @@ class FreetypeConan(ConanFile):
                 set(FREETYPE_LIBRARIES ${{Freetype_LIBRARIES}})
             endif()
             set(FREETYPE_VERSION_STRING "{self.version}")
-        """
-        )
+        """)
         save(self, module_file, content)
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                """\
+            content += textwrap.dedent("""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """.format(
-                    alias=alias, aliased=aliased
-                )
-            )
+            """.format(alias=alias, aliased=aliased))
         save(self, module_file, content)
 
     @property

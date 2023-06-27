@@ -103,7 +103,7 @@ class PackageConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(self.settings.os)],
-            destination=self.source_folder
+            destination=self.source_folder,
         )
         download(self, **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
 

@@ -175,9 +175,11 @@ class GdkPixbufConan(ConanFile):
         replace_in_file(
             self,
             meson_build,
-            "gmodule_dep.get_variable(pkgconfig: 'gmodule_supported')"
-            if Version(self.version) >= "2.42.6"
-            else "gmodule_dep.get_pkgconfig_variable('gmodule_supported')",
+            (
+                "gmodule_dep.get_variable(pkgconfig: 'gmodule_supported')"
+                if Version(self.version) >= "2.42.6"
+                else "gmodule_dep.get_pkgconfig_variable('gmodule_supported')"
+            ),
             "'true'",
         )
         # workaround https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/issues/203

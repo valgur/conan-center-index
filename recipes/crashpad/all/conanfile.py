@@ -156,7 +156,8 @@ class CrashpadConan(ConanFile):
                 )
         else:
             self.output.warn(
-                "This recipe does not know about the current compiler and assumes it has sufficient c++14 supports."
+                "This recipe does not know about the current compiler and assumes it has sufficient c++14"
+                " supports."
             )
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 14)
@@ -167,7 +168,7 @@ class CrashpadConan(ConanFile):
             self,
             **self.conan_data["sources"][self.version]["mini_chromium"],
             destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"),
-            strip_root=True
+            strip_root=True,
         )
 
     @property
@@ -409,13 +410,11 @@ class CrashpadConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake"),
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
                     if(TARGET crashpad::mini_chromium_base)
                         target_compile_features(crashpad::mini_chromium_base INTERFACE cxx_std_14)
                     endif()
-                   """
-            ),
+                   """),
         )
 
     def package_info(self):

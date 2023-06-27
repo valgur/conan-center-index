@@ -143,8 +143,7 @@ class UnicornConan(ConanFile):
             save(
                 self,
                 self._jwasm_wrapper,
-                textwrap.dedent(
-                    """\
+                textwrap.dedent("""\
                 #!/usr/bin/env python
                 import os
                 import sys
@@ -162,8 +161,7 @@ class UnicornConan(ConanFile):
                         args.append(arg)
                 print("args:", args)
                 subprocess.run(args, check=True)
-            """
-                ),
+            """),
             )
             os.chmod(
                 self._jwasm_wrapper,

@@ -1,11 +1,3 @@
-# Warnings:
-#   Unexpected method '_bx_folder'
-#   Unexpected method '_bx_path'
-#   Unexpected method '_genie_extra'
-#   Unexpected method '_projs'
-#   Unexpected method '_compiler_required'
-#   Missing required method 'configure'
-
 from conan import ConanFile
 from conan.tools.files import copy, get, rename
 from conan.tools.build import check_min_cppstd
@@ -221,6 +213,8 @@ class bxConan(ConanFile):
             projFolder = f"gmake-{gmake_os_to_proj[str(self.settings.os)]}"
             if self.settings.os == "Windows" or compiler_str not in ["gcc", "apple-clang"]:
                 projFolder += (  # mingw-gcc or mingw-clang for windows; -clang for linux (where gcc on linux has no extra)
+                    f"-{compiler_str}"
+                )
             if os_to_use_arch_config_suffix[str(self.settings.os)]:
                 projFolder += gmake_arch_to_genie_suffix[str(self.settings.arch)]
             proj_path = os.path.sep.join([self._bx_path, ".build", "projects", projFolder])

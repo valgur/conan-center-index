@@ -1,18 +1,22 @@
+import os
+import re
+import shutil
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, download, unzip, load, copy, rm
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
-import os
-import re
-import shutil
 
 required_conan_version = ">=1.52.0"
 
 
 class AndroidNDKConan(ConanFile):
     name = "android-ndk"
-    description = "The Android NDK is a toolset that lets you implement parts of your app in native code, using languages such as C and C++"
+    description = (
+        "The Android NDK is a toolset that lets you implement parts of your app in native code, using"
+        " languages such as C and C++"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://developer.android.com/ndk/"
@@ -65,7 +69,8 @@ class AndroidNDKConan(ConanFile):
             )
         if not self._settings_arch_supported:
             raise ConanInvalidConfiguration(
-                f"os,arch={self.settings.os},{self.settings.arch} is not supported by {self.name} (no binaries are available)"
+                f"os,arch={self.settings.os},{self.settings.arch} is not supported by {self.name} (no"
+                " binaries are available)"
             )
 
     def source(self):
@@ -204,10 +209,18 @@ class AndroidNDKConan(ConanFile):
         if self.version in ["r23b", "r23c"] and self.settings.os in ["Linux", "Macos"]:
             platform = "darwin" if self.settings.os == "Macos" else "linux"
             links = {
-                f"toolchains/llvm/prebuilt/{platform}-x86_64/aarch64-linux-android/bin/as": "../../bin/aarch64-linux-android-as",
-                f"toolchains/llvm/prebuilt/{platform}-x86_64/arm-linux-androideabi/bin/as": "../../bin/arm-linux-androideabi-as",
-                f"toolchains/llvm/prebuilt/{platform}-x86_64/x86_64-linux-android/bin/as": "../../bin/x86_64-linux-android-as",
-                f"toolchains/llvm/prebuilt/{platform}-x86_64/i686-linux-android/bin/as": "../../bin/i686-linux-android-as",
+                f"toolchains/llvm/prebuilt/{platform}-x86_64/aarch64-linux-android/bin/as": (
+                    "../../bin/aarch64-linux-android-as"
+                ),
+                f"toolchains/llvm/prebuilt/{platform}-x86_64/arm-linux-androideabi/bin/as": (
+                    "../../bin/arm-linux-androideabi-as"
+                ),
+                f"toolchains/llvm/prebuilt/{platform}-x86_64/x86_64-linux-android/bin/as": (
+                    "../../bin/x86_64-linux-android-as"
+                ),
+                f"toolchains/llvm/prebuilt/{platform}-x86_64/i686-linux-android/bin/as": (
+                    "../../bin/i686-linux-android-as"
+                ),
             }
             for path, target in links.items():
                 path = os.path.join(self.package_folder, "bin", path)
@@ -300,7 +313,8 @@ class AndroidNDKConan(ConanFile):
         # And if we are not building for Android, why bother at all
         if not self.settings_target.os == "Android":
             self.output.warning(
-                f"You've added {self.ref} as a build requirement, while os={self.settings_target.os} != Android"
+                f"You've added {self.ref} as a build requirement, "
+                f"while os={self.settings_target.os} != Android"
             )
             return
 

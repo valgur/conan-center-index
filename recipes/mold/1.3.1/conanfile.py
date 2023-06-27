@@ -87,7 +87,10 @@ class MoldConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rui314/mold/"
     license = "AGPL-3.0"
-    description = "mold is a faster drop-in replacement for existing Unix linkers. It is several times faster than the LLVM lld linker"
+    description = (
+        "mold is a faster drop-in replacement for existing Unix linkers. It is several times faster than the"
+        " LLVM lld linker"
+    )
     topics = ("ld", "linkage", "compilation")
 
     settings = "os", "arch", "compiler", "build_type"
@@ -97,14 +100,16 @@ class MoldConan(ConanFile):
     def validate(self):
         if self.settings.build_type == "Debug":
             raise ConanInvalidConfiguration(
-                "Mold is a build tool, specify mold:build_type=Release in your build profile, see https://github.com/conan-io/conan-center-index/pull/11536#issuecomment-1195607330"
+                "Mold is a build tool, specify mold:build_type=Release in your build profile, see"
+                " https://github.com/conan-io/conan-center-index/pull/11536#issuecomment-1195607330"
             )
         if (
             self.settings.compiler in ["gcc", "clang", "intel-cc"]
             and self.settings.compiler.libcxx != "libstdc++11"
         ):
             raise ConanInvalidConfiguration(
-                "Mold can only be built with libstdc++11; specify mold:compiler.libcxx=libstdc++11 in your build profile"
+                "Mold can only be built with libstdc++11; specify mold:compiler.libcxx=libstdc++11 in your"
+                " build profile"
             )
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.name} can not be built on {self.settings.os}.")

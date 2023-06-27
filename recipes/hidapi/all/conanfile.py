@@ -120,7 +120,10 @@ class HidapiConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "windows", "hidapi.vcxproj"),
                 '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" /><Import'
+                    ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
 
             msbuild = MSBuild(self)

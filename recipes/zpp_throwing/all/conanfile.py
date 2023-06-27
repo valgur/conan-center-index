@@ -45,7 +45,8 @@ class ZppThrowingConan(ConanFile):
         # see https://github.com/eyalz800/zpp_throwing/issues/7
         if is_msvc(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} doesn't support MSVC (yet). See https://github.com/eyalz800/zpp_throwing/issues/7"
+                f"{self.ref} doesn't support MSVC (yet). See"
+                " https://github.com/eyalz800/zpp_throwing/issues/7"
             )
 
         if self.settings.compiler.get_safe("cppstd"):
@@ -63,7 +64,8 @@ class ZppThrowingConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler ({compiler}-{version}) does"
+                " not support."
             )
 
         if (

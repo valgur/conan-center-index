@@ -105,26 +105,41 @@ class MsdfgenConan(ConanFile):
                 replace_in_file(
                     self,
                     cmakelists,
-                    "set_target_properties(msdfgen-standalone PROPERTIES ARCHIVE_OUTPUT_DIRECTORY archive OUTPUT_NAME msdfgen)",
-                    "set_target_properties(msdfgen-standalone PROPERTIES OUTPUT_NAME msdfgen IMPORT_PREFIX foo)",
+                    (
+                        "set_target_properties(msdfgen-standalone PROPERTIES ARCHIVE_OUTPUT_DIRECTORY archive"
+                        " OUTPUT_NAME msdfgen)"
+                    ),
+                    (
+                        "set_target_properties(msdfgen-standalone PROPERTIES OUTPUT_NAME msdfgen"
+                        " IMPORT_PREFIX foo)"
+                    ),
                 )
             else:
                 replace_in_file(
                     self,
                     cmakelists,
-                    'set_property(TARGET msdfgen-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
+                    (
+                        "set_property(TARGET msdfgen-core PROPERTY MSVC_RUNTIME_LIBRARY"
+                        ' "MultiThreaded$<$<CONFIG:Debug>:Debug>")'
+                    ),
                     "",
                 )
                 replace_in_file(
                     self,
                     cmakelists,
-                    'set_property(TARGET msdfgen-ext PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
+                    (
+                        "set_property(TARGET msdfgen-ext PROPERTY MSVC_RUNTIME_LIBRARY"
+                        ' "MultiThreaded$<$<CONFIG:Debug>:Debug>")'
+                    ),
                     "",
                 )
                 replace_in_file(
                     self,
                     cmakelists,
-                    'set_property(TARGET msdfgen PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")',
+                    (
+                        "set_property(TARGET msdfgen PROPERTY MSVC_RUNTIME_LIBRARY"
+                        ' "MultiThreaded$<$<CONFIG:Debug>:Debug>")'
+                    ),
                     "",
                 )
 

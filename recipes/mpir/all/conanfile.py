@@ -87,7 +87,7 @@ required_conan_version = ">=1.50.0"
 class MpirConan(ConanFile):
     name = "mpir"
     description = (
-        "MPIR is a highly optimised library for bignum arithmetic" "forked from the GMP bignum library."
+        "MPIR is a highly optimised library for bignum arithmeticforked from the GMP bignum library."
     )
     topics = ("multiprecision", "math", "mathematics")
     url = "https://github.com/conan-io/conan-center-index"

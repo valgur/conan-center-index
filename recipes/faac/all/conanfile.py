@@ -147,7 +147,10 @@ class FaacConan(ConanFile):
                     self,
                     os.path.join(self._sln_folder, vcxproj_file),
                     '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                    f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    (
+                        f'<Import Project="{conantoolchain_props}" /><Import'
+                        ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                    ),
                 )
             # ==========================
 

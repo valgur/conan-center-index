@@ -122,7 +122,8 @@ class ArmadilloConan(ConanFile):
             # in their consumer conanfile.py
             if self.options.use_blas == "intel_mkl" or self.options.use_lapack == "intel_mkl":
                 self.output.warning(
-                    "The intel-mkl package does not exist in CCI. To use an Intel MKL package, override this requirement with your own recipe."
+                    "The intel-mkl package does not exist in CCI. To use an Intel MKL package, override this"
+                    " requirement with your own recipe."
                 )
             self.requires("intel-mkl/2021.4")
 

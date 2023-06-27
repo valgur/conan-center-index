@@ -14,8 +14,7 @@ required_conan_version = ">=1.55.0"
 class FreexlConan(ConanFile):
     name = "freexl"
     description = (
-        "FreeXL is an open source library to extract valid data "
-        "from within an Excel (.xls) spreadsheet."
+        "FreeXL is an open source library to extract valid data from within an Excel (.xls) spreadsheet."
     )
     license = ["MPL-1.0", "GPL-2.0-only", "LGPL-2.1-only"]
     url = "https://github.com/conan-io/conan-center-index"

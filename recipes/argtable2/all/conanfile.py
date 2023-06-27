@@ -22,8 +22,7 @@ required_conan_version = ">=1.55.0"
 class Argtable2Conan(ConanFile):
     name = "argtable2"
     description = (
-        "Argtable is an ANSI C library for parsing GNU style"
-        " command line options with a minimum of fuss."
+        "Argtable is an ANSI C library for parsing GNU style command line options with a minimum of fuss."
     )
     license = "LGPL-2.0+"
     url = "https://github.com/conan-io/conan-center-index"

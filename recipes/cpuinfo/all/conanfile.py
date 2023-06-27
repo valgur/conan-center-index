@@ -10,8 +10,7 @@ required_conan_version = ">=1.53.0"
 class CpuinfoConan(ConanFile):
     name = "cpuinfo"
     description = (
-        "cpuinfo is a library to detect essential for performance "
-        "optimization information about host CPU."
+        "cpuinfo is a library to detect essential for performance optimization information about host CPU."
     )
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"

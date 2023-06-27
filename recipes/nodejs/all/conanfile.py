@@ -60,7 +60,7 @@ class NodejsConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(self.settings.os)][self._nodejs_arch],
-            strip_root=True
+            strip_root=True,
         )
 
     def package(self):

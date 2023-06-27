@@ -12,7 +12,9 @@ required_conan_version = ">=1.53.0"
 
 class HiGHSConan(ConanFile):
     name = "highs"
-    description = "high performance serial and parallel solver for large scale sparse linear optimization problems"
+    description = (
+        "high performance serial and parallel solver for large scale sparse linear optimization problems"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.highs.dev/"
@@ -31,7 +33,9 @@ class HiGHSConan(ConanFile):
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(
+                f"{self.ref} can not be built as shared on Visual Studio and msvc."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -72,18 +76,44 @@ class HiGHSConan(ConanFile):
 
     def package(self):
         copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
-        copy(self, pattern="*.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
+        copy(
+            self, pattern="*.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include")
+        )
         copy(self, pattern="HConfig.h", src=self.build_folder, dst=join(self.package_folder, "include"))
         if self.options.shared:
-            copy(self, pattern="*.so*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.dylib*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
+            copy(
+                self,
+                pattern="*.so*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
+            copy(
+                self,
+                pattern="*.dylib*",
+                src=join(self.build_folder, "lib"),
+                dst=join(self.package_folder, "lib"),
+            )
         else:
-            copy(self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
+            copy(
+                self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib")
+            )
             if Version(self.version) >= Version("1.5.3"):
                 # https://github.com/ERGO-Code/HiGHS/commit/2c24b4cb6ecece98ed807dbeff9b27a2fbba8d37
-                copy(self, pattern="*.lib", src=self.build_folder, dst=join(self.package_folder, "lib"), keep_path=False)
+                copy(
+                    self,
+                    pattern="*.lib",
+                    src=self.build_folder,
+                    dst=join(self.package_folder, "lib"),
+                    keep_path=False,
+                )
             else:
-                copy(self, pattern="*.lib", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"), keep_path=False)
+                copy(
+                    self,
+                    pattern="*.lib",
+                    src=join(self.build_folder, "lib"),
+                    dst=join(self.package_folder, "lib"),
+                    keep_path=False,
+                )
         fix_apple_shared_install_name(self)
 
     def package_info(self):

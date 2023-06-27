@@ -176,7 +176,10 @@ class GoogleCloudCppConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "cmake/CompileProtos.cmake"),
                 "$<TARGET_FILE:protobuf::protoc>",
-                '${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" $<TARGET_FILE:protobuf::protoc>',
+                (
+                    '${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}"'
+                    " $<TARGET_FILE:protobuf::protoc>"
+                ),
             )
 
     def build(self):

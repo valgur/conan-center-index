@@ -176,8 +176,7 @@ class CapnprotoConan(ConanFile):
                 os.remove(cmake_file)
         # inject mandatory variables so that CAPNP_GENERATE_CPP function can
         # work in a robust way (build from source or from pre build package)
-        find_execs = textwrap.dedent(
-            """\
+        find_execs = textwrap.dedent("""\
             if(CMAKE_CROSSCOMPILING)
                 find_program(CAPNP_EXECUTABLE capnp PATHS ENV PATH NO_DEFAULT_PATH)
                 find_program(CAPNPC_CXX_EXECUTABLE capnpc-c++ PATHS ENV PATH NO_DEFAULT_PATH)
@@ -190,8 +189,7 @@ class CapnprotoConan(ConanFile):
             endif()
             set(CAPNP_INCLUDE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../../../include")
             function(CAPNP_GENERATE_CPP SOURCES HEADERS)
-        """
-        )
+        """)
         replace_in_file(
             self,
             os.path.join(self.package_folder, self._cmake_folder, "CapnProtoMacros.cmake"),

@@ -124,8 +124,7 @@ class PlatformConvertersConan(ConanFile):
 
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "{}/{} requires c++{}, "
-                "which is not supported by {} {}.".format(
+                "{}/{} requires c++{}, which is not supported by {} {}.".format(
                     self.name,
                     self.version,
                     self._minimum_cpp_standard,

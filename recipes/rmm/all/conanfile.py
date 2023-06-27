@@ -70,13 +70,15 @@ class RmmConan(ConanFile):
         # https://github.com/rapidsai/rapids-cmake/blob/branch-23.08/rapids-cmake/cmake/write_version_file.cmake
         # https://github.com/rapidsai/rapids-cmake/blob/branch-23.08/rapids-cmake/cmake/template/version.hpp.in
         major, minor, patch = self.version.split(".")[:3]
-        save(self, os.path.join(self.source_folder, "include", "rmm", "version_config.hpp"),
+        save(
+            self,
+            os.path.join(self.source_folder, "include", "rmm", "version_config.hpp"),
             textwrap.dedent(f"""\
             #pragma once
             #define RMM_VERSION_MAJOR {int(major)}
             #define RMM_VERSION_MINOR {int(minor)}
             #define RMM_VERSION_PATCH {int(patch)}
-            """)
+            """),
         )
 
     def _patch_sources(self):

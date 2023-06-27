@@ -193,7 +193,7 @@ class B2Conan(ConanFile):
                 f" toolset={self.options.toolset} install"
             )
         else:
-            full_command = f"{command} --ignore-site-config --prefix=../output --abbreviate-paths" " install"
+            full_command = f"{command} --ignore-site-config --prefix=../output --abbreviate-paths install"
         self.run(full_command)
 
     def package(self):

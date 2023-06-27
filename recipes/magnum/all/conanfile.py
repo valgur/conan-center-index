@@ -529,9 +529,7 @@ class MagnumConan(ConanFile):
         for executable in self._executables:
             build_module_path = os.path.join(build_modules_folder, "conan-magnum-{}.cmake".format(executable))
             with open(build_module_path, "w+", encoding="utf-8") as f:
-                f.write(
-                    textwrap.dedent(
-                        """\
+                f.write(textwrap.dedent("""\
                     if(NOT TARGET Magnum::{exec})
                         if(CMAKE_CROSSCOMPILING)
                             find_program(MAGNUM_EXEC_PROGRAM magnum-{exec} PATHS ENV PATH NO_DEFAULT_PATH)
@@ -543,11 +541,7 @@ class MagnumConan(ConanFile):
                         add_executable(Magnum::{exec} IMPORTED)
                         set_property(TARGET Magnum::{exec} PROPERTY IMPORTED_LOCATION ${{MAGNUM_EXEC_PROGRAM}})
                     endif()
-                """.format(
-                            exec=executable
-                        )
-                    )
-                )
+                """.format(exec=executable)))
 
         if not self.options.shared_plugins:
             for component, target, library, _, _ in self._plugins:
@@ -555,20 +549,14 @@ class MagnumConan(ConanFile):
                     build_modules_folder, "conan-magnum-plugins-{}.cmake".format(component)
                 )
                 with open(build_module_path, "w+", encoding="utf-8") as f:
-                    f.write(
-                        textwrap.dedent(
-                            """\
+                    f.write(textwrap.dedent("""\
                         if(NOT ${{CMAKE_VERSION}} VERSION_LESS "3.0")
                             if(TARGET Magnum::{target})
                                 set_target_properties(Magnum::{target} PROPERTIES INTERFACE_SOURCES
                                                     "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{library}/importStaticPlugin.cpp")
                             endif()
                         endif()
-                    """.format(
-                                target=target, library=library
-                            )
-                        )
-                    )
+                    """.format(target=target, library=library)))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))

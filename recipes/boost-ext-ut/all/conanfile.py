@@ -78,8 +78,8 @@ class UTConan(ConanFile):
             else:
                 if Version(self.settings.compiler.version) < min_version:
                     raise ConanInvalidConfiguration(
-                        f"{self.ref} requires C++{self._minimum_cpp_standard} support. "
-                        f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                        f"{self.ref} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                        f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                     )
 
     def source(self):

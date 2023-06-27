@@ -222,9 +222,8 @@ class LibUSBCompatConan(ConanFile):
     def _extract_makefile_variable(self, makefile, variable):
         makefile_contents = load(self, makefile)
         match = re.search(
-            '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\"))*)*)\n'.format(
-                variable
-            ),
+            '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9'
+            ' \t.=/_-])|(?:\\"))*)*)\n'.format(variable),
             makefile_contents,
         )
         if not match:

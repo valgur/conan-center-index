@@ -20,7 +20,10 @@ required_conan_version = ">=1.52.0"
 class PSevenZipConan(ConanFile):
     name = "p7zip"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "p7zip is a quick port of 7z.exe and 7za.exe (command line version of 7zip, see www.7-zip.org) for Unix"
+    description = (
+        "p7zip is a quick port of 7z.exe and 7za.exe (command line version of 7zip, see www.7-zip.org) for"
+        " Unix"
+    )
     license = ("LGPL-2.1", "Unrar")
     homepage = "https://sourceforge.net/projects/p7zip/"
     topics = ("7zip", "zip", "compression", "decompression")

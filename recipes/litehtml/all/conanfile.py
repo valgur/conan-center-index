@@ -75,9 +75,9 @@ class LitehtmlConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.variables["LITEHTML_UTF8"] = self.options.utf8
         tc.variables["USE_ICU"] = self.options.with_icu
-        tc.variables[
-            "EXTERNAL_GUMBO"
-        ] = False  # FIXME: add cci recipe, and use it unconditionally (option value should be True)
+        tc.variables["EXTERNAL_GUMBO"] = (
+            False  # FIXME: add cci recipe, and use it unconditionally (option value should be True)
+        )
         tc.variables["EXTERNAL_XXD"] = self._with_xxd  # FIXME: should be True unconditionally
         tc.generate()
         deps = CMakeDeps(self)
@@ -107,14 +107,12 @@ class LitehtmlConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

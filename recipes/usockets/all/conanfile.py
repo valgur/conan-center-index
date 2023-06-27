@@ -159,7 +159,8 @@ class UsocketsConan(ConanFile):
 
         if Version(self.version) >= "0.5.0" and self.options.with_ssl == "wolfssl":
             raise ConanInvalidConfiguration(
-                f"with_ssl={self.options.with_ssl} is not supported with {self.name}/{self.version}. https://github.com/uNetworking/uSockets/issues/147"
+                f"with_ssl={self.options.with_ssl} is not supported with {self.name}/{self.version}."
+                " https://github.com/uNetworking/uSockets/issues/147"
             )
 
         if self.options.with_ssl == "wolfssl" and not self.options["wolfssl"].opensslextra:
@@ -180,7 +181,8 @@ class UsocketsConan(ConanFile):
                 )
         else:
             self.output.warn(
-                f"{self.name} requires C++{cppstd}. Your compiler is unknown. Assuming it supports C++{cppstd}."
+                f"{self.name} requires C++{cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{cppstd}."
             )
 
     def configure(self):

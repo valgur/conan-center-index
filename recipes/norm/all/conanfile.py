@@ -47,9 +47,9 @@ class NormConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables[
-            "NORM_CUSTOM_PROTOLIB_VERSION"
-        ] = "./protolib"  # FIXME: use external protolib when available in CCI
+        tc.variables["NORM_CUSTOM_PROTOLIB_VERSION"] = (
+            "./protolib"  # FIXME: use external protolib when available in CCI
+        )
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

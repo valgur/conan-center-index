@@ -13,7 +13,10 @@ class TzConan(ConanFile):
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.iana.org/time-zones"
-    description = "The Time Zone Database contains data that represent the history of local time for many representative locations around the globe."
+    description = (
+        "The Time Zone Database contains data that represent the history of local time for many"
+        " representative locations around the globe."
+    )
     topics = ("tzdb", "time", "zone", "date")
     settings = "os", "build_type", "arch", "compiler"
 

@@ -282,7 +282,8 @@ class TestPackageConan(ConanFile):
 
             if is_apple_os(self.settings.os) and not self.options["cpython"].shared:
                 self.output.info(
-                    "Not testing the module, because these seem not to work on apple when cpython is built as a static library"
+                    "Not testing the module, because these seem not to work on apple when cpython is built as"
+                    " a static library"
                 )
                 # FIXME: find out why cpython on apple does not allow to use modules linked against a static python
             else:
@@ -298,7 +299,9 @@ class TestPackageConan(ConanFile):
                         self._test_module("spam", True)
 
             # MSVC builds need PYTHONHOME set.
-            with environment_append(
-                self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome}
-            ) if self.deps_user_info["cpython"].module_requires_pythonhome == "True" else no_op(self):
+            with (
+                environment_append(self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome})
+                if self.deps_user_info["cpython"].module_requires_pythonhome == "True"
+                else no_op(self)
+            ):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

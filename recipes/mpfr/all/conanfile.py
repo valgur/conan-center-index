@@ -157,14 +157,26 @@ class MpfrConan(ConanFile):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "configure"),
-                'as_fn_error $? "libgmp isn\'t provided as a DLL: use --enable-static --disable-shared" "$LINENO" 5',
-                '# as_fn_error $? "libgmp isn\'t provided as a DLL: use --enable-static --disable-shared" "$LINENO" 5',
+                (
+                    'as_fn_error $? "libgmp isn\'t provided as a DLL: use --enable-static --disable-shared"'
+                    ' "$LINENO" 5'
+                ),
+                (
+                    '# as_fn_error $? "libgmp isn\'t provided as a DLL: use --enable-static --disable-shared"'
+                    ' "$LINENO" 5'
+                ),
             )
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "configure"),
-                'as_fn_error $? "libgmp is provided as a DLL: use --disable-static --enable-shared" "$LINENO" 5',
-                '# as_fn_error $? "libgmp is provided as a DLL: use --disable-static --enable-shared" "$LINENO" 5',
+                (
+                    'as_fn_error $? "libgmp is provided as a DLL: use --disable-static --enable-shared"'
+                    ' "$LINENO" 5'
+                ),
+                (
+                    '# as_fn_error $? "libgmp is provided as a DLL: use --disable-static --enable-shared"'
+                    ' "$LINENO" 5'
+                ),
             )
 
         if self.options.exact_int == "mpir":

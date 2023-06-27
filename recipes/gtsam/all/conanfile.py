@@ -21,8 +21,7 @@ required_conan_version = ">=1.53.0"
 class GtsamConan(ConanFile):
     name = "gtsam"
     description = (
-        "GTSAM is a library of C++ classes that implement smoothing and mapping (SAM) "
-        "in robotics and vision"
+        "GTSAM is a library of C++ classes that implement smoothing and mapping (SAM) in robotics and vision"
     )
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
@@ -205,14 +204,12 @@ class GtsamConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

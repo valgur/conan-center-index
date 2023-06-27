@@ -82,9 +82,11 @@ class AutomakeConan(ConanFile):
                 self,
                 ac_local_in,
                 "          $map_traced_defs{$arg1} = $file;",
-                "          $file = `cygpath -u $file`;\n"
-                "          $file =~ s/^\\s+|\\s+$//g;\n"
-                "          $map_traced_defs{$arg1} = $file;",
+                (
+                    "          $file = `cygpath -u $file`;\n"
+                    "          $file =~ s/^\\s+|\\s+$//g;\n"
+                    "          $map_traced_defs{$arg1} = $file;"
+                ),
             )
             # handle relative paths during aclocal.m4 creation
             replace_in_file(

@@ -130,7 +130,7 @@ class GrpcConan(ConanFile):
 
         if self.options.shared and (not self.dependencies["protobuf"].options.shared):
             raise ConanInvalidConfiguration(
-                "If built as shared protobuf must be shared as well. " "Please, use `protobuf:shared=True`."
+                "If built as shared protobuf must be shared as well. Please, use `protobuf:shared=True`."
             )
 
     def build_requirements(self):
@@ -216,7 +216,10 @@ class GrpcConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "CMakeLists.txt"),
                 "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
-                'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}',
+                (
+                    'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}"'
+                    " ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}"
+                ),
             )
 
     def build(self):

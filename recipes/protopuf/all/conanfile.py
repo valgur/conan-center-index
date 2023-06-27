@@ -12,7 +12,10 @@ required_conan_version = ">=1.50.0"
 
 class ProtopufConan(ConanFile):
     name = "protopuf"
-    description = "Protocol Puffers: A little, highly templated, and protobuf-compatible serialization/deserialization header-only library written in C++20"
+    description = (
+        "Protocol Puffers: A little, highly templated, and protobuf-compatible serialization/deserialization"
+        " header-only library written in C++20"
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/PragmaTwice/protopuf"

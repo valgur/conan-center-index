@@ -107,25 +107,19 @@ class AbseilConan(ConanFile):
         # In case of cross-build, set CMAKE_SYSTEM_PROCESSOR if not set by toolchain or user
         if cross_building(self):
             toolchain_file = os.path.join(self.generators_folder, "conan_toolchain.cmake")
-            cmake_system_processor_block = textwrap.dedent(
-                """\
+            cmake_system_processor_block = textwrap.dedent("""\
                 if(NOT CMAKE_SYSTEM_PROCESSOR)
                     set(CMAKE_SYSTEM_PROCESSOR {})
                 endif()
-            """.format(
-                    str(self.settings.arch)
-                )
-            )
+            """.format(str(self.settings.arch)))
             save(self, toolchain_file, cmake_system_processor_block, append=True)
 
         # Trick to capture ABI
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        abi_trick_block = textwrap.dedent(
-            """\
+        abi_trick_block = textwrap.dedent("""\
             list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../abi_trick")
             include(conan_abi_test)
-        """
-        )
+        """)
         save(self, cmakelists, abi_trick_block, append=True)
 
     def build(self):

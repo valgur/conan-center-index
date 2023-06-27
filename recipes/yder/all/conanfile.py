@@ -92,14 +92,12 @@ class YderConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     def package(self):
@@ -115,11 +113,9 @@ class YderConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(
-                f"""\
+            textwrap.dedent(f"""\
                 set(YDER_VERSION_STRING "{self.version}")
-           """
-            ),
+           """),
         )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

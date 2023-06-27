@@ -175,9 +175,11 @@ class GobjectIntrospectionConan(ConanFile):
 
         with environment_append(
             self,
-            VisualStudioBuildEnvironment(self).vars
-            if is_msvc(self)
-            else {"PKG_CONFIG_PATH": self.build_folder},
+            (
+                VisualStudioBuildEnvironment(self).vars
+                if is_msvc(self)
+                else {"PKG_CONFIG_PATH": self.build_folder}
+            ),
         ):
             meson = self._configure_meson()
             meson.build()
@@ -186,8 +188,10 @@ class GobjectIntrospectionConan(ConanFile):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.install()

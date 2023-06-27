@@ -60,7 +60,8 @@ class TupletConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(compiler, False)
         if minimum_version and loose_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does not support"
+                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does"
+                " not support"
             )
 
     def layout(self):

@@ -113,7 +113,10 @@ class IXWebSocketConan(ConanFile):
                 self,
                 cmakelists,
                 "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib",
-                "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin",
+                (
+                    "ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib LIBRARY DESTINATION lib RUNTIME"
+                    " DESTINATION bin"
+                ),
             )
         elif Version(self.version) < "11.4.3":
             replace_in_file(
@@ -127,7 +130,10 @@ class IXWebSocketConan(ConanFile):
                 self,
                 cmakelists,
                 "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION bin",
+                (
+                    "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}"
+                    " RUNTIME DESTINATION bin"
+                ),
             )
 
     def build(self):

@@ -101,7 +101,10 @@ class GlfwConan(ConanFile):
             replace_in_file(
                 self,
                 cmakelists,
-                'message(FATAL_ERROR "You are trying to link the Vulkan loader static library into the GLFW shared library")',
+                (
+                    'message(FATAL_ERROR "You are trying to link the Vulkan loader static library into the'
+                    ' GLFW shared library")'
+                ),
                 "",
             )
             vulkan_lib = self.dependencies["vulkan-loader"].cpp_info.libs[0]
@@ -134,14 +137,12 @@ class GlfwConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

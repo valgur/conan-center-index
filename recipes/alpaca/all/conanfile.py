@@ -12,7 +12,10 @@ required_conan_version = ">=1.52.0"
 
 class AlpacaConan(ConanFile):
     name = "alpaca"
-    description = "Serialization library written in C++17 - Pack C++ structs into a compact byte-array without any macros or boilerplate code"
+    description = (
+        "Serialization library written in C++17 - Pack C++ structs into a compact byte-array without any"
+        " macros or boilerplate code"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/alpaca"

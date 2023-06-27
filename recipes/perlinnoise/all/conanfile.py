@@ -50,7 +50,8 @@ class PerlinnoiseConan(ConanFile):
                 )
         else:
             self.output.warn(
-                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
+                f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
+                f" C++{self._min_cppstd}."
             )
 
     def source(self):

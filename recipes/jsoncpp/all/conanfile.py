@@ -102,7 +102,9 @@ class JsoncppConan(ConanFile):
             os.path.join(self.package_folder, self._module_file_rel_path),
             {
                 "JsonCpp::JsonCpp": "jsoncpp::jsoncpp",  # alias target since 1.9.5
-                "jsoncpp_lib": "jsoncpp::jsoncpp",  # imported target for shared lib, but also static between 1.9.0 & 1.9.3
+                "jsoncpp_lib": (
+                    "jsoncpp::jsoncpp"
+                ),  # imported target for shared lib, but also static between 1.9.0 & 1.9.3
                 "jsoncpp_static": "jsoncpp::jsoncpp",  # imported target for static lib if >= 1.9.4
                 "jsoncpp_lib_static": "jsoncpp::jsoncpp",  # imported target for static lib if < 1.9.0
             },
@@ -111,14 +113,12 @@ class JsoncppConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property
@@ -130,9 +130,11 @@ class JsoncppConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "JsonCpp::JsonCpp")
         self.cpp_info.set_property(
             "cmake_target_aliases",
-            ["jsoncpp_lib"]
-            if self.options.shared
-            else ["jsoncpp_lib", "jsoncpp_static", "jsoncpp_lib_static"],
+            (
+                ["jsoncpp_lib"]
+                if self.options.shared
+                else ["jsoncpp_lib", "jsoncpp_static", "jsoncpp_lib_static"]
+            ),
         )
         self.cpp_info.set_property("pkg_config_name", "jsoncpp")
         self.cpp_info.libs = ["jsoncpp"]

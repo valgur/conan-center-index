@@ -194,8 +194,7 @@ class TBBConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
-                textwrap.dedent(
-                    """\
+                textwrap.dedent("""\
                     LIB_LINK_CMD = {}.exe
                     LIB_OUTPUT_KEY = /OUT:
                     LIB_LINK_FLAGS =
@@ -217,10 +216,7 @@ class TBBConan(ConanFile):
                     MALLOC_NO_VERSION.DLL =
                     MALLOCPROXY.DLL =
                     MALLOCPROXY.DEF =
-                """.format(
-                        "xilib" if self.settings.compiler == "intel" else "lib"
-                    )
-                ),
+                """.format("xilib" if self.settings.compiler == "intel" else "lib")),
             )
             extra = "" if self.options.shared else "extra_inc=big_iron_msvc.inc"
         else:

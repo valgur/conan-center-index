@@ -9,7 +9,10 @@ required_conan_version = ">=1.53.0"
 
 class AwsCSDKUtils(ConanFile):
     name = "aws-c-sdkutils"
-    description = "C99 library implementing AWS SDK specific utilities. Includes utilities for ARN parsing, reading AWS profiles, etc..."
+    description = (
+        "C99 library implementing AWS SDK specific utilities. Includes utilities for ARN parsing, reading AWS"
+        " profiles, etc..."
+    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-sdkutils"
@@ -76,14 +79,12 @@ class AwsCSDKUtils(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

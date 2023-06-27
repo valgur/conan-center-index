@@ -76,15 +76,13 @@ class XorgMacrosConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             datarootdir={datarootdir}
             datadir=${{datarootdir}}
             PACKAGE={name}
             pkgdatadir=${{datadir}}/${{PACKAGE}}
             docdir=${{pkgdatadir}}
-        """
-            ).format(datarootdir=self._datarootdir, name="util-macros"),
+        """).format(datarootdir=self._datarootdir, name="util-macros"),
         )
 
         aclocal = os.path.join(self._datarootdir, "aclocal")

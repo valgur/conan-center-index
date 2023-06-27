@@ -378,7 +378,10 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_libtiff") and self.options["libtiff"].jpeg != self.options.get_safe(
             "with_jpeg"
         ):
-            msg = "libtiff:jpeg and gdal:with_jpeg must be set to the same value, either libjpeg or libjpeg-turbo."
+            msg = (
+                "libtiff:jpeg and gdal:with_jpeg must be set to the same value, either libjpeg or"
+                " libjpeg-turbo."
+            )
             # For some reason, the ConanInvalidConfiguration message is not shown, only
             #     ERROR: At least two recipes provides the same functionality:
             #      - 'libjpeg' provided by 'libjpeg-turbo/2.1.2', 'libjpeg/9d'
@@ -389,7 +392,10 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_poppler") and self.options[
             "poppler"
         ].with_libjpeg != self.options.get_safe("with_jpeg"):
-            msg = "poppler:with_libjpeg and gdal:with_jpeg must be set to the same value, either libjpeg or libjpeg-turbo."
+            msg = (
+                "poppler:with_libjpeg and gdal:with_jpeg must be set to the same value, either libjpeg or"
+                " libjpeg-turbo."
+            )
             self.output.error(msg)
             raise ConanInvalidConfiguration(msg)
 

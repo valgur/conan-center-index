@@ -14,7 +14,10 @@ class ReadExcelConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/igormironchik/read-excel"
     license = "MIT"
-    description = "This is very simple implementation of the Excel 97-2003 format (BIFF8) written in C++. Supported reading only."
+    description = (
+        "This is very simple implementation of the Excel 97-2003 format (BIFF8) written in C++. Supported"
+        " reading only."
+    )
     topics = ("read", "excel", "biff8")
     settings = "compiler"
     no_copy_source = True
@@ -38,7 +41,8 @@ class ReadExcelConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not"
+                " support."
             )
 
     def layout(self):

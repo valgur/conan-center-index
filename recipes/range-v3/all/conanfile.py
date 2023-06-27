@@ -49,11 +49,13 @@ class Rangev3Conan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warning(
-                f"{self.settings.compiler} {self.settings.compiler.version} support for range-v3 is unknown, assuming it is supported."
+                f"{self.settings.compiler} {self.settings.compiler.version} support for range-v3 is unknown,"
+                " assuming it is supported."
             )
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"range-v3 {self.version} requires C++{self._min_cppstd} with {self.settings.compiler}, which is not supported by {self.settings.compiler} {self.settings.compiler.version}"
+                f"range-v3 {self.version} requires C++{self._min_cppstd} with {self.settings.compiler}, which"
+                f" is not supported by {self.settings.compiler} {self.settings.compiler.version}"
             )
 
     def source(self):

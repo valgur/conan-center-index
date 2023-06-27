@@ -11,7 +11,10 @@ required_conan_version = ">=1.52.0"
 
 class ReflCppConan(ConanFile):
     name = "refl-cpp"
-    description = "A modern compile-time reflection library for C++ with support for overloads, templates, attributes and proxies"
+    description = (
+        "A modern compile-time reflection library for C++ with support for overloads, templates, attributes"
+        " and proxies"
+    )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/veselink1/refl-cpp"
@@ -52,8 +55,8 @@ class ReflCppConan(ConanFile):
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd} support. "
-                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.ref} requires C++{self._min_cppstd} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def source(self):

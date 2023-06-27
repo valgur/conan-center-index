@@ -92,9 +92,7 @@ class LibxlsConan(ConanFile):
 #define HAVE_ICONV 1
 #define ICONV_CONST
 #define PACKAGE_VERSION "{}"
-""".format(
-            self.version
-        )
+""".format(self.version)
         if self.settings.os == "Macos":
             config_h_content += "#define HAVE_XLOCALE_H 1\n"
         save(self, os.path.join(self.source_folder, "include", "config.h"), config_h_content)

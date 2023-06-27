@@ -91,7 +91,7 @@ class PistacheConan(ConanFile):
         else:
             self.output.warn(
                 f"{self.ref} requires c++17, but this compiler is unknown to this recipe. "
-                f"Assuming your compiler supports c++17."
+                "Assuming your compiler supports c++17."
             )
 
     def build_requirements(self):

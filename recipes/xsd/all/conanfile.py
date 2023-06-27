@@ -85,7 +85,11 @@ required_conan_version = ">=1.40.0"
 class ConanXqilla(ConanFile):
     name = "xsd"
 
-    description = "XSD is a W3C XML Schema to C++ translator. It generates vocabulary-specific, statically-typed C++ mappings (also called bindings) from XML Schema definitions. XSD supports two C++ mappings: in-memory C++/Tree and event-driven C++/Parser."
+    description = (
+        "XSD is a W3C XML Schema to C++ translator. It generates vocabulary-specific, statically-typed C++"
+        " mappings (also called bindings) from XML Schema definitions. XSD supports two C++ mappings:"
+        " in-memory C++/Tree and event-driven C++/Parser."
+    )
     topics = ("xml", "c++")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://codesynthesis.com/projects/xsd/"

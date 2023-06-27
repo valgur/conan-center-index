@@ -162,8 +162,7 @@ class GnuTLSConan(ConanFile):
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(GNUTLS_FOUND TRUE)
             if(NOT DEFINED GNUTLS_INCLUDE_DIR AND DEFINED GnuTLS_INCLUDE_DIRS)
                 set(GNUTLS_INCLUDE_DIR ${{GnuTLS_INCLUDE_DIRS}})
@@ -179,8 +178,7 @@ class GnuTLSConan(ConanFile):
                 endif()
             endif()
             set(GNUTLS_VERSION {self.version})
-        """
-        )
+        """)
         save(self, module_file, content)
 
     @property

@@ -194,8 +194,7 @@ class XZUtilsConan(ConanFile):
 
     def _create_cmake_module_variables(self, module_file):
         # TODO: also add LIBLZMA_HAS_AUTO_DECODER, LIBLZMA_HAS_EASY_ENCODER & LIBLZMA_HAS_LZMA_PRESET
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             set(LIBLZMA_FOUND TRUE)
             if(DEFINED LibLZMA_INCLUDE_DIRS)
                 set(LIBLZMA_INCLUDE_DIRS ${{LibLZMA_INCLUDE_DIRS}})
@@ -207,8 +206,7 @@ class XZUtilsConan(ConanFile):
             set(LIBLZMA_VERSION_MINOR {Version(self.version).minor})
             set(LIBLZMA_VERSION_PATCH {Version(self.version).patch})
             set(LIBLZMA_VERSION_STRING "{self.version}")
-        """
-        )
+        """)
         save(self, module_file, content)
 
     def package_info(self):

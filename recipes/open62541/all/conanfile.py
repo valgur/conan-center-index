@@ -326,12 +326,12 @@ class Open62541Conan(ConanFile):
         tc.variables["UA_ENABLE_DISCOVERY"] = self.options.discovery != False
 
         if self.options.discovery != False:
-            tc.variables[
-                "UA_ENABLE_DISCOVERY_MULTICAST"
-            ] = self.options.discovery == "With Multicast" or "multicast" in str(self.options.discovery)
-            tc.variables[
-                "UA_ENABLE_DISCOVERY_SEMAPHORE"
-            ] = self.options.discovery_semaphore or "semaphore" in str(self.options.discovery)
+            tc.variables["UA_ENABLE_DISCOVERY_MULTICAST"] = (
+                self.options.discovery == "With Multicast" or "multicast" in str(self.options.discovery)
+            )
+            tc.variables["UA_ENABLE_DISCOVERY_SEMAPHORE"] = (
+                self.options.discovery_semaphore or "semaphore" in str(self.options.discovery)
+            )
 
         tc.variables["UA_ENABLE_QUERY"] = self.options.query
 
@@ -360,9 +360,9 @@ class Open62541Conan(ConanFile):
         tc.variables["UA_ENABLE_DA"] = self.options.data_access
 
         if self.options.compiled_nodeset_descriptions == True:
-            tc.variables[
-                "UA_ENABLE_NODESET_COMPILER_DESCRIPTIONS"
-            ] = self.options.compiled_nodeset_descriptions
+            tc.variables["UA_ENABLE_NODESET_COMPILER_DESCRIPTIONS"] = (
+                self.options.compiled_nodeset_descriptions
+            )
             tc.variables["UA_NAMESPACE_ZERO"] = "FULL"
         else:
             tc.variables["UA_NAMESPACE_ZERO"] = self.options.namespace_zero

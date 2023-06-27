@@ -147,7 +147,10 @@ class LibmicrohttpdConan(ConanFile):
             replace_in_file(
                 self,
                 vcxproj_file,
-                "<WholeProgramOptimization Condition=\"! $(Configuration.StartsWith('Debug'))\">true</WholeProgramOptimization>",
+                (
+                    '<WholeProgramOptimization Condition="!'
+                    " $(Configuration.StartsWith('Debug'))\">true</WholeProgramOptimization>"
+                ),
                 "",
             )
             toolset = MSBuildToolchain(self).toolset
@@ -162,7 +165,10 @@ class LibmicrohttpdConan(ConanFile):
                 self,
                 vcxproj_file,
                 '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'<Import Project="{conantoolchain_props}" /><Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                (
+                    f'<Import Project="{conantoolchain_props}" /><Import'
+                    ' Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
+                ),
             )
             # ==============================
 

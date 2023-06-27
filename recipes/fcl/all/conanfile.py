@@ -69,9 +69,9 @@ class FclConan(ConanFile):
         tc.variables["FCL_TREAT_WARNINGS_AS_ERRORS"] = False
         tc.variables["FCL_HIDE_ALL_SYMBOLS"] = False
         tc.variables["FCL_STATIC_LIBRARY"] = not self.options.shared
-        tc.variables[
-            "FCL_USE_X64_SSE"
-        ] = False  # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
+        tc.variables["FCL_USE_X64_SSE"] = (
+            False  # Let consumer decide to add relevant compile options, fcl doesn't have simd intrinsics
+        )
         tc.variables["FCL_USE_HOST_NATIVE_ARCH"] = False
         tc.variables["FCL_USE_SSE"] = False
         tc.variables["FCL_COVERALLS"] = False
@@ -117,14 +117,12 @@ class FclConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

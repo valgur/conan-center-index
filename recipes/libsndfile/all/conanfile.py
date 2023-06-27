@@ -11,8 +11,7 @@ required_conan_version = ">=1.54.0"
 class LibsndfileConan(ConanFile):
     name = "libsndfile"
     description = (
-        "Libsndfile is a library of C routines for reading and writing files "
-        "containing sampled audio data."
+        "Libsndfile is a library of C routines for reading and writing files containing sampled audio data."
     )
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
@@ -74,12 +73,12 @@ class LibsndfileConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables[
-            "CMAKE_DISABLE_FIND_PACKAGE_Sndio"
-        ] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
-        tc.variables[
-            "CMAKE_DISABLE_FIND_PACKAGE_Speex"
-        ] = True  # FIXME: missing sndio cci recipe (check whether it is really required)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Sndio"] = (
+            True  # FIXME: missing sndio cci recipe (check whether it is really required)
+        )
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Speex"] = (
+            True  # FIXME: missing sndio cci recipe (check whether it is really required)
+        )
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SQLite3"] = True  # only used for regtest
         tc.variables["ENABLE_EXTERNAL_LIBS"] = self.options.with_external_libs
         if not self.options.with_external_libs:

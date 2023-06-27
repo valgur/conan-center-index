@@ -15,8 +15,7 @@ required_conan_version = ">=1.52.0"
 class DoxygenConan(ConanFile):
     name = "doxygen"
     description = (
-        "A documentation system for C++, C, Java, IDL and PHP "
-        "--- Note: Dot is disabled in this package"
+        "A documentation system for C++, C, Java, IDL and PHP --- Note: Dot is disabled in this package"
     )
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"

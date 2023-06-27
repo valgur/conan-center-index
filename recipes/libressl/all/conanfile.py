@@ -57,9 +57,9 @@ class LibreSSLConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBRESSL_SKIP_INSTALL"] = False
-        tc.variables[
-            "LIBRESSL_APPS"
-        ] = False  # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
+        tc.variables["LIBRESSL_APPS"] = (
+            False  # Warning: if enabled, do not use cmake installation, to avoid installing files in OPENSSLDIR
+        )
         tc.variables["LIBRESSL_TESTS"] = False
         tc.variables["ENABLE_ASM"] = True
         tc.variables["ENABLE_EXTRATESTS"] = False

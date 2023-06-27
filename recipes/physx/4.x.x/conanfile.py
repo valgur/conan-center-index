@@ -118,9 +118,9 @@ class PhysXConan(ConanFile):
 
         # Options defined in physx/source/compiler/cmake/CMakeLists.txt
         if self.settings.os in ["Windows", "Android"]:
-            tc.cache_variables[
-                "PX_SCALAR_MATH"
-            ] = not self.options.enable_simd  # this value doesn't matter on other os
+            tc.cache_variables["PX_SCALAR_MATH"] = (
+                not self.options.enable_simd
+            )  # this value doesn't matter on other os
         tc.cache_variables["PX_GENERATE_STATIC_LIBRARIES"] = not self.options.shared
         tc.cache_variables["PX_EXPORT_LOWLEVEL_PDB"] = False
         tc.cache_variables["PXSHARED_PATH"] = os.path.join(self.source_folder, "pxshared").replace("\\", "/")
@@ -139,16 +139,16 @@ class PhysXConan(ConanFile):
 
         if self.settings.os == "Windows":
             # Options defined in physx/source/compiler/cmake/windows/CMakeLists.txt
-            tc.cache_variables[
-                "PX_COPY_EXTERNAL_DLL"
-            ] = False  # External dll copy disabled, PhysXDevice dll copy is handled afterward during conan packaging
+            tc.cache_variables["PX_COPY_EXTERNAL_DLL"] = (
+                False  # External dll copy disabled, PhysXDevice dll copy is handled afterward during conan packaging
+            )
             tc.cache_variables["PX_FLOAT_POINT_PRECISE_MATH"] = self.options.enable_float_point_precise_math
-            tc.cache_variables[
-                "PX_USE_NVTX"
-            ] = False  # Could be controlled by an option if NVTX had a recipe, disabled for the moment
-            tc.cache_variables[
-                "GPU_DLL_COPIED"
-            ] = True  # PhysXGpu dll copy disabled, this copy is handled afterward during conan packaging
+            tc.cache_variables["PX_USE_NVTX"] = (
+                False  # Could be controlled by an option if NVTX had a recipe, disabled for the moment
+            )
+            tc.cache_variables["GPU_DLL_COPIED"] = (
+                True  # PhysXGpu dll copy disabled, this copy is handled afterward during conan packaging
+            )
 
             # Options used in physx/source/compiler/cmake/windows/PhysX.cmake
             tc.cache_variables["PX_GENERATE_GPU_PROJECTS"] = False

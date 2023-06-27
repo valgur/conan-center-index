@@ -240,9 +240,9 @@ class SociConan(ConanFile):
             self.cpp_info.components["soci_sqlite3"].names["cmake_find_package"] = "soci_sqlite3{}".format(
                 target_suffix
             )
-            self.cpp_info.components["soci_sqlite3"].names[
-                "cmake_find_package_multi"
-            ] = "soci_sqlite3{}".format(target_suffix)
+            self.cpp_info.components["soci_sqlite3"].names["cmake_find_package_multi"] = (
+                "soci_sqlite3{}".format(target_suffix)
+            )
         if self.options.with_odbc:
             self.cpp_info.components["soci_odbc"].names["cmake_find_package"] = "soci_odbc{}".format(
                 target_suffix
@@ -258,9 +258,9 @@ class SociConan(ConanFile):
                 target_suffix
             )
         if self.options.with_postgresql:
-            self.cpp_info.components["soci_postgresql"].names[
-                "cmake_find_package"
-            ] = "soci_postgresql{}".format(target_suffix)
-            self.cpp_info.components["soci_postgresql"].names[
-                "cmake_find_package_multi"
-            ] = "soci_postgresql{}".format(target_suffix)
+            self.cpp_info.components["soci_postgresql"].names["cmake_find_package"] = (
+                "soci_postgresql{}".format(target_suffix)
+            )
+            self.cpp_info.components["soci_postgresql"].names["cmake_find_package_multi"] = (
+                "soci_postgresql{}".format(target_suffix)
+            )

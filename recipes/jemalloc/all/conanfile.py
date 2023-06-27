@@ -284,9 +284,11 @@ class JemallocConan(ConanFile):
             "--enable-syscall" if self.options.enable_syscall else "--disable-syscall",
             "--enable-lazy-lock" if self.options.enable_lazy_lock else "--disable-lazy-lock",
             "--enable-log" if self.options.enable_debug_logging else "--disable-log",
-            "--enable-initial-exec-tls"
-            if self.options.enable_initial_exec_tls
-            else "--disable-initial-exec-tls",
+            (
+                "--enable-initial-exec-tls"
+                if self.options.enable_initial_exec_tls
+                else "--disable-initial-exec-tls"
+            ),
             "--enable-libdl" if self.options.enable_libdl else "--disable-libdl",
         ]
         if self.options.enable_prof:
@@ -314,12 +316,16 @@ class JemallocConan(ConanFile):
             replace_in_file(
                 self,
                 makefile_in,
-                "\t$(INSTALL) -d $(LIBDIR)\n"
-                "\t$(INSTALL) -m 755 $(objroot)lib/$(LIBJEMALLOC).$(SOREV) $(LIBDIR)",
-                "\t$(INSTALL) -d $(BINDIR)\n"
-                "\t$(INSTALL) -d $(LIBDIR)\n"
-                "\t$(INSTALL) -m 755 $(objroot)lib/$(LIBJEMALLOC).$(SOREV) $(BINDIR)\n"
-                "\t$(INSTALL) -m 644 $(objroot)lib/libjemalloc.a $(LIBDIR)",
+                (
+                    "\t$(INSTALL) -d $(LIBDIR)\n"
+                    "\t$(INSTALL) -m 755 $(objroot)lib/$(LIBJEMALLOC).$(SOREV) $(LIBDIR)"
+                ),
+                (
+                    "\t$(INSTALL) -d $(BINDIR)\n"
+                    "\t$(INSTALL) -d $(LIBDIR)\n"
+                    "\t$(INSTALL) -m 755 $(objroot)lib/$(LIBJEMALLOC).$(SOREV) $(BINDIR)\n"
+                    "\t$(INSTALL) -m 644 $(objroot)lib/libjemalloc.a $(LIBDIR)"
+                ),
                 strict=False,
             )
 
@@ -328,15 +334,21 @@ class JemallocConan(ConanFile):
     def build(self):
         self._patch_sources()
         if self.settings.compiler == "Visual Studio":
-            with tools_legacy.vcvars(
-                self.settings
-            ) if self.settings.compiler == "Visual Studio" else tools_legacy.no_op():
-                with tools_legacy.environment_append(
-                    {
-                        "CC": "cl",
-                        "CXX": "cl",
-                    }
-                ) if self.settings.compiler == "Visual Studio" else tools_legacy.no_op():
+            with (
+                tools_legacy.vcvars(self.settings)
+                if self.settings.compiler == "Visual Studio"
+                else tools_legacy.no_op()
+            ):
+                with (
+                    tools_legacy.environment_append(
+                        {
+                            "CC": "cl",
+                            "CXX": "cl",
+                        }
+                    )
+                    if self.settings.compiler == "Visual Studio"
+                    else tools_legacy.no_op()
+                ):
                     with tools_legacy.chdir(self, self.source_folder):
                         # Do not use AutoToolsBuildEnvironment because we want to run configure as ./configure
                         self.run(

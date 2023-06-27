@@ -73,7 +73,8 @@ class GmpConan(ConanFile):
     def validate(self):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(
-                f"{self.ref} cannot be built as a shared library using Visual Studio: some error occurs at link time"
+                f"{self.ref} cannot be built as a shared library using Visual Studio: some error occurs at"
+                " link time"
             )
 
     def build_requirements(self):

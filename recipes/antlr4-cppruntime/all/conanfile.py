@@ -117,14 +117,12 @@ class Antlr4CppRuntimeConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     def package(self):
@@ -157,9 +155,9 @@ class Antlr4CppRuntimeConan(ConanFile):
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
             {
-                "antlr4_shared"
-                if self.options.shared
-                else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"
+                (
+                    "antlr4_shared" if self.options.shared else "antlr4_static"
+                ): "antlr4-cppruntime::antlr4-cppruntime"
             },
         )
 

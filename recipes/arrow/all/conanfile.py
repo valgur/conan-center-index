@@ -438,7 +438,9 @@ class ArrowConan(ConanFile):
         tc.variables["ARROW_DEPENDENCY_SOURCE"] = "SYSTEM"
         tc.variables[
             "ARROW_PACKAGE_KIND"
-        ] = "conan"  # See https://github.com/conan-io/conan-center-index/pull/14903/files#r1057938314 for details
+        ] = (  # See https://github.com/conan-io/conan-center-index/pull/14903/files#r1057938314 for details
+            "conan"
+        )
         tc.variables["ARROW_GANDIVA"] = bool(self.options.gandiva)
         tc.variables["ARROW_PARQUET"] = self._parquet()
         tc.variables["ARROW_SUBSTRAIT"] = bool(self.options.get_safe("substrait", False))

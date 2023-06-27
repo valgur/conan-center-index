@@ -50,14 +50,11 @@ class _ProtoLibrary:
         content += "\n".join([f"#{it}" for it in self.dumps().split("\n")])
         content += "\n"
         if not self.srcs:
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 add_library({self.cmake_target} INTERFACE)
-            """
-            )
+            """)
         else:
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 set({self.cmake_target}_PROTOS {" ".join(["${CMAKE_SOURCE_DIR}/"+it for it in self.srcs])})
                 add_library({self.cmake_target} ${{{self.cmake_target}_PROTOS}})
                 target_include_directories({self.cmake_target} PUBLIC ${{CMAKE_BINARY_DIR}})
@@ -67,15 +64,12 @@ class _ProtoLibrary:
                                 PROTOS ${{{self.cmake_target}_PROTOS}}
                                 IMPORT_DIRS ${{IMPORT_DIRS}}
                                 )
-            """
-            )
+            """)
 
         if self.deps:
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 target_link_libraries({self.cmake_target} {"PUBLIC" if self.srcs else "INTERFACE"} {" ".join(self.cmake_deps)})
-            """
-            )
+            """)
 
         return content
 

@@ -115,14 +115,12 @@ class SfmlConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property
@@ -220,15 +218,17 @@ class SfmlConan(ConanFile):
                         "libs": [f"sfml-window{suffix}"],
                         "requires": ["system"] + opengl() + xorg() + libudev(),
                         "system_libs": gdi32() + winmm() + usbhid() + android() + opengles_android(),
-                        "frameworks": foundation()
-                        + appkit()
-                        + iokit()
-                        + carbon()
-                        + uikit()
-                        + coregraphics()
-                        + quartzcore()
-                        + coremotion()
-                        + opengles_ios(),
+                        "frameworks": (
+                            foundation()
+                            + appkit()
+                            + iokit()
+                            + carbon()
+                            + uikit()
+                            + coregraphics()
+                            + quartzcore()
+                            + coremotion()
+                            + opengles_ios()
+                        ),
                     }
                 }
             )

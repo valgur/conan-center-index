@@ -114,9 +114,9 @@ class MozjpegConan(ConanFile):
         tc.variables["WITH_JAVA"] = bool(self.options.java)
         tc.variables["WITH_12BIT"] = bool(self.options.enable12bit)
         tc.variables["CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT"] = False
-        tc.variables[
-            "PNG_SUPPORTED"
-        ] = False  # PNG and zlib are only required for executables (and static libraries)
+        tc.variables["PNG_SUPPORTED"] = (
+            False  # PNG and zlib are only required for executables (and static libraries)
+        )
         if is_msvc(self):
             tc.variables["WITH_CRT_DLL"] = not is_msvc_static_runtime(self)
         tc.generate()

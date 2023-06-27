@@ -84,7 +84,7 @@ required_conan_version = ">=1.33.0"
 
 class ProCxxBoostExSimdConan(ConanFile):
     name = "procxx-boost-ext-simd"
-    description = "Portable SIMD computation library - was proposed as a " "Boost library"
+    description = "Portable SIMD computation library - was proposed as a Boost library"
     homepage = "https://github.com/procxx/boost.simd"
     topics = ("boost", "simd")
     license = "BSL-1.0"

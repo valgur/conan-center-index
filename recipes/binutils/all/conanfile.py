@@ -42,7 +42,9 @@ class BinutilsConan(ConanFile):
         "target_arch": None,  # Initialized in configure, checked in validate
         "target_os": None,  # Initialized in configure, checked in validate
         "target_triplet": None,  # Initialized in configure, checked in validate
-        "prefix": None,  # Initialized in configure (NOT config_options, because it depends on target_{arch,os})
+        "prefix": (
+            None
+        ),  # Initialized in configure (NOT config_options, because it depends on target_{arch,os})
     }
 
     def layout(self):
@@ -101,18 +103,21 @@ class BinutilsConan(ConanFile):
 
         if self.options.target_os == "Macos":
             raise ConanInvalidConfiguration(
-                "cci does not support building binutils for Macos since binutils is degraded there (no as/ld + armv8 does not build)"
+                "cci does not support building binutils for Macos since binutils is degraded there (no as/ld"
+                " + armv8 does not build)"
             )
 
         # Check whether the actual target_arch and target_os option are valid (they should be in settings.yml)
         # FIXME: does there exist a stable Conan API to accomplish this?
         if str(self.options.target_arch) not in self.settings.arch.values_range:
             raise ConanInvalidConfiguration(
-                f"target_arch={self.options.target_arch} is invalid (possibilities={self.settings.arch.values_range})"
+                f"target_arch={self.options.target_arch} is invalid"
+                f" (possibilities={self.settings.arch.values_range})"
             )
         if str(self.options.target_os) not in self.settings.os.values_range:
             raise ConanInvalidConfiguration(
-                f"target_os={self.options.target_os} is invalid (possibilities={self.settings.os.values_range})"
+                f"target_os={self.options.target_os} is invalid"
+                f" (possibilities={self.settings.os.values_range})"
             )
 
         target_archos = _ArchOs(str(self.options.target_arch), str(self.options.target_os))
@@ -121,7 +126,9 @@ class BinutilsConan(ConanFile):
             suggested_gnu_triplet = _GNUTriplet.from_archos(target_archos)
             suggested_archos = _ArchOs.from_triplet(target_gnu_triplet)
             raise ConanInvalidConfiguration(
-                f"target_arch={target_archos.arch}/target_os={target_archos.os} is not compatible with {target_gnu_triplet.triplet}. Change target triplet to {suggested_gnu_triplet.triplet}, or change target_arch/target_os to {suggested_archos.arch}/{suggested_archos.os}."
+                f"target_arch={target_archos.arch}/target_os={target_archos.os} is not compatible with"
+                f" {target_gnu_triplet.triplet}. Change target triplet to {suggested_gnu_triplet.triplet}, or"
+                f" change target_arch/target_os to {suggested_archos.arch}/{suggested_archos.os}."
             )
 
         # Check, when used as build requirement in a cross build, whether the target arch/os agree
@@ -129,11 +136,13 @@ class BinutilsConan(ConanFile):
         if settings_target is not None:
             if self.options.target_arch != settings_target.arch:
                 raise ConanInvalidConfiguration(
-                    f"binutils:target_arch={self.options.target_arch} does not match target architecture={settings_target.arch}"
+                    f"binutils:target_arch={self.options.target_arch} does not match target"
+                    f" architecture={settings_target.arch}"
                 )
             if self.options.target_os != settings_target.os:
                 raise ConanInvalidConfiguration(
-                    f"binutils:target_os={self.options.target_os} does not match target os={settings_target.os}"
+                    f"binutils:target_os={self.options.target_os} does not match target"
+                    f" os={settings_target.os}"
                 )
 
     def package_id(self):
@@ -141,7 +150,8 @@ class BinutilsConan(ConanFile):
 
     def _raise_unsupported_configuration(self, key, value):
         raise ConanInvalidConfiguration(
-            f"This configuration is unsupported by this conan recip. Please consider adding support. ({key}={value})"
+            "This configuration is unsupported by this conan recip. Please consider adding support."
+            f" ({key}={value})"
         )
 
     def build_requirements(self):
@@ -335,7 +345,8 @@ class _GNUTriplet:
         parts = text.split("-")
         if not 2 <= len(parts) <= 4:
             raise ValueError(
-                "Wrong number of GNU triplet components. Count must lie in range [2, 4]. format=$machine(-$vendor)?(-$os)?(-$abi)?"
+                "Wrong number of GNU triplet components. Count must lie in range [2, 4]."
+                " format=$machine(-$vendor)?(-$os)?(-$abi)?"
             )
 
         gnu_machine = parts[0]

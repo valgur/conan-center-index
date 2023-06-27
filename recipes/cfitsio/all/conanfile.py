@@ -11,8 +11,7 @@ required_conan_version = ">=1.54.0"
 class CfitsioConan(ConanFile):
     name = "cfitsio"
     description = (
-        "C library for reading and writing data files in FITS "
-        "(Flexible Image Transport System) data format"
+        "C library for reading and writing data files in FITS (Flexible Image Transport System) data format"
     )
     license = "ISC"
     url = "https://github.com/conan-io/conan-center-index"

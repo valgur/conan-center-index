@@ -132,9 +132,9 @@ class UchardetConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
         tc.variables["BUILD_BINARY"] = False
-        tc.variables[
-            "BUILD_STATIC"
-        ] = False  # disable building static libraries when self.options.shared is True
+        tc.variables["BUILD_STATIC"] = (
+            False  # disable building static libraries when self.options.shared is True
+        )
         tc.generate()
 
     def _patch_sources(self):

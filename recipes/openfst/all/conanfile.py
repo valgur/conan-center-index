@@ -86,7 +86,10 @@ required_conan_version = ">=1.33.0"
 
 class OpenFstConan(ConanFile):
     name = "openfst"
-    description = "A library for constructing, combining, optimizing and searching weighted finite-state-transducers (FSTs)."
+    description = (
+        "A library for constructing, combining, optimizing and searching weighted finite-state-transducers"
+        " (FSTs)."
+    )
     topics = ("asr", "fst", "wfst", "openfst")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.openfst.org/twiki/bin/view/FST/WebHome"
@@ -157,7 +160,8 @@ class OpenFstConan(ConanFile):
                 )
         else:
             self.output.warn(
-                f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your compiler supports c++17."
+                f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your"
+                " compiler supports c++17."
             )
 
         # Check stdlib ABI compatibility
@@ -171,7 +175,8 @@ class OpenFstConan(ConanFile):
         ]:
             raise ConanInvalidConfiguration(
                 'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
-                ' or "compiler.libcxx=libc++"' % self.name
+                ' or "compiler.libcxx=libc++"'
+                % self.name
             )
 
     def source(self):

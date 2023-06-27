@@ -44,23 +44,19 @@ class MesonConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, "bin", "meson.cmd"),
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             @echo off
             CALL python %~dp0/meson.py %*
-        """
-            ),
+        """),
         )
         save(
             self,
             os.path.join(self.package_folder, "bin", "meson"),
-            textwrap.dedent(
-                """\
+            textwrap.dedent("""\
             #!/usr/bin/env bash
             meson_dir=$(dirname "$0")
             exec "$meson_dir/meson.py" "$@"
-        """
-            ),
+        """),
         )
 
     @staticmethod

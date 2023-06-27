@@ -110,7 +110,8 @@ class CprConan(ConanFile):
                 self.options.with_ssl = "openssl"
             else:
                 self.output.info(
-                    "Auto SSL is not available below version 1.6.0 (or below 1.6.2 on macOS), and openssl not supported. Disabling SSL"
+                    "Auto SSL is not available below version 1.6.0 (or below 1.6.2 on macOS), and openssl not"
+                    " supported. Disabling SSL"
                 )
                 self.options.with_ssl = CprConan._NO_SSL
 
@@ -129,7 +130,10 @@ class CprConan(ConanFile):
         # FIXME: This is a very dirty hack.
         # with_ssl == _AUTO_SSL, cpr needs the openssl header to compile. But Conan recipe does not know which SSL library to use.
         # because cpr's CMakeLists.txt automatically detects SSL libraries with CPR_ENABLE_SSL == ON.
-        if self.settings.os in ["Linux", "FreeBSD"] and self.options.with_ssl in ["openssl", CprConan._AUTO_SSL]:
+        if self.settings.os in ["Linux", "FreeBSD"] and self.options.with_ssl in [
+            "openssl",
+            CprConan._AUTO_SSL,
+        ]:
             self.requires("openssl/[>=1.1 <4]")
 
     # Check if the system supports the given ssl library
@@ -162,7 +166,10 @@ class CprConan(ConanFile):
             "openssl": "OpenSSL is not supported on macOS or on CPR versions < 1.5.0",
             "darwinssl": "DarwinSSL is only supported on macOS and on CPR versions >= 1.6.1",
             "winssl": "WinSSL is only on Windows and on CPR versions >= 1.5.1",
-            CprConan._AUTO_SSL: "Automatic SSL selection is only available on CPR versions >= 1.6.0 (and only >= 1.6.2 on macOS)",
+            CprConan._AUTO_SSL: (
+                "Automatic SSL selection is only available on CPR versions >= 1.6.0 (and only >= 1.6.2 on"
+                " macOS)"
+            ),
         }
 
         if not self._uses_valid_abi_and_compiler:
@@ -181,7 +188,8 @@ class CprConan(ConanFile):
             and ssl_library != self.dependencies["libcurl"].options.with_ssl
         ):
             raise ConanInvalidConfiguration(
-                f"{self.ref}:with_ssl={self.options.with_ssl} requires libcurl:with_ssl={self.options.with_ssl}"
+                f"{self.ref}:with_ssl={self.options.with_ssl} requires"
+                f" libcurl:with_ssl={self.options.with_ssl}"
             )
 
         if ssl_library == "winssl" and self.dependencies["libcurl"].options.with_ssl != "schannel":

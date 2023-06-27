@@ -112,8 +112,7 @@ class LibAVIFConan(ConanFile):
 
         # TODO: remove in conan v2
         alias = os.path.join(self.package_folder, self._alias_path)
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             if(TARGET avif::avif AND NOT TARGET avif)
                 add_library(avif INTERFACE IMPORTED)
                 set_property(
@@ -121,8 +120,7 @@ class LibAVIFConan(ConanFile):
                     INTERFACE_LINK_LIBRARIES avif::avif
                 )
             endif()
-        """
-        )
+        """)
         save(self, alias, content)
 
     def package_info(self):

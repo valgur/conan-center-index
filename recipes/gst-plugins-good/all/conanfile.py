@@ -212,8 +212,10 @@ class GStPluginsGoodConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
 
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.build()
@@ -231,8 +233,10 @@ class GStPluginsGoodConan(ConanFile):
         copy(
             self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
-        with environment_append(self, VisualStudioBuildEnvironment(self).vars) if is_msvc(self) else no_op(
-            self
+        with (
+            environment_append(self, VisualStudioBuildEnvironment(self).vars)
+            if is_msvc(self)
+            else no_op(self)
         ):
             meson = self._configure_meson()
             meson.install()

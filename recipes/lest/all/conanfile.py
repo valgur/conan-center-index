@@ -6,11 +6,11 @@ from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.52.0"
 
+
 class LestConan(ConanFile):
     name = "lest"
     description = (
-        "A modern, C++11-native, single-file header-only, "
-        "tiny framework for unit-tests, TDD and BDD."
+        "A modern, C++11-native, single-file header-only, tiny framework for unit-tests, TDD and BDD."
     )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"

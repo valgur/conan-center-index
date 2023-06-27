@@ -131,8 +131,7 @@ class GDCMConan(ConanFile):
 
     def _create_cmake_variables(self, variables_file):
         v = Version(self.version)
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             # The GDCM version number.
             set(GDCM_MAJOR_VERSION "{v.major}")
             set(GDCM_MINOR_VERSION "{v.minor}")
@@ -161,8 +160,7 @@ class GDCMConan(ConanFile):
             set(GDCM_INCLUDE_DIRS ${{GDCM_INCLUDE_ROOT}})
             get_filename_component(GDCM_LIB_ROOT "${{SELF_DIR}}/../../lib" ABSOLUTE)
             set(GDCM_LIBRARY_DIRS ${{GDCM_LIB_ROOT}})
-        """
-        )
+        """)
         save(self, variables_file, content)
 
     def _create_cmake_module_alias_targets(self):
@@ -170,14 +168,12 @@ class GDCMConan(ConanFile):
         targets = {library: f"GDCM::{library}" for library in self._gdcm_libraries}
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     @property

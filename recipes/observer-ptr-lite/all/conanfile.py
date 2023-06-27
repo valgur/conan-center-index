@@ -10,8 +10,10 @@ class ObserverPtrLiteConan(ConanFile):
     name = "observer-ptr-lite"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/martinmoene/observer-ptr-lite"
-    description = "observer-ptr is a single-file header-only library with a variant of \
-                    std::experimental::observer_ptr for C++98 and later."
+    description = (
+        "observer-ptr is a single-file header-only library with a variant of                    "
+        " std::experimental::observer_ptr for C++98 and later."
+    )
     topics = ("cpp98", "cpp11", "cpp14", "cpp17")
     license = "BSL-1.0"
     settings = "os", "arch", "compiler", "build_type"

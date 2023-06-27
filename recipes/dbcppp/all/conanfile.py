@@ -70,7 +70,8 @@ class DBCpppConan(ConanFile):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
+                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not"
+                    " support."
                 )
 
     def source(self):

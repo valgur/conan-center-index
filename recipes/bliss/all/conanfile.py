@@ -11,8 +11,7 @@ required_conan_version = ">=1.55.0"
 class BlissConan(ConanFile):
     name = "bliss"
     description = (
-        "bliss is an open source tool for computing"
-        " automorphism groups and canonical forms of graphs."
+        "bliss is an open source tool for computing automorphism groups and canonical forms of graphs."
     )
     license = ("GPL-3-or-later", "LGPL-3-or-later")
     url = "https://github.com/conan-io/conan-center-index"

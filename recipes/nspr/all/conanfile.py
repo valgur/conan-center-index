@@ -87,7 +87,10 @@ required_conan_version = ">=1.47.0"
 class NsprConan(ConanFile):
     name = "nspr"
     homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR"
-    description = "Netscape Portable Runtime (NSPR) provides a platform-neutral API for system level and libc-like functions."
+    description = (
+        "Netscape Portable Runtime (NSPR) provides a platform-neutral API for system level and libc-like"
+        " functions."
+    )
     topics = "libc"
     url = "https://github.com/conan-io/conan-center-index"
     license = "MPL-2.0"

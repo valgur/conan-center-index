@@ -34,7 +34,7 @@ class StrawberryPerlConan(ConanFile):
         get(
             self,
             **self.conan_data["sources"][self.version][str(self.settings.arch)],
-            destination=self.build_folder
+            destination=self.build_folder,
         )
 
     def package(self):

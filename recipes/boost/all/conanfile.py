@@ -267,7 +267,8 @@ class BoostConan(ConanFile):
         for opt_name in self._configure_options:
             if f"without_{opt_name}" not in self.options:
                 raise ConanException(
-                    f"{self._dependency_filename} has the configure options {opt_name} which is not available in conanfile.py"
+                    f"{self._dependency_filename} has the configure options {opt_name} which is not available"
+                    " in conanfile.py"
                 )
 
         # stacktrace_backtrace not supported on Windows
@@ -649,9 +650,7 @@ class BoostConan(ConanFile):
         # https://docs.python.org/3/library/sysconfig.html
         # https://docs.python.org/2.7/library/sysconfig.html
         return self._run_python_script(
-            "from __future__ import print_function; "
-            "import sysconfig; "
-            f"print(sysconfig.get_path('{name}'))"
+            f"from __future__ import print_function; import sysconfig; print(sysconfig.get_path('{name}'))"
         )
 
     def _get_python_sc_var(self, name):
@@ -722,7 +721,7 @@ class BoostConan(ConanFile):
         :return: result of the "sysconfig.get_python_inc()" execution
         """
         return self._run_python_script(
-            "from __future__ import print_function; " "import sysconfig; " "print(sysconfig.get_python_inc())"
+            "from __future__ import print_function; import sysconfig; print(sysconfig.get_python_inc())"
         )
 
     @property
@@ -732,7 +731,7 @@ class BoostConan(ConanFile):
         :return: the value of python ABI flags
         """
         return self._run_python_script(
-            "from __future__ import print_function; " "import sys; " "print(getattr(sys, 'abiflags', ''))"
+            "from __future__ import print_function; import sys; print(getattr(sys, 'abiflags', ''))"
         )
 
     @property
@@ -921,7 +920,10 @@ class BoostConan(ConanFile):
             self,
             os.path.join(self.source_folder, "tools", "build", "src", "tools", "gcc.jam"),
             "local generic-os = [ set.difference $(all-os) : aix darwin vxworks solaris osf hpux ] ;",
-            "local generic-os = [ set.difference $(all-os) : aix darwin vxworks solaris osf hpux iphone appletv ] ;",
+            (
+                "local generic-os = [ set.difference $(all-os) : aix darwin vxworks solaris osf hpux iphone"
+                " appletv ] ;"
+            ),
             strict=False,
         )
         replace_in_file(
@@ -1327,12 +1329,7 @@ class BoostConan(ConanFile):
             libdir = f'"{libdir}"'
             lib = aggregated_cpp_info.libs[0]
             version = self.dependencies[deps_name].ref.version
-            return (
-                f"\nusing {name} : {version} : "
-                f"<include>{includedir} "
-                f"<search>{libdir} "
-                f"<name>{lib} ;"
-            )
+            return f"\nusing {name} : {version} : <include>{includedir} <search>{libdir} <name>{lib} ;"
 
         contents = ""
 
@@ -1347,7 +1344,10 @@ class BoostConan(ConanFile):
 
         if not self.options.without_python:
             # https://www.boost.org/doc/libs/1_70_0/libs/python/doc/html/building/configuring_boost_build.html
-            contents += f'\nusing python : {self._python_version} : "{self._python_executable}" : "{self._python_includes}" : "{self._python_library_dir}" ;'
+            contents += (
+                f'\nusing python : {self._python_version} : "{self._python_executable}" :'
+                f' "{self._python_includes}" : "{self._python_library_dir}" ;'
+            )
 
         if not self.options.without_mpi:
             # https://www.boost.org/doc/libs/1_72_0/doc/html/mpi/getting_started.html
@@ -1506,7 +1506,8 @@ class BoostConan(ConanFile):
             for common_lib in common_libs:
                 common_lib_fullname = f"lib{common_lib}.lib"
                 self.output.info(
-                    f'Unlinking static duplicate library: {os.path.join(self.package_folder, "lib", common_lib_fullname)}'
+                    "Unlinking static duplicate library:"
+                    f" {os.path.join(self.package_folder, 'lib', common_lib_fullname)}"
                 )
                 os.unlink(os.path.join(self.package_folder, "lib", common_lib_fullname))
 
@@ -1848,7 +1849,8 @@ class BoostConan(ConanFile):
 
             for incomplete_component in incomplete_components:
                 self.output.warning(
-                    f"Boost component '{incomplete_component}' is missing libraries. Try building boost with '-o boost:without_{incomplete_component}'. (Option is not guaranteed to exist)"
+                    f"Boost component '{incomplete_component}' is missing libraries. Try building boost with"
+                    f" '-o boost:without_{incomplete_component}'. (Option is not guaranteed to exist)"
                 )
 
             non_used = all_detected_libraries.difference(all_expected_libraries)

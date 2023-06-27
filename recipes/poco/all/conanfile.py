@@ -181,7 +181,8 @@ class PocoConan(ConanFile):
                         continue
                     if not self.options.get_safe(self._poco_component_tree[compdep].option, False):
                         raise ConanInvalidConfiguration(
-                            f"option {compopt.option} requires also option {self._poco_component_tree[compdep].option}"
+                            f"option {compopt.option} requires also option"
+                            f" {self._poco_component_tree[compdep].option}"
                         )
         if self.options.enable_data_sqlite:
             if self.dependencies["sqlite3"].options.threadsafe == 0:

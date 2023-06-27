@@ -347,8 +347,7 @@ class ImageMagicConan(ConanFile):
             self,
             os.path.join("VisualMagick", "coders", project),
             '<ClCompile Include="..\\..\\ImageMagick\\coders\\emf.c">',
-            '<ClCompile Include="..\\..\\ImageMagick\\coders\\emf.c">\n'
-            "<CompileAs>CompileAsCpp</CompileAs>",
+            '<ClCompile Include="..\\..\\ImageMagick\\coders\\emf.c">\n<CompileAs>CompileAsCpp</CompileAs>',
         )
 
         for module in self._modules:

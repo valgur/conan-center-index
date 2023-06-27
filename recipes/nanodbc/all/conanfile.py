@@ -6,6 +6,7 @@ from conan.tools.files import get, apply_conandata_patches, export_conandata_pat
 from conan.tools.scm import Version
 import os
 
+
 class NanodbcConan(ConanFile):
     name = "nanodbc"
     description = "A small C++ wrapper for the native C ODBC API"

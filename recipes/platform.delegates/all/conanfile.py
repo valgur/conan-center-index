@@ -121,10 +121,7 @@ class PlatformDelegatesConan(ConanFile):
 
         if Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "platform.delegates/{} "
-                "requires C++{} with {}, "
-                "which is not supported "
-                "by {} {}.".format(
+                "platform.delegates/{} requires C++{} with {}, which is not supported by {} {}.".format(
                     self.version,
                     self._minimum_cpp_standard,
                     self.settings.compiler,

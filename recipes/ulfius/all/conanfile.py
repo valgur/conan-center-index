@@ -94,8 +94,7 @@ class UlfiusConan(ConanFile):
         save(
             self,
             os.path.join(self.generators_folder, "MHDConfig.cmake"),
-            textwrap.dedent(
-                f"""\
+            textwrap.dedent(f"""\
             include(CMakeFindDependencyMacro)
             find_dependency(libmicrohttpd)
 
@@ -103,14 +102,12 @@ class UlfiusConan(ConanFile):
             add_library(MHD::MHD INTERFACE IMPORTED)
             set_target_properties(MHD::MHD PROPERTIES INTERFACE_LINK_LIBRARIES "libmicrohttpd::libmicrohttpd")
             set(MHD_VERSION_STRING {self.dependencies['libmicrohttpd'].ref.version})
-        """
-            ),
+        """),
         )
         save(
             self,
             os.path.join(self.generators_folder, "MHDConfigVersion.cmake"),
-            textwrap.dedent(
-                f"""\
+            textwrap.dedent(f"""\
             set(PACKAGE_VERSION "{ self.dependencies['libmicrohttpd'].ref.version }")
 
             if(PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
@@ -121,8 +118,7 @@ class UlfiusConan(ConanFile):
                     set(PACKAGE_VERSION_EXACT TRUE)
                 endif()
             endif()
-        """
-            ),
+        """),
         )
 
         # Shared ulfius looks for Orcania::Orcania and Yder::Yder
@@ -132,24 +128,20 @@ class UlfiusConan(ConanFile):
                 save(
                     self,
                     os.path.join(self.generators_folder, "OrcaniaConfig.cmake"),
-                    textwrap.dedent(
-                        """\
+                    textwrap.dedent("""\
                     add_library(Orcania::Orcania INTERFACE IMPORTED)
                     set_target_properties(Orcania::Orcania PROPERTIES INTERFACE_LINK_LIBRARIES "Orcania::Orcania-static")
-                """
-                    ),
+                """),
                     append=True,
                 )
             if self.options.with_yder and not self.dependencies["yder"].options.shared:
                 save(
                     self,
                     os.path.join(self.generators_folder, "YderConfig.cmake"),
-                    textwrap.dedent(
-                        """\
+                    textwrap.dedent("""\
                     add_library(Yder::Yder INTERFACE IMPORTED)
                     set_target_properties(Yder::Yder PROPERTIES INTERFACE_LINK_LIBRARIES "Yder::Yder-static")
-                """
-                    ),
+                """),
                     append=True,
                 )
 
@@ -158,13 +150,11 @@ class UlfiusConan(ConanFile):
             save(
                 self,
                 os.path.join(self.generators_folder, "jansson-config.cmake"),
-                textwrap.dedent(
-                    f"""\
+                textwrap.dedent(f"""\
                 add_library(Jansson::Jansson INTERFACE IMPORTED)
                 set_target_properties(Jansson::Jansson PROPERTIES INTERFACE_LINK_LIBRARIES "jansson::jansson")
                 set(JANSSON_VERSION_STRING {self.dependencies['jansson'].ref.version})
-            """
-                ),
+            """),
                 append=True,
             )
 
@@ -184,14 +174,12 @@ class UlfiusConan(ConanFile):
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
-            content += textwrap.dedent(
-                f"""\
+            content += textwrap.dedent(f"""\
                 if(TARGET {aliased} AND NOT TARGET {alias})
                     add_library({alias} INTERFACE IMPORTED)
                     set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
                 endif()
-            """
-            )
+            """)
         save(self, module_file, content)
 
     def package(self):
@@ -207,11 +195,9 @@ class UlfiusConan(ConanFile):
         save(
             self,
             os.path.join(self.package_folder, self._variable_file_rel_path),
-            textwrap.dedent(
-                f"""\
+            textwrap.dedent(f"""\
                 set(ULFIUS_VERSION_STRING "{self.version}")
-           """
-            ),
+           """),
         )
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

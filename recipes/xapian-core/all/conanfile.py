@@ -179,8 +179,7 @@ class XapianCoreConan(ConanFile):
         return f"lib/cmake/conan-official-{self.name}-variables.cmake"
 
     def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent(
-            """\
+        content = textwrap.dedent("""\
             set(XAPIAN_FOUND TRUE)
             set(XAPIAN_INCLUDE_DIR ${xapian_INCLUDE_DIR}
                                    ${xapian_INCLUDE_DIR_RELEASE}
@@ -192,8 +191,7 @@ class XapianCoreConan(ConanFile):
                                  ${xapian_LIBRARIES_RELWITHDEBINFO}
                                  ${xapian_LIBRARIES_MINSIZEREL}
                                  ${xapian_LIBRARIES_DEBUG})
-        """
-        )
+        """)
         save(self, module_file, content)
 
     def package_info(self):
