@@ -14,15 +14,18 @@ from conan import ConanFile
 from conans.model.version import Version
 
 
-def extract_definitions(file_path):
-    source = Path(file_path).read_text(encoding="utf-8")
+def extract_definitions(source):
+    lines = source.splitlines(keepends=True)
     tree = ast.parse(source)
     definitions = {}
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+            lineno = node.lineno
+            if "@" in lines[lineno - 2]:
+                lineno -= 1
             definitions[node.name] = {
                 "type": type(node).__name__,
-                "start_line": node.lineno,
+                "start_line": lineno,
                 "end_line": node.end_lineno,
             }
     return definitions
@@ -32,6 +35,7 @@ class ConanFileDetails:
     def __init__(self, conanfile_path):
         conanfile_path = Path(conanfile_path)
         conanfile_source = conanfile_path.read_text(encoding="utf-8")
+        conanfile_lines = conanfile_source.splitlines(keepends=True)
         # Formatting the file breaks inspect.getsourcefile()
         # conanfile = _format_source(conanfile)
         exec(conanfile_source, globals(), globals())
@@ -41,32 +45,42 @@ class ConanFileDetails:
             if inspect.isclass(value) and issubclass(value, ConanFile) and value != ConanFile
         ][0]
 
-        methods = {}
-        props = {}
+        defs = extract_definitions(conanfile_source)
+        class_def = defs[conanfile_class.__name__]
+        defs = {
+            name: details
+            for name, details in defs.items()
+            if details["start_line"] > class_def["start_line"]
+            and details["end_line"] <= class_def["end_line"]
+        }
+
+        def get_method_source(method):
+            if method not in defs:
+                raise ValueError(f"Method {method} not found")
+            start_line = defs[method]["start_line"]
+            end_line = defs[method]["end_line"]
+            return "".join(conanfile_lines[start_line - 1 : end_line])
+
         attrs = {}
         for attr, value in conanfile_class.__dict__.items():
             if attr.startswith("__"):
                 continue
-            # Get the source file this attribute was defined in
-            if hasattr(value, "__call__") and Path(inspect.getsourcefile(value)) == conanfile_path:
-                source = inspect.getsource(value)
-                if f"# TODO: fill in {attr}" not in source:
-                    methods[attr] = source
-            elif isinstance(value, property) and Path(inspect.getsourcefile(value.fget)) == conanfile_path:
-                source = inspect.getsource(value.fget)
-                if f"# TODO: fill in {attr}" not in source:
-                    props[attr] = source
-            elif value is not None:
+            if hasattr(value, "__call__") or isinstance(value, property):
+                continue
+            if value is not None:
                 attrs[attr] = value
 
-        class_details = extract_definitions(conanfile_path)[conanfile_class.__name__]
-        self.head: str = "".join(
-            conanfile_source.splitlines(keepends=True)[: class_details["start_line"] - 1]
-        )
-        self.tail: str = "".join(conanfile_source.splitlines(keepends=True)[class_details["end_line"] :])
+        methods = {}
+        for method in defs:
+            source = get_method_source(method)
+            if f"# TODO: fill in {method}" not in source:
+                methods[method] = source
+
+        class_details = extract_definitions(conanfile_source)[conanfile_class.__name__]
+        self.head: str = "".join(conanfile_lines[: class_details["start_line"] - 1])
+        self.tail: str = "".join(conanfile_lines[class_details["end_line"] :])
         self.class_name: str = conanfile_class.__name__
         self.attrs: dict[str, object] = attrs
-        self.props: dict[str, str] = props
         self.methods: dict[str, str] = methods
 
     def is_method_empty(self, method):
@@ -372,8 +386,7 @@ def tidy_conanfile(conanfile_path, write=True):
             warn(f"Disallowed attribute '{attr} = {repr(value)}'")
             continue
 
-    methods = details.props
-    methods.update(details.methods)
+    methods = details.methods
     methods_order = [
         ("_min_cppstd", False),
         ("_minimum_cpp_standard", False),
