@@ -71,7 +71,7 @@ class UsrsctpConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "usrsctp"
+        self.cpp_info.set_property("pkg_config_name", "usrsctp")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
         elif self.settings.os == "Linux":

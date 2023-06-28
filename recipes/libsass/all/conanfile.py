@@ -239,7 +239,7 @@ class LibsassConan(ConanFile):
             self._install_autotools()
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "libsass"
+        self.cpp_info.set_property("pkg_config_name", "libsass")
         self.cpp_info.libs = ["libsass" if is_msvc(self) else "sass"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])

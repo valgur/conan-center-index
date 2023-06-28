@@ -72,8 +72,8 @@ class LibelfinConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.components["libelf++"].names["pkg_config"] = "libelf++"
+        self.cpp_info.components["libelf++"].set_property("pkg_config_name", "libelf++")
         self.cpp_info.components["libelf++"].libs = ["elf++"]
-        self.cpp_info.components["libdwarf++"].names["pkg_config"] = "libdwarf++"
+        self.cpp_info.components["libdwarf++"].set_property("pkg_config_name", "libdwarf++")
         self.cpp_info.components["libdwarf++"].libs = ["dwarf++"]
         self.cpp_info.components["libdwarf++"].requires = ["libelf++"]

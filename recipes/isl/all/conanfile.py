@@ -223,5 +223,5 @@ class IslConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "isl"
+        self.cpp_info.set_property("pkg_config_name", "isl")
         self.cpp_info.libs = ["isl"]

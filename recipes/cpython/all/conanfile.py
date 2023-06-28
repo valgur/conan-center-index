@@ -895,25 +895,25 @@ class CPythonConan(ConanFile):
         self.cpp_info.components["python"].requires = ["zlib::zlib"]
         if self.settings.os != "Windows":
             self.cpp_info.components["python"].requires.append("libxcrypt::libxcrypt")
-        self.cpp_info.components["python"].names["pkg_config"] = "python-{}.{}".format(
+        self.cpp_info.components["python"].set_property("pkg_config_name", "python-{}.{}".format()
             py_version.major, py_version.minor
         )
         self.cpp_info.components["python"].libdirs = []
 
-        self.cpp_info.components["_python_copy"].names["pkg_config"] = "python{}".format(py_version.major)
+        self.cpp_info.components["_python_copy"].set_property("pkg_config_name", "python{}".format(py_version.major))
         self.cpp_info.components["_python_copy"].requires = ["python"]
         self.cpp_info.components["_python_copy"].libdirs = []
 
         # embed component: "Embed Python into an application"
         self.cpp_info.components["embed"].libs = [self._lib_name]
         self.cpp_info.components["embed"].libdirs = [libdir]
-        self.cpp_info.components["embed"].names["pkg_config"] = "python-{}.{}-embed".format(
+        self.cpp_info.components["embed"].set_property("pkg_config_name", "python-{}.{}-embed".format()
             py_version.major, py_version.minor
         )
         self.cpp_info.components["embed"].requires = ["python"]
 
         self.cpp_info.components["_embed_copy"].requires = ["embed"]
-        self.cpp_info.components["_embed_copy"].names["pkg_config"] = [
+        self.cpp_info.components["_embed_copy"].set_property("pkg_config_name", [)
             "python{}-embed".format(py_version.major)
         ]
         self.cpp_info.components["_embed_copy"].libdirs = []

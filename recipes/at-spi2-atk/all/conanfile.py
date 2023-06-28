@@ -174,4 +174,4 @@ class AtSPI2AtkConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["atk-bridge-2.0"]
         self.cpp_info.includedirs = [os.path.join("include", "at-spi2-atk", "2.0")]
-        self.cpp_info.names["pkg_config"] = "atk-bridge-2.0"
+        self.cpp_info.set_property("pkg_config_name", "atk-bridge-2.0")

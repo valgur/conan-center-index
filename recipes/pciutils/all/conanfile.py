@@ -107,5 +107,5 @@ class PciUtilsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "man"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "libpci"
+        self.cpp_info.set_property("pkg_config_name", "libpci")
         self.cpp_info.libs = ["pci"]

@@ -151,7 +151,7 @@ class GetDnsConan(ConanFile):
 
         self.cpp_info.components["libgetdns"].libs = ["getdns" + libsuffix]
         self.cpp_info.components["libgetdns"].includedirs.append(os.path.join("include", "getdns"))
-        self.cpp_info.components["libgetdns"].names["pkg_config"] = "getdns"
+        self.cpp_info.components["libgetdns"].set_property("pkg_config_name", "getdns")
         self.cpp_info.components["libgetdns"].requires = ["openssl::openssl"]
         if self.options.with_libidn2:
             self.cpp_info.components["libgetdns"].requires.append("libidn2::libidn2")
@@ -163,17 +163,17 @@ class GetDnsConan(ConanFile):
         if self.options.with_libevent:
             self.cpp_info.components["dns_ex_event"].libs = ["getdns_ex_event" + libsuffix]
             self.cpp_info.components["dns_ex_event"].requires = ["libgetdns", "libevent::libevent"]
-            self.cpp_info.components["dns_ex_event"].names["pkg_config"] = "getdns_ext_event"
+            self.cpp_info.components["dns_ex_event"].set_property("pkg_config_name", "getdns_ext_event")
 
         if self._with_libev:
             self.cpp_info.components["dns_ex_ev"].libs = ["getdns_ex_ev" + libsuffix]
             self.cpp_info.components["dns_ex_ev"].requires = ["libgetdns", "libev::libev"]
-            self.cpp_info.components["dns_ex_ev"].names["pkg_config"] = "getdns_ext_ev"
+            self.cpp_info.components["dns_ex_ev"].set_property("pkg_config_name", "getdns_ext_ev")
 
         if self.options.with_libuv:
             self.cpp_info.components["dns_ex_uv"].libs = ["getdns_ex_uv" + libsuffix]
             self.cpp_info.components["dns_ex_uv"].requires = ["libgetdns", "libuv::libuv"]
-            self.cpp_info.components["dns_ex_uv"].names["pkg_config"] = "getdns_ext_uv"
+            self.cpp_info.components["dns_ex_uv"].set_property("pkg_config_name", "getdns_ext_uv")
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")

@@ -85,7 +85,7 @@ class ZyreConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "libzyre"
+        self.cpp_info.set_property("pkg_config_name", "libzyre")
 
         libname = (
             "libzyre"

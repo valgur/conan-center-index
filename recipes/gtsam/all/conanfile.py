@@ -242,7 +242,7 @@ class GtsamConan(ConanFile):
         if self.options.support_nested_dissection:
             self.cpp_info.components["libmetis-gtsam"].set_property("cmake_target_name", "metis-gtsam")
             self.cpp_info.components["libmetis-gtsam"].libs = ["metis-gtsam"]
-            self.cpp_info.components["libmetis-gtsam"].names["pkg_config"] = "metis-gtsam"
+            self.cpp_info.components["libmetis-gtsam"].set_property("pkg_config_name", "metis-gtsam")
 
         if self.options.install_cppunitlite:
             self.cpp_info.components["gtsam_CppUnitLite"].set_property("cmake_target_name", "CppUnitLite")

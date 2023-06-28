@@ -80,8 +80,8 @@ class LibgpiodConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["gpiod"].libs = ["gpiod"]
-        self.cpp_info.components["gpiod"].names["pkg_config"] = "gpiod"
+        self.cpp_info.components["gpiod"].set_property("pkg_config_name", "gpiod")
         if self.options.enable_bindings_cxx:
             self.cpp_info.components["gpiodcxx"].libs = ["gpiodcxx"]
-            self.cpp_info.components["gpiodcxx"].names["pkg_config"] = "gpiodcxx"
+            self.cpp_info.components["gpiodcxx"].set_property("pkg_config_name", "gpiodcxx")
             self.cpp_info.components["gpiodcxx"].requires = ["gpiod"]

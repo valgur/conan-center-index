@@ -782,7 +782,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-allocators-1.0"].names["pkg_config"] = "gstreamer-allocators-1.0"
+        self.cpp_info.components["gstreamer-allocators-1.0"].set_property("pkg_config_name", "gstreamer-allocators-1.0")
         self.cpp_info.components["gstreamer-allocators-1.0"].libs = ["gstallocators-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].includedirs = [gst_include_path]
@@ -790,7 +790,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-app-1.0"].names["pkg_config"] = "gstreamer-app-1.0"
+        self.cpp_info.components["gstreamer-app-1.0"].set_property("pkg_config_name", "gstreamer-app-1.0")
         self.cpp_info.components["gstreamer-app-1.0"].libs = ["gstapp-1.0"]
         self.cpp_info.components["gstreamer-app-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -801,7 +801,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-audio-1.0"].names["pkg_config"] = "gstreamer-audio-1.0"
+        self.cpp_info.components["gstreamer-audio-1.0"].set_property("pkg_config_name", "gstreamer-audio-1.0")
         self.cpp_info.components["gstreamer-audio-1.0"].libs = ["gstaudio-1.0"]
         self.cpp_info.components["gstreamer-audio-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -815,7 +815,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-fft-1.0"].names["pkg_config"] = "gstreamer-fft-1.0"
+        self.cpp_info.components["gstreamer-fft-1.0"].set_property("pkg_config_name", "gstreamer-fft-1.0")
         self.cpp_info.components["gstreamer-fft-1.0"].libs = ["gstfft-1.0"]
         self.cpp_info.components["gstreamer-fft-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-fft-1.0"].includedirs = [gst_include_path]
@@ -835,7 +835,7 @@ class GStPluginsBaseConan(ConanFile):
             }
             gl_custom_content = "\n".join("{}={}".format(key, value) for key, value in gl_variables.items())
 
-            self.cpp_info.components["gstreamer-gl-1.0"].names["pkg_config"] = "gstreamer-gl-1.0"
+            self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_name", "gstreamer-gl-1.0")
             self.cpp_info.components["gstreamer-gl-1.0"].libs = ["gstgl-1.0"]
             self.cpp_info.components["gstreamer-gl-1.0"].requires = [
                 "gstreamer::gstreamer-1.0",
@@ -891,7 +891,7 @@ class GStPluginsBaseConan(ConanFile):
             ]
 
             if self.options.get_safe("with_egl"):
-                self.cpp_info.components["gstreamer-gl-egl-1.0"].names["pkg_config"] = "gstreamer-gl-egl-1.0"
+                self.cpp_info.components["gstreamer-gl-egl-1.0"].set_property("pkg_config_name", "gstreamer-gl-egl-1.0")
                 self.cpp_info.components["gstreamer-gl-egl-1.0"].requires = ["gstreamer-gl-1.0", "egl::egl"]
 
             if self.options.get_safe("with_wayland"):
@@ -906,13 +906,13 @@ class GStPluginsBaseConan(ConanFile):
                 ]
 
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstreamer-gl-x11-1.0"].names["pkg_config"] = "gstreamer-gl-x11-1.0"
+                self.cpp_info.components["gstreamer-gl-x11-1.0"].set_property("pkg_config_name", "gstreamer-gl-x11-1.0")
                 self.cpp_info.components["gstreamer-gl-x11-1.0"].requires = [
                     "gstreamer-gl-1.0",
                     "xorg::x11-xcb",
                 ]
 
-        self.cpp_info.components["gstreamer-pbutils-1.0"].names["pkg_config"] = "gstreamer-pbutils-1.0"
+        self.cpp_info.components["gstreamer-pbutils-1.0"].set_property("pkg_config_name", "gstreamer-pbutils-1.0")
         self.cpp_info.components["gstreamer-pbutils-1.0"].libs = ["gstpbutils-1.0"]
         self.cpp_info.components["gstreamer-pbutils-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -926,7 +926,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-riff-1.0"].names["pkg_config"] = "gstreamer-riff-1.0"
+        self.cpp_info.components["gstreamer-riff-1.0"].set_property("pkg_config_name", "gstreamer-riff-1.0")
         self.cpp_info.components["gstreamer-riff-1.0"].libs = ["gstriff-1.0"]
         self.cpp_info.components["gstreamer-riff-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -938,7 +938,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-rtp-1.0"].names["pkg_config"] = "gstreamer-rtp-1.0"
+        self.cpp_info.components["gstreamer-rtp-1.0"].set_property("pkg_config_name", "gstreamer-rtp-1.0")
         self.cpp_info.components["gstreamer-rtp-1.0"].libs = ["gstrtp-1.0"]
         self.cpp_info.components["gstreamer-rtp-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -950,7 +950,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-rtsp-1.0"].names["pkg_config"] = "gstreamer-rtsp-1.0"
+        self.cpp_info.components["gstreamer-rtsp-1.0"].set_property("pkg_config_name", "gstreamer-rtsp-1.0")
         self.cpp_info.components["gstreamer-rtsp-1.0"].libs = ["gstrtsp-1.0"]
         self.cpp_info.components["gstreamer-rtsp-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -967,7 +967,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-sdp-1.0"].names["pkg_config"] = "gstreamer-sdp-1.0"
+        self.cpp_info.components["gstreamer-sdp-1.0"].set_property("pkg_config_name", "gstreamer-sdp-1.0")
         self.cpp_info.components["gstreamer-sdp-1.0"].libs = ["gstsdp-1.0"]
         self.cpp_info.components["gstreamer-sdp-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -980,7 +980,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-tag-1.0"].names["pkg_config"] = "gstreamer-tag-1.0"
+        self.cpp_info.components["gstreamer-tag-1.0"].set_property("pkg_config_name", "gstreamer-tag-1.0")
         self.cpp_info.components["gstreamer-tag-1.0"].libs = ["gsttag-1.0"]
         self.cpp_info.components["gstreamer-tag-1.0"].requires = [
             "gstreamer::gstreamer-1.0",
@@ -994,7 +994,7 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-video-1.0"].names["pkg_config"] = "gstreamer-video-1.0"
+        self.cpp_info.components["gstreamer-video-1.0"].set_property("pkg_config_name", "gstreamer-video-1.0")
         self.cpp_info.components["gstreamer-video-1.0"].libs = ["gstvideo-1.0"]
         self.cpp_info.components["gstreamer-video-1.0"].requires = [
             "gstreamer::gstreamer-1.0",

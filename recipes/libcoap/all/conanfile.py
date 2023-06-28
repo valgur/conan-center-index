@@ -101,7 +101,7 @@ class LibCoapConan(ConanFile):
         pkgconfig_filename = "{}{}".format(
             pkgconfig_name, "-{}".format(self.options.dtls_backend) if self.options.dtls_backend else ""
         )
-        self.cpp_info.components["coap"].names["pkg_config"] = pkgconfig_filename
+        self.cpp_info.components["coap"].set_property("pkg_config_name", pkgconfig_filename)
         self.cpp_info.components["coap"].libs = [library_name]
 
         if self.settings.os == "Linux":

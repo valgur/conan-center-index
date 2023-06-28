@@ -304,7 +304,7 @@ class OpenSceneGraphConanFile(ConanFile):
         def setup_library(lib):
             library = self.cpp_info.components[lib]
             library.libs = [lib + postfix]
-            library.names["pkg_config"] = "openscenegraph-{}".format(lib)
+            library.set_property("pkg_config_name", "openscenegraph-{}".format(lib))
             setup_serializers(lib)
             return library
 
@@ -315,7 +315,7 @@ class OpenSceneGraphConanFile(ConanFile):
         # files for it with cmake_find_package and cmake_find_package_multi
         library = self.cpp_info.components["OpenThreads"]
         library.libs = ["OpenThreads" + postfix]
-        library.names["pkg_config"] = "openthreads"
+        library.set_property("pkg_config_name", "openthreads")
         if self.settings.os == "Linux":
             library.system_libs = ["pthread"]
 

@@ -197,4 +197,4 @@ class CorradeConan(ConanFile):
 
         # pkg_config: Add more explicit naming to generated files (avoid filesystem collision).
         for key, cmp in self.cpp_info.components.items():
-            self.cpp_info.components[key].names["pkg_config"] = f"{self.name}_{key}"
+            self.cpp_info.components[key].set_property("pkg_config_name", f"{self.name}_{key}")

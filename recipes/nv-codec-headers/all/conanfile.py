@@ -70,4 +70,4 @@ class FFNvEncHeaders(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.names["pkg_config"] = "ffnvcodec"
+        self.cpp_info.set_property("pkg_config_name", "ffnvcodec")

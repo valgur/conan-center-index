@@ -219,4 +219,4 @@ class LibTomMathConan(ConanFile):
             if self.settings.os == "Windows":
                 self.cpp_info.system_libs = ["advapi32", "crypt32"]
 
-        self.cpp_info.names["pkg_config"] = "libtommath"
+        self.cpp_info.set_property("pkg_config_name", "libtommath")

@@ -77,7 +77,7 @@ class XorgMacrosConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.names["pkg_config"] = "xorg-macros"
+        self.cpp_info.set_property("pkg_config_name", "xorg-macros")
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.set_property(

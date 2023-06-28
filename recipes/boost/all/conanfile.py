@@ -1562,7 +1562,7 @@ class BoostConan(ConanFile):
         self.cpp_info.components["headers"].set_property("cmake_target_name", "Boost::headers")
         self.cpp_info.components["headers"].names["cmake_find_package"] = "headers"
         self.cpp_info.components["headers"].names["cmake_find_package_multi"] = "headers"
-        self.cpp_info.components["headers"].names["pkg_config"] = "boost"
+        self.cpp_info.components["headers"].set_property("pkg_config_name", "boost")
 
         if self.options.system_no_deprecated:
             self.cpp_info.components["headers"].defines.append("BOOST_SYSTEM_NO_DEPRECATED")
@@ -1829,7 +1829,7 @@ class BoostConan(ConanFile):
                 self.cpp_info.components[module].set_property("cmake_target_name", "Boost::" + module)
                 self.cpp_info.components[module].names["cmake_find_package"] = module
                 self.cpp_info.components[module].names["cmake_find_package_multi"] = module
-                self.cpp_info.components[module].names["pkg_config"] = f"boost_{module}"
+                self.cpp_info.components[module].set_property("pkg_config_name", f"boost_{module}")
 
                 # extract list of names of direct host dependencies to check for dependencies
                 # of components that exist in other packages

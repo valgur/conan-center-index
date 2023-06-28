@@ -315,7 +315,7 @@ class GtkConan(ConanFile):
                 if self.options.with_x11:
                     self.cpp_info.components["gdk-3.0"].requires.append("xorg::xorg")
             self.cpp_info.components["gdk-3.0"].requires.append("libepoxy::libepoxy")
-            self.cpp_info.components["gdk-3.0"].names["pkg_config"] = "gdk-3.0"
+            self.cpp_info.components["gdk-3.0"].set_property("pkg_config_name", "gdk-3.0")
 
             self.cpp_info.components["gtk+-3.0"].libs = ["gtk-3"]
             self.cpp_info.components["gtk+-3.0"].requires = ["gdk-3.0", "atk::atk"]
@@ -330,13 +330,13 @@ class GtkConan(ConanFile):
             if self.settings.os == "Linux":
                 self.cpp_info.components["gtk+-3.0"].requires.append("glib::gio-unix-2.0")
             self.cpp_info.components["gtk+-3.0"].includedirs = [os.path.join("include", "gtk-3.0")]
-            self.cpp_info.components["gtk+-3.0"].names["pkg_config"] = "gtk+-3.0"
+            self.cpp_info.components["gtk+-3.0"].set_property("pkg_config_name", "gtk+-3.0")
 
             self.cpp_info.components["gail-3.0"].libs = ["gailutil-3"]
             self.cpp_info.components["gail-3.0"].requires = ["gtk+-3.0", "atk::atk"]
             self.cpp_info.components["gail-3.0"].includedirs = [os.path.join("include", "gail-3.0")]
-            self.cpp_info.components["gail-3.0"].names["pkg_config"] = "gail-3.0"
+            self.cpp_info.components["gail-3.0"].set_property("pkg_config_name", "gail-3.0")
         elif self._gtk4:
-            self.cpp_info.names["pkg_config"] = "gtk4"
+            self.cpp_info.set_property("pkg_config_name", "gtk4")
             self.cpp_info.libs = ["gtk-4"]
             self.cpp_info.includedirs.append(os.path.join("include", "gtk-4.0"))

@@ -101,7 +101,7 @@ class AvahiConan(ConanFile):
             avahi_lib = f"avahi-{lib}"
             self.cpp_info.components[lib].names["cmake_find_package"] = lib
             self.cpp_info.components[lib].names["cmake_find_package_multi"] = lib
-            self.cpp_info.components[lib].names["pkg_config"] = avahi_lib
+            self.cpp_info.components[lib].set_property("pkg_config_name", avahi_lib)
             self.cpp_info.components[lib].libs = [avahi_lib]
             self.cpp_info.components[lib].includedirs = [os.path.join("include", avahi_lib)]
         self.cpp_info.components["compat-libdns_sd"].libs = ["dns_sd"]
@@ -118,7 +118,7 @@ class AvahiConan(ConanFile):
             avahi_app = f"avahi-{app}"
             self.cpp_info.components[app].names["cmake_find_package"] = app
             self.cpp_info.components[app].names["cmake_find_package_multi"] = app
-            self.cpp_info.components[app].names["pkg_config"] = avahi_app
+            self.cpp_info.components[app].set_property("pkg_config_name", avahi_app)
 
         self.cpp_info.components["autoipd"].requires = ["libdaemon::libdaemon"]
         self.cpp_info.components["browse"].requires = ["client", "gdbm::gdbm"]

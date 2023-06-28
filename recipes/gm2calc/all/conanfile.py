@@ -73,6 +73,6 @@ class Gm2calcConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "GM2Calc"
         self.cpp_info.names["cmake_find_package_multi"] = "GM2Calc"
-        self.cpp_info.names["pkg_config"] = "gm2calc"
+        self.cpp_info.set_property("pkg_config_name", "gm2calc")
         self.cpp_info.libs = ["gm2calc"]
         self.cpp_info.requires = ["boost::headers", "eigen::eigen"]

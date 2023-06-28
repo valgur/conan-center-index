@@ -115,4 +115,4 @@ class IgnitionToolsConan(ConanFile):
         component.includedirs.append(f"include/ignition/tools{version_major}")
         component.names["cmake_find_package"] = f"ignition-tools{version_major}"
         component.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
-        component.names["pkg_config"] = f"ignition-tools{version_major}"
+        component.set_property("pkg_config_name", f"ignition-tools{version_major}")

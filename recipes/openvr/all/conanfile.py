@@ -110,7 +110,7 @@ class OpenvrConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "openvr"
+        self.cpp_info.set_property("pkg_config_name", "openvr")
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "openvr"))
 

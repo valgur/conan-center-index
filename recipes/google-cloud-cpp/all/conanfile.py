@@ -163,7 +163,7 @@ class GoogleCloudCppConan(ConanFile):
             "abseil::absl_time",
         ]
         self.cpp_info.components["common"].libs = ["google_cloud_cpp_common"]
-        self.cpp_info.components["common"].names["pkg_config"] = "google_cloud_cpp_common"
+        self.cpp_info.components["common"].set_property("pkg_config_name", "google_cloud_cpp_common")
 
         self.cpp_info.components["experimental-bigquery"].requires = [
             "grpc_utils",
@@ -171,7 +171,7 @@ class GoogleCloudCppConan(ConanFile):
             "cloud_bigquery_protos",
         ]
         self.cpp_info.components["experimental-bigquery"].libs = ["google_cloud_cpp_bigquery"]
-        self.cpp_info.components["experimental-bigquery"].names["pkg_config"] = "google_cloud_cpp_bigquery"
+        self.cpp_info.components["experimental-bigquery"].set_property("pkg_config_name", "google_cloud_cpp_bigquery")
 
         self.cpp_info.components["bigtable"].requires = [
             "abseil::absl_memory",
@@ -183,7 +183,7 @@ class GoogleCloudCppConan(ConanFile):
             "protobuf::libprotobuf",
         ]
         self.cpp_info.components["bigtable"].libs = ["google_cloud_cpp_bigtable"]
-        self.cpp_info.components["bigtable"].names["pkg_config"] = "google_cloud_cpp_bigtable"
+        self.cpp_info.components["bigtable"].set_property("pkg_config_name", "google_cloud_cpp_bigtable")
 
         if Version(self.version) < "1.40.1":  # FIXME: Probably this library was removed before
             self.cpp_info.components["experimental-firestore"].requires = ["common"]
@@ -207,7 +207,7 @@ class GoogleCloudCppConan(ConanFile):
             "api_auth_protos",
         ]
         self.cpp_info.components["bigtable_protos"].libs = ["google_cloud_cpp_bigtable_protos"]
-        self.cpp_info.components["bigtable_protos"].names["pkg_config"] = "google_cloud_cpp_bigtable_protos"
+        self.cpp_info.components["bigtable_protos"].set_property("pkg_config_name", "google_cloud_cpp_bigtable_protos")
 
         self.cpp_info.components["cloud_bigquery_protos"].requires = [
             "grpc::grpc++",
@@ -267,7 +267,7 @@ class GoogleCloudCppConan(ConanFile):
             "api_resource_protos",
         ]
         self.cpp_info.components["iam_protos"].libs = ["google_cloud_cpp_iam_protos"]
-        self.cpp_info.components["iam_protos"].names["pkg_config"] = "google_cloud_cpp_iam_protos"
+        self.cpp_info.components["iam_protos"].set_property("pkg_config_name", "google_cloud_cpp_iam_protos")
 
         self.cpp_info.components["pubsub_protos"].requires = [
             "grpc::grpc++",
@@ -279,7 +279,7 @@ class GoogleCloudCppConan(ConanFile):
             "api_resource_protos",
         ]
         self.cpp_info.components["pubsub_protos"].libs = ["google_cloud_cpp_pubsub_protos"]
-        self.cpp_info.components["pubsub_protos"].names["pkg_config"] = "google_cloud_cpp_pubsub_protos"
+        self.cpp_info.components["pubsub_protos"].set_property("pkg_config_name", "google_cloud_cpp_pubsub_protos")
 
         self.cpp_info.components["spanner_protos"].requires = [
             "grpc::grpc++",
@@ -295,7 +295,7 @@ class GoogleCloudCppConan(ConanFile):
             "rpc_status_protos",
         ]
         self.cpp_info.components["spanner_protos"].libs = ["google_cloud_cpp_spanner_protos"]
-        self.cpp_info.components["spanner_protos"].names["pkg_config"] = "google_cloud_cpp_spanner_protos"
+        self.cpp_info.components["spanner_protos"].set_property("pkg_config_name", "google_cloud_cpp_spanner_protos")
 
         self.cpp_info.components["storage_protos"].requires = [
             "grpc::grpc++",
@@ -308,7 +308,7 @@ class GoogleCloudCppConan(ConanFile):
             "iam_v1_policy_protos",
         ]
         self.cpp_info.components["storage_protos"].libs = ["google_cloud_cpp_storage_protos"]
-        self.cpp_info.components["storage_protos"].names["pkg_config"] = "google_cloud_cpp_storage_protos"
+        self.cpp_info.components["storage_protos"].set_property("pkg_config_name", "google_cloud_cpp_storage_protos")
 
         self.cpp_info.components["longrunning_operations_protos"].requires = [
             "grpc::grpc++",
@@ -331,7 +331,7 @@ class GoogleCloudCppConan(ConanFile):
             "protobuf::libprotobuf",
         ]
         self.cpp_info.components["api_http_protos"].libs = ["google_cloud_cpp_api_http_protos"]
-        self.cpp_info.components["api_http_protos"].names["pkg_config"] = "google_cloud_cpp_api_http_protos"
+        self.cpp_info.components["api_http_protos"].set_property("pkg_config_name", "google_cloud_cpp_api_http_protos")
 
         self.cpp_info.components["api_annotations_protos"].requires = [
             "grpc::grpc++",
@@ -351,7 +351,7 @@ class GoogleCloudCppConan(ConanFile):
             "api_annotations_protos",
         ]
         self.cpp_info.components["api_auth_protos"].libs = ["google_cloud_cpp_api_auth_protos"]
-        self.cpp_info.components["api_auth_protos"].names["pkg_config"] = "google_cloud_cpp_api_auth_protos"
+        self.cpp_info.components["api_auth_protos"].set_property("pkg_config_name", "google_cloud_cpp_api_auth_protos")
 
         self.cpp_info.components["api_client_protos"].requires = [
             "grpc::grpc++",
@@ -393,7 +393,7 @@ class GoogleCloudCppConan(ConanFile):
             "protobuf::libprotobuf",
         ]
         self.cpp_info.components["api_label_protos"].libs = ["google_cloud_cpp_api_label_protos"]
-        self.cpp_info.components["api_label_protos"].names["pkg_config"] = "google_cloud_cpp_api_label_protos"
+        self.cpp_info.components["api_label_protos"].set_property("pkg_config_name", "google_cloud_cpp_api_label_protos")
 
         self.cpp_info.components["api_launch_stage_protos"].requires = [
             "grpc::grpc++",
@@ -521,7 +521,7 @@ class GoogleCloudCppConan(ConanFile):
             "rpc_status_protos",
         ]
         self.cpp_info.components["logging_protos"].libs = ["google_cloud_cpp_logging_protos"]
-        self.cpp_info.components["logging_protos"].names["pkg_config"] = "google_cloud_cpp_logging_protos"
+        self.cpp_info.components["logging_protos"].set_property("pkg_config_name", "google_cloud_cpp_logging_protos")
 
         self.cpp_info.components["monitoring_protos"].requires = [
             "grpc::grpc++",
@@ -636,7 +636,7 @@ class GoogleCloudCppConan(ConanFile):
             "protobuf::libprotobuf",
         ]
         self.cpp_info.components["type_date_protos"].libs = ["google_cloud_cpp_type_date_protos"]
-        self.cpp_info.components["type_date_protos"].names["pkg_config"] = "google_cloud_cpp_type_date_protos"
+        self.cpp_info.components["type_date_protos"].set_property("pkg_config_name", "google_cloud_cpp_type_date_protos")
 
         self.cpp_info.components["type_datetime_protos"].requires = [
             "grpc::grpc++",
@@ -664,7 +664,7 @@ class GoogleCloudCppConan(ConanFile):
             "protobuf::libprotobuf",
         ]
         self.cpp_info.components["type_expr_protos"].libs = ["google_cloud_cpp_type_expr_protos"]
-        self.cpp_info.components["type_expr_protos"].names["pkg_config"] = "google_cloud_cpp_type_expr_protos"
+        self.cpp_info.components["type_expr_protos"].set_property("pkg_config_name", "google_cloud_cpp_type_expr_protos")
 
         self.cpp_info.components["type_fraction_protos"].requires = [
             "grpc::grpc++",
@@ -821,15 +821,15 @@ class GoogleCloudCppConan(ConanFile):
             "grpc::grpc",
         ]
         self.cpp_info.components["grpc_utils"].libs = ["google_cloud_cpp_grpc_utils"]
-        self.cpp_info.components["grpc_utils"].names["pkg_config"] = "google_cloud_cpp_grpc_utils"
+        self.cpp_info.components["grpc_utils"].set_property("pkg_config_name", "google_cloud_cpp_grpc_utils")
 
         self.cpp_info.components["experimental-iam"].requires = ["grpc_utils", "common", "iam_protos"]
         self.cpp_info.components["experimental-iam"].libs = ["google_cloud_cpp_iam"]
-        self.cpp_info.components["experimental-iam"].names["pkg_config"] = "google_cloud_cpp_iam"
+        self.cpp_info.components["experimental-iam"].set_property("pkg_config_name", "google_cloud_cpp_iam")
 
         self.cpp_info.components["experimental-logging"].requires = ["grpc_utils", "common", "logging_protos"]
         self.cpp_info.components["experimental-logging"].libs = ["google_cloud_cpp_logging"]
-        self.cpp_info.components["experimental-logging"].names["pkg_config"] = "google_cloud_cpp_logging"
+        self.cpp_info.components["experimental-logging"].set_property("pkg_config_name", "google_cloud_cpp_logging")
 
         self.cpp_info.components["pubsub"].requires = [
             "grpc_utils",
@@ -838,7 +838,7 @@ class GoogleCloudCppConan(ConanFile):
             "abseil::absl_flat_hash_map",
         ]
         self.cpp_info.components["pubsub"].libs = ["google_cloud_cpp_pubsub"]
-        self.cpp_info.components["pubsub"].names["pkg_config"] = "google_cloud_cpp_pubsub"
+        self.cpp_info.components["pubsub"].set_property("pkg_config_name", "google_cloud_cpp_pubsub")
 
         self.cpp_info.components["spanner"].requires = [
             "abseil::absl_fixed_array",
@@ -851,7 +851,7 @@ class GoogleCloudCppConan(ConanFile):
             "spanner_protos",
         ]
         self.cpp_info.components["spanner"].libs = ["google_cloud_cpp_spanner"]
-        self.cpp_info.components["spanner"].names["pkg_config"] = "google_cloud_cpp_spanner"
+        self.cpp_info.components["spanner"].set_property("pkg_config_name", "google_cloud_cpp_spanner")
 
         self.cpp_info.components["storage"].requires = [
             "abseil::absl_memory",
@@ -867,4 +867,4 @@ class GoogleCloudCppConan(ConanFile):
             "openssl::crypto",
         ]
         self.cpp_info.components["storage"].libs = ["google_cloud_cpp_storage"]
-        self.cpp_info.components["storage"].names["pkg_config"] = "google_cloud_cpp_storage"
+        self.cpp_info.components["storage"].set_property("pkg_config_name", "google_cloud_cpp_storage")

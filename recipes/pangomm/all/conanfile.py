@@ -324,7 +324,7 @@ class PangommConan(ConanFile):
         giomm_lib = "glibmm::giomm-2.68" if self._is_2_48_api else "glibmm::giomm-2.4"
         cairomm_lib = "cairomm::cairomm-1.16" if self._is_2_48_api else "cairomm::cairomm-1.0"
 
-        self.cpp_info.components[pangomm_lib].names["pkg_config"] = pangomm_lib
+        self.cpp_info.components[pangomm_lib].set_property("pkg_config_name", pangomm_lib)
         self.cpp_info.components[pangomm_lib].libs = [pangomm_lib]
         self.cpp_info.components[pangomm_lib].includedirs = [os.path.join("include", pangomm_lib)]
         self.cpp_info.components[pangomm_lib].requires = [

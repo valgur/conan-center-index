@@ -122,7 +122,7 @@ class SrtConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "srt"
+        self.cpp_info.set_property("pkg_config_name", "srt")
         suffix = "_static" if is_msvc(self) and not self.options.shared else ""
         self.cpp_info.libs = ["srt" + suffix]
         if self.options.shared:

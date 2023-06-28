@@ -161,7 +161,7 @@ class TCSBankUconfigConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.names["pkg_config"] = "uconfig"
+        self.cpp_info.set_property("pkg_config_name", "uconfig")
         self.cpp_info.names["cmake_find_package"] = "uconfig"
         self.cpp_info.names["cmake_find_package_multi"] = "uconfig"
         if self.options.with_rapidjson:

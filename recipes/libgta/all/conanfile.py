@@ -74,7 +74,7 @@ class LibgtaConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "GTA"
         self.cpp_info.names["cmake_find_package_multi"] = "GTA"
-        self.cpp_info.names["pkg_config"] = "gta"
+        self.cpp_info.set_property("pkg_config_name", "gta")
         self.cpp_info.libs = collect_libs(self)
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("GTA_STATIC")

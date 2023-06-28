@@ -115,7 +115,7 @@ class GameNetworkingSocketsConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "GameNetworkingSockets"
         self.cpp_info.names["cmake_find_package_multi"] = "GameNetworkingSockets"
-        self.cpp_info.names["pkg_config"] = "GameNetworkingSockets"
+        self.cpp_info.set_property("pkg_config_name", "GameNetworkingSockets")
         self.cpp_info.includedirs.append(os.path.join("include", "GameNetworkingSockets"))
         if self.options.shared:
             self.cpp_info.libs = ["GameNetworkingSockets"]

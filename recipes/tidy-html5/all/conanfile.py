@@ -86,7 +86,7 @@ class TidyHtml5Conan(ConanFile):
             rm(self, to_remove, os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "tidy"
+        self.cpp_info.set_property("pkg_config_name", "tidy")
         suffix = ""
         if self.settings.os == "Windows" and not self.options.shared:
             suffix = "_static"

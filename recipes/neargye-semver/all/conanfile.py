@@ -75,6 +75,6 @@ class NeargyeSemverConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.names["pkg_config"] = "semver"
+        self.cpp_info.set_property("pkg_config_name", "semver")
         self.cpp_info.names["cmake_find_package"] = "semver"
         self.cpp_info.names["cmake_find_package_multi"] = "semver"

@@ -120,7 +120,7 @@ class Hdf4Conan(ConanFile):
         return libname
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "hdf"
+        self.cpp_info.set_property("pkg_config_name", "hdf")
         unofficial_includedir = os.path.join(self.package_folder, "include", "hdf4")
         # xdr
         xdr_cmake = "xdr-shared" if self.options.shared else "xdr-static"

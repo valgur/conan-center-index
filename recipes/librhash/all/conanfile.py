@@ -119,5 +119,5 @@ class LibRHashConan(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "LibRHash"
         self.cpp_info.names["cmake_find_package_multi"] = "LibRHash"
-        self.cpp_info.names["pkg_config"] = "librhash"
+        self.cpp_info.set_property("pkg_config_name", "librhash")
         self.cpp_info.libs = ["rhash"]

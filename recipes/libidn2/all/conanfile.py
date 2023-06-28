@@ -209,7 +209,7 @@ class LibIdn(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["idn2"]
-        self.cpp_info.names["pkg_config"] = "libidn2"
+        self.cpp_info.set_property("pkg_config_name", "libidn2")
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.defines = ["IDN2_STATIC"]

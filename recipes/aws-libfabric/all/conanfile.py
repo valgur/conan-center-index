@@ -220,7 +220,7 @@ class LibfabricConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "libfabric"
+        self.cpp_info.set_property("pkg_config_name", "libfabric")
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["pthread", "m"]

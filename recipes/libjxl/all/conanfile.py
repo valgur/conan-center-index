@@ -109,15 +109,15 @@ class LibjxlConan(ConanFile):
 
     def package_info(self):
         # jxl
-        self.cpp_info.components["jxl"].names["pkg_config"] = "libjxl"
+        self.cpp_info.components["jxl"].set_property("pkg_config_name", "libjxl")
         self.cpp_info.components["jxl"].libs = [self._lib_name("jxl")]
         self.cpp_info.components["jxl"].requires = ["brotli::brotli", "highway::highway", "lcms::lcms"]
         # jxl_dec
-        self.cpp_info.components["jxl_dec"].names["pkg_config"] = "libjxl_dec"
+        self.cpp_info.components["jxl_dec"].set_property("pkg_config_name", "libjxl_dec")
         self.cpp_info.components["jxl_dec"].libs = [self._lib_name("jxl_dec")]
         self.cpp_info.components["jxl_dec"].requires = ["brotli::brotli", "highway::highway", "lcms::lcms"]
         # jxl_threads
-        self.cpp_info.components["jxl_threads"].names["pkg_config"] = "libjxl_threads"
+        self.cpp_info.components["jxl_threads"].set_property("pkg_config_name", "libjxl_threads")
         self.cpp_info.components["jxl_threads"].libs = [self._lib_name("jxl_threads")]
         if self.settings.os == "Linux":
             self.cpp_info.components["jxl_threads"].system_libs = ["pthread"]

@@ -358,13 +358,13 @@ class NCursesConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "Curses"
         if self._with_tinfo:
             self.cpp_info.components["tinfo"].libs = ["tinfo" + self._lib_suffix]
-            self.cpp_info.components["tinfo"].names["pkg_config"] = "tinfo" + self._lib_suffix
+            self.cpp_info.components["tinfo"].set_property("pkg_config_name", "tinfo" + self._lib_suffix)
             self.cpp_info.components["tinfo"].includedirs.append(
                 os.path.join("include", "ncurses" + self._suffix)
             )
 
         self.cpp_info.components["libcurses"].libs = ["ncurses" + self._lib_suffix]
-        self.cpp_info.components["libcurses"].names["pkg_config"] = "ncurses" + self._lib_suffix
+        self.cpp_info.components["libcurses"].set_property("pkg_config_name", "ncurses" + self._lib_suffix)
         self.cpp_info.components["libcurses"].includedirs.append(
             os.path.join("include", "ncurses" + self._suffix)
         )
@@ -388,27 +388,27 @@ class NCursesConan(ConanFile):
         self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [module_rel_path]
 
         self.cpp_info.components["panel"].libs = ["panel" + self._lib_suffix]
-        self.cpp_info.components["panel"].names["pkg_config"] = "panel" + self._lib_suffix
+        self.cpp_info.components["panel"].set_property("pkg_config_name", "panel" + self._lib_suffix)
         self.cpp_info.components["panel"].requires = ["libcurses"]
 
         self.cpp_info.components["menu"].libs = ["menu" + self._lib_suffix]
-        self.cpp_info.components["menu"].names["pkg_config"] = "menu" + self._lib_suffix
+        self.cpp_info.components["menu"].set_property("pkg_config_name", "menu" + self._lib_suffix)
         self.cpp_info.components["menu"].requires = ["libcurses"]
 
         self.cpp_info.components["form"].libs = ["form" + self._lib_suffix]
-        self.cpp_info.components["form"].names["pkg_config"] = "form" + self._lib_suffix
+        self.cpp_info.components["form"].set_property("pkg_config_name", "form" + self._lib_suffix)
         self.cpp_info.components["form"].requires = ["libcurses"]
         if self.options.with_pcre2:
             self.cpp_info.components["form"].requires.append("pcre2::pcre2")
 
         if self.options.with_cxx:
             self.cpp_info.components["curses++"].libs = ["ncurses++" + self._lib_suffix]
-            self.cpp_info.components["curses++"].names["pkg_config"] = "ncurses++" + self._lib_suffix
+            self.cpp_info.components["curses++"].set_property("pkg_config_name", "ncurses++" + self._lib_suffix)
             self.cpp_info.components["curses++"].requires = ["libcurses"]
 
         if self._with_ticlib:
             self.cpp_info.components["ticlib"].libs = ["tic" + self._lib_suffix]
-            self.cpp_info.components["ticlib"].names["pkg_config"] = "tic" + self._lib_suffix
+            self.cpp_info.components["ticlib"].set_property("pkg_config_name", "tic" + self._lib_suffix)
             self.cpp_info.components["ticlib"].requires = ["libcurses"]
 
         if self.options.with_progs:

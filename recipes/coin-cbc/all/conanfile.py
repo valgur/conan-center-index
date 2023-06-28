@@ -235,7 +235,7 @@ class CoinCbcConan(ConanFile):
             "coin-osi::coin-osi",
             "coin-cgl::coin-cgl",
         ]
-        self.cpp_info.components["libcbc"].names["pkg_config"] = "cbc"
+        self.cpp_info.components["libcbc"].set_property("pkg_config_name", "cbc")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.parallel:
             self.cpp_info.components["libcbc"].system_libs.append("pthread")
         if self.settings.os in ["Windows"] and self.options.parallel:
@@ -243,7 +243,7 @@ class CoinCbcConan(ConanFile):
 
         self.cpp_info.components["osi-cbc"].libs = ["OsiCbc"]
         self.cpp_info.components["osi-cbc"].requires = ["libcbc"]
-        self.cpp_info.components["osi-cbc"].names["pkg_config"] = "osi-cbc"
+        self.cpp_info.components["osi-cbc"].set_property("pkg_config_name", "osi-cbc")
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")

@@ -202,7 +202,7 @@ class GobjectIntrospectionConan(ConanFile):
             os.unlink(pdb_file)
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "gobject-introspection-1.0"
+        self.cpp_info.set_property("pkg_config_name", "gobject-introspection-1.0")
         self.cpp_info.libs = ["girepository-1.0"]
         self.cpp_info.includedirs.append(os.path.join("include", "gobject-introspection-1.0"))
 

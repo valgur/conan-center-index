@@ -74,4 +74,4 @@ class Libnetfilter_queueConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["netfilter_queue"]
-        self.cpp_info.names["pkg_config"] = "libnetfilter_queue"
+        self.cpp_info.set_property("pkg_config_name", "libnetfilter_queue")

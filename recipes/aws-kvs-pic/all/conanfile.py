@@ -150,17 +150,17 @@ class awskvspicConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["kvspic"].libs = ["kvspic"]
-        self.cpp_info.components["kvspic"].names["pkg_config"] = "libkvspic"
+        self.cpp_info.components["kvspic"].set_property("pkg_config_name", "libkvspic")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["kvspic"].system_libs = ["dl", "rt", "pthread"]
 
         self.cpp_info.components["kvspicClient"].libs = ["kvspicClient"]
-        self.cpp_info.components["kvspicClient"].names["pkg_config"] = "libkvspicClient"
+        self.cpp_info.components["kvspicClient"].set_property("pkg_config_name", "libkvspicClient")
 
         self.cpp_info.components["kvspicState"].libs = ["kvspicState"]
-        self.cpp_info.components["kvspicState"].names["pkg_config"] = "libkvspicState"
+        self.cpp_info.components["kvspicState"].set_property("pkg_config_name", "libkvspicState")
 
         self.cpp_info.components["kvspicUtils"].libs = ["kvspicUtils"]
-        self.cpp_info.components["kvspicUtils"].names["pkg_config"] = "libkvspicUtils"
+        self.cpp_info.components["kvspicUtils"].set_property("pkg_config_name", "libkvspicUtils")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["kvspicUtils"].system_libs = ["dl", "rt", "pthread"]

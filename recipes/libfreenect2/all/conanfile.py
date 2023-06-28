@@ -196,7 +196,7 @@ class Libfreenect2Conan(ConanFile):
     def package_info(self):
         self.cpp_info.names["cmake_find_package"] = "freenect2"
         self.cpp_info.names["cmake_find_package_multi"] = "freenect2"
-        self.cpp_info.names["pkg_config"] = "freenect2"
+        self.cpp_info.set_property("pkg_config_name", "freenect2")
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])

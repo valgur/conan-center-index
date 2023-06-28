@@ -296,7 +296,7 @@ class LibUSBCompatConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "libusb"
+        self.cpp_info.set_property("pkg_config_name", "libusb")
         self.cpp_info.libs = ["usb"]
         if not self.options.shared:
             self.cpp_info.defines = ["LIBUSB_COMPAT_STATIC"]

@@ -99,5 +99,5 @@ class LiburingConan(ConanFile):
             os.remove(os.path.join(self.package_folder, "lib", "liburing.a"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "liburing"
+        self.cpp_info.set_property("pkg_config_name", "liburing")
         self.cpp_info.libs = ["uring"]

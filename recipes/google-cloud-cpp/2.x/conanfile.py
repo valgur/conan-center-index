@@ -239,7 +239,7 @@ class GoogleCloudCppConan(ConanFile):
     def _add_proto_component(self, component):
         self.cpp_info.components[component].requires = self._generate_proto_requires(component)
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
-        self.cpp_info.components[component].names["pkg_config"] = f"google_cloud_cpp_{component}"
+        self.cpp_info.components[component].set_property("pkg_config_name", f"google_cloud_cpp_{component}")
 
     def _add_grpc_component(self, component, protos, extra=None):
         SHARED_REQUIRES = [
@@ -252,7 +252,7 @@ class GoogleCloudCppConan(ConanFile):
         ]
         self.cpp_info.components[component].requires = (extra or []) + [protos] + SHARED_REQUIRES
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
-        self.cpp_info.components[component].names["pkg_config"] = f"google_cloud_cpp_{component}"
+        self.cpp_info.components[component].set_property("pkg_config_name", f"google_cloud_cpp_{component}")
 
     def package_info(self):
         self.cpp_info.components["common"].requires = [
@@ -263,7 +263,7 @@ class GoogleCloudCppConan(ConanFile):
             "abseil::absl_time",
         ]
         self.cpp_info.components["common"].libs = ["google_cloud_cpp_common"]
-        self.cpp_info.components["common"].names["pkg_config"] = "google_cloud_cpp_common"
+        self.cpp_info.components["common"].set_property("pkg_config_name", "google_cloud_cpp_common")
 
         self.cpp_info.components["rest_internal"].requires = [
             "common",
@@ -273,7 +273,7 @@ class GoogleCloudCppConan(ConanFile):
             "zlib::zlib",
         ]
         self.cpp_info.components["rest_internal"].libs = ["google_cloud_cpp_rest_internal"]
-        self.cpp_info.components["rest_internal"].names["pkg_config"] = "google_cloud_cpp_common"
+        self.cpp_info.components["rest_internal"].set_property("pkg_config_name", "google_cloud_cpp_common")
 
         # A small number of gRPC-generated stubs are used directly in the common components
         # shared by all gRPC-based libraries.  These must be defined without reference to `grpc_utils`.
@@ -295,7 +295,7 @@ class GoogleCloudCppConan(ConanFile):
             "grpc::_grpc",
         ]
         self.cpp_info.components["grpc_utils"].libs = ["google_cloud_cpp_grpc_utils"]
-        self.cpp_info.components["grpc_utils"].names["pkg_config"] = "google_cloud_cpp_grpc_utils"
+        self.cpp_info.components["grpc_utils"].set_property("pkg_config_name", "google_cloud_cpp_grpc_utils")
 
         for component in self._proto_components():
             if component not in GRPC_UTILS_REQUIRED_PROTOS:
@@ -353,4 +353,4 @@ class GoogleCloudCppConan(ConanFile):
             "zlib::zlib",
         ]
         self.cpp_info.components["storage"].libs = ["google_cloud_cpp_storage"]
-        self.cpp_info.components["storage"].names["pkg_config"] = "google_cloud_cpp_storage"
+        self.cpp_info.components["storage"].set_property("pkg_config_name", "google_cloud_cpp_storage")

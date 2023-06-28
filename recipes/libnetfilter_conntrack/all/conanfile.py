@@ -73,4 +73,4 @@ class Libnetfilter_conntrackConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["netfilter_conntrack"]
-        self.cpp_info.names["pkg_config"] = "libnetfilter_conntrack"
+        self.cpp_info.set_property("pkg_config_name", "libnetfilter_conntrack")

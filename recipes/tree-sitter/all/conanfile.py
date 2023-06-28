@@ -68,5 +68,5 @@ class TreeSitterConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "tree-sitter"
+        self.cpp_info.set_property("pkg_config_name", "tree-sitter")
         self.cpp_info.libs = ["tree-sitter"]
