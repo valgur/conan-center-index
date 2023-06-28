@@ -194,7 +194,7 @@ class SqlcipherConan(ConanFile):
             "USE_AMALGAMATION=1",
             "OPT_FEATURE_FLAGS=-DSQLCIPHER_CRYPTO_OPENSSL",
             "SQLITE_TEMP_STORE=%s" % self._temp_store_nmake_value,
-            "TCLSH_CMD=%s" % self.deps_env_info.TCLSH,
+            "TCLSH_CMD=%s" % os.pathsep.join(dep.buildenv_info.TCLSH for dep in self.dependencies.values()),
         ]
 
         main_target = "dll" if self.options.shared else "sqlcipher.lib"

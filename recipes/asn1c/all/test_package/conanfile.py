@@ -21,7 +21,7 @@ class TestPackageConan(ConanFile):
         if not cross_building(self):
             copy(self, "MyModule.asn1", src=self.source_folder, dst=self.build_folder)
             cmake = CMake(self)
-            cmake.variables["SUPPORT_PATH"] = self.deps_env_info["asn1c"].SUPPORT_PATH
+            cmake.variables["SUPPORT_PATH"] = self.dependencies["asn1c"].buildenv_info.SUPPORT_PATH
             cmake.configure()
             cmake.build()
 

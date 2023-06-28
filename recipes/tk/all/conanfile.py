@@ -230,7 +230,7 @@ class TkConan(ConanFile):
                     tcldir=tcldir,
                     tclstublib=tclstublib,
                     tclimplib=tclimplib,
-                    tcl_library=self.deps_env_info["tcl"].TCL_LIBRARY.replace("\\", "/"),
+                    tcl_library=self.dependencies["tcl"].buildenv_info.TCL_LIBRARY.replace("\\", "/"),
                     target=target,
                 ),
                 cwd=self._get_configure_folder("win"),
