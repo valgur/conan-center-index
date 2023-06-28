@@ -137,7 +137,6 @@ class GStreamerConan(ConanFile):
         )
 
         self.cpp_info.components["gstreamer-1.0"].set_property("pkg_config_name", "gstreamer-1.0")
-        self.cpp_info.components["gstreamer-1.0"].names["pkg_config"] = "gstreamer-1.0"
         self.cpp_info.components["gstreamer-1.0"].requires = ["glib::glib-2.0", "glib::gobject-2.0"]
         if not self.options.shared:
             self.cpp_info.components["gstreamer-1.0"].requires.append("glib::gmodule-no-export-2.0")
@@ -151,7 +150,6 @@ class GStreamerConan(ConanFile):
         )
 
         self.cpp_info.components["gstreamer-base-1.0"].set_property("pkg_config_name", "gstreamer-base-1.0")
-        self.cpp_info.components["gstreamer-base-1.0"].names["pkg_config"] = "gstreamer-base-1.0"
         self.cpp_info.components["gstreamer-base-1.0"].requires = ["gstreamer-1.0"]
         self.cpp_info.components["gstreamer-base-1.0"].libs = ["gstbase-1.0"]
         self.cpp_info.components["gstreamer-base-1.0"].includedirs = [
@@ -164,7 +162,6 @@ class GStreamerConan(ConanFile):
         self.cpp_info.components["gstreamer-controller-1.0"].set_property(
             "pkg_config_name", "gstreamer-controller-1.0"
         )
-        self.cpp_info.components["gstreamer-controller-1.0"].names["pkg_config"] = "gstreamer-controller-1.0"
         self.cpp_info.components["gstreamer-controller-1.0"].requires = ["gstreamer-1.0"]
         self.cpp_info.components["gstreamer-controller-1.0"].libs = ["gstcontroller-1.0"]
         self.cpp_info.components["gstreamer-controller-1.0"].includedirs = [
@@ -177,7 +174,6 @@ class GStreamerConan(ConanFile):
         )
 
         self.cpp_info.components["gstreamer-net-1.0"].set_property("pkg_config_name", "gstreamer-net-1.0")
-        self.cpp_info.components["gstreamer-net-1.0"].names["pkg_config"] = "gstreamer-net-1.0"
         self.cpp_info.components["gstreamer-net-1.0"].requires = ["gstreamer-1.0", "glib::gio-2.0"]
         self.cpp_info.components["gstreamer-net-1.0"].libs = ["gstnet-1.0"]
         self.cpp_info.components["gstreamer-net-1.0"].includedirs = [os.path.join("include", "gstreamer-1.0")]
@@ -186,7 +182,6 @@ class GStreamerConan(ConanFile):
         )
 
         self.cpp_info.components["gstreamer-check-1.0"].set_property("pkg_config_name", "gstreamer-check-1.0")
-        self.cpp_info.components["gstreamer-check-1.0"].names["pkg_config"] = "gstreamer-check-1.0"
         self.cpp_info.components["gstreamer-check-1.0"].requires = ["gstreamer-1.0"]
         self.cpp_info.components["gstreamer-check-1.0"].libs = ["gstcheck-1.0"]
         self.cpp_info.components["gstreamer-check-1.0"].includedirs = [
@@ -201,7 +196,6 @@ class GStreamerConan(ConanFile):
         # gstcoreelements and gstcoretracers are plugins which should be loaded dynamicaly, and not linked to directly
         if not self.options.shared:
             self.cpp_info.components["gstcoreelements"].set_property("pkg_config_name", "gstcoreelements")
-            self.cpp_info.components["gstcoreelements"].names["pkg_config"] = "gstcoreelements"
             self.cpp_info.components["gstcoreelements"].requires = [
                 "glib::gobject-2.0",
                 "glib::glib-2.0",
@@ -215,7 +209,6 @@ class GStreamerConan(ConanFile):
             self.cpp_info.components["gstcoreelements"].libdirs = [gst_plugin_path]
 
             self.cpp_info.components["gstcoretracers"].set_property("pkg_config_name", "gstcoretracers")
-            self.cpp_info.components["gstcoretracers"].names["pkg_config"] = "gstcoretracers"
             self.cpp_info.components["gstcoretracers"].requires = ["gstreamer-1.0"]
             self.cpp_info.components["gstcoretracers"].libs = ["gstcoretracers"]
             self.cpp_info.components["gstcoretracers"].includedirs = [

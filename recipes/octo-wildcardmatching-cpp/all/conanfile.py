@@ -103,4 +103,3 @@ class OctoWildcardMatchingCPPConan(ConanFile):
         self.cpp_info.libs = ["octo-wildcardmatching-cpp"]
         self.cpp_info.names["cmake_find_package"] = "octo-wildcardmatching-cpp"
         self.cpp_info.names["cmake_find_package_multi"] = "octo-wildcardmatching-cpp"
-        self.cpp_info.names["pkg_config"] = "octo-wildcardmatching-cpp"

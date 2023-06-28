@@ -206,4 +206,3 @@ class OpenColorIOConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenColorIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenColorIO"
-        self.cpp_info.names["pkg_config"] = "OpenColorIO"

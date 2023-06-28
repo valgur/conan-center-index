@@ -108,7 +108,6 @@ class OctoKeygenCPPConan(ConanFile):
         self.cpp_info.libs = ["octo-keygen-cpp"]
         self.cpp_info.names["cmake_find_package"] = "octo-keygen-cpp"
         self.cpp_info.names["cmake_find_package_multi"] = "octo-keygen-cpp"
-        self.cpp_info.names["pkg_config"] = "octo-keygen-cpp"
         self.cpp_info.requires = [
             "fmt::fmt",
             "openssl::openssl",

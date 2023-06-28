@@ -103,7 +103,6 @@ class VorbisConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Vorbis"
         self.cpp_info.names["cmake_find_package_multi"] = "Vorbis"
-        self.cpp_info.names["pkg_config"] = "vorbis-all-do-not-use"
         self.cpp_info.components["vorbismain"].names["cmake_find_package"] = "vorbis"
         self.cpp_info.components["vorbismain"].names["cmake_find_package_multi"] = "vorbis"
         self.cpp_info.components["vorbisenc"].names["cmake_find_package"] = "vorbisenc"

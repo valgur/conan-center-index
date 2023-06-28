@@ -120,7 +120,6 @@ class CppUTestConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "CppUTest"
         self.cpp_info.names["cmake_find_package_multi"] = "CppUTest"
-        self.cpp_info.names["pkg_config"] = "cpputest"
         self.cpp_info.components["CppUTest"].names["cmake_find_package"] = "CppUTest"
         self.cpp_info.components["CppUTest"].names["cmake_find_package_multi"] = "CppUTest"
         self.cpp_info.components["CppUTest"].build_modules["cmake_find_package"] = [

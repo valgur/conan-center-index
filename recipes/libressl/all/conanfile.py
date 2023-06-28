@@ -129,7 +129,6 @@ class LibreSSLConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "LibreSSL"
         self.cpp_info.names["cmake_find_package_multi"] = "LibreSSL"
-        self.cpp_info.names["pkg_config"] = "openssl"
         self.cpp_info.components["crypto"].names["cmake_find_package"] = "Crypto"
         self.cpp_info.components["crypto"].names["cmake_find_package_multi"] = "Crypto"
         self.cpp_info.components["ssl"].names["cmake_find_package"] = "SSL"

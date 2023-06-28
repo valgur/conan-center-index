@@ -294,5 +294,3 @@ class LibXMLPlusPlus(ConanFile):
 
         self.cpp_info.names["cmake_find_package"] = "libxml++"
         self.cpp_info.names["cmake_find_package_multi"] = "libxml++"
-        self.cpp_info.names["pkg_config"] = "libxml++"
-        self.cpp_info.components[f"libxml++-{lib_version}"].names["pkg_config"] = f"libxml++-{lib_version}"

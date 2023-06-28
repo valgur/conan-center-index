@@ -91,9 +91,7 @@ class ImathConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Imath"
         self.cpp_info.names["cmake_find_package_multi"] = "Imath"
-        self.cpp_info.names["pkg_config"] = "Imath"
         imath_config.names["cmake_find_package"] = "ImathConfig"
         imath_config.names["cmake_find_package_multi"] = "ImathConfig"
         imath_lib.names["cmake_find_package"] = "Imath"
         imath_lib.names["cmake_find_package_multi"] = "Imath"
-        imath_lib.names["pkg_config"] = "Imath"

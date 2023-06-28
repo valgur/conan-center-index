@@ -196,7 +196,6 @@ class PCRE2Conan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generator removed
         self.cpp_info.names["cmake_find_package"] = "PCRE2"
         self.cpp_info.names["cmake_find_package_multi"] = "PCRE2"
-        self.cpp_info.names["pkg_config"] = "libpcre2"
         if self.options.build_pcre2_8:
             self.cpp_info.components["pcre2-8"].names["cmake_find_package"] = "8BIT"
             self.cpp_info.components["pcre2-8"].names["cmake_find_package_multi"] = "8BIT"

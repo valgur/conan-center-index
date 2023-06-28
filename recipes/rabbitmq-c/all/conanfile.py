@@ -108,7 +108,6 @@ class RabbitmqcConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "rabbitmq-c"
         self.cpp_info.names["cmake_find_package"] = "rabbitmq"
         self.cpp_info.names["cmake_find_package_multi"] = "rabbitmq"
-        self.cpp_info.names["pkg_config"] = "librabbitmq"
         self.cpp_info.components["rabbitmq"].names["cmake_find_package"] = rabbitmq_target
         self.cpp_info.components["rabbitmq"].names["cmake_find_package_multi"] = rabbitmq_target
         self.cpp_info.components["rabbitmq"].set_property("cmake_target_name", f"rabbitmq::{rabbitmq_target}")

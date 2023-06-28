@@ -92,7 +92,6 @@ class OpenEXRConan(ConanFile):
 
         self.cpp_info.names["cmake_find_package"] = "OpenEXR"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenEXR"
-        self.cpp_info.names["pkg_config"] = "OpenEXR"
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":

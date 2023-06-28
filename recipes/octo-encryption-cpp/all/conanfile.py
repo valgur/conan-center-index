@@ -106,5 +106,4 @@ class OctoEncryptionCPPConan(ConanFile):
         self.cpp_info.libs = ["octo-encryption-cpp"]
         self.cpp_info.names["cmake_find_package"] = "octo-encryption-cpp"
         self.cpp_info.names["cmake_find_package_multi"] = "octo-encryption-cpp"
-        self.cpp_info.names["pkg_config"] = "octo-encryption-cpp"
         self.cpp_info.requires = ["openssl::openssl"]

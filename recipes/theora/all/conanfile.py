@@ -97,4 +97,3 @@ class TheoraConan(ConanFile):
         self.cpp_info.components["theoraenc"].requires = ["ogg::ogg"]
 
         # TODO: to remove in conan v2 once pkg_config generator removed
-        self.cpp_info.names["pkg_config"] = "theora_full_package"

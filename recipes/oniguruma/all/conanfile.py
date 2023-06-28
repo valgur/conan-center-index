@@ -86,4 +86,3 @@ class OnigurumaConan(ConanFile):
         self.cpp_info.components["onig"].set_property("pkg_config_name", "oniguruma")
         self.cpp_info.components["onig"].names["cmake_find_package"] = "onig"
         self.cpp_info.components["onig"].names["cmake_find_package_multi"] = "onig"
-        self.cpp_info.components["onig"].names["pkg_config"] = "oniguruma"

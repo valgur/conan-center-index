@@ -240,7 +240,6 @@ class ThriftConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "Thrift"
         self.cpp_info.names["cmake_find_package"] = "thrift"
         self.cpp_info.names["cmake_find_package_multi"] = "thrift"
-        self.cpp_info.names["pkg_config"] = "thrift_conan_do_not_use"
         self.cpp_info.components["libthrift"].names["cmake_find_package"] = "thrift"
         self.cpp_info.components["libthrift"].names["cmake_find_package_multi"] = "thrift"
         if self.options.with_zlib:

@@ -105,8 +105,6 @@ class LibconfigConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.components["libconfig_"].names["cmake_find_package"] = "libconfig"
         self.cpp_info.components["libconfig_"].names["cmake_find_package_multi"] = "libconfig"
-        self.cpp_info.components["libconfig_"].names["pkg_config"] = "libconfig"
 
         self.cpp_info.components["libconfig++"].names["cmake_find_package"] = "libconfig++"
         self.cpp_info.components["libconfig++"].names["cmake_find_package_multi"] = "libconfig++"
-        self.cpp_info.components["libconfig++"].names["pkg_config"] = "libconfig++"

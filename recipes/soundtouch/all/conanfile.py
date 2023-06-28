@@ -116,7 +116,6 @@ class SoundTouchConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "SoundTouch"
         self.cpp_info.components["_soundtouch"].names["cmake_find_package"] = "SoundTouch"
         self.cpp_info.components["_soundtouch"].names["cmake_find_package_multi"] = "SoundTouch"
-        self.cpp_info.names["pkg_config"] = "SoundTouch"
         if self.options.with_dll:
             self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package"] = "SoundTouchDLL"
             self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package_multi"] = "SoundTouchDLL"

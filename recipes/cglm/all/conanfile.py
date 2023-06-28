@@ -94,6 +94,5 @@ class CglmConan(ConanFile):
                 self.cpp_info.system_libs.append("m")
 
         # backward support of cmake_find_package, cmake_find_package_multi & pkg_config generators
-        self.cpp_info.names["pkg_config"] = "cglm"
         self.cpp_info.names["cmake_find_package"] = "cglm"
         self.cpp_info.names["cmake_find_package_multi"] = "cglm"

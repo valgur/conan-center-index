@@ -138,7 +138,6 @@ class FunctionsFrameworkCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "functions_framework_cpp"
         self.cpp_info.filenames["cmake_find_package_multi"] = "functions_framework_cpp"
-        self.cpp_info.names["pkg_config"] = "functions_framework_cpp"
         self.cpp_info.components["framework"].set_property(
             "cmake_target_name", "functions-framework-cpp::framework"
         )

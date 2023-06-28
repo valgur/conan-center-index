@@ -134,7 +134,6 @@ class OrcaniaConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "Orcania"
         self.cpp_info.names["cmake_find_package"] = "Orcania"
         self.cpp_info.names["cmake_find_package_multi"] = "Orcania"
-        self.cpp_info.names["pkg_config"] = "liborcania"
         self.cpp_info.build_modules["cmake_find_package"] = [
             self._module_file_rel_path,
             self._variable_file_rel_path,

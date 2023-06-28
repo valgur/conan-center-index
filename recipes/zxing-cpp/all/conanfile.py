@@ -130,4 +130,3 @@ class ZXingCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "ZXing"
         self.cpp_info.names["cmake_find_package_multi"] = "ZXing"
-        self.cpp_info.names["pkg_config"] = "zxing"

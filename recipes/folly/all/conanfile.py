@@ -320,7 +320,6 @@ class FollyConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "folly"
         self.cpp_info.names["cmake_find_package"] = "Folly"
         self.cpp_info.names["cmake_find_package_multi"] = "Folly"
-        self.cpp_info.names["pkg_config"] = "libfolly"
         self.cpp_info.components["libfolly"].names["cmake_find_package"] = "folly"
         self.cpp_info.components["libfolly"].names["cmake_find_package_multi"] = "folly"
         self.cpp_info.components["libfolly"].set_property("cmake_target_name", "Folly::folly")

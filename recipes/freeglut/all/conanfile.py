@@ -120,7 +120,6 @@ class freeglutConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "GLUT"
         self.cpp_info.names["cmake_find_package_multi"] = "FreeGLUT"
-        self.cpp_info.names["pkg_config"] = pkg_config
         self.cpp_info.components["freeglut_"].names["cmake_find_package"] = "GLUT"
         self.cpp_info.components["freeglut_"].set_property("cmake_module_target_name", "GLUT::GLUT")
         self.cpp_info.components["freeglut_"].names["cmake_find_package_multi"] = config_target

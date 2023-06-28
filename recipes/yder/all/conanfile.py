@@ -149,7 +149,6 @@ class YderConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "Yder"
         self.cpp_info.names["cmake_find_package"] = "Yder"
         self.cpp_info.names["cmake_find_package_multi"] = "Yder"
-        self.cpp_info.names["pkg_config"] = "libyder"
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         self.cpp_info.build_modules["cmake_find_package"] = [
             self._module_file_rel_path,

@@ -102,7 +102,6 @@ class KissfftConan(ConanFile):
             self.cpp_info.components["libkissfft"].system_libs = ["m"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"] = lib_name
         self.cpp_info.components["libkissfft"].names["cmake_find_package"] = lib_name
         self.cpp_info.components["libkissfft"].names["cmake_find_package_multi"] = lib_name
         self.cpp_info.components["libkissfft"].set_property("cmake_target_name", "kissfft::kissfft")

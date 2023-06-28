@@ -270,7 +270,6 @@ class SpirvtoolsConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.filenames["cmake_find_package"] = "SPIRV-Tools"
         self.cpp_info.filenames["cmake_find_package_multi"] = "SPIRV-Tools"
-        self.cpp_info.names["pkg_config"] = "SPIRV-Tools-shared" if self.options.shared else "SPIRV-Tools"
         self.cpp_info.components["spirv-tools-core"].names["cmake_find_package"] = "SPIRV-Tools"
         self.cpp_info.components["spirv-tools-core"].names["cmake_find_package_multi"] = "SPIRV-Tools"
         self.cpp_info.components["spirv-tools-core"].build_modules["cmake_find_package"] = [

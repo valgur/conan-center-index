@@ -141,4 +141,3 @@ class Log4cxxConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "liblog4cxx"

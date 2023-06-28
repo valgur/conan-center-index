@@ -142,7 +142,6 @@ class SdbusCppConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "sdbus-c++"
         self.cpp_info.components["sdbus-c++"].names["cmake_find_package"] = "sdbus-c++"
         self.cpp_info.components["sdbus-c++"].names["cmake_find_package_multi"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].names["pkg_config"] = "sdbus-c++"
         self.cpp_info.components["sdbus-c++"].set_property("cmake_target_name", "SDBusCpp::sdbus-c++")
         self.cpp_info.components["sdbus-c++"].set_property("pkg_config_name", "sdbus-c++")
         self.cpp_info.components["sdbus-c++"].requires.append("libsystemd::libsystemd")

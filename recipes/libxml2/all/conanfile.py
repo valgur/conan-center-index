@@ -448,4 +448,3 @@ class Libxml2Conan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "LibXml2"
         self.cpp_info.names["cmake_find_package_multi"] = "LibXml2"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "libxml-2.0"

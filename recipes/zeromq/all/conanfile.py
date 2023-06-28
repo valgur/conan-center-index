@@ -179,7 +179,6 @@ class ZeroMQConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "ZeroMQ"
         self.cpp_info.names["cmake_find_package_multi"] = "ZeroMQ"
-        self.cpp_info.names["pkg_config"] = "libzmq"
         self.cpp_info.components["libzmq"].names["cmake_find_package"] = self._libzmq_target
         self.cpp_info.components["libzmq"].names["cmake_find_package_multi"] = self._libzmq_target
         self.cpp_info.components["libzmq"].build_modules["cmake_find_package"] = [self._module_file_rel_path]

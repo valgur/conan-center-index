@@ -99,4 +99,3 @@ class QuaZIPConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = f"QuaZip-Qt{self._qt_major}"
         self.cpp_info.names["cmake_find_package"] = "QuaZip"
         self.cpp_info.names["cmake_find_package_multi"] = "QuaZip"
-        self.cpp_info.names["pkg_config"] = f"quazip{quazip_major}-qt{self._qt_major}"

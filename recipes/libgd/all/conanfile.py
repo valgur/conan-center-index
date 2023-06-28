@@ -150,4 +150,3 @@ class LibgdConan(ConanFile):
         self.env_info.PATH.append(bin_path)
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"] = "gdlib"

@@ -139,7 +139,6 @@ class AmqpcppConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["pkg_config"] = "amqpcpp"
         self.cpp_info.names["cmake_find_package"] = "amqpcpp"
         self.cpp_info.names["cmake_find_package_multi"] = "amqpcpp"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

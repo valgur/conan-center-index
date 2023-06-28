@@ -160,6 +160,5 @@ class libxftConan(ConanFile):
         rmdir(self, f"{self.package_folder}/share")
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "Xft"
         self.cpp_info.set_property("pkg_config_name", "xft")
         self.cpp_info.libs = ["Xft"]

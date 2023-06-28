@@ -83,4 +83,3 @@ class SdlnetConan(ConanFile):
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "SDL2_net"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2_net"
-        self.cpp_info.names["pkg_config"] = "SDL2_net"

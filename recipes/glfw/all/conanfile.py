@@ -173,4 +173,3 @@ class GlfwConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "glfw"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "glfw3"

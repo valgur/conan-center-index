@@ -200,4 +200,3 @@ class DlibConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32", "winmm", "comctl32", "gdi32", "imm32"]
 
-        self.cpp_info.names["pkg_config"] = "dlib-1"

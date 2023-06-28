@@ -144,7 +144,6 @@ class FmtConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "fmt"
         self.cpp_info.names["cmake_find_package_multi"] = "fmt"
-        self.cpp_info.names["pkg_config"] = "fmt"
         self.cpp_info.components["_fmt"].names["cmake_find_package"] = target
         self.cpp_info.components["_fmt"].names["cmake_find_package_multi"] = target
         self.cpp_info.components["_fmt"].set_property("cmake_target_name", f"fmt::{target}")

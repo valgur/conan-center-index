@@ -126,7 +126,6 @@ class DocoptCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "docopt"
         self.cpp_info.names["cmake_find_package_multi"] = "docopt"
-        self.cpp_info.names["pkg_config"] = "docopt"
         self.cpp_info.components["docopt"].names["cmake_find_package"] = self._cmake_target
         self.cpp_info.components["docopt"].names["cmake_find_package_multi"] = self._cmake_target
         self.cpp_info.components["docopt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]

@@ -234,7 +234,6 @@ class CryptoPPPEMConan(ConanFile):
             self.cpp_info.components["libcryptopp-pem"].system_libs = ["ws2_32"]
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["pkg_config"] = "libcryptopp-pem"
         self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package_multi"] = cmake_target
         self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package"] = [

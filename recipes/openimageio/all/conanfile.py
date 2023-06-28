@@ -298,6 +298,5 @@ class OpenImageIOConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenImageIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenImageIO"
-        self.cpp_info.names["pkg_config"] = "OpenImageIO"
         self.cpp_info.components["openimageio_util"].names["cmake_find_package"] = "OpenImageIO_Util"
         self.cpp_info.components["main"].names["cmake_find_package"] = "OpenImageIO"

@@ -161,4 +161,3 @@ class YACLibConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "yaclib"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "yaclib"

@@ -201,7 +201,6 @@ class CryptoPPConan(ConanFile):
             self.cpp_info.components["libcryptopp"].system_libs = ["bcrypt", "ws2_32"]
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["pkg_config"] = "libcryptopp"
         self.cpp_info.components["libcryptopp"].names["cmake_find_package"] = legacy_cmake_target
         self.cpp_info.components["libcryptopp"].names["cmake_find_package_multi"] = legacy_cmake_target
         self.cpp_info.components["libcryptopp"].build_modules["cmake_find_package"] = [

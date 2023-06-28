@@ -132,4 +132,3 @@ class PackageConan(ConanFile):
             # removed
             self.cpp_info.names["cmake_find_package"] = "lzham"
             self.cpp_info.names["cmake_find_package_multi"] = "lzham"
-            self.cpp_info.names["pkg_config"] = "lzham"

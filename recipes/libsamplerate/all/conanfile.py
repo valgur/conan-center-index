@@ -93,7 +93,6 @@ class LibsamplerateConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "SampleRate"
         self.cpp_info.names["cmake_find_package_multi"] = "SampleRate"
-        self.cpp_info.names["pkg_config"] = "samplerate"
         self.cpp_info.components["samplerate"].names["cmake_find_package"] = "samplerate"
         self.cpp_info.components["samplerate"].names["cmake_find_package_multi"] = "samplerate"
         self.cpp_info.components["samplerate"].set_property("cmake_target_name", "SampleRate::samplerate")

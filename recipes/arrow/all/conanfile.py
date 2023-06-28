@@ -630,7 +630,6 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libacero"].libs = [f"acero{suffix}"]
             self.cpp_info.components["libacero"].names["cmake_find_package"] = "acero"
             self.cpp_info.components["libacero"].names["cmake_find_package_multi"] = "acero"
-            self.cpp_info.components["libacero"].names["pkg_config"] = "acero"
             self.cpp_info.components["libacero"].requires = ["libarrow"]
 
         if self.options.gandiva:

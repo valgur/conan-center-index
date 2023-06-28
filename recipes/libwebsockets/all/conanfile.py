@@ -564,7 +564,6 @@ class LibwebsocketsConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "Libwebsockets"
         self.cpp_info.names["cmake_find_package_multi"] = "Libwebsockets"
-        self.cpp_info.names["pkg_config"] = pkgconfig_name
         self.cpp_info.components["_libwebsockets"].names["cmake_find_package"] = self._cmake_target
         self.cpp_info.components["_libwebsockets"].names["cmake_find_package_multi"] = self._cmake_target
         self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package"] = [

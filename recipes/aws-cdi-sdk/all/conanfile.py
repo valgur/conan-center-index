@@ -233,7 +233,6 @@ class AwsCdiSdkConan(ConanFile):
         # TODO: Remove the namespace on CMake targets
         cppSdk.names["cmake_find_package"] = "aws-cpp-sdk-cdi"
         cppSdk.names["cmake_find_package_multi"] = "aws-cpp-sdk-cdi"
-        cppSdk.names["pkg_config"] = "aws-cpp-sdk-cdi"
 
         cSdk = self.cpp_info.components["cdisdk"]
         cSdk.libs = ["cdisdk"]
@@ -248,4 +247,3 @@ class AwsCdiSdkConan(ConanFile):
         # TODO: Remove the namespace on CMake targets
         cSdk.names["cmake_find_package"] = "aws-cdi-sdk"
         cSdk.names["cmake_find_package_multi"] = "aws-cdi-sdk"
-        cSdk.names["pkg_config"] = "aws-cdi-sdk"

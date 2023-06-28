@@ -144,7 +144,6 @@ class SDLImageConan(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self.cpp_info.names["cmake_find_package"] = "SDL2_image"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2_image"
-        self.cpp_info.names["pkg_config"] = "SDL2_image"
         target_name = "SDL2_image" if self.options.shared else "SDL2_image-static"
         self.cpp_info.components["_sdl_image"].names["cmake_find_package"] = target_name
         self.cpp_info.components["_sdl_image"].names["cmake_find_package_multi"] = target_name

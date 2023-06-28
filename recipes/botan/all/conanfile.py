@@ -566,7 +566,6 @@ class BotanConan(ConanFile):
     def package_info(self):
         major_version = Version(self.version).major
         self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
-        self.cpp_info.names["pkg_config"] = f"botan-{major_version}"
         self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["dl", "rt", "pthread"])

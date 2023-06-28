@@ -68,4 +68,3 @@ class CLI11Conan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CLI11"
         self.cpp_info.names["cmake_find_package_multi"] = "CLI11"
-        self.cpp_info.names["pkg_config"] = "CLI11"

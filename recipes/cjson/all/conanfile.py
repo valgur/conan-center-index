@@ -139,7 +139,6 @@ class CjsonConan(ConanFile):
         self.cpp_info.components["_cjson"].build_modules["cmake_find_package_multi"] = [
             self._module_file_rel_path
         ]
-        self.cpp_info.components["_cjson"].names["pkg_config"] = "libcjson"
         if self.options.utils:
             self.cpp_info.components["cjson_utils"].names["cmake_find_package"] = "cjson_utils"
             self.cpp_info.components["cjson_utils"].names["cmake_find_package_multi"] = "cjson_utils"
@@ -149,4 +148,3 @@ class CjsonConan(ConanFile):
             self.cpp_info.components["cjson_utils"].build_modules["cmake_find_package_multi"] = [
                 self._module_file_rel_path
             ]
-            self.cpp_info.components["cjson_utils"].names["pkg_config"] = "libcjson_utils"

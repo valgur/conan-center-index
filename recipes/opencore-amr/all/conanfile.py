@@ -123,4 +123,3 @@ class OpencoreAmrConan(ConanFile):
                 self.cpp_info.components[lib].system_libs.extend(["m"])
 
             # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generator removed
-            self.cpp_info.components[lib].names["pkg_config"] = lib

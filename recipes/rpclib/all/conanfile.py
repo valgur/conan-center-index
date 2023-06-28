@@ -85,4 +85,3 @@ class rpclibConan(ConanFile):
         self.cpp_info.components["_rpc"].libs = ["rpc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_rpc"].system_libs = ["pthread"]
-        self.cpp_info.names["pkg_config"] = "librpc"

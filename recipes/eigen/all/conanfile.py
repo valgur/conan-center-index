@@ -82,7 +82,6 @@ class EigenConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "Eigen3"
         self.cpp_info.names["cmake_find_package_multi"] = "Eigen3"
-        self.cpp_info.names["pkg_config"] = "eigen3"
         self.cpp_info.components["eigen3"].names["cmake_find_package"] = "Eigen"
         self.cpp_info.components["eigen3"].names["cmake_find_package_multi"] = "Eigen"
         self.cpp_info.components["eigen3"].set_property("cmake_target_name", "Eigen3::Eigen")

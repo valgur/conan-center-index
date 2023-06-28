@@ -178,5 +178,4 @@ class LibxshmfenceConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["xshmfence"]
-        self.cpp_info.names["pkg_config"] = "xshmfence"
         self.cpp_info.set_property("pkg_config_name", "xshmfence")

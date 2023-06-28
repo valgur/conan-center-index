@@ -148,7 +148,6 @@ class OpenTDFConan(ConanFile):
         )
         self.cpp_info.components["libopentdf"].names["cmake_find_package"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].names["cmake_find_package_multi"] = "opentdf-client"
-        self.cpp_info.components["libopentdf"].names["pkg_config"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].requires = [
             "openssl::openssl",
             "boost::boost",

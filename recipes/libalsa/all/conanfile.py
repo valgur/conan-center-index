@@ -110,5 +110,4 @@ class LibalsaConan(ConanFile):
         # TODO: to remove in conan v2?
         self.cpp_info.names["cmake_find_package"] = "ALSA"
         self.cpp_info.names["cmake_find_package_multi"] = "ALSA"
-        self.cpp_info.names["pkg_config"] = "alsa"
         self.env_info.ALSA_CONFIG_DIR = alsa_config_dir

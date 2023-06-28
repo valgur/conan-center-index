@@ -244,4 +244,3 @@ class Librasterlite2Conan(ConanFile):
             self.cpp_info.system_libs.append("m")
 
         # TODO: to remove in conan v2 once pkg_config generator removed
-        self.cpp_info.names["pkg_config"] = "rasterlite2"
