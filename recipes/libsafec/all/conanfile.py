@@ -103,7 +103,6 @@ class LibSafeCConan(ConanFile):
         with chdir(self, self.source_folder):
             self.run(
                 f"{get_env(self, 'AUTORECONF')} -fiv",
-                win_bash=tools.os_info.is_windows,
                 run_environment=True,
             )
         autotools = Autotools(self)

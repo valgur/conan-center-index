@@ -211,7 +211,7 @@ class GiflibConan(ConanFile):
         shutil.copy(
             self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
         )
-        env_build = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        env_build = AutoToolsBuildEnvironment(self)
         yes_no = lambda v: "yes" if v else "no"
         args = []
         with chdir(self, self.source_folder):

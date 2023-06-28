@@ -181,7 +181,7 @@ class LibfabricConan(ConanFile):
     def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         with chdir(self, self.source_folder):
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")))
 
         yes_no_dl = lambda v: {
             "True": "yes",

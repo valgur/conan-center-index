@@ -217,7 +217,7 @@ class NCursesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        autotools = AutoToolsBuildEnvironment(self)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args = [
             "--with-shared={}".format(yes_no(self.options.shared)),

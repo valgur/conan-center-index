@@ -156,7 +156,7 @@ class SwigConan(ConanFile):
                 yield
 
     def generate(self):
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        autotools = AutoToolsBuildEnvironment(self)
         deps_libpaths = autotools.library_paths
         deps_libs = autotools.libs
         deps_defines = autotools.defines

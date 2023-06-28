@@ -250,7 +250,7 @@ class SqlcipherConan(ConanFile):
         if self.settings.os == "Windows":
             args.extend(["config_BUILD_EXEEXT='.exe'", "config_TARGET_EXEEXT='.exe'"])
 
-        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        autotools = AutoToolsBuildEnvironment(self)
         if self.settings.os == "Linux":
             autotools.libs.append("dl")
             if not self.options.with_largefile:

@@ -178,7 +178,6 @@ class LiquidDspConan(ConanFile):
                 "{} /def:libliquid.def /out:libliquid.lib /machine:{}".format(
                     os.getenv("AR"), "X86" if self.settings.arch == "x86" else "X64"
                 ),
-                win_bash=tools.os_info.is_windows,
             )
 
     def _rename_libraries(self):
@@ -236,9 +235,9 @@ class LiquidDspConan(ConanFile):
         configure_args_str = " ".join(configure_args)
         with self._build_context():
             with chdir(self, self.source_folder):
-                self.run("./bootstrap.sh", win_bash=tools.os_info.is_windows)
-                self.run("./configure {}".format(configure_args_str), win_bash=tools.os_info.is_windows)
-                self.run("make {} -j{}".format(self._target_name, ncpus), win_bash=tools.os_info.is_windows)
+                self.run("./bootstrap.sh")
+                self.run("./configure {}".format(configure_args_str))
+                self.run("make {} -j{}".format(self._target_name, ncpus))
         self._rename_libraries()
         with self._msvc_context():
             self._gen_link_library()

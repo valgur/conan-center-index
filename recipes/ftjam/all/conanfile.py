@@ -141,7 +141,7 @@ class FtjamConan(ConanFile):
             if self.settings.os == "Windows":
                 # toolset name of the system building ftjam
                 jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
-                autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+                autotools = AutoToolsBuildEnvironment(self)
                 autotools.libs = []
                 env = autotools.vars
                 with environment_append(self, env):

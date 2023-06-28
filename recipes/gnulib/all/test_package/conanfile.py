@@ -62,10 +62,9 @@ class TestPackageConan(ConanFile):
             for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
                 save(self, fn, "\n")
             with run_environment(self):
-                self.run("gnulib-tool --list", win_bash=tools.os_info.is_windows, run_environment=True)
+                self.run("gnulib-tool --list", run_environment=True)
                 self.run(
                     "gnulib-tool --import getopt-posix",
-                    win_bash=tools.os_info.is_windows,
                     run_environment=True,
                 )
             # m4 built with Visual Studio does not support executing *nix utils (e.g. `test`)
@@ -76,12 +75,11 @@ class TestPackageConan(ConanFile):
             ):
                 self.run(
                     "{} -fiv".format(os.environ["AUTORECONF"]),
-                    win_bash=tools.os_info.is_windows,
                     run_environment=True,
                 )
 
             with self._build_context():
-                autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+                autotools = AutoToolsBuildEnvironment(self)
                 autotools.configure()
                 autotools.make()
 

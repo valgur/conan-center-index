@@ -117,7 +117,7 @@ class Cc65Conan(ConanFile):
         datadir = self._datadir
         prefix = self.package_folder
         samplesdir = self._samplesdir
-        if tools.os_info.is_windows:
+        if self.settings.os == "Windows":
             datadir = unix_path(self, datadir)
             prefix = unix_path(self, prefix)
             samplesdir = unix_path(self, samplesdir)

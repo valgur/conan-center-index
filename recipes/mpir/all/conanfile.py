@@ -220,7 +220,7 @@ class MpirConan(ConanFile):
 
     def _configure_autotools(self):
         if not self._autotools:
-            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+            self._autotools = AutoToolsBuildEnvironment(self)
             args = []
             if self.options.shared:
                 args.extend(["--disable-static", "--enable-shared"])

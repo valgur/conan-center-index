@@ -129,7 +129,7 @@ class Asn1cConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")), win_bash=tools.os_info.is_windows)
+            self.run("{} -fiv".format(get_env(self, "AUTORECONF")))
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()

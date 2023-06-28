@@ -78,7 +78,7 @@ Examples = {folder}/datadir/examples""",
 
                 def _getenvpath(var):
                     val = os.getenv(var)
-                    if val and tools.os_info.is_windows:
+                    if val and self.settings.os == "Windows":
                         val = val.replace("\\", "/")
                         os.environ[var] = val
                     return val
@@ -99,7 +99,7 @@ Examples = {folder}/datadir/examples""",
                     args.append(f'QMAKE_LINK_SHLIB="{value}"')
 
                 self.run(f"qmake {' '.join(args)}", run_environment=True)
-                if tools.os_info.is_windows:
+                if self.settings.os == "Windows":
                     if is_msvc(self):
                         self.run("nmake", run_environment=True)
                     else:
