@@ -8,7 +8,6 @@ import os
 
 required_conan_version = ">=1.53.0"
 
-
 class R8brainFreeSrcConan(ConanFile):
     name = "r8brain-free-src"
     description = "High-quality pro audio sample rate converter / resampler C++ library"
@@ -16,22 +15,19 @@ class R8brainFreeSrcConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/avaneev/r8brain-free-src"
     topics = ("audio", "sample-rate", "conversion", "audio-processing", "resampler")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "fft": ["ooura", "pffft", "pffft_double"],
+        "fft": ["ooura", "pffft", "pffft_double", ]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "fft": "ooura",
     }
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+    exports_sources = ["CMakeLists.txt"]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -75,9 +71,7 @@ class R8brainFreeSrcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -85,7 +79,7 @@ class R8brainFreeSrcConan(ConanFile):
         self.cpp_info.libs = ["r8brain"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("pthread")
+            self.cpp_info.system_libs.extend(["pthread", "m",])
 
         if self.options.fft == "pffft":
             self.cpp_info.defines.append("R8B_PFFFT")

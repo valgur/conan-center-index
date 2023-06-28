@@ -4,9 +4,7 @@ project(test_package LANGUAGES CXX)
 find_package(continuable REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-set_target_properties(
-    ${PROJECT_NAME} PROPERTIES
-
+set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )

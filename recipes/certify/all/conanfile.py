@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,7 +23,7 @@ class CertifyConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        return "17"
+        return 17
 
     @property
     def _compilers_minimum_version(self):
@@ -40,8 +38,8 @@ class CertifyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.79.0")
-        self.requires("openssl/1.1.1q")
+        self.requires("boost/1.82.0")
+        self.requires("openssl/[>=1.1 <4]")
 
     def package_id(self):
         self.info.clear()
@@ -84,15 +82,12 @@ class CertifyConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "certify")
         self.cpp_info.set_property("cmake_target_name", "certify::core")
-        self.cpp_info.components["_certify"].requires = ["boost::boost", "openssl::openssl"]
 
-        self.cpp_info.components["_certify"].set_property("cmake_target_name", "core")
+        self.cpp_info.components["_certify"].requires = ["boost::boost", "openssl::openssl"]
         self.cpp_info.components["_certify"].names["cmake_find_package"] = "core"
         self.cpp_info.components["_certify"].names["cmake_find_package_multi"] = "core"
+
         self.cpp_info.names["cmake_find_package"] = "certify"
         self.cpp_info.names["cmake_find_package_multi"] = "certify"

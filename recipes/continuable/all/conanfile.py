@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -39,7 +37,42 @@ class ContinuableConan(ConanFile):
         "custom_final_callback": False,
         "immediate_types": False,
     }
+    options_description = {
+        "no_exceptions": (
+            "Exceptions are disabled and `std::error_condition` is used as error_type. "
+            "See tutorial-chaining-continuables-fail for details."
+        ),
+        "custom_error_type": (
+            "Exceptions are disabled and the type defined by `CONTINUABLE_WITH_CUSTOM_ERROR_TYPE` "
+            "is used as error_type. See tutorial-chaining-continuables-fail for details."
+        ),
+        "unhandled_exceptions": (
+            "Allows unhandled exceptions in asynchronous call hierarchies. "
+            "See tutorial-chaining-continuables-fail for details."
+        ),
+        "custom_final_callback": (
+            "Allows to customize the final callback which can be used to implement custom unhandled"
+            " asynchronous exception handlers."
+        ),
+        "immediate_types": (
+            "Don't decorate the used type erasure, "
+            "which is done to keep type names minimal for better error messages in debug builds."
+        ),
+    }
     no_copy_source = True
+
+    @property
+    def _min_cppstd(self):
+        return 14
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "gcc": "5",
+            "clang": "3.4",
+            "apple-clang": "10",
+            "Visual Studio": "14",
+        }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -51,28 +84,12 @@ class ContinuableConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        minimal_cpp_standard = 14
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
-            "gcc": "5",
-            "clang": "3.4",
-            "apple-clang": "10",
-            "Visual Studio": "14",
-        }
-        compiler = str(self.settings.compiler)
-        if compiler not in minimal_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
-            )
-            self.output.warning(
-                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
-            )
-            return
-        version = Version(self.settings.compiler.version)
-        if version < minimal_version[compiler]:
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -88,7 +105,7 @@ class ContinuableConan(ConanFile):
         copy(
             self,
             pattern="*",
-            dst=os.path.join("include", "continuable"),
+            dst=os.path.join(self.package_folder, "include", "continuable"),
             src=os.path.join(self.source_folder, "include", "continuable"),
         )
 
