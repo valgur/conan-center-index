@@ -134,6 +134,7 @@ endif()"""
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
+        self.cpp_info.components["openblas_component"].set_property("cmake_target_name", cmake_component_name)
         self.cpp_info.components["openblas_component"].names["cmake_find_package"] = cmake_component_name
         self.cpp_info.components["openblas_component"].names[
             "cmake_find_package_multi"

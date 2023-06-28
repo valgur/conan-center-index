@@ -76,6 +76,7 @@ class ResourcePool(ConanFile):
         main_comp = self.cpp_info.components["_resource_pool"]
         main_comp.requires = ["boost::boost", "boost::system", "boost::thread"]
         main_comp.defines = ["BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
+        main_comp.set_property("cmake_target_name", "resource_pool")
         main_comp.names["cmake_find_package"] = "resource_pool"
         main_comp.names["cmake_find_package_multi"] = "resource_pool"
 

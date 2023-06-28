@@ -628,6 +628,7 @@ class ArrowConan(ConanFile):
 
         if self.options.acero:
             self.cpp_info.components["libacero"].libs = [f"acero{suffix}"]
+            self.cpp_info.components["libacero"].set_property("cmake_target_name", "acero")
             self.cpp_info.components["libacero"].names["cmake_find_package"] = "acero"
             self.cpp_info.components["libacero"].names["cmake_find_package_multi"] = "acero"
             self.cpp_info.components["libacero"].requires = ["libarrow"]
@@ -734,23 +735,31 @@ class ArrowConan(ConanFile):
         # TODO: to remove in conan v2
         self.cpp_info.filenames["cmake_find_package"] = "Arrow"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Arrow"
+        self.cpp_info.components["libarrow"].set_property("cmake_target_name", "arrow")
         self.cpp_info.components["libarrow"].names["cmake_find_package"] = "arrow"
         self.cpp_info.components["libarrow"].names["cmake_find_package_multi"] = "arrow"
         if self._parquet():
+            self.cpp_info.components["libparquet"].set_property("cmake_target_name", "parquet")
             self.cpp_info.components["libparquet"].names["cmake_find_package"] = "parquet"
             self.cpp_info.components["libparquet"].names["cmake_find_package_multi"] = "parquet"
         if self.options.get_safe("substrait"):
+            self.cpp_info.components["libarrow_substrait"].set_property(
+                "cmake_target_name", "arrow_substrait"
+            )
             self.cpp_info.components["libarrow_substrait"].names["cmake_find_package"] = "arrow_substrait"
             self.cpp_info.components["libarrow_substrait"].names[
                 "cmake_find_package_multi"
             ] = "arrow_substrait"
         if self.options.gandiva:
+            self.cpp_info.components["libgandiva"].set_property("cmake_target_name", "gandiva")
             self.cpp_info.components["libgandiva"].names["cmake_find_package"] = "gandiva"
             self.cpp_info.components["libgandiva"].names["cmake_find_package_multi"] = "gandiva"
         if self._with_flight_rpc():
+            self.cpp_info.components["libarrow_flight"].set_property("cmake_target_name", "flight_rpc")
             self.cpp_info.components["libarrow_flight"].names["cmake_find_package"] = "flight_rpc"
             self.cpp_info.components["libarrow_flight"].names["cmake_find_package_multi"] = "flight_rpc"
         if self.options.get_safe("with_flight_sql"):
+            self.cpp_info.components["libarrow_flight_sql"].set_property("cmake_target_name", "flight_sql")
             self.cpp_info.components["libarrow_flight_sql"].names["cmake_find_package"] = "flight_sql"
             self.cpp_info.components["libarrow_flight_sql"].names["cmake_find_package_multi"] = "flight_sql"
         if self.options.cli and (self.options.with_cuda or self._with_flight_rpc() or self._parquet()):

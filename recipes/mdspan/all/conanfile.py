@@ -102,6 +102,7 @@ class MDSpanConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "mdspan")
         self.cpp_info.set_property("cmake_target_name", "std::mdspan")
+        self.cpp_info.components["_mdspan"].set_property("cmake_target_name", "mdspan")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "mdspan"

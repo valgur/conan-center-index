@@ -96,6 +96,7 @@ class LibCoapConan(ConanFile):
             library_name = "coap-3"
             pkgconfig_name = "libcoap-3"
 
+        self.cpp_info.components["coap"].set_property("cmake_target_name", "coap")
         self.cpp_info.components["coap"].names["cmake_find_package"] = "coap"
         self.cpp_info.components["coap"].names["cmake_find_package_multi"] = "coap"
         pkgconfig_filename = "{}{}".format(

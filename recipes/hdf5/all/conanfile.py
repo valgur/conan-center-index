@@ -303,6 +303,7 @@ class Hdf5Conan(ConanFile):
             self.cpp_info.components[component_name].includedirs.append(os.path.join("include", "hdf5"))
 
             # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+            self.cpp_info.components[component_name].set_property("cmake_target_name", component)
             self.cpp_info.components[component_name].names["cmake_find_package"] = component
             self.cpp_info.components[component_name].names["cmake_find_package_multi"] = component
             self.cpp_info.components[component_name].build_modules["cmake_find_package"] = [

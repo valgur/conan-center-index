@@ -113,8 +113,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "cppcoro")
 
         comp = self.cpp_info.components["cppcoro"]
-        comp.names["cmake_find_package"] = "cppcoro"
-        comp.names["cmake_find_package_multi"] = "cppcoro"
+        comp.set_property("cmake_target_name", "cppcoro")
         comp.libs = ["cppcoro"]
 
         if self.settings.os == "Linux" and self.options.shared:
@@ -135,3 +134,5 @@ class AndreasbuhrCppCoroConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "cppcoro"
         self.cpp_info.names["cmake_find_package"] = "cppcoro"
         self.cpp_info.names["cmake_find_package_multi"] = "cppcoro"
+        comp.names["cmake_find_package"] = "cppcoro"
+        comp.names["cmake_find_package_multi"] = "cppcoro"

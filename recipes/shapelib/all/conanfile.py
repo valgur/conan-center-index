@@ -78,5 +78,6 @@ class ShapelibConan(ConanFile):
         # TODO: remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "shapelib"
         self.cpp_info.names["cmake_find_package_multi"] = "shapelib"
+        self.cpp_info.components["shp"].set_property("cmake_target_name", "shp")
         self.cpp_info.components["shp"].names["cmake_find_package"] = "shp"
         self.cpp_info.components["shp"].names["cmake_find_package_multi"] = "shp"

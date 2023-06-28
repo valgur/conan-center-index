@@ -63,6 +63,7 @@ class StatusValueLiteConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "status-value-lite"
         self.cpp_info.names["cmake_find_package"] = "nonstd"
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
+        self.cpp_info.components["status_valuelite"].set_property("cmake_target_name", "status-value-lite")
         self.cpp_info.components["status_valuelite"].names["cmake_find_package"] = "status-value-lite"
         self.cpp_info.components["status_valuelite"].names["cmake_find_package_multi"] = "status-value-lite"
         self.cpp_info.components["status_valuelite"].set_property(

@@ -183,6 +183,7 @@ class FlatbuffersConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "flatbuffers"
         self.cpp_info.names["cmake_find_package"] = "flatbuffers"
         self.cpp_info.names["cmake_find_package_multi"] = "flatbuffers"
+        self.cpp_info.components["libflatbuffers"].set_property("cmake_target_name", cmake_target)
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["libflatbuffers"].names["cmake_find_package_multi"] = cmake_target
         self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package"] = build_modules

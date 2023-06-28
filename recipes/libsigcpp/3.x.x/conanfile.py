@@ -147,6 +147,7 @@ class LibSigCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "sigc++-3"
         self.cpp_info.names["cmake_find_package_multi"] = "sigc++-3"
+        self.cpp_info.components["sigc++"].set_property("cmake_target_name", "sigc-3.0")
         self.cpp_info.components["sigc++"].names["cmake_find_package"] = "sigc-3.0"
         self.cpp_info.components["sigc++"].names["cmake_find_package_multi"] = "sigc-3.0"
         self.cpp_info.components["sigc++"].build_modules["cmake_find_package"] = [self._module_file_rel_path]

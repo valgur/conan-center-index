@@ -124,6 +124,7 @@ class Hdf4Conan(ConanFile):
         unofficial_includedir = os.path.join(self.package_folder, "include", "hdf4")
         # xdr
         xdr_cmake = "xdr-shared" if self.options.shared else "xdr-static"
+        self.cpp_info.components["xdr"].set_property("cmake_target_name", xdr_cmake)
         self.cpp_info.components["xdr"].names["cmake_find_package"] = xdr_cmake
         self.cpp_info.components["xdr"].names["cmake_find_package_multi"] = xdr_cmake
         self.cpp_info.components["xdr"].includedirs.append(unofficial_includedir)
@@ -132,6 +133,7 @@ class Hdf4Conan(ConanFile):
             self.cpp_info.components["xdr"].system_libs.append("ws2_32")
         # hdf
         hdf_cmake = "hdf-shared" if self.options.shared else "hdf-static"
+        self.cpp_info.components["hdf"].set_property("cmake_target_name", hdf_cmake)
         self.cpp_info.components["hdf"].names["cmake_find_package"] = hdf_cmake
         self.cpp_info.components["hdf"].names["cmake_find_package_multi"] = hdf_cmake
         self.cpp_info.components["hdf"].includedirs.append(unofficial_includedir)
@@ -146,6 +148,7 @@ class Hdf4Conan(ConanFile):
             self.cpp_info.components["hdf"].requires.append("szip::szip")
         # mfhdf
         mfhdf_cmake = "mfhdf-shared" if self.options.shared else "mfhdf-static"
+        self.cpp_info.components["mfhdf"].set_property("cmake_target_name", mfhdf_cmake)
         self.cpp_info.components["mfhdf"].names["cmake_find_package"] = mfhdf_cmake
         self.cpp_info.components["mfhdf"].names["cmake_find_package_multi"] = mfhdf_cmake
         self.cpp_info.components["mfhdf"].includedirs.append(unofficial_includedir)

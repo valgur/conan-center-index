@@ -131,6 +131,7 @@ class FFTWConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = cmake_config_name
         self.cpp_info.names["cmake_find_package"] = cmake_namespace
         self.cpp_info.names["cmake_find_package_multi"] = cmake_namespace
+        self.cpp_info.components["fftwlib"].set_property("cmake_target_name", cmake_target_name)
         self.cpp_info.components["fftwlib"].names["cmake_find_package"] = cmake_target_name
         self.cpp_info.components["fftwlib"].names["cmake_find_package_multi"] = cmake_target_name
         self.cpp_info.components["fftwlib"].set_property(

@@ -256,6 +256,7 @@ class NmosCppConan(ConanFile):
             components = json.loads(components_json_file)
             for component_name, values in components.items():
                 cmake_target = values["cmake_target"]
+                self.cpp_info.components[component_name].set_property("cmake_target_name", cmake_target)
                 self.cpp_info.components[component_name].names["cmake_find_package"] = cmake_target
                 self.cpp_info.components[component_name].names["cmake_find_package_multi"] = cmake_target
                 self.cpp_info.components[component_name].libs = values.get("libs", [])

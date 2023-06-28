@@ -102,6 +102,7 @@ class IgnitionCmakeConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = ign_cmake_component
         self.cpp_info.names["cmake_paths"] = ign_cmake_component
 
+        self.cpp_info.components[ign_cmake_component].set_property("cmake_target_name", ign_cmake_component)
         self.cpp_info.components[ign_cmake_component].names["cmake_find_package"] = ign_cmake_component
         self.cpp_info.components[ign_cmake_component].names["cmake_find_package_multi"] = ign_cmake_component
         self.cpp_info.components[ign_cmake_component].names["cmake_paths"] = ign_cmake_component
@@ -122,6 +123,7 @@ class IgnitionCmakeConan(ConanFile):
             ign_cmake_file,
         ]
 
+        self.cpp_info.components["utilities"].set_property("cmake_target_name", "utilities")
         self.cpp_info.components["utilities"].names["cmake_find_package"] = "utilities"
         self.cpp_info.components["utilities"].names["cmake_find_package_multi"] = "utilities"
         self.cpp_info.components["utilities"].names["cmake_paths"] = "utilities"

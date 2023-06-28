@@ -140,10 +140,12 @@ class MsgpackConan(ConanFile):
     def package_info(self):
         # TODO: CMake imported targets shouldn't be namespaced (waiting implementation of https://github.com/conan-io/conan/issues/7615)
         if self.options.c_api:
+            self.cpp_info.components["msgpackc"].set_property("cmake_target_name", "msgpackc")
             self.cpp_info.components["msgpackc"].names["cmake_find_package"] = "msgpackc"
             self.cpp_info.components["msgpackc"].names["cmake_find_package_multi"] = "msgpackc"
             self.cpp_info.components["msgpackc"].libs = collect_libs(self)
         if self.options.cpp_api:
+            self.cpp_info.components["msgpackc-cxx"].set_property("cmake_target_name", "msgpackc-cxx")
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package"] = "msgpackc-cxx"
             self.cpp_info.components["msgpackc-cxx"].names["cmake_find_package_multi"] = "msgpackc-cxx"
             if self.options.with_boost:

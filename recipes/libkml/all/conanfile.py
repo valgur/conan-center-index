@@ -148,6 +148,9 @@ class LibkmlConan(ConanFile):
             self.cpp_info.components[comp_cmake_lib_name].set_property(
                 "cmake_target_name", comp_cmake_lib_name
             )
+            self.cpp_info.components[comp_cmake_lib_name].set_property(
+                "cmake_target_name", comp_cmake_lib_name
+            )
             self.cpp_info.components[comp_cmake_lib_name].names["cmake_find_package"] = comp_cmake_lib_name
             self.cpp_info.components[comp_cmake_lib_name].names[
                 "cmake_find_package_multi"

@@ -81,6 +81,9 @@ class AwsCEventStream(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-event-stream")
         self.cpp_info.set_property("cmake_target_name", "AWS::aws-c-event-stream")
+        self.cpp_info.components["aws-c-event-stream-lib"].set_property(
+            "cmake_target_name", "aws-c-event-stream"
+        )
         self.cpp_info.components["aws-c-event-stream-lib"].names["cmake_find_package"] = "aws-c-event-stream"
         self.cpp_info.components["aws-c-event-stream-lib"].names[
             "cmake_find_package_multi"

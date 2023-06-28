@@ -53,6 +53,7 @@ class StringViewLite(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "string-view-lite"
         self.cpp_info.names["cmake_find_package"] = "nonstd"
         self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
+        self.cpp_info.components["stringviewlite"].set_property("cmake_target_name", "string-view-lite")
         self.cpp_info.components["stringviewlite"].names["cmake_find_package"] = "string-view-lite"
         self.cpp_info.components["stringviewlite"].names["cmake_find_package_multi"] = "string-view-lite"
         self.cpp_info.components["stringviewlite"].set_property(

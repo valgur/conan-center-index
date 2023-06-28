@@ -149,6 +149,7 @@ class IgnitionMathConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = lib_name
         self.cpp_info.names["cmake_paths"] = lib_name
 
+        self.cpp_info.components[lib_name].set_property("cmake_target_name", lib_name)
         self.cpp_info.components[lib_name].names["cmake_find_package"] = lib_name
         self.cpp_info.components[lib_name].names["cmake_find_package_multi"] = lib_name
         self.cpp_info.components[lib_name].names["cmake_paths"] = lib_name
@@ -165,6 +166,7 @@ class IgnitionMathConan(ConanFile):
         ]
         self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [self._module_file_rel_path]
 
+        self.cpp_info.components["eigen3"].set_property("cmake_target_name", "eigen3")
         self.cpp_info.components["eigen3"].names["cmake_find_package"] = "eigen3"
         self.cpp_info.components["eigen3"].names["cmake_find_package_multi"] = "eigen3"
         self.cpp_info.components["eigen3"].names["cmake_paths"] = "eigen3"

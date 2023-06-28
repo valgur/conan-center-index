@@ -99,5 +99,6 @@ class WildmidiConan(ConanFile):
         # TODO: remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "WildMidi"
         self.cpp_info.names["cmake_find_package_multi"] = "WildMidi"
+        self.cpp_info.components["libwildmidi"].set_property("cmake_target_name", "libwildmidi")
         self.cpp_info.components["libwildmidi"].names["cmake_find_package"] = "libwildmidi"
         self.cpp_info.components["libwildmidi"].names["cmake_find_package_multi"] = "libwildmidi"

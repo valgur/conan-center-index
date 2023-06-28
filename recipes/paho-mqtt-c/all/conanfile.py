@@ -202,6 +202,7 @@ class PahoMqttcConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "eclipse-paho-mqtt-c"
         self.cpp_info.names["cmake_find_package_multi"] = "eclipse-paho-mqtt-c"
+        self.cpp_info.components["_paho-mqtt-c"].set_property("cmake_target_name", self._cmake_target)
         self.cpp_info.components["_paho-mqtt-c"].names["cmake_find_package"] = self._cmake_target
         self.cpp_info.components["_paho-mqtt-c"].names["cmake_find_package_multi"] = self._cmake_target
         self.cpp_info.components["_paho-mqtt-c"].set_property(

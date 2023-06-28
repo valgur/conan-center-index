@@ -241,6 +241,9 @@ class LibtorrentConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "LibtorrentRasterbar"
         self.cpp_info.names["cmake_find_package_multi"] = "LibtorrentRasterbar"
+        self.cpp_info.components["libtorrent-rasterbar"].set_property(
+            "cmake_target_name", "torrent-rasterbar"
+        )
         self.cpp_info.components["libtorrent-rasterbar"].names["cmake_find_package"] = "torrent-rasterbar"
         self.cpp_info.components["libtorrent-rasterbar"].names[
             "cmake_find_package_multi"

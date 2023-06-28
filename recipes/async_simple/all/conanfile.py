@@ -92,6 +92,9 @@ class AsyncSimpleConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "async_simple"
         self.cpp_info.names["cmake_find_package"] = "async_simple"
         self.cpp_info.names["cmake_find_package_multi"] = "async_simple"
+        self.cpp_info.components["_async_simple"].set_property(
+            "cmake_target_name", "async_simple_header_only"
+        )
         self.cpp_info.components["_async_simple"].names["cmake_find_package"] = "async_simple_header_only"
         self.cpp_info.components["_async_simple"].names[
             "cmake_find_package_multi"

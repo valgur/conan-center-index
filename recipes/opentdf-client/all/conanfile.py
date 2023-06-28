@@ -146,6 +146,7 @@ class OpenTDFConan(ConanFile):
         self.cpp_info.components["libopentdf"].set_property(
             "cmake_target_name", "copentdf-client::opentdf-client"
         )
+        self.cpp_info.components["libopentdf"].set_property("cmake_target_name", "opentdf-client")
         self.cpp_info.components["libopentdf"].names["cmake_find_package"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].names["cmake_find_package_multi"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].requires = [

@@ -242,6 +242,7 @@ class BitserializerConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "bitserializer"
         self.cpp_info.names["cmake_find_package"] = "BitSerializer"
         self.cpp_info.names["cmake_find_package_multi"] = "BitSerializer"
+        self.cpp_info.components["bitserializer-core"].set_property("cmake_target_name", "core")
         self.cpp_info.components["bitserializer-core"].names["cmake_find_package"] = "core"
         self.cpp_info.components["bitserializer-core"].names["cmake_find_package_multi"] = "core"
         if self.options.with_cpprestsdk:
@@ -259,6 +260,9 @@ class BitserializerConan(ConanFile):
                 "cmake_find_package_multi"
             ] = "rapidjson-archive"
         if self.options.with_pugixml:
+            self.cpp_info.components["bitserializer-pugixml"].set_property(
+                "cmake_target_name", "pugixml-archive"
+            )
             self.cpp_info.components["bitserializer-pugixml"].names["cmake_find_package"] = "pugixml-archive"
             self.cpp_info.components["bitserializer-pugixml"].names[
                 "cmake_find_package_multi"
@@ -271,5 +275,6 @@ class BitserializerConan(ConanFile):
                 "cmake_find_package_multi"
             ] = "rapidyaml-archive"
         if self.options.get_safe("with_csv"):
+            self.cpp_info.components["bitserializer-csv"].set_property("cmake_target_name", "csv-archive")
             self.cpp_info.components["bitserializer-csv"].names["cmake_find_package"] = "csv-archive"
             self.cpp_info.components["bitserializer-csv"].names["cmake_find_package_multi"] = "csv-archive"

@@ -80,6 +80,7 @@ class rpclibConan(ConanFile):
                 self.cpp_info.components["_rpc"].bindirs.append(os.path.join(self.package_folder, "lib"))
 
         # TODO: Remove after Conan 2.0
+        self.cpp_info.components["_rpc"].set_property("cmake_target_name", "rpc")
         self.cpp_info.components["_rpc"].names["cmake_find_package"] = "rpc"
         self.cpp_info.components["_rpc"].names["cmake_find_package_multi"] = "rpc"
         self.cpp_info.components["_rpc"].libs = ["rpc"]

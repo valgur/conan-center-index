@@ -94,6 +94,7 @@ class PackageConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "libInterpolate"
         self.cpp_info.names["cmake_find_package"] = "libInterpolate"
         self.cpp_info.names["cmake_find_package_multi"] = "libInterpolate"
+        self.cpp_info.components["Interpolate"].set_property("cmake_target_name", "Interpolate")
         self.cpp_info.components["Interpolate"].names["cmake_find_package"] = "Interpolate"
         self.cpp_info.components["Interpolate"].names["cmake_find_package_multi"] = "Interpolate"
         self.cpp_info.components["Interpolate"].requires = ["eigen::eigen", "boost::boost"]

@@ -83,6 +83,7 @@ class CpuFeaturesConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "CpuFeatures"
         self.cpp_info.names["cmake_find_package_multi"] = "CpuFeatures"
+        self.cpp_info.components["libcpu_features"].set_property("cmake_target_name", "cpu_features")
         self.cpp_info.components["libcpu_features"].names["cmake_find_package"] = "cpu_features"
         self.cpp_info.components["libcpu_features"].names["cmake_find_package_multi"] = "cpu_features"
         self.cpp_info.components["libcpu_features"].set_property(

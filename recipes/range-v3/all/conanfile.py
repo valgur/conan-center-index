@@ -72,6 +72,7 @@ class Rangev3Conan(ConanFile):
         copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
+        self.cpp_info.components["range-v3-meta"].set_property("cmake_target_name", "meta")
         self.cpp_info.components["range-v3-meta"].names["cmake_find_package"] = "meta"
         self.cpp_info.components["range-v3-meta"].names["cmake_find_package_multi"] = "meta"
         if is_msvc(self):
@@ -79,6 +80,7 @@ class Rangev3Conan(ConanFile):
 
             if "0.9.0" <= Version(self.version) < "0.11.0":
                 self.cpp_info.components["range-v3-meta"].cxxflags.append("/experimental:preprocessor")
+        self.cpp_info.components["range-v3-concepts"].set_property("cmake_target_name", "concepts")
         self.cpp_info.components["range-v3-concepts"].names["cmake_find_package"] = "concepts"
         self.cpp_info.components["range-v3-concepts"].names["cmake_find_package_multi"] = "concepts"
         self.cpp_info.components["range-v3-concepts"].requires = ["range-v3-meta"]

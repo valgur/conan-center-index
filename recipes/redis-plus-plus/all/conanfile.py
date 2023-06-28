@@ -154,6 +154,7 @@ class RedisPlusPlusConan(ConanFile):
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "redis++"
         self.cpp_info.names["cmake_find_package_multi"] = "redis++"
+        self.cpp_info.components["redis++lib"].set_property("cmake_target_name", f"redis++{target_suffix}")
         self.cpp_info.components["redis++lib"].names["cmake_find_package"] = f"redis++{target_suffix}"
         self.cpp_info.components["redis++lib"].names["cmake_find_package_multi"] = f"redis++{target_suffix}"
         self.cpp_info.components["redis++lib"].set_property(

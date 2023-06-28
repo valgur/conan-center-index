@@ -59,10 +59,12 @@ class VulkanHeadersConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "VulkanHeaders"
         self.cpp_info.names["cmake_find_package"] = "Vulkan"
         self.cpp_info.names["cmake_find_package_multi"] = "Vulkan"
+        self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Headers")
         self.cpp_info.components["vulkanheaders"].names["cmake_find_package"] = "Headers"
         self.cpp_info.components["vulkanheaders"].names["cmake_find_package_multi"] = "Headers"
         self.cpp_info.components["vulkanheaders"].bindirs = []
         self.cpp_info.components["vulkanheaders"].libdirs = []
+        self.cpp_info.components["vulkanregistry"].set_property("cmake_target_name", "Registry")
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package"] = "Registry"
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package_multi"] = "Registry"
         self.cpp_info.components["vulkanregistry"].includedirs = [os.path.join("res", "vulkan", "registry")]

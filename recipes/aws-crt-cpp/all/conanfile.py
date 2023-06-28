@@ -101,6 +101,7 @@ class AwsCrtCpp(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "aws-crt-cpp")
         self.cpp_info.set_property("cmake_target_name", "AWS::aws-crt-cpp")
 
+        self.cpp_info.components["aws-crt-cpp-lib"].set_property("cmake_target_name", "aws-crt-cpp")
         self.cpp_info.components["aws-crt-cpp-lib"].names["cmake_find_package"] = "aws-crt-cpp"
         self.cpp_info.components["aws-crt-cpp-lib"].names["cmake_find_package_multi"] = "aws-crt-cpp"
         self.cpp_info.components["aws-crt-cpp-lib"].libs = ["aws-crt-cpp"]

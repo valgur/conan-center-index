@@ -144,6 +144,7 @@ class LibiglConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libigl")
         self.cpp_info.set_property("cmake_target_name", "igl")
 
+        self.cpp_info.components["igl_common"].set_property("cmake_target_name", "common")
         self.cpp_info.components["igl_common"].names["cmake_find_package"] = "common"
         self.cpp_info.components["igl_common"].names["cmake_find_package_multi"] = "common"
         self.cpp_info.components["igl_common"].libs = []
@@ -151,6 +152,7 @@ class LibiglConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.components["igl_common"].system_libs = ["pthread"]
 
+        self.cpp_info.components["igl_core"].set_property("cmake_target_name", "core")
         self.cpp_info.components["igl_core"].names["cmake_find_package"] = "core"
         self.cpp_info.components["igl_core"].names["cmake_find_package_multi"] = "core"
         self.cpp_info.components["igl_core"].requires = ["igl_common"]

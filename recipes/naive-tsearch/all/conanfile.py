@@ -101,10 +101,12 @@ class NaiveTsearchConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         if self.options.header_only:
+            self.cpp_info.components["header_only"].set_property("cmake_target_name", "naive-tsearch-hdronly")
             self.cpp_info.components["header_only"].names["cmake_find_package"] = "naive-tsearch-hdronly"
             self.cpp_info.components["header_only"].names[
                 "cmake_find_package_multi"
             ] = "naive-tsearch-hdronly"
         else:
+            self.cpp_info.components["naive_tsearch"].set_property("cmake_target_name", "naive-tsearch")
             self.cpp_info.components["naive_tsearch"].names["cmake_find_package"] = "naive-tsearch"
             self.cpp_info.components["naive_tsearch"].names["cmake_find_package_multi"] = "naive-tsearch"

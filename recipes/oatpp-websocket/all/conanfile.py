@@ -102,6 +102,7 @@ class OatppWebSocketConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-websocket"
         self.cpp_info.names["cmake_find_package"] = "oatpp"
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
+        self.cpp_info.components["_oatpp-websocket"].set_property("cmake_target_name", "oatpp-websocket")
         self.cpp_info.components["_oatpp-websocket"].names["cmake_find_package"] = "oatpp-websocket"
         self.cpp_info.components["_oatpp-websocket"].names["cmake_find_package_multi"] = "oatpp-websocket"
         self.cpp_info.components["_oatpp-websocket"].set_property(

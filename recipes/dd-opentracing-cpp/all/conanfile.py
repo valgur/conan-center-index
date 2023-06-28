@@ -116,6 +116,9 @@ class DatadogOpenTracingConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "DataDogOpenTracing"
         self.cpp_info.names["cmake_find_package_multi"] = "DataDogOpenTracing"
         target_suffix = "" if self.options.shared else "-static"
+        self.cpp_info.components["dd_opentracing"].set_property(
+            "cmake_target_name", "dd_opentracing" + target_suffix
+        )
         self.cpp_info.components["dd_opentracing"].names["cmake_find_package"] = (
             "dd_opentracing" + target_suffix
         )

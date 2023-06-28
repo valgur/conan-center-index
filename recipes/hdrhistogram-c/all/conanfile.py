@@ -100,6 +100,7 @@ class HdrhistogramcConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "hdr_histogram"
         self.cpp_info.names["cmake_find_package_multi"] = "hdr_histogram"
+        self.cpp_info.components["hdr_histrogram"].set_property("cmake_target_name", target)
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package"] = target
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package_multi"] = target
         self.cpp_info.components["hdr_histrogram"].set_property(

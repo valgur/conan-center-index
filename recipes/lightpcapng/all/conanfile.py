@@ -73,6 +73,7 @@ class LightPcapNgConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "light_pcapng")
         self.cpp_info.set_property("cmake_target_name", "light_pcapng")
+        self.cpp_info.components["liblight_pcapng"].set_property("cmake_target_name", "light_pcapng")
         self.cpp_info.components["liblight_pcapng"].names["cmake_find_package"] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].names["cmake_find_package_multi"] = "light_pcapng"
         self.cpp_info.components["liblight_pcapng"].libs = ["light_pcapng"]

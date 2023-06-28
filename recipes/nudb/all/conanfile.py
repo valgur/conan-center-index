@@ -41,6 +41,7 @@ class NudbConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.components["core"].set_property("cmake_target_name", "nudb")
         self.cpp_info.components["core"].names["cmake_find_package"] = "nudb"
         self.cpp_info.components["core"].names["cmake_find_package_multi"] = "nudb"
         self.cpp_info.components["core"].requires = ["boost::thread", "boost::system"]

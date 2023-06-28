@@ -421,6 +421,7 @@ class MagnumConan(ConanFile):
         )
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
 
+        self.cpp_info.components["magnumopenddl"].set_property("cmake_target_name", "MagnumOpenDdl")
         self.cpp_info.components["magnumopenddl"].names["cmake_find_package"] = "MagnumOpenDdl"
         self.cpp_info.components["magnumopenddl"].names["cmake_find_package_multi"] = "MagnumOpenDdl"
         self.cpp_info.components["magnumopenddl"].libs = ["MagnumOpenDdl{}".format(lib_suffix)]
@@ -440,6 +441,7 @@ class MagnumConan(ConanFile):
             raise ConanException("Component not defined, please contribute it to the Conan recipe")
 
         # The global target doesn't provide anything in this package. Null it.
+        self.cpp_info.components["_global_target"].set_property("cmake_target_name", "MagnumPlugins")
         self.cpp_info.components["_global_target"].names["cmake_find_package"] = "MagnumPlugins"
         self.cpp_info.components["_global_target"].names["cmake_find_package_multi"] = "MagnumPlugins"
         self.cpp_info.components["_global_target"].build_modules["cmake_find_package"].append(
@@ -448,6 +450,7 @@ class MagnumConan(ConanFile):
 
         # Add all the plugins
         for component, target, library, folder, deps in self._plugins:
+            self.cpp_info.components[component].set_property("cmake_target_name", target)
             self.cpp_info.components[component].names["cmake_find_package"] = target
             self.cpp_info.components[component].names["cmake_find_package_multi"] = target
             self.cpp_info.components[component].libs = ["{}{}".format(library, plugin_lib_suffix)]

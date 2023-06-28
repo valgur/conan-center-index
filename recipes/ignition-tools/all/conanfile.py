@@ -113,6 +113,7 @@ class IgnitionToolsConan(ConanFile):
         component = self.cpp_info.components["libignition-tools"]
         component.libs = ["ignition-tools-backward"]
         component.includedirs.append(f"include/ignition/tools{version_major}")
+        component.set_property("cmake_target_name", f"ignition-tools{version_major}")
         component.names["cmake_find_package"] = f"ignition-tools{version_major}"
         component.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
         component.set_property("pkg_config_name", f"ignition-tools{version_major}")

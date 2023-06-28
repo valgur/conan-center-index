@@ -201,6 +201,7 @@ class TesseractConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "Tesseract"
         self.cpp_info.names["cmake_find_package_multi"] = "Tesseract"
+        self.cpp_info.components["libtesseract"].set_property("cmake_target_name", "libtesseract")
         self.cpp_info.components["libtesseract"].names["cmake_find_package"] = "libtesseract"
         self.cpp_info.components["libtesseract"].names["cmake_find_package_multi"] = "libtesseract"
         self.cpp_info.components["libtesseract"].build_modules["cmake_find_package"] = [

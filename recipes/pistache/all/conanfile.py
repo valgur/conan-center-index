@@ -185,5 +185,6 @@ class PistacheConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "Pistache"
         self.cpp_info.names["cmake_find_package_multi"] = "Pistache"
         suffix = "_{}".format("shared" if self.options.shared else "static")
+        self.cpp_info.components["libpistache"].set_property("cmake_target_name", "pistache" + suffix)
         self.cpp_info.components["libpistache"].names["cmake_find_package"] = "pistache" + suffix
         self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = "pistache" + suffix

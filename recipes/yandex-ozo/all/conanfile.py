@@ -157,6 +157,7 @@ class YandexOzoConan(ConanFile):
             "libpq::pq",
         ]
         main_comp.defines = ["BOOST_HANA_CONFIG_ENABLE_STRING_UDL", "BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
+        main_comp.set_property("cmake_target_name", "ozo")
         main_comp.names["cmake_find_package"] = "ozo"
         main_comp.names["cmake_find_package_multi"] = "ozo"
 

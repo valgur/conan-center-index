@@ -104,6 +104,12 @@ class MicrosoftGslConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Microsoft.GSL")
         self.cpp_info.set_property("cmake_target_name", "Microsoft.GSL::GSL")
 
+        if Version(self.version) < "3.0.0":
+            self.cpp_info.components["_ms-gsl"].defines = [
+                self._contract_map[str(self.options.on_contract_violation)]
+            ]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Microsoft.GSL"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Microsoft.GSL"
         self.cpp_info.names["cmake_find_package"] = "Microsoft.GSL"
@@ -111,8 +117,3 @@ class MicrosoftGslConan(ConanFile):
 
         self.cpp_info.components["_ms-gsl"].names["cmake_find_package"] = "GSL"
         self.cpp_info.components["_ms-gsl"].names["cmake_find_package_multi"] = "GSL"
-
-        if Version(self.version) < "3.0.0":
-            self.cpp_info.components["_ms-gsl"].defines = [
-                self._contract_map[str(self.options.on_contract_violation)]
-            ]

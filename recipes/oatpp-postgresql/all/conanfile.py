@@ -105,6 +105,7 @@ class OatppPostgresqlConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-postgresql"
         self.cpp_info.names["cmake_find_package"] = "oatpp"
         self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
+        self.cpp_info.components["_oatpp-postgresql"].set_property("cmake_target_name", "oatpp-postgresql")
         self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package"] = "oatpp-postgresql"
         self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package_multi"] = "oatpp-postgresql"
         self.cpp_info.components["_oatpp-postgresql"].set_property(

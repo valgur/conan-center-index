@@ -117,6 +117,7 @@ class SobjectizerConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "sobjectizer"
         self.cpp_info.names["cmake_find_package_multi"] = "sobjectizer"
+        self.cpp_info.components["_sobjectizer"].set_property("cmake_target_name", cmake_target)
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package_multi"] = cmake_target
         self.cpp_info.components["_sobjectizer"].set_property(

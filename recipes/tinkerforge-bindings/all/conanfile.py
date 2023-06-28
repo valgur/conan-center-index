@@ -72,6 +72,7 @@ class TinkerforgeBindingsConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinkerforge-bindings")
         self.cpp_info.set_property("cmake_target_name", "tinkerforge::bindings")
+        self.cpp_info.components["_bindings"].set_property("cmake_target_name", "bindings")
         self.cpp_info.components["_bindings"].names["cmake_find_package"] = "bindings"
         self.cpp_info.components["_bindings"].names["cmake_find_package_multi"] = "bindings"
         self.cpp_info.components["_bindings"].libs = ["tinkerforge_bindings"]
