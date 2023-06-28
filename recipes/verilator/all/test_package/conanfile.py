@@ -32,7 +32,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            verilator_path = os.path.join(self.deps_cpp_info["verilator"].rootpath, "bin", "verilator")
+            verilator_path = os.path.join(self.dependencies["verilator"].package_folder, "bin", "verilator")
             self.run(f"perl {verilator_path} --version", env="conanrun")
             self.run(os.path.join("bin", "blinky"), env="conanrun")
             if self._with_systemc_example:

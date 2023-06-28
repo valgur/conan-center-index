@@ -129,7 +129,7 @@ class CairoConan(ConanFile):
             return "yes" if value else "no"
 
         def dep_path(dependency):
-            return unix_path(self, self.deps_cpp_info[dependency].rootpath)
+            return unix_path(self, self.dependencies[dependency].package_folder)
 
         tc = AutotoolsToolchain(self, namespace=namespace)
         tc.configure_args += [
@@ -225,22 +225,22 @@ class CairoConan(ConanFile):
                 self,
                 win32_common,
                 "$(PIXMAN_PATH)/lib/pixman-1.lib",
-                self.deps_cpp_info["pixman"].libs[0] + ".lib",
+                self.dependencies["pixman"].cpp_info.libs[0] + ".lib",
             )
             replace_in_file(
                 self,
                 win32_common,
                 "$(FREETYPE_PATH)/lib/freetype.lib",
-                self.deps_cpp_info["freetype"].libs[0] + ".lib",
+                self.dependencies["freetype"].cpp_info.libs[0] + ".lib",
             )
             replace_in_file(
-                self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib", self.deps_cpp_info["zlib"].libs[0] + ".lib"
+                self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib", self.dependencies["zlib"].cpp_info.libs[0] + ".lib"
             )
             replace_in_file(
                 self,
                 win32_common,
                 "$(LIBPNG_PATH)/lib/libpng16.lib",
-                self.deps_cpp_info["libpng"].libs[0] + ".lib",
+                self.dependencies["libpng"].cpp_info.libs[0] + ".lib",
             )
 
     def build(self):

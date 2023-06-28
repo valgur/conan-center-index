@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["IGN_UTILS_MAJOR_VER"] = Version(self.deps_cpp_info["ignition-utils"].version).major
+        tc.variables["IGN_UTILS_MAJOR_VER"] = Version(self.dependencies["ignition-utils"].ref.version).major
         cmake.configure()
         cmake.build()
 

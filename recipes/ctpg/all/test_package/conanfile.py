@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["CTPG_PLACED_CPTG_FOLDER"] = Version(self.deps_cpp_info["ctpg"].version) >= "1.3.7"
+        tc.variables["CTPG_PLACED_CPTG_FOLDER"] = Version(self.dependencies["ctpg"].ref.version) >= "1.3.7"
         cmake.configure()
         cmake.build()
 

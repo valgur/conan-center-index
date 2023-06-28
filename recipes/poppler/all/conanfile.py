@@ -76,7 +76,7 @@ class PopplerConan(ConanFile):
 
     @property
     def _cppstd_required(self):
-        if self.options.with_qt and Version(self.deps_cpp_info["qt"].version).major == "6":
+        if self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "6":
             return 17
         else:
             return 14
@@ -217,10 +217,10 @@ class PopplerConan(ConanFile):
         tc.variables["BUILD_CPP_TESTS"] = False
         tc.variables["ENABLE_GTK_DOC"] = False
         tc.variables["ENABLE_QT5"] = (
-            self.options.with_qt and Version(self.deps_cpp_info["qt"].version).major == "5"
+            self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "5"
         )
         tc.variables["ENABLE_QT6"] = (
-            self.options.with_qt and Version(self.deps_cpp_info["qt"].version).major == "6"
+            self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "6"
         )
 
         tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
@@ -339,7 +339,7 @@ class PopplerConan(ConanFile):
                 )
 
         if self.options.with_qt:
-            qt_major = Version(self.deps_cpp_info["qt"].version).major
+            qt_major = Version(self.dependencies["qt"].ref.version).major
             self.cpp_info.components["libpoppler-qt"].libs = ["poppler-qt{}".format(qt_major)]
             self.cpp_info.components["libpoppler-qt"].names["pkg_config"] = "poppler-qt{}".format(qt_major)
             self.cpp_info.components["libpoppler-qt"].requires = [

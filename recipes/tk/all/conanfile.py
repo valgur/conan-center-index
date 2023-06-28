@@ -208,7 +208,7 @@ class TkConan(ConanFile):
             opts.append("unchecked")
         # https://core.tcl.tk/tk/tktview?name=3d34589aa0
         # https://wiki.tcl-lang.org/page/Building+with+Visual+Studio+2017
-        tcl_lib_path = os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib")
+        tcl_lib_path = os.path.join(self.dependencies["tcl"].package_folder, "lib")
         tclimplib, tclstublib = None, None
         for lib in os.listdir(tcl_lib_path):
             if not lib.endswith(".lib"):
@@ -221,7 +221,7 @@ class TkConan(ConanFile):
         if tclimplib is None or tclstublib is None:
             raise ConanException("tcl dependency misses tcl and/or tclstub library")
         with vcvars(self.settings):
-            tcldir = self.deps_cpp_info["tcl"].rootpath.replace("/", "\\\\")
+            tcldir = self.dependencies["tcl"].package_folder.replace("/", "\\\\")
             self.run(
                 """nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} TCLDIR="{tcldir}" TCL_LIBRARY="{tcl_library}" TCLIMPLIB="{tclimplib}" TCLSTUBLIB="{tclstublib}" {target}""".format(
                     cfgdir=self._get_configure_folder("win"),
@@ -238,7 +238,7 @@ class TkConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tcl_root = self.deps_cpp_info["tcl"].rootpath
+        tcl_root = self.dependencies["tcl"].package_folder
         tc.make_args = ["TCL_GENERIC_DIR={}".format(os.path.join(tcl_root, "include")).replace("\\", "/")]
 
         tclConfigShFolder = os.path.join(tcl_root, "lib").replace("\\", "/")

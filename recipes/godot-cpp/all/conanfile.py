@@ -211,7 +211,7 @@ class GodotCppConan(ConanFile):
 
     @property
     def _godot_headers(self):
-        return self.deps_cpp_info["godot_headers"]
+        return self.dependencies["godot_headers"].cpp_info
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

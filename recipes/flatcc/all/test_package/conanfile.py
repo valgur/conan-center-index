@@ -41,7 +41,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.deps_cpp_info["flatcc"].rootpath, "bin", "flatcc")
+            bin_path = os.path.join(self.dependencies["flatcc"].package_folder, "bin", "flatcc")
             if not os.path.isfile(bin_path) or not os.access(bin_path, os.X_OK):
                 raise ConanException("flatcc doesn't exist.")
         else:

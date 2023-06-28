@@ -208,7 +208,7 @@ class BotanConan(ConanFile):
     def _dependency_build_flags(self, dependency):
         # Since botan has a custom build system, we need to specifically inject
         # these build parameters so that it picks up the correct dependencies.
-        dep_cpp_info = self.deps_cpp_info[dependency]
+        dep_cpp_info = self.dependencies[dependency].cpp_info
         return (
             [
                 "--with-external-includedir={}".format(include_path)

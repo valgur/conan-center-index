@@ -27,7 +27,7 @@ class TestPackageConan(ConanFile):
             if self.options["magnum-extras"].player:
                 assert os.path.exists(
                     os.path.join(
-                        self.deps_cpp_info["magnum-extras"].rootpath,
+                        self.dependencies["magnum-extras"].package_folder,
                         "bin",
                         "magnum-player{}".format(executable_ext),
                     )
@@ -36,7 +36,7 @@ class TestPackageConan(ConanFile):
             if self.options["magnum-extras"].ui_gallery:
                 assert os.path.exists(
                     os.path.join(
-                        self.deps_cpp_info["magnum-extras"].rootpath,
+                        self.dependencies["magnum-extras"].package_folder,
                         "bin",
                         "magnum-ui-gallery{}".format(executable_ext),
                     )

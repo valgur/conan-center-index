@@ -41,6 +41,6 @@ class TestPackageConan(ConanFile):
             ]
             self.run(command, run_environment=True)
 
-        llvm_path = self.deps_cpp_info["llvm-core"].rootpath
+        llvm_path = self.dependencies["llvm-core"].package_folder
         license_path = os.path.join(llvm_path, "licenses", "LICENSE.TXT")
         assert os.path.exists(license_path)

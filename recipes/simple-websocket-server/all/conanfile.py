@@ -63,14 +63,14 @@ class SimpleWebSocketServerConan(ConanFile):
     def build(self):
         if (
             Version(self.version) <= "2.0.1"
-            and "asio" in self.deps_cpp_info.deps
-            and Version(self.deps_cpp_info["asio"].version) >= "1.18.0"
+            and "asio" in self.dependencies
+            and Version(self.dependencies["asio"].ref.version) >= "1.18.0"
         ):
             raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require asio < 1.18.0")
         elif (
             Version(self.version) <= "2.0.1"
-            and "boost" in self.deps_cpp_info.deps
-            and Version(self.deps_cpp_info["boost"].version) >= "1.74.0"
+            and "boost" in self.dependencies
+            and Version(self.dependencies["boost"].ref.version) >= "1.74.0"
         ):
             raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require boost < 1.74.0")
 

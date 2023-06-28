@@ -181,6 +181,9 @@ class SerfConan(ConanFile):
         self._patch_sources()
         autotools = AutoToolsBuildEnvironment(self)
         args = ["-Y", self.source_folder]
+        libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
+        sharedlinkflags = sum([dep.cpp_info.sharedlinkflags for dep in self.dependencies.values()], [])
+        includedirs = sum([dep.cpp_info.includedirs for dep in self.dependencies.values()], [])
         kwargs = {
             "APR": self.dependencies["apr"].cpp_info.rootpath.replace("\\", "/"),
             "APU": self.dependencies["apr-util"].cpp_info.rootpath.replace("\\", "/"),
@@ -191,19 +194,19 @@ class SerfConan(ConanFile):
             "DEBUG": self.settings.build_type == "Debug",
             "APR_STATIC": not self.options["apr"].shared,
             "CFLAGS": " ".join(
-                self.deps_cpp_info.cflags
+                sum([dep.cpp_info.cflags for dep in self.dependencies.values()], [])
                 + (["-fPIC"] if self.options.get_safe("fPIC") else [])
                 + autotools.flags
             ),
             "LINKFLAGS": (
-                " ".join(self.deps_cpp_info.sharedlinkflags)
+                " ".join(sharedlinkflags)
                 + " "
-                + " ".join(self._lib_path_arg(l) for l in self.deps_cpp_info.libdirs)
+                + " ".join(self._lib_path_arg(l) for l in libdirs)
             ),
             "CPPFLAGS": (
                 " ".join("-D{}".format(d) for d in autotools.defines)
                 + " "
-                + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in self.deps_cpp_info.includedirs)
+                + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in includedirs)
             ),
             "CC": self._cc,
             "SOURCE_LAYOUT": "False",

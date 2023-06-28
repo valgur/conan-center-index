@@ -16,7 +16,7 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        packio_version = self.deps_cpp_info["packio"].version
+        packio_version = self.dependencies["packio"].ref.version
         cmake = CMake(self)
         cmake.configure(defs={"PACKIO_VERSION": packio_version})
         cmake.build()

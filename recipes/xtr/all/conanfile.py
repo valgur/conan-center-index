@@ -191,9 +191,9 @@ class XtrConan(ConanFile):
 
     def build(self):
         # FIXME: should be done in validate (but version is not yet available there)
-        if Version(self.deps_cpp_info["fmt"].version) < 6:
+        if Version(self.dependencies["fmt"].ref.version) < 6:
             raise ConanInvalidConfiguration("The version of fmt must >= 6.0.0")
-        if Version(self.deps_cpp_info["fmt"].version) == "8.0.0" and self.settings.compiler == "clang":
+        if Version(self.dependencies["fmt"].ref.version) == "8.0.0" and self.settings.compiler == "clang":
             raise ConanInvalidConfiguration(
                 "fmt/8.0.0 is known to not work with clang (https://github.com/fmtlib/fmt/issues/2377)"
             )

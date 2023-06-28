@@ -36,7 +36,7 @@ class CrowConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if Version(self.deps_cpp_info["boost"].version) >= "1.70.0":
+        if Version(self.dependencies["boost"].ref.version) >= "1.70.0":
             raise ConanInvalidConfiguration("Crow requires Boost <1.70.0")
 
     def source(self):

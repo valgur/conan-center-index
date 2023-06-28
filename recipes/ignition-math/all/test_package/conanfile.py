@@ -19,7 +19,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["IGN_MATH_MAJOR_VER"] = Version(self.deps_cpp_info["ignition-math"].version).major
+        tc.variables["IGN_MATH_MAJOR_VER"] = Version(self.dependencies["ignition-math"].ref.version).major
         cmake.configure()
         cmake.build()
 

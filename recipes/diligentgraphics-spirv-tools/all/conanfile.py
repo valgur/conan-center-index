@@ -73,7 +73,7 @@ class SpirvtoolsConan(ConanFile):
 
     def _validate_dependency_graph(self):
         if (
-            self.deps_cpp_info["diligentgraphics-spirv-headers"].version
+            self.dependencies["diligentgraphics-spirv-headers"].ref.version
             != self._get_compatible_spirv_headers_version
         ):
             raise ConanInvalidConfiguration(
@@ -89,9 +89,9 @@ class SpirvtoolsConan(ConanFile):
         tc = CMakeToolchain(self)
 
         # Required by the project's CMakeLists.txt
-        tc.variables["SPIRV-Headers_SOURCE_DIR"] = self.deps_cpp_info[
+        tc.variables["SPIRV-Headers_SOURCE_DIR"] = self.dependencies[
             "diligentgraphics-spirv-headers"
-        ].rootpath.replace("\\", "/")
+        ].package_folder.replace("\\", "/")
 
         # There are some switch( ) statements that are causing errors
         # need to turn this off

@@ -195,7 +195,7 @@ class IslConan(ConanFile):
             tc.configure_args.extend(
                 [
                     "--with-gmp=system",
-                    "--with-gmp-prefix={}".format(self.deps_cpp_info["gmp"].rootpath.replace("\\", "/")),
+                    "--with-gmp-prefix={}".format(self.dependencies["gmp"].package_folder.replace("\\", "/")),
                 ]
             )
         if is_msvc(self):

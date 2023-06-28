@@ -110,7 +110,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _py_version(self):
-        return re.match(r"^([0-9.]+)", self.deps_cpp_info["cpython"].version).group(1)
+        return re.match(r"^([0-9.]+)", self.dependencies["cpython"].ref.version).group(1)
 
     @property
     def _pymalloc(self):
@@ -144,17 +144,17 @@ class TestPackageConan(ConanFile):
             self.run(command, run_environment=True)
 
         cmake = CMake(self)
-        py_major = self.deps_cpp_info["cpython"].version.split(".")[0]
+        py_major = self.dependencies["cpython"].ref.version.split(".")[0]
         tc.variables["BUILD_MODULE"] = self._supports_modules
         tc.variables["PY_VERSION_MAJOR"] = py_major
         tc.variables["PY_VERSION_MAJOR_MINOR"] = ".".join(self._py_version.split(".")[:2])
-        tc.variables["PY_FULL_VERSION"] = self.deps_cpp_info["cpython"].version
+        tc.variables["PY_FULL_VERSION"] = self.dependencies["cpython"].ref.version
         tc.variables["PY_VERSION"] = self._py_version
         tc.variables["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
         tc.variables["PYTHON_EXECUTABLE"] = self.deps_user_info["cpython"].python
         tc.variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
         tc.variables["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info["cpython"].python
-        tc.variables["Python{}_ROOT_DIR".format(py_major)] = self.deps_cpp_info["cpython"].rootpath
+        tc.variables["Python{}_ROOT_DIR".format(py_major)] = self.dependencies["cpython"].package_folder
         tc.variables["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
         tc.variables["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
         tc.variables["Python{}_FIND_REGISTRY".format(py_major)] = "NEVER"
@@ -173,7 +173,7 @@ class TestPackageConan(ConanFile):
             if self._supports_modules:
                 with vcvars(self.settings) if is_msvc(self) else nullcontext():
                     modsrcfolder = (
-                        "py2" if Version(self.deps_cpp_info["cpython"].version).major < "3" else "py3"
+                        "py2" if Version(self.dependencies["cpython"].ref.version).major < "3" else "py3"
                     )
                     mkdir(self, os.path.join(self.build_folder, modsrcfolder))
                     for fn in os.listdir(os.path.join(self.source_folder, modsrcfolder)):

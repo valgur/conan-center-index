@@ -180,9 +180,9 @@ class SqlcipherConan(ConanFile):
         }.get(str(self.options.temporary_store))
 
     def _build_visual(self):
-        crypto_dep = self.deps_cpp_info[str(self.options.crypto_library)]
-        crypto_incdir = crypto_dep.include_paths[0]
-        crypto_libdir = crypto_dep.lib_paths[0]
+        crypto_dep = self.dependencies[str(self.options.crypto_library)].cpp_info
+        crypto_incdir = crypto_dep.includedirs[0]
+        crypto_libdir = crypto_dep.libdirs[0]
         libs = map(lambda lib: lib + ".lib", crypto_dep.libs)
         system_libs = map(lambda lib: lib + ".lib", crypto_dep.system_libs)
 
@@ -233,7 +233,8 @@ class SqlcipherConan(ConanFile):
         replace_in_file(self, configure, "-install_name \\$rpath/", "-install_name @rpath/")
         # avoid SIP issues on macOS when dependencies are shared
         if is_apple_os(self.settings.os):
-            libpaths = ":".join(self.deps_cpp_info.libdirs)
+            libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
+            libpaths = ":".join(libdirs)
             replace_in_file(
                 self,
                 configure,

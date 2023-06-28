@@ -260,7 +260,7 @@ class CrashpadConan(ConanFile):
                 os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
                 'libs = [ "z" ]',
                 "libs = [ {} ]".format(
-                    ", ".join('"{}.lib"'.format(l) for l in self.deps_cpp_info["zlib"].libs)
+                    ", ".join('"{}.lib"'.format(l) for l in self.dependencies["zlib"].cpp_info.libs)
                 ),
             )
 

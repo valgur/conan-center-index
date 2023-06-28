@@ -196,7 +196,7 @@ class LibfabricConan(ConanFile):
         for p in self._providers:
             args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            args.append("--with-libnl={}".format(unix_path(self.deps_cpp_info["libnl"].rootpath))),
+            args.append("--with-libnl={}".format(unix_path(self.dependencies["libnl"].package_folder))),
         else:
             args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":

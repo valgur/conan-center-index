@@ -329,11 +329,11 @@ class CPythonConan(ConanFile):
             tcltk_libs = []
             # FIXME: collect using some conan util (https://github.com/conan-io/conan/issues/7656)
             for dep in ("tcl", "tk", "zlib"):
-                tcltk_includes += ["-I{}".format(d) for d in self.deps_cpp_info[dep].include_paths]
-                tcltk_libs += ["-l{}".format(lib) for lib in self.deps_cpp_info[dep].libs]
+                tcltk_includes += [f"-I{d}" for d in self.dependencies[dep].cpp_info.includedirs]
+                tcltk_libs += [f"-l{lib}" for lib in self.dependencies[dep].cpp_info.libs]
             if self.settings.os == "Linux" and not self.options["tk"].shared:
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
-                tcltk_libs.extend(["-l{}".format(lib) for lib in ("X11", "Xss")])
+                tcltk_libs.extend([f"-l{lib}" for lib in ("X11", "Xss")])
             tc.configure_args.extend(
                 [
                     "--with-tcltk-includes={}".format(" ".join(tcltk_includes)),
@@ -389,7 +389,7 @@ class CPythonConan(ConanFile):
                 "curses_libs = ",
                 "curses_libs = {} #".format(
                     repr(
-                        self.dependencies["ncurses"].libs + self.deps_cpp_info["ncurses"].cpp_info.system_libs
+                        self.dependencies["ncurses"].libs + self.dependencies["ncurses"].cpp_info.system_libs
                     )
                 ),
             )

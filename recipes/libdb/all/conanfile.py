@@ -137,7 +137,7 @@ class LibdbConan(ConanFile):
             if self.options.with_tcl:
                 tc.configure_args.append(
                     "--with-tcl={}".format(
-                        unix_path(self, os.path.join(self.deps_cpp_info["tcl"].rootpath, "lib"))
+                        unix_path(self, os.path.join(self.dependencies["tcl"].package_folder, "lib"))
                     )
                 )
             tc.generate()

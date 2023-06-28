@@ -132,7 +132,7 @@ Examples = {folder}/datadir/examples""",
             cmake = CMake(self, set_cmake_flags=True)
             if self.settings.os == "Macos":
                 tc.variables["CMAKE_OSX_DEPLOYMENT_TARGET"] = (
-                    "10.15" if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
+                    "10.15" if Version(self.dependencies["qt"].ref.version) >= "6.5.0" else "10.14"
                 )
 
             cmake.configure()

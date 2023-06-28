@@ -155,7 +155,7 @@ class YojimboConan(ConanFile):
         )
         lib_path_str = ", ".join(
             f'"{p}"'
-            for p in self.dependencies["libsodium"].lib_paths + self.deps_cpp_info["mbedtls"].cpp_info.libdirs
+            for p in self.dependencies["libsodium"].lib_paths + self.dependencies["mbedtls"].cpp_info.libdirs
         )
 
         premake_path = os.path.join(self.source_folder, "premake5.lua")

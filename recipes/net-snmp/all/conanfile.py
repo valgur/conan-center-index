@@ -155,8 +155,8 @@ class NetSnmpConan(ConanFile):
         return self.settings.build_type == "Debug"
 
     def _patch_msvc(self):
-        ssl_info = self.deps_cpp_info["openssl"]
-        openssl_root = ssl_info.rootpath.replace("\\", "/")
+        ssl_info = self.dependencies["openssl"]
+        openssl_root = ssl_info.package_folder.replace("\\", "/")
         search_replace = [
             (r'$default_openssldir . "\\include"', f"'{openssl_root}/include'"),
             (r'$default_openssldir . "\\lib\\VC"', f"'{openssl_root}/lib'"),
@@ -173,7 +173,7 @@ class NetSnmpConan(ConanFile):
         runtime = self.settings.compiler.runtime
         replace_in_file(self, "win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
-            f'#    pragma comment(lib, "{lib}.lib")' for lib in ssl_info.libs + ssl_info.system_libs
+            f'#    pragma comment(lib, "{lib}.lib")' for lib in ssl_info.cpp_info.libs + ssl_info.cpp_info.system_libs
         )
         config = r"win32\net-snmp\net-snmp-config.h.in"
         replace_in_file(self, config, "/* Conan: system_libs */", link_lines)
@@ -190,7 +190,7 @@ class NetSnmpConan(ConanFile):
         disabled_link_type = "static" if self.options.shared else "shared"
         debug_flag = "enable" if self._is_debug else "disable"
         ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
-        ssl_path = self.deps_cpp_info["openssl"].rootpath
+        ssl_path = self.dependencies["openssl"].package_folder
         tc = AutotoolsToolchain(self)
         tc.configure_args = [
             "--with-defaults",
@@ -211,7 +211,7 @@ class NetSnmpConan(ConanFile):
 
     def _patch_unix(self):
         replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
-        crypto_libs = self.deps_cpp_info["openssl"].system_libs
+        crypto_libs = self.dependencies["openssl"].cpp_info.system_libs
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
             replace_in_file(

@@ -150,7 +150,8 @@ class LibUSBCompatConan(ConanFile):
 
     def _iterate_lib_paths_win(self, lib):
         """Return all possible library paths for lib"""
-        for lib_path in self.deps_cpp_info.libdirs:
+        libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
+        for lib_path in libdirs:
             for prefix in "", "lib":
                 for suffix in "", ".a", ".dll.a", ".lib", ".dll.lib":
                     fn = os.path.join(lib_path, "{}{}{}".format(prefix, lib, suffix))
@@ -160,8 +161,9 @@ class LibUSBCompatConan(ConanFile):
 
     @property
     def _absolute_dep_libs_win(self):
+        libs = sum([dep.cpp_info.libs for dep in self.dependencies.values()], [])
         absolute_libs = []
-        for lib in self.deps_cpp_info.libs:
+        for lib in libs:
             for fn in self._iterate_lib_paths_win(lib):
                 if not os.path.isfile(fn):
                     continue
@@ -183,9 +185,8 @@ class LibUSBCompatConan(ConanFile):
             # Use absolute paths of the libraries instead of the library names only.
             # Otherwise, the configure script will say that the compiler not working
             # (because it interprets the libs as input source files)
-            tc.libs = (
-                list(unix_path(self, l) for l in self._absolute_dep_libs_win) + self.deps_cpp_info.system_libs
-            )
+            tc.libs = list(unix_path(self, l) for l in self._absolute_dep_libs_win)
+            tc.libs += sum([dep.cpp_info.system_libs for dep in self.dependencies.values()], [])
         tc.configure_args = [
             "--disable-examples-build",
             "--enable-log" if self.options.enable_logging else "--disable-log",

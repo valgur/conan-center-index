@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["CPPTASKFLOW_VERSION"] = self.deps_cpp_info["cpp-taskflow"].version
+        tc.variables["CPPTASKFLOW_VERSION"] = self.dependencies["cpp-taskflow"].ref.version
         cmake.configure()
         cmake.build()
 

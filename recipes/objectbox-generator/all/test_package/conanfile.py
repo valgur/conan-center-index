@@ -13,6 +13,6 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         bin_path = os.path.join(
-            self.deps_cpp_info["objectbox-generator"].rootpath, "bin", "objectbox-generator"
+            self.dependencies["objectbox-generator"].package_folder, "bin", "objectbox-generator"
         )
         self.run(f"{bin_path} -help")

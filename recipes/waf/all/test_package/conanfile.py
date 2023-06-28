@@ -37,7 +37,7 @@ class TestPackageConan(ConanFile):
         waf_path = which(self, "waf")
         if waf_path:
             waf_path = waf_path.replace("\\", "/")
-            assert waf_path.startswith(str(self.deps_cpp_info["waf"].rootpath))
+            assert waf_path.startswith(str(self.dependencies["waf"].package_folder))
 
         with vcvars(self.settings) if is_msvc(self) else nullcontext():
             self.run("waf -h")

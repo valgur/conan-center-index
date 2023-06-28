@@ -131,8 +131,8 @@ class ConanXqilla(ConanFile):
         make_ldflags = "LDFLAGS='{libs} -pthread'".format(
             libs=" ".join(
                 [
-                    "-L{}".format(os.path.join(self.deps_cpp_info["xerces-c"].rootpath, it))
-                    for it in self.deps_cpp_info["xerces-c"].libdirs
+                    "-L{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it))
+                    for it in self.dependencies["xerces-c"].cpp_info.libdirs
                 ]
             )
         )
@@ -140,8 +140,8 @@ class ConanXqilla(ConanFile):
         flags.append(
             " ".join(
                 [
-                    "-I{}".format(os.path.join(self.deps_cpp_info["xerces-c"].rootpath, it))
-                    for it in self.deps_cpp_info["xerces-c"].includedirs
+                    "-I{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it))
+                    for it in self.dependencies["xerces-c"].cpp_info.includedirs
                 ]
             )
         )

@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
     def build(self):
         tc = CMakeToolchain(self)
         tc.variables["WITH_UTILITY"] = self.options["corrade"].with_utility
-        if self.deps_cpp_info["corrade"].version == "2019.10":
+        if self.dependencies["corrade"].ref.version == "2019.10":
             tc.variables["VERSION_2019_10"] = True
         cmake.configure()
         cmake.build()

@@ -138,7 +138,7 @@ class MoldConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _get_include_path(self, dependency):
-        include_path = self.deps_cpp_info[dependency].rootpath
+        include_path = self.dependencies[dependency].package_folder
         include_path = os.path.join(include_path, "include")
         return include_path
 

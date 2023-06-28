@@ -250,8 +250,8 @@ class PangommConan(ConanFile):
         # for discovery, which is why pangomm uses "find_library" method instead
         # of "dependency". this patch adds a hint to where this library is
         glibmm_generate_extra_defs_dir = [
-            os.path.join(self.deps_cpp_info["glibmm"].rootpath, libdir)
-            for libdir in self.deps_cpp_info["glibmm"].libdirs
+            os.path.join(self.dependencies["glibmm"].package_folder, libdir)
+            for libdir in self.dependencies["glibmm"].cpp_info.libdirs
         ]
 
         replace_in_file(

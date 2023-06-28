@@ -299,12 +299,12 @@ class OpenCascadeConan(ConanFile):
             self,
             occt_csf_cmake,
             'set (CSF_FREETYPE "freetype")',
-            'set (CSF_FREETYPE "{}")'.format(" ".join(self.deps_cpp_info["freetype"].libs)),
+            'set (CSF_FREETYPE "{}")'.format(" ".join(self.dependencies["freetype"].cpp_info.libs)),
         )
         ## tcl
         conan_targets.append("CONAN_PKG::tcl")
         replace_in_file(self, cmakelists, 'OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/tcl")', "")
-        csf_tcl_libs = 'set (CSF_TclLibs "{}")'.format(" ".join(self.deps_cpp_info["tcl"].libs))
+        csf_tcl_libs = 'set (CSF_TclLibs "{}")'.format(" ".join(self.dependencies["tcl"].cpp_info.libs))
         replace_in_file(self, occt_csf_cmake, 'set (CSF_TclLibs     "tcl86")', csf_tcl_libs)
         replace_in_file(self, occt_csf_cmake, "set (CSF_TclLibs   Tcl)", csf_tcl_libs)
         if Version(self.version) >= "7.6.0":
@@ -315,7 +315,7 @@ class OpenCascadeConan(ConanFile):
         if self._link_tk:
             conan_targets.append("CONAN_PKG::tk")
             replace_in_file(self, cmakelists, 'OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/tk")', "")
-            csf_tk_libs = 'set (CSF_TclTkLibs "{}")'.format(" ".join(self.deps_cpp_info["tk"].libs))
+            csf_tk_libs = 'set (CSF_TclTkLibs "{}")'.format(" ".join(self.dependencies["tk"].cpp_info.libs))
             replace_in_file(self, occt_csf_cmake, 'set (CSF_TclTkLibs   "tk86")', csf_tk_libs)
             replace_in_file(self, occt_csf_cmake, "set (CSF_TclTkLibs Tk)", csf_tk_libs)
             if Version(self.version) >= "7.6.0":
@@ -330,14 +330,14 @@ class OpenCascadeConan(ConanFile):
                     self,
                     occt_csf_cmake,
                     'set (CSF_fontconfig "fontconfig")',
-                    'set (CSF_fontconfig "{}")'.format(" ".join(self.deps_cpp_info["fontconfig"].libs)),
+                    'set (CSF_fontconfig "{}")'.format(" ".join(self.dependencies["fontconfig"].cpp_info.libs)),
                 )
             else:
                 replace_in_file(
                     self,
                     occt_csf_cmake,
                     'set (CSF_fontconfig  "fontconfig")',
-                    'set (CSF_fontconfig  "{}")'.format(" ".join(self.deps_cpp_info["fontconfig"].libs)),
+                    'set (CSF_fontconfig  "{}")'.format(" ".join(self.dependencies["fontconfig"].cpp_info.libs)),
                 )
         ## onetbb
         if self.options.with_tbb:
@@ -347,7 +347,7 @@ class OpenCascadeConan(ConanFile):
                 self,
                 occt_csf_cmake,
                 'set (CSF_TBB "tbb tbbmalloc")',
-                'set (CSF_TBB "{}")'.format(" ".join(self.deps_cpp_info["onetbb"].libs)),
+                'set (CSF_TBB "{}")'.format(" ".join(self.dependencies["onetbb"].cpp_info.libs)),
             )
         ## ffmpeg
         if self.options.with_ffmpeg:
@@ -357,7 +357,7 @@ class OpenCascadeConan(ConanFile):
                 self,
                 occt_csf_cmake,
                 'set (CSF_FFmpeg "avcodec avformat swscale avutil")',
-                'set (CSF_FFmpeg "{}")'.format(" ".join(self.deps_cpp_info["ffmpeg"].libs)),
+                'set (CSF_FFmpeg "{}")'.format(" ".join(self.dependencies["ffmpeg"].cpp_info.libs)),
             )
         ## freeimage
         if self.options.with_freeimage:
@@ -367,7 +367,7 @@ class OpenCascadeConan(ConanFile):
                 self,
                 occt_csf_cmake,
                 'set (CSF_FreeImagePlus "freeimage")',
-                'set (CSF_FreeImagePlus "{}")'.format(" ".join(self.deps_cpp_info["freeimage"].libs)),
+                'set (CSF_FreeImagePlus "{}")'.format(" ".join(self.dependencies["freeimage"].cpp_info.libs)),
             )
         ## openvr
         if self.options.with_openvr:
@@ -377,7 +377,7 @@ class OpenCascadeConan(ConanFile):
                 self,
                 occt_csf_cmake,
                 'set (CSF_OpenVR "openvr_api")',
-                'set (CSF_OpenVR "{}")'.format(" ".join(self.deps_cpp_info["openvr"].libs)),
+                'set (CSF_OpenVR "{}")'.format(" ".join(self.dependencies["openvr"].cpp_info.libs)),
             )
         ## rapidjson
         if self.options.with_rapidjson:

@@ -214,7 +214,10 @@ class Librasterlite2Conan(ConanFile):
             replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
             if is_apple_os(self.settings.os):
-                libpaths = ":".join(self.deps_cpp_info.libdirs)
+                libdirs = []
+                for dep in self.dependencies.values():
+                    libdirs.extend(dep.cpp_info.aggregated_components().libdirs)
+                libpaths = ":".join(libdirs)
                 replace_in_file(
                     self,
                     "configure",
