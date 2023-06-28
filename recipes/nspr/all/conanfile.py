@@ -93,7 +93,7 @@ class NsprConan(ConanFile):
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR"
-    topics = "libc"
+    topics = ("libc",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -127,7 +127,7 @@ class NsprConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1658671

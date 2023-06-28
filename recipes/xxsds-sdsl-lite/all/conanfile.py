@@ -92,14 +92,13 @@ class XXSDSSDSLLite(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    no_copy_source = True
     provides = "sdsl-lite"
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

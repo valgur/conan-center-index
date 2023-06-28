@@ -4,7 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=1.47.0"
@@ -19,7 +19,7 @@ class KcovConan(ConanFile):
     license = "GPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://simonkagstrom.github.io/kcov/index.html"
-    topics = ("coverage", "linux", "debug", "pre-built")
+    topics = ("coverage", "linux", "debug")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,7 +32,7 @@ class KcovConan(ConanFile):
             raise ConanInvalidConfiguration("kcov can not be built on windows.")
 
     def layout(self):
-        pass
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")

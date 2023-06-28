@@ -139,7 +139,7 @@ class Cc65Conan(ConanFile):
                 self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler

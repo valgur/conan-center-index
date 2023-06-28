@@ -15,7 +15,7 @@ class WasmtimeConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bytecodealliance/wasmtime"
-    topics = ("webassembly", "wasm", "wasi")
+    topics = ("webassembly", "wasm", "wasi", "pre-built")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"

@@ -129,7 +129,7 @@ class CunitConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_curses == "ncurses":

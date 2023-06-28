@@ -130,7 +130,7 @@ class MpirConan(ConanFile):
             self.provides.append("gmp")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):

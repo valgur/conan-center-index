@@ -130,7 +130,7 @@ class SerfConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("apr-util/1.6.1")

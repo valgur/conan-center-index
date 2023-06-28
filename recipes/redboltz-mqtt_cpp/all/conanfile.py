@@ -93,7 +93,6 @@ class MqttCPPConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    no_copy_source = True
 
     @property
     def _compilers_minimum_version(self):
@@ -105,7 +104,7 @@ class MqttCPPConan(ConanFile):
         }
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("boost/1.79.0")

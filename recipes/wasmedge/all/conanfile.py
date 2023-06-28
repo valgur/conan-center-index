@@ -23,7 +23,7 @@ class WasmedgeConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/WasmEdge/WasmEdge/"
-    topics = ("webassembly", "wasm", "wasi", "emscripten")
+    topics = ("webassembly", "wasm", "wasi", "emscripten", "pre-built")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -46,11 +46,14 @@ class WasmedgeConan(ConanFile):
         del self.info.settings.compiler.version
         self.info.settings.compiler = self._compiler_alias
 
+    @property
+    def _data(self):
+        version_info = self.conan_data["sources"][self.version]
+        return version_info[str(self.settings.os)][str(self.settings.arch)][self._compiler_alias]
+
     def validate(self):
         try:
-            self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
-                self._compiler_alias
-            ]
+            self._data
         except KeyError:
             raise ConanInvalidConfiguration(
                 "Binaries for this combination of version/os/arch/compiler are not available"
@@ -58,20 +61,9 @@ class WasmedgeConan(ConanFile):
 
     def source(self):
         # This is packaging binaries so the download needs to be in build
-        get(
-            self,
-            **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
-                self._compiler_alias
-            ][0],
-            strip_root=True,
-        )
-        download(
-            self,
-            filename="LICENSE",
-            **self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][
-                self._compiler_alias
-            ][1],
-        )
+        binaries_info, license_info = self._data
+        get(self, **binaries_info, strip_root=True)
+        download(self, **license_info, filename="LICENSE")
 
     def package(self):
         copy(

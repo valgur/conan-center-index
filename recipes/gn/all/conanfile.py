@@ -94,13 +94,13 @@ class GnConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gn.googlesource.com/"
-    topics = ("build", "system", "ninja", "pre-built")
+    topics = ("build", "system", "ninja")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler

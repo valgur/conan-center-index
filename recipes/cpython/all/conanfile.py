@@ -93,7 +93,7 @@ class CPythonConan(ConanFile):
     license = "Python-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.python.org"
-    topics = ("python", "language", "script", "pre-built")
+    topics = ("python", "language", "script")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -207,7 +207,7 @@ class CPythonConan(ConanFile):
             self.generators.append("MSBuildDeps")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     @property
     def _with_libffi(self):

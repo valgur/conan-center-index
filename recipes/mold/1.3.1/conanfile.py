@@ -97,7 +97,7 @@ class MoldConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/1.2.12")

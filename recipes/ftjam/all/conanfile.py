@@ -88,7 +88,7 @@ class FtjamConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.freetype.org/jam/"
-    topics = ("build", "make", "pre-built")
+    topics = ("build", "make")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -105,7 +105,7 @@ class FtjamConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler

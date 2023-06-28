@@ -97,7 +97,7 @@ class Perf(ConanFile):
         export_conandata_patches(self)
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler

@@ -153,7 +153,7 @@ class UsocketsConan(ConanFile):
             self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_ssl == "openssl":

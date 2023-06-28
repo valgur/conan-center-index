@@ -129,7 +129,7 @@ class CrashpadConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         # FIXME: use mini_chromium conan package instead of embedded package (if possible)

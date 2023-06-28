@@ -117,7 +117,7 @@ class PlatformInterfacesConan(ConanFile):
         }
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

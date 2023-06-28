@@ -92,7 +92,6 @@ class PrettyNameConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    no_copy_source = True
 
     @property
     def _minimum_compilers_version(self):
@@ -104,7 +103,7 @@ class PrettyNameConan(ConanFile):
         }
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()

@@ -107,7 +107,7 @@ class VerilatorConan(ConanFile):
         export_conandata_patches(self)
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.settings.os == "Windows":

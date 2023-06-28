@@ -15,6 +15,7 @@ from conan.tools.files import (
     rmdir,
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc
 from conan.tools.scm import Version
 
@@ -58,7 +59,7 @@ class LibStudXmlConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)

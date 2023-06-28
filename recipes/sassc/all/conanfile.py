@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import chdir, copy, get, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc
 
 required_conan_version = ">=1.53.0"
@@ -27,7 +28,7 @@ class SasscConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libsass/3.6.5")

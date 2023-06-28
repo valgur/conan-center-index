@@ -163,7 +163,7 @@ class DCMTKConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.charset_conversion == "libiconv":

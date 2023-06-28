@@ -27,7 +27,6 @@ class PlatformInterfacesConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    no_copy_source = True
 
     @property
     def _subfolder_sources(self):

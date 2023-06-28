@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, chdir, copy, get, export_conandata_patches
 from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
 
 required_conan_version = ">=1.47.0"
@@ -17,7 +18,7 @@ class GoogleGuetzliConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://opensource.google/projects/guetzli"
-    topics = ("jpeg", "compression", "pre-built")
+    topics = ("jpeg", "compression")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -26,7 +27,7 @@ class GoogleGuetzliConan(ConanFile):
         export_conandata_patches(self)
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libpng/1.6.37")

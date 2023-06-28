@@ -145,7 +145,7 @@ class LiquidDspConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):

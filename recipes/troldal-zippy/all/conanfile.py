@@ -93,7 +93,6 @@ class TroldalZippyConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    no_copy_source = True
 
     @property
     def _minimum_cpp_standard(self):
@@ -112,7 +111,7 @@ class TroldalZippyConan(ConanFile):
         export_conandata_patches(self)
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("miniz/2.2.0")

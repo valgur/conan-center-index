@@ -4,7 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, save
 
 required_conan_version = ">=1.53.0"
@@ -25,7 +25,7 @@ class MsdfAtlasGenConan(ConanFile):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
-        pass
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("artery-font-format/1.0")
