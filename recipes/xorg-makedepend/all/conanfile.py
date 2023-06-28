@@ -51,10 +51,6 @@ class XorgMakedepend(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()

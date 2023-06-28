@@ -80,7 +80,7 @@ class HiredisConan(ConanFile):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
-            autotools.install(args={"DESTDIR": unix_path(self.package_folder), "PREFIX": ""})
+            autotools.install(args={"DESTDIR": unix_path(self, self.package_folder), "PREFIX": ""})
         if self.options.shared:
             rm(self, "*.so*", os.path.join(self.package_folder, "lib"), recursive=True)
             rm(self, "*.dylib*", os.path.join(self.package_folder, "lib"), recursive=True)

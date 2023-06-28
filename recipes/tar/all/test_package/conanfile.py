@@ -13,7 +13,7 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     def test(self):
-        tar_bin = self.deps_user_info["tar"].tar
+        tar_bin = self.conf_info.get("user.tar:tar")
         with chdir(self, self.source_folder):
             test_tar = os.path.join(self.build_folder, "test.tar.gz")
             self.run(f"{tar_bin} -czf {test_tar} conanfile.py")

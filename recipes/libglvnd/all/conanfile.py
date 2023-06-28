@@ -56,10 +56,6 @@ class LibGlvndConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     # don't use self.user_info_build
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")

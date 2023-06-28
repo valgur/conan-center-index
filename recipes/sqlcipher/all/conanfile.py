@@ -113,10 +113,6 @@ class SqlcipherConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -222,10 +218,10 @@ class SqlcipherConan(ConanFile):
 
     def _build_autotools(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
+            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
         )
         configure = os.path.join(self.source_folder, "configure")
         self._chmod_plus_x(configure)

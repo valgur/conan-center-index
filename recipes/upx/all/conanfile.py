@@ -132,9 +132,11 @@ class UPXConan(ConanFile):
         self.cpp_info.libdirs = []
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)
-
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
         upx = os.path.join(bin_path, f"upx{bin_ext}")
+        self.conf_info.define("user.upx:upx", upx)
+
+        # TODO: to remove in conan v2
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
+        self.env_info.PATH.append(bin_path)
         self.user_info.upx = upx

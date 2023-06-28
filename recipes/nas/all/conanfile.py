@@ -73,10 +73,6 @@ class NasRecipe(ConanFile):
         # This library does not come with a License file by itself, package it from an external source
         download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def generate(self):
         autotools = AutotoolsToolchain(self)
         autotools.generate()

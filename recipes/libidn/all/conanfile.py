@@ -151,10 +151,10 @@ class LibIdnConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "LD": "{} link -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                 }
                 with environment_append(self, env):
                     yield
@@ -173,7 +173,7 @@ class LibIdnConan(ConanFile):
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args = [
             "--enable-threads={}".format(yes_no(self.options.threads)),
-            "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),
+            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].cpp_info.rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]

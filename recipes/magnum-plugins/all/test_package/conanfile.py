@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
     def build(self):
         tc = CMakeToolchain(self)
         tc.variables["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
-            self.deps_user_info["magnum-plugins"].plugins_basepath, "importers"
+            self.conf_info.get("user.magnum-plugins:plugins_basepath"), "importers"
         ).replace("\\", "/")
         # STL file taken from https://www.thingiverse.com/thing:2798332
         tc.variables["CONAN_STL_FILE"] = os.path.join(self.source_folder, "conan.stl").replace("\\", "/")

@@ -40,7 +40,7 @@ class TestPackageConan(ConanFile):
         for exec in self._executables:
             tc.variables["EXEC_{}".format(exec.replace("-", "_")).upper()] = True
         tc.variables["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
-            self.deps_user_info["magnum"].plugins_basepath, "importers"
+            self.conf_info.get("user.magnum:plugins_basepath"), "importers"
         ).replace("\\", "/")
         tc.variables["OBJ_FILE"] = os.path.join(self.source_folder, "triangleMesh.obj").replace("\\", "/")
         tc.variables["SHARED_PLUGINS"] = self.options["magnum"].shared_plugins

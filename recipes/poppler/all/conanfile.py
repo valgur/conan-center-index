@@ -212,7 +212,7 @@ class PopplerConan(ConanFile):
         tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         tc.variables["ENABLE_LIBCURL"] = self.options.with_libcurl
 
-        tc.variables["POPPLER_DATADIR"] = self.deps_user_info["poppler-data"].datadir.replace("\\", "/")
+        tc.variables["POPPLER_DATADIR"] = self.conf_info.get("user.poppler-data:datadir").replace("\\", "/")
         tc.variables["FONT_CONFIGURATION"] = self.options.fontconfiguration
         tc.variables["BUILD_CPP_TESTS"] = False
         tc.variables["ENABLE_GTK_DOC"] = False
@@ -349,6 +349,6 @@ class PopplerConan(ConanFile):
                 "qt::qtWidgets",
             ]
 
-        datadir = self.deps_user_info["poppler-data"].datadir
+        datadir = self.conf_info.get("user.poppler-data:datadir")
         self.output.info("Setting POPPLER_DATADIR env var: {}".format(datadir))
         self.env_info.POPPLER_DATADIR = datadir

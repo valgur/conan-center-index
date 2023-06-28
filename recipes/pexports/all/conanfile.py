@@ -52,17 +52,13 @@ class PExportsConan(ConanFile):
         filename = "pexports.tar.xz"
         get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     @contextlib.contextmanager
     def _build_context(self):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
                 }
                 with environment_append(self, env):
                     yield

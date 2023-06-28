@@ -32,7 +32,7 @@ class TestPackageConan(ConanFile):
     def test(self):
         # TODO: to remove in conan v2
         if self._res_folder == "":
-            self._res_folder = self.deps_user_info["opentelemetry-proto"].proto_root
+            self._res_folder = self.conf_info.get("user.opentelemetry-proto:proto_root")
 
         assert os.path.isfile(
             os.path.join(self._res_folder, "opentelemetry", "proto", "common", "v1", "common.proto")

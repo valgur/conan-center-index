@@ -198,10 +198,10 @@ class LibUSBCompatConan(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
                     "LD": "link -nologo",
-                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                     "DLLTOOL": ":",
                     "OBJDUMP": ":",
                     "RANLIB": ":",
@@ -233,10 +233,10 @@ class LibUSBCompatConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
+            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
         )
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""
@@ -254,10 +254,6 @@ class LibUSBCompatConan(ConanFile):
                 "droppeddeps=yes",
                 'droppeddeps=no && func_append newdeplibs " $a_deplib"',
             )
-
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", None) or self.deps_user_info
 
     def build(self):
         self._patch_sources()

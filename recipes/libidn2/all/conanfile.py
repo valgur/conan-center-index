@@ -152,10 +152,10 @@ class LibIdn(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "LD": "{} link -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                 }
                 with environment_append(self, env):
                     yield
@@ -173,7 +173,7 @@ class LibIdn(ConanFile):
                 tc.ldflags.extend("-L{}".format(p.replace("\\", "/")) for p in dep.cpp_info.aggregated_components().libdirs)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args = [
-            "--with-libiconv-prefix={}".format(unix_path(self.dependencies["libiconv"].cpp_info.rootpath)),
+            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].cpp_info.rootpath)),
             "--disable-nls",
             "--disable-rpath",
         ]

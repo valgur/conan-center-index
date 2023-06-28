@@ -167,9 +167,9 @@ class VerilatorConan(ConanFile):
     def _build_context(self):
         if is_msvc(self):
             build_env = {
-                "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
             }
             with vcvars(self.settings):
                 with environment_append(self, build_env):
@@ -185,7 +185,7 @@ class VerilatorConan(ConanFile):
             tc.cxxflags.append("-EHsc")
             tc.defines.append("YY_NO_UNISTD_H")
             tc.cxxflags.append("-FS")
-        tc.configure_args = ["--datarootdir={}/bin/share".format(unix_path(self.package_folder))]
+        tc.configure_args = ["--datarootdir={}/bin/share".format(unix_path(self, self.package_folder))]
         yacc = get_env(self, "YACC")
         if yacc:
             if yacc.endswith(" -y"):

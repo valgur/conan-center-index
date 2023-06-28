@@ -137,7 +137,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if not cross_building(self, skip_x64_x86=True):
-            command = "{} --version".format(self.deps_user_info["cpython"].python)
+            command = "{} --version".format(self.conf_info.get("user.cpython:python"))
             buffer = StringIO()
             self.run(command, output=buffer, ignore_errors=True, run_environment=True)
             self.output.info("output: %s" % buffer.getvalue())
@@ -151,9 +151,9 @@ class TestPackageConan(ConanFile):
         tc.variables["PY_FULL_VERSION"] = self.dependencies["cpython"].ref.version
         tc.variables["PY_VERSION"] = self._py_version
         tc.variables["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
-        tc.variables["PYTHON_EXECUTABLE"] = self.deps_user_info["cpython"].python
+        tc.variables["PYTHON_EXECUTABLE"] = self.conf_info.get("user.cpython:python")
         tc.variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
-        tc.variables["Python{}_EXECUTABLE".format(py_major)] = self.deps_user_info["cpython"].python
+        tc.variables["Python{}_EXECUTABLE".format(py_major)] = self.conf_info.get("user.cpython:python")
         tc.variables["Python{}_ROOT_DIR".format(py_major)] = self.dependencies["cpython"].package_folder
         tc.variables["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
         tc.variables["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
@@ -205,7 +205,7 @@ class TestPackageConan(ConanFile):
                             setup_args.append("--debug")
                         self.run(
                             "{} {}".format(
-                                self.deps_user_info["cpython"].python,
+                                self.conf_info.get("user.cpython:python"),
                                 " ".join('"{}"'.format(a) for a in setup_args),
                             ),
                             run_environment=True,
@@ -215,7 +215,7 @@ class TestPackageConan(ConanFile):
         try:
             self.run(
                 "{} {}/test_package.py -b {} -t {} ".format(
-                    self.deps_user_info["cpython"].python, self.source_folder, self.build_folder, module
+                    self.conf_info.get("user.cpython:python"), self.source_folder, self.build_folder, module
                 ),
                 run_environment=True,
             )
@@ -241,14 +241,14 @@ class TestPackageConan(ConanFile):
     def test(self):
         if not cross_building(self, skip_x64_x86=True):
             self.run(
-                "{} -c \"print('hello world')\"".format(self.deps_user_info["cpython"].python),
+                "{} -c \"print('hello world')\"".format(self.conf_info.get("user.cpython:python")),
                 run_environment=True,
             )
 
             buffer = StringIO()
             self.run(
                 "{} -c \"import sys; print('.'.join(str(s) for s in sys.version_info[:3]))\"".format(
-                    self.deps_user_info["cpython"].python
+                    self.conf_info.get("user.cpython:python")
                 ),
                 run_environment=True,
                 output=buffer,
@@ -301,8 +301,8 @@ class TestPackageConan(ConanFile):
 
             # MSVC builds need PYTHONHOME set.
             with (
-                environment_append(self, {"PYTHONHOME": self.deps_user_info["cpython"].pythonhome})
-                if self.deps_user_info["cpython"].module_requires_pythonhome == "True"
+                environment_append(self, {"PYTHONHOME": self.conf_info.get("user.cpython:pythonhome")})
+                if self.conf_info.get("user.cpython:module_requires_pythonhome") == "True"
                 else nullcontext()
             ):
                 self.run(os.path.join("bin", "test_package"), run_environment=True)

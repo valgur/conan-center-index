@@ -146,10 +146,6 @@ class CunitConan(ConanFile):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     @contextmanager
     def _build_context(self):
         env = {}
@@ -157,9 +153,9 @@ class CunitConan(ConanFile):
             with vcvars(self.settings):
                 env.update(
                     {
-                        "AR": "{} lib".format(unix_path(self._user_info_build["automake"].ar_lib)),
-                        "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                        "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
+                        "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:lib-wrapper"))),
+                        "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                        "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
                         "NM": "dumpbin -symbols",
                         "OBJDUMP": ":",
                         "RANLIB": ":",

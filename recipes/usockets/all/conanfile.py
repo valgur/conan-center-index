@@ -241,19 +241,19 @@ class UsocketsConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self.deps_user_info["automake"].compile)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
                     "CFLAGS": "-{}".format(self.settings.compiler.runtime),
                     "LD": "link",
                     "NM": "dumpbin -symbols",
                     "STRIP": ":",
-                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                     "RANLIB": ":",
                 }
 
                 if self.options.eventloop == "libuv":
                     env["CPPFLAGS"] = (
-                        "-I" + unix_path(self.dependencies["libuv"].cpp_info.includedirs[0]) + " "
+                        "-I" + unix_path(self, self.dependencies["libuv"].cpp_info.includedirs[0]) + " "
                     )
 
                 with environment_append(env):

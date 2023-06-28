@@ -158,10 +158,13 @@ class PlatformInterfacesConan(ConanFile):
                 "armv7": "-march=armv7",
                 "armv8": "-march=armv8-a",
             }.get(str(self.settings.arch), "")
-        self.user_info.suggested_flags = suggested_flags
+        self.conf_info.define("user.platform.hashing:suggested_flags", suggested_flags)
 
         if "-march" not in "{} {}".format(os.environ.get("CPPFLAGS", ""), os.environ.get("CXXFLAGS", "")):
             self.output.warning(
                 "platform.hashing needs to have `-march=ARCH` added to CPPFLAGS/CXXFLAGS. "
                 "A suggestion is available in deps_user_info[{name}].suggested_flags.".format(name=self.name)
             )
+
+        # TODO: to remove in conan v2
+        self.user_info.suggested_flags = suggested_flags

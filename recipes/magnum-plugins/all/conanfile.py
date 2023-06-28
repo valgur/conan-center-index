@@ -457,6 +457,7 @@ class MagnumConan(ConanFile):
                 )
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
+        self.conf_info.define("user.magnum-plugins:plugins_basepath", self.user_info.plugins_basepath)
 
     @property
     def _plugins(self):

@@ -420,4 +420,5 @@ class NCursesConan(ConanFile):
         self.output.info("Setting TERMINFO environment variable: {}".format(terminfo))
         self.env_info.TERMINFO = terminfo
 
+        self.conf_info.define("user.ncurses:lib_suffix", self._lib_suffix)
         self.user_info.lib_suffix = self._lib_suffix

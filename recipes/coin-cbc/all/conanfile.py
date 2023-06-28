@@ -138,10 +138,6 @@ class CoinCbcConan(ConanFile):
         if hasattr(self, "settings_build") and cross_building(self) and self.options.shared:
             raise ConanInvalidConfiguration("coin-cbc shared not supported yet when cross-building")
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20201022")
         self.tool_requires("pkgconf/1.7.4")
@@ -158,10 +154,10 @@ class CoinCbcConan(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                    "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                    "LD": "{} link -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                    "AR": "{} lib".format(unix_path(self._user_info_build["automake"].ar_lib)),
+                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:lib-wrapper"))),
                 }
                 with environment_append(self, env):
                     yield
@@ -189,7 +185,7 @@ class CoinCbcConan(ConanFile):
                 tc.configure_args.append("--with-pthreadsw32-lib={}".format(unix_path(self, pthreads_path)))
                 tc.configure_args.append(
                     "--with-pthreadsw32-incdir={}".format(
-                        unix_path(self.dependencies["pthreads4w"].cpp_info.includedirs[0])
+                        unix_path(self, self.dependencies["pthreads4w"].cpp_info.includedirs[0])
                     )
                 )
         tc.generate()
@@ -197,10 +193,10 @@ class CoinCbcConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
+            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
         )
         with self._build_context():
             autotools = Autotools(self)

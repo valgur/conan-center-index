@@ -36,10 +36,6 @@ class LibId3TagConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -103,10 +99,10 @@ class LibId3TagConan(ConanFile):
 
     def _build_autotools(self):
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_SUB, os.path.join(self.source_folder, "config.sub")
+            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self._user_info_build["gnu-config"].CONFIG_GUESS, os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
         )
         autotools = Autotools(self)
         autotools.make()

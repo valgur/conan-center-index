@@ -167,12 +167,12 @@ class IslConan(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "AR": "{} lib".format(unix_path(self.deps_user_info["automake"].ar_lib)),
+                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                     "CC": "{} cl -nologo -{}".format(
-                        unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime
+                        unix_path(self, self.conf_info.get("user.automake:compile")), self.settings.compiler.runtime
                     ),
                     "CXX": "{} cl -nologo -{}".format(
-                        unix_path(self.deps_user_info["automake"].compile), self.settings.compiler.runtime
+                        unix_path(self, self.conf_info.get("user.automake:compile")), self.settings.compiler.runtime
                     ),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",

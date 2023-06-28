@@ -169,10 +169,12 @@ class TarConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
+        tar_bin = os.path.join(self.package_folder, "bin", "tar")
+        self.conf_info.define("user.tar:tar", tar_bin)
+        self.env_info.TAR = tar_bin
+
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
-
-        tar_bin = os.path.join(self.package_folder, "bin", "tar")
         self.user_info.tar = tar_bin
-        self.env_info.TAR = tar_bin

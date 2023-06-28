@@ -33,10 +33,6 @@ class LibaioConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")

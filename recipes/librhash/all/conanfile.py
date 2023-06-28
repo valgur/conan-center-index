@@ -85,7 +85,7 @@ class LibRHashConan(ConanFile):
             ),
             "--disable-gettext",
             # librhash's configure script is custom and does not understand "--bindir=${prefix}/bin" arguments
-            f"--prefix={unix_path(self.package_folder)}",
+            f"--prefix={unix_path(self, self.package_folder)}",
             f"--bindir={unix_path(self, os.path.join(self.package_folder, 'bin'))}",
             f"--libdir={unix_path(self, os.path.join(self.package_folder, 'lib'))}",
             # the configure script does not use CPPFLAGS, so add it to CFLAGS/CXXFLAGS

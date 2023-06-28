@@ -25,7 +25,7 @@ class TestPackageConan(ConanFile):
             bin_ext = ".exe" if self.settings.os == "Windows" else ""
             bin_path = os.path.join(self.cpp.build.bindir, f"test_package{bin_ext}")
 
-            upx_bin = self.deps_user_info["upx"].upx
+            upx_bin = self.conf_info.get("user.upx:upx")
             self.run(f"{upx_bin} --help", env="conanrun")
 
             original_size = os.stat(bin_path).st_size

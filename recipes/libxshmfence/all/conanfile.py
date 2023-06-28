@@ -106,10 +106,6 @@ class LibxshmfenceConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -150,7 +146,7 @@ class LibxshmfenceConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(self._user_info_build["automake"].compile).replace("\\", "/")
+                    "CC": "{} cl -nologo".format(self.conf_info.get("user.automake:compile-wrapper")).replace("\\", "/")
                 }
                 with environment_append(self, env):
                     yield

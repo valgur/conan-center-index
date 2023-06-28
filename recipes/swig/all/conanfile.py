@@ -134,26 +134,18 @@ class SwigConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _user_info_build(self):
-        # If using the experimental feature with different context for host and
-        # build, the 'user_info' attributes of the 'build_requires' packages
-        # will be located into the 'user_info_build' object. In other cases they
-        # will be located into the 'deps_user_info' object.
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     @contextlib.contextmanager
     def _build_context(self):
         env = {}
         if not is_msvc(self):
-            env["YACC"] = self._user_info_build["bison"].YACC
+            env["YACC"] = self.conf_info.get("user.bison:yacc")
         if is_msvc(self):
             with vcvars(self):
                 env.update(
                     {
-                        "CC": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                        "CXX": "{} cl -nologo".format(unix_path(self._user_info_build["automake"].compile)),
-                        "AR": "{} link".format(self._user_info_build["automake"].ar_lib),
+                        "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                        "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                        "AR": "{} link".format(self.conf_info.get("user.automake:lib-wrapper")),
                         "LD": "link",
                     }
                 )

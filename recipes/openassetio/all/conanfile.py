@@ -126,7 +126,7 @@ class PackageConan(ConanFile):
     @property
     def _python_exe(self):
         # TODO: update to V2 once cpython is updated
-        return pathlib.Path(self.deps_user_info["cpython"].python).as_posix()
+        return pathlib.Path(self.conf_info.get("user.cpython:python")).as_posix()
 
     @property
     def _python_windows_lib(self):

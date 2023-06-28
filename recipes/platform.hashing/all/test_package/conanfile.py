@@ -20,7 +20,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _extra_flags(self):
-        return self.deps_user_info["platform.hashing"].suggested_flags
+        return self.conf_info.get("user.platform.hashing:suggested_flags")
 
     def validate(self):
         if not is_msvc(self):
