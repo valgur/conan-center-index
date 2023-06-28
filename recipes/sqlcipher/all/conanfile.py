@@ -258,7 +258,7 @@ class SqlcipherConan(ConanFile):
         autotools.defines.append("SQLITE_HAS_CODEC")
 
         env_vars = autotools.vars
-        tclsh_cmd = self.deps_env_info.TCLSH
+        tclsh_cmd = os.pathsep.join(dep.buildenv_info.TCLSH for dep in self.dependencies.values())
         env_vars["TCLSH_CMD"] = tclsh_cmd.replace("\\", "/")
         if self._use_commoncrypto():
             env_vars["LDFLAGS"] += " -framework Security -framework CoreFoundation "

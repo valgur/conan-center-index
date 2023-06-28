@@ -15,7 +15,7 @@ class _ProtoLibrary:
 
     def __init__(self) -> None:
         self.srcs = []
-        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
+        self.deps = {"protobuf::libprotobuf"}  # Add to all libraries even if not explicitly set
         self.is_used = True
 
     def validate(self, source_folder, all_deps):
@@ -29,7 +29,7 @@ class _ProtoLibrary:
     def dumps(self):
         import json
 
-        return json.dumps({"name": self.name, "srcs": self.srcs, "deps": list(self.deps)}, indent=4)
+        return json.dumps({"name": self.name, "srcs": self.srcs, "deps": sorted(self.deps)}, indent=4)
 
     @property
     def cmake_target(self):
@@ -59,8 +59,8 @@ class _ProtoLibrary:
                 add_library({self.cmake_target} ${{{self.cmake_target}_PROTOS}})
                 target_include_directories({self.cmake_target} PUBLIC ${{CMAKE_BINARY_DIR}})
                 target_compile_features({self.cmake_target} PUBLIC cxx_std_11)
-                protobuf_generate(LANGUAGE cpp 
-                                TARGET {self.cmake_target} 
+                protobuf_generate(LANGUAGE cpp
+                                TARGET {self.cmake_target}
                                 PROTOS ${{{self.cmake_target}_PROTOS}}
                                 IMPORT_DIRS ${{IMPORT_DIRS}}
                                 )

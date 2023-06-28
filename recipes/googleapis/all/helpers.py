@@ -13,7 +13,7 @@ class _ProtoLibrary:
 
     def __init__(self, is_cc) -> None:
         self.srcs = []
-        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
+        self.deps = {"protobuf::libprotobuf"}  # Add to all libraries even if not explicitly set
         self.is_cc = is_cc
         self.is_used = self.is_cc
 
@@ -35,7 +35,7 @@ class _ProtoLibrary:
                 "name": self.name,
                 "qname": self.qname,
                 "srcs": self.srcs,
-                "deps": list(self.deps),
+                "deps": sorted(self.deps),
                 "is_cc": self.is_cc,
             },
             indent=4,
