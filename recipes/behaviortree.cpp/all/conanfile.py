@@ -83,7 +83,7 @@ class BehaviorTreeCPPConan(ConanFile):
         if not is_msvc(self):
             minimum_version = self._minimum_compilers_version.get(str(self.info.settings.compiler), False)
             if not minimum_version:
-                self.output.warn(
+                self.output.warning(
                     f"{self.ref} requires C++{self._minimum_cppstd_required}. Your compiler is unknown."
                     f" Assuming it supports C++{self._minimum_cppstd_required}."
                 )

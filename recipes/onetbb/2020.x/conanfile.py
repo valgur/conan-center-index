@@ -147,7 +147,7 @@ class OneTBBConan(ConanFile):
                     f"{self.name} {self.version} couldn't be built by apple-clang < 8.0"
                 )
         if not self.options.shared:
-            self.output.warn("oneTBB strongly discourages usage of static linkage")
+            self.output.warning("oneTBB strongly discourages usage of static linkage")
         if self.options.tbbproxy and (not self.options.shared or not self.options.tbbmalloc):
             raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
 

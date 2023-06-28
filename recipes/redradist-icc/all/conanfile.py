@@ -154,7 +154,7 @@ class ICCConan(ConanFile):
                 "{} recipe lacks information about the {} compiler, "
                 "support for the required C++{} features is assumed"
             ).format(self.name, compiler, self._minimum_cpp_standard)
-            self.output.warn(msg)
+            self.output.warning(msg)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -946,7 +946,7 @@ class QtConan(ConanFile):
                 else:
                     args += [f"-xplatform {xplatform_val}"]
             else:
-                self.output.warn(
+                self.output.warning(
                     "host not supported: %s %s %s %s"
                     % (
                         self.settings.os,

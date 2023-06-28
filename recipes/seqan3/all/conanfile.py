@@ -123,10 +123,10 @@ class Seqan3Conan(ConanFile):
                     "SeqAn3 requires C++20, which your compiler does not fully support."
                 )
         else:
-            self.output.warn("SeqAn3 requires C++20. Your compiler is unknown. Assuming it supports C++20.")
+            self.output.warning("SeqAn3 requires C++20. Your compiler is unknown. Assuming it supports C++20.")
 
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
-            self.output.warn(
+            self.output.warning(
                 "SeqAn3 does not actively support libstdc++, consider using libstdc++11 instead."
             )
 

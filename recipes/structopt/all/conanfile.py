@@ -81,7 +81,7 @@ class StructoptConan(ConanFile):
                     )
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name)
             )
 

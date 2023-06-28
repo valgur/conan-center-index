@@ -192,7 +192,7 @@ class ImageMagicConan(ConanFile):
             self.requires("freetype/2.10.4")
         if self.options.with_djvu:
             # FIXME: missing djvu recipe
-            self.output.warn(
+            self.output.warning(
                 "There is no djvu package available on Conan (yet). This recipe will use the one present on"
                 " the system (if available)."
             )

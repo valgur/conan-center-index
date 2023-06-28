@@ -65,7 +65,7 @@ class SimpleYamlConan(ConanFile):
             )
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 "simple-yaml requires C++20. Your compiler is unknown. Assuming it fully supports C++20."
             )
         elif Version(self.settings.compiler.version) < minimum_version:

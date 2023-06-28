@@ -52,7 +52,7 @@ class PerlinnoiseConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports"
                 f" C++{self._min_cppstd}."
             )

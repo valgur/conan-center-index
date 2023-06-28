@@ -229,7 +229,7 @@ class TestPackageConan(ConanFile):
             if works:
                 raise ConanException("Module '{}' works, but should not have worked".format(module))
             else:
-                self.output.warn("Module '{}' does not work, but should have worked".format(module))
+                self.output.warning("Module '{}' does not work, but should have worked".format(module))
                 raise exception
 
     def _cpython_option(self, name):

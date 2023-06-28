@@ -114,7 +114,7 @@ class SourceLocationConan(ConanFile):
             check_min_cppstd(self, "11")
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 "source_location requires C++11. Your compiler is unknown. Assuming it supports C++11 and"
                 " required functionality."
             )

@@ -192,7 +192,7 @@ class NmosCppConan(ConanFile):
                                     "requires" if not match_private else "requires_private", []
                                 ).append(dependency.lower())
                             elif "${_IMPORT_PREFIX}/lib/" in dependency:
-                                self.output.warn(
+                                self.output.warning(
                                     f"{self.name} recipe does not handle {property_type} {dependency} (yet)"
                                 )
                             else:
@@ -203,7 +203,7 @@ class NmosCppConan(ConanFile):
                     elif property_type == "INTERFACE_COMPILE_FEATURES":
                         for property_value in property_values:
                             if property_value not in ["cxx_std_11"]:
-                                self.output.warn(
+                                self.output.warning(
                                     f"{self.name} recipe does not handle"
                                     f" {property_type} {property_value} (yet)"
                                 )
@@ -215,7 +215,7 @@ class NmosCppConan(ConanFile):
                     elif property_type == "INTERFACE_INCLUDE_DIRECTORIES":
                         for property_value in property_values:
                             if property_value not in ["${_IMPORT_PREFIX}/include"]:
-                                self.output.warn(
+                                self.output.warning(
                                     f"{self.name} recipe does not handle"
                                     f" {property_type} {property_value} (yet)"
                                 )
@@ -230,7 +230,7 @@ class NmosCppConan(ConanFile):
                             property_value = re.sub(r"^/", r"-", property_value)
                             components[component_name].setdefault("linkflags", []).append(property_value)
                     else:
-                        self.output.warn(f"{self.name} recipe does not handle {property_type} (yet)")
+                        self.output.warning(f"{self.name} recipe does not handle {property_type} (yet)")
 
         # Save components informations in json file
         with open(self._components_helper_filepath, "w", encoding="utf-8") as json_file:

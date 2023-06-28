@@ -156,7 +156,7 @@ class PopplerConan(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn("C++14 support required. Your compiler is unknown. Assuming it supports C++14.")
+            self.output.warning("C++14 support required. Your compiler is unknown. Assuming it supports C++14.")
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++14 support required, which your compiler does not support.")
 

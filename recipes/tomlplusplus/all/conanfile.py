@@ -50,7 +50,7 @@ class TomlPlusPlusConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         compiler = f"{self.settings.compiler} {self.settings.compiler.version}"
         if not min_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:

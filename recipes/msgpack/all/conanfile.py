@@ -47,7 +47,7 @@ class MsgpackConan(ConanFile):
         if self.options.header_only:
             self.options.c_api = False
             self.options.cpp_api = True
-            self.output.warn("header_only option is deprecated, prefer c_api=False and cpp_api=True")
+            self.output.warning("header_only option is deprecated, prefer c_api=False and cpp_api=True")
         self.options.rm_safe("header_only")
 
         if not self.options.c_api and not self.options.cpp_api:

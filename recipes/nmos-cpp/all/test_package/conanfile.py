@@ -49,7 +49,7 @@ class NmosCppTestPackageConan(ConanFile):
             finally:
                 registry.terminate()
             if "Adopting registered operation" not in node_out.getvalue():
-                self.output.warn(
+                self.output.warning(
                     "test_package node failed to register with nmos-cpp-registry\n"
                     "\n"
                     "nmos-cpp-registry log:\n"

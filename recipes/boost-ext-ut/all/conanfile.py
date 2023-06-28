@@ -67,11 +67,11 @@ class UTConan(ConanFile):
         if is_msvc(self):
             check_min_vs(self, "192")
             if not self.options.get_safe("disable_module", True):
-                self.output.warn("The 'disable_module' option must be enabled when using MSVC.")
+                self.output.warning("The 'disable_module' option must be enabled when using MSVC.")
         if not is_msvc(self):
             min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
             if not min_version:
-                self.output.warn(
+                self.output.warning(
                     f"{self.ref} recipe lacks information about the {self.settings.compiler} "
                     "compiler support."
                 )

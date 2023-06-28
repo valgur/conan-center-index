@@ -40,7 +40,7 @@ class Crc_CppConan(ConanFile):
         elif compiler == "apple-clang" and version >= "10":
             return True
         else:
-            self.output.warn(
+            self.output.warning(
                 "{} recipe lacks information about the {} compiler standard version support".format(
                     self.name, compiler
                 )

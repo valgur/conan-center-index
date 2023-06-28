@@ -113,7 +113,7 @@ class PranavCSV2Conan(ConanFile):
                     f"{self.name} requires C++11, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires C++11. Your compiler is unknown. Assuming it supports C++11."
             )
 

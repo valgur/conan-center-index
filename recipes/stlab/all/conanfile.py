@@ -130,7 +130,7 @@ class Stlab(ConanFile):
         else:
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if not minimum_version:
-                self.output.warn(
+                self.output.warning(
                     f"{self.ref} requires C++{self._minimum_cpp_standard}. "
                     f"Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}."
                 )

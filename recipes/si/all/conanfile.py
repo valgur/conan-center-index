@@ -125,7 +125,7 @@ class SiConan(ConanFile):
                     f" ({self.settings.compiler} {self.settings.compiler.version}) does not support."
                 )
         else:
-            self.output.warn("'si' requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warning("'si' requires C++17. Your compiler is unknown. Assuming it supports C++17.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

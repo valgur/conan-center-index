@@ -60,7 +60,7 @@ class MsixConan(ConanFile):
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         elif Version(self.settings.compiler.version) < min_version:

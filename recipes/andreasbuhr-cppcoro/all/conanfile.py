@@ -65,7 +65,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         # We can't simply check for C++20, because clang and MSVC support the coroutine TS despite not having labeled (__cplusplus macro) C++20 support
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(
+            self.output.warning(
                 "{} recipe lacks information about the {} compiler support.".format(
                     self.name, self.settings.compiler
                 )

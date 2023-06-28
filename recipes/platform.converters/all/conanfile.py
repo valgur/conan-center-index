@@ -128,7 +128,7 @@ class PlatformConvertersConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
 

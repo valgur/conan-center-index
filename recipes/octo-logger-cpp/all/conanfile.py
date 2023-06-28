@@ -72,7 +72,7 @@ class OctoLoggerCPPConan(ConanFile):
                 f"{self.name} requires C++17, which your compiler does not support."
             )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":

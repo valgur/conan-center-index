@@ -116,10 +116,10 @@ class So5extraConan(ConanFile):
         }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
             )
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires a compiler that supports at least C++{minimal_cpp_standard}"
             )
             return

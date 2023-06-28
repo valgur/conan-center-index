@@ -187,7 +187,7 @@ class SwigConan(ConanFile):
         host, build = None, None
 
         if is_msvc(self):
-            self.output.warn("Visual Studio compiler cannot create ccache-swig. Disabling ccache-swig.")
+            self.output.warning("Visual Studio compiler cannot create ccache-swig. Disabling ccache-swig.")
             args.append("--disable-ccache")
             autotools.flags.append("-FS")
             # MSVC canonical names aren't understood

@@ -94,7 +94,7 @@ class DjinniSuppotLib(ConanFile):
 
     def validate(self):
         if self.options.target != "deprecated":
-            self.output.warn(
+            self.output.warning(
                 "The 'target' option is deprecated and will be removed soon. "
                 "Use 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options instead."
             )
@@ -132,7 +132,7 @@ class DjinniSuppotLib(ConanFile):
                     "This package requires c++17 support. The current compiler does not support it."
                 )
         except KeyError:
-            self.output.warn(
+            self.output.warning(
                 "This recipe has no support for the current compiler. Please consider adding it."
             )
 

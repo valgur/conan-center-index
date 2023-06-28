@@ -124,7 +124,7 @@ class MqttCPPConan(ConanFile):
                     "{} requires C++14, which your compiler does not support.".format(self.name)
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name)
             )
 

@@ -102,7 +102,7 @@ class LibsodiumConan(ConanFile):
                 tc.extra_ldflags.append("-lssp")
             if self.settings.os == "Emscripten":
                 # FIXME: this is an old comment/test, has not been re-tested with conan2 upgrade
-                self.output.warn("os=Emscripten is not tested/supported by this recipe")
+                self.output.warning("os=Emscripten is not tested/supported by this recipe")
                 # FIXME: ./dist-build/emscripten.sh does not respect options of this recipe
             tc.generate()
 

@@ -93,7 +93,7 @@ class ElfutilsConan(ConanFile):
                     f"Compiler {self.settings.compiler} not supported. elfutils only supports gcc"
                 )
         if self.settings.compiler != "gcc":
-            self.output.warn(f"Compiler {self.settings.compiler} is not gcc.")
+            self.output.warning(f"Compiler {self.settings.compiler} is not gcc.")
 
     def build_requirements(self):
         self.build_requires("automake/1.16.4")

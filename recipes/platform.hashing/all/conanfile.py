@@ -126,7 +126,7 @@ class PlatformInterfacesConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
 
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
 
@@ -161,7 +161,7 @@ class PlatformInterfacesConan(ConanFile):
         self.user_info.suggested_flags = suggested_flags
 
         if "-march" not in "{} {}".format(os.environ.get("CPPFLAGS", ""), os.environ.get("CXXFLAGS", "")):
-            self.output.warn(
+            self.output.warning(
                 "platform.hashing needs to have `-march=ARCH` added to CPPFLAGS/CXXFLAGS. "
                 "A suggestion is available in deps_user_info[{name}].suggested_flags.".format(name=self.name)
             )

@@ -129,7 +129,7 @@ class SeqanConan(ConanFile):
                     "seqan requires C++14, which your compiler does not fully support."
                 )
         else:
-            self.output.warn("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
+            self.output.warning("seqan requires C++14. Your compiler is unknown. Assuming it supports C++14.")
 
     def layout(self):
         pass

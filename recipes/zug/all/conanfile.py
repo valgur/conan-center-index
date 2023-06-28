@@ -193,7 +193,7 @@ class ZugConan(ConanFile):
 
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
-            self.output.warn("Unknown compiler, assuming it supports at least C++14")
+            self.output.warning("Unknown compiler, assuming it supports at least C++14")
             return
 
         version = Version(self.settings.compiler.version)

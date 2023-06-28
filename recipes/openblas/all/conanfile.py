@@ -57,7 +57,7 @@ class OpenblasConan(ConanFile):
         tc = CMakeToolchain(self)
 
         if self.options.build_lapack:
-            self.output.warn("Building with lapack support requires a Fortran compiler.")
+            self.output.warning("Building with lapack support requires a Fortran compiler.")
         tc.variables["NOFORTRAN"] = not self.options.build_lapack
         tc.variables["BUILD_WITHOUT_LAPACK"] = not self.options.build_lapack
         tc.variables["DYNAMIC_ARCH"] = self.options.dynamic_arch

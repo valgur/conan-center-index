@@ -68,7 +68,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(f"{self.name} requires C++17")
         else:
-            self.output.warn("unknown compiler, assuming C++17 support")
+            self.output.warning("unknown compiler, assuming C++17 support")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

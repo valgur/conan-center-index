@@ -80,7 +80,7 @@ class OsmanipConan(ConanFile):
                     " support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.ref} requires C++{self._minimum_cpp_standard}. "
                 f"Your compiler is unknown. Assuming it supports C++{self._minimum_cpp_standard}"
             )

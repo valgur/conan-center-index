@@ -32,7 +32,7 @@ class NeargyeSemverConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, min_req_cppstd)
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} recipe lacks information about the {compiler} "
                 "compiler standard version support."
             )

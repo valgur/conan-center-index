@@ -94,7 +94,7 @@ class bxConan(ConanFile):
                         "This package requires C++14 support. The current compiler does not support it."
                     )
             except KeyError:
-                self.output.warn(
+                self.output.warning(
                     "This recipe has no checking for the current compiler. Please consider adding it."
                 )
 

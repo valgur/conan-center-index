@@ -72,7 +72,7 @@ class DatadogOpenTracingConan(ConanFile):
                     "Datadog-opentracing requires C++14, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 "Datadog-opentracing requires C++14. Your compiler is unknown. Assuming it supports C++14."
             )
 

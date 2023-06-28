@@ -64,7 +64,7 @@ class DiceTemplateLibrary(ConanFile):
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 "{} {} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(
                     self.name, self.version
                 )

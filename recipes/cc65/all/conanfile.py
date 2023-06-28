@@ -161,7 +161,7 @@ class Cc65Conan(ConanFile):
         }
         arch = str(self.settings.arch)
         if arch != "x86":
-            self.output.warn("{} detected: building x86 instead".format(self.settings.arch))
+            self.output.warning("{} detected: building x86 instead".format(self.settings.arch))
             arch = "x86"
 
         msbuild.build(

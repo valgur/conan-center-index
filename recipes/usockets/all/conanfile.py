@@ -205,7 +205,7 @@ class UsocketsConan(ConanFile):
                     f"{self.name} requires C++{cppstd}, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires C++{cppstd}. Your compiler is unknown. Assuming it supports"
                 f" C++{cppstd}."
             )

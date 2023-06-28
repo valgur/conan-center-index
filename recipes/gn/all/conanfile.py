@@ -120,7 +120,7 @@ class GnConan(ConanFile):
                 ):
                     raise ConanInvalidConfiguration("gn requires a compiler supporting c++17")
             else:
-                self.output.warn(
+                self.output.warning(
                     "gn recipe does not recognize the compiler. gn requires a compiler supporting c++17."
                     " Assuming it does."
                 )

@@ -166,7 +166,7 @@ class OpenFstConan(ConanFile):
                     f"{self.name} requires c++17, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your"
                 " compiler supports c++17."
             )

@@ -43,7 +43,7 @@ class PRanavGlobConan(ConanFile):
                     f"{self.name} requires C++17, which your compiler does not support."
                 )
         else:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
             )
 

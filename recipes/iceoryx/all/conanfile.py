@@ -86,10 +86,10 @@ class IceoryxConan(ConanFile):
             if version < "9" and compiler.get_safe("libcxx") == "libstdc++":
                 raise ConanInvalidConfiguration("gcc < 9 with libstdc++ not supported")
             if version == "6":
-                self.output.warn(
+                self.output.warning(
                     "Iceoryx package is compiled with gcc 6, it is recommended to use 7 or higher"
                 )
-                self.output.warn("GCC 6 will build with warnings.")
+                self.output.warning("GCC 6 will build with warnings.")
         elif compiler == "clang":
             if compiler.get_safe("libcxx") == "libstdc++":
                 raise ConanInvalidConfiguration("clang with libstdc++ not supported")

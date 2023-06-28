@@ -84,7 +84,7 @@ class SkyrUrlConan(ConanFile):
             check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:

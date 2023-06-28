@@ -276,7 +276,7 @@ class CPythonConan(ConanFile):
                 )
             if self._is_py2:
                 if self.settings.compiler.version >= Version(self, "14"):
-                    self.output.warn(
+                    self.output.warning(
                         "Visual Studio versions 14 and higher were never officially supported by the CPython"
                         " developers"
                     )

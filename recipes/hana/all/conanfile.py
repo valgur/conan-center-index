@@ -47,7 +47,7 @@ class HanaConan(ConanFile):
             check_min_cppstd(self, "14")
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warn(
+            self.output.warning(
                 f"{self.name} {self.version} requires C++14. Your compiler is unknown. "
                 "Assuming it supports C++14."
             )

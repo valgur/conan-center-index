@@ -76,7 +76,7 @@ class WasmtimeConan(ConanFile):
                 f"{self.name} recipe lacks information about the {compiler} compiler, "
                 f"support for the required C{self._minimum_cpp_standard} features is assumed"
             )
-            self.output.warn(msg)
+            self.output.warning(msg)
 
         try:
             self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)]
