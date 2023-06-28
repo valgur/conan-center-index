@@ -130,5 +130,8 @@ class RotorConan(ConanFile):
             self.cpp_info.components["thread"].libs = ["rotor_thread"]
             self.cpp_info.components["thread"].requires = ["core"]
 
+        self.cpp_info.set_property("cmake_file_name", "rotor")
+        self.cpp_info.set_property("cmake_target_name", "rotor")
+
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "rotor"

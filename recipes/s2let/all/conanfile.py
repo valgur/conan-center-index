@@ -75,8 +75,12 @@ class S2let(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "s2let"
-        self.cpp_info.names["cmake_find_package_multi"] = "s2let"
+        self.cpp_info.set_property("cmake_file_name", "s2let")
+        self.cpp_info.set_property("cmake_target_name", "s2let")
         self.cpp_info.libs = ["s2let"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "s2let"
+        self.cpp_info.names["cmake_find_package_multi"] = "s2let"

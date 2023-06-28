@@ -100,12 +100,16 @@ class HanaConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.builddirs.append(self._module_subfolder)
 
+        self.cpp_info.set_property("cmake_file_name", "Hana")
+        self.cpp_info.set_property("cmake_target_name", "hana")
+        self.cpp_info.set_property("pkg_config_name", "hana")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Hana"
         self.cpp_info.filenames["cmake_find_package_multi"] = "Hana"
         self.cpp_info.names["cmake_find_package"] = "hana"
         self.cpp_info.names["cmake_find_package_multi"] = "hana"
-        self.cpp_info.builddirs.append(self._module_subfolder)
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.set_property("pkg_config_name", "hana")

@@ -77,5 +77,9 @@ class RectangleBinPackConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["RectangleBinPack"]
+        self.cpp_info.set_property("cmake_file_name", "RectangleBinPack")
+        self.cpp_info.set_property("cmake_target_name", "RectangleBinPack")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "RectangleBinPack"
         self.cpp_info.names["cmake_find_package_multi"] = "RectangleBinPack"

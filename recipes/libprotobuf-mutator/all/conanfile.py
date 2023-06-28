@@ -108,8 +108,12 @@ class LibProtobufMutatorConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"
-        self.cpp_info.names["cmake_find_package_multi"] = "libprotobuf-mutator"
+        self.cpp_info.set_property("cmake_file_name", "libprotobuf-mutator")
+        self.cpp_info.set_property("cmake_target_name", "libprotobuf-mutator")
 
         self.cpp_info.libs = ["protobuf-mutator-libfuzzer", "protobuf-mutator"]
         self.cpp_info.includedirs.append(os.path.join("include", "libprotobuf-mutator"))
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"
+        self.cpp_info.names["cmake_find_package_multi"] = "libprotobuf-mutator"

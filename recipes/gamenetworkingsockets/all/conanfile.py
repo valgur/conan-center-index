@@ -113,8 +113,8 @@ class GameNetworkingSocketsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "GameNetworkingSockets"
-        self.cpp_info.names["cmake_find_package_multi"] = "GameNetworkingSockets"
+        self.cpp_info.set_property("cmake_file_name", "GameNetworkingSockets")
+        self.cpp_info.set_property("cmake_target_name", "GameNetworkingSockets")
         self.cpp_info.set_property("pkg_config_name", "GameNetworkingSockets")
         self.cpp_info.includedirs.append(os.path.join("include", "GameNetworkingSockets"))
         if self.options.shared:
@@ -135,3 +135,8 @@ class GameNetworkingSocketsConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "crypt32", "winmm"]
             if self.options.encryption == "bcrypt":
                 self.cpp_info.system_libs += ["bcrypt"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "GameNetworkingSockets"
+        self.cpp_info.names["cmake_find_package_multi"] = "GameNetworkingSockets"
+

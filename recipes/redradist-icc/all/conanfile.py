@@ -176,8 +176,8 @@ class ICCConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "icc"
-        self.cpp_info.names["cmake_find_package_multi"] = "icc"
+        self.cpp_info.set_property("cmake_file_name", "icc")
+        self.cpp_info.set_property("cmake_target_name", "icc")
         if self.options.shared:
             self.cpp_info.libs = ["ICC"]
         else:
@@ -187,3 +187,7 @@ class ICCConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "wsock32"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "icc"
+        self.cpp_info.names["cmake_find_package_multi"] = "icc"

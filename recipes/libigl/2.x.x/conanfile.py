@@ -141,10 +141,8 @@ class LibiglConan(ConanFile):
             rm(self, "*.cpp", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.filenames["cmake_find_package"] = "libigl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libigl"
-        self.cpp_info.names["cmake_find_package"] = "igl"
-        self.cpp_info.names["cmake_find_package_multi"] = "igl"
+        self.cpp_info.set_property("cmake_file_name", "libigl")
+        self.cpp_info.set_property("cmake_target_name", "igl")
 
         self.cpp_info.components["igl_common"].names["cmake_find_package"] = "common"
         self.cpp_info.components["igl_common"].names["cmake_find_package_multi"] = "common"
@@ -159,3 +157,9 @@ class LibiglConan(ConanFile):
         if not self.options.header_only:
             self.cpp_info.components["igl_core"].libs = ["igl"]
             self.cpp_info.components["igl_core"].defines.append("IGL_STATIC_LIBRARY")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.filenames["cmake_find_package"] = "libigl"
+        self.cpp_info.filenames["cmake_find_package_multi"] = "libigl"
+        self.cpp_info.names["cmake_find_package"] = "igl"
+        self.cpp_info.names["cmake_find_package_multi"] = "igl"

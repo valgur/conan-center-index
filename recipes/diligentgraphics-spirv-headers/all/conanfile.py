@@ -60,5 +60,9 @@ class SpirvheadersConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        self.cpp_info.set_property("cmake_file_name", "SPIRV-Headers")
+        self.cpp_info.set_property("cmake_target_name", "SPIRV-Headers")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "SPIRV-Headers"
         self.cpp_info.names["cmake_find_package_multi"] = "SPIRV-Headers"

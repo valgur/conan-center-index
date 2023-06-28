@@ -94,6 +94,8 @@ class DiceTemplateLibrary(ConanFile):
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_target_name", self.name)
-        self.cpp_info.set_property("cmake_target_aliases", ["{0}::{0}".format(self.name)])
+        self.cpp_info.set_property("cmake_target_aliases", [f"{self.name}::{self.name}"])
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = self.name
         self.cpp_info.names["cmake_find_package_multi"] = self.name

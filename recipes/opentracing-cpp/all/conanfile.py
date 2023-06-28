@@ -78,8 +78,8 @@ class OpenTracingConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "OpenTracing"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenTracing"
+        self.cpp_info.set_property("cmake_file_name", "OpenTracing")
+        self.cpp_info.set_property("cmake_target_name", "OpenTracing")
 
         target_suffix = "" if self.options.shared else "-static"
         lib_suffix = "" if self.options.shared or self.settings.os != "Windows" else "-static"
@@ -108,3 +108,7 @@ class OpenTracingConan(ConanFile):
                 self.cpp_info.components["opentracing_mocktracer"].defines.append(
                     "OPENTRACING_MOCK_TRACER_STATIC"
                 )
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "OpenTracing"
+        self.cpp_info.names["cmake_find_package_multi"] = "OpenTracing"

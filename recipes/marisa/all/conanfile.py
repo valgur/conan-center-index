@@ -74,13 +74,16 @@ class MarisaConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "marisa"
-        self.cpp_info.names["cmake_find_package_multi"] = "marisa"
-        self.cpp_info.names["pkgconfig"] = "marisa"
+        self.cpp_info.set_property("cmake_file_name", "marisa")
+        self.cpp_info.set_property("cmake_target_name", "marisa")
+        self.cpp_info.set_property("pkg_config_name", "marisa")
         self.cpp_info.libs = ["marisa"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]
 
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH env var with : '{bin_path}'")
         self.env_info.PATH.append(bin_path)
+        self.cpp_info.names["cmake_find_package"] = "marisa"
+        self.cpp_info.names["cmake_find_package_multi"] = "marisa"

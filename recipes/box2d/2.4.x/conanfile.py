@@ -65,8 +65,12 @@ class Box2dConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "box2d"
-        self.cpp_info.names["cmake_find_package_multi"] = "box2d"
+        self.cpp_info.set_property("cmake_file_name", "box2d")
+        self.cpp_info.set_property("cmake_target_name", "box2d")
         self.cpp_info.libs = ["box2d"]
         if Version(self.version) >= "2.4.1" and self.options.shared:
             self.cpp_info.defines.append("B2_SHARED")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "box2d"
+        self.cpp_info.names["cmake_find_package_multi"] = "box2d"

@@ -74,8 +74,12 @@ class CotilaConan(ConanFile):
         copy(self, pattern="include/*", src=self.source_folder)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "cotila")
+        self.cpp_info.set_property("cmake_target_name", "cotila")
+
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "cotila"
         self.cpp_info.names["cmake_find_package_multi"] = "cotila"

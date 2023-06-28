@@ -54,6 +54,7 @@ class ValijsonConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        self.cpp_info.set_property("cmake_file_name", "ValiJSON")
         self.cpp_info.set_property("cmake_target_name", "ValiJSON::valijson")
         self.cpp_info.components["libvalijson"].set_property("cmake_target_name", "ValiJSON::valijson")
 

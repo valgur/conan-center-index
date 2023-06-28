@@ -81,13 +81,10 @@ class openfx(ConanFile):
         copy(self, "readme.md")
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "openfx"
-        self.cpp_info.names["cmake_find_package_multi"] = "openfx"
-
+        self.cpp_info.set_property("cmake_file_name", "openfx")
+        self.cpp_info.set_property("cmake_target_name", "openfx")
         self.cpp_info.set_property("cmake_build_modules", self._build_modules)
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        self.cpp_info.build_modules["cmake_find_package"] = self._build_modules
-        self.cpp_info.build_modules["cmake_find_package_multi"] = self._build_modules
 
         if self.options.shared:
             self.cpp_info.libs = ["OfxSupport"]
@@ -98,3 +95,9 @@ class openfx(ConanFile):
             self.cpp_info.system_libs.extend(["GL"])
         if self.settings.os == "Macos":
             self.cpp_info.frameworks = ["CoreFoundation", "OpenGL"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "openfx"
+        self.cpp_info.names["cmake_find_package_multi"] = "openfx"
+        self.cpp_info.build_modules["cmake_find_package"] = self._build_modules
+        self.cpp_info.build_modules["cmake_find_package_multi"] = self._build_modules

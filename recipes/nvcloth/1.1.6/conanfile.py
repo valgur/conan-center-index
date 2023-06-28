@@ -279,8 +279,8 @@ class NvclothConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "nvcloth"
-        self.cpp_info.names["cmake_find_package_multi"] = "nvcloth"
+        self.cpp_info.set_property("cmake_file_name", "nvcloth")
+        self.cpp_info.set_property("cmake_target_name", "nvcloth")
 
         if self.settings.build_type == "Debug":
             debug_suffix = "DEBUG"
@@ -292,10 +292,14 @@ class NvclothConan(ConanFile):
                 arch_suffix = "x64"
             else:
                 arch_suffix = ""
-            self.cpp_info.libs = ["NvCloth{}_{}".format(debug_suffix, arch_suffix)]
+            self.cpp_info.libs = [f"NvCloth{debug_suffix}_{arch_suffix}"]
         else:
-            self.cpp_info.libs = ["NvCloth{}".format(debug_suffix)]
+            self.cpp_info.libs = [f"NvCloth{debug_suffix}"]
 
         if not self.options.shared:
             if self.settings.os in ("FreeBSD", "Linux"):
                 self.cpp_info.system_libs.append("m")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "nvcloth"
+        self.cpp_info.names["cmake_find_package_multi"] = "nvcloth"

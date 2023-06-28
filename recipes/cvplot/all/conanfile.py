@@ -45,10 +45,15 @@ class CvPlotConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "CvPlot")
+        self.cpp_info.set_property("cmake_target_name", "CvPlot")
+        self.cpp_info.set_property("cmake_find_mode", "both")
+
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
         self.cpp_info.defines.append("CVPLOT_HEADER_ONLY")
-        self.cpp_info.set_property("cmake_find_mode", "both")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CvPlot"
         self.cpp_info.names["cmake_find_package_multi"] = "CvPlot"

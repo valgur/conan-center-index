@@ -209,10 +209,14 @@ class MicroprofileConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.names["cmake_find_package"] = self.name
-        self.cpp_info.names["cmake_find_package_multi"] = self.name
+        self.cpp_info.set_property("cmake_file_name", self.name)
+        self.cpp_info.set_property("cmake_target_name", self.name)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]
         elif self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread"]
         self.cpp_info.defines.append("MICROPROFILE_USE_CONFIG")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = self.name
+        self.cpp_info.names["cmake_find_package_multi"] = self.name

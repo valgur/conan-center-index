@@ -205,6 +205,9 @@ class AcadoConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "ACADO")
+        self.cpp_info.set_property("cmake_target_name", "ACADO")
+
         acado_template_paths = os.path.join(
             self.package_folder, "include", "acado", "code_generation", "templates"
         )
@@ -216,9 +219,6 @@ class AcadoConan(ConanFile):
         else:
             self.cpp_info.libs = ["acado_toolkit", "acado_casadi"]
 
-        self.cpp_info.names["cmake_find_package"] = "ACADO"
-        self.cpp_info.names["cmake_find_package_multi"] = "ACADO"
-
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         self.cpp_info.build_modules.append(os.path.join("lib", "cmake", "qpoases.cmake"))
 
@@ -226,3 +226,7 @@ class AcadoConan(ConanFile):
         self.cpp_info.includedirs.append(self._qpoases_sources)
         self.cpp_info.includedirs.append(os.path.join(self._qpoases_sources, "INCLUDE"))
         self.cpp_info.includedirs.append(os.path.join(self._qpoases_sources, "SRC"))
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "ACADO"
+        self.cpp_info.names["cmake_find_package_multi"] = "ACADO"

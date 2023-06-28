@@ -434,8 +434,8 @@ class Open62541Conan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "open62541"
-        self.cpp_info.names["cmake_find_package_multi"] = "open62541"
+        self.cpp_info.set_property("cmake_file_name", "open62541")
+        self.cpp_info.set_property("cmake_target_name", "open62541")
         self.cpp_info.set_property("pkg_config_name", "open62541")
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs = ["include", os.path.join("include", "open62541", "plugin")]
@@ -459,7 +459,10 @@ class Open62541Conan(ConanFile):
             self.cpp_info.system_libs.extend(["pthread", "m", "rt"])
 
         self.cpp_info.builddirs.append(self._module_subfolder)
-        # v1 legacy support for open62541Macros.cmake auto-include
+
+        # TODO: to remove in conan v2
+        self.cpp_info.names["cmake_find_package"] = "open62541"
+        self.cpp_info.names["cmake_find_package_multi"] = "open62541"
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
         self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])

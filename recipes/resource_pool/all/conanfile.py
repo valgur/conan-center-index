@@ -83,6 +83,10 @@ class ResourcePool(ConanFile):
             main_comp.system_libs.append("ws2_32")
 
         # Set up for compatibility with existing cmake configuration
+        self.cpp_info.set_property("cmake_file_name", "resource_pool")
+        self.cpp_info.set_property("cmake_target_name", "elsid")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "resource_pool"
         self.cpp_info.filenames["cmake_find_package_multi"] = "resource_pool"
         self.cpp_info.names["cmake_find_package"] = "elsid"

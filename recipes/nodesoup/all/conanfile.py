@@ -84,5 +84,9 @@ class NodesoupConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "nodesoup"))
         self.cpp_info.libs = ["nodesoup"]
+        self.cpp_info.set_property("cmake_file_name", "nodesoup")
+        self.cpp_info.set_property("cmake_target_name", "nodesoup")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "nodesoup"
         self.cpp_info.names["cmake_find_package_multi"] = "nodesoup"

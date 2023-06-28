@@ -80,8 +80,8 @@ class OisConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
 
         self.cpp_info.set_property("pkg_config_name", "OIS")
-        self.cpp_info.names["cmake_find_package"] = "OIS"
-        self.cpp_info.names["cmake_find_package_multi"] = "OIS"
+        self.cpp_info.set_property("cmake_file_name", "OIS")
+        self.cpp_info.set_property("cmake_target_name", "OIS")
 
         if self.settings.os == "Macos":
             self.cpp_info.frameworks = ["Foundation", "Cocoa", "IOKit"]
@@ -90,3 +90,7 @@ class OisConan(ConanFile):
             self.cpp_info.system_libs = ["dinput8", "dxguid"]
             if self.options.shared:
                 self.cpp_info.defines.append("OIS_DYNAMIC_LIB")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "OIS"
+        self.cpp_info.names["cmake_find_package_multi"] = "OIS"

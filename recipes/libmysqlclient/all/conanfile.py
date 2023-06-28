@@ -324,6 +324,8 @@ class LibMysqlClientCConan(ConanFile):
             rm(self, "*.so*", self.package_folder, recursive=True)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "MySQL")
+        self.cpp_info.set_property("cmake_target_name", "MySQL")
         self.cpp_info.set_property("pkg_config_name", "mysqlclient")
         self.cpp_info.libs = [
             "libmysql" if self.settings.os == "Windows" and self.options.shared else "mysqlclient"

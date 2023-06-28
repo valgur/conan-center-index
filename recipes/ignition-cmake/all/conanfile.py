@@ -94,6 +94,10 @@ class IgnitionCmakeConan(ConanFile):
         ign_cmake_file = os.path.join(base_module_path, f"cmake{version_major}", "IgnCMake.cmake")
         utils_targets_file = os.path.join(base_module_path, f"{ign_cmake_component}-utilities-targets.cmake")
 
+        self.cpp_info.set_property("cmake_file_name", ign_cmake_component)
+        self.cpp_info.set_property("cmake_target_name", ign_cmake_component)
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = ign_cmake_component
         self.cpp_info.names["cmake_find_package_multi"] = ign_cmake_component
         self.cpp_info.names["cmake_paths"] = ign_cmake_component

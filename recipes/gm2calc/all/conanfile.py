@@ -71,8 +71,12 @@ class Gm2calcConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "GM2Calc"
-        self.cpp_info.names["cmake_find_package_multi"] = "GM2Calc"
+        self.cpp_info.set_property("cmake_file_name", "GM2Calc")
+        self.cpp_info.set_property("cmake_target_name", "GM2Calc")
         self.cpp_info.set_property("pkg_config_name", "gm2calc")
         self.cpp_info.libs = ["gm2calc"]
         self.cpp_info.requires = ["boost::headers", "eigen::eigen"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "GM2Calc"
+        self.cpp_info.names["cmake_find_package_multi"] = "GM2Calc"

@@ -114,6 +114,8 @@ class ClickHouseCppConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "clickhouse-cpp-lib")
+        self.cpp_info.set_property("cmake_target_name", "clickhouse-cpp-lib")
         self.cpp_info.libs.append("clickhouse-cpp-lib")
         self.cpp_info.set_property("cmake_target_name", "clickhouse-cpp-lib::clickhouse-cpp-lib")
 
@@ -123,10 +125,11 @@ class ClickHouseCppConan(ConanFile):
             self.cpp_info.sharedlinkflags = ldflags
             self.cpp_info.system_libs.append("gcc_s")
 
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs = ["ws2_32", "wsock32"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "clickhouse-cpp"
         self.cpp_info.filenames["cmake_find_package_multi"] = "clickhouse-cpp"
         self.cpp_info.names["cmake_find_package"] = "clickhouse-cpp-lib"
         self.cpp_info.names["cmake_find_package_multi"] = "clickhouse-cpp-lib"
-
-        if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32", "wsock32"]

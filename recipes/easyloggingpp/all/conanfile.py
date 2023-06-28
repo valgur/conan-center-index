@@ -104,8 +104,8 @@ class EasyloggingppConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "easyloggingpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "easyloggingpp"
+        self.cpp_info.set_property("cmake_file_name", "easyloggingpp")
+        self.cpp_info.set_property("cmake_target_name", "easyloggingpp")
         self.cpp_info.libs = ["easyloggingpp"]
         if self.options.enable_crash_log:
             self.cpp_info.defines.append("ELPP_FEATURE_CRASH_LOG")
@@ -131,3 +131,7 @@ class EasyloggingppConan(ConanFile):
             self.cpp_info.defines.append("ELPP_DISABLE_VERBOSE_LOGS")
         if self.options.disable_trace_logs:
             self.cpp_info.defines.append("ELPP_DISABLE_TRACE_LOGS")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "easyloggingpp"
+        self.cpp_info.names["cmake_find_package_multi"] = "easyloggingpp"

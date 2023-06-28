@@ -141,6 +141,10 @@ class IgnitionMathConan(ConanFile):
         version_major = Version(self.version).major
         lib_name = f"ignition-math{version_major}"
 
+        self.cpp_info.set_property("cmake_file_name", lib_name)
+        self.cpp_info.set_property("cmake_target_name", lib_name)
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = lib_name
         self.cpp_info.names["cmake_find_package_multi"] = lib_name
         self.cpp_info.names["cmake_paths"] = lib_name

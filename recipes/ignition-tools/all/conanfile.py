@@ -107,8 +107,8 @@ class IgnitionToolsConan(ConanFile):
 
     def package_info(self):
         version_major = Version(self.version).major
-        self.cpp_info.names["cmake_find_package"] = f"ignition-tools{version_major}"
-        self.cpp_info.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
+        self.cpp_info.set_property("cmake_file_name", f"ignition-tools{version_major}")
+        self.cpp_info.set_property("cmake_target_name", f"ignition-tools{version_major}")
 
         component = self.cpp_info.components["libignition-tools"]
         component.libs = ["ignition-tools-backward"]
@@ -116,3 +116,7 @@ class IgnitionToolsConan(ConanFile):
         component.names["cmake_find_package"] = f"ignition-tools{version_major}"
         component.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
         component.set_property("pkg_config_name", f"ignition-tools{version_major}")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = f"ignition-tools{version_major}"
+        self.cpp_info.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"

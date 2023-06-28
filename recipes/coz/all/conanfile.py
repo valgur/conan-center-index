@@ -64,11 +64,15 @@ class CozConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "coz")
+        self.cpp_info.set_property("cmake_target_name", "coz")
+
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
 
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"
         self.cpp_info.filenames["cmake_find_package_multi"] = "coz-profiler"
         self.cpp_info.names["cmake_find_package"] = "coz"

@@ -161,8 +161,13 @@ class TCSBankUconfigConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        self.cpp_info.set_property("cmake_file_name", "uconfig")
+        self.cpp_info.set_property("cmake_target_name", "uconfig")
         self.cpp_info.set_property("pkg_config_name", "uconfig")
-        self.cpp_info.names["cmake_find_package"] = "uconfig"
-        self.cpp_info.names["cmake_find_package_multi"] = "uconfig"
+
         if self.options.with_rapidjson:
             self.cpp_info.defines = ["RAPIDJSON_HAS_STDSTRING=1"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "uconfig"
+        self.cpp_info.names["cmake_find_package_multi"] = "uconfig"

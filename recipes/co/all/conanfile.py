@@ -101,6 +101,10 @@ class CoConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "co")
+        self.cpp_info.set_property("cmake_target_name", "co")
         self.cpp_info.libs = ["co"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "co"
         self.cpp_info.names["cmake_find_package_multi"] = "co"

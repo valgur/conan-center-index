@@ -308,8 +308,9 @@ class CernRootConan(ConanFile):
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files
-        self.cpp_info.names["cmake_find_package"] = "ROOT"
-        self.cpp_info.names["cmake_find_package_multi"] = "ROOT"
+        self.cpp_info.set_property("cmake_file_name", "ROOT")
+        self.cpp_info.set_property("cmake_target_name", "ROOT")
+
         # See root-config --libs for a list of ordered libs
         self.cpp_info.libs = [
             "Core",
@@ -338,3 +339,7 @@ class CernRootConan(ConanFile):
             # os.path.join("lib", "cmake", "ROOTUseFile.cmake"),
         ]
         self.cpp_info.resdirs = ["res"]
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "ROOT"
+        self.cpp_info.names["cmake_find_package_multi"] = "ROOT"

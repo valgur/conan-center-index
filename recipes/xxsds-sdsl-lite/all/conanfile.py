@@ -126,8 +126,13 @@ class XXSDSSDSLLite(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        self.cpp_info.set_property("cmake_file_name", "sdsl-lite")
+        self.cpp_info.set_property("cmake_target_name", "sdsl-lite")
+        self.cpp_info.set_property("pkg_config_name", "sdsl-lite")
+
         if is_msvc(self):
             self.cpp_info.defines.append("MSVC_COMPILER")
-        self.cpp_info.names["pkgconfig"] = "sdsl-lite"
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "sdsl-lite"
         self.cpp_info.names["cmake_find_package_multi"] = "sdsl-lite"

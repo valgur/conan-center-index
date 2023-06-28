@@ -406,6 +406,10 @@ class MagnumConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "MagnumPlugins")
+        self.cpp_info.set_property("cmake_target_name", "MagnumPlugins")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "MagnumPlugins"
         self.cpp_info.names["cmake_find_package_multi"] = "MagnumPlugins"
 

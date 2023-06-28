@@ -194,11 +194,15 @@ class Libfreenect2Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "freenect2"
-        self.cpp_info.names["cmake_find_package_multi"] = "freenect2"
+        self.cpp_info.set_property("cmake_file_name", "freenect2")
+        self.cpp_info.set_property("cmake_target_name", "freenect2")
         self.cpp_info.set_property("pkg_config_name", "freenect2")
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
         elif self.settings.os == "Macos":
             self.cpp_info.frameworks.extend(["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"])
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.names["cmake_find_package"] = "freenect2"
+        self.cpp_info.names["cmake_find_package_multi"] = "freenect2"

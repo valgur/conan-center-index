@@ -109,10 +109,8 @@ class AndreasbuhrCppCoroConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.filenames["cmake_find_package"] = "cppcoro"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "cppcoro"
-        self.cpp_info.names["cmake_find_package"] = "cppcoro"
-        self.cpp_info.names["cmake_find_package_multi"] = "cppcoro"
+        self.cpp_info.set_property("cmake_file_name", "cppcoro")
+        self.cpp_info.set_property("cmake_target_name", "cppcoro")
 
         comp = self.cpp_info.components["cppcoro"]
         comp.names["cmake_find_package"] = "cppcoro"
@@ -131,3 +129,9 @@ class AndreasbuhrCppCoroConan(ConanFile):
             comp.defines.append("CPPCORO_COMPILER_SUPPORTS_SYMMETRIC_TRANSFER=1")
         elif self.settings.compiler == "clang" or self.settings.compiler == "apple-clang":
             comp.cxxflags.append("-fcoroutines-ts")
+
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.filenames["cmake_find_package"] = "cppcoro"
+        self.cpp_info.filenames["cmake_find_package_multi"] = "cppcoro"
+        self.cpp_info.names["cmake_find_package"] = "cppcoro"
+        self.cpp_info.names["cmake_find_package_multi"] = "cppcoro"
