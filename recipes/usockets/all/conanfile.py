@@ -241,8 +241,12 @@ class UsocketsConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
-                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
                     "CFLAGS": "-{}".format(self.settings.compiler.runtime),
                     "LD": "link",
                     "NM": "dumpbin -symbols",

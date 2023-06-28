@@ -198,11 +198,7 @@ class SerfConan(ConanFile):
                 + (["-fPIC"] if self.options.get_safe("fPIC") else [])
                 + autotools.flags
             ),
-            "LINKFLAGS": (
-                " ".join(sharedlinkflags)
-                + " "
-                + " ".join(self._lib_path_arg(l) for l in libdirs)
-            ),
+            "LINKFLAGS": " ".join(sharedlinkflags) + " " + " ".join(self._lib_path_arg(l) for l in libdirs),
             "CPPFLAGS": (
                 " ".join("-D{}".format(d) for d in autotools.defines)
                 + " "

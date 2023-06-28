@@ -154,9 +154,15 @@ class CoinCbcConan(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
-                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
-                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                    ),
+                    "LD": "{} link -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                    ),
                     "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:lib-wrapper"))),
                 }
                 with environment_append(self, env):
@@ -196,7 +202,8 @@ class CoinCbcConan(ConanFile):
             self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         with self._build_context():
             autotools = Autotools(self)

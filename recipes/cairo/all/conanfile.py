@@ -234,7 +234,10 @@ class CairoConan(ConanFile):
                 self.dependencies["freetype"].cpp_info.libs[0] + ".lib",
             )
             replace_in_file(
-                self, win32_common, "$(ZLIB_PATH)/lib/zlib1.lib", self.dependencies["zlib"].cpp_info.libs[0] + ".lib"
+                self,
+                win32_common,
+                "$(ZLIB_PATH)/lib/zlib1.lib",
+                self.dependencies["zlib"].cpp_info.libs[0] + ".lib",
             )
             replace_in_file(
                 self,

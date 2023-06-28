@@ -173,7 +173,8 @@ class NetSnmpConan(ConanFile):
         runtime = self.settings.compiler.runtime
         replace_in_file(self, "win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
-            f'#    pragma comment(lib, "{lib}.lib")' for lib in ssl_info.cpp_info.libs + ssl_info.cpp_info.system_libs
+            f'#    pragma comment(lib, "{lib}.lib")'
+            for lib in ssl_info.cpp_info.libs + ssl_info.cpp_info.system_libs
         )
         config = r"win32\net-snmp\net-snmp-config.h.in"
         replace_in_file(self, config, "/* Conan: system_libs */", link_lines)

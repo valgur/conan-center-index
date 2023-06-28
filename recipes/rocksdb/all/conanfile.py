@@ -275,7 +275,7 @@ class RocksDB(ConanFile):
     def package_info(self):
         cmake_target = "rocksdb-shared" if self.options.shared else "rocksdb"
         self.cpp_info.set_property("cmake_file_name", "RocksDB")
-        self.cpp_info.set_property("cmake_target_name", "RocksDB::{}".format(cmake_target))
+        self.cpp_info.set_property("cmake_target_name", f"RocksDB::{cmake_target}")
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components["librocksdb"].libs = collect_libs(self)
         if self.settings.os == "Windows":
@@ -292,9 +292,7 @@ class RocksDB(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "RocksDB"
         self.cpp_info.components["librocksdb"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["librocksdb"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["librocksdb"].set_property(
-            "cmake_target_name", "RocksDB::{}".format(cmake_target)
-        )
+        self.cpp_info.components["librocksdb"].set_property("cmake_target_name", f"RocksDB::{cmake_target}")
         if self.options.with_gflags:
             self.cpp_info.components["librocksdb"].requires.append("gflags::gflags")
         if self.options.with_snappy:

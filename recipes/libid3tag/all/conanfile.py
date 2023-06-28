@@ -102,7 +102,8 @@ class LibId3TagConan(ConanFile):
             self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         autotools = Autotools(self)
         autotools.make()

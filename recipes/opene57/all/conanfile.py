@@ -80,7 +80,9 @@ class Opene57Conan(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warning("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warning(
+                "C++17 support required. Your compiler is unknown. Assuming it supports C++17."
+            )
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 

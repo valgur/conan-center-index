@@ -57,8 +57,12 @@ class PExportsConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
-                    "LD": "{} link -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                    ),
+                    "LD": "{} link -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                    ),
                 }
                 with environment_append(self, env):
                     yield

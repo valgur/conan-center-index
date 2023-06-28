@@ -109,5 +109,5 @@ class LibCheckConan(ConanFile):
         self.cpp_info.names["pkg_config"] = "check"
         self.cpp_info.components["liblibcheck"].names["cmake_find_package"] = target
         self.cpp_info.components["liblibcheck"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["liblibcheck"].set_property("cmake_target_name", "Check::{}".format(target))
+        self.cpp_info.components["liblibcheck"].set_property("cmake_target_name", f"Check::{target}")
         self.cpp_info.components["liblibcheck"].set_property("pkg_config_name", "check")

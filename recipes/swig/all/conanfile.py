@@ -143,8 +143,12 @@ class SwigConan(ConanFile):
             with vcvars(self):
                 env.update(
                     {
-                        "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
-                        "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))),
+                        "CC": "{} cl -nologo".format(
+                            unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                        ),
+                        "CXX": "{} cl -nologo".format(
+                            unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
+                        ),
                         "AR": "{} link".format(self.conf_info.get("user.automake:lib-wrapper")),
                         "LD": "link",
                     }

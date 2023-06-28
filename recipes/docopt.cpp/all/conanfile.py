@@ -88,7 +88,7 @@ class DocoptCppConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._cmake_target: "docopt::{}".format(self._cmake_target)},
+            {self._cmake_target: f"docopt::{self._cmake_target}"},
         )
 
     @property

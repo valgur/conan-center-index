@@ -58,7 +58,9 @@ class PackioConan(ConanFile):
                     "packio requires C++17, which your compiler does not support."
                 )
         else:
-            self.output.warning("packio requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+            self.output.warning(
+                "packio requires C++17. Your compiler is unknown. Assuming it supports C++17."
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")

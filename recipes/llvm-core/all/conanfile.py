@@ -320,7 +320,7 @@ class LLVMCoreConan(ConanFile):
             alias_targets = {}
             old_alias_targets = {}
             for component, _ in components.items():
-                alias_targets[component] = "LLVM::{}".format(component)
+                alias_targets[component] = f"LLVM::{component}"
                 old_alias_targets[f"llvm-core::{component[4:].replace('LLVM', '').lower()}"] = (
                     f"LLVM::{component}"
                 )

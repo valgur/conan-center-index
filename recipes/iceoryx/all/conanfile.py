@@ -166,12 +166,12 @@ class IceoryxConan(ConanFile):
         if Version(self.version) >= "2.0.0":
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {v["target"]: "iceoryx::{}".format(k) for k, v in self._iceoryx_components["2.0.0"].items()},
+                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["2.0.0"].items()},
             )
         else:
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {v["target"]: "iceoryx::{}".format(k) for k, v in self._iceoryx_components["1.0.X"].items()},
+                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["1.0.X"].items()},
             )
 
     @property

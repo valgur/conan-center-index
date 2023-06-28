@@ -30,5 +30,7 @@ class TestPackageConan(ConanFile):
             self.run("%s %s/db %s" % (bin_path, test_env_dir, handler_bin_path), run_environment=True)
             if self.settings.os == "Windows":
                 handler_exe = "crashpad_handler.com"
-                handler_bin_path = os.path.join(self.dependencies["crashpad"].package_folder, "bin", handler_exe)
+                handler_bin_path = os.path.join(
+                    self.dependencies["crashpad"].package_folder, "bin", handler_exe
+                )
                 self.run("%s %s/db %s" % (bin_path, test_env_dir, handler_bin_path), run_environment=True)

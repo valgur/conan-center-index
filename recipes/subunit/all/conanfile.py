@@ -153,8 +153,12 @@ class SubunitConan(ConanFile):
             with vcvars(self):
                 env = {
                     "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
-                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
                     "NM": "dumpbin -symbols",
                     "OBJDUMP": ":",
                     "RANLIB": ":",

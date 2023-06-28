@@ -330,14 +330,18 @@ class OpenCascadeConan(ConanFile):
                     self,
                     occt_csf_cmake,
                     'set (CSF_fontconfig "fontconfig")',
-                    'set (CSF_fontconfig "{}")'.format(" ".join(self.dependencies["fontconfig"].cpp_info.libs)),
+                    'set (CSF_fontconfig "{}")'.format(
+                        " ".join(self.dependencies["fontconfig"].cpp_info.libs)
+                    ),
                 )
             else:
                 replace_in_file(
                     self,
                     occt_csf_cmake,
                     'set (CSF_fontconfig  "fontconfig")',
-                    'set (CSF_fontconfig  "{}")'.format(" ".join(self.dependencies["fontconfig"].cpp_info.libs)),
+                    'set (CSF_fontconfig  "{}")'.format(
+                        " ".join(self.dependencies["fontconfig"].cpp_info.libs)
+                    ),
                 )
         ## onetbb
         if self.options.with_tbb:
@@ -489,11 +493,7 @@ class OpenCascadeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._cmake_module_file_rel_path),
-            {
-                target: "OpenCASCADE::{}".format(target)
-                for module in occt_modules.values()
-                for target in module
-            },
+            {target: f"OpenCASCADE::{target}" for module in occt_modules.values() for target in module},
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

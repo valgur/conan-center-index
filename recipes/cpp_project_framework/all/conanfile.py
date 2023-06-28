@@ -58,7 +58,9 @@ class CppProjectFrameworkConan(ConanFile):
 
         min_version = self._minimum_compilers_version.get(str(compiler))
         if not min_version:
-            self.output.warning(f"{self.name} recipe lacks information about the {compiler} compiler support.")
+            self.output.warning(
+                f"{self.name} recipe lacks information about the {compiler} compiler support."
+            )
         else:
             if Version(compiler.version) < min_version:
                 raise ConanInvalidConfiguration(

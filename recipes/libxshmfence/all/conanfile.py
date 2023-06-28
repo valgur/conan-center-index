@@ -146,7 +146,9 @@ class LibxshmfenceConan(ConanFile):
         if is_msvc(self):
             with vcvars(self):
                 env = {
-                    "CC": "{} cl -nologo".format(self.conf_info.get("user.automake:compile-wrapper")).replace("\\", "/")
+                    "CC": "{} cl -nologo".format(self.conf_info.get("user.automake:compile-wrapper")).replace(
+                        "\\", "/"
+                    )
                 }
                 with environment_append(self, env):
                     yield

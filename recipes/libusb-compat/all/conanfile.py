@@ -198,8 +198,12 @@ class LibUSBCompatConan(ConanFile):
         if is_msvc(self):
             with vcvars(self.settings):
                 env = {
-                    "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
-                    "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
+                    "CC": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
+                    "CXX": "{} cl -nologo".format(
+                        unix_path(self, self.conf_info.get("user.automake:compile"))
+                    ),
                     "LD": "link -nologo",
                     "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
                     "DLLTOOL": ":",
@@ -236,7 +240,8 @@ class LibUSBCompatConan(ConanFile):
             self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
         )
         shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess")
+            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
+            os.path.join(self.source_folder, "config.guess"),
         )
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""

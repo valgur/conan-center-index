@@ -106,7 +106,7 @@ class SobjectizerConan(ConanFile):
     def package_info(self):
         cmake_target = "SharedLib" if self.options.shared else "StaticLib"
         self.cpp_info.set_property("cmake_file_name", "sobjectizer")
-        self.cpp_info.set_property("cmake_target_name", "sobjectizer::{}".format(cmake_target))
+        self.cpp_info.set_property("cmake_target_name", f"sobjectizer::{cmake_target}")
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components["_sobjectizer"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -120,5 +120,5 @@ class SobjectizerConan(ConanFile):
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["_sobjectizer"].names["cmake_find_package_multi"] = cmake_target
         self.cpp_info.components["_sobjectizer"].set_property(
-            "cmake_target_name", "sobjectizer::{}".format(cmake_target)
+            "cmake_target_name", f"sobjectizer::{cmake_target}"
         )

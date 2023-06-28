@@ -446,7 +446,7 @@ class GrpcConan(ConanFile):
         for component, values in self._grpc_components.items():
             target = values.get("lib")
             lib = values.get("lib")
-            self.cpp_info.components[component].set_property("cmake_target_name", "gRPC::{}".format(target))
+            self.cpp_info.components[component].set_property("cmake_target_name", f"gRPC::{target}")
             # actually only gpr, grpc, grpc_unsecure, grpc++ and grpc++_unsecure should have a .pc file
             self.cpp_info.components[component].set_property("pkg_config_name", target)
             self.cpp_info.components[component].libs = [lib]
