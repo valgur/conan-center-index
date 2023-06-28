@@ -343,7 +343,9 @@ class PopplerConan(ConanFile):
         if self.options.with_qt:
             qt_major = Version(self.dependencies["qt"].ref.version).major
             self.cpp_info.components["libpoppler-qt"].libs = ["poppler-qt{}".format(qt_major)]
-            self.cpp_info.components["libpoppler-qt"].set_property("pkg_config_name", "poppler-qt{}".format(qt_major))
+            self.cpp_info.components["libpoppler-qt"].set_property(
+                "pkg_config_name", "poppler-qt{}".format(qt_major)
+            )
             self.cpp_info.components["libpoppler-qt"].requires = [
                 "libpoppler",
                 "qt::qtCore",

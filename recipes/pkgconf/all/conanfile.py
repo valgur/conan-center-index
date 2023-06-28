@@ -163,6 +163,3 @@ class PkgConfConan(ConanFile):
         self.output.info("Appending AUTOMAKE_CONAN_INCLUDES env var: {}".format(automake_extra_includes))
         self.env_info.PKG_CONFIG = pkg_config
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(automake_extra_includes)
-
-        # TODO: to remove in conan v2 once pkg_config generator removed
-        if self.options.enable_lib:

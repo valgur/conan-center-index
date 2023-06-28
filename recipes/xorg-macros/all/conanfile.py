@@ -74,10 +74,8 @@ class XorgMacrosConan(ConanFile):
         rmdir(self, os.path.join(self._datarootdir, "util-macros"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("pkg_config_name", "xorg-macros")
+        self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.set_property(

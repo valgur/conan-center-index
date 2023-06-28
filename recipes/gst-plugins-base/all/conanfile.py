@@ -782,7 +782,9 @@ class GStPluginsBaseConan(ConanFile):
             "pkg_config_custom_content", pkgconfig_custom_content
         )
 
-        self.cpp_info.components["gstreamer-allocators-1.0"].set_property("pkg_config_name", "gstreamer-allocators-1.0")
+        self.cpp_info.components["gstreamer-allocators-1.0"].set_property(
+            "pkg_config_name", "gstreamer-allocators-1.0"
+        )
         self.cpp_info.components["gstreamer-allocators-1.0"].libs = ["gstallocators-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-allocators-1.0"].includedirs = [gst_include_path]
@@ -891,7 +893,9 @@ class GStPluginsBaseConan(ConanFile):
             ]
 
             if self.options.get_safe("with_egl"):
-                self.cpp_info.components["gstreamer-gl-egl-1.0"].set_property("pkg_config_name", "gstreamer-gl-egl-1.0")
+                self.cpp_info.components["gstreamer-gl-egl-1.0"].set_property(
+                    "pkg_config_name", "gstreamer-gl-egl-1.0"
+                )
                 self.cpp_info.components["gstreamer-gl-egl-1.0"].requires = ["gstreamer-gl-1.0", "egl::egl"]
 
             if self.options.get_safe("with_wayland"):
@@ -906,13 +910,17 @@ class GStPluginsBaseConan(ConanFile):
                 ]
 
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstreamer-gl-x11-1.0"].set_property("pkg_config_name", "gstreamer-gl-x11-1.0")
+                self.cpp_info.components["gstreamer-gl-x11-1.0"].set_property(
+                    "pkg_config_name", "gstreamer-gl-x11-1.0"
+                )
                 self.cpp_info.components["gstreamer-gl-x11-1.0"].requires = [
                     "gstreamer-gl-1.0",
                     "xorg::x11-xcb",
                 ]
 
-        self.cpp_info.components["gstreamer-pbutils-1.0"].set_property("pkg_config_name", "gstreamer-pbutils-1.0")
+        self.cpp_info.components["gstreamer-pbutils-1.0"].set_property(
+            "pkg_config_name", "gstreamer-pbutils-1.0"
+        )
         self.cpp_info.components["gstreamer-pbutils-1.0"].libs = ["gstpbutils-1.0"]
         self.cpp_info.components["gstreamer-pbutils-1.0"].requires = [
             "gstreamer::gstreamer-1.0",

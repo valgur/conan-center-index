@@ -92,5 +92,3 @@ class LibuclConan(ConanFile):
             self.cpp_info.defines.append("UCL_STATIC")
 
         self.cpp_info.set_property("pkg_config_name", "libucl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed

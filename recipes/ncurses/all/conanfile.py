@@ -403,7 +403,9 @@ class NCursesConan(ConanFile):
 
         if self.options.with_cxx:
             self.cpp_info.components["curses++"].libs = ["ncurses++" + self._lib_suffix]
-            self.cpp_info.components["curses++"].set_property("pkg_config_name", "ncurses++" + self._lib_suffix)
+            self.cpp_info.components["curses++"].set_property(
+                "pkg_config_name", "ncurses++" + self._lib_suffix
+            )
             self.cpp_info.components["curses++"].requires = ["libcurses"]
 
         if self._with_ticlib:

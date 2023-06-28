@@ -280,7 +280,7 @@ class SerfConan(ConanFile):
         libprefix = ""
         if self.settings.os == "Windows" and self.options.shared:
             libprefix = "lib"
-        libname = "{}serf-{}".format(libprefix, self._version_major)
+        libname = f"{libprefix}serf-{self._version_major}"
         self.cpp_info.libs = [libname]
         self.cpp_info.includedirs.append(os.path.join("include", "serf-{}".format(self._version_major)))
         self.cpp_info.set_property("pkg_config_name", libname)

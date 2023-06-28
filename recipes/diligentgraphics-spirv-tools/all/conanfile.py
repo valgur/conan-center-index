@@ -182,7 +182,9 @@ class SpirvtoolsConan(ConanFile):
     def package_info(self):
         self.cpp_info.filenames["cmake_find_package"] = "SPIRV-Tools"
         self.cpp_info.filenames["cmake_find_package_multi"] = "SPIRV-Tools"
-        self.cpp_info.set_property("pkg_config_name", "SPIRV-Tools-shared" if self.options.shared else "SPIRV-Tools")
+        self.cpp_info.set_property(
+            "pkg_config_name", "SPIRV-Tools-shared" if self.options.shared else "SPIRV-Tools"
+        )
 
         # SPIRV-Tools
         self.cpp_info.components["spirv-tools-core"].names["cmake_find_package"] = "SPIRV-Tools"

@@ -1,7 +1,5 @@
 # TODO: verify the Conan v2 migration
 
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -80,9 +78,6 @@ class UserspaceRCUConan(ConanFile):
             component_name = f"urcu{lib_type}"
             self.cpp_info.components[component_name].libs = ["urcu-common", component_name]
             self.cpp_info.components[component_name].set_property("pkg_config_name", component_name)
-            # todo Remove in Conan version 1.50.0 where these are set by default for the PkgConfigDeps generator.
-            self.cpp_info.components[component_name].includedirs = ["include"]
-            self.cpp_info.components[component_name].libdirs = ["lib"]
             if self.settings.os == "Linux":
                 self.cpp_info.components[component_name].system_libs = ["pthread"]
 

@@ -139,5 +139,3 @@ class LibnfnetlinkConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["nfnetlink"]
         self.cpp_info.set_property("pkg_config_name", "libnfnetlink")
-
-        # TODO: to remove in conan v2 once pkg_config generator is removed

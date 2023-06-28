@@ -87,11 +87,9 @@ class ZyreConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libzyre")
 
-        libname = (
-            "libzyre"
-            if Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared
-            else "zyre"
-        )
+        libname = "zyre"
+        if Version(self.version) >= "2.0.1" and is_msvc(self) and not self.options.shared:
+            libname = "libzyre"
         self.cpp_info.libs = [libname]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "dl", "rt", "m"]

@@ -148,5 +148,3 @@ class LibgdConan(ConanFile):
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed

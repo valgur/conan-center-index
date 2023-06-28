@@ -237,20 +237,22 @@ class JerryScriptStackConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.components["libjerry-port-default"].set_property("pkg_config_name", ["libjerry-port-default"])
+        self.cpp_info.components["libjerry-port-default"].set_property(
+            "pkg_config_name", ["libjerry-port-default"]
+        )
         self.cpp_info.components["libjerry-port-default"].libs = ["jerry-port-default"]
 
         if self._jerry_math:
             mathlibname = "jerry-libm" if Version(self.version) < "2.4.0" else "jerry-math"
-            self.cpp_info.components["libjerry-math"].set_property("pkg_config_name", "lib{}".format(mathlibname))
+            self.cpp_info.components["libjerry-math"].set_property("pkg_config_name", f"lib{mathlibname}")
             self.cpp_info.components["libjerry-math"].libs = [mathlibname]
             self.cpp_info.components["libjerry-math"].requires = ["libjerry-port-default"]
             self.cpp_info.components["libjerry-core"].requires.append("libjerry-math")
 
         if Version(self.version) < "2.4.0":
-            self.cpp_info.components["libjerry-port-default-minimal"].set_property("pkg_config_name", [)
-                "libjerry-port-default-minimal"
-            ]
+            self.cpp_info.components["libjerry-port-default-minimal"].set_property(
+                "pkg_config_name", "libjerry-port-default-minimal"
+            )
             self.cpp_info.components["libjerry-port-default-minimal"].libs = ["jerry-port-default-minimal"]
             self.cpp_info.components["libjerry-port-default"].requires.append("libjerry-port-default-minimal")
 
