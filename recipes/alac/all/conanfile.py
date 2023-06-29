@@ -75,5 +75,5 @@ class AlacConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libs = ["alac"]
 
-        if Version(conan_version).major < 2 and self.options.utility:
+        if conan_version.major < 2 and self.options.utility:
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

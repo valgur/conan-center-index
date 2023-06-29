@@ -161,6 +161,6 @@ class XercesCConan(ConanFile):
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
 
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             self.cpp_info.names["cmake_find_package"] = "XercesC"
             self.cpp_info.names["cmake_find_package_multi"] = "XercesC"

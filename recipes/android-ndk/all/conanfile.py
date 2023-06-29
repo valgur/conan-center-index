@@ -373,7 +373,7 @@ class AndroidNDKConan(ConanFile):
         )
 
         # TODO: conan v1 stuff to remove later
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             self.env_info.PATH.extend(
                 [os.path.join(self.package_folder, "bin"), os.path.join(self._ndk_root, "bin")]
             )

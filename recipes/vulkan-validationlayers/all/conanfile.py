@@ -115,7 +115,7 @@ class VulkanValidationLayersConan(ConanFile):
     def requirements(self):
         self.requires("robin-hood-hashing/3.11.5")
         self.requires(self._require("spirv-headers"))
-        if Version(conan_version).major < "2":
+        if conan_version.major < 2:
             # TODO: set private=True, once the issue is resolved https://github.com/conan-io/conan/issues/9390
             self.requires(self._require("spirv-tools"), private=not hasattr(self, "settings_build"))
         else:

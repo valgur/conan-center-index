@@ -72,7 +72,7 @@ class GlpkConan(ConanFile):
         if is_msvc(self):
             tc.extra_defines.append("__WOE__")
         if (
-            Version(conan_version).major < "2"
+            conan_version.major < 2
             and is_msvc(self)
             and Version(self.settings.compiler.version) >= "12"
         ) or (self.settings.compiler == "msvc" and Version(self.settings.compiler.version) >= "180"):

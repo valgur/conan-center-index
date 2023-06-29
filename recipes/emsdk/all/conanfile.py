@@ -196,7 +196,7 @@ class EmSDKConan(ConanFile):
             os.path.join("bin", "upstream", "lib", "cmake", "llvm"),
         ]
 
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             self.env_info.PATH.extend(self._paths)
             self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = toolchain
             self.env_info.EMSDK = self._emsdk

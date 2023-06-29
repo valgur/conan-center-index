@@ -620,7 +620,7 @@ class OpenSSLConan(ConanFile):
 
                 args.extend(['--with-zlib-include="%s"' % include_path, '--with-zlib-lib="%s"' % lib_path])
 
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             possible_values = self.options.values.fields
         else:
             possible_values = self.options.possible_values

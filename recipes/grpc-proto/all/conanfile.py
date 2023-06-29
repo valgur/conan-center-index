@@ -46,7 +46,7 @@ class GRPCProto(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-            if Version(conan_version) < "2.0.0":
+            if conan_version.major < 2:
                 self.options["protobuf"].shared = True
                 self.options["googleapis"].shared = True
             else:

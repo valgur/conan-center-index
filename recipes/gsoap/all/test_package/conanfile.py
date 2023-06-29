@@ -32,7 +32,7 @@ class TestPackageConan(ConanFile):
         calc_wsdl = os.path.join(self.source_folder, "calc.wsdl")
         self.output.info(f"Generating code from WSDL '{calc_wsdl}'")
         self.run(f"wsdl2h -o calc.h {calc_wsdl}")
-        if Version(conan_version).major < "2":
+        if conan_version.major < "2":
             # conan v1 limitation: self.dependencies is not defined in build() method of test package
             import_dir = os.path.join(self.dependencies["gsoap"].package_folder, "bin", "import")
         else:

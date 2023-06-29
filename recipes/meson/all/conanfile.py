@@ -77,5 +77,5 @@ class MesonConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = []
 
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             self.env_info.PATH.append(meson_root)

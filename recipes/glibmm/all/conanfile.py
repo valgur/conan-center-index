@@ -68,7 +68,7 @@ class GlibmmConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.shared:
-            wildcard = "" if Version(conan_version) < "2.0.0" else "/*"
+            wildcard = "" if conan_version.major < 2 else "/*"
             self.options[f"glib{wildcard}"].shared = True
 
     def layout(self):

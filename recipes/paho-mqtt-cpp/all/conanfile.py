@@ -45,7 +45,7 @@ class PahoMqttCppConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-        suffix = "" if Version(conan_version).major < "2" else "/*"
+        suffix = "" if conan_version.major < "2" else "/*"
         self.options[f"paho-mqtt-c{suffix}"].shared = self.options.shared
 
         # TODO: deprecated option, to remove in few months

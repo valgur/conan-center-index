@@ -53,6 +53,6 @@ class NinjaConan(ConanFile):
         self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2
-        if Version(conan_version).major < 2:
+        if conan_version.major < 2:
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
             self.env_info.CONAN_CMAKE_GENERATOR = "Ninja"
