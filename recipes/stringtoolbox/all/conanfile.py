@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
+import os
 
 required_conan_version = ">=1.52.0"
 
@@ -28,14 +27,14 @@ class DawHeaderLibrariesConan(ConanFile):
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, "11")
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE*", "licenses", self.source_folder)
-        copy(self, "stringtoolbox.hpp", "include", self.source_folder)
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "stringtoolbox.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

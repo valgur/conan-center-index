@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -30,14 +28,18 @@ class CtmlLibrariesConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE*", "licenses", self.source_folder)
-        copy(self, "ctml.hpp", "include", os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "ctml.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
@@ -46,6 +48,7 @@ class CtmlLibrariesConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "CTML")
         self.cpp_info.set_property("cmake_target_name", "CTML::CTML")
 
+        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "CTML"
         self.cpp_info.filenames["cmake_find_package_multi"] = "CTML"
         self.cpp_info.names["cmake_find_package"] = "CTML"

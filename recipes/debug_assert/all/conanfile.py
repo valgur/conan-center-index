@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -22,9 +20,9 @@ class DebugAssert(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    def configure(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+    @property
+    def _min_cppstd(self):
+        return 11
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -32,17 +30,20 @@ class DebugAssert(ConanFile):
     def package_id(self):
         self.info.clear()
 
+    def validate(self):
+        if self.settings.get_safe("compiler.cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*LICENSE", dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
-        copy(
-            self,
-            "debug_assert.hpp",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include/"),
-        )
+        copy(self, "*LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder, keep_path=False)
+        copy(self, "debug_assert.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -4,4 +4,4 @@ project(test_package LANGUAGES C)
 find_package(cute_headers REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.c)
-target_link_libraries(${PROJECT_NAME} cute_headers::cute_headers)
+target_link_libraries(${PROJECT_NAME} PRIVATE cute_headers::cute_headers)

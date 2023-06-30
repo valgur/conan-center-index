@@ -4,5 +4,5 @@ project(test_package LANGUAGES CXX)
 find_package(cppcmd REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE cppcmd::cppcmd)
+target_link_libraries(${PROJECT_NAME} cppcmd::cppcmd)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

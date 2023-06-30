@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -38,19 +36,17 @@ class WglextConan(ConanFile):
     def source(self):
         download(self, filename="wglext.h", **self.conan_data["sources"][self.version])
 
-    def package(self):
-        copy(
-            self,
-            pattern="wglext.h",
-            dst=os.path.join(self.package_folder, "include", "GL"),
-            src=self.source_folder,
-        )
+    def _extract_license(self):
         license_data = load(self, os.path.join(self.source_folder, "wglext.h"))
         begin = license_data.find("/*") + len("/*")
         end = license_data.find("*/")
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
+
+    def package(self):
+        self._extract_license()
+        copy(self, pattern="wglext.h", dst=os.path.join(self.package_folder, "include", "GL"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

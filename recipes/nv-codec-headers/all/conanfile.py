@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -45,29 +43,25 @@ class FFNvEncHeaders(ConanFile):
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)
-        autotools.configure()
         with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.make()
 
     def _extract_license(self):
         # Extract the License/s from the header to a file
         tmp = load(self, os.path.join(self.source_folder, "include", "ffnvcodec", "nvEncodeAPI.h"))
-        license_contents = tmp[
-            2 : tmp.find("*/", 1)
-        ]  # The license begins with a C comment /* and ends with */
+        license_contents = tmp[2 : tmp.find("*/", 1)]  # The license begins with a C comment /* and ends with */
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
         self._extract_license()
-        autotools = Autotools(self)
-        autotools.install()
-        with chdir(self, os.path.join(self.build_folder, self.source_folder)):
-            autotools.install(args=["PREFIX={}".format(self.package_folder)])
-
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install(args=["PREFIX=/"])
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+
         self.cpp_info.set_property("pkg_config_name", "ffnvcodec")

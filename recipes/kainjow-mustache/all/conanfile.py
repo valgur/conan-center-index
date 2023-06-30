@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -31,15 +29,19 @@ class KainjowMustacheConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "mustache.hpp", dst=os.path.join("include", "kainjow"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "mustache.hpp",
+             dst=os.path.join(self.package_folder, "include", "kainjow"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "kainjow_mustache")
-        self.cpp_info.set_property("cmake_target_name", "kainjow_mustache")
+        self.cpp_info.set_property("cmake_target_name", "kainjow_mustache::kainjow_mustache")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "kainjow_mustache"

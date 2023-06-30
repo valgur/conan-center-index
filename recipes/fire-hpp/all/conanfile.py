@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 
 required_conan_version = ">=1.52.0"
@@ -20,7 +18,6 @@ class FireHppConan(ConanFile):
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
 
     def configure(self):
         if self.settings.compiler.cppstd:
@@ -41,8 +38,10 @@ class FireHppConan(ConanFile):
         tc.variables["FIRE_UNIT_TESTS"] = False
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def package(self):
         cmake = CMake(self)
