@@ -1,24 +1,35 @@
 #!/bin/bash
+set -e
 
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 migrated_root=$HOME/tmp/conan/recipes
-git checkout upstream/master
+
+git checkout mass-migration
+
+# Remove untracked files in recipes/
+git ls-files --others --exclude-standard | grep recipes/ | xargs rm -rf
+
+# Copy recipes to $migrated_root
+rm -rf "$migrated_root"
+cp recipes -rf "$migrated_root"
+
+git switch master
+git reset --hard upstream/master
 for recipe_dir in recipes/*; do
     recipe=$(basename $recipe_dir)
     echo
     echo -e "${BLUE}Migrating $recipe${NC}"
-    git checkout upstream/master
+    git switch master
     git branch -D "migrate/$recipe"
     git checkout -b "migrate/$recipe"
-    black -l 110 --preview --quiet "$recipe_dir"
-    git add "$recipe_dir"
-    git commit -m "$recipe: autoformat"
+#    black -l 110 --preview --quiet "$recipe_dir"
+#    git add "$recipe_dir"
+#    git commit -m "$recipe: autoformat"
     rm -rf "$recipe_dir"
     cp -r "$migrated_root/$recipe" "$recipe_dir"
-    git add "$recipe_dir"
-    git commit -m "$recipe: migrate to Conan v2"
+    git add "$recipe_dir" && git commit -m "$recipe: migrate to Conan v2" || true
 done
 
-git switch -c upstream/master
+git switch master
