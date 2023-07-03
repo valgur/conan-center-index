@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.6)
-project(PackageTest CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-find_package(armadillo REQUIRED)
-
-add_executable(example ../test_package/src/example.cpp)
-target_link_libraries(example armadillo::armadillo)
-set_property(TARGET example PROPERTY CXX_STANDARD 11)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

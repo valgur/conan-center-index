@@ -1,12 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(PackageTest)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(KEEP_RPATHS)
+conan_basic_setup(TARGETS)
 
-add_executable(example example.c)
-target_link_libraries(example ${CONAN_LIBS})
-
-add_executable(example2 example2.cpp)
-target_link_libraries(example2 ${CONAN_LIBS})
-target_compile_features(example2 PRIVATE cxx_std_17)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
-project(opene57_example CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-find_package(opene57 REQUIRED CONFIG)
-
-add_executable(${PROJECT_NAME} example.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE opene57::opene57)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

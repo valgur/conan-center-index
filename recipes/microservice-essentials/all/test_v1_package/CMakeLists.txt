@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
-find_package(microservice-essentials REQUIRED)
-
-add_executable(test_package main.cpp)
-target_link_libraries(test_package microservice-essentials::microservice-essentials)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

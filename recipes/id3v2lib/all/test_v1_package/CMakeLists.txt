@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package LANGUAGES C)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-find_package(id3v2lib REQUIRED CONFIG)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
-add_executable(${PROJECT_NAME} test_package.c)
-target_link_libraries(${PROJECT_NAME} PRIVATE id3v2lib::id3v2lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

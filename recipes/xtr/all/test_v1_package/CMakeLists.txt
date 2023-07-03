@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-set(CMAKE_CXX_STANDARD 20)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-find_package(xtr REQUIRED)
-
-add_executable(${PROJECT_NAME} example.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE xtr::xtr)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

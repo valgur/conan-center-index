@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.8)
-project(test_package LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-find_package(lefticus-tools REQUIRED CONFIG)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
-add_executable(${CMAKE_PROJECT_NAME} test_package.cpp)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE lefticus::tools)
-target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_20)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

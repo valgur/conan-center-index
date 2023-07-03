@@ -1,12 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(test_package C)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-find_package(Libwebsockets REQUIRED CONFIG)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
-add_executable(${PROJECT_NAME} test_package.c)
-if(TARGET websockets_shared)
-  target_link_libraries(${PROJECT_NAME} websockets_shared)
-else()
-  target_link_libraries(${PROJECT_NAME} websockets)
-endif()
-set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

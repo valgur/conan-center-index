@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-project(PackageTest C)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-find_package(detools REQUIRED CONFIG)
-
-add_executable(test_package test_package.c)
-target_link_libraries(test_package detools::detools)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

@@ -4,17 +4,5 @@ project(test_package)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-if (${MSVC})
-    set(CMAKE_CXX_STANDARD 17)
-else() 
-    set(CMAKE_CXX_STANDARD 14)
-endif()
-
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(iceoryx REQUIRED CONFIG)
-
-add_executable(test_package main.cpp)
-target_link_libraries(test_package  iceoryx_posh::iceoryx_posh
-                            iceoryx_posh::iceoryx_posh_roudi
-)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

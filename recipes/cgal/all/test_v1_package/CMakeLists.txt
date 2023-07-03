@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
-project(test_package LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
-find_package(CGAL REQUIRED)
-find_package(Eigen3 REQUIRED)
-include(CGAL_Eigen3_support)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
-add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE CGAL::CGAL)
-target_link_libraries(${PROJECT_NAME} PRIVATE CGAL::Eigen3_support)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)

@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.12)
-project(PackageTest CXX)
-
-find_package(resource_pool REQUIRED)
+cmake_minimum_required(VERSION 3.15)
+project(test_package)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-add_executable(example coro.cc)
-target_compile_features(example PRIVATE cxx_std_17)
-target_link_libraries(example PRIVATE elsid::resource_pool)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../test_package/
+                 ${CMAKE_CURRENT_BINARY_DIR}/test_package/)
