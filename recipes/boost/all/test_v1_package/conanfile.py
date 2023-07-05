@@ -5,7 +5,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "cmake", "cmake_find_package"
+    generators = "cmake", "cmake_find_package_multi"
 
     def _boost_option(self, name, default):
         try:

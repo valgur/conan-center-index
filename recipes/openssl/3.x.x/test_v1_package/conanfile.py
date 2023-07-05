@@ -5,7 +5,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
-    generators = "cmake", "cmake_find_package", "pkg_config"
+    generators = "cmake", "cmake_find_package_multi", "pkg_config"
 
     def _with_legacy(self):
         return (not self.options["openssl"].no_legacy and

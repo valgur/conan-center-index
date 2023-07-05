@@ -31,7 +31,7 @@ class CmakePython3Abi(object):
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package_multi"
 
     @property
     def _py_version(self):

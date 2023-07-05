@@ -8,7 +8,7 @@ import os
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package_multi"
 
     def build_requirements(self):
         self.tool_requires(str(self.requires["asn1c"]))

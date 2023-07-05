@@ -5,7 +5,7 @@ from conans import ConanFile, CMake, tools
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package_multi"
 
     def build(self):
         packio_version = self.deps_cpp_info["packio"].version

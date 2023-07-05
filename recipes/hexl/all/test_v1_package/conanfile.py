@@ -6,7 +6,7 @@ from conan.tools.build import cross_building
 
 class HexlTestConan(ConanFile):
     settings = "os", "build_type", "arch", "compiler"
-    generators = "cmake", "cmake_find_package"
+    generators = "cmake", "cmake_find_package_multi"
 
 
     def build(self):

@@ -13,7 +13,7 @@ from conan.errors import ConanException
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package_multi", "cmake_find_package", "pkg_config", "qmake"
+    generators = "cmake", "cmake_find_package_multi", "pkg_config", "qmake"
 
     def build_requirements(self):
         self.tool_requires("cmake/3.25.3")

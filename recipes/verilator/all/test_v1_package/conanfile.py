@@ -4,7 +4,7 @@ import os
 
 class TestVerilatorConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package"
+    generators = "cmake", "cmake_find_package_multi"
 
     @property
     def _with_systemc_example(self):

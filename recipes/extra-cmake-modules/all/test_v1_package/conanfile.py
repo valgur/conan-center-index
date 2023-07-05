@@ -3,7 +3,7 @@ import os
 
 class ExtraCMakeModulesTestConan(ConanFile):
     settings = "os", "compiler", "arch", "build_type"
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package_multi"
 
     def build(self):
         cmake = CMake(self)

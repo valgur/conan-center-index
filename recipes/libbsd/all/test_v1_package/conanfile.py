@@ -5,7 +5,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package", "pkg_config"
+    generators = "cmake", "cmake_find_package_multi", "pkg_config"
 
     def build(self):
         pcfiles =  ["libbsd", "libbsd-overlay"]
