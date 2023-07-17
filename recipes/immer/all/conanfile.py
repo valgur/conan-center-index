@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -14,22 +12,12 @@ required_conan_version = ">=1.52.0"
 
 class ImmerConan(ConanFile):
     name = "immer"
-    description = "Postmodern immutable and persistent data structures for C++---value semantics at scale"
+    description = "Postmodern immutable and persistent data structures for C++ - value semantics at scale"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/arximboldi/immer"
-    topics = (
-        "header",
-        "header-only",
-        "persistent",
-        "modern",
-        "immutable",
-        "data structures",
-        "functional",
-        "value semantics",
-        "postmodern",
-        "rrb-tree",
-    )
+    topics = ("header", "header-only", "persistent", "modern", "immutable", "data structures",
+              "functional", "value semantics", "postmodern", "rrb-tree")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -62,9 +50,7 @@ class ImmerConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
-            )
+            self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(

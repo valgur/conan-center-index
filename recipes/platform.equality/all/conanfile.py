@@ -1,83 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
 
 required_conan_version = ">=1.52.0"
 
@@ -121,22 +49,21 @@ class PlatformInterfacesConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
-
-        if not minimum_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
-            )
-
-        elif Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"platform.equality/{self.version} requires C++{self._minimum_cpp_standard} with"
-                f" {self.settings.compiler}, which is not supported by"
-                f" {self.settings.compiler} {self.settings.compiler.version}."
-            )
-
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
+
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
+        if not minimum_version:
+            self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
+        elif Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._minimum_cpp_standard} with {self.settings.compiler}, "
+                f"which is not supported by {self.settings.compiler} {self.settings.compiler.version}."
+            )
+
+        if self.settings.compiler in ["clang", "apple-clang"] and not str(self.settings.compiler.libcxx).startswith("libstdc++"):
+            # ranges library from libc++ is not compatible with platform.equality
+            raise ConanInvalidConfiguration(f"{self.ref} requires libstdc++ with {self.settings.compiler}.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

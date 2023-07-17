@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import textwrap
 
@@ -18,7 +16,7 @@ class BtyaccConan(ConanFile):
     homepage = "https://github.com/ChrisDodd/btyacc"
     topics = ("yacc", "parser", "header-only")
 
-    package_type = "header-library"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -78,10 +76,13 @@ class BtyaccConan(ConanFile):
         save(self, variables, content)
 
     def package_info(self):
-        self.cpp_info.bindirs = []
+        self.cpp_info.includedirs = []
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
 
         bindir = os.path.join(self.package_folder, "bin")
+        self.cpp_info.bindirs = [bindir]
         self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)
         self.cpp_info.build_modules["cmake"] = [self._variables]

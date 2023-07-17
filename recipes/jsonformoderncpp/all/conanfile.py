@@ -1,16 +1,15 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir
+from conan.tools.files import copy, get, rmdir, rm
 
 required_conan_version = ">=1.52.0"
 
 
 class JsonformoderncppConan(ConanFile):
     name = "jsonformoderncpp"
+    deprecated = "nlohmann_json"
     description = "JSON for Modern C++ parser and generator."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -26,7 +25,6 @@ class JsonformoderncppConan(ConanFile):
         "multiple_headers": False,
     }
     no_copy_source = True
-    deprecated = "nlohmann_json"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -51,19 +49,11 @@ class JsonformoderncppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib"))
-        try:
-            os.remove(os.path.join(self.package_folder, "nlohmann_json.natvis"))
-        except FileNotFoundError:
-            pass
+        rm(self, "nlohmann_json.natvis", self.package_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

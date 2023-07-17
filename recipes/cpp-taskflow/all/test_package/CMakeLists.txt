@@ -4,7 +4,7 @@ project(test_package LANGUAGES CXX)
 find_package(cpp-taskflow REQUIRED CONFIG)
 
 set(CPPTASKFLOW_CXX_STANDARD 14)
-if (CPPTASKFLOW_VERSION LESS_EQUAL "2.2.0")
+if (cpp-taskflow_VERSION LESS_EQUAL "2.2.0")
     set(CPPTASKFLOW_CXX_STANDARD 17)
 endif()
 

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -33,40 +31,38 @@ class VulkanHeadersConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            "*",
-            dst=os.path.join("res", "vulkan", "registry"),
-            src=os.path.join(self.source_folder, "registry"),
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*",
+             dst=os.path.join("res", "vulkan", "registry"),
+             src=os.path.join(self.source_folder, "registry"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.set_property("cmake_file_name", "Vulkan")
-        self.cpp_info.set_property("cmake_target_name", "Vulkan")
+        self.cpp_info.set_property("cmake_file_name", "VulkanHeaders")
+        self.cpp_info.set_property("cmake_target_name", "Vulkan::Vulkan")
+
+        self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Vulkan::Headers")
+        self.cpp_info.components["vulkanheaders"].bindirs = []
+        self.cpp_info.components["vulkanheaders"].libdirs = []
+        self.cpp_info.components["vulkanregistry"].set_property("cmake_target_name", "Vulkan::Registry")
+        self.cpp_info.components["vulkanregistry"].includedirs = [os.path.join("res", "vulkan", "registry")]
+        self.cpp_info.components["vulkanregistry"].bindirs = []
+        self.cpp_info.components["vulkanregistry"].libdirs = []
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "VulkanHeaders"
         self.cpp_info.filenames["cmake_find_package_multi"] = "VulkanHeaders"
         self.cpp_info.names["cmake_find_package"] = "Vulkan"
         self.cpp_info.names["cmake_find_package_multi"] = "Vulkan"
-        self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Headers")
+
         self.cpp_info.components["vulkanheaders"].names["cmake_find_package"] = "Headers"
         self.cpp_info.components["vulkanheaders"].names["cmake_find_package_multi"] = "Headers"
-        self.cpp_info.components["vulkanheaders"].bindirs = []
-        self.cpp_info.components["vulkanheaders"].libdirs = []
-        self.cpp_info.components["vulkanregistry"].set_property("cmake_target_name", "Registry")
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package"] = "Registry"
         self.cpp_info.components["vulkanregistry"].names["cmake_find_package_multi"] = "Registry"
-        self.cpp_info.components["vulkanregistry"].includedirs = [os.path.join("res", "vulkan", "registry")]
-        self.cpp_info.components["vulkanregistry"].bindirs = []
-        self.cpp_info.components["vulkanregistry"].libdirs = []

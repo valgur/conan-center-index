@@ -11,9 +11,8 @@ required_conan_version = ">=1.52.0"
 
 class PanziPortableEndian(ConanFile):
     name = "panzi-portable-endian"
-    description = (
-        "This provides the endian conversion functions form endian.h on Windows, Linux, *BSD, and Mac OS X"
-    )
+    description = ("This provides the endian conversion functions from "
+                   "endian.h on Windows, Linux, *BSD, and Mac OS X")
     license = "Unlicense"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gist.github.com/panzi/6856583"
@@ -35,18 +34,11 @@ class PanziPortableEndian(ConanFile):
     def _extract_license(self):
         header = load(self, os.path.join(self.source_folder, "portable_endian.h"))
         license_contents = header[0 : (header.find("#ifndef", 1))]
-        save(self, "LICENSE", license_contents)
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
     def package(self):
         self._extract_license()
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
 
     def package_info(self):
         self.cpp_info.bindirs = []

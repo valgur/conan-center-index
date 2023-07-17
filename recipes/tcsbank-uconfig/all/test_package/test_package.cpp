@@ -1,8 +1,12 @@
-#include <iostream>
+#include <uconfig/uconfig.h>
 #include <uconfig/format/Env.h>
 #include <uconfig/uconfig.h>
 
-struct AppConfig : public uconfig::Config<uconfig::EnvFormat> {
+#include <cstdlib>
+#include <iostream>
+
+struct AppConfig: public uconfig::Config<uconfig::EnvFormat>
+{
     uconfig::Variable<unsigned> variable;
 
     using uconfig::Config<uconfig::EnvFormat>::Config;

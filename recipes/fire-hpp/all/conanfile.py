@@ -19,15 +19,19 @@ class FireHppConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+    @property
+    def _min_cppstd(self):
+        return 11
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

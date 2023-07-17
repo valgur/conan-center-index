@@ -1,4 +1,9 @@
+// Workaround for pipes not finding size_t
+#include <cstddef>
+
 #include <pipes/pipes.hpp>
+#include <vector>
+
 #include <vector>
 
 int main() {

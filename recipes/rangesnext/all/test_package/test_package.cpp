@@ -1,6 +1,8 @@
 #include <cor3ntin/rangesnext/enumerate.hpp>
 #include <iostream>
 
+#include <iostream>
+
 namespace rangesnext = cor3ntin::rangesnext;
 
 template <class RangeT> bool test_enumerate_with(RangeT &&range) {

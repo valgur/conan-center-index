@@ -67,6 +67,81 @@ class B2Conan(ConanFile):
         "use_cxx_env": False,
         "toolset": "auto",
     }
+    options_description = {
+        'use_cxx_env': (
+            "Indicates if the build will use the CXX and "
+            "CXXFLAGS environment variables. The common use is to add additional flags "
+            "for building on specific platforms or for additional optimization options."
+        ),
+        'toolset': (
+            "Specifies the toolset to use for building. The default of 'auto' detects "
+            "a usable compiler for building and should be preferred. The 'cxx' toolset "
+            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
+            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
+            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
+            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
+        ),
+    }
+    options_description = {
+        'use_cxx_env': (
+            "Indicates if the build will use the CXX and "
+            "CXXFLAGS environment variables. The common use is to add additional flags "
+            "for building on specific platforms or for additional optimization options."
+        ),
+        'toolset': (
+            "Specifies the toolset to use for building. The default of 'auto' detects "
+            "a usable compiler for building and should be preferred. The 'cxx' toolset "
+            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
+            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
+            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
+            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
+        ),
+    }
+    options_description = {
+        'use_cxx_env': (
+            "Indicates if the build will use the CXX and "
+            "CXXFLAGS environment variables. The common use is to add additional flags "
+            "for building on specific platforms or for additional optimization options."
+        ),
+        'toolset': (
+            "Specifies the toolset to use for building. The default of 'auto' detects "
+            "a usable compiler for building and should be preferred. The 'cxx' toolset "
+            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
+            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
+            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
+            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
+        ),
+    }
+    options_description = {
+        'use_cxx_env': (
+            "Indicates if the build will use the CXX and "
+            "CXXFLAGS environment variables. The common use is to add additional flags "
+            "for building on specific platforms or for additional optimization options."
+        ),
+        'toolset': (
+            "Specifies the toolset to use for building. The default of 'auto' detects "
+            "a usable compiler for building and should be preferred. The 'cxx' toolset "
+            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
+            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
+            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
+            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
+        ),
+    }
+    options_description = {
+        'use_cxx_env': (
+            "Indicates if the build will use the CXX and "
+            "CXXFLAGS environment variables. The common use is to add additional flags "
+            "for building on specific platforms or for additional optimization options."
+        ),
+        'toolset': (
+            "Specifies the toolset to use for building. The default of 'auto' detects "
+            "a usable compiler for building and should be preferred. The 'cxx' toolset "
+            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
+            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
+            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
+            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
+        ),
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -81,9 +156,7 @@ class B2Conan(ConanFile):
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration(f"{self.ref} recipe doesn't support cross-build yet")
 
-        if (
-            self.options.toolset == "cxx" or self.options.toolset == "cross-cxx"
-        ) and not self.options.use_cxx_env:
+        if self.options.toolset in ['cxx', 'cross-cxx'] and not self.options.use_cxx_env:
             raise ConanInvalidConfiguration(
                 "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
             )
@@ -139,7 +212,7 @@ class B2Conan(ConanFile):
         use_windows_commands = os.name == "nt"
         if b2_toolset == "auto":
             if use_windows_commands:
-                # For windows auto detection it can evaluate to a msvc version
+                # For windows auto-detection it can evaluate to a msvc version
                 # that it's not aware of. Most likely because it's a future one
                 # that didn't exist when the build was written. This turns that
                 # into a generic msvc toolset build assuming it could work,

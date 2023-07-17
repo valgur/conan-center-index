@@ -1,87 +1,69 @@
-import contextlib
 import os
-import shutil
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import cmake_layout
-from conan.tools.files import copy
-from conan.tools.microsoft import is_msvc
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import copy, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
 
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
-    def export_sources(self):
-        copy(self, "configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "Makefile.am", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "test_package.c", src=self.recipe_folder, dst=self.export_sources_folder)
-
     def requirements(self):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.tool_requires("msys2/cci.latest")
-        self.tool_requires("automake/1.16.4")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
+        self.tool_requires("automake/1.16.5")
 
     def layout(self):
-        cmake_layout(self)
+        basic_layout(self)
 
-    @contextlib.contextmanager
-    def _build_context(self):
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        env = VirtualRunEnv(self)
+        env.generate(scope="build")
+        tc = AutotoolsToolchain(self)
+        tc.generate()
+
         if is_msvc(self):
-            with vcvars(self):
-                env = {
-                    "AR": "{} lib".format(
-                        unix_path(self, os.path.join(self.build_folder, "build-aux", "ar-lib"))
-                    ),
-                    "CC": "cl -nologo",
-                    "CXX": "cl -nologo",
-                    "LD": "link -nologo",
-                    "NM": "dumpbin -symbols",
-                    "OBJDUMP": ":",
-                    "RANLIB": ":",
-                    "STRIP": ":",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
-        for src in self.exports_sources:
-            shutil.copy(os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src))
-        with chdir(self, self.build_folder):
-            for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
-                save(self, fn, "\n")
-            with run_environment(self):
-                self.run("gnulib-tool --list", run_environment=True)
-                self.run(
-                    "gnulib-tool --import getopt-posix",
-                    run_environment=True,
-                )
-            # m4 built with Visual Studio does not support executing *nix utils (e.g. `test`)
-            with (
-                environment_append(self, {"M4": None})
-                if self.settings.os == "Windows"
-                else contextlib.nullcontext()
-            ):
-                self.run(
-                    "{} -fiv".format(os.environ["AUTORECONF"]),
-                    run_environment=True,
-                )
-
-            with self._build_context():
-                autotools = AutoToolsBuildEnvironment(self)
-                autotools.configure()
-                autotools.make()
+        for src in ["configure.ac", "Makefile.am", "test_package.c"]:
+            copy(self, src, src=self.source_folder, dst=self.build_folder)
+        for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
+            save(self, os.path.join(self.build_folder, fn), "\n")
+        # self.run("gnulib-tool --list")
+        self.run("gnulib-tool --import getopt-posix")
+        autotools = Autotools(self)
+        autotools.autoreconf(self.build_folder)
+        autotools.configure(self.build_folder)
+        autotools.make()
 
     def test(self):
         if can_run(self):

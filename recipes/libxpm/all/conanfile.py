@@ -1,11 +1,11 @@
-# TODO: verify the Conan v2 migration
+import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibXpmConan(ConanFile):
@@ -14,9 +14,9 @@ class LibXpmConan(ConanFile):
     license = "MIT-open-group"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/xorg/lib/libxpm"
-    topics = ("xpm", "header-only")
+    topics = ("xpm",)
 
-    package_type = "header-library"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -29,9 +29,12 @@ class LibXpmConan(ConanFile):
     no_copy_source = True
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        if self.settings.os == "Windows":
-            copy(self, "windows", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
+        copy(self, "*",
+             src=os.path.join(self.recipe_folder, "windows"),
+             dst=os.path.join(self.export_sources_folder, "src", "windows"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,9 +53,6 @@ class LibXpmConan(ConanFile):
         if self.settings.os != "Windows":
             self.requires("xorg/system")
 
-    def package_id(self):
-        self.info.clear()
-
     def validate(self):
         if self.settings.os not in ("Windows", "Linux", "FreeBSD"):
             raise ConanInvalidConfiguration("libXpm is supported only on Windows, Linux and FreeBSD")
@@ -64,8 +64,6 @@ class LibXpmConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CONAN_libXpm_VERSION"] = self.version
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -73,8 +71,12 @@ class LibXpmConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", "licenses")
-        copy(self, "COPYRIGHT", "licenses")
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "COPYRIGHT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

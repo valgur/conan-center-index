@@ -1,12 +1,9 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
+import os
 
 required_conan_version = ">=1.53.0"
 
@@ -14,7 +11,8 @@ required_conan_version = ">=1.53.0"
 class SystemcConan(ConanFile):
     name = "systemc"
     description = (
-        "SystemC is a set of C++ classes and macros which provide an event-driven simulation interface."
+        "SystemC is a set of C++ classes and macros which provide "
+        "an event-driven simulation interface."
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -84,12 +82,7 @@ class SystemcConan(ConanFile):
         tc.variables["ENABLE_IMMEDIATE_SELF_NOTIFICATIONS"] = self.options.enable_immediate_self_notifications
         tc.variables["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
         tc.variables["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
-        tc.variables["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe(
-            "enable_phase_callbacks_tracing", False
-        )
-        tc.generate()
-
-        tc = CMakeDeps(self)
+        tc.variables["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe("enable_phase_callbacks_tracing", False)
         tc.generate()
 
     def build(self):
@@ -109,6 +102,7 @@ class SystemcConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SystemCLanguage")
         self.cpp_info.set_property("cmake_target_name", "SystemC::systemc")
+
         # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         self.cpp_info.components["_systemc"].libs = ["systemc"]
         if self.settings.os in ["Linux", "FreeBSD"]:

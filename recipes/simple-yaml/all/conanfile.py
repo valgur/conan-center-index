@@ -31,12 +31,17 @@ class SimpleYamlConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 20
+
+    @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16.3",
             "gcc": "10",
             "clang": "11",
             "apple-clang": "13.3",
+            "msvc": "193",
+            "Visual Studio": "16.3",
         }
 
     def layout(self):
@@ -45,7 +50,7 @@ class SimpleYamlConan(ConanFile):
     def requirements(self):
         self.requires("pretty-name/1.0.0")
         self.requires("yaml-cpp/0.7.0")
-        self.requires("source_location/0.2.0")
+        self.requires("source_location/0.2.1")
         if self.options.enable_enum:
             self.requires("magic_enum/0.7.3")
 
@@ -54,7 +59,7 @@ class SimpleYamlConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "20")
+            check_min_cppstd(self, self._min_cppstd)
         if (
             self.settings.compiler == "clang"
             and self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"]
@@ -65,35 +70,21 @@ class SimpleYamlConan(ConanFile):
             )
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warning(
-                "simple-yaml requires C++20. Your compiler is unknown. Assuming it fully supports C++20."
-            )
+            self.output.warning("simple-yaml requires C++20. Your compiler is unknown. Assuming it fully supports C++20.")
         elif Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                "simple-yaml requires C++20, which your compiler does not support."
-            )
+            raise ConanInvalidConfiguration("simple-yaml requires C++20, which your compiler does not support.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        self.cpp_info.set_property("cmake_file_name", "simple-yaml")
-        self.cpp_info.set_property("cmake_target_name", "simple-yaml")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "simple-yaml"
-        self.cpp_info.names["cmake_find_package_multi"] = "simple-yaml"

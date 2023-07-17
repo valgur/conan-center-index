@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -24,13 +22,27 @@ class DecoConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "Visual Studio": "15",
+            "msvc": "191",
+            "gcc": "7",
+            "clang": "5.0",
+            "apple-clang": "9.1",
+        }
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("enhex-generic_serialization/1.0.0")
         self.requires("enhex-strong_type/1.0.0")
-        self.requires("boost/1.79.0")
+        self.requires("boost/1.82.0")
         self.requires("rang/3.2")
 
     def package_id(self):
@@ -38,44 +50,32 @@ class DecoConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+            check_min_cppstd(self, self._min_cppstd)
 
-        minimal_version = {
-            "Visual Studio": "15",
-            "gcc": "7",
-            "clang": "5.0",
-            "apple-clang": "9.1",
-        }
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version)
 
-        if compiler not in minimal_version:
+        if compiler not in self._compilers_minimum_version:
             self.output.info(f"{self.name} requires a compiler that supports at least C++17")
             return
 
         # Exclude compilers not supported
-        if compiler_version < minimal_version[compiler]:
+        if compiler_version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++17."
-                f" {compiler} {Version(self.settings.compiler.version.value)} is not"
+                f"{self.name} requires a compiler that supports at least C++17. "
+                f"{compiler} {Version(self.settings.compiler.version.value)} is not"
             )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

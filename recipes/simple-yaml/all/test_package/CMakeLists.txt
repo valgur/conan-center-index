@@ -3,7 +3,6 @@ project(test_package LANGUAGES CXX)
 
 find_package(simple-yaml REQUIRED CONFIG)
 
-find_package(simple-yaml CONFIG REQUIRED)
 add_executable(${PROJECT_NAME} src/test.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE simple-yaml::simple-yaml)
 

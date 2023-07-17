@@ -15,10 +15,7 @@ required_conan_version = ">=1.52.0"
 
 class CppTaskflowConan(ConanFile):
     name = "cpp-taskflow"
-    description = (
-        "A fast C++ header-only library to help you quickly write "
-        "parallel programs with complex task dependencies."
-    )
+    description = "A fast C++ header-only library to help you quickly write parallel programs with complex task dependencies."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/cpp-taskflow/cpp-taskflow"
@@ -29,43 +26,44 @@ class CppTaskflowConan(ConanFile):
     no_copy_source = True
     deprecated = "taskflow"
 
-    def configure(self):
-        compiler = str(self.settings.compiler)
-        compiler_version = Version(self.settings.compiler.version)
-        min_req_cppstd = "17" if Version(self.version) <= "2.2.0" else "14"
+    @property
+    def _min_cppstd(self):
+        return 17 if Version(self.version) <= "2.2.0" else 14
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, min_req_cppstd)
-        else:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {compiler} compiler standard version support"
-            )
-
-        minimal_version = {
-            "17": {
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            17: {
                 "Visual Studio": "16",
                 "gcc": "7.3",
                 "clang": "6.0",
                 "apple-clang": "10.0",
             },
-            "14": {
+            14: {
                 "Visual Studio": "15",
                 "gcc": "5",
                 "clang": "4.0",
                 "apple-clang": "8.0",
-            },
-        }
+            }
+        }[self._min_cppstd]
 
-        if compiler not in minimal_version[min_req_cppstd]:
-            self.output.info(
-                "%s requires a compiler that supports at least C++%s" % (self.name, min_req_cppstd)
-            )
+    def validate(self):
+        compiler = str(self.settings.compiler)
+        compiler_version = Version(self.settings.compiler.version)
+
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
+        else:
+            self.output.warning(f"{self.name} recipe lacks information about the {compiler} compiler standard version support")
+
+        if compiler not in self._compilers_minimum_version:
+            self.output.info(f"{self.name} requires a compiler that supports at least C++{self._min_cppstd}")
             return
 
         # Exclude compilers not supported by cpp-taskflow
-        if compiler_version < minimal_version[min_req_cppstd][compiler]:
+        if compiler_version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(
-                f"{self.name} requires a compiler that supports at least C++{min_req_cppstd}."
+                f"{self.name} requires a compiler that supports at least C++{self._min_cppstd}."
                 f" {compiler} {Version(self.settings.compiler.version.value)} is not supported."
             )
 
@@ -79,15 +77,12 @@ class CppTaskflowConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include/taskflow"),
-            src=os.path.join(self.source_folder, "taskflow"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include/taskflow"),
+             src=os.path.join(self.source_folder, "taskflow"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

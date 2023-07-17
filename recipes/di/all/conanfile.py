@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -24,42 +22,43 @@ class DiConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_extensions": [True, False],
-        "diagnostics_level": [0, 1, 2],
+        "diagnostics_level": [0, 1, 2]
     }
     default_options = {
         "with_extensions": False,
-        "diagnostics_level": 1,
+        "diagnostics_level": 1
     }
+    exports = ["BSL-1.0.txt"]
     no_copy_source = True
 
-    def export_sources(self):
-        copy(self, "BSL-1.0.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+    @property
+    def _min_cppstd(self):
+        return 14
 
-    def configure(self):
-        minimal_cpp_standard = "14"
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
+    @property
+    def _compilers_minimum_version(self):
+        return {
             "gcc": "5",
             "clang": "3.4",
             "apple-clang": "10",
             "Visual Studio": "15",
+            "msvc": "191"
         }
+
+    def configure(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
         compiler = str(self.settings.compiler)
-        if compiler not in minimal_version:
+        if compiler not in self._compilers_minimum_version:
             self.output.warning(
-                "%s recipe lacks information about the %s compiler standard version support"
-                % (self.name, compiler)
-            )
+                f"{self.name} recipe lacks information about the {compiler} compiler standard version support")
             self.output.warning(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
-            )
+                f"{self.name} requires a compiler that supports at least C++{self._min_cppstd}")
             return
         version = Version(self.settings.compiler.version)
-        if version < minimal_version[compiler]:
+        if version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard)
-            )
+                f"{self.name} requires a compiler that supports at least C++{self._min_cppstd}")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -73,24 +72,21 @@ class DiConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "BSL-1.0.txt", src="", dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "BSL-1.0.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.recipe_folder)
         if self.options.with_extensions:
-            copy(
-                self,
-                "*.hpp",
-                src=os.path.join(self.source_folder, "extension", "include", "boost", "di", "extension"),
-                dst=os.path.join("include", "boost", "di", "extension"),
-                keep_path=True,
-            )
-        copy(
-            self,
-            "di.hpp",
-            src=os.path.join(self.source_folder, "include", "boost"),
-            dst=os.path.join("include", "boost"),
-        )
+            copy(self, "*.hpp",
+                 dst=os.path.join(self.package_folder, "include", "boost", "di", "extension"),
+                 src=os.path.join(self.source_folder, "extension", "include", "boost", "di", "extension"),
+                 keep_path=True)
+        copy(self, "di.hpp",
+             dst=os.path.join(self.package_folder, "include", "boost"),
+             src=os.path.join(self.source_folder, "include", "boost"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.defines.append(f"BOOST_DI_CFG_DIAGNOSTICS_LEVEL={self.options.diagnostics_level}")
+        self.cpp_info.defines.append(
+            f"BOOST_DI_CFG_DIAGNOSTICS_LEVEL={self.options.diagnostics_level}")

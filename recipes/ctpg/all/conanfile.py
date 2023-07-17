@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -29,6 +27,20 @@ class CTPGConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "gcc": "8",
+            "clang": "12",
+            "apple-clang": "12.0",
+            "msvc": "192",
+            "Visual Studio": "16",
+        }
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -36,38 +48,30 @@ class CTPGConan(ConanFile):
         self.info.clear()
 
     def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+            )
+
         ## TODO: In ctpg<=1.3.5, Visual Studio C++ failed to compile ctpg with "error MSB6006: "CL.exe" exited with code -1073741571."
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.name} does not support Visual Studio currently.")
-
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, "17")
-
-        minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
-        if minimum_version:
-            if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    "{} requires C++17, which your compiler does not support.".format(self.name)
-                )
-        else:
-            self.output.warning(
-                "{} requires C++17. Your compiler is unknown. Assuming it supports C++17.".format(self.name)
-            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE*", "licenses", self.source_folder)
-        if Version(self.version) >= "1.3.7":
-            copy(
-                self,
-                "ctpg.hpp",
-                os.path.join("include", "ctpg"),
-                os.path.join(self.source_folder, "include", "ctpg"),
-            )
-        else:
-            copy(self, "ctpg.hpp", "include", os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        include_dir = os.path.join("include", "ctpg") if Version(self.version) >= "1.3.7" else "include"
+        copy(self, "ctpg.hpp",
+             dst=os.path.join(self.package_folder, include_dir),
+             src=os.path.join(self.source_folder, include_dir))
 
     def package_info(self):
         self.cpp_info.bindirs = []

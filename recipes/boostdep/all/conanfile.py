@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -27,21 +25,20 @@ class BoostDepConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.75.0")
+        self.requires(f"boost/{self.version}")
 
     def package_id(self):
         del self.info.settings.compiler
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-        license_info = self.conan_data["sources"][self.version][1]
-        download(self, filename=os.path.basename(license_info["url"]), **license_info)
+        sources_info, license_info = self.conan_data["sources"][self.version]
+        get(self, **sources_info, strip_root=True)
+        download(self, **license_info, filename=os.path.basename(license_info["url"]))
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["Boost_USE_STATIC_LIBS"] = not self.options["boost"].shared
+        tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -51,7 +48,12 @@ class BoostDepConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE*",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
+        )
         cmake = CMake(self)
         cmake.install()
 
@@ -61,6 +63,6 @@ class BoostDepConan(ConanFile):
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
 
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)
+        # TODO: Legacy, to be removed on Conan 2.0
+        bin_folder = os.path.join(self.package_folder, "bin")
+        self.env_info.PATH.append(bin_folder)

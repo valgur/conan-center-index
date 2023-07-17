@@ -6,7 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "CMakeToolchain"
     test_type = "explicit"
 
     def requirements(self):
@@ -16,8 +16,7 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        tc = CMakeToolchain(self)
-        tc.variables["CPPTASKFLOW_VERSION"] = self.dependencies["cpp-taskflow"].ref.version
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 

@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
-find_package(neargye-semver REQUIRED CONFIG)
-
-find_package(semver CONFIG REQUIRED)
+find_package(semver REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} semver::semver)

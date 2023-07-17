@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -24,6 +22,20 @@ class EnhexStrongTypeConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "Visual Studio": "15",
+            "msvc": "191",
+            "gcc": "7",
+            "clang": "5.0",
+            "apple-clang": "9.1",
+        }
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -32,45 +44,28 @@ class EnhexStrongTypeConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+            check_min_cppstd(self, self._min_cppstd)
 
-        minimal_version = {
-            "Visual Studio": "15",
-            "gcc": "7",
-            "clang": "5.0",
-            "apple-clang": "9.1",
-        }
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version)
 
-        if compiler not in minimal_version:
-            self.output.info("{} requires a compiler that supports at least C++17".format(self.name))
+        if compiler not in self._compilers_minimum_version:
+            self.output.info(f"{self.name} requires a compiler that supports at least C++17")
             return
 
         # Exclude compilers not supported
-        if compiler_version < minimal_version[compiler]:
+        if compiler_version < self._compilers_minimum_version[compiler]:
             raise ConanInvalidConfiguration(
-                "{} requires a compiler that supports at least C++17. {} {} is not".format(
-                    self.name, compiler, Version(self.settings.compiler.version.value)
-                )
+                f"{self.name} requires a compiler that supports at least C++17. "
+                f"{compiler} {Version(self.settings.compiler.version.value)} is not"
             )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

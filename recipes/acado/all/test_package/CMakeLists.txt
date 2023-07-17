@@ -20,17 +20,16 @@ set(codegen_GENERATED_FILES
     ${CODEGEN_DIR}/acado_auxiliary_functions.c
 )
 
+set(ACADO_TEMPLATE_PATHS ${acado_PACKAGE_FOLDER_RELEASE}/include/acado/code_generation/templates)
+#message(FATAL_ERROR ${ACADO_TEMPLATE_PATHS})
 add_custom_command(
   OUTPUT ${codegen_GENERATED_FILES}
-  COMMAND codegen ${CODEGEN_DIR}
+  COMMAND ACADO_TEMPLATE_PATHS=${ACADO_TEMPLATE_PATHS} codegen ${CODEGEN_DIR}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS codegen)
 
-add_library(mpc_codegen STATIC ${codegen_GENERATED_FILES} ${ACADO_QPOASES_EMBEDDED_SOURCES})
-target_include_directories(mpc_codegen
-  SYSTEM PUBLIC
-    ${CODEGEN_DIR}
-    ${ACADO_QPOASES_EMBEDDED_INC_DIRS})
+add_library(mpc_codegen STATIC ${codegen_GENERATED_FILES})
+target_include_directories(mpc_codegen SYSTEM PUBLIC ${CODEGEN_DIR})
 
 add_executable(test_package test_package.cpp)
 target_link_libraries(test_package PRIVATE mpc_codegen)

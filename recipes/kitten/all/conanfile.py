@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,6 +23,10 @@ class KittenConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
     def _minimum_compilers_version(self):
         return {
             "gcc": "7",
@@ -41,13 +43,11 @@ class KittenConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+            check_min_cppstd(self, self._min_cppstd)
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires C++17, which your compiler does not support."
-            )
+            raise ConanInvalidConfiguration(f"{self.name} requires C++{self._min_cppstd}, which your compiler does not support.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -56,8 +56,6 @@ class KittenConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -65,9 +63,7 @@ class KittenConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -78,6 +74,7 @@ class KittenConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "kitten")
         self.cpp_info.set_property("cmake_target_name", "rvarago::kitten")
+        self.cpp_info.components["libkitten"].set_property("cmake_target_name", "rvarago::kitten")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "kitten"
@@ -86,4 +83,3 @@ class KittenConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "rvarago"
         self.cpp_info.components["libkitten"].names["cmake_find_package"] = "kitten"
         self.cpp_info.components["libkitten"].names["cmake_find_package_multi"] = "kitten"
-        self.cpp_info.components["libkitten"].set_property("cmake_target_name", "rvarago::kitten")

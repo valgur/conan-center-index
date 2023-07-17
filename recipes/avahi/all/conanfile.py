@@ -16,7 +16,7 @@ class AvahiConan(ConanFile):
     license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lathiat/avahi"
-    topics = ("bonjour", "dns", "dns-sd", "mdns")
+    license = "LGPL-2.1-only"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -37,15 +37,45 @@ class AvahiConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.75.2")
+        self.requires("glib/2.76.3")
         self.requires("expat/2.5.0")
         self.requires("libdaemon/0.14")
-        self.requires("dbus/1.15.2")
-        self.requires("gdbm/1.19")
+        self.requires("dbus/1.15.6")
+        self.requires("gdbm/1.23")
         self.requires("libevent/2.1.12")
 
     def validate(self):
@@ -53,7 +83,7 @@ class AvahiConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} only supports Linux.")
 
     def build_requirements(self):
-        self.tool_requires("glib/2.75.2")
+        self.tool_requires("glib/2.76.3")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/1.9.3")
 
@@ -99,10 +129,9 @@ class AvahiConan(ConanFile):
     def package_info(self):
         for lib in ("client", "common", "core", "glib", "gobject", "libevent", "compat-libdns_sd"):
             avahi_lib = f"avahi-{lib}"
-            self.cpp_info.components[lib].set_property("cmake_target_name", lib)
+            self.cpp_info.components[lib].set_property("pkg_config_name", avahi_lib)
             self.cpp_info.components[lib].names["cmake_find_package"] = lib
             self.cpp_info.components[lib].names["cmake_find_package_multi"] = lib
-            self.cpp_info.components[lib].set_property("pkg_config_name", avahi_lib)
             self.cpp_info.components[lib].libs = [avahi_lib]
             self.cpp_info.components[lib].includedirs = [os.path.join("include", avahi_lib)]
         self.cpp_info.components["compat-libdns_sd"].libs = ["dns_sd"]
@@ -117,10 +146,9 @@ class AvahiConan(ConanFile):
 
         for app in ("autoipd", "browse", "daemon", "dnsconfd", "publish", "resolve", "set-host-name"):
             avahi_app = f"avahi-{app}"
-            self.cpp_info.components[app].set_property("cmake_target_name", app)
+            self.cpp_info.components[app].set_property("pkg_config_name", avahi_app)
             self.cpp_info.components[app].names["cmake_find_package"] = app
             self.cpp_info.components[app].names["cmake_find_package_multi"] = app
-            self.cpp_info.components[app].set_property("pkg_config_name", avahi_app)
 
         self.cpp_info.components["autoipd"].requires = ["libdaemon::libdaemon"]
         self.cpp_info.components["browse"].requires = ["client", "gdbm::gdbm"]

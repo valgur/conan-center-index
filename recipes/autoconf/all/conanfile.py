@@ -42,11 +42,7 @@ class AutoconfConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("m4/1.4.19")  # Needed at runtime by downstream clients as well
-
-    def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.build_type
+        self.requires("m4/1.4.19") # Needed at runtime by downstream clients as well
 
     def package_id(self):
         self.info.clear()

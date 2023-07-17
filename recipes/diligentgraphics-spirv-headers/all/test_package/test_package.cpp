@@ -36,4 +36,7 @@ const spv::Op kNop = spv::OpNop;
 
 } // namespace
 
-int main() { return 0; }
+int main()
+{
+    return 0;
+}

@@ -3,8 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.scm import Version
+from conan.errors import ConanInvalidConfiguration
+import os
 
 required_conan_version = ">=1.47.0"
 
@@ -17,13 +19,16 @@ class ArchicadApidevkitConan(ConanFile):
     license = "LicenseRef-LICENSE"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://archicadapi.graphisoft.com/"
+    license = "LicenseRef-LICENSE"
     topics = ("api", "archicad", "development", "pre-built")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+    short_paths = True
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -38,12 +43,8 @@ class ArchicadApidevkitConan(ConanFile):
         if not self.info.settings.os in ("Macos", "Windows"):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported by the OS {self.info.settings.os}")
         if not str(self.settings.arch) in ("x86_64"):
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported yet.")
-        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
-            raise ConanInvalidConfiguration("This recipe does not support this compiler version")
-
-    def source(self):
-        pass
+            raise ConanInvalidConfiguration(
+                f"{self.ref} is not supported yet.")
 
     def build(self):
         devkit, licenses = self.conan_data["sources"][self.version][str(self.settings.os)][

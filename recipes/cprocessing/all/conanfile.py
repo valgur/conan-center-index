@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import re
 
@@ -8,13 +6,14 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get, load, replace_in_file, save
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
 
 class CProcessingConan(ConanFile):
     name = "cprocessing"
-    description = "Processsing programming for C++ "
+    description = "Processing programming for C++ "
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/maksmakuta/CProcessing"
@@ -23,6 +22,10 @@ class CProcessingConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    @property
+    def _min_cppstd(self):
+        return 20
 
     @property
     def _compilers_minimum_version(self):
@@ -49,39 +52,30 @@ class CProcessingConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 20)
-
-        def lazy_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
-        compiler_version = str(self.settings.compiler.version)
-
+            check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version:
-            self.output.warning(
-                "{} requires C++20. Your compiler is unknown. Assuming it supports C++20.".format(self.name)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires some C++{self._min_cppstd} features, which your compiler does not support."
             )
-        elif lazy_lt_semver(compiler_version, minimum_version):
-            raise ConanInvalidConfiguration("{} requires some C++20 features,".format(self.name))
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        replace_in_file(
-            self, os.path.join(self.source_folder, "lib", "PImage.h"), "stb/stb_image.h", "stb_image.h"
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "lib", "PImage.h"), "stb/stb_image.h", "stb_image.h")
 
-    def package(self):
-        copy(self, "*.h", "include", os.path.join(self.source_folder, "lib"))
-
+    def _extract_license(self):
         # Extract the License/s from README.md to a file
         tmp = load(self, os.path.join(self.source_folder, "README.md"))
         license_contents = re.search("(## Author.*)", tmp, re.DOTALL)[1]
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE.md"), license_contents)
+
+    def package(self):
+        self._extract_license()
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -37,12 +35,7 @@ class MaddyConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            pattern="maddy/*.h",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, pattern="maddy/*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

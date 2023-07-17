@@ -16,6 +16,7 @@ class AwsCMQTT(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-mqtt"
     topics = ("aws", "amazon", "cloud", "mqtt")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -34,8 +35,8 @@ class AwsCMQTT(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -36,8 +34,6 @@ class SpirvheadersConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["SPIRV_HEADERS_SKIP_EXAMPLES"] = True
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -45,12 +41,7 @@ class SpirvheadersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib"))
@@ -61,7 +52,7 @@ class SpirvheadersConan(ConanFile):
         self.cpp_info.libdirs = []
 
         self.cpp_info.set_property("cmake_file_name", "SPIRV-Headers")
-        self.cpp_info.set_property("cmake_target_name", "SPIRV-Headers")
+        self.cpp_info.set_property("cmake_target_name", "SPIRV-Headers::SPIRV-Headers")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "SPIRV-Headers"

@@ -14,7 +14,8 @@ class AwsCEventStream(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-event-stream"
-    topics = ("aws", "eventstream", "content", )
+    topics = ("aws", "eventstream", "content")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,8 +37,8 @@ class AwsCEventStream(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -99,9 +100,13 @@ class AwsCEventStream(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-event-stream")
         self.cpp_info.set_property("cmake_target_name", "AWS::aws-c-event-stream")
-        self.cpp_info.libs = ["aws-c-event-stream"]
-        if self.options.shared:
-            self.cpp_info.defines.append("AWS_EVENT_STREAM_USE_IMPORT_EXPORT")
+        self.cpp_info.components["aws-c-event-stream-lib"].set_property("cmake_target_name", "aws-c-event-stream")
+        self.cpp_info.components["aws-c-event-stream-lib"].names["cmake_find_package"] = "aws-c-event-stream"
+        self.cpp_info.components["aws-c-event-stream-lib"].names["cmake_find_package_multi"] = "aws-c-event-stream"
+        self.cpp_info.components["aws-c-event-stream-lib"].libs = ["aws-c-event-stream"]
+        self.cpp_info.components["aws-c-event-stream-lib"].requires = ["aws-c-common::aws-c-common-lib", "aws-checksums::aws-checksums"]
+        if Version(self.version) >= "0.2":
+            self.cpp_info.components["aws-c-event-stream-lib"].requires.append("aws-c-io::aws-c-io-lib")
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

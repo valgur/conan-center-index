@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -7,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
@@ -24,6 +23,10 @@ class FrugallyDeepConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 14
+
+    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "4.9",
@@ -31,7 +34,6 @@ class FrugallyDeepConan(ConanFile):
             "clang": "3.7",
             "apple-clang": "9",
         }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -45,22 +47,11 @@ class FrugallyDeepConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
-
-        def lazy_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
+            check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version:
-            self.output.warning(
-                "frugally-deep requires C++14. Your compiler is unknown. Assuming it supports C++14."
-            )
-        elif lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                "frugally-deep requires C++14, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
     def source(self):
@@ -68,12 +59,7 @@ class FrugallyDeepConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
