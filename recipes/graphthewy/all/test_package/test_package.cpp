@@ -1,7 +1,8 @@
-#include <graphthewy/GraphthewyCycle.hpp>
 #include <graphthewy/GraphthewyModel.hpp>
+#include <graphthewy/GraphthewyCycle.hpp>
 
-int main(int argc, char **arvg) {
+int main()
+{
     graphthewy::UndirectedGraph<int>(g);
     g.addVertex(1);
     g.addVertex(2);

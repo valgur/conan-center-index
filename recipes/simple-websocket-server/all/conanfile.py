@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,17 +23,9 @@ class SimpleWebSocketServerConan(ConanFile):
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "use_asio_standalone": [True, False],
-    }
-    default_options = {
-        "use_asio_standalone": True,
-    }
+    options = {"use_asio_standalone": [True, False]}
+    default_options = {"use_asio_standalone": True}
     no_copy_source = True
-
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "11")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -50,40 +40,33 @@ class SimpleWebSocketServerConan(ConanFile):
                 self.requires("boost/1.73.0")
         else:
             if self.options.use_asio_standalone:
-                self.requires("asio/1.23.0")
+                self.requires("asio/1.28.0")
             else:
-                self.requires("boost/1.79.0")
+                self.requires("boost/1.82.0")
 
     def package_id(self):
         self.info.clear()
 
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
+        if Version(self.version) <= "2.0.1":
+            if self.dependencies.get("asio"):
+                if Version(self.dependencies["asio"].ref.version) >= "1.18.0":
+                    raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require asio < 1.18.0")
+            elif self.dependencies.get("boost"):
+                if Version(self.dependencies["boost"].ref.version) >= "1.74.0":
+                    raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require boost < 1.74.0")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        if (
-            Version(self.version) <= "2.0.1"
-            and "asio" in self.dependencies
-            and Version(self.dependencies["asio"].ref.version) >= "1.18.0"
-        ):
-            raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require asio < 1.18.0")
-        elif (
-            Version(self.version) <= "2.0.1"
-            and "boost" in self.dependencies
-            and Version(self.dependencies["boost"].ref.version) >= "1.74.0"
-        ):
-            raise ConanInvalidConfiguration("simple-websocket-server versions <=2.0.1 require boost < 1.74.0")
-
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join("include", "simple-websocket-server"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include", "simple-websocket-server"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

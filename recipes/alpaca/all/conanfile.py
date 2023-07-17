@@ -13,8 +13,8 @@ required_conan_version = ">=1.52.0"
 class AlpacaConan(ConanFile):
     name = "alpaca"
     description = (
-        "Serialization library written in C++17 - Pack C++ structs into a compact byte-array without any"
-        " macros or boilerplate code"
+        "Serialization library written in C++17 - "
+        "Pack C++ structs into a compact byte-array without any macros or boilerplate code"
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -58,9 +58,7 @@ class AlpacaConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             pattern="*.h",

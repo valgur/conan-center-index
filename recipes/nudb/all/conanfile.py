@@ -1,8 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 
@@ -21,33 +20,46 @@ class NudbConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    @property
+    def _min_cppstd(self):
+        return 11
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.78.0")
+        self.requires("boost/1.82.0")
 
     def package_id(self):
         self.info.clear()
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.hpp", dst=self.package_folder, src=os.path.join(self.source_folder, "include"))
-        copy(self, "*.ipp", dst=self.package_folder, src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+
+        self.cpp_info.set_property("cmake_target_name", "NuDB")
+        self.cpp_info.set_property("cmake_target_aliases", ["NuDB::nudb"])
+        self.cpp_info.set_property("cmake_find_module", "both")
+
         self.cpp_info.components["core"].set_property("cmake_target_name", "nudb")
         self.cpp_info.components["core"].names["cmake_find_package"] = "nudb"
         self.cpp_info.components["core"].names["cmake_find_package_multi"] = "nudb"
         self.cpp_info.components["core"].requires = ["boost::thread", "boost::system"]
-        self.cpp_info.set_property("cmake_target_name", "NuDB")
-        self.cpp_info.set_property("cmake_target_module_name", "NuDB::nudb")
-        self.cpp_info.set_property("cmake_find_module", "both")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "NuDB"

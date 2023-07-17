@@ -4,11 +4,10 @@
 #include <iostream>
 
 int main() {
-
     idx_t nVertices = 6;
-    idx_t nEdges = 7;
-    idx_t nWeights = 1;
-    idx_t nParts = 2;
+    idx_t nEdges    = 7;
+    idx_t nWeights  = 1;
+    idx_t nParts    = 2;
 
     idx_t objval;
     idx_t part[6];
@@ -23,8 +22,9 @@ int main() {
     // if all weights are equal then can be set to NULL
     idx_t vwgt[6 * 1];
 
-    int ret = METIS_PartGraphKway(&nVertices, &nWeights, xadj, adjncy, NULL, NULL, NULL, &nParts,
-                                  NULL, NULL, NULL, &objval, part);
+    int ret = METIS_PartGraphKway(&nVertices,& nWeights, xadj, adjncy,
+                                  NULL, NULL, NULL, &nParts, NULL,
+                                  NULL, NULL, &objval, part);
 
     std::cout << ret << std::endl;
 

@@ -5,20 +5,19 @@ from conan.tools.files import copy, download, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class LupleConan(ConanFile):
     name = "luple"
-    description = "Home to luple, nuple, C++ String Interning, Struct Reader and C++ Type Loophole"
-    license = "Unlicense"
+    license = "Public-domain"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alexpolt/luple"
-    topics = ("loophole", "nuple", "struct", "intern", "header-only")
-
-    package_type = "header-library"
+    description = "Home to luple, nuple, C++ String Interning, Struct Reader and C++ Type Loophole"
+    topics = ("loophole", "luple", "nuple", "struct", "intern")
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    package_type = "header-library"
 
     @property
     def _min_cppstd(self):
@@ -53,18 +52,19 @@ class LupleConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-        download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
+        get(self, **self.conan_data["sources"][self.version][0],
+            destination=self.source_folder, strip_root=True)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        # This package doesn't have a license file, it is public domain declared in the Readme
+        copy(self, "README.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):

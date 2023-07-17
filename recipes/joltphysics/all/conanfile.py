@@ -96,6 +96,9 @@ class JoltPhysicsConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16 <4]")
+
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
@@ -130,6 +133,8 @@ class JoltPhysicsConan(ConanFile):
             tc.variables["USE_STATIC_MSVC_RUNTIME_LIBRARY"] = is_msvc_static_runtime(self)
         tc.variables["JPH_DEBUG_RENDERER"] = self.options.debug_renderer
         tc.variables["JPH_PROFILE_ENABLED"] = self.options.profile
+        if Version(self.version) >= "3.0.0":
+            tc.variables["ENABLE_ALL_WARNINGS"] = False
         tc.generate()
 
     def build(self):

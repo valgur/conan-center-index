@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -18,31 +16,17 @@ class StructoptConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/p-ranav/structopt"
-    topics = (
-        "structopt",
-        "argument-parser",
-        "cpp17",
-        "header-only",
-        "single-header-lib",
-        "header-library",
-        "command-line",
-        "arguments",
-        "mit-license",
-        "modern-cpp",
-        "structopt",
-        "lightweight",
-        "reflection",
-        "cross-platform",
-        "library",
-        "type-safety",
-        "type-safe",
-        "argparse",
-        "clap",
-    )
+    topics = ("argument-parser", "cpp17", "header-only", "single-header-lib", "command-line",
+              "arguments", "mit-license", "modern-cpp", "lightweight", "reflection",
+              "cross-platform", "type-safety", "type-safe", "argparse", "clap")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+
+    @property
+    def _min_cppstd(self):
+        return 17
 
     @property
     def _compilers_minimum_version(self):
@@ -51,6 +35,7 @@ class StructoptConan(ConanFile):
             "Visual Studio": "15.0",
             "clang": "5",
             "apple-clang": "10",
+            "msvc": "191",
         }
 
     def export_sources(self):
@@ -60,29 +45,25 @@ class StructoptConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("magic_enum/0.8.0")
-        self.requires("visit_struct/1.0")
+        self.requires("magic_enum/0.9.2")
+        self.requires("visit_struct/1.1.0")
 
     def package_id(self):
         self.info.clear()
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "17")
+            check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
-                    "structopt: Unsupported compiler: {}-{} "
-                    "(https://github.com/p-ranav/structopt#compiler-compatibility).".format(
-                        self.settings.compiler, self.settings.compiler.version
-                    )
+                    f"structopt: Unsupported compiler: {self.settings.compiler}-{self.settings.compiler.version} "
+                    f"(https://github.com/p-ranav/structopt#compiler-compatibility)."
                 )
         else:
-            self.output.warning(
-                "{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name)
-            )
+            self.output.warning("{} requires C++14. Your compiler is unknown. Assuming it supports C++14.".format(self.name))
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,10 +79,9 @@ class StructoptConan(ConanFile):
         rmdir(self, os.path.join(self.source_folder, "include", "structopt", "third_party"))
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
+        cmake.configure()
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

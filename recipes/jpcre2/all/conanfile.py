@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,7 +23,7 @@ class Jpcre2Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("pcre2/10.37")
+        self.requires("pcre2/10.42")
 
     def package_id(self):
         self.info.clear()
@@ -34,13 +32,12 @@ class Jpcre2Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "jpcre2.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "src"),
-        )
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "jpcre2.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "src"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

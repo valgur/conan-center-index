@@ -1,8 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 
@@ -26,6 +25,14 @@ class InfluxDBCppConan(ConanFile):
 
     def package_id(self):
         self.info.clear()
+
+    @property
+    def _min_cppstd(self):
+        return 11
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

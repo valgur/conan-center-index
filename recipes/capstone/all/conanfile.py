@@ -1,7 +1,8 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.53.0"
@@ -18,62 +19,29 @@ class CapstoneConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.capstone-engine.org"
     topics = (
-        "reverse-engineering",
-        "disassembler",
-        "security",
-        "framework",
-        "arm",
-        "arm64",
-        "x86",
-        "sparc",
-        "powerpc",
-        "mips",
-        "x86-64",
-        "ethereum",
-        "systemz",
-        "webassembly",
-        "m68k",
-        "m0s65xx",
-        "m680x",
-        "tms320c64x",
-        "bpf",
-        "riscv",
+        "reverse-engineering", "disassembler", "security", "framework", "arm", "arm64",
+        "x86", "sparc", "powerpc", "mips", "x86-64", "ethereum", "systemz",
+        "webassembly", "m68k", "m0s65xx", "m680x", "tms320c64x", "bpf", "riscv",
     )
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "use_default_alloc": [True, False],
-        "arm": [True, False],
-        "m68k": [True, False],
-        "mips": [True, False],
-        "ppc": [True, False],
-        "sparc": [True, False],
-        "sysz": [True, False],
-        "xcore": [True, False],
-        "x86": [True, False],
-        "tms320c64x": [True, False],
-        "m680x": [True, False],
-        "evm": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "use_default_alloc": True,
-        "arm": True,
-        "m68k": True,
-        "mips": True,
-        "ppc": True,
-        "sparc": True,
-        "sysz": True,
-        "xcore": True,
-        "x86": True,
-        "tms320c64x": True,
-        "m680x": True,
-        "evm": True,
     }
+
+    _archs = ["arm", "m68k", "mips", "ppc", "sparc", "sysz", "xcore", "x86", "tms320c64x", "m680x", "evm"]
+    options.update({a: [True, False] for a in _archs})
+    default_options.update({a: True for a in _archs})
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -93,18 +61,23 @@ class CapstoneConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CAPSTONE_BUILD_STATIC"] = not self.options.shared
-        tc.variables["CAPSTONE_BUILD_SHARED"] = self.options.shared
+        if Version(self.version) < "5.0":
+            tc.variables["CAPSTONE_BUILD_STATIC"] = not self.options.shared
+            tc.variables["CAPSTONE_BUILD_SHARED"] = self.options.shared
         tc.variables["CAPSTONE_BUILD_TESTS"] = False
         tc.variables["CAPSTONE_BUILD_CSTOOL"] = False
         tc.variables["CAPSTONE_ARCHITECUTRE_DEFAULT"] = False
-        tc.variables["CAPSTONE_USE_SYS_DYN_MEM"] = self.options.use_default_alloc
+        if Version(self.version) < "5.0":
+            tc.variables["CAPSTONE_USE_SYS_DYN_MEM"] = self.options.use_default_alloc
+        else:
+            tc.variables["CAPSTONE_USE_DEFAULT_ALLOC"] = self.options.use_default_alloc
         for a in self._archs:
             tc.variables[f"CAPSTONE_{a.upper()}_SUPPORT"] = self.options.get_safe(a)
         tc.variables["CAPSTONE_BUILD_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.generate()
 
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -113,9 +86,11 @@ class CapstoneConan(ConanFile):
         copy(self, "LICENSE*.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        suffix = "_dll" if is_msvc(self) and self.options.shared else ""
+        suffix = "_dll" if is_msvc(self) and self.options.shared and Version(self.version) < "5.0" else ""
         self.cpp_info.libs = [f"capstone{suffix}"]
         if self.options.shared:
             self.cpp_info.defines.append("CAPSTONE_SHARED")

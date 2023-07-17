@@ -1,27 +1,20 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import get
 from conan.tools.scm import Version
+from conans import CMake, tools
+import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.33.0"
 
 
 class PdfiumConan(ConanFile):
     name = "pdfium"
     description = "PDF generation and rendering library."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("conan", "pdfium", "generate", "generation", "rendering", "pdf", "document", "print")
     homepage = "https://opensource.google/projects/pdfium"
-    topics = ("generate", "generation", "rendering", "pdf", "document", "print")
-
-    package_type = "library"
+    url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -34,83 +27,84 @@ class PdfiumConan(ConanFile):
         "with_libjpeg": "libjpeg",
     }
 
+    exports_sources = "CMakeLists.txt"
+    generators = "cmake", "cmake_find_package", "pkg_config"
+    short_paths = True
+
+    _cmake = None
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+            del self.options.fPIC
 
     def requirements(self):
-        self.requires("freetype/2.10.4")
-        self.requires("icu/69.1")
-        self.requires("lcms/2.11")
-        self.requires("openjpeg/2.4.0")
+        self.requires("freetype/2.13.0")
+        self.requires("icu/73.2")
+        self.requires("lcms/2.14")
+        self.requires("openjpeg/2.5.0")
         if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/9d")
+            self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/2.1.0")
+            self.requires("libjpeg-turbo/2.1.5")
+
+    def build_requirements(self):
+        self.build_requires("pkgconf/1.9.5")
 
     def validate(self):
         if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
-        minimum_compiler_versions = {"gcc": 8, "Visual Studio": 15}
+            tools.check_min_cppstd(self, 14)
+        minimum_compiler_versions = {
+            "gcc": 8,
+            "Visual Studio": 15,
+        }
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version:
             if Version(self.settings.compiler.version) < min_compiler_version:
-                raise ConanInvalidConfiguration(
-                    "pdfium needs at least compiler version {}".format(min_compiler_version)
-                )
-
-    def build_requirements(self):
-        self.build_requires("pkgconf/1.7.4")
+                raise ConanInvalidConfiguration("pdfium needs at least compiler version {}".format(min_compiler_version))
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version]["pdfium-cmake"],
-            destination="pdfium-cmake",
-            strip_root=True,
-        )
-        get(self, **self.conan_data["sources"][self.version]["pdfium"], destination=self.source_folder)
-        get(
-            self,
-            **self.conan_data["sources"][self.version]["trace_event"],
-            destination=os.path.join(self.source_folder, "base", "trace_event", "common"),
-        )
-        get(
-            self,
-            **self.conan_data["sources"][self.version]["chromium_build"],
-            destination=os.path.join(self.source_folder, "build"),
-        )
+        get(self, **self.conan_data["sources"][self.version]["pdfium-cmake"],
+                  destination="pdfium-cmake", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["pdfium"],
+                  destination=self._source_subfolder)
+        get(self, **self.conan_data["sources"][self.version]["trace_event"],
+                  destination=os.path.join(self._source_subfolder, "base", "trace_event", "common"))
+        get(self, **self.conan_data["sources"][self.version]["chromium_build"],
+                  destination=os.path.join(self._source_subfolder, "build"))
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["PDFIUM_ROOT"] = self.source_folder.replace("\\", "/")
-        tc.variables["PDF_LIBJPEG_TURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
-        tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions["PDFIUM_ROOT"] = os.path.join(self.source_folder, self._source_subfolder).replace("\\", "/")
+        self._cmake.definitions["PDF_LIBJPEG_TURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
+        self._cmake.configure()
+        return self._cmake
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure(build_script_folder="pdfium-cmake/cmake")
+        cmake = self._configure_cmake()
+        cmake.build()
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
+        self.copy("LICENSE", src=self._source_subfolder, dst="licenses")
+        cmake = self._configure_cmake()
         cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["pdfium"]
-        if is_apple_os(self.settings.os):
+        if tools.is_apple_os(self.settings.os):
             self.cpp_info.frameworks.extend(["Appkit", "CoreFoundation", "CoreGraphics"])
 
-        stdcpp_library = stdcpp_library(self)
+        stdcpp_library = tools.stdcpp_library(self)
         if stdcpp_library:
             self.cpp_info.system_libs.append(stdcpp_library)

@@ -6,15 +6,13 @@ import os
 
 required_conan_version = ">=1.52.0"
 
-
 class CLI11Conan(ConanFile):
     name = "cli11"
     description = "A command line parser for C++11 and beyond."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CLIUtils/CLI11"
-    topics = ("cli-parser", "cpp11", "no-dependencies", "cli", "header-only")
-
+    topics = "cli-parser", "cpp11", "no-dependencies", "cli", "header-only"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -68,3 +66,4 @@ class CLI11Conan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CLI11"
         self.cpp_info.names["cmake_find_package_multi"] = "CLI11"
+        self.cpp_info.names["pkg_config"] = "CLI11"

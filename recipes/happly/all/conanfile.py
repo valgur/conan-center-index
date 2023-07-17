@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -16,7 +14,7 @@ class HapplyConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nmwsharp/happly"
-    topics = ("ply", "3D", "header-only")
+    topics = ("ply", "3D", "mesh", "point cloud", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"

@@ -2,14 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -22,8 +15,7 @@ class HighwayConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/highway"
-    topics = ("simd",)
-
+    topics = ("simd", "neon", "avx", "sse",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -57,7 +49,8 @@ class HighwayConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "0.16.0":
-            self.options.rm_safe("shared")
+            del self.options.shared
+            self.package_type = "static-library"
         elif self.options.shared:
             self.options.rm_safe("fPIC")
 
@@ -80,6 +73,7 @@ class HighwayConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["HWY_ENABLE_EXAMPLES"] = False
+        tc.variables["HWY_ENABLE_TESTS"] = False
         tc.generate()
 
     def _patch_sources(self):
@@ -87,9 +81,9 @@ class HighwayConan(ConanFile):
         # Honor fPIC option
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)", "")
-        replace_in_file(
-            self, cmakelists, "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)", ""
-        )
+        replace_in_file(self, cmakelists,
+                              "set_property(TARGET hwy PROPERTY POSITION_INDEPENDENT_CODE ON)",
+                              "")
 
     def build(self):
         self._patch_sources()
@@ -102,6 +96,7 @@ class HighwayConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.components["hwy"].set_property("pkg_config_name", "libhwy")

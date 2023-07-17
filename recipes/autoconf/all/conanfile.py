@@ -48,6 +48,9 @@ class AutoconfConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
+    def package_id(self):
+        self.info.clear()
+
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
         if self._settings_build.os == "Windows":

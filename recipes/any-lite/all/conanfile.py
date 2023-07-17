@@ -3,14 +3,14 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class AnyLiteConan(ConanFile):
     name = "any-lite"
     description = (
-        "any lite - A C++17-like any, a type-safe container for single values of                     any type"
-        " for C++98, C++11 and later in a single-file header-only library"
+        "any lite - A C++17-like any, a type-safe container for single values of "
+        "any type for C++98, C++11 and later in a single-file header-only library"
     )
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -34,12 +34,7 @@ class AnyLiteConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "*.hpp",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

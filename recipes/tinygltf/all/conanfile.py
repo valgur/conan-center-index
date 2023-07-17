@@ -14,7 +14,6 @@ class TinygltfConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinygltf"
     topics = ("gltf", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -31,15 +30,15 @@ class TinygltfConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        self.info.clear()
+
     def requirements(self):
         self.requires("nlohmann_json/3.11.2")
         if self.options.draco:
-            self.requires("draco/1.5.5")
+            self.requires("draco/1.5.6")
         if self.options.stb_image or self.options.stb_image_write:
-            self.requires("stb/cci.20210910")
-
-    def package_id(self):
-        self.info.clear()
+            self.requires("stb/cci.20220909")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -49,12 +48,9 @@ class TinygltfConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "tiny_gltf.h"),
-            '#include "json.hpp"',
-            "#include <nlohmann/json.hpp>",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "tiny_gltf.h"),
+                              "#include \"json.hpp\"",
+                              "#include <nlohmann/json.hpp>")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

@@ -1,105 +1,24 @@
-# Warnings:
-#   Disallowed attribute 'generators = 'pkg_config''
-#   Unexpected method '_configure_autotools'
-#   Missing required method 'generate'
-
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import get, rmdir
+from conans import AutoToolsBuildEnvironment, tools
 import functools
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.36.0"
 
 
 class Librasterlite2Conan(ConanFile):
     name = "librasterlite2"
     description = (
-        "librasterlite2 is an open source library that stores and retrieves huge raster coverages using a"
-        " SpatiaLite DBMS."
+        "librasterlite2 is an open source library that stores and retrieves "
+        "huge raster coverages using a SpatiaLite DBMS."
     )
     license = ("MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later")
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.gaia-gis.it/fossil/librasterlite2"
     topics = ("rasterlite", "raster", "spatialite")
+    homepage = "https://www.gaia-gis.it/fossil/librasterlite2"
+    url = "https://github.com/conan-io/conan-center-index"
 
-    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -120,12 +39,23 @@ class Librasterlite2Conan(ConanFile):
         "with_zstd": True,
     }
 
+    generators = "pkg_config"
+
+    @property
+    def _source_subfolder(self):
+        return "source_subfolder"
+
+    @property
+    def _is_msvc(self):
+        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
+
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        export_conandata_patches(self)
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            self.copy(patch["patch_file"])
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -133,71 +63,66 @@ class Librasterlite2Conan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+            del self.options.fPIC
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def requirements(self):
-        self.requires("cairo/1.17.4")
-        self.requires("freetype/2.11.1")
+        self.requires("cairo/1.17.6")
+        self.requires("freetype/2.13.0")
         self.requires("giflib/5.2.1")
-        self.requires("libcurl/7.80.0")
+        self.requires("libcurl/8.1.2")
         self.requires("libgeotiff/1.7.1")
-        self.requires("libjpeg/9d")
-        self.requires("libpng/1.6.37")
+        self.requires("libjpeg/9e")
+        self.requires("libpng/1.6.40")
         self.requires("libspatialite/5.0.1")
-        self.requires("libtiff/4.3.0")
-        self.requires("libxml2/2.9.13")
-        self.requires("sqlite3/3.38.1")
-        self.requires("zlib/1.2.12")
+        self.requires("libtiff/4.5.1")
+        self.requires("libxml2/2.11.4")
+        self.requires("sqlite3/3.42.0")
+        self.requires("zlib/1.2.13")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.4.0")
+            self.requires("openjpeg/2.5.0")
         if self.options.with_webp:
-            self.requires("libwebp/1.2.2")
+            self.requires("libwebp/1.3.1")
         if self.options.with_lzma:
-            self.requires("xz_utils/5.2.5")
+            self.requires("xz_utils/5.4.2")
         if self.options.with_lz4:
-            self.requires("lz4/1.9.3")
+            self.requires("lz4/1.9.4")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.2")
+            self.requires("zstd/1.5.5")
 
     def validate(self):
-        if is_msvc(self):
+        if self._is_msvc:
             raise ConanInvalidConfiguration("Visual Studio not supported yet")
 
     def build_requirements(self):
-        self.build_requires("libtool/2.4.6")
-        self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
+        self.build_requires("libtool/2.4.7")
+        self.build_requires("pkgconf/1.9.5")
+        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
             self.build_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version],
+                  destination=self._source_subfolder, strip_root=True)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.patch(**patch)
         # Disable tests, tools and examples
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "Makefile.am"),
-            "SUBDIRS = headers src test tools examples",
-            "SUBDIRS = headers src",
-        )
+        tools.replace_in_file(os.path.join(self._source_subfolder, "Makefile.am"),
+                              "SUBDIRS = headers src test tools examples",
+                              "SUBDIRS = headers src")
         # fix MinGW
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "configure.ac"),
-            "AC_CHECK_LIB(z,",
-            "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.libs[0]),
-        )
+        tools.replace_in_file(os.path.join(self._source_subfolder, "configure.ac"),
+                              "AC_CHECK_LIB(z,",
+                              "AC_CHECK_LIB({},".format(self.deps_cpp_info["zlib"].libs[0]))
 
-    def generate(self):
-        tc = AutotoolsToolchain(self)
+    @functools.lru_cache(1)
+    def _configure_autotools(self):
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        args = [
+            "--enable-static={}".format(yes_no(not self.options.shared)),
+            "--enable-shared={}".format(yes_no(self.options.shared)),
             "--disable-gcov",
             "--enable-openjpeg={}".format(yes_no(self.options.with_openjpeg)),
             "--enable-webp={}".format(yes_no(self.options.with_webp)),
@@ -205,36 +130,35 @@ class Librasterlite2Conan(ConanFile):
             "--enable-lz4={}".format(yes_no(self.options.with_lz4)),
             "--enable-zstd={}".format(yes_no(self.options.with_zstd)),
         ]
-        tc.generate()
+        autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+        autotools.configure(args=args)
+        return autotools
 
     def build(self):
         self._patch_sources()
-        with chdir(self, self.source_folder):
+        with tools.chdir(self._source_subfolder):
+            self.run("{} -fiv".format(tools.get_env("AUTORECONF")), win_bash=tools.os_info.is_windows)
             # relocatable shared libs on macOS
-            replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+            tools.replace_in_file("configure", "-install_name \\$rpath/", "-install_name @rpath/")
             # avoid SIP issues on macOS when dependencies are shared
-            if is_apple_os(self.settings.os):
-                libdirs = []
-                for dep in self.dependencies.values():
-                    libdirs.extend(dep.cpp_info.aggregated_components().libdirs)
-                libpaths = ":".join(libdirs)
-                replace_in_file(
-                    self,
+            if tools.is_apple_os(self.settings.os):
+                libpaths = ":".join(self.deps_cpp_info.lib_paths)
+                tools.replace_in_file(
                     "configure",
                     "#! /bin/sh\n",
                     "#! /bin/sh\nexport DYLD_LIBRARY_PATH={}:$DYLD_LIBRARY_PATH\n".format(libpaths),
                 )
-            autotools = Autotools(self)
-            autotools.autoreconf()
-            autotools.configure()
-            autotools.make()
+            with tools.run_environment(self):
+                autotools = self._configure_autotools()
+                autotools.make()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        with chdir(self, self.source_folder):
-            autotools = Autotools(self)
-            autotools.install()
-        rm(self, "*.la", self.package_folder, recursive=True)
+        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
+        with tools.chdir(self._source_subfolder):
+            with tools.run_environment(self):
+                autotools = self._configure_autotools()
+                autotools.install()
+        tools.remove_files_by_mask(os.path.join(self.package_folder, "lib"), "*.la")
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
@@ -242,3 +166,6 @@ class Librasterlite2Conan(ConanFile):
         self.cpp_info.libs = ["rasterlite2"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
+
+        # TODO: to remove in conan v2 once pkg_config generator removed
+        self.cpp_info.names["pkg_config"] = "rasterlite2"

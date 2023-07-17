@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,6 +23,10 @@ class InversifyCppConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
@@ -41,32 +43,27 @@ class InversifyCppConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+            check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++17, which your compiler does not support."
-                )
+                raise ConanInvalidConfiguration(f"{self.name} requires C++{self._min_cppstd}, "
+                                                "which your compiler does not support.")
         else:
-            self.output.warning(
-                f"{self.name} requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warning(f"{self.name} requires C++{self._min_cppstd}. "
+                                f"Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -25,23 +23,17 @@ class MathterConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
     def _compilers_minimum_version(self):
-        return {"apple-clang": 10, "clang": 6, "gcc": 7, "Visual Studio": 16}
-
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "17")
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version:
-            if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    "mathter requires C++17, which your compiler does not support."
-                )
-        else:
-            self.output.warning(
-                "mathter requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
+        return {
+            "apple-clang": 10,
+            "clang": 6,
+            "gcc": 7,
+            "Visual Studio": 16,
+        }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -49,23 +41,32 @@ class MathterConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, self._min_cppstd)
+
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version:
+            if Version(self.settings.compiler.version) < minimum_version:
+                raise ConanInvalidConfiguration(f"{self.name} requires C++{self._min_cppstd}, "
+                                                f"which your compiler does not support.")
+        else:
+            self.output.warning(f"{self.name} requires C++{self._min_cppstd}. "
+                                f"Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            "*.hpp",
-            dst=os.path.join("include", "Mathter"),
-            src=os.path.join(self.source_folder, "Mathter"),
-        )
-        copy(
-            self,
-            "*.natvis",
-            dst=os.path.join("include", "Mathter"),
-            src=os.path.join(self.source_folder, "Mathter"),
-        )
-        copy(self, "LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include", "Mathter"),
+             src=os.path.join(self.source_folder, "Mathter"))
+        copy(self, "*.natvis",
+             dst=os.path.join(self.package_folder, "include", "Mathter"),
+             src=os.path.join(self.source_folder, "Mathter"))
+        copy(self, "LICENCE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

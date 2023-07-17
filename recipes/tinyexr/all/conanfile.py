@@ -6,7 +6,6 @@ import os
 
 required_conan_version = ">=1.52.0"
 
-
 class TinyExrConan(ConanFile):
     name = "tinyexr"
     description = "Tiny OpenEXR image loader/saver library"
@@ -14,7 +13,6 @@ class TinyExrConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/syoyo/tinyexr"
     topics = ("exr", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -40,7 +38,7 @@ class TinyExrConan(ConanFile):
 
     def requirements(self):
         if self.options.with_z == "miniz":
-            self.requires("miniz/3.0.1")
+            self.requires("miniz/3.0.2")
         else:
             self.requires("zlib/1.2.13")
         if self.options.with_zfp:
@@ -79,9 +77,7 @@ class TinyExrConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.defines.append(
-            "TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0")
-        )
+        self.cpp_info.defines.append("TINYEXR_USE_MINIZ={}".format("1" if self.options.with_z == "miniz" else "0"))
         self.cpp_info.defines.append("TINYEXR_USE_PIZ={}".format("1" if self.options.with_piz else "0"))
         self.cpp_info.defines.append("TINYEXR_USE_ZFP={}".format("1" if self.options.with_zfp else "0"))
         self.cpp_info.defines.append("TINYEXR_USE_THREAD={}".format("1" if self.options.with_thread else "0"))

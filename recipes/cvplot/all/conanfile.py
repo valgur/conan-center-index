@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -11,7 +9,7 @@ required_conan_version = ">=1.52.0"
 
 class CvPlotConan(ConanFile):
     name = "cvplot"
-    description = "fast modular opencv plotting library"
+    description = "Fast modular OpenCV plotting library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Profactor/cv-plot"
@@ -25,7 +23,7 @@ class CvPlotConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("opencv/4.5.3")
+        self.requires("opencv/4.5.5")
 
     def package_id(self):
         self.info.clear()
@@ -35,7 +33,10 @@ class CvPlotConan(ConanFile):
 
     def package(self):
         copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
+            self,
+            pattern="LICENSE",
+            dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder,
         )
         copy(
             self,
@@ -45,15 +46,14 @@ class CvPlotConan(ConanFile):
         )
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "CvPlot")
-        self.cpp_info.set_property("cmake_target_name", "CvPlot")
-        self.cpp_info.set_property("cmake_find_mode", "both")
-
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
+        self.cpp_info.set_property("cmake_file_name", "CvPlot")
+        self.cpp_info.set_property("cmake_target_name", "CvPlot::CvPlot")
+        self.cpp_info.set_property("cmake_find_mode", "both")
+
         self.cpp_info.defines.append("CVPLOT_HEADER_ONLY")
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "CvPlot"
         self.cpp_info.names["cmake_find_package_multi"] = "CvPlot"

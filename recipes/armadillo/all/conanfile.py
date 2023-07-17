@@ -2,6 +2,8 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.build import check_min_cppstd
+from conan.tools.scm import Version
+from conan.tools.build import cross_building
 from conan.errors import ConanInvalidConfiguration
 import os
 
@@ -10,14 +12,10 @@ required_conan_version = ">=1.53.0"
 
 class ArmadilloConan(ConanFile):
     name = "armadillo"
-    description = (
-        "Armadillo is a high quality C++ library for linear algebra"
-        " and scientific computing, aiming towards"
-        " a good balance between speed and ease of use."
-    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://arma.sourceforge.net"
+    description = "Armadillo is a high quality C++ library for linear algebra and scientific computing, aiming towards a good balance between speed and ease of use."
     topics = (
         "linear algebra",
         "scientific computing",
@@ -29,9 +27,8 @@ class ArmadilloConan(ConanFile):
         "mkl",
         "hdf5",
     )
-
+    settings = "os", "compiler", "build_type", "arch"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -70,12 +67,21 @@ class ArmadilloConan(ConanFile):
     }
     # Values that must be set for multiple options to be valid
     _co_dependencies = {
-        "intel_mkl": ["use_blas", "use_lapack"],
-        "framework_accelerate": ["use_blas", "use_lapack"],
+        "intel_mkl": [
+            "use_blas",
+            "use_lapack",
+        ],
+        "framework_accelerate": [
+            "use_blas",
+            "use_lapack",
+        ],
     }
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -89,43 +95,21 @@ class ArmadilloConan(ConanFile):
         # If any of MINGW, MSYS, CYGWIN or MSVC are True in during cmake configure, the ARMA_USE_EXTERN_RNG option will be set to false.
         # Therefore, in these cases we remove the `use_extern_rng` option in conan
         if self.settings.os == "Windows":
-            self.options.rm_safe("use_extern_rng")
+            del self.options.use_extern_rng
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def requirements(self):
-        # Optional requirements
-        # TODO: "atlas/3.10.3" # Pending https://github.com/conan-io/conan-center-index/issues/6757
-        # TODO: "superlu/5.2.2" # Pending https://github.com/conan-io/conan-center-index/issues/6756
-        # TODO: "arpack/1.0" # Pending https://github.com/conan-io/conan-center-index/issues/6755
-        # TODO: "flexiblas/3.0.4" # Pending https://github.com/conan-io/conan-center-index/issues/6827
-
-        if self.options.use_hdf5:
-            # Use the conan dependency if the system lib isn't being used
-            self.requires("hdf5/1.14.0")
-
         if self.options.use_blas == "openblas":
-            self.requires("openblas/0.3.20")
             # Note that if you're relying on this to build LAPACK, you _must_ have
             # a fortran compiler installed. If you don't, OpenBLAS will build successfully but
             # without LAPACK support, which isn't obvious.
-            # This can be achieved by setting the FC environment variable in your conan profile
-            self.options["openblas"].build_lapack = self.options.use_lapack == "openblas"
-        if self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl":
-            # Consumers can override this requirement with their own
-            # by using self.requires("intel-mkl/version@user/channel, override=True)
-            # in their consumer conanfile.py
-            if self.options.use_blas == "intel_mkl" or self.options.use_lapack == "intel_mkl":
-                self.output.warning(
-                    "The intel-mkl package does not exist in CCI. To use an Intel MKL package, override this"
-                    " requirement with your own recipe."
-                )
-            self.requires("intel-mkl/2021.4")
+            # This can be achieved by setting the FC environment variable or the conf tools.build:compiler_executables={"fortran": "/path/to/fortran"}
+            # in your conan profile.
+            self.options["openblas"].build_lapack = (
+                self.options.use_lapack == "openblas"
+            )
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -135,32 +119,53 @@ class ArmadilloConan(ConanFile):
             self.options.use_blas == "framework_accelerate"
             or self.options.use_lapack == "framework_accelerate"
         ):
-            raise ConanInvalidConfiguration("framework_accelerate can only be used on Macos")
+            raise ConanInvalidConfiguration(
+                "framework_accelerate can only be used on Macos"
+            )
+
+        if self.options.use_hdf5 and Version(self.version) > "12" and cross_building(self):
+            raise ConanInvalidConfiguration(
+                "Armadillo does not support cross building with hdf5. Set use_hdf5=False and try again."
+            )
 
         for value, options in self._co_dependencies.items():
-            options_without_value = [x for x in options if getattr(self.options, x) != value]
+            options_without_value = [
+                x for x in options if getattr(self.options, x) != value
+            ]
             if options_without_value and (len(options) != len(options_without_value)):
                 raise ConanInvalidConfiguration(
-                    "Options {} must all be set to '{}' to use this feature. To fix this, set option {} to"
-                    " '{}'.".format(", ".join(options), value, ", ".join(options_without_value), value)
+                    "Options {} must all be set to '{}' to use this feature. To fix this, set option {} to '{}'.".format(
+                        ", ".join(options),
+                        value,
+                        ", ".join(options_without_value),
+                        value,
+                    )
                 )
 
-        if self.options.use_lapack == "openblas" and self.options.use_blas != "openblas":
+        if (
+            self.options.use_lapack == "openblas"
+            and self.options.use_blas != "openblas"
+        ):
             raise ConanInvalidConfiguration(
-                "OpenBLAS can only provide LAPACK functionality when also providing BLAS functionality. Set"
-                " use_blas=openblas and try again."
+                "OpenBLAS can only provide LAPACK functionality when also providing BLAS functionality. Set use_blas=openblas and try again."
             )
 
         deprecated_opts = list(
             set(
-                [opt for opt in [str(self.options.use_blas), str(self.options.use_lapack)] if "system" in opt]
+                [
+                    opt
+                    for opt in [
+                        str(self.options.use_blas),
+                        str(self.options.use_lapack),
+                    ]
+                    if "system" in opt
+                ]
             )
         )
 
         for opt in deprecated_opts:
             self.output.warning(
-                f"DEPRECATION NOTICE: Value {opt} uses armadillo's default dependency search and will be"
-                " replaced when this package becomes available in ConanCenter"
+                f"DEPRECATION NOTICE: Value {opt} uses armadillo's default dependency search and will be replaced when this package becomes available in ConanCenter"
             )
 
         # Ignore use_extern_rng when the option has been removed
@@ -169,13 +174,37 @@ class ArmadilloConan(ConanFile):
                 "The wrapper requires the use of an external RNG. Set use_extern_rng=True and try again."
             )
 
-    def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            filename="f{self.name}-{self.version}.tar.xz",
-        )
+    def requirements(self):
+        # Optional requirements
+        # TODO: "atlas/3.10.3" # Pending https://github.com/conan-io/conan-center-index/issues/6757
+        # TODO: "superlu/5.2.2" # Pending https://github.com/conan-io/conan-center-index/issues/6756
+        # TODO: "arpack/1.0" # Pending https://github.com/conan-io/conan-center-index/issues/6755
+        # TODO: "flexiblas/3.0.4" # Pending https://github.com/conan-io/conan-center-index/issues/6827
+
+        # The armadillo library no longer takes any responsibility for linking hdf5 as of v12.x. This means
+        # it will have to be linked manually by consumers if desired.
+        # See https://gitlab.com/conradsnicta/armadillo-code/-/issues/227 for more information.
+        if self.options.use_hdf5 and Version(self.version) < "12":
+            # Use the conan dependency if the system lib isn't being used
+            self.requires("hdf5/1.14.0")
+
+        if self.options.use_blas == "openblas":
+            self.requires("openblas/0.3.20")
+        if (
+            self.options.use_blas == "intel_mkl"
+            and self.options.use_lapack == "intel_mkl"
+        ):
+            # Consumers can override this requirement with their own
+            # by using self.requires("intel-mkl/version@user/channel, override=True)
+            # in their consumer conanfile.py
+            if (
+                self.options.use_blas == "intel_mkl"
+                or self.options.use_lapack == "intel_mkl"
+            ):
+                self.output.warning(
+                    "The intel-mkl package does not exist in CCI. To use an Intel MKL package, override this requirement with your own recipe."
+                )
+            self.requires("intel-mkl/2021.4")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -193,24 +222,18 @@ class ArmadilloConan(ConanFile):
             or self.options.use_lapack == "framework_accelerate"
         ) and self.settings.os == "Macos"
         tc.variables["DETECT_HDF5"] = self.options.use_hdf5
-        tc.variables["USE_OPENBLAS"] = self.options.use_blas == "openblas"
-        tc.variables["USE_MKL"] = (
-            self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl"
-        )
+        tc.variables["USE_OPENBLAS"] = (self.options.use_blas == "openblas")
+        tc.variables["USE_MKL"] = self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl"
         tc.variables["USE_SYSTEM_LAPACK"] = self.options.use_lapack == "system_lapack"
-        tc.variables["USE_SYSTEM_BLAS"] = self.options.use_blas == "system_blas"
+        tc.variables["USE_SYSTEM_BLAS"] = (self.options.use_blas == "system_blas")
         tc.variables["USE_SYSTEM_ATLAS"] = self.options.use_lapack == "system_atlas"
         tc.variables["USE_SYSTEM_HDF5"] = False
         tc.variables["USE_SYSTEM_ARPACK"] = self.options.use_arpack
         tc.variables["USE_SYSTEM_SUPERLU"] = self.options.use_superlu
         tc.variables["USE_SYSTEM_OPENBLAS"] = False
         tc.variables["USE_SYSTEM_FLEXIBLAS"] = self.options.use_blas == "system_flexiblas"
-        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = (
-            self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
-        )
-        tc.variables["ALLOW_OPENBLAS_MACOS"] = (
-            self.options.use_blas == "openblas" and self.settings.os == "Macos"
-        )
+        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
+        tc.variables["ALLOW_OPENBLAS_MACOS"] = self.options.use_blas == "openblas" and self.settings.os == "Macos"
         tc.variables["OPENBLAS_PROVIDES_LAPACK"] = self.options.use_lapack == "openblas"
         tc.variables["ALLOW_BLAS_LAPACK_MACOS"] = self.options.use_blas != "framework_accelerate"
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
@@ -220,6 +243,13 @@ class ArmadilloConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
+
+    def source(self):
+        get(self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+            filename="f{self.name}-{self.version}.tar.xz"
+        )
 
     def build(self):
         apply_conandata_patches(self)
@@ -268,7 +298,10 @@ class ArmadilloConan(ConanFile):
 
         if self.options.use_lapack:
             self.cpp_info.defines.append("ARMA_USE_LAPACK")
-            if self.options.use_lapack == "system_lapack" and not self.options.use_wrapper:
+            if (
+                self.options.use_lapack == "system_lapack"
+                and not self.options.use_wrapper
+            ):
                 self.cpp_info.system_libs.extend(["lapack"])
         else:
             self.cpp_info.defines.append("ARMA_DONT_USE_LAPACK")

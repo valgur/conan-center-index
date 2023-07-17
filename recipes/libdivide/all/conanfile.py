@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -8,7 +6,7 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class LibdivideConan(ConanFile):
@@ -54,15 +52,15 @@ class LibdivideConan(ConanFile):
             if not str(self.settings.arch).startswith("arm"):
                 self.options.rm_safe("neon")
 
-    def configure(self):
-        if Version(self.version) < "4.0.0" and self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
+
+    def validate(self):
+        if Version(self.version) < "4.0.0" and self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,12 +68,7 @@ class LibdivideConan(ConanFile):
     def package(self):
         copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "libdivide.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
-        copy(
-            self,
-            "constant_fast_div.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, "constant_fast_div.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         copy(self, "s16_ldparams.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
         copy(self, "u16_ldparams.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
@@ -85,13 +78,7 @@ class LibdivideConan(ConanFile):
 
         simd = self.options.get_safe("simd_intrinsics", False)
         if bool(simd):
-            self.cpp_info.defines = [
-                {
-                    "sse2": "LIBDIVIDE_SSE2",
-                    "avx2": "LIBDIVIDE_AVX2",
-                    "avx512": "LIBDIVIDE_AVX512",
-                }[str(simd)]
-            ]
+            self.cpp_info.defines = [{"sse2": "LIBDIVIDE_SSE2", "avx2": "LIBDIVIDE_AVX2", "avx512": "LIBDIVIDE_AVX512"}[str(simd)]]
         if self.options.get_safe("sse2", False):
             self.cpp_info.defines.append("LIBDIVIDE_SSE2")
         if self.options.get_safe("avx2", False):

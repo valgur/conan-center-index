@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
-project(test_package LANGUAGES CXX)
+project(test_package CXX)
 
-find_package(eastl REQUIRED CONFIG)
+find_package(EASTL REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE eastl::eastl)
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+target_link_libraries(${PROJECT_NAME} EASTL::EASTL)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)

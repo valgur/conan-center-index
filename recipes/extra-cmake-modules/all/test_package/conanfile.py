@@ -1,16 +1,19 @@
 from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.build import can_run
-from conan.tools.cmake import cmake_layout, CMake
 import os
 
+class ExtraCMakeModulesTestConan(ConanFile):
+    settings = "os", "compiler", "arch", "build_type"
 
-class TestPackageConan(ConanFile):
-    settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
-    test_type = "explicit"
-
-    def requirements(self):
+    def build_requirements(self):
         self.requires(self.tested_reference_str)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def layout(self):
         cmake_layout(self)
@@ -22,5 +25,5 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindir, "example")
-            self.run(bin_path, env="conanrun")
+            runpath = os.path.join(self.cpp.build.bindir, "example")
+            self.run(runpath, env="conanrun")

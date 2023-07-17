@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -14,9 +12,7 @@ required_conan_version = ">=1.52.0"
 
 class GraphthewyConan(ConanFile):
     name = "graphthewy"
-    description = (
-        "Simple header-only C++ Library for graph modelling (directed or not) and graph cycle detection. "
-    )
+    description = "Simple header-only C++ Library for graph modelling (directed or not) and graph cycle detection. "
     license = "EUPL-1.2"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/alex-87/graphthewy"
@@ -27,26 +23,18 @@ class GraphthewyConan(ConanFile):
     no_copy_source = True
 
     @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
     def _compilers_minimum_version(self):
         return {
             "Visual Studio": "15.7",
+            "msvc": "191",
             "gcc": "7",
             "clang": "7",
-            "apple-clang": "10",
+            "apple-clang": "10"
         }
-
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 17)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version:
-            self.output.warning(
-                "graphthewy requires C++17. Your compiler is unknown. Assuming it supports C++17."
-            )
-        elif Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                "graphthewy requires C++17, which your compiler does not support."
-            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -54,14 +42,21 @@ class GraphthewyConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+            )
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self, "*.hpp", dst=os.path.join("include", "graphthewy"), src=self.source_folder, keep_path=False
-        )
+        copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include", "graphthewy"), src=self.source_folder, keep_path=False)
 
     def package_info(self):
         self.cpp_info.bindirs = []
