@@ -135,16 +135,9 @@ class TestPackageConan(ConanFile):
     def _supports_modules(self):
         return not is_msvc(self) or self.options["cpython"].shared
 
-    def build(self):
-        if not cross_building(self, skip_x64_x86=True):
-            command = "{} --version".format(self.conf_info.get("user.cpython:python"))
-            buffer = StringIO()
-            self.run(command, output=buffer, ignore_errors=True, run_environment=True)
-            self.output.info("output: %s" % buffer.getvalue())
-            self.run(command, run_environment=True)
-
-        cmake = CMake(self)
-        py_major = self.dependencies["cpython"].ref.version.split(".")[0]
+    def generate(self):
+        tc = CMakeToolchain(self)
+        py_major = Version(self.dependencies["cpython"]).major
         tc.variables["BUILD_MODULE"] = self._supports_modules
         tc.variables["PY_VERSION_MAJOR"] = py_major
         tc.variables["PY_VERSION_MAJOR_MINOR"] = ".".join(self._py_version.split(".")[:2])
@@ -153,21 +146,17 @@ class TestPackageConan(ConanFile):
         tc.variables["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
         tc.variables["PYTHON_EXECUTABLE"] = self.conf_info.get("user.cpython:python")
         tc.variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
-        tc.variables["Python{}_EXECUTABLE".format(py_major)] = self.conf_info.get("user.cpython:python")
-        tc.variables["Python{}_ROOT_DIR".format(py_major)] = self.dependencies["cpython"].package_folder
-        tc.variables["Python{}_USE_STATIC_LIBS".format(py_major)] = not self.options["cpython"].shared
-        tc.variables["Python{}_FIND_FRAMEWORK".format(py_major)] = "NEVER"
-        tc.variables["Python{}_FIND_REGISTRY".format(py_major)] = "NEVER"
-        tc.variables["Python{}_FIND_IMPLEMENTATIONS".format(py_major)] = "CPython"
-        tc.variables["Python{}_FIND_STRATEGY".format(py_major)] = "LOCATION"
+        tc.variables[f"Python{py_major}_EXECUTABLE"] = self.conf_info.get("user.cpython:python")
+        tc.variables[f"Python{py_major}_ROOT_DIR"] = self.dependencies["cpython"].package_folder
+        tc.variables[f"Python{py_major}_USE_STATIC_LIBS"] = not self.options["cpython"].shared
+        tc.variables[f"Python{py_major}_FIND_FRAMEWORK"] = "NEVER"
+        tc.variables[f"Python{py_major}_FIND_REGISTRY"] = "NEVER"
+        tc.variables[f"Python{py_major}_FIND_IMPLEMENTATIONS"] = "CPython"
+        tc.variables[f"Python{py_major}_FIND_STRATEGY"] = "LOCATION"
 
         if not is_msvc(self):
             if Version(self._py_version) < Version(self, "3.8"):
                 tc.variables["Python{}_FIND_ABI".format(py_major)] = self._cmake_abi.cmake_arg
-
-        with environment_append(self, RunEnvironment(self).vars):
-            cmake.configure()
-        cmake.build()
 
         if not cross_building(self, skip_x64_x86=True):
             if self._supports_modules:
@@ -208,8 +197,20 @@ class TestPackageConan(ConanFile):
                                 self.conf_info.get("user.cpython:python"),
                                 " ".join('"{}"'.format(a) for a in setup_args),
                             ),
-                            run_environment=True,
                         )
+
+    def build(self):
+        if not cross_building(self, skip_x64_x86=True):
+            python_executable = self.conf_info.get("user.cpython:python")
+            command = f"{python_executable} --version"
+            buffer = StringIO()
+            self.run(command, stdout=buffer, ignore_errors=True)
+            self.output.info(f"output: {buffer.getvalue()}")
+            self.run(command)
+
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
 
     def _test_module(self, module, should_work):
         try:
@@ -227,9 +228,9 @@ class TestPackageConan(ConanFile):
             self.output.info("Result of test was expected.")
         else:
             if works:
-                raise ConanException("Module '{}' works, but should not have worked".format(module))
+                raise ConanException(f"Module '{module}' works, but should not have worked")
             else:
-                self.output.warning("Module '{}' does not work, but should have worked".format(module))
+                self.output.warning(f"Module '{module}' does not work, but should have worked")
                 raise exception
 
     def _cpython_option(self, name):
@@ -242,7 +243,6 @@ class TestPackageConan(ConanFile):
         if not cross_building(self, skip_x64_x86=True):
             self.run(
                 "{} -c \"print('hello world')\"".format(self.conf_info.get("user.cpython:python")),
-                run_environment=True,
             )
 
             buffer = StringIO()
@@ -250,8 +250,7 @@ class TestPackageConan(ConanFile):
                 "{} -c \"import sys; print('.'.join(str(s) for s in sys.version_info[:3]))\"".format(
                     self.conf_info.get("user.cpython:python")
                 ),
-                run_environment=True,
-                output=buffer,
+                stdout=buffer,
             )
             self.output.info(buffer.getvalue())
             version_detected = buffer.getvalue().splitlines()[-1].strip()
@@ -268,13 +267,8 @@ class TestPackageConan(ConanFile):
                 self._test_module("bsddb", self._cpython_option("with_bsddb"))
                 self._test_module("lzma", self._cpython_option("with_lzma"))
                 self._test_module("tkinter", self._cpython_option("with_tkinter"))
-                with environment_append(
-                    self,
-                    {
-                        "TERM": "ansi",
-                    },
-                ):
-                    self._test_module("curses", self._cpython_option("with_curses"))
+                os.environ["TERM"] = "ansi"
+                self._test_module("curses", self._cpython_option("with_curses"))
 
                 self._test_module("expat", True)
                 self._test_module("sqlite3", True)

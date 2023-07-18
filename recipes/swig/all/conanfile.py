@@ -131,7 +131,7 @@ class SwigConan(ConanFile):
             self.build_requires("winflexbison/2.5.24")
         else:
             self.build_requires("bison/3.8.2")
-        self.build_requires("automake/1.16.5")
+        self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -141,22 +141,6 @@ class SwigConan(ConanFile):
         env = {}
         if not is_msvc(self):
             env["YACC"] = self.conf_info.get("user.bison:yacc")
-        if is_msvc(self):
-            with vcvars(self):
-                env.update(
-                    {
-                        "CC": "{} cl -nologo".format(
-                            unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
-                        ),
-                        "CXX": "{} cl -nologo".format(
-                            unix_path(self, self.conf_info.get("user.automake:compile-wrapper"))
-                        ),
-                        "AR": "{} link".format(self.conf_info.get("user.automake:lib-wrapper")),
-                        "LD": "link",
-                    }
-                )
-                with environment_append(self, env):
-                    yield
         else:
             with environment_append(self, env):
                 yield
@@ -203,14 +187,28 @@ class SwigConan(ConanFile):
             autotools.libs.extend(["mingwex", "ssp"])
 
         autotools.configure(args=args, configure_dir=self.source_folder, host=host, build=build)
-        return autotools
+
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     def _patch_sources(self):
         apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
@@ -229,7 +227,7 @@ class SwigConan(ConanFile):
             src=self.source_folder,
         )
         copy(self, "*", src="cmake", dst=self._module_subfolder)
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
 

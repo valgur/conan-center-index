@@ -164,20 +164,6 @@ class VerilatorConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            build_env = {
-                "CC": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
-                "CXX": "{} cl -nologo".format(unix_path(self, self.conf_info.get("user.automake:compile"))),
-                "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-            }
-            with vcvars(self.settings):
-                with environment_append(self, build_env):
-                    yield
-        else:
-            yield
-
     def generate(self):
         tc = AutotoolsToolchain(self)
         if self.settings.get_safe("compiler.libcxx") == "libc++":
@@ -192,6 +178,21 @@ class VerilatorConan(ConanFile):
             if yacc.endswith(" -y"):
                 yacc = yacc[:-3]
         tc.generate()
+
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     @property
     def _make_args(self):
@@ -224,14 +225,14 @@ class VerilatorConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make(args=self._make_args)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.install(args=self._make_args)

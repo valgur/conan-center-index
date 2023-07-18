@@ -210,7 +210,7 @@ class GfCompleteConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.autoreconf()
             autotools.configure()
@@ -218,7 +218,7 @@ class GfCompleteConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)

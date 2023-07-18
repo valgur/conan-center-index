@@ -140,37 +140,12 @@ class LibIdn(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.build_requires("automake/1.16.5")
+            self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self.settings):
-                env = {
-                    "CC": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "LD": "{} link -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
-
-    def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         if not self.options.shared:
             tc.defines.append("IDN2_STATIC")
@@ -191,16 +166,31 @@ class LibIdn(ConanFile):
         ]
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def build(self):
         apply_conandata_patches(self)
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
 

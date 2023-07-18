@@ -181,7 +181,6 @@ class LibUSBCompatConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
 
-    def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             # Use absolute paths of the libraries instead of the library names only.
@@ -195,28 +194,20 @@ class LibUSBCompatConan(ConanFile):
         ]
         tc.generate()
 
-    @contextmanager
-    def _build_context(self):
         if is_msvc(self):
-            with vcvars(self.settings):
-                env = {
-                    "CC": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "LD": "link -nologo",
-                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-                    "DLLTOOL": ":",
-                    "OBJDUMP": ":",
-                    "RANLIB": ":",
-                    "STRIP": ":",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     def _extract_makefile_variable(self, makefile, variable):
         makefile_contents = load(self, makefile)
@@ -264,7 +255,7 @@ class LibUSBCompatConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
         if self.settings.os == "Windows":
@@ -280,7 +271,7 @@ class LibUSBCompatConan(ConanFile):
             cmake.configure()
             cmake.build()
         else:
-            with self._build_context():
+            with chdir(self, self.source_folder):
                 autotools.make()
 
     def package(self):
@@ -289,7 +280,7 @@ class LibUSBCompatConan(ConanFile):
             cmake = CMake(self)
             cmake.install()
         else:
-            with self._build_context():
+            with chdir(self, self.source_folder):
                 autotools = Autotools(self)
                 autotools.install()
 

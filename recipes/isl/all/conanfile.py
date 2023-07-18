@@ -5,32 +5,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -51,13 +29,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -85,10 +57,7 @@ required_conan_version = ">=1.53.0"
 
 class IslConan(ConanFile):
     name = "isl"
-    description = (
-        "isl is a library for manipulating sets and relations of integer points bounded by linear"
-        " constraints."
-    )
+    description = "isl is a library for manipulating sets and relations of integer points bounded by linear constraints."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libisl.sourceforge.io"
@@ -130,24 +99,15 @@ class IslConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import"
-                " libraries)"
-            )
+            raise ConanInvalidConfiguration("Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)")
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("Apple M1 is not yet supported. Contributions are welcome")
         if self.options.with_int != "gmp":
             # FIXME: missing imath recipe
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
-        if (
-            is_msvc(self)
-            and Version(self.settings.compiler.version) < 16
-            and self.settings.compiler.runtime == "MDd"
-        ):
+        if is_msvc(self) and Version(self.settings.compiler.version) < 16 and self.settings.compiler.runtime == "MDd":
             # gmp.lib(bdiv_dbm1c.obj) : fatal error LNK1318: Unexpected PDB error; OK (0)
-            raise ConanInvalidConfiguration(
-                "isl fails to link with this version of visual studio and MDd runtime"
-            )
+            raise ConanInvalidConfiguration("isl fails to link with this version of visual studio and MDd runtime")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -155,53 +115,17 @@ class IslConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.build_requires("automake/1.16.5")
+            self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self.settings):
-                env = {
-                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-                    "CC": "{} cl -nologo -{}".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile")),
-                        self.settings.compiler.runtime,
-                    ),
-                    "CXX": "{} cl -nologo -{}".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile")),
-                        self.settings.compiler.runtime,
-                    ),
-                    "NM": "dumpbin -symbols",
-                    "OBJDUMP": ":",
-                    "RANLIB": ":",
-                    "STRIP": ":",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
-
-    def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += [
-            "--with-int={}".format(self.options.with_int),
-            "--enable-portable-binary",
-        ]
+        tc.configure_args += ["--with-int={}".format(self.options.with_int), "--enable-portable-binary"]
         if self.options.with_int == "gmp":
-            tc.configure_args.extend(
-                [
-                    "--with-gmp=system",
-                    "--with-gmp-prefix={}".format(self.dependencies["gmp"].package_folder.replace("\\", "/")),
-                ]
-            )
+            tc.configure_args.extend(["--with-gmp=system", "--with-gmp-prefix={}".format(self.dependencies["gmp"].package_folder.replace("\\", "/"))])
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= 15:
                 tc.cxxflags.append("-Zf")
@@ -209,15 +133,30 @@ class IslConan(ConanFile):
                 tc.cxxflags.append("-FS")
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def build(self):
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
 

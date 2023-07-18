@@ -15,7 +15,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires(self.tested_reference_str)
-        self.build_requires("automake/1.16.5")
+        self.tool_requires("automake/1.16.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

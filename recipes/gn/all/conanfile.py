@@ -182,21 +182,20 @@ class GnConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            with self._build_context():
-                # Generate dummy header to be able to run `build/ben.py` with `--no-last-commit-position`. This allows running the script without the tree having to be a git checkout.
-                save(
-                    self,
-                    os.path.join("src", "gn", "last_commit_position.h"),
-                    textwrap.dedent("""\
-                        #pragma once
-                        #define LAST_COMMIT_POSITION "1"
-                        #define LAST_COMMIT_POSITION_NUM 1
-                        """),
-                )
-                # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
-                time.sleep(1)
-                build_args = ["-C", "out", "-j"]
-                self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
+            # Generate dummy header to be able to run `build/ben.py` with `--no-last-commit-position`. This allows running the script without the tree having to be a git checkout.
+            save(
+                self,
+                os.path.join("src", "gn", "last_commit_position.h"),
+                textwrap.dedent("""\
+                    #pragma once
+                    #define LAST_COMMIT_POSITION "1"
+                    #define LAST_COMMIT_POSITION_NUM 1
+                    """),
+            )
+            # Try sleeping one second to avoid time skew of the generated ninja.build file (and having to re-run build/gen.py)
+            time.sleep(1)
+            build_args = ["-C", "out", "-j"]
+            self.run("ninja {}".format(" ".join(build_args)), run_environment=True)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

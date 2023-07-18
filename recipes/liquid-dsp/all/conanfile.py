@@ -158,14 +158,27 @@ class LiquidDspConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.build_requires("mingw-w64/8.1")
-            self.build_requires("automake/1.16.5")
+            self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
+
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     def _patch_sources(self):
         if self.settings.os == "Windows":
@@ -205,21 +218,6 @@ class LiquidDspConan(ConanFile):
         else:
             yield
 
-    @contextmanager
-    def _msvc_context(self):
-        if is_msvc(self):
-            with vcvars(self.settings):
-                env = {
-                    "CC": "cl -nologo",
-                    "CXX": "cl -nologo",
-                    "AR": "lib",
-                    "LD": "link",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
-
     def build(self):
         self._patch_sources()
         ncpus = cpu_count(self)
@@ -235,11 +233,10 @@ class LiquidDspConan(ConanFile):
         if is_msvc(self):
             configure_args.append("CFLAGS='{}'".format(" ".join(cflags)))
         configure_args_str = " ".join(configure_args)
-        with self._build_context():
-            with chdir(self, self.source_folder):
-                self.run("./bootstrap.sh")
-                self.run("./configure {}".format(configure_args_str))
-                self.run("make {} -j{}".format(self._target_name, ncpus))
+        with chdir(self, self.source_folder):
+            self.run("./bootstrap.sh")
+            self.run("./configure {}".format(configure_args_str))
+            self.run("make {} -j{}".format(self._target_name, ncpus))
         self._rename_libraries()
         with self._msvc_context():
             self._gen_link_library()

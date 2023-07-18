@@ -14,32 +14,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -60,13 +38,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -96,10 +68,7 @@ required_conan_version = ">=1.53.0"
 
 class SerfConan(ConanFile):
     name = "serf"
-    description = (
-        "The serf library is a high performance C-based HTTP client library built upon the Apache Portable"
-        " Runtime (APR) library."
-    )
+    description = "The serf library is a high performance C-based HTTP client library built upon the Apache Portable Runtime (APR) library."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://serf.apache.org/"
@@ -158,9 +127,7 @@ class SerfConan(ConanFile):
             return os.environ.get("CC")
         if is_apple_os(self.settings.os):
             return "clang"
-        return {
-            "Visual Studio": "cl",
-        }.get(str(self.settings.compiler), str(self.settings.compiler))
+        return {"Visual Studio": "cl"}.get(str(self.settings.compiler), str(self.settings.compiler))
 
     def _lib_path_arg(self, path):
         argname = "LIBPATH:" if is_msvc(self) else "L"
@@ -170,9 +137,7 @@ class SerfConan(ConanFile):
     def _build_context(self):
         extra_env = {}
         if is_msvc(self):
-            extra_env["OPENSSL_LIBS"] = ";".join(
-                "{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs
-            )
+            extra_env["OPENSSL_LIBS"] = ";".join("{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs)
         with environment_append(self, extra_env):
             with vcvars(self.settings) if is_msvc(self) else nullcontext():
                 yield
@@ -194,38 +159,20 @@ class SerfConan(ConanFile):
             "DEBUG": self.settings.build_type == "Debug",
             "APR_STATIC": not self.options["apr"].shared,
             "CFLAGS": " ".join(
-                sum([dep.cpp_info.cflags for dep in self.dependencies.values()], [])
-                + (["-fPIC"] if self.options.get_safe("fPIC") else [])
-                + autotools.flags
+                sum([dep.cpp_info.cflags for dep in self.dependencies.values()], []) + (["-fPIC"] if self.options.get_safe("fPIC") else []) + autotools.flags
             ),
             "LINKFLAGS": " ".join(sharedlinkflags) + " " + " ".join(self._lib_path_arg(l) for l in libdirs),
-            "CPPFLAGS": (
-                " ".join("-D{}".format(d) for d in autotools.defines)
-                + " "
-                + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in includedirs)
-            ),
+            "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines) + " " + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in includedirs),
             "CC": self._cc,
             "SOURCE_LAYOUT": "False",
         }
 
         if is_msvc(self):
-            kwargs.update(
-                {
-                    "TARGET_ARCH": str(self.settings.arch),
-                    "MSVC_VERSION": "{:.1f}".format(float(msvs_toolset(self.settings).lstrip("v")) / 10),
-                }
-            )
+            kwargs.update({"TARGET_ARCH": str(self.settings.arch), "MSVC_VERSION": "{:.1f}".format(float(msvs_toolset(self.settings).lstrip("v")) / 10)})
 
         escape_str = lambda x: '"{}"'.format(x)
         with chdir(self, self.source_folder):
-            with self._build_context():
-                self.run(
-                    "scons {} {}".format(
-                        " ".join(escape_str(s) for s in args),
-                        " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items()),
-                    ),
-                    run_environment=True,
-                )
+            self.run("scons {} {}".format(" ".join(escape_str(s) for s in args), " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items())))
 
     @property
     def _static_ext(self):
@@ -235,15 +182,12 @@ class SerfConan(ConanFile):
     def _shared_ext(self):
         if is_apple_os(self.settings.os):
             return "dylib"
-        return {
-            "Windows": "dll",
-        }.get(str(self.settings.os), "so")
+        return {"Windows": "dll"}.get(str(self.settings.os), "so")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
-            with self._build_context():
-                self.run('scons install -Y "{}"'.format(self.source_folder), run_environment=True)
+            self.run(f'scons install -Y "{self.source_folder}"')
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
@@ -252,9 +196,7 @@ class SerfConan(ConanFile):
             for file in glob.glob(os.path.join(self.package_folder, "lib", "*.pdb")):
                 os.unlink(file)
             if self.options.shared:
-                for file in glob.glob(
-                    os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))
-                ):
+                for file in glob.glob(os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))):
                     os.unlink(file)
                 mkdir(self, os.path.join(self.package_folder, "bin"))
                 os.rename(
@@ -262,9 +204,7 @@ class SerfConan(ConanFile):
                     os.path.join(self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)),
                 )
             else:
-                for file in glob.glob(
-                    os.path.join(self.package_folder, "lib", "libserf-{}.*".format(self._version_major))
-                ):
+                for file in glob.glob(os.path.join(self.package_folder, "lib", "libserf-{}.*".format(self._version_major))):
                     os.unlink(file)
         else:
             ext_to_remove = self._static_ext if self.options.shared else self._shared_ext
@@ -285,13 +225,4 @@ class SerfConan(ConanFile):
         self.cpp_info.includedirs.append(os.path.join("include", "serf-{}".format(self._version_major)))
         self.cpp_info.set_property("pkg_config_name", libname)
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = [
-                "user32",
-                "advapi32",
-                "gdi32",
-                "ws2_32",
-                "crypt32",
-                "mswsock",
-                "rpcrt4",
-                "secur32",
-            ]
+            self.cpp_info.system_libs = ["user32", "advapi32", "gdi32", "ws2_32", "crypt32", "mswsock", "rpcrt4", "secur32"]

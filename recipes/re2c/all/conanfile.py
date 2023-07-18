@@ -124,36 +124,31 @@ class Re2CConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self):
-                env = {
-                    "CC": "{} -nologo".format(unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXX": "{} -nologo".format(
-                        unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))
-                    ),
-                    "LD": "{} -nologo".format(unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))),
-                    "CXXLD": "{} -nologo".format(
-                        unix_path(self, os.path.join(self.build_folder, "msvc_cl.sh"))
-                    ),
-                    "AR": "lib",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
-
-    def _configure_autotools(self):
+    def generate(self):
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             tc.cxxflags.append("-FS")
             tc.cxxflags.append("-EHsc")
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def build(self):
         apply_conandata_patches(self)
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make(args=["V=1"])
@@ -173,7 +168,7 @@ class Re2CConan(ConanFile):
             dst=os.path.join(self.package_folder, "licenses"),
             keep_path=False,
         )
-        with self._build_context():
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
 
