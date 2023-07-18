@@ -45,7 +45,7 @@ class LibisalConan(ConanFile):
             raise ConanInvalidConfiguration("Only Linux and FreeBSD builds are supported")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.6")
+        self.tool_requires("libtool/2.4.7")
         self.tool_requires("nasm/2.15.05")
 
     def source(self):

@@ -59,8 +59,10 @@ class LibIdnConan(ConanFile):
             raise ConanInvalidConfiguration("Shared libraries are not supported on Windows due to libtool limitation")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
         if self.settings.compiler == "Visual Studio":
             self.build_requires("automake/1.16.5")
 

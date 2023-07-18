@@ -278,10 +278,6 @@ class TBBConan(ConanFile):
             else:
                 extra += " compiler=cl"
 
-        make = get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make") or which(self, "mingw32-make"))
-        if not make:
-            raise ConanException("This package needs 'make' in the path to build")
-
         with chdir(self, self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
             if self._is_clanglc:

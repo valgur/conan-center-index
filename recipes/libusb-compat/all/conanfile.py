@@ -139,11 +139,13 @@ class LibUSBCompatConan(ConanFile):
             self.requires("dirent/1.23.2")
 
     def build_requirements(self):
-        self.build_requires("gnu-config/cci.20201022")
-        self.build_requires("libtool/2.4.6")
-        self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        self.tool_requires("gnu-config/cci.20210814")
+        self.tool_requires("libtool/2.4.7")
+        self.build_requires("pkgconf/1.9.3")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

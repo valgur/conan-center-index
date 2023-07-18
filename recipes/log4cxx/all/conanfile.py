@@ -76,7 +76,7 @@ class Log4cxxConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os != "Windows":
-            self.build_requires("pkgconf/1.7.4")
+            self.build_requires("pkgconf/1.9.3")
 
     def source(self):
         # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:

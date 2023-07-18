@@ -99,7 +99,7 @@ class GetDnsConan(ConanFile):
         self.info.options.with_libev = self._with_libev
 
     def build_requirements(self):
-        self.build_requires("pkgconf/1.7.3")
+        self.build_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

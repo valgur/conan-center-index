@@ -10,8 +10,10 @@ class TestPackageConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def test(self):
         self.run("config.guess", run_environment=True, win_bash=tools.os_info.is_windows)

@@ -131,8 +131,10 @@ class LzipConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def _detect_compilers(self):
         rmdir(self, "detectdir")
@@ -162,9 +164,9 @@ class LzipConan(ConanFile):
     def _build_context(self):
         env = {}
         cc, cxx = self._detect_compilers()
-        if not get_env(self, "CC"):
+        if not os.environ.get("CC"):
             env["CC"] = cc
-        if not get_env(self, "CXX"):
+        if not os.environ.get("CXX"):
             env["CXX"] = cxx
         with environment_append(self, env):
             yield

@@ -191,9 +191,7 @@ class NCursesConan(ConanFile):
         self.info.options.with_tinfo = self._with_tinfo
 
     def validate(self):
-        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and cross_building(
-            self
-        ):
+        if any("arm" in arch for arch in (self.settings.arch, self._settings_build.arch)) and cross_building(self):
             # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
             # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
             raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
@@ -210,14 +208,16 @@ class NCursesConan(ConanFile):
                 )
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        autotools = AutoToolsBuildEnvironment(self)
+        tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
             "--with-shared={}".format(yes_no(self.options.shared)),
@@ -246,8 +246,7 @@ class NCursesConan(ConanFile):
         build = None
         host = None
         if self.settings.os == "Windows":
-            tc.configure_args.extend(
-                [
+            tc.configure_args += [
                     "--disable-macros",
                     "--disable-termcap",
                     "--enable-database",
@@ -255,16 +254,15 @@ class NCursesConan(ConanFile):
                     "--enable-term-driver",
                     "--enable-interop",
                 ]
-            )
         if is_msvc(self):
             build = host = "{}-w64-mingw32-msvc".format(self.settings.arch)
             tc.configure_args.extend(["ac_cv_func_getopt=yes", "ac_cv_func_setvbuf_reversed=no"])
-            autotools.cxx_flags.append("-EHsc")
+            tc.cxxflags.append("-EHsc")
             if Version(self.settings.compiler.version) >= 12:
-                autotools.flags.append("-FS")
+                tc.cxxflags.append("-FS")
         if (self.settings.os, self.settings.compiler) == ("Windows", "gcc"):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
-            autotools.libs.extend(["mingwex", "ssp"])
+            tc.libs.extend(["mingwex", "ssp"])
         if build:
             tc.configure_args.append(f"ac_cv_build={build}")
         if host:
@@ -275,34 +273,29 @@ class NCursesConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def _patch_sources(self):
         apply_conandata_patches(self)
 
-    @contextlib.contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self):
-                env = {
-                    "CC": "cl -nologo",
-                    "CXX": "cl -nologo",
-                    "LD": "link -nologo",
-                    "LDFLAGS": "",
-                    "NM": "dumpbin -symbols",
-                    "STRIP": ":",
-                    "AR": "lib -nologo",
-                    "RANLIB": ":",
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
-
     def build(self):
         self._patch_sources()
-        with self._build_context():
-            autotools = Autotools(self)
-            autotools.configure()
-            autotools.make()
+        autotools = Autotools(self)
+        autotools.configure()
+        autotools.make()
 
     @property
     def _major_version(self):
@@ -333,13 +326,12 @@ class NCursesConan(ConanFile):
     def package(self):
         # return
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with self._build_context():
-            autotools = Autotools(self)
-            autotools.install()
+        autotools = Autotools(self)
+        autotools.install()
 
-            os.unlink(
-                os.path.join(self.package_folder, "bin", f"ncurses{self._suffix}{self._major_version}-config")
-            )
+        os.unlink(
+            os.path.join(self.package_folder, "bin", f"ncurses{self._suffix}{self._major_version}-config")
+        )
 
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_subfolder, self._module_file)

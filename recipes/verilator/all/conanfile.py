@@ -138,27 +138,28 @@ class VerilatorConan(ConanFile):
         return Version(self.version) < "4.100"
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and "CONAN_BASH_PATH" not in os.environ:
-            if is_msvc(self):
-                self.build_requires("msys2/cci.latest")
-                self.build_requires("automake/1.16.4")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
+            self.tool_requires("automake/1.16.5")
             if self._needs_old_bison:
                 # don't upgrade to bison 3.7.0 or above, or it fails to build
                 # because of https://github.com/verilator/verilator/pull/2505
-                self.build_requires("winflexbison/2.5.22")
+                self.tool_requires("winflexbison/2.5.22")
             else:
-                self.build_requires("winflexbison/2.5.24")
-            self.build_requires("strawberryperl/5.30.0.1")
+                self.tool_requires("winflexbison/2.5.24")
+            self.tool_requires("strawberryperl/5.30.0.1")
         else:
-            self.build_requires("flex/2.6.4")
+            self.tool_requires("flex/2.6.4")
             if self._needs_old_bison:
                 # don't upgrade to bison 3.7.0 or above, or it fails to build
                 # because of https://github.com/verilator/verilator/pull/2505
-                self.build_requires("bison/3.5.3")
+                self.tool_requires("bison/3.5.3")
             else:
-                self.build_requires("bison/3.7.6")
+                self.tool_requires("bison/3.7.6")
         if Version(self.version) >= "4.224":
-            self.build_requires("autoconf/2.71")
+            self.tool_requires("autoconf/2.71")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -186,7 +187,7 @@ class VerilatorConan(ConanFile):
             tc.defines.append("YY_NO_UNISTD_H")
             tc.cxxflags.append("-FS")
         tc.configure_args += ["--datarootdir={}/bin/share".format(unix_path(self, self.package_folder))]
-        yacc = get_env(self, "YACC")
+        yacc = os.environ.get("YACC")
         if yacc:
             if yacc.endswith(" -y"):
                 yacc = yacc[:-3]

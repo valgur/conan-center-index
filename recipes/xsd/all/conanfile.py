@@ -5,32 +5,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -51,13 +29,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -119,32 +91,12 @@ class ConanXqilla(ConanFile):
         return os.path.join(self.source_folder, "xsd", "doc")
 
     @property
-    def _make_cmd(self):
-        return self._gnumake_cmd
-
-    @property
-    def _make_program(self):
-        return get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make"))
-
-    @property
     def _gnumake_cmd(self):
         make_ldflags = "LDFLAGS='{libs} -pthread'".format(
-            libs=" ".join(
-                [
-                    "-L{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it))
-                    for it in self.dependencies["xerces-c"].cpp_info.libdirs
-                ]
-            )
+            libs=" ".join(["-L{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it)) for it in self.dependencies["xerces-c"].cpp_info.libdirs])
         )
         flags = []
-        flags.append(
-            " ".join(
-                [
-                    "-I{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it))
-                    for it in self.dependencies["xerces-c"].cpp_info.includedirs
-                ]
-            )
-        )
+        flags.append(" ".join("-I{}".format(os.path.join(self.dependencies["xerces-c"].package_folder, it)) for it in self.dependencies["xerces-c"].cpp_info.includedirs))
         if self.settings.compiler == "gcc":
             flags.append("-std=c++11")
         make_ccpflags = "CPPFLAGS='{}'".format(" ".join(flags))
@@ -167,24 +119,9 @@ class ConanXqilla(ConanFile):
             self.run(self._make_cmd)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "xsd"),
-        )
-        copy(
-            self,
-            "GPLv2",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "xsd"),
-        )
-        copy(
-            self,
-            "FLOSSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "xsd"),
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "xsd"))
+        copy(self, "GPLv2", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "xsd"))
+        copy(self, "FLOSSE", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "xsd"))
 
         with chdir(self, self.source_folder):
             self.run(self._make_install_cmd)

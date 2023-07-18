@@ -125,7 +125,7 @@ class libxftConan(ConanFile):
     def build_requirements(self):
         self.build_requires("pkgconf/1.9.3")
         self.build_requires("xorg-macros/1.19.3")
-        self.build_requires("libtool/2.4.7")
+        self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

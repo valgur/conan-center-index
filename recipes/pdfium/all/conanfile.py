@@ -56,7 +56,7 @@ class PdfiumConan(ConanFile):
             self.requires("libjpeg-turbo/2.1.5")
 
     def build_requirements(self):
-        self.build_requires("pkgconf/1.9.5")
+        self.build_requires("pkgconf/1.9.3")
 
     def validate(self):
         if self.settings.compiler.cppstd:

@@ -9,32 +9,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -55,13 +33,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -169,51 +141,40 @@ class LibfabricConan(ConanFile):
             raise ConanInvalidConfiguration("The libfabric package cannot be built on Windows.")
 
     def build_requirements(self):
-        self.build_requires("libtool/2.4.6")
+        self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def _configure_autotools(self):
-        tc = AutotoolsToolchain(self)
-        with chdir(self, self.source_folder):
-            self.run("{} -fiv".format(get_env(self, "AUTORECONF")))
-
-        yes_no_dl = lambda v: {
-            "True": "yes",
-            "False": "no",
-            "shared": "dl",
-        }[str(v)]
+        yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += [
-            "--with-bgq-progress={}".format(self.options.bgq_progress),
-            "--with-bgq-mr={}".format(self.options.bgq_mr),
-        ]
+        tc = AutotoolsToolchain(self)
+        tc.configure_args += ["--with-bgq-progress={}".format(self.options.bgq_progress), "--with-bgq-mr={}".format(self.options.bgq_mr)]
         for p in self._providers:
-            args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
+            tc.configure_args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            args.append("--with-libnl={}".format(unix_path(self, self.dependencies["libnl"].package_folder))),
+            tc.configure_args.append("--with-libnl={}".format(unix_path(self, self.dependencies["libnl"].package_folder))),
         else:
-            args.append("--with-libnl=no")
+            tc.configure_args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":
-            args.append("--enable-debug")
+            tc.configure_args.append("--enable-debug")
+        tc.generate()
+        tc = AutotoolsDeps(self)
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.autoreconf()
+            autotools.configure()
+            autotools.make()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        autotools = Autotools(self)
-        autotools.install()
+        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

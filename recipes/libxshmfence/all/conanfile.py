@@ -1,84 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import contextlib
-import os
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -128,32 +56,18 @@ class LibxshmfenceConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows is not supported by libxshmfence recipe. Contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("Windows is not supported by libxshmfence recipe. Contributions are welcome")
 
     def build_requirements(self):
         self.build_requires("automake/1.16.5")
         self.build_requires("pkgconf/1.9.3")
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    @contextlib.contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self):
-                env = {
-                    "CC": "{} cl -nologo".format(self.conf_info.get("user.automake:compile-wrapper")).replace(
-                        "\\", "/"
-                    )
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -161,18 +75,23 @@ class LibxshmfenceConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def build(self):
         apply_conandata_patches(self)
-        with self._build_context():
-            autotools = Autotools(self)
-            autotools.configure()
-            autotools.make()
+        autotools = Autotools(self)
+        autotools.configure()
+        autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        with self._build_context():
-            autotools = Autotools(self)
-            autotools.install()
+        autotools = Autotools(self)
+        autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 

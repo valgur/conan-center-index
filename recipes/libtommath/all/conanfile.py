@@ -128,7 +128,7 @@ class LibTomMathConan(ConanFile):
         if self._settings_build.os == "Windows" and not is_msvc(self):
             self.build_requires("make/4.3")
         if not is_msvc(self) and self.settings.os != "Windows" and self.options.shared:
-            self.build_requires("libtool/2.4.6")
+            self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -149,12 +149,12 @@ class LibTomMathConan(ConanFile):
         args = autotools.vars
         args.update({"PREFIX": self.package_folder})
         if not is_msvc(self):
-            if get_env(self, "CC"):
-                args["CC"] = get_env(self, "CC")
-            if get_env(self, "LD"):
-                args["LD"] = get_env(self, "LD")
-            if get_env(self, "AR"):
-                args["AR"] = get_env(self, "AR")
+            if os.environ.get("CC"):
+                args["CC"] = os.environ.get("CC")
+            if os.environ.get("LD"):
+                args["LD"] = os.environ.get("LD")
+            if os.environ.get("AR"):
+                args["AR"] = os.environ.get("AR")
 
             args["LIBTOOL"] = "libtool"
         arg_str = " ".join(f'{k}="{v}"' for k, v in args.items())

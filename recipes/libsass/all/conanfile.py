@@ -162,7 +162,7 @@ class LibsassConan(ConanFile):
             properties = {
                 "LIBSASS_STATIC_LIB": "" if self.options.shared else "true",
                 "WholeProgramOptimization": (
-                    "true" if any(re.finditer("(^| )[/-]GL($| )", get_env(self, "CFLAGS", ""))) else "false"
+                    "true" if any(re.finditer("(^| )[/-]GL($| )", os.environ.get("CFLAGS", ""))) else "false"
                 ),
             }
             platforms = {

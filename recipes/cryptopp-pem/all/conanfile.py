@@ -181,7 +181,7 @@ class CryptoPPPEMConan(ConanFile):
         if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
             shutil.copyfile(
                 os.path.join(
-                    get_env(self, "ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
+                    os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
                 ),
                 os.path.join(self.source_folder, "cpu-features.h"),
             )

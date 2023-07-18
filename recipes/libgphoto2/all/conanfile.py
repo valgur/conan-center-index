@@ -60,7 +60,7 @@ class LibGphoto2(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libtool/2.4.7")
+        self.tool_requires("libtool/2.4.7")
         if self.options.with_libusb:
             self.requires("libusb/1.0.26")
         if self.options.with_libcurl:

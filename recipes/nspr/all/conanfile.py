@@ -137,30 +137,15 @@ class NsprConan(ConanFile):
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
-            self.build_requires("mozilla-build/3.3")
-            if not get_env(self, "CONAN_BASH_PATH"):
-                self.build_requires("msys2/cci.latest")
+            self.tool_requires("mozilla-build/3.3")
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination="tmp", strip_root=True)
         rename(self, os.path.join("tmp", "nspr"), self.source_folder)
         rmdir(self, "tmp")
-
-    @contextlib.contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self):
-                with environment_append(
-                    self,
-                    {
-                        "CC": "cl",
-                        "CXX": "cl",
-                        "LD": "link",
-                    },
-                ):
-                    yield
-        else:
-            yield
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -188,8 +173,8 @@ class NsprConan(ConanFile):
                 [
                     "--with-android-ndk={}".format(get_env(self, ["NDK_ROOT"])),
                     "--with-android-version={}".format(self.settings.os.api_level),
-                    "--with-android-platform={}".format(get_env(self, "ANDROID_PLATFORM")),
-                    "--with-android-toolchain={}".format(get_env(self, "ANDROID_TOOLCHAIN")),
+                    "--with-android-platform={}".format(os.environ.get("ANDROID_PLATFORM")),
+                    "--with-android-toolchain={}".format(os.environ.get("ANDROID_TOOLCHAIN")),
                 ]
             )
         elif self.settings.os == "Windows":
@@ -203,23 +188,36 @@ class NsprConan(ConanFile):
 
         tc.generate()
 
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
+
     def build(self):
         with chdir(self, self.source_folder):
             # relocatable shared libs on macOS
             replace_in_file(self, "configure", "-install_name @executable_path/", "-install_name @rpath/")
-            with self._build_context():
-                autotools = Autotools(self)
-                autotools.configure()
-                autotools.make()
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(
             self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
         )
         with chdir(self, self.source_folder):
-            with self._build_context():
-                autotools = Autotools(self)
-                autotools.install()
+            autotools = Autotools(self)
+            autotools.install()
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))

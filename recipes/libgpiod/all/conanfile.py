@@ -48,8 +48,8 @@ class LibgpiodConan(ConanFile):
         self.requires("linux-headers-generic/5.14.9")
 
     def build_requirements(self):
-        self.build_requires("libtool/2.4.7")
-        self.build_requires("pkgconf/1.9.5")
+        self.tool_requires("libtool/2.4.7")
+        self.build_requires("pkgconf/1.9.3")
         self.build_requires("autoconf-archive/2022.09.03")
 
     def source(self):

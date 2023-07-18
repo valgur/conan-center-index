@@ -212,7 +212,7 @@ class LibXMLPlusPlus(ConanFile):
 
     def build_requirements(self):
         self.build_requires("meson/0.63.0")
-        self.build_requires("pkgconf/1.7.4")
+        self.build_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

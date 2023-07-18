@@ -269,7 +269,7 @@ class BotanConan(ConanFile):
         # standard (platform dependent) flags in presence of an environment
         # variable ${CXXFLAGS}. Most notably, this would build botan with
         # disabled compiler optimizations.
-        environment_cxxflags = get_env(self, "CXXFLAGS")
+        environment_cxxflags = os.environ.get("CXXFLAGS")
         if environment_cxxflags:
             del os.environ["CXXFLAGS"]
             botan_extra_cxx_flags.append(environment_cxxflags)
@@ -407,10 +407,6 @@ class BotanConan(ConanFile):
     @property
     def _make_cmd(self):
         return self._nmake_cmd if is_msvc(self) else self._gnumake_cmd
-
-    @property
-    def _make_program(self):
-        return get_env(self, "CONAN_MAKE_PROGRAM", which(self, "make") or which(self, "mingw32-make"))
 
     @property
     def _gnumake_cmd(self):

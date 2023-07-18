@@ -2,13 +2,13 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import can_run, cross_building
-from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
 from conan.tools.files import copy
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):
@@ -17,11 +17,15 @@ class TestPackageConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["SUPPORT_PATH"] = self.dependencies["asn1c"].buildenv_info.SUPPORT_PATH
+        tc.generate()
+
     def build(self):
         if not cross_building(self):
             copy(self, "MyModule.asn1", src=self.source_folder, dst=self.build_folder)
             cmake = CMake(self)
-            cmake.variables["SUPPORT_PATH"] = self.dependencies["asn1c"].buildenv_info.SUPPORT_PATH
             cmake.configure()
             cmake.build()
 

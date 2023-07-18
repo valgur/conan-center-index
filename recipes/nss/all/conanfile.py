@@ -150,8 +150,10 @@ class NSSConan(ConanFile):
                 raise ConanInvalidConfiguration("nss < 3.74 requires clang < 13 .")
 
     def build_requirements(self):
-        if is_msvc(self) and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
             self.build_requires("mozilla-build/3.3")
         if hasattr(self, "settings_build"):

@@ -154,8 +154,8 @@ class SerfConan(ConanFile):
 
     @property
     def _cc(self):
-        if get_env(self, "CC"):
-            return get_env(self, "CC")
+        if os.environ.get("CC"):
+            return os.environ.get("CC")
         if is_apple_os(self.settings.os):
             return "clang"
         return {

@@ -22,8 +22,10 @@ class TestPackageConan(ConanFile):
         if hasattr(self, "settings_build") and not tools.cross_building(self):
             self.build_requires(self.tested_reference_str)
         self.build_requires("automake/1.16.5") # Needed for aclocal called by autoreconf
-        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     @contextmanager
     def _build_context(self):

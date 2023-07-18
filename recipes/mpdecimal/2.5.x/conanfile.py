@@ -79,7 +79,7 @@ class MpdecimalConan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self):
-            self.tool_requires("automake/1.16.4")
+            self.tool_requires("automake/1.16.5")
         else:
             # required to suppport windows as a build machine
             if self._settings_build.os == "Windows":

@@ -321,7 +321,7 @@ class CPythonConan(ConanFile):
             )
         if self.settings.compiler == "intel":
             tc.configure_args.extend(["--with-icc"])
-        if get_env(self, "CC") or self.settings.compiler != "gcc":
+        if os.environ.get("CC") or self.settings.compiler != "gcc":
             tc.configure_args.append("--without-gcc")
         if self.options.with_tkinter:
             tcltk_includes = []

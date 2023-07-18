@@ -145,9 +145,11 @@ class GfCompleteConan(ConanFile):
                 raise ConanInvalidConfiguration("gf-complete 1.03 doesn't support Visual Studio")
 
     def build_requirements(self):
-        self.build_requires("libtool/2.4.6")
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        self.tool_requires("libtool/2.4.7")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -168,27 +170,6 @@ class GfCompleteConan(ConanFile):
         for subdir in ["src", "tools"]:
             for flag in ["-O3", "-fPIC"]:
                 replace_in_file(self, os.path.join(self.source_folder, subdir, "Makefile.am"), flag, "")
-
-    @contextlib.contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self):
-                env = {
-                    "CC": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "CXX": "{} cl -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "LD": "{} link -nologo".format(
-                        unix_path(self, self.conf_info.get("user.automake:compile"))
-                    ),
-                    "AR": "{} lib".format(unix_path(self, self.conf_info.get("user.automake:ar_lib"))),
-                }
-                with environment_append(self, env):
-                    yield
-        else:
-            yield
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -211,6 +192,21 @@ class GfCompleteConan(ConanFile):
                 tc.configure_args.append("--enable-avx={}".format(yes_no(self.options.avx)))
 
         tc.generate()
+
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
         self._patch_sources()

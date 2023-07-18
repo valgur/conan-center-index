@@ -96,13 +96,15 @@ class ElfutilsConan(ConanFile):
             self.output.warning(f"Compiler {self.settings.compiler} is not gcc.")
 
     def build_requirements(self):
-        self.build_requires("automake/1.16.4")
-        self.build_requires("m4/1.4.19")
-        self.build_requires("flex/2.6.4")
-        self.build_requires("bison/3.7.6")
-        self.build_requires("pkgconf/1.7.4")
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        self.tool_requires("automake/1.16.5")
+        self.tool_requires("m4/1.4.19")
+        self.tool_requires("flex/2.6.4")
+        self.tool_requires("bison/3.7.6")
+        self.tool_requires("pkgconf/1.9.3")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

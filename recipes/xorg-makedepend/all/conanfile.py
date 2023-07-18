@@ -46,7 +46,7 @@ class XorgMakedepend(ConanFile):
             raise ConanInvalidConfiguration("Windows is not supported by xorg-makedepend")
 
     def build_requirements(self):
-        self.build_requires("pkgconf/1.7.4")
+        self.build_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

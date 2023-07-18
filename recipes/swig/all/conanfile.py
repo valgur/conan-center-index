@@ -123,8 +123,10 @@ class SwigConan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not get_env(self, "CONAN_BASH_PATH"):
-            self.build_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.build_requires("winflexbison/2.5.24")
         else:
