@@ -219,7 +219,7 @@ class NCursesConan(ConanFile):
     def generate(self):
         autotools = AutoToolsBuildEnvironment(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-shared={}".format(yes_no(self.options.shared)),
             "--with-cxx-shared={}".format(yes_no(self.options.shared)),
             "--with-normal={}".format(yes_no(not self.options.shared)),

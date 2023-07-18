@@ -85,7 +85,7 @@ class LibStudXmlConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["--with-external-expat"]
+        tc.configure_args += ["--with-external-expat"]
         tc.generate()
 
     @property

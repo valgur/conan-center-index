@@ -385,7 +385,7 @@ class ImageMagicConan(ConanFile):
             def yes_no(o):
                 return "yes" if o else "no"
 
-            tc.configure_args = [
+            tc.configure_args += [
                 "--disable-openmp",
                 "--disable-docs",
                 "--with-perl=no",

@@ -198,7 +198,6 @@ class GfCompleteConan(ConanFile):
             tc.cxxflags.append("-mstackrealign")
 
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = []
 
         if "arm" in self.settings.arch:
             if self.options.neon != "auto":

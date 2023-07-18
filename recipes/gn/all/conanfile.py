@@ -171,13 +171,13 @@ class GnConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--no-last-commit-position",
             "--host={}".format(self._to_gn_platform(self.settings.os, self.settings.compiler)),
         ]
         if self.settings.build_type == "Debug":
             tc.configure_args.append("-d")
-        self.run(f"{sys.executable} build/gen.py {' '.join(tc.configure_args)}", run_environment=True)
+        self.run(f"{sys.executable} build/gen.py {' '.join(tc.configure_args)}")
         tc.generate()
 
     def build(self):

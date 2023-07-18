@@ -192,7 +192,7 @@ class OpenFstConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--enable-bin={}".format(yes_no(self.options.enable_bin)),
             "--enable-compact-fsts={}".format(yes_no(self.options.enable_compact_fsts)),
             "--enable-compress={}".format(yes_no(self.options.enable_compress)),

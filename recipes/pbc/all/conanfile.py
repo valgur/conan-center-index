@@ -62,7 +62,7 @@ class PbcConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["LEX=flex"]
+        tc.defines += ["LEX=flex"]
 
         # No idea why this is necessary, but if you don't set CC this way, then
         # configure complains that it can't find gmp.

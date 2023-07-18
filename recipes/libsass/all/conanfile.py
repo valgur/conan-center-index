@@ -126,7 +126,7 @@ class LibsassConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["--disable-tests"]
+        tc.configure_args += ["--disable-tests"]
         tc.generate()
 
     def _build_autotools(self):

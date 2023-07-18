@@ -87,7 +87,7 @@ class ImakeConan(ConanFile):
                 tc.extra_cxxflags.append("-FS")
 
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--enable-ccmakedep={}".format(yes_no(self.options.ccmakedep)),
             "--enable-cleanlinks={}".format(yes_no(self.options.cleanlinks)),
             "--enable-makeg={}".format(yes_no(self.options.makeg)),

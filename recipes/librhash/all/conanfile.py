@@ -76,7 +76,7 @@ class LibRHashConan(ConanFile):
             elif self.settings.arch in ("armv8",):
                 tc.build_type_link_flags.append("-arch arm64")
         vars = tc.vars
-        tc.configure_args = [
+        tc.configure_args += [
             (
                 # librhash's configure script does not understand `--enable-opt1=yes`
                 "--enable-openssl"

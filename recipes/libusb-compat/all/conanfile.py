@@ -187,7 +187,7 @@ class LibUSBCompatConan(ConanFile):
             # (because it interprets the libs as input source files)
             tc.libs = list(unix_path(self, l) for l in self._absolute_dep_libs_win)
             tc.libs += sum([dep.cpp_info.system_libs for dep in self.dependencies.values()], [])
-        tc.configure_args = [
+        tc.configure_args += [
             "--disable-examples-build",
             "--enable-log" if self.options.enable_logging else "--disable-log",
         ]

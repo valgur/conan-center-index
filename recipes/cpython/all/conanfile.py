@@ -298,8 +298,7 @@ class CPythonConan(ConanFile):
     def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
-            "--enable-shared={}".format(yes_no(self.options.shared)),
+        tc.configure_args += [
             "--with-doc-strings={}".format(yes_no(self.options.docstrings)),
             "--with-pymalloc={}".format(yes_no(self.options.pymalloc)),
             "--with-system-expat",

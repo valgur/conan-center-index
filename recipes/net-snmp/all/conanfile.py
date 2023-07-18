@@ -193,7 +193,7 @@ class NetSnmpConan(ConanFile):
         ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
         ssl_path = self.dependencies["openssl"].package_folder
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-defaults",
             "--without-rpm",
             "--without-pcre",

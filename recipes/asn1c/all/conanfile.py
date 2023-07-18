@@ -124,7 +124,7 @@ class Asn1cConan(ConanFile):
 
     def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [f"--datarootdir={unix_path(self, self._datarootdir)}"]
+        tc.configure_args += [f"--datarootdir={unix_path(self, self._datarootdir)}"]
         tc.generate()
 
     def build(self):

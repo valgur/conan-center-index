@@ -90,7 +90,7 @@ class LibSafeCConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
             "--disable-doc",
             "--disable-Werror",

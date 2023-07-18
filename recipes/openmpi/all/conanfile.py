@@ -65,7 +65,7 @@ class OpenMPIConan(ConanFile):
         args.append("--with-zlib={}".format(self.dependencies["zlib"].cpp_info.rootpath))
         args.append("--with-zlib-libdir={}".format(self.dependencies["zlib"].cpp_info.libdirs[0]))
         args.append("--datarootdir=${prefix}/res")
-        tc.configure_args = args
+        tc.configure_args += args
 
     def build(self):
         with chdir(self, self.source_folder):

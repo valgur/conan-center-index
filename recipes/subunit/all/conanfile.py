@@ -175,7 +175,7 @@ class SubunitConan(ConanFile):
             tc.cxxflags.append("-FS")
             tc.cxxflags.append("-EHsc")
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.defines += [
             "CHECK_CFLAGS=' '",
             "CHECK_LIBS=' '",
             "CPPUNIT_CFLAGS='{}'".format(

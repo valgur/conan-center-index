@@ -57,10 +57,7 @@ class UvmSystemC(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         systemc_root = os.path.dirname(self.dependencies["systemc"].cpp_info.libdirs[0])
-        tc.configure_args = [
-            f"--with-systemc={systemc_root}",
-            "--prefix=/",
-        ]
+        tc.configure_args += [f"--with-systemc={systemc_root}"]
         tc.generate()
 
     def build(self):

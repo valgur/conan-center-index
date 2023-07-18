@@ -171,7 +171,7 @@ class LzipConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = []
+        tc.configure_args += []
         tc.generate()
 
     def build(self):

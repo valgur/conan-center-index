@@ -244,7 +244,7 @@ class TkConan(ConanFile):
         tclConfigShFolder = os.path.join(tcl_root, "lib").replace("\\", "/")
 
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-tcl={}".format(unix_path(self, tclConfigShFolder)),
             "--enable-threads",
             "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),

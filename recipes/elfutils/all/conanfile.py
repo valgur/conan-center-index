@@ -109,9 +109,8 @@ class ElfutilsConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--disable-werror",
-            "--enable-static={}".format("no" if self.options.shared else "yes"),
             "--enable-deterministic-archives",
             "--enable-silent-rules",
             "--with-zlib",

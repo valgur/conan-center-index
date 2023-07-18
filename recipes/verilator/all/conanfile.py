@@ -185,7 +185,7 @@ class VerilatorConan(ConanFile):
             tc.cxxflags.append("-EHsc")
             tc.defines.append("YY_NO_UNISTD_H")
             tc.cxxflags.append("-FS")
-        tc.configure_args = ["--datarootdir={}/bin/share".format(unix_path(self, self.package_folder))]
+        tc.configure_args += ["--datarootdir={}/bin/share".format(unix_path(self, self.package_folder))]
         yacc = get_env(self, "YACC")
         if yacc:
             if yacc.endswith(" -y"):

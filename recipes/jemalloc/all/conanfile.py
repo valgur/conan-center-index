@@ -270,7 +270,7 @@ class JemallocConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-jemalloc-prefix={}".format(self.options.prefix),
             "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
             "--enable-cxx" if self.options.enable_cxx else "--disable-cxx",

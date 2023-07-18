@@ -244,7 +244,7 @@ class SqlcipherConan(ConanFile):
 
     def _generate_autotools(self):
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--enable-tempstore={}".format(self._temp_store_autotools_value),
             "--disable-tcl",
         ]

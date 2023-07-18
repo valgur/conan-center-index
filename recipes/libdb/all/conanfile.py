@@ -115,7 +115,7 @@ class LibdbConan(ConanFile):
                 and Version(self.settings.compiler.version) >= "12"
             ):
                 tc.cxxflags.append("-Wno-error=implicit-function-declaration")
-            tc.configure_args = [
+            tc.configure_args += [
                 "--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug",
                 "--enable-mingw" if self._mingw_build else "--disable-mingw",
                 "--enable-compat185",

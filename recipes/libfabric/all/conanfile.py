@@ -98,7 +98,7 @@ class LibfabricConan(ConanFile):
             args.append(f"--with-bgq-progress={self.options.with_bgq_progress}")
         if self.options.with_bgq_mr:
             args.append(f"--with-bgq-mr={self.options.with_bgq_mr}")
-        tc.configure_args = args
+        tc.configure_args += args
 
     def build(self):
         autotools = Autotools(self)

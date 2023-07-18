@@ -165,7 +165,7 @@ class NsprConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-mozilla={}".format(yes_no(self.options.with_mozilla)),
             "--enable-64bit={}".format(
                 yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))

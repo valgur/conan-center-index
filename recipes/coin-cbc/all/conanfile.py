@@ -173,7 +173,7 @@ class CoinCbcConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--enable-cbc-parallel={}".format(yes_no(self.options.parallel)),
             "--without-blas",
             "--without-lapack",

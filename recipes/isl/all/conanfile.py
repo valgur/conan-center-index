@@ -189,7 +189,7 @@ class IslConan(ConanFile):
     def _configure_autotools(self):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-int={}".format(self.options.with_int),
             "--enable-portable-binary",
         ]

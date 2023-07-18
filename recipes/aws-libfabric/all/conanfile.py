@@ -189,7 +189,7 @@ class LibfabricConan(ConanFile):
             "shared": "dl",
         }[str(v)]
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-bgq-progress={}".format(self.options.bgq_progress),
             "--with-bgq-mr={}".format(self.options.bgq_mr),
         ]

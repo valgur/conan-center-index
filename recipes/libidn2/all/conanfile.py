@@ -180,7 +180,7 @@ class LibIdn(ConanFile):
                     "-L{}".format(p.replace("\\", "/")) for p in dep.cpp_info.aggregated_components().libdirs
                 )
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-libiconv-prefix={}".format(
                 unix_path(self, self.dependencies["libiconv"].cpp_info.rootpath)
             ),

@@ -61,7 +61,7 @@ class OfeliConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [f"--enable-{'release' if self.settings.build_type == 'Release' else 'debug'}"]
+        tc.configure_args += [f"--enable-{'release' if self.settings.build_type == 'Release' else 'debug'}"]
         tc.generate()
 
     def build(self):

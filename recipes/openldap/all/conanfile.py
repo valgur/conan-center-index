@@ -129,7 +129,7 @@ class OpenldapConan(ConanFile):
             return "yes" if v else "no"
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--with-cyrus_sasl={}".format(yes_no(self.options.with_cyrus_sasl)),
             "--without-fetch",
             "--with-tls=openssl",

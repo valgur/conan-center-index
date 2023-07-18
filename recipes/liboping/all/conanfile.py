@@ -71,10 +71,7 @@ class LibopingConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = [
-            f"--enable-shared={yes_no(self.options.shared)}",
-            f"--enable-static={yes_no(not self.options.shared)}",
+        tc.configure_args += [
             "--without-ncurses",
             "--without-perl-bindings",
         ]

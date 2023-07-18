@@ -68,9 +68,6 @@ class ResiprocateConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args = ["--with-pic={}".format(yes_no(self.options.get_safe("fPIC", True)))]
-
         # These options do not support yes/no
         if self.options.with_ssl:
             tc.configure_args.append("--with-ssl")

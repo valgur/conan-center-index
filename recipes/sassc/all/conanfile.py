@@ -52,7 +52,7 @@ class SasscConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["--disable-tests"]
+        tc.configure_args += ["--disable-tests"]
         tc.generate()
 
     def _patch_sources(self):

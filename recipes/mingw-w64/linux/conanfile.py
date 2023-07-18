@@ -199,7 +199,7 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "binutils"))
             with chdir(self, os.path.join(self.build_folder, "binutils")):
                 tc = AutotoolsToolchain(self)
-                tc.configure_args = [
+                tc.configure_args += [
                     "--enable-silent-rules",
                     "--with-sysroot={}".format(self.package_folder),
                     "--disable-nls",
@@ -217,7 +217,6 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "mingw-w64-tools"))
             with chdir(self, os.path.join(self.build_folder, "mingw-w64-tools")):
                 autotools = AutoToolsBuildEnvironment(self)
-                tc.configure_args = []
                 autotools.configure(
                     configure_dir=os.path.join(
                         self.build_folder, "sources", "mingw-w64", "mingw-w64-tools", "widl"
@@ -278,7 +277,7 @@ class MingwConan(ConanFile):
             mkdir(self, os.path.join(self.build_folder, "gcc"))
             with chdir(self, os.path.join(self.build_folder, "gcc")):
                 autotools_gcc = AutoToolsBuildEnvironment(self)
-                tc.configure_args = [
+                tc.configure_args += [
                     "--enable-silent-rules",
                     "--enable-languages=c,c++",
                     "--with-sysroot={}".format(self.package_folder),
@@ -324,7 +323,7 @@ class MingwConan(ConanFile):
                 mkdir(self, os.path.join(self.build_folder, "mingw-w64-crt"))
                 with chdir(self, os.path.join(self.build_folder, "mingw-w64-crt")):
                     autotools = AutoToolsBuildEnvironment(self)
-                    tc.configure_args = [
+                    tc.configure_args += [
                         "--enable-silent-rules",
                         "--prefix={}".format(os.path.join(self.package_folder, target_tag)),
                         "--with-sysroot={}".format(self.package_folder),
@@ -349,7 +348,7 @@ class MingwConan(ConanFile):
                     mkdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads"))
                     with chdir(self, os.path.join(self.build_folder, "mingw-w64-libraries-winpthreads")):
                         autotools = AutoToolsBuildEnvironment(self)
-                        tc.configure_args = [
+                        tc.configure_args += [
                             "--enable-silent-rules",
                             "--disable-shared",
                             "--prefix={}".format(os.path.join(self.package_folder, target_tag)),

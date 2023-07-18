@@ -132,7 +132,7 @@ class libxftConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["--disable-dependency-tracking"]
+        tc.configure_args += ["--disable-dependency-tracking"]
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()

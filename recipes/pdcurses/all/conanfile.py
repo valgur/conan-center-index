@@ -138,7 +138,7 @@ class PDCursesConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = [
+        tc.configure_args += [
             "--enable-widec" if self.options.enable_widec else "--disable-widec",
         ]
         tc.generate()

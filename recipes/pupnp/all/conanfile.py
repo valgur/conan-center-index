@@ -88,7 +88,7 @@ class PupnpConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args = ["--disable-samples"]
+        tc.configure_args += ["--disable-samples"]
 
         def enable_disable(opt):
             what = "enable" if getattr(self.options, opt) else "disable"

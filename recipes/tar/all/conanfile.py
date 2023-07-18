@@ -132,7 +132,7 @@ class TarConan(ConanFile):
         lzip_exe = "lzip"  # FIXME: get from lzip recipe
         lzma_exe = "lzma"  # FIXME: get from xz_utils recipe
         xz_exe = "xz"  # FIXME: get from xz_utils recipe
-        tc.configure_args = [
+        tc.configure_args += [
             "--disable-acl",
             "--disable-nls",
             "--disable-rpath",
