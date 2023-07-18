@@ -22,7 +22,7 @@ for recipe_dir in recipes/*; do
     echo
     echo -e "${BLUE}Migrating $recipe${NC}"
     git switch master
-    git branch -D "migrate/$recipe"
+    git branch -D "migrate/$recipe" || true
     git checkout -b "migrate/$recipe"
 #    black -l 110 --preview --quiet "$recipe_dir"
 #    git add "$recipe_dir"
