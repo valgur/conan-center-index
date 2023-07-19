@@ -6,10 +6,10 @@ NC='\033[0m' # No Color
 
 migrated_root=$HOME/tmp/conan/recipes
 
-git checkout mass-migration
-
 # Remove untracked files in recipes/
-git ls-files --others --exclude-standard | grep recipes/ | xargs rm -rf
+git clean -xfd recipes/
+
+git checkout mass-migration
 
 # Copy recipes to $migrated_root
 rm -rf "$migrated_root"
@@ -24,12 +24,14 @@ for recipe_dir in recipes/*; do
     git switch master
     git branch -D "migrate/$recipe" || true
     git checkout -b "migrate/$recipe"
-#    black -l 110 --preview --quiet "$recipe_dir"
-#    git add "$recipe_dir"
-#    git commit -m "$recipe: autoformat"
     rm -rf "$recipe_dir"
     cp -r "$migrated_root/$recipe" "$recipe_dir"
-    git add "$recipe_dir" && git commit -m "$recipe: migrate to Conan v2" || true
+    git add "$recipe_dir"
+    if test -n "$(git status --porcelain)"; then
+        git branch -D "migrate/$recipe" || true
+    else
+        git commit -m "$recipe: migrate to Conan v2"
+    fi
 done
 
-git switch master
+git switch mass-migration
