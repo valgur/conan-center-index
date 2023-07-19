@@ -28,9 +28,9 @@ for recipe_dir in recipes/*; do
     cp -r "$migrated_root/$recipe" "$recipe_dir"
     git add "$recipe_dir"
     if test -n "$(git status --porcelain)"; then
-        git branch -D "migrate/$recipe" || true
-    else
         git commit -m "$recipe: migrate to Conan v2"
+    else
+        git branch -D "migrate/$recipe" || true
     fi
 done
 
