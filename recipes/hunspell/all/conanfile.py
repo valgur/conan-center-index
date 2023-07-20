@@ -60,7 +60,7 @@ class HunspellConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def package(self):

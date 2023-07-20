@@ -59,7 +59,7 @@ class PoshlibConan(ConanFile):
             "defined _ARM || defined __arm64",
         )
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def package(self):

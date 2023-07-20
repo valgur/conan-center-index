@@ -131,7 +131,7 @@ class GRPCProto(ConanFile):
             for it in filter(lambda u: u.is_used, proto_libraries):
                 f.write(it.cmake_content)
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def package(self):

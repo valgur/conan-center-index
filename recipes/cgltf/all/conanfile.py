@@ -66,7 +66,7 @@ class CgltfConan(ConanFile):
     def build(self):
         self._create_source_files()
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def _remove_implementation(self, header_fullpath):
