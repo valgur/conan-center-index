@@ -6,7 +6,7 @@ from conan.tools.files import chdir
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
+    generators = "CMakeDeps"
     test_type = "explicit"
 
     def layout(self):

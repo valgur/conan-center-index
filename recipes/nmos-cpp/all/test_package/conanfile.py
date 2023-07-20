@@ -9,7 +9,7 @@ from six import StringIO
 
 class NmosCppTestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "CMakeToolchain"
     test_type = "explicit"
 
     def layout(self):

@@ -6,7 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "PkgConfigDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "PkgConfigDeps", "CMakeToolchain"
 
     def layout(self):
         cmake_layout(self)

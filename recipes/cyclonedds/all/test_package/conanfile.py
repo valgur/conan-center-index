@@ -6,7 +6,7 @@ from conan.tools.build import can_run
 
 class CycloneDDSTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
+    generators = "CMakeToolchain", "CMakeDeps"
     test_type = "explicit"
 
     def layout(self):

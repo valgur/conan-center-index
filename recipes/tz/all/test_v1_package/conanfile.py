@@ -6,7 +6,7 @@ import os
 
 class TzTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "VirtualBuildEnv"
     test_type = "explicit"
     tzdata = None
 

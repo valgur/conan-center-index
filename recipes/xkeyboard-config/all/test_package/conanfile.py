@@ -5,7 +5,7 @@ from conan.tools.layout import basic_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "VirtualBuildEnv"
     test_type = "explicit"
 
     def requirements(self):

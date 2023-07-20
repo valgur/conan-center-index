@@ -7,7 +7,7 @@ required_conan_version = ">=1.33.0"
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
+    generators = "CMakeToolchain", "CMakeDeps"
     test_type = "explicit"
 
     def layout(self):
