@@ -1,12 +1,9 @@
-cmake_minimum_required(VERSION 3.9)
-project(PackageTest)
+cmake_minimum_required(VERSION 3.15)
+project(PackageTest LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-# the following is not working in the toolkit v26
-#conan_basic_setup(TARGETS)
-find_package(ncbi-cxx-toolkit-public REQUIRED)
+
+find_package(ncbi-cxx-toolkit-public REQUIRED CONFIG)
 
 NCBI_begin_app(basic_sample)
   NCBI_sources(basic_sample)
@@ -14,5 +11,5 @@ NCBI_begin_app(basic_sample)
 NCBI_end_app()
 
 add_executable(basic_sample2 basic_sample.cpp)
-target_link_libraries(basic_sample2 ${CONAN_LIBS})
+target_link_libraries(basic_sample2 PRIVATE ncbi-cxx-toolkit-public)
 
