@@ -26,8 +26,8 @@ for recipe_dir in recipes/*; do
     git checkout -b "migrate/$recipe"
     rm -rf "$recipe_dir"
     cp -r "$migrated_root/$recipe" "$recipe_dir"
-    git add "$recipe_dir"
-    if test -n "$(git status --porcelain)"; then
+    git add "$recipe_dir" || true
+    if test -n "$(git status --porcelain --untracked-files=no)"; then
         git commit -m "$recipe: migrate to Conan v2"
     else
         git branch -D "migrate/$recipe" || true
