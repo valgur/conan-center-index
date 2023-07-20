@@ -12,7 +12,7 @@ from conan.tools.files import (
     save,
 )
 from conan.tools.build import valid_min_cppstd
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc
+from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 import os
 
 required_conan_version = ">=1.53.0"
@@ -131,7 +131,7 @@ class PhysXConan(ConanFile):
         tc.cache_variables["NV_APPEND_CONFIG_NAME"] = False
         tc.cache_variables["NV_USE_GAMEWORKS_OUTPUT_DIRS"] = False
         if is_msvc(self):
-            tc.cache_variables["NV_USE_STATIC_WINCRT"] = "MT" in msvc_runtime_flag(self)
+            tc.cache_variables["NV_USE_STATIC_WINCRT"] = is_msvc_static_runtime(self)
             tc.cache_variables["NV_USE_DEBUG_WINCRT"] = "d" in msvc_runtime_flag(self)
         tc.cache_variables["NV_FORCE_64BIT_SUFFIX"] = False
         tc.cache_variables["NV_FORCE_32BIT_SUFFIX"] = False

@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
     def _build_transupp(self):
         # transupp+libjpeg makes use of stdio of the C library. This cannot be used when using a dll libjpeg, built with a static c library.
         return not (
-            self.dependencies["libjpeg"].options.shared and is_msvc(self) and is_msvc_static_runtime(self)
+            self.dependencies["libjpeg"].options.shared and is_msvc_static_runtime(self)
         )
 
     def layout(self):

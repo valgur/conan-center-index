@@ -12,7 +12,7 @@ from conan.tools.files import (
 )
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import check_min_vs
+from conan.tools.microsoft import check_min_vs, msvc_runtime_flag
 import os
 
 required_conan_version = ">=1.57.0"
@@ -98,7 +98,7 @@ class LcmsConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
+    if not msvc_runtime_flag(conanfile):
         return
     from conan.tools.files import rename
     import glob

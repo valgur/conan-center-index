@@ -4,7 +4,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 import os
 
@@ -119,7 +119,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     from conan.tools.files import rename
     import glob
 
-    if not conanfile.settings.get_safe("compiler.runtime"):
+    if not msvc_runtime_flag(conanfile):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:

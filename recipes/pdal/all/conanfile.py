@@ -18,7 +18,7 @@ from conan.tools.files import (
     rmdir,
     save,
 )
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -108,7 +108,7 @@ class PdalConan(ConanFile):
             check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < 5:
             raise ConanInvalidConfiguration("This compiler version is unsupported")
-        if self.options.shared and is_msvc(self) and "MT" in msvc_runtime_flag(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("pdal shared doesn't support MT runtime with Visual Studio")
         miss_boost_required_comp = any(
             getattr(self.options["boost"], "without_{}".format(boost_comp), True)

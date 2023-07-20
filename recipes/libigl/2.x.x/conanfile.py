@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
@@ -82,7 +82,7 @@ class LibiglConan(ConanFile):
                     f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
                     f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
-        if is_msvc(self) and "MT" in self.settings.compiler.runtime and not self.options.header_only:
+        if is_msvc_static_runtime(self) and not self.options.header_only:
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
         if "arm" in self.settings.arch or "x86" is self.settings.arch:
             raise ConanInvalidConfiguration(

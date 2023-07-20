@@ -19,7 +19,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -84,7 +84,7 @@ class RubyConan(ConanFile):
             self.requires("openssl/1.1.1o")
 
     def validate(self):
-        if is_msvc(self) and msvc_runtime_flag(self).startswith("MT"):
+        if is_msvc_static_runtime(self):
             # see https://github.com/conan-io/conan-center-index/pull/8644#issuecomment-1068974098
             raise ConanInvalidConfiguration("VS static runtime is not supported")
 

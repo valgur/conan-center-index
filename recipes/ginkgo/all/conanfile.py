@@ -81,7 +81,7 @@ class GinkgoConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Ginkgo does not support mixing static CRT and shared library")
 
     def source(self):

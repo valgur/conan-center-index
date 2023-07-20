@@ -145,7 +145,7 @@ class MysqlConnectorCConan(ConanFile):
         tc.variables["STACK_DIRECTION"] = "-1"
         tc.variables["REQUIRE_STDCPP"] = stdcpp_library(self)
         if is_msvc(self):
-            if self.settings.compiler.runtime == "MD" or self.settings.compiler.runtime == "MDd":
+            if not is_msvc_static_runtime(self):
                 tc.variables["WINDOWS_RUNTIME_MD"] = True
         if self.options.with_ssl:
             tc.variables["WITH_SSL"] = "system"

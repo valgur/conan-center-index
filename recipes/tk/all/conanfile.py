@@ -202,11 +202,11 @@ class TkConan(ConanFile):
             opts.append("static")
         if self.settings.build_type == "Debug":
             opts.append("symbols")
-        if "MD" in str(self.settings.compiler.runtime):
+        if not is_msvc_static_runtime(self):
             opts.append("msvcrt")
         else:
             opts.append("nomsvcrt")
-        if "d" not in str(self.settings.compiler.runtime):
+        if "d" not in msvc_runtime_flag(self):
             opts.append("unchecked")
         # https://core.tcl.tk/tk/tktview?name=3d34589aa0
         # https://wiki.tcl-lang.org/page/Building+with+Visual+Studio+2017
@@ -302,7 +302,7 @@ class TkConan(ConanFile):
             tk_suffix = "t{}{}{}".format(
                 "" if self.options.shared else "s",
                 "g" if self.settings.build_type == "Debug" else "",
-                "x" if "MD" in str(self.settings.compiler.runtime) and not self.options.shared else "",
+                "x" if not is_msvc_static_runtime(self) and not self.options.shared else "",
             )
         else:
             tk_version = Version(self.version)

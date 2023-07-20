@@ -170,7 +170,7 @@ class PocoConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Apache connector not supported: https://github.com/pocoproject/poco/issues/1764"
             )
-        if is_msvc(self) and self.options.shared and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Cannot build shared poco libraries with MT(d) runtime")
         for compopt in self._poco_component_tree.values():
             if not compopt.option:

@@ -67,7 +67,7 @@ class LibsodiumConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Cannot build shared libsodium libraries with static runtime")
 
     def build_requirements(self):

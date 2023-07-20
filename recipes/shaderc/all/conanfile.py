@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -87,7 +87,7 @@ class ShadercConan(ConanFile):
         tc.variables["SHADERC_SPVC_DISABLE_CONTEXT_LOGGING"] = False
         tc.variables["SHADERC_ENABLE_WERROR_COMPILE"] = False
         if is_msvc(self):
-            tc.variables["SHADERC_ENABLE_SHARED_CRT"] = str(self.settings.compiler.runtime).startswith("MD")
+            tc.variables["SHADERC_ENABLE_SHARED_CRT"] = not is_msvc_static_runtime(self)
         tc.variables["ENABLE_CODE_COVERAGE"] = False
         if is_apple_os(self.settings.os):
             tc.variables["CMAKE_MACOSX_BUNDLE"] = False

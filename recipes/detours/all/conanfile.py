@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import chdir, copy, get, replace_in_file
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag
 
 required_conan_version = ">=1.53.0"
 
@@ -69,7 +69,7 @@ class DetoursConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "src", "Makefile"),
                 "/MT ",
-                f"/{self.settings.compiler.runtime} ",
+                f"/{msvc_runtime_flag(self)} ",
             )
 
     def build(self):

@@ -208,7 +208,7 @@ class RocksDB(ConanFile):
         tc.variables["WITH_BENCHMARK_TOOLS"] = False
         tc.variables["WITH_FOLLY_DISTRIBUTED_MUTEX"] = False
         if is_msvc(self):
-            tc.variables["WITH_MD_LIBRARY"] = "MD" in msvc_runtime_flag(self)
+            tc.variables["WITH_MD_LIBRARY"] = not is_msvc_static_runtime(self)
         tc.variables["ROCKSDB_INSTALL_ON_WINDOWS"] = self.settings.os == "Windows"
         tc.variables["ROCKSDB_LITE"] = self.options.lite
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags

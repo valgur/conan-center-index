@@ -1,14 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.files import (
     apply_conandata_patches,
     export_conandata_patches,
     get,
     copy,
-    rm,
     rmdir,
-    replace_in_file,
+    replace_in_file
 )
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
@@ -98,7 +97,7 @@ class Jinja2cppConan(ConanFile):
         tc.variables["JINJA2CPP_CXX_STANDARD"] = self.settings.compiler.get_safe("cppstd", 14)
         if is_msvc(self):
             # Runtime type configuration for Jinja2C++ should be strictly '/MT' or '/MD'
-            runtime = "/MD" if "MD" in msvc_runtime_flag(self) else "/MT"
+            runtime = "/MD" if not is_msvc_static_runtime(self) else "/MT"
             tc.variables["JINJA2CPP_MSVC_RUNTIME_TYPE"] = runtime
         tc.generate()
         deps = CMakeDeps(self)

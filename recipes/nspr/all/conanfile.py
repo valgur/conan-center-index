@@ -164,7 +164,7 @@ class NsprConan(ConanFile):
             tc.configure_args.extend(
                 [
                     "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
-                    "--enable-static-rtl={}".format(yes_no("MT" in msvc_runtime_flag(self))),
+                    "--enable-static-rtl={}".format(yes_no(is_msvc_static_runtime(self))),
                     "--enable-debug-rtl={}".format(yes_no("d" in msvc_runtime_flag(self))),
                 ]
             )

@@ -196,7 +196,7 @@ class MpirConan(ConanFile):
             old_runtime = "MultiThreaded{}".format("Debug" if build_type == "debug" else "")
             new_runtime = "MultiThreaded{}{}".format(
                 "Debug" if "d" in msvc_runtime_flag(self) else "",
-                "DLL" if "MD" in msvc_runtime_flag(self) else "",
+                "DLL" if not is_msvc_static_runtime(self) else "",
             )
             replace_in_file(self, props_path, old_runtime, new_runtime)
         msbuild = MSBuild(self)

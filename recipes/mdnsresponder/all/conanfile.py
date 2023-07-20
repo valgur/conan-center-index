@@ -15,7 +15,7 @@ from conan.tools.files import (
 from conan.tools.scm import Version
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars
+from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars, is_msvc_static_runtime
 import os
 
 required_conan_version = ">=1.53.0"
@@ -157,7 +157,7 @@ class MdnsResponderConan(ConanFile):
 
     def _build_msvc(self):
         sln = os.path.join(self.source_folder, "mDNSResponder.sln")
-        if "MD" in self.settings.compiler.runtime:
+        if not is_msvc_static_runtime(self):
             # could use glob and replace_in_file(strict=False, ...)
             dll_vcxproj = os.path.join(self.source_folder, "mDNSWindows", "DLL", "dnssd.vcxproj")
             dllstub_vcxproj = os.path.join(self.source_folder, "mDNSWindows", "DLLStub", "DLLStub.vcxproj")

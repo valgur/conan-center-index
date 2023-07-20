@@ -73,7 +73,7 @@ class Libx265Conan(ConanFile):
             self.requires("libnuma/2.0.14")
 
     def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("shared not supported with static runtime")
 
     def build_requirements(self):

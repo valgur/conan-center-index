@@ -6,7 +6,7 @@ from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import check_min_vs, unix_path, is_msvc, msvc_runtime_flag
 import os
 
 required_conan_version = ">=1.57.0"
@@ -87,7 +87,7 @@ class CoinUtilsConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            tc.configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
+            tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
             tc.extra_cxxflags.append("-EHsc")
             if check_min_vs(self, "180", raise_invalid=False):
                 tc.extra_cflags.append("-FS")

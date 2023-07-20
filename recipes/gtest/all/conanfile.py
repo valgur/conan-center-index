@@ -123,7 +123,7 @@ class GTestConan(ConanFile):
             tc.cache_variables["CUSTOM_DEBUG_POSTFIX"] = str(self.options.debug_postfix)
 
         if self.settings.compiler.get_safe("runtime"):
-            tc.variables["gtest_force_shared_crt"] = "MD" in msvc_runtime_flag(self)
+            tc.variables["gtest_force_shared_crt"] = not is_msvc_static_runtime(self)
         tc.variables["gtest_disable_pthreads"] = self.options.disable_pthreads
         if Version(self.version) < "1.12.0":
             # Relocatable shared lib on Macos

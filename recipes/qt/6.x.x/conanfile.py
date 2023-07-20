@@ -10,7 +10,7 @@ from conan.tools.build import cross_building, check_min_cppstd, default_cppstd
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, apply_conandata_patches, save, rm, rmdir, export_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc
+from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
@@ -445,7 +445,7 @@ class QtConan(ConanFile):
         tc.variables["QT_BUILD_TESTS"] = "OFF"
         tc.variables["QT_BUILD_EXAMPLES"] = "OFF"
 
-        if is_msvc(self) and "MT" in msvc_runtime_flag(self):
+        if is_msvc_static_runtime(self):
             tc.variables["FEATURE_static_runtime"] = "ON"
 
         if self.options.multiconfiguration:

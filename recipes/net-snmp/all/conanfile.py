@@ -170,7 +170,7 @@ class NetSnmpConan(ConanFile):
             search_replace.append(("$b_ipv6 = false", "$b_ipv6 = true"))
         for search, replace in search_replace:
             replace_in_file(self, "win32\\build.pl", search, replace)
-        runtime = self.settings.compiler.runtime
+        runtime = msvc_runtime_flag(self)
         replace_in_file(self, "win32\\Configure", '"/runtime', f'"/{runtime}')
         link_lines = "\n".join(
             f'#    pragma comment(lib, "{lib}.lib")'

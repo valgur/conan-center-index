@@ -3,7 +3,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, chdir, copy, replace_in_file, rm
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, NMakeToolchain
+from conan.tools.microsoft import is_msvc, NMakeToolchain, msvc_runtime_flag
 import os
 
 required_conan_version = ">=1.55.0"
@@ -115,13 +115,13 @@ class LzmaSdkConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "CPP", "Build.mak"),
                 "-MT\r",
-                "-" + str(self.settings.compiler.runtime),
+                "-" + msvc_runtime_flag(self),
             )
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "CPP", "Build.mak"),
                 "-MD\r",
-                "-" + str(self.settings.compiler.runtime),
+                "-" + msvc_runtime_flag(self),
             )
             replace_in_file(self, os.path.join(self.source_folder, "CPP", "Build.mak"), " -WX ", " ")
 

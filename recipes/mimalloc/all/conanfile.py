@@ -112,7 +112,7 @@ class MimallocConan(ConanFile):
             )
 
         # Shared overriding requires dynamic runtime for MSVC:
-        if self.options.override and self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.override and self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
                 "Dynamic runtime (MD/MDd) is required when using mimalloc as a shared library for override"
             )

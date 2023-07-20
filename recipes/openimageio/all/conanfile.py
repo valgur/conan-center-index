@@ -145,7 +145,7 @@ class OpenImageIOConan(ConanFile):
                 check_min_cppstd(self, 14)
             else:
                 check_min_cppstd(self, 11)
-        if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
+        if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration("Building shared library with static runtime is not supported!")
 
     def source(self):

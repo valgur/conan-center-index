@@ -255,7 +255,7 @@ class CPythonConan(ConanFile):
 
     def validate(self):
         if self.options.shared:
-            if is_msvc(self) and "MT" in self.settings.compiler.runtime:
+            if is_msvc_static_runtime(self):
                 raise ConanInvalidConfiguration(
                     "cpython does not support MT(d) runtime when building a shared cpython library"
                 )
@@ -269,7 +269,7 @@ class CPythonConan(ConanFile):
                 # 1. build the MSVC PGInstrument build_type,
                 # 2. run the instrumented binaries, (PGInstrument should have created a `python.bat` file in the PCbuild folder)
                 # 3. build the MSVC PGUpdate build_type
-            if self.settings.build_type == "Debug" and "d" not in self.settings.compiler.runtime:
+            if self.settings.build_type == "Debug" and "d" not in msvc_runtime_flag(self):
                 raise ConanInvalidConfiguration(
                     "Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode"
                     " symbol, which only debug runtimes define)"
@@ -361,7 +361,7 @@ class CPythonConan(ConanFile):
                 "MTd": "MultiThreadedDebug",
                 "MD": "MultiThreadedDLL",
                 "MDd": "MultiThreadedDebugDLL",
-            }[str(self.settings.compiler.runtime)]
+            }[msvc_runtime_flag(self)]
             self.output.info("Patching runtime")
             replace_in_file(
                 self,
@@ -593,7 +593,7 @@ class CPythonConan(ConanFile):
             if (
                 Version(self.dependencies["libffi"].cpp_info.version) >= "3.3"
                 and is_msvc(self)
-                and "d" in str(self.settings.compiler.runtime)
+                and "d" in msvc_runtime_flag(self)
             ):
                 raise ConanInvalidConfiguration(
                     "libffi versions >= 3.3 cause 'read access violations' when using a debug runtime"

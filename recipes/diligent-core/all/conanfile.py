@@ -13,7 +13,7 @@ from conan.tools.files import (
     copy,
     apply_conandata_patches,
 )
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
 
@@ -90,7 +90,7 @@ class DiligentCoreConan(ConanFile):
 
     def package_id(self):
         if is_msvc(self):
-            if "MD" in self.settings.compiler.runtime:
+            if not is_msvc_static_runtime(self):
                 self.info.settings.compiler.runtime = "MD/MDd"
             else:
                 self.info.settings.compiler.runtime = "MT/MTd"
@@ -115,7 +115,7 @@ class DiligentCoreConan(ConanFile):
                         self.settings.compiler.version,
                     )
                 )
-        if is_msvc(self) and "MT" in self.settings.compiler.runtime:
+        if is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
 
     def build_requirements(self):

@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.microsoft import msvc_runtime_flag
 
 required_conan_version = ">=1.53.0"
 
@@ -79,7 +80,7 @@ class CoConan(ConanFile):
         tc = CMakeToolchain(self)
         if not self.options.shared:
             tc.variables["FPIC"] = self.options.get_safe("fPIC", False)
-        runtime = self.settings.get_safe("compiler.runtime")
+        runtime = msvc_runtime_flag(self)
         if runtime:
             tc.variables["STATIC_VS_CRT"] = "MT" in runtime
         tc.variables["WITH_LIBCURL"] = self.options.with_libcurl

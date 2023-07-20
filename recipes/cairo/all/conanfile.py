@@ -17,7 +17,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import PkgConfigDeps, Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.microsoft import unix_path, is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.54.0"
@@ -219,8 +219,8 @@ class CairoConan(ConanFile):
         if is_msvc(self):
             # https://cairographics.org/end_to_end_build_for_win32/
             win32_common = os.path.join(self.source_folder, "build", "Makefile.win32.common")
-            replace_in_file(self, win32_common, "-MD ", f"-{self.settings.compiler.runtime} ")
-            replace_in_file(self, win32_common, "-MDd ", f"-{self.settings.compiler.runtime} ")
+            replace_in_file(self, win32_common, "-MD ", f"-{msvc_runtime_flag(self)} ")
+            replace_in_file(self, win32_common, "-MDd ", f"-{msvc_runtime_flag(self)} ")
             replace_in_file(
                 self,
                 win32_common,

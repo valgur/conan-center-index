@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -110,7 +110,7 @@ class DjinniSuppotLib(ConanFile):
                 )
             if self.options.shared:
                 raise ConanInvalidConfiguration("C++/CLI does not support building as shared library")
-            if self.settings.compiler.runtime == "MT" or self.settings.compiler.runtime == "MTd":
+            if is_msvc_static_runtime(self):
                 raise ConanInvalidConfiguration("'/clr' and '/MT' command-line options are incompatible")
             if self._objc_support or self._jni_support or self._python_support:
                 raise ConanInvalidConfiguration(

@@ -8,7 +8,7 @@ from conan.tools.build import can_run, check_min_cppstd
 from conan.tools.build.flags import cppstd_flag
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -220,7 +220,7 @@ class FollyConan(ConanFile):
         if is_msvc:
             tc.variables["MSVC_LANGUAGE_VERSION"] = cxx_std_value
             tc.variables["MSVC_ENABLE_ALL_WARNINGS"] = False
-            tc.variables["MSVC_USE_STATIC_RUNTIME"] = "MT" in msvc_runtime_flag(self)
+            tc.variables["MSVC_USE_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.generate()
 
         tc = CMakeDeps(self)

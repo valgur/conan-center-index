@@ -245,7 +245,7 @@ class OneTBBConan(ConanFile):
                 # Setting it to a dummy value prevents TBB from calling gcc.
                 extra += " runtime=gnu"
         elif str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            if "MT" in msvc_runtime_flag(self):
+            if is_msvc_static_runtime(self):
                 runtime = "vc_mt"
             else:
                 if is_msvc(self):

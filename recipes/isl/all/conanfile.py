@@ -105,7 +105,7 @@ class IslConan(ConanFile):
         if self.options.with_int != "gmp":
             # FIXME: missing imath recipe
             raise ConanInvalidConfiguration("imath is not (yet) available on cci")
-        if is_msvc(self) and Version(self.settings.compiler.version) < 16 and self.settings.compiler.runtime == "MDd":
+        if is_msvc(self) and Version(self.settings.compiler.version) < 16 and msvc_runtime_flag(self) == "MDd":
             # gmp.lib(bdiv_dbm1c.obj) : fatal error LNK1318: Unexpected PDB error; OK (0)
             raise ConanInvalidConfiguration("isl fails to link with this version of visual studio and MDd runtime")
 

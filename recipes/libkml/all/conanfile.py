@@ -50,7 +50,7 @@ class LibkmlConan(ConanFile):
         self.requires("zlib/1.2.13")
 
     def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
                 f"{self.ref} shared with Visual Studio and MT runtime is not supported"
             )

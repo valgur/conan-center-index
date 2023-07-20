@@ -10,7 +10,7 @@ class TestPackageConan(ConanFile):
     @property
     def _test_transupp(self):
         # transupp+libjpeg makes use of stdio of the C library. This cannot be used when using a dll libjpeg, built with a static c library.
-        return not (self.options["libjpeg"].shared and is_msvc(self) and is_msvc_static_runtime(self))
+        return not (self.options["libjpeg"].shared and is_msvc_static_runtime(self))
 
     def build(self):
         cmake = CMake(self)

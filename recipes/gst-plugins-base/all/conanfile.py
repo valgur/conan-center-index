@@ -297,11 +297,11 @@ class GStPluginsBaseConan(ConanFile):
         meson = Meson(self)
         if is_msvc(self):
             add_linker_flag("-lws2_32")
-            add_compiler_flag(f"-{self.settings.compiler.runtime}")
+            add_compiler_flag(f"-{msvc_runtime_flag(self)}")
             if int(str(self.settings.compiler.version)) < 14:
                 add_compiler_flag("-Dsnprintf=_snprintf")
-        if self.settings.get_safe("compiler.runtime"):
-            defs["b_vscrt"] = str(self.settings.compiler.runtime).lower()
+            if msvc_runtime_flag(self):
+                defs["b_vscrt"] = msvc_runtime_flag(self).lower()
 
         gl_api, gl_platform, gl_winsys = self._gl_config()
 

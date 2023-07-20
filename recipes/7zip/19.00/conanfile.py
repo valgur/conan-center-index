@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, chdir, download, get, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, NMakeToolchain
+from conan.tools.microsoft import NMakeToolchain, is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
-
-import os
 
 required_conan_version = ">=1.55.0"
 
@@ -96,8 +96,8 @@ class SevenZipConan(ConanFile):
         if is_msvc(self):
             fn = os.path.join(self.source_folder, "CPP", "Build.mak")
             os.chmod(fn, 0o644)
-            replace_in_file(self, fn, "-MT", f"-{self.settings.compiler.runtime}")
-            replace_in_file(self, fn, "-MD", f"-{self.settings.compiler.runtime}")
+            replace_in_file(self, fn, "-MT", f"-{msvc_runtime_flag(self)}")
+            replace_in_file(self, fn, "-MD", f"-{msvc_runtime_flag(self)}")
 
     def build(self):
         self._patch_sources()

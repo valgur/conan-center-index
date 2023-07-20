@@ -6,7 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc_static_runtime
 
 required_conan_version = ">=1.53.0"
 
@@ -47,7 +47,7 @@ class TinkerforgeBindingsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if is_msvc(self) and self.options.shared and "MT" in self.settings.compiler.runtime:
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Static runtime + shared is failing to link")
 
     def source(self):

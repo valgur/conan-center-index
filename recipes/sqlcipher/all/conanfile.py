@@ -197,7 +197,7 @@ class SqlcipherConan(ConanFile):
 
         main_target = "dll" if self.options.shared else "sqlcipher.lib"
 
-        if msvc_runtime_flag(self) in ["MD", "MDd"]:
+        if not is_msvc_static_runtime(self):
             nmake_flags.append("USE_CRT_DLL=1")
         if self.settings.build_type == "Debug":
             nmake_flags.append("DEBUG=2")

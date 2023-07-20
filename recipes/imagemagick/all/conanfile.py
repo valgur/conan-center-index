@@ -307,7 +307,7 @@ class ImageMagicConan(ConanFile):
                 "MTd": "/smtd",
                 "MD": "/dmt",
                 "MDd": "/mdt",
-            }.get(str(self.settings.compiler.runtime))
+            }.get(msvc_runtime_flag(self))
             command.append(runtime)
             command.append(msvc_version)
             command.append("/hdri" if self.options.hdri else "/noHdri")
@@ -337,7 +337,7 @@ class ImageMagicConan(ConanFile):
             "MTd": "StaticMTD",
             "MD": "DynamicMT",
             "MDd": "DynamicMT",
-        }.get(str(self.settings.compiler.runtime))
+        }.get(msvc_runtime_flag(self))
 
         # GdiPlus requires C++, but ImageMagick has *.c files
         project = (

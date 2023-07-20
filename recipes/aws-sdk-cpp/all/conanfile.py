@@ -722,7 +722,7 @@ class AwsSdkCppConan(ConanFile):
                 "See https://github.com/aws/aws-sdk-cpp/issues/1505"
             )
         if self._use_aws_crt_cpp:
-            if is_msvc(self) and "MT" in msvc_runtime_flag(self):
+            if is_msvc_static_runtime(self):
                 raise ConanInvalidConfiguration("Static runtime is not working for more recent releases")
         else:
             if self.settings.os == "Macos" and self.settings.arch == "armv8":
@@ -750,7 +750,7 @@ class AwsSdkCppConan(ConanFile):
 
         tc.variables["MINIMIZE_SIZE"] = self.options.min_size
         if is_msvc(self) and not self._use_aws_crt_cpp:
-            tc.variables["FORCE_SHARED_CRT"] = "MD" in msvc_runtime_flag(self)
+            tc.variables["FORCE_SHARED_CRT"] = not is_msvc_static_runtime(self)
 
         if cross_building(self):
             tc.variables["CURL_HAS_H2_EXITCODE"] = "0"

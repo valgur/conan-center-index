@@ -65,7 +65,7 @@ class FTXUIConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if is_msvc(self) and self.options.shared and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("shared with static runtime not supported")
 
     def source(self):

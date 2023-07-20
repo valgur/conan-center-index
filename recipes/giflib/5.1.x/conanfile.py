@@ -198,7 +198,7 @@ class GiflibConan(ConanFile):
                         host=host,
                         prefix=prefix,
                         options=options,
-                        runtime=self.settings.compiler.runtime,
+                        runtime=msvc_runtime_flag(self),
                         cflags=cflags,
                     )
                 )

@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
@@ -5,7 +7,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-import os
+from conan.tools.microsoft import msvc_runtime_flag
 
 required_conan_version = ">=1.53.0"
 
@@ -112,7 +114,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     from conan.tools.files import rename
     import glob
 
-    if not conanfile.settings.get_safe("compiler.runtime"):
+    if not msvc_runtime_flag(conanfile):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:

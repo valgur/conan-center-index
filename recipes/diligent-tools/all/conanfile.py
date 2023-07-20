@@ -15,7 +15,7 @@ from conan.tools.files import (
     rm,
     rmdir,
 )
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
 required_conan_version = ">=1.53.0"
 
@@ -80,7 +80,7 @@ class DiligentToolsConan(ConanFile):
 
     def package_id(self):
         if is_msvc(self):
-            if "MD" in self.settings.compiler.runtime:
+            if not is_msvc_static_runtime(self):
                 self.info.settings.compiler.runtime = "MD/MDd"
             else:
                 self.info.settings.compiler.runtime = "MT/MTd"

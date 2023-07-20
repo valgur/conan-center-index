@@ -123,7 +123,7 @@ class AravisConan(ConanFile):
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False
         tc.project_options["documentation"] = "disabled"
-        if self.settings.get_safe("compiler.runtime"):
+        if msvc_runtime_flag(self):
             tc.project_options["b_vscrt"] = msvc_runtime_flag(self).lower()
         tc.generate()
 

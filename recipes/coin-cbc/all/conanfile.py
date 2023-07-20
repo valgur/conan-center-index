@@ -121,7 +121,7 @@ class CoinCbcConan(ConanFile):
         tc.configure_args += ["--enable-cbc-parallel={}".format(yes_no(self.options.parallel)), "--without-blas", "--without-lapack"]
         if is_msvc(self):
             tc.cxxflags.append("-EHsc")
-            tc.configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
+            tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
             if Version(self.settings.compiler.version) >= 12:
                 tc.cxxflags.append("-FS")
             if self.options.parallel:

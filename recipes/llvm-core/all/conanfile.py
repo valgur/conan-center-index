@@ -25,7 +25,7 @@ from conan.tools.files import (
     rmdir,
     save,
 )
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.50.2"  # Due to conan.tools.scm.Version
@@ -179,7 +179,7 @@ class LLVMCoreConan(ConanFile):
 
         if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
-            tc.variables["LLVM_USE_CRT_{}".format(build_type)] = self.settings.compiler.runtime
+            tc.variables["LLVM_USE_CRT_{}".format(build_type)] = msvc_runtime_flag(self)
 
         tc.variables["LLVM_ABI_BREAKING_CHECKS"] = "WITH_ASSERTS"
         tc.variables["LLVM_ENABLE_WARNINGS"] = True

@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.microsoft import is_msvc, unix_path, msvc_runtime_flag
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -228,7 +228,7 @@ class GetTextConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
+    if not msvc_runtime_flag(conanfile):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:

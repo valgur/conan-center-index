@@ -43,7 +43,7 @@ class BigintConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("shared with static runtime not supported")
 
     def source(self):

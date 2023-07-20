@@ -161,7 +161,7 @@ class PDCursesConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "wincon", "Makefile.vc"),
                 "$(CFLAGS)",
-                "$(CFLAGS) -{}".format(self.settings.compiler.runtime),
+                "$(CFLAGS) -{}".format(msvc_runtime_flag(self)),
             )
         replace_in_file(
             self,

@@ -121,7 +121,7 @@ class LibVPXConan(ConanFile):
                 ]
             )
 
-        if is_msvc(self) and is_msvc_static_runtime(self):
+        if is_msvc_static_runtime(self):
             tc.configure_args.append("--enable-static-msvcrt")
 
         arch = {

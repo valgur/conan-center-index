@@ -18,7 +18,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc, VCVars
+from conan.tools.microsoft import is_msvc, VCVars, is_msvc_static_runtime
 from conan.tools.scm import Version
 import configparser
 import glob
@@ -771,7 +771,7 @@ class QtConan(ConanFile):
             args.append("-no-widgets")
         if not self.options.shared:
             args.insert(0, "-static")
-            if is_msvc(self) and "MT" in msvc_runtime_flag(self):
+            if is_msvc_static_runtime(self):
                 args.append("-static-runtime")
         else:
             args.insert(0, "-shared")

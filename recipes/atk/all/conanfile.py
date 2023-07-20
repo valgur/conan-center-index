@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -15,8 +17,7 @@ from conan.tools.files import (
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
-import os
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc, msvc_runtime_flag
 
 required_conan_version = ">=1.53.0"
 
@@ -127,7 +128,7 @@ class AtkConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
+    if not msvc_runtime_flag(conanfile):
         return
     from conan.tools.files import rename
     import glob

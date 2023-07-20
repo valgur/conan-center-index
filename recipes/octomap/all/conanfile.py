@@ -54,7 +54,7 @@ class OctomapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
+        if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("shared octomap doesn't support MT runtime")
 
     def source(self):
