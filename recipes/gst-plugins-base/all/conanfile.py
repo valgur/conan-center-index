@@ -186,9 +186,9 @@ class GStPluginsBaseConan(ConanFile):
                 gl_api.add("opengl")
                 gl_platform.add("wgl")
                 gl_winsys.add("win32")
-            self._gl_api = list(gl_api)
-            self._gl_platform = list(gl_platform)
-            self._gl_winsys = list(gl_winsys)
+            self._gl_api = sorted(gl_api)
+            self._gl_platform = sorted(gl_platform)
+            self._gl_winsys = sorted(gl_winsys)
         return self._gl_api, self._gl_platform, self._gl_winsys
 
     def generate(self):
