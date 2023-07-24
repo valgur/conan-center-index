@@ -85,8 +85,8 @@ class GStPluginsBaseConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.76.2", transitive_headers=True, transitive_libs=True)
-        self.requires(f"gstreamer/{self.version}", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.76.3", transitive_headers=True, force=True)
+        self.requires(f"gstreamer/{self.version}", transitive_headers=True)
         self.requires("zlib/1.2.13")
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.7.2")
@@ -105,7 +105,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.options.with_graphene:
                 self.requires("graphene/1.10.8")
             if self.options.with_libpng:
-                self.requires("libpng/1.6.39")
+                self.requires("libpng/1.6.40")
             if self.options.with_libjpeg == "libjpeg":
                 self.requires("libjpeg/9e")
             elif self.options.with_libjpeg == "libjpeg-turbo":
@@ -119,7 +119,7 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.with_vorbis:
             self.requires("vorbis/1.3.7")
         if self.options.with_pango:
-            self.requires("pango/1.50.10")
+            self.requires("pango/1.50.14")
 
     def validate(self):
         gstreamer_version = Version(self.dependencies.direct_host["gstreamer"].ref.version)
@@ -140,8 +140,8 @@ class GStPluginsBaseConan(ConanFile):
             raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
 
     def build_requirements(self):
-        self.tool_requires("glib/2.76.2")
-        self.tool_requires("meson/1.1.0")
+        self.tool_requires("glib/2.76.3")
+        self.tool_requires("meson/1.1.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/1.9.3")
         if self.options.with_introspection:
@@ -282,7 +282,7 @@ class GStPluginsBaseConan(ConanFile):
             "typelibdir": "${libdir}/girepository-1.0",
             "libexecdir": "${prefix}/libexec"
         }
-        pkgconfig_custom_content = "\n".join("{}={}".format(key, value) for key, value in pkgconfig_variables.items())
+        pkgconfig_custom_content = "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items())
 
         # Plugins ('gst')
         self.cpp_info.components["gstadder"].libs = ["gstadder"]
@@ -583,7 +583,7 @@ class GStPluginsBaseConan(ConanFile):
                 "gl_platforms": " ".join(gl_platform),
                 "gl_winsys": " ".join(gl_winsys)
             }
-            gl_custom_content = "\n".join("{}={}".format(key, value) for key, value in gl_variables.items())
+            gl_custom_content = "\n".join(f"{key}={value}" for key, value in gl_variables.items())
 
             self.cpp_info.components["gstreamer-gl-1.0"].set_property("pkg_config_name", "gstreamer-gl-1.0")
             self.cpp_info.components["gstreamer-gl-1.0"].libs = ["gstgl-1.0"]
@@ -686,22 +686,5 @@ class GStPluginsBaseConan(ConanFile):
             self.runenv_info.define_path("GST_PLUGIN_PATH", gst_plugin_path)
 
         # TODO: remove the following when only Conan 2.0 is supported
-        self.cpp_info.components["gstreamer-plugins-base-1.0"].names["pkg_config"] = "gstreamer-plugins-base-1.0"
-        self.cpp_info.components["gstreamer-allocators-1.0"].names["pkg_config"] = "gstreamer-allocators-1.0"
-        self.cpp_info.components["gstreamer-app-1.0"].names["pkg_config"] = "gstreamer-app-1.0"
-        self.cpp_info.components["gstreamer-audio-1.0"].names["pkg_config"] = "gstreamer-audio-1.0"
-        self.cpp_info.components["gstreamer-fft-1.0"].names["pkg_config"] = "gstreamer-fft-1.0"
-        self.cpp_info.components["gstreamer-gl-1.0"].names["pkg_config"] = "gstreamer-gl-1.0"
-        self.cpp_info.components["gstreamer-gl-prototypes-1.0"].names["pkg_config"] = "gstreamer-gl-prototypes-1.0"
-        self.cpp_info.components["gstreamer-gl-egl-1.0"].names["pkg_config"] = "gstreamer-gl-egl-1.0"
-        self.cpp_info.components["gstreamer-gl-wayland-1.0"].names["pkg_config"] = "gstreamer-gl-wayland-1.0"
-        self.cpp_info.components["gstreamer-gl-x11-1.0"].names["pkg_config"] = "gstreamer-gl-x11-1.0"
-        self.cpp_info.components["gstreamer-pbutils-1.0"].names["pkg_config"] = "gstreamer-pbutils-1.0"
-        self.cpp_info.components["gstreamer-riff-1.0"].names["pkg_config"] = "gstreamer-riff-1.0"
-        self.cpp_info.components["gstreamer-rtp-1.0"].names["pkg_config"] = "gstreamer-rtp-1.0"
-        self.cpp_info.components["gstreamer-rtsp-1.0"].names["pkg_config"] = "gstreamer-rtsp-1.0"
-        self.cpp_info.components["gstreamer-sdp-1.0"].names["pkg_config"] = "gstreamer-sdp-1.0"
-        self.cpp_info.components["gstreamer-tag-1.0"].names["pkg_config"] = "gstreamer-tag-1.0"
-        self.cpp_info.components["gstreamer-video-1.0"].names["pkg_config"] = "gstreamer-video-1.0"
         if self.options.shared:
             self.env_info.GST_PLUGIN_PATH.append(gst_plugin_path)
