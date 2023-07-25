@@ -157,7 +157,7 @@ class NcbiCxxToolkit(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 17)
-        if self.settings.os not in ["Linux", "Macos", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
         if is_msvc(self) and Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")

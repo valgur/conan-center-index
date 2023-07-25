@@ -60,7 +60,7 @@ class VectorclassConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.os not in ["Linux", "Windows", "Macos"] or self.info.settings.arch not in [
+        if self.info.settings.os not in ["Linux", "FreeBSD", "Windows", "Macos"] or self.info.settings.arch not in [
             "x86",
             "x86_64",
         ]:

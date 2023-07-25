@@ -32,7 +32,7 @@ class BazelConan(ConanFile):
         return self.conan_data["sources"][self.version][os].get(arch)
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Macos", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("Only Linux, Windows and OSX are supported for this package.")
         if self._binary_info is None:
             raise ConanInvalidConfiguration(

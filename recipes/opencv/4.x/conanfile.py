@@ -254,7 +254,7 @@ class OpenCVConan(ConanFile):
             )
         if self.options.with_ipp == "opencv-icv" and (
             not str(self.settings.arch) in ["x86", "x86_64"]
-            or not str(self.settings.os) in ["Linux", "Macos", "Windows"]
+            or not str(self.settings.os) in ["Linux", "FreeBSD", "Macos", "Windows"]
         ):
             raise ConanInvalidConfiguration(
                 f"opencv-icv is not available for {self.settings.os}/{self.settings.arch}"

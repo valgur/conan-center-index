@@ -96,11 +96,11 @@ class XercesCConan(ConanFile):
         self._validate("char_type", "wchar_t", ("Windows",))
         self._validate("network_accessor", "winsock", ("Windows",))
         self._validate("network_accessor", "cfurl", ("Macos",))
-        self._validate("network_accessor", "socket", ("Linux", "Macos"))
-        self._validate("network_accessor", "curl", ("Linux", "Macos"))
+        self._validate("network_accessor", "socket", ("Linux", "FreeBSD", "Macos"))
+        self._validate("network_accessor", "curl", ("Linux", "FreeBSD", "Macos"))
         self._validate("transcoder", "macosunicodeconverter", ("Macos",))
         self._validate("transcoder", "windows", ("Windows",))
-        self._validate("mutex_manager", "posix", ("Linux", "Macos"))
+        self._validate("mutex_manager", "posix", ("Linux", "FreeBSD", "Macos"))
         self._validate("mutex_manager", "windows", ("Windows",))
 
     def build_requirements(self):

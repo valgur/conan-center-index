@@ -69,7 +69,7 @@ class PhysXConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os not in ["Windows", "Linux", "Macos", "Android", "iOS"]:
+        if self.settings.os not in ["Windows", "Linux", "FreeBSD", "Macos", "Android", "iOS"]:
             raise ConanInvalidConfiguration("Current os is not supported")
 
         if is_apple_os(self):

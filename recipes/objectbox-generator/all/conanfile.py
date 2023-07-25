@@ -28,7 +28,7 @@ class PackageConan(ConanFile):
         del self.info.settings.build_type
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Windows", "Macos"] or self.settings.arch != "x86_64":
+        if self.settings.os not in ["Linux", "FreeBSD", "Windows", "Macos"] or self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration(f"{self.name} doesn't support current environment")
 
     def build(self):

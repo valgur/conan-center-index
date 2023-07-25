@@ -33,7 +33,7 @@ class GFortranConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "No binaries available for the architecture '{}'.".format(self.settings.arch)
             )
-        if str(self.settings.os) not in ("Windows", "Linux", "Macos"):
+        if str(self.settings.os) not in ("Windows", "Linux", "FreeBSD", "Macos"):
             raise ConanInvalidConfiguration("No binaries available for the OS '{}'.".format(self.settings.os))
 
     def build_requirements(self):

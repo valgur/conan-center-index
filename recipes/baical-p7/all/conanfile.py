@@ -41,7 +41,7 @@ class BaicalP7Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Windows"]:
             raise ConanInvalidConfiguration("P7 only supports Windows and Linux at this time")
 
     def source(self):

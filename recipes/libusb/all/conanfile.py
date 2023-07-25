@@ -58,7 +58,7 @@ class LibUSBConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os not in ["Linux", "Android"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Android"]:
             self.options.rm_safe("enable_udev")
         # FIXME: enable_udev should be True for Android, but libudev recipe is missing
         if self.settings.os == "Android":
@@ -96,7 +96,7 @@ class LibUSBConan(ConanFile):
         else:
             VirtualBuildEnv(self).generate()
             tc = AutotoolsToolchain(self)
-            if self.settings.os in ["Linux", "Android"]:
+            if self.settings.os in ["Linux", "FreeBSD", "Android"]:
                 tc.configure_args.append("--enable-udev" if self.options.enable_udev else "--disable-udev")
             tc.generate()
 

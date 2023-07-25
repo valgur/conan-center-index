@@ -91,7 +91,7 @@ class OpenblasConan(ConanFile):
 
         # This is a workaround to add the libm dependency on linux,
         # which is required to successfully compile on older gcc versions.
-        tc.cache_variables["ANDROID"] = self.settings.os in ["Linux", "Android"]
+        tc.cache_variables["ANDROID"] = self.settings.os in ["Linux", "FreeBSD", "Android"]
 
         tc.generate()
 

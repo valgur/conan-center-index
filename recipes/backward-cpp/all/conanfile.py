@@ -35,7 +35,7 @@ class BackwardCppConan(ConanFile):
 
     @property
     def _supported_os(self):
-        supported_os = ["Linux", "Macos", "Android"]
+        supported_os = ["Linux", "FreeBSD", "Macos", "Android"]
         if Version(self.version) >= "1.5":
             supported_os.append("Windows")
         return supported_os
@@ -65,7 +65,7 @@ class BackwardCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.settings.os in ["Linux", "Android"]:
+        if self.settings.os in ["Linux", "FreeBSD", "Android"]:
             if self._has_stack_walking("libunwind"):
                 self.requires("libunwind/1.6.2", transitive_headers=True)
             if self._has_stack_details("dwarf"):

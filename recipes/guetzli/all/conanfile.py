@@ -36,7 +36,7 @@ class GoogleGuetzliConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Windows"]:
             raise ConanInvalidConfiguration(
                 f"conan recipe for guetzli v{self.version} is not available in {self.settings.os}."
             )

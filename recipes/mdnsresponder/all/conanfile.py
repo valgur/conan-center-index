@@ -64,7 +64,7 @@ class MdnsResponderConan(ConanFile):
             self.requires("mbedtls/2.25.0")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Windows"]:
             raise ConanInvalidConfiguration("Only Linux and Windows are supported for this package.")
         if Version(self.version) >= "1096.0.2":
             # recent tarballs (since 1096.0.2) are missing mDNSWindows, so for now, Linux only
