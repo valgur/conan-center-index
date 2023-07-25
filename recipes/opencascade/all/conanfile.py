@@ -234,7 +234,7 @@ class OpenCascadeConan(ConanFile):
             tc.variables["BUILD_SAMPLES_MFC"] = False
         tc.variables["BUILD_SAMPLES_QT"] = False
         tc.variables["BUILD_Inspector"] = False
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             tc.variables["USE_GLX"] = False
         if self.settings.os == "Windows":
             tc.variables["USE_D3D"] = False
@@ -551,10 +551,10 @@ class OpenCascadeConan(ConanFile):
                 "frameworks": (
                     ["UIKit"]
                     if self.settings.os == "iOS"
-                    else ["Appkit"] if is_apple_os(self.settings.os) else []
+                    else ["Appkit"] if is_apple_os(self) else []
                 )
             },
-            "CSF_IOKit": {"frameworks": ["IOKit"] if is_apple_os(self.settings.os) else []},
+            "CSF_IOKit": {"frameworks": ["IOKit"] if is_apple_os(self) else []},
             "CSF_objc": {},
         }
 

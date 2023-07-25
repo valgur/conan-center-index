@@ -62,7 +62,7 @@ class Opene57Conan(ConanFile):
         if self.options.with_tools:
             self.requires("boost/1.82.0")
 
-        if self.settings.os == "Linux" or is_apple_os(self.settings.os):
+        if self.settings.os == "Linux" or is_apple_os(self):
             self.requires("icu/73.2")
 
         self.requires("xerces-c/3.2.4")

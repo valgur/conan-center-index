@@ -179,7 +179,7 @@ class TkConan(ConanFile):
         )
 
     def _get_default_build_system(self):
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             return "macosx"
         elif self.settings.os in ("Linux", "FreeBSD"):
             return "unix"
@@ -252,7 +252,7 @@ class TkConan(ConanFile):
             "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
             "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
             "--with-x={}".format(yes_no(self.settings.os == "Linux")),
-            "--enable-aqua={}".format(yes_no(is_apple_os(self.settings.os))),
+            "--enable-aqua={}".format(yes_no(is_apple_os(self))),
         ]
 
         if self.settings.os == "Windows":

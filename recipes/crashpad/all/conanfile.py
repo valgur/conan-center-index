@@ -188,7 +188,7 @@ class CrashpadConan(ConanFile):
 
     @property
     def _gn_os(self):
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             if self.settings.os == "Macos":
                 return "mac"
             else:
@@ -438,7 +438,7 @@ class CrashpadConan(ConanFile):
             os.path.join(self.package_folder, "lib", "cmake", "crashpad-cxx.cmake")
         ]
         self.cpp_info.components["mini_chromium_base"].builddirs = [os.path.join("lib", "cmake")]
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             if self.settings.os == "Macos":
                 self.cpp_info.components["mini_chromium_base"].frameworks = [
                     "ApplicationServices",
@@ -458,7 +458,7 @@ class CrashpadConan(ConanFile):
 
         self.cpp_info.components["util"].libs = ["util"]
         self.cpp_info.components["util"].requires = ["mini_chromium_base", "zlib::zlib"]
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             self.cpp_info.components["util"].libs.append("mig_output")
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.components["util"].libs.append("compat")
@@ -491,7 +491,7 @@ class CrashpadConan(ConanFile):
             "mini_chromium_base",
             "util",
         ]
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             self.cpp_info.components["snapshot"].frameworks.extend(["OpenCL"])
 
         self.cpp_info.components["format"].libs = ["format"]

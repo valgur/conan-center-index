@@ -56,7 +56,7 @@ class LibGit2Conan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        if not is_apple_os(self.settings.os):
+        if not is_apple_os(self):
             self.options.rm_safe("with_iconv")
 
         if self.settings.os == "Windows":
@@ -100,7 +100,7 @@ class LibGit2Conan(ConanFile):
 
     def validate(self):
         if self.options.with_https == "security":
-            if not is_apple_os(self.settings.os):
+            if not is_apple_os(self):
                 raise ConanInvalidConfiguration("security is only valid for Apple products")
         elif self.options.with_https == "winhttp":
             if self.settings.os != "Windows":

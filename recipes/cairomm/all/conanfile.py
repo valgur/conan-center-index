@@ -156,5 +156,5 @@ class CairommConan(ConanFile):
             self.cpp_info.components["cairomm-1.0"].includedirs = [os.path.join("include", "cairomm-1.0")]
             self.cpp_info.components["cairomm-1.0"].libs = ["cairomm-1.0"]
             self.cpp_info.components["cairomm-1.0"].requires = ["libsigcpp::sigc++-2.0", "cairo::cairo_", "freetype::freetype"]
-            if is_apple_os(self.settings.os):
+            if is_apple_os(self):
                 self.cpp_info.components["cairomm-1.0"].frameworks = ["CoreFoundation"]

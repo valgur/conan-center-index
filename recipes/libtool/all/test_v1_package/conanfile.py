@@ -143,7 +143,7 @@ class TestPackageConan(ConanFile):
         with tools.chdir(install_prefix):
             if self.settings.os == "Windows":
                 assert len(list(glob.glob(os.path.join("bin", "*.dll")))) > 0
-            elif tools.is_apple_os(self.settings.os):
+            elif tools.is_apple_os(self):
                 assert len(list(glob.glob(os.path.join("lib", "*.dylib")))) > 0
             else:
                 assert len(list(glob.glob(os.path.join("lib", "*.so")))) > 0

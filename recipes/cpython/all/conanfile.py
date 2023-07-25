@@ -228,7 +228,7 @@ class CPythonConan(ConanFile):
             else:
                 self.requires("mpdecimal/2.5.0")  # FIXME: no 2.5.1 to troubleshoot apple
         if self.settings.os != "Windows":
-            if not is_apple_os(self.settings.os):
+            if not is_apple_os(self):
                 self.requires("libuuid/1.0.3")
             self.requires("libxcrypt/4.4.25")
         if self.options.get_safe("with_bz2"):
@@ -846,7 +846,7 @@ class CPythonConan(ConanFile):
         return "python{}{}".format(self._version_suffix, lib_ext)
 
     def _fix_install_name(self):
-        if is_apple_os(self.settings.os) and self.options.shared:
+        if is_apple_os(self) and self.options.shared:
             buffer = StringIO()
             python = os.path.join(self.package_folder, "bin", "python")
             self.run('otool -L "%s"' % python, output=buffer)
@@ -928,7 +928,7 @@ class CPythonConan(ConanFile):
             if self._with_libffi:
                 self.cpp_info.components["_hidden"].requires.append("libffi::libffi")
             if self.settings.os != "Windows":
-                if not is_apple_os(self.settings.os):
+                if not is_apple_os(self):
                     self.cpp_info.components["_hidden"].requires.append("libuuid::libuuid")
                 self.cpp_info.components["_hidden"].requires.append("libxcrypt::libxcrypt")
             if self.options.with_bz2:
@@ -961,7 +961,7 @@ class CPythonConan(ConanFile):
 
         if is_msvc(self):
             pythonhome = os.path.join(self.package_folder, "bin")
-        elif is_apple_os(self.settings.os):
+        elif is_apple_os(self):
             pythonhome = self.package_folder
         else:
             version = Version(self._version_number_only)
@@ -971,7 +971,7 @@ class CPythonConan(ConanFile):
         self.conf_info.define("user.cpython:pythonhome", pythonhome)
         self.user_info.pythonhome = pythonhome
 
-        pythonhome_required = is_msvc(self) or is_apple_os(self.settings.os)
+        pythonhome_required = is_msvc(self) or is_apple_os(self)
         self.conf_info.define("user.cpython:module_requires_pythonhome", pythonhome_required)
         self.user_info.module_requires_pythonhome = pythonhome_required
 
