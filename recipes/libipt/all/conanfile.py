@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
 required_conan_version = ">=1.53.0"
@@ -43,15 +42,14 @@ class LibIptConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        pass
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.generate()
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -66,6 +64,7 @@ class LibIptConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["libipt"] if self.settings.os == "Windows" else ["ipt"]
-        self.cpp_info.set_property("cmake_file_name", "libipt")
-        self.cpp_info.set_property("cmake_target_name", "libipt::libipt")
+        if self.settings.os == "Windows":
+            self.cpp_info.libs = ["libipt"]
+        else:
+            self.cpp_info.libs = ["ipt"]

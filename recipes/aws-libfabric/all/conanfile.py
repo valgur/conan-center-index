@@ -1,59 +1,14 @@
-# Warnings:
-#   Unexpected method '_configure_autotools'
-#   Missing required method 'generate'
-
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
-from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import chdir, collect_libs, copy, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan.tools.microsoft import unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -68,53 +23,27 @@ class LibfabricConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+    _providers = ["gni", "psm", "psm2", "sockets", "rxm", "tcp", "udp", "usnic", "verbs", "bgq", "shm", "efa", "rxd", "mrail", "rstream", "perf", "hook_debug"]
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "gni": [True, False, "shared"],
-        "psm": [True, False, "shared"],
-        "psm2": [True, False, "shared"],
-        "sockets": [True, False, "shared"],
-        "rxm": [True, False, "shared"],
-        "tcp": [True, False, "shared"],
-        "udp": [True, False, "shared"],
-        "usnic": [True, False, "shared"],
-        "verbs": [True, False, "shared"],
-        "bgq": [True, False, "shared"],
-        "shm": [True, False, "shared"],
-        "efa": [True, False, "shared"],
-        "rxd": [True, False, "shared"],
-        "mrail": [True, False, "shared"],
-        "rstream": [True, False, "shared"],
-        "perf": [True, False, "shared"],
-        "hook_debug": [True, False, "shared"],
-        "with_libnl": [True, False],
-        "bgq_progress": ["auto", "manual"],
-        "bgq_mr": ["basic", "scalable"],
+        **{ p: [True, False, "shared"] for p in _providers },
+        **{
+            "with_libnl": [True, False],
+            "bgq_progress": ["auto", "manual"],
+            "bgq_mr": ["basic", "scalable"]
+        }
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "gni": False,
-        "psm": False,
-        "psm2": False,
-        "sockets": False,
-        "rxm": False,
-        "tcp": True,
-        "udp": False,
-        "usnic": False,
-        "verbs": False,
-        "bgq": False,
-        "shm": False,
-        "efa": False,
-        "rxd": False,
-        "mrail": False,
-        "rstream": False,
-        "perf": False,
-        "hook_debug": False,
-        "with_libnl": False,
-        "bgq_progress": "manual",
-        "bgq_mr": "basic",
+        **{ p: False for p in _providers },
+        **{
+            "tcp": True,
+            "with_libnl": False,
+            "bgq_progress": "manual",
+            "bgq_mr": "basic"
+        }
     }
 
     def config_options(self):
@@ -147,14 +76,21 @@ class LibfabricConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
         yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
-        yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
-        tc.configure_args += ["--with-bgq-progress={}".format(self.options.bgq_progress), "--with-bgq-mr={}".format(self.options.bgq_mr)]
+        tc.configure_args += [
+            "--with-bgq-progress={}".format(self.options.bgq_progress),
+            "--with-bgq-mr={}".format(self.options.bgq_mr),
+        ]
         for p in self._providers:
             tc.configure_args.append("--enable-{}={}".format(p, yes_no_dl(getattr(self.options, p))))
         if self.options.with_libnl:
-            tc.configure_args.append("--with-libnl={}".format(unix_path(self, self.dependencies["libnl"].package_folder))),
+            tc.configure_args.append("--with-libnl={}".format(unix_path(self, self.dependencies["libnl"].package_folder)))
         else:
             tc.configure_args.append("--with-libnl=no")
         if self.settings.build_type == "Debug":
@@ -175,10 +111,10 @@ class LibfabricConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", self.package_folder, recursive=True)
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libfabric")

@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get, rmdir
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rmdir
 
 required_conan_version = ">=1.53.0"
 
@@ -36,13 +34,15 @@ class LibMbusConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if self.settings.os not in ["Linux"]:
-            raise ConanInvalidConfiguration("Only Linux supported")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.os not in ["Linux"]:
+            raise ConanInvalidConfiguration("Only Linux is supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -52,9 +52,6 @@ class LibMbusConan(ConanFile):
         tc.variables["LIBMBUS_ENABLE_COVERAGE"] = False
         tc.variables["LIBMBUS_BUILD_TESTS"] = False
         tc.variables["LIBMBUS_BUILD_EXAMPLES"] = False
-        tc.generate()
-
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -71,6 +68,6 @@ class LibMbusConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "libmbus", "cmake"))
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
-        if self.settings.os == "Linux":
+        self.cpp_info.libs = ["libmbus"]
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]

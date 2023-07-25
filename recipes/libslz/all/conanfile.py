@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
 
@@ -48,9 +46,7 @@ class LibslzConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "{}/{} does not support Visual Studio.".format(self.name, self.version)
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -59,23 +55,15 @@ class LibslzConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
-
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            ignore_case=True,
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
         cmake = CMake(self)
         cmake.install()
 

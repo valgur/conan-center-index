@@ -1,10 +1,7 @@
-# TODO: verify the Conan v2 migration
-
-import glob
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get, save
 
 required_conan_version = ">=1.53.0"
@@ -52,12 +49,9 @@ class IqaConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
-
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def _extract_license(self):
@@ -65,13 +59,12 @@ class IqaConan(ConanFile):
         license_content = []
         for i in range(1, 31):
             license_content.append(content_lines[i][3:-1])
-        save(self, "LICENSE", "\n".join(license_content))
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), "\n".join(license_content))
 
     def package(self):
+        self._extract_license()
         cmake = CMake(self)
         cmake.install()
-        self._extract_license()
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

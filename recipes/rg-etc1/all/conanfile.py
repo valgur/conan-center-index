@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get, save
 
 required_conan_version = ">=1.53.0"
@@ -42,6 +41,10 @@ class RgEtc1Conan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -49,12 +52,9 @@ class RgEtc1Conan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
-
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def _extract_license(self):
@@ -63,13 +63,15 @@ class RgEtc1Conan(ConanFile):
         license_content = []
         for i in range(52, 75):
             license_content.append(content_lines[i][2:-1])
-        save(self, "LICENSE", "\n".join(license_content))
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), "\n".join(license_content))
 
     def package(self):
+        self._extract_license()
         cmake = CMake(self)
         cmake.install()
-        self._extract_license()
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.libs = ["rg_etc1"]
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m"]

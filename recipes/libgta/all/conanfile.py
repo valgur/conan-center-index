@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -34,6 +32,8 @@ class LibgtaConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
@@ -53,27 +53,30 @@ class LibgtaConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def build(self):
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
+    def _patch_sources(self):
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
             "${CMAKE_SOURCE_DIR}",
-            "${CMAKE_CURRENT_SOURCE_DIR}",
-        )
+            "${CMAKE_CURRENT_SOURCE_DIR}")
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        # https://marlam.de/gta/documentation/ uses GTA as the package name
         self.cpp_info.set_property("cmake_file_name", "GTA")
-        self.cpp_info.set_property("cmake_target_name", "GTA")
+        self.cpp_info.set_property("cmake_target_name", "GTA::GTA")
         self.cpp_info.set_property("pkg_config_name", "gta")
         self.cpp_info.libs = collect_libs(self)
         if is_msvc(self) and not self.options.shared:

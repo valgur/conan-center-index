@@ -9,14 +9,13 @@ required_conan_version = ">=1.52.0"
 
 class OpenTelemetryProtoConan(ConanFile):
     name = "opentelemetry-proto"
-    description = "Protobuf definitions for the OpenTelemetry protocol (OTLP)"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/open-telemetry/opentelemetry-proto"
     description = "Protobuf definitions for the OpenTelemetry protocol (OTLP)"
     topics = ("opentelemetry", "telemetry", "otlp", "pre-built")
 
-    package_type = "application"
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -38,6 +37,7 @@ class OpenTelemetryProtoConan(ConanFile):
         self.conf_info.define("user.opentelemetry-proto:proto_root",
                               os.path.join(self.package_folder, "res"))
         self.cpp_info.resdirs = ["res"]
+        self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 

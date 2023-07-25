@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -56,9 +54,9 @@ class MatioConan(ConanFile):
 
     def requirements(self):
         if self.options.with_hdf5:
-            self.requires("hdf5/1.12.1")
+            self.requires("hdf5/1.14.1")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
 
     def validate(self):
         if not self.options.with_hdf5 and self.options.mat73:
@@ -75,23 +73,24 @@ class MatioConan(ConanFile):
         tc.variables["MATIO_MAT73"] = self.options.mat73
         tc.variables["MATIO_WITH_HDF5"] = self.options.with_hdf5
         tc.variables["MATIO_WITH_ZLIB"] = self.options.with_zlib
-        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = self.options.with_hdf5 and not self.options["hdf5"].shared
+        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = (
+            self.options.with_hdf5 and not self.dependencies["hdf5"].options.shared
+        )
         tc.generate()
 
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def build(self):
-        self._patch_sources()
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -103,6 +102,7 @@ class MatioConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
 
+        # TODO: remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

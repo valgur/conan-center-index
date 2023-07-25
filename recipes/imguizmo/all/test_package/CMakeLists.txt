@@ -4,7 +4,7 @@ project(test_package LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(imgui REQUIRED)
+find_package(imgui REQUIRED CONFIG)
 find_package(imguizmo REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)

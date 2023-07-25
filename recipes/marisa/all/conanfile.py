@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -63,27 +61,18 @@ class MarisaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="COPYING.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="COPYING.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "marisa")
-        self.cpp_info.set_property("cmake_target_name", "marisa")
         self.cpp_info.set_property("pkg_config_name", "marisa")
         self.cpp_info.libs = ["marisa"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
 
         # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH env var with : '{bin_path}'")
         self.env_info.PATH.append(bin_path)
-        self.cpp_info.names["cmake_find_package"] = "marisa"
-        self.cpp_info.names["cmake_find_package_multi"] = "marisa"

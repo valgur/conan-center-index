@@ -1,4 +1,5 @@
 #include "marisa.h"
+
 #include <cstdlib>
 
 int main() {

@@ -1,9 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
 required_conan_version = ">=1.53.0"
@@ -15,14 +13,7 @@ class WhereamiConan(ConanFile):
     license = ("MIT", "WTFPL")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/gpakosz/whereami"
-    topics = (
-        "whereami",
-        "introspection",
-        "getmodulefilename",
-        "dladdr",
-        "executable-path",
-        "getexecutablepath",
-    )
+    topics = ("whereami", "introspection", "getmodulefilename", "dladdr", "executable-path", "getexecutablepath")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -57,21 +48,16 @@ class WhereamiConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

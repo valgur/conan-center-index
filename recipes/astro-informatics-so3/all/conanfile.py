@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -42,8 +40,8 @@ class AstroInformaticsSO3(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("ssht/1.4.0", transitive_headers=True)
         self.requires("fftw/3.3.9")
-        self.requires("ssht/1.3.7")
 
     def validate(self):
         if is_msvc(self):
@@ -57,10 +55,12 @@ class AstroInformaticsSO3(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["conan_deps"] = False
+        tc.variables["CONAN_EXPORTED"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("fftw", "cmake_target_name", "FFTW3::FFTW3")
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -68,7 +68,9 @@ class AstroInformaticsSO3(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

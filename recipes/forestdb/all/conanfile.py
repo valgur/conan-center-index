@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -44,13 +42,13 @@ class ForestDBConan(ConanFile):
 
     def requirements(self):
         if self.options.with_snappy:
-            self.requires("snappy/1.1.9")
+            self.requires("snappy/1.1.10")
 
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Windows Builds Unsupported")
         if self.settings.compiler == "clang":
-            if self.settings.compiler.libcxx == "libc++" and self.options.shared == False:
+            if self.settings.compiler.libcxx == "libc++" and not self.options.shared:
                 raise ConanInvalidConfiguration("LibC++ Static Builds Unsupported")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
@@ -77,50 +75,20 @@ class ForestDBConan(ConanFile):
         cmake.build(target=lib_target)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses/"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         # Parent Build system does not support library type selection
         # and will only install the shared object from cmake; so we must
         # handpick our libraries.
-        copy(
-            self,
-            "*.a*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.build_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.build_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.so*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.build_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.dylib*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.build_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.dll*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.build_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-            keep_path=True,
-        )
+        for pattern in ["*.a*", "*.lib", "*.so*", "*.dylib*", "*.dll*"]:
+            copy(self, pattern,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.build_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"),
+             keep_path=True)
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]
-        self.cpp_info.system_libs.extend(["pthread", "m", "dl"])
-        if self.settings.os == "Linux":
-            self.cpp_info.system_libs.extend(["rt"])
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["pthread", "m", "dl", "rt"]

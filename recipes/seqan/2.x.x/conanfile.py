@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -43,7 +41,7 @@ class SeqanConan(ConanFile):
             "Visual Studio": "14",
         }
 
-    def configure(self):
+    def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -53,9 +51,9 @@ class SeqanConan(ConanFile):
                 f"Your compiler is unknown. Assuming it supports C++{self._min_cppstd}."
             )
         elif Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++{self._min_cppstd}, which your compiler does not fully support."
-                )
+            raise ConanInvalidConfiguration(
+                f"{self.name} requires C++{self._min_cppstd}, which your compiler does not fully support."
+            )
 
     def layout(self):
         basic_layout(self, src_folder="src")
