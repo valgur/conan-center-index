@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir
@@ -71,7 +72,7 @@ class Stlab(ConanFile):
 
         # On macOS, it is not necessary to use the libdispatch conan package, because the library is
         # included in the OS.
-        if self.options.task_system == "libdispatch" and self.settings.os != "Macos":
+        if self.options.task_system == "libdispatch" and not is_apple_os(self):
             self.requires("libdispatch/5.3.2")
 
     def source(self):
@@ -84,7 +85,7 @@ class Stlab(ConanFile):
                     f"{self.ref} task_system=libdispatch needs Clang compiler when using OS:"
                     f" {self.settings.os}. Use Clang compiler or switch to task_system=portable"
                 )
-            elif self.settings.os != "Macos":
+            elif not is_apple_os(self):
                 raise ConanInvalidConfiguration(
                     f"{self.ref} task_system=libdispatch is not supported on {self.settings.os}"
                 )
@@ -96,7 +97,7 @@ class Stlab(ConanFile):
     def _validate_thread_system(self):
         if any(
             [
-                self.options.thread_system == "pthread-apple" and self.settings.os != "Macos",
+                self.options.thread_system == "pthread-apple" and not is_apple_os(self),
                 self.options.thread_system == "pthread" and self.settings.os != "Linux",
                 self.options.thread_system == "win32" and self.settings.os != "Windows",
                 self.options.thread_system == "pthread-emscripten" and self.settings.os != "Emscripten",
@@ -110,7 +111,7 @@ class Stlab(ConanFile):
     def _validate_boost_components(self):
         if not any(
             [
-                self.settings.os != "Macos",
+                not is_apple_os(self),
                 self.settings.compiler != "apple-clang",
                 Version(str(self.settings.compiler.version)) >= "12",
                 self.options.with_boost,

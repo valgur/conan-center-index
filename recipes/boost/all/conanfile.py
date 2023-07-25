@@ -880,7 +880,7 @@ class BoostConan(ConanFile):
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", 'echo "" > $(<)', strict=False)
         if self._with_stacktrace_backtrace and self.settings.os != "Windows" and not cross_building(self):
             # When libbacktrace is shared, give extra help to the test-executable
-            linker_var = "DYLD_LIBRARY_PATH" if self.settings.os == "Macos" else "LD_LIBRARY_PATH"
+            linker_var = "DYLD_LIBRARY_PATH" if is_apple_os(self) else "LD_LIBRARY_PATH"
             libbacktrace_libdir = (
                 self.dependencies["libbacktrace"].cpp_info.aggregated_components().libdirs[0]
             )
@@ -1468,7 +1468,7 @@ class BoostConan(ConanFile):
         if (self.settings.compiler, self.settings.os) == ("gcc", "Windows"):
             compiler = "mgw"
         os_ = ""
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             os_ = "darwin"
         if is_msvc(self):
             toolset_version = self._toolset_version.replace(".", "")

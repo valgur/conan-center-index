@@ -71,7 +71,7 @@ class LibVPXConan(ConanFile):
             raise ConanInvalidConfiguration("Windows shared builds are not supported")
         if str(self.settings.compiler) not in ["Visual Studio", "msvc", "gcc", "clang", "apple-clang"]:
             raise ConanInvalidConfiguration(f"Unsupported compiler {self.settings.compiler}")
-        if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
+        if is_apple_os(self) and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration("M1 only supported since 1.10, please upgrade")
 
     def build_requirements(self):
@@ -156,7 +156,7 @@ class LibVPXConan(ConanFile):
         elif is_apple_os(self):
             if self.settings.arch in ["x86", "x86_64"]:
                 os_name = "darwin11"
-            elif self.settings.arch == "armv8" and self.settings.os == "Macos":
+            elif self.settings.arch == "armv8" and is_apple_os(self):
                 os_name = "darwin20"
             else:
                 # Unrecognized toolchain 'arm64-darwin11-gcc', see list of toolchains in ./configure --help

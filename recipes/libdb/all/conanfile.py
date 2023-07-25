@@ -5,6 +5,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -87,7 +88,7 @@ class LibdbConan(ConanFile):
                 f"{self.ref} Visual Studio 2019 is currently not supported. Contributions are welcomed!"
             )
 
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration(
                 f"{self.ref} Macos Apple Sillicon is currently not supported. Contributions are welcomed!"
             )

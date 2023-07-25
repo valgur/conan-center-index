@@ -113,7 +113,7 @@ class HarfbuzzConan(ConanFile):
             self.tool_requires("pkgconf/1.9.3")
         if self.options.with_glib and not can_run(self):
             self.tool_requires("glib/2.76.3")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # Ensure that the gettext we use at build time is compatible
             # with the libiconv that is transitively exposed by glib
             self.tool_requires("gettext/0.21")

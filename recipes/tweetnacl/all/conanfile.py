@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, download, save
 
@@ -46,7 +47,7 @@ class TweetnaclConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os in ("Windows", "Macos"):
+        if self.settings.os == "Windows" or is_apple_os(self):
             if self.options.shared:
                 raise ConanInvalidConfiguration(
                     "tweetnacl does not support shared on Windows and Macos: it needs a randombytes implementation"

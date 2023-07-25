@@ -309,7 +309,7 @@ class TkConan(ConanFile):
             lib_infix = f"{tk_version.major}.{tk_version.minor}"
             tk_suffix = ""
         self.cpp_info.libs = ["tk{}{}".format(lib_infix, tk_suffix), "tkstub{}".format(lib_infix)]
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "Carbon", "IOKit"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = [

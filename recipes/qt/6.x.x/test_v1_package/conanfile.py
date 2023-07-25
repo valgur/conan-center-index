@@ -2,6 +2,7 @@ import os
 import shutil
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.files import mkdir, chdir, save
 from conan.tools.microsoft import is_msvc
@@ -41,7 +42,7 @@ Examples = bin/datadir/examples""".format(self.dependencies["qt"].package_folder
     def _meson_supported(self):
         return False and self.options["qt"].shared and\
             not cross_building(self) and\
-            not self.settings.os == "Macos" and\
+            not is_apple_os(self) and\
             not self._is_mingw()
 
     def _qmake_supported(self):
@@ -106,7 +107,7 @@ Examples = bin/datadir/examples""".format(self.dependencies["qt"].package_folder
         env_build = RunEnvironment(self)
         with tools.environment_append(env_build.vars):
             cmake = CMake(self, set_cmake_flags=True)
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.15' if Version(self.deps_cpp_info["qt"].version) >= "6.5.0" else "10.14"
 
             cmake.configure()
@@ -122,7 +123,7 @@ Examples = bin/datadir/examples""".format(self.dependencies["qt"].package_folder
             return
         self.output.info("Testing qmake")
         bin_path = os.path.join("qmake_folder", "bin")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             bin_path = os.path.join(bin_path, "test_package.app", "Contents", "MacOS")
         shutil.copy("qt.conf", bin_path)
         self.run(os.path.join(bin_path, "test_package"), run_environment=True)

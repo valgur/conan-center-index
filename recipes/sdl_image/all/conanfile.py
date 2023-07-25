@@ -165,7 +165,7 @@ class SDLImageConan(ConanFile):
                 "Foundation",
                 "ImageIO",
             ]
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["_sdl_image"].frameworks.append("ApplicationServices")
             else:
                 self.cpp_info.components["_sdl_image"].frameworks.extend(["MobileCoreServices", "UIKit"])

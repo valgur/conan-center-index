@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -63,7 +64,7 @@ class TensorflowLiteConan(ConanFile):
             del self.options.fPIC
             self.options.rm_safe("with_nnapi")
             self.options.rm_safe("with_mmap")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.options.rm_safe("with_nnapi")
 
     def configure(self):

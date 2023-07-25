@@ -287,7 +287,7 @@ class MagnumConan(ConanFile):
         if not self.options.gl and (self.options.target_gl or self.options.get_safe("target_headless", False)):
             raise ConanInvalidConfiguration("Option 'gl=True' is required")
 
-        if self.options.target_gl in ["gles2", "gles3"] and self.settings.os == "Macos":
+        if self.options.target_gl in ["gles2", "gles3"] and is_apple_os(self):
             raise ConanInvalidConfiguration("OpenGL ES is not supported in Macos")
 
         if self.options.target_gl in ["gles2", "gles3"] and self.settings.os == "Windows":

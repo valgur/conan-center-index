@@ -565,7 +565,7 @@ class BotanConan(ConanFile):
         self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.extend(["dl", "rt", "pthread"])
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["ws2_32", "crypt32"])

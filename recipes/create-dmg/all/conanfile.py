@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.layout import basic_layout
 import os
@@ -26,7 +27,7 @@ class CreateDmgConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.os != "Macos":
+        if not is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.name} works only on MacOS")
 
     def source(self):

@@ -100,7 +100,7 @@ class SDLConan(ConanFile):
         # SDL2 depends on many system freamworks,
         # which depend on the system-provided iconv
         # and can conflict with the Conan provided one
-        self.options.iconv = self.settings.os != "Macos"
+        self.options.iconv = not is_apple_os(self)
 
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
@@ -183,7 +183,7 @@ class SDLConan(ConanFile):
                 raise ConanInvalidConfiguration("Package for 'directfb' is not available (yet)")
 
     def build_requirements(self):
-        if self.settings.os == "Macos" and cross_building(self):
+        if is_apple_os(self) and cross_building(self):
             # Workaround for CMake bug with error message:
             # Attempting to use @rpath without CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG being
             # set. This could be because you are using a Mac OS X version less than 10.5
@@ -223,7 +223,7 @@ class SDLConan(ConanFile):
         apply_conandata_patches(self)
 
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if self.options.iconv:
                 # If using conan-provided iconv, search for the symbol "libiconv_open"
                 replace_check = "check_library_exists(iconv libiconv_open"
@@ -478,7 +478,7 @@ class SDLConan(ConanFile):
                 "Foundation",
                 "QuartzCore",
             ]
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["libsdl2"].frameworks.extend(
                     ["Cocoa", "Carbon", "IOKit", "ForceFeedback"]
                 )

@@ -206,7 +206,7 @@ class SfmlConan(ConanFile):
             return ["OpenGLES"] if self.settings.os == "iOS" else []
 
         def objc():
-            return ["-ObjC"] if not self.options.shared and self.settings.os == "Macos" else []
+            return ["-ObjC"] if not self.options.shared and is_apple_os(self) else []
 
         suffix = "" if self.options.shared else "-s"
         suffix += "-d" if self.settings.build_type == "Debug" else ""

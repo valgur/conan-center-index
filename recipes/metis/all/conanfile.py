@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc
@@ -126,7 +127,7 @@ class METISConan(ConanFile):
             self.cpp_info.defines.append("WIN32")
             self.cpp_info.defines.append("MSC")
             self.cpp_info.defines.append("_CRT_SECURE_NO_DEPRECATE")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.defines.append("MACOS")
         elif self.settings.os == "SunOS":
             self.cpp_info.defines.append("SUNOS")

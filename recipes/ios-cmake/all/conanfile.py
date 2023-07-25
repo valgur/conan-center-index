@@ -122,7 +122,7 @@ class IosCMakeConan(ConanFile):
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 
     def package_info(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if not getattr(self, "settings_target", None):
                 #  not a build_require, but can be fine since its build as a ppr:b, but nothing to do
                 return

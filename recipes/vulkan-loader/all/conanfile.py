@@ -208,7 +208,7 @@ class VulkanLoaderConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread", "m"]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation"]
 
         vulkan_sdk_path = self.package_folder

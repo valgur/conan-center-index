@@ -130,7 +130,7 @@ class ZbarConan(ConanFile):
             ]
         )
         env = tc.environment()
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             # ./libtool: eval: line 961: syntax error near unexpected token `|'
             env.define("NM", "nm")
         tc.generate(env)

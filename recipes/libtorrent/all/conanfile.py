@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -219,7 +220,7 @@ class LibtorrentConan(ConanFile):
                 "iphlpapi",
                 "dbghelp",
             ]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["libtorrent-rasterbar"].frameworks = [
                 "CoreFoundation",
                 "SystemConfiguration",

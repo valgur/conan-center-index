@@ -145,7 +145,7 @@ class TBBConan(ConanFile):
         del self.info.options.tbbproxy
 
     def validate(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if hasattr(self, "settings_build") and cross_building(self):
                 # See logs from https://github.com/conan-io/conan-center-index/pull/8454
                 raise ConanInvalidConfiguration(

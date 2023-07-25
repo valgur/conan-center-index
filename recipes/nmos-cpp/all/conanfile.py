@@ -5,6 +5,7 @@ import re
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools import build
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import export_conandata_patches, load, rmdir, copy, apply_conandata_patches, rm, get
 
@@ -39,7 +40,7 @@ class NmosCppConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.options.rm_safe("with_dnssd")
         elif self.settings.os == "Linux":
             self.options.with_dnssd = "avahi"
@@ -77,7 +78,7 @@ class NmosCppConan(ConanFile):
         self.info.requires["nlohmann_json"].patch_mode()
 
     def validate(self):
-        if self.info.settings.os in ["Macos"]:
+        if is_apple_os(self):
             raise ConanInvalidConfiguration(
                 f"{self.ref} is not currently supported on {self.info.settings.os}. Contributions welcomed."
             )

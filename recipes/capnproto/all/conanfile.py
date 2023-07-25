@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
@@ -139,7 +139,7 @@ class CapnprotoConan(ConanFile):
             if Version(self.version) >= "0.8.0":
                 tc.configure_args.append(f"--with-zlib={yes_no(self.options.with_zlib)}")
             # Fix rpath on macOS
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 tc.extra_ldflags.append("-Wl,-rpath,@loader_path/../lib")
             tc.generate()
             deps = AutotoolsDeps(self)

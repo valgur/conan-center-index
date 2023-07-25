@@ -69,7 +69,7 @@ class LibPcapConan(ConanFile):
             self.requires("libusb/1.0.26")
 
     def validate(self):
-        if Version(self.version) < "1.10.0" and self.settings.os == "Macos" and self.options.shared:
+        if Version(self.version) < "1.10.0" and is_apple_os(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on OSX.")
         if (
             hasattr(self, "settings_build")

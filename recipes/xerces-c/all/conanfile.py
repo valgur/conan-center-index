@@ -1,5 +1,6 @@
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
@@ -56,7 +57,7 @@ class XercesCConan(ConanFile):
             self.options.network_accessor = "winsock"
             self.options.transcoder = "windows"
             self.options.mutex_manager = "windows"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.options.network_accessor = "cfurl"
             self.options.transcoder = "macosunicodeconverter"
             self.options.mutex_manager = "posix"
@@ -156,7 +157,7 @@ class XercesCConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "XercesC::XercesC")
         self.cpp_info.set_property("pkg_config_name", "xerces-c")
         self.cpp_info.libs = collect_libs(self)
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "CoreServices"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")

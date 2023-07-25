@@ -9,7 +9,7 @@ class TestVerilatorConan(ConanFile):
     @property
     def _with_systemc_example(self):
         # systemc is not available on Macos
-        return self.settings.os != "Macos"
+        return not is_apple_os(self)
 
     def requirements(self):
         if self._with_systemc_example:

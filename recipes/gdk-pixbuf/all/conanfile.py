@@ -1,6 +1,6 @@
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
@@ -87,7 +87,7 @@ class GdkPixbufConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # when running gdk-pixbuf-query-loaders
             # dyld: malformed mach-o: load commands size (97560) > 32768
             raise ConanInvalidConfiguration("This package does not support Macos currently")

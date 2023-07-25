@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
@@ -101,7 +102,7 @@ class DiligentToolsConan(ConanFile):
     def _diligent_platform(self):
         if self.settings.os == "Windows":
             return "PLATFORM_WIN32"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return "PLATFORM_MACOS"
         elif self.settings.os == "Linux":
             return "PLATFORM_LINUX"
@@ -186,7 +187,7 @@ class DiligentToolsConan(ConanFile):
 
         self.cpp_info.defines.append(f"{self._diligent_platform}=1")
 
-        if self.settings.os in ["Macos", "Linux"]:
+        if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
             self.cpp_info.system_libs = ["dl", "pthread"]
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa"]

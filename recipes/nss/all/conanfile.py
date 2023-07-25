@@ -141,7 +141,7 @@ class NSSConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "NSS cannot link to static sqlite. Please use option sqlite3:shared=True"
             )
-        if self.settings.arch in ["armv8", "armv8.3"] and self.settings.os in ["Macos"]:
+        if self.settings.arch in ["armv8", "armv8.3"] and is_apple_os(self):
             raise ConanInvalidConfiguration(
                 "Macos ARM64 builds not yet supported. Contributions are welcome."
             )
@@ -171,7 +171,7 @@ class NSSConan(ConanFile):
         args = []
         if self.settings.arch in ["x86_64"]:
             args.append("USE_64=1")
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 args.append("CPU_ARCH=i386")
             else:
                 args.append("CPU_ARCH=x86_64")

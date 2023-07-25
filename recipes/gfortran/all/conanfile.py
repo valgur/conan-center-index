@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get, load, save, download
 from conan.tools.layout import basic_layout
 import os
@@ -58,7 +59,7 @@ class GFortranConan(ConanFile):
 
     @property
     def _archive_contents_path(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             return os.path.join(self.build_folder, "local")
         elif self.settings.os == "Windows":
             return os.path.join(self.build_folder, "mingw64")

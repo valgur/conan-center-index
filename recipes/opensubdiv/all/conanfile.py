@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import (
@@ -76,7 +77,7 @@ class OpenSubdivConan(ConanFile):
             del self.options.fPIC
         else:
             self.options.rm_safe("with_dx")
-        if self.settings.os != "Macos":
+        if not is_apple_os(self):
             self.options.rm_safe("with_metal")
 
     def configure(self):
@@ -145,7 +146,7 @@ class OpenSubdivConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if self.settings.os == "Macos" and not self._osd_gpu_enabled:
+        if is_apple_os(self) and not self._osd_gpu_enabled:
             path = os.path.join(self.source_folder, "opensubdiv", "CMakeLists.txt")
             replace_in_file(self, path, "$<TARGET_OBJECTS:osd_gpu_obj>", "")
         # No warnings as errors

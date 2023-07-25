@@ -119,7 +119,7 @@ class SwigConan(ConanFile):
             tc.configure_args.append("--disable-ccache")
             tc.extra_cxxflags.append("-FS")
 
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             # FIXME: Apple ARM should be handled by build helpers
             tc.extra_cxxflags.append("-arch arm64")
             tc.extra_ldflags.append("-arch arm64")

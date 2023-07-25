@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches,
@@ -184,7 +184,7 @@ class LibUSBConan(ConanFile):
         self.cpp_info.includedirs.append(os.path.join("include", "libusb-1.0"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.system_libs = ["objc"]
             self.cpp_info.frameworks = ["IOKit", "CoreFoundation", "Security"]
         elif self.settings.os == "Windows":

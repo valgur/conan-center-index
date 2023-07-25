@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -38,7 +39,7 @@ class LibEstConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os in ("Windows", "Macos"):
+        if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration("Platform is currently not supported by this recipe")
         if self.options.shared:
             self.options.rm_safe("fPIC")

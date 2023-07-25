@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import get, copy
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.layout import basic_layout
@@ -105,7 +106,7 @@ class MiniaudioConan(ConanFile):
             self.cpp_info.system_libs.extend(["m", "pthread"])
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("dl")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks.extend(["CoreFoundation", "CoreAudio", "AudioUnit"])
             self.cpp_info.defines.append("MA_NO_RUNTIME_LINKING=1")
 

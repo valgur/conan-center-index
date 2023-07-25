@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get, symlinks
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -37,12 +38,12 @@ class OpenJDK(ConanFile):
 
     def build(self):
         key = self.settings.os
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             key = f"{self.settings.os}_{self.settings.arch}"
         get(self, **self.conan_data["sources"][self.version][str(key)], strip_root=True)
 
     def package(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             source_folder = os.path.join(self.source_folder, f"jdk-{self.version}.jdk", "Contents", "Home")
         else:
             source_folder = self.source_folder

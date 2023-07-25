@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
 import os
@@ -20,7 +21,7 @@ class TestPackageConan(ConanFile):
         for key, value in self.options["openscenegraph"].items():
             if key.startswith("with_"):
                 tc.variables["OSG_HAS_" + key.upper()] = 1 if value else 0
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             tc.variables["OSG_HAS_WITH_GIF"] = 0
             tc.variables["OSG_HAS_WITH_JPEG"] = 0
             tc.variables["OSG_HAS_WITH_PNG"] = 0

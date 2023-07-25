@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -44,7 +45,7 @@ class ResiprocateConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os in ("Windows", "Macos"):
+        if self.settings.os == "Windows" or is_apple_os(self):
             # FIXME: Visual Studio project & Mac support seems available in resiprocate
             raise ConanInvalidConfiguration(
                 "reSIProcate recipe does not currently support {}.".format(self.settings.os)

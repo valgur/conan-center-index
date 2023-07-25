@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import chdir, copy, rmdir, get, save, load
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
@@ -52,7 +53,7 @@ class CMakeConan(ConanFile):
         del self.info.options.bootstrap
 
     def validate(self):
-        if self.settings.os == "Macos" and self.settings.arch == "x86":
+        if is_apple_os(self) and self.settings.arch == "x86":
             raise ConanInvalidConfiguration("CMake does not support x86 for macOS")
 
     def validate_build(self):

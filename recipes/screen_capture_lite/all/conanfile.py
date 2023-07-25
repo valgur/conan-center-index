@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.microsoft import is_msvc
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.build import check_min_cppstd
@@ -130,7 +131,7 @@ class ScreenCaptureLiteConan(ConanFile):
             self.cpp_info.requires.extend(["xorg::x11", "xorg::xinerama", "xorg::xext", "xorg::xfixes"])
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["dwmapi", "d3d11", "dxgi"])
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.frameworks.extend(
                 [
                     "AppKit",

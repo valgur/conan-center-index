@@ -352,7 +352,7 @@ class OpenCVConan(ConanFile):
                     + eigen()
                     + tbb()
                 ),
-                "frameworks": [(self.settings.os == "Macos", ["OpenCL"])],
+                "frameworks": [(is_apple_os(self), ["OpenCL"])],
             },
             "viz": {"is_built": self.options.viz, "requires": ["opencv_core", "vtk::vtk"] + eigen() + tbb()},
         }

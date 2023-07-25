@@ -9,6 +9,7 @@ from collections import defaultdict
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
@@ -389,7 +390,7 @@ class LLVMCoreConan(ConanFile):
             self.cpp_info.libs = collect_libs(self)
             if self.settings.os == "Linux":
                 self.cpp_info.system_libs = ["pthread", "rt", "dl", "m"]
-            elif self.settings.os == "Macos":
+            elif is_apple_os(self):
                 self.cpp_info.system_libs = ["m"]
             return
 

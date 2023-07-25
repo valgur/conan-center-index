@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -26,7 +27,7 @@ class PackageConan(ConanFile):
         del self.info.settings.build_type
 
     def validate(self):
-        if self.settings.os == "Macos" and Version(self.settings.os.version) < 11:
+        if is_apple_os(self) and Version(self.settings.os.version) < 11:
             raise ConanInvalidConfiguration(f"{self.ref} requires OSX >=11.")
 
     def source(self):

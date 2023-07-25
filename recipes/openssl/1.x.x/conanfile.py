@@ -269,12 +269,12 @@ class OpenSSLConan(ConanFile):
         tc = AutotoolsToolchain(self)
         # workaround for random error: size too large (archive member extends past the end of the file)
         # /Library/Developer/CommandLineTools/usr/bin/ar: internal ranlib command failed
-        if self.settings.os == "Macos" and self._full_version < "1.1.0":
+        if is_apple_os(self) and self._full_version < "1.1.0":
             tc.make_args = ["-j1"]
         # 1.1.0 era Makefiles don't do well with parallel installs
         if not self._use_nmake and self._full_version >= "1.1.0" and self._full_version < "1.1.1":
             tc.make_args = ["-j1"]
-        if self.settings.os == "Macos" and not cross_building(self):
+        if is_apple_os(self) and not cross_building(self):
             tc.extra_cflags = [f"-isysroot {XCRun(self).sdk_path}"]
             tc.extra_cxxflags = [f"-isysroot {XCRun(self).sdk_path}"]
             tc.extra_ldflags = [f"-isysroot {XCRun(self).sdk_path}"]

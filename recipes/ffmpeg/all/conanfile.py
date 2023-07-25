@@ -883,7 +883,7 @@ class FFMpegConan(ConanFile):
                 self.cpp_info.components["avfilter"].frameworks = ["CoreGraphics"]
             if self.options.avcodec:
                 self.cpp_info.components["avcodec"].frameworks = ["CoreFoundation", "CoreVideo", "CoreMedia"]
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 if self.options.avdevice:
                     self.cpp_info.components["avdevice"].frameworks.append("OpenGL")
                 if self.options.avfilter:

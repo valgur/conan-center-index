@@ -725,7 +725,7 @@ class AwsSdkCppConan(ConanFile):
             if is_msvc_static_runtime(self):
                 raise ConanInvalidConfiguration("Static runtime is not working for more recent releases")
         else:
-            if self.settings.os == "Macos" and self.settings.arch == "armv8":
+            if is_apple_os(self) and self.settings.arch == "armv8":
                 raise ConanInvalidConfiguration(
                     "This version doesn't support arm8. See https://github.com/aws/aws-sdk-cpp/issues/1542"
                 )
@@ -887,7 +887,7 @@ class AwsSdkCppConan(ConanFile):
             if self.options.get_safe("text-to-speech"):
                 self.cpp_info.components["text-to-speech"].requires.append("pulseaudio::pulseaudio")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if self.options.get_safe("text-to-speech"):
                 self.cpp_info.components["text-to-speech"].frameworks.append("CoreAudio")
 

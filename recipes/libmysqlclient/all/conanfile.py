@@ -270,7 +270,7 @@ class LibMysqlClientCConan(ConanFile):
                 self, os.path.join(self.source_folder, "CMakeLists.txt"), f"MYSQL_CHECK_{dep}_DLLS()", ""
             )
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             replace_in_file(
                 self,
                 os.path.join(self.source_folder, "libmysql", "CMakeLists.txt"),

@@ -68,7 +68,7 @@ class TestPackageConan(ConanFile):
                     else:
                         self.output.info("readelf is not on the PATH. Skipping readelf test.")
 
-                if self.settings.os == "Macos":
+                if is_apple_os(self):
                     if shutil.which("otool"):
                         self.run(f"otool -L {files['bin']}", env="conanrun")
                     else:

@@ -534,7 +534,7 @@ class QtConan(ConanFile):
         for feature in str(self.options.disabled_features).split():
             tc.variables[f"FEATURE_{feature}"] = "OFF"
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             tc.variables["FEATURE_framework"] = "OFF"
         elif self.settings.os == "Android":
             tc.variables["CMAKE_ANDROID_NATIVE_API_LEVEL"] = self.settings.os.api_level
@@ -641,7 +641,7 @@ class QtConan(ConanFile):
                 if self.settings.arch == "x86_64":
                     return "linux-clang-libc++" if self.settings.compiler.libcxx == "libc++" else "linux-clang"
 
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return {"clang": "macx-clang",
                     "apple-clang": "macx-clang",
                     "gcc": "macx-g++"}.get(str(self.settings.compiler))
@@ -726,7 +726,7 @@ class QtConan(ConanFile):
         return None
 
     def build(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             save(self, ".qmake.stash" , "")
             save(self, ".qmake.super" , "")
         cmake = CMake(self)
@@ -745,7 +745,7 @@ class QtConan(ConanFile):
         return os.path.join("lib", "cmake", f"Qt6{module}", f"conan_qt_qt6_{module.lower()}private.cmake")
 
     def package(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             save(self, ".qmake.stash" , "")
             save(self, ".qmake.super" , "")
         cmake = CMake(self)
@@ -1017,7 +1017,7 @@ class QtConan(ConanFile):
             elif self.settings.os == "Android":
                 _create_plugin("QAndroidIntegrationPlugin", "qtforandroid", "platforms", ["Core", "Gui"])
                 self.cpp_info.components["qtQAndroidIntegrationPlugin"].system_libs = ["android", "jnigraphics"]
-            elif self.settings.os == "Macos":
+            elif is_apple_os(self):
                 _create_plugin("QCocoaIntegrationPlugin", "qcocoa", "platforms", ["Core", "Gui"])
                 self.cpp_info.components["QCocoaIntegrationPlugin"].frameworks = ["AppKit", "Carbon", "CoreServices", "CoreVideo",
                     "IOKit", "IOSurface", "Metal", "QuartzCore"]
@@ -1212,7 +1212,7 @@ class QtConan(ConanFile):
                 _create_plugin("AudioCaptureServicePlugin", "qtmedia_audioengine", "mediaservice", [])
                 _create_plugin("DSServicePlugin", "dsengine", "mediaservice", [])
                 _create_plugin("QWindowsAudioPlugin", "qtaudio_windows", "audio", [])
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 _create_plugin("AudioCaptureServicePlugin", "qtmedia_audioengine", "mediaservice", [])
                 _create_plugin("AVFMediaPlayerServicePlugin", "qavfmediaplayer", "mediaservice", [])
                 _create_plugin("AVFServicePlugin", "qavfcamera", "mediaservice", [])
@@ -1312,7 +1312,7 @@ class QtConan(ConanFile):
                 self.cpp_info.components["qtNetwork"].system_libs.extend(["winhttp", "secur32"])
 
 
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["qtCore"].frameworks.append("IOKit")     # qtcore requires "_IORegistryEntryCreateCFProperty", "_IOServiceGetMatchingService" and much more which are in "IOKit" framework
                 self.cpp_info.components["qtCore"].frameworks.append("Cocoa")     # qtcore requires "_OBJC_CLASS_$_NSApplication" and more, which are in "Cocoa" framework
                 self.cpp_info.components["qtCore"].frameworks.append("Security")  # qtcore requires "_SecRequirementCreateWithString" and more, which are in "Security" framework

@@ -1,6 +1,7 @@
 import os
 import glob
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import (
     apply_conandata_patches,
     export_conandata_patches,
@@ -86,7 +87,7 @@ class OisConan(ConanFile):
 
         self.cpp_info.set_property("pkg_config_name", "OIS")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["Foundation", "Cocoa", "IOKit", "AppKit", "CoreFoundation", "CoreGraphics"]
         elif self.settings.os == "Windows":
             self.cpp_info.defines = ["OIS_WIN32_XINPUT_SUPPORT"]

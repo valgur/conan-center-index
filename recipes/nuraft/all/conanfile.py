@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
@@ -49,7 +50,7 @@ class NuRaftConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Windows")
-        if self.settings.os == "Macos" and self.options.shared:
+        if is_apple_os(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported for Macos")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)

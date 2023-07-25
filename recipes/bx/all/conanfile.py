@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get, rename
 from conan.tools.build import check_min_cppstd
 from conan.tools.layout import basic_layout
@@ -241,7 +242,7 @@ class bxConan(ConanFile):
         elif self.settings.os in ["Linux", "FreeBSD"]:
             lib_ext = "*.a"
             package_lib_prefix = "lib"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             lib_ext = "*.a"
             package_lib_prefix = "lib"
 
@@ -339,7 +340,7 @@ class bxConan(ConanFile):
                 self.cpp_info.includedirs.extend(["include/compat/linux"])
             else:
                 self.cpp_info.includedirs.extend(["include/compat/freebsd"])
-        elif self.settings.os in ["Macos", "iOS"]:
+        elif is_apple_os(self):
             self.cpp_info.frameworks.extend(["Foundation", "Cocoa"])
             if self.settings.os == "Macos":
                 self.cpp_info.includedirs.extend(["include/compat/osx"])

@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.layout import basic_layout
-from conan.tools.apple import XCRun
+from conan.tools.apple import XCRun, is_apple_os
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
@@ -50,7 +50,7 @@ class GccConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Windows builds aren't currently supported. Contributions to support this are welcome."
             )
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # FIXME: This recipe should largely support Macos, however the following
             # errors are present when building using the c3i CI:
             # clang: error: unsupported option '-print-multi-os-directory'
@@ -97,7 +97,7 @@ class GccConan(ConanFile):
         tc.configure_args.append(f"--program-suffix=-{self.version}")
         tc.configure_args.append(f"--with-bugurl={self.url}/issues")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             xcrun = XCRun(self)
             tc.configure_args.append(f"--with-sysroot={xcrun.sdk_path}")
             # Set native system header dir to ${{sysroot}}/usr/include to

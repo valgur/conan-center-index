@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc_static_runtime
@@ -67,7 +68,7 @@ class CoConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
 
     def build_requirements(self):
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             #  The OSX_ARCHITECTURES target property is now respected for the ASM language
             self.tool_requires("cmake/[>=3.20]")
 

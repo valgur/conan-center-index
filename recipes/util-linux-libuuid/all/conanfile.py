@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -75,7 +75,7 @@ class UtilLinuxLibuuidConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows")
 
     def requirements(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # Required because libintl.{a,dylib} is not distributed via libc on Macos
             self.requires("libgettext/0.21")
 

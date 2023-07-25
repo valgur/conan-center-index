@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
@@ -217,7 +218,7 @@ class LeptonicaConan(ConanFile):
         # CheckFunctionExists will find it in the link library.
         # There's no error because it's not including the header with the
         # deprecation macros.
-        if self.settings.os == "Macos" and self.settings.os.version:
+        if is_apple_os(self) and self.settings.os.version:
             if Version(self.settings.os.version) < "10.13":
                 replace_in_file(
                     self,

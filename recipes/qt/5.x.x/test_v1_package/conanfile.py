@@ -2,6 +2,7 @@ import os
 import shutil
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conans import tools, Meson, RunEnvironment, CMake
 from conan.tools.build import cross_building
 from conan.tools.files import save
@@ -106,7 +107,7 @@ Examples = bin/datadir/examples""".format(self.dependencies["qt"].package_folder
         env_build = RunEnvironment(self)
         with tools.environment_append(env_build.vars):
             cmake = CMake(self, set_cmake_flags=True)
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 cmake.definitions['CMAKE_OSX_DEPLOYMENT_TARGET'] = '10.14'
 
             cmake.configure()

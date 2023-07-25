@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -58,7 +59,7 @@ class LibopingConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Liboping could not be built on {} as shared library".format(self.settings.os)
             )
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             # Build error - NO Access to a Mac/M1 - please fix when possible - see issue 8634
             raise ConanInvalidConfiguration("Liboping cannot be built on a Mac/M1 at this time")
 

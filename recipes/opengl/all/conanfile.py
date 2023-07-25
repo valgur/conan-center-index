@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.system import package_manager
 from conan.tools.gnu import PkgConfig
 
@@ -51,7 +52,7 @@ class SysConfigOpenGLConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.defines.append("GL_SILENCE_DEPRECATION=1")
             self.cpp_info.frameworks.append("OpenGL")
         elif self.settings.os == "Windows":

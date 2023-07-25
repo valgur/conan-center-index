@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, rmdir
 from conan.tools.scm import Version
@@ -167,7 +168,7 @@ class CivetwebConan(ConanFile):
             self.cpp_info.components["_civetweb"].system_libs.extend(["rt", "pthread"])
             if self.options.get_safe("ssl_dynamic_loading"):
                 self.cpp_info.components["_civetweb"].system_libs.append("dl")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["_civetweb"].frameworks.append("Cocoa")
         elif self.settings.os == "Windows":
             self.cpp_info.components["_civetweb"].system_libs.append("ws2_32")

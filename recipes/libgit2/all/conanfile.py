@@ -62,7 +62,7 @@ class LibGit2Conan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("with_ntlmclient")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.options.with_regex = "regcomp_l"
 
     def configure(self):

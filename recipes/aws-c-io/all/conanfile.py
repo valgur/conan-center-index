@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir, save
 from conan.tools.scm import Version
@@ -104,7 +105,7 @@ class AwsCIO(ConanFile):
         self.cpp_info.libs = ["aws-c-io"]
         if self.options.shared:
             self.cpp_info.defines.append("AWS_IO_USE_IMPORT_EXPORT")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks.append("Security")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["crypt32", "secur32", "shlwapi"]

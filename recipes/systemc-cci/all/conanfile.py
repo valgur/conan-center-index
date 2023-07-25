@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
@@ -47,7 +48,7 @@ class SystemccciConan(ConanFile):
         self.requires("rapidjson/cci.20220822")
 
     def validate(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.name} is not supported on {self.settings.os}.")
 
     def source(self):

@@ -147,7 +147,7 @@ class NcbiCxxToolkit(ConanFile):
         if key in self.NCBI_to_Conan_requires.keys():
             if key == "BerkeleyDB" and self.settings.os == "Windows":
                 return None
-            if key == "CASSANDRA" and (self.settings.os == "Windows" or self.settings.os == "Macos"):
+            if key == "CASSANDRA" and (self.settings.os == "Windows" or is_apple_os(self)):
                 return None
             if key == "NGHTTP2" and self.settings.os == "Windows":
                 return None
@@ -201,7 +201,7 @@ class NcbiCxxToolkit(ConanFile):
         elif self.settings.os == "Linux":
             self.cpp_info.components["ORIGLIBS"].system_libs = ["dl", "rt", "m", "pthread"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = ["resolv"]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["ORIGLIBS"].system_libs = ["dl", "c", "m", "pthread"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = ["resolv"]
 

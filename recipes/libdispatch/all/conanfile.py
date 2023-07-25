@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, replace_in_file
 
@@ -69,7 +70,7 @@ class LibDispatchConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.libs = ["dispatch"]
         else:
             self.cpp_info.libs = ["dispatch", "BlocksRuntime"]

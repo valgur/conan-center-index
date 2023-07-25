@@ -212,7 +212,7 @@ class QtConan(ConanFile):
             self.options.rm_safe("qtwinextras")
             self.options.rm_safe("qtactiveqt")
 
-        if self.settings.os != "Macos":
+        if not is_apple_os(self):
             self.options.rm_safe("qtmacextras")
 
         if self.settings.os != "Android":
@@ -643,7 +643,7 @@ class QtConan(ConanFile):
                         "linux-clang-libc++" if self.settings.compiler.libcxx == "libc++" else "linux-clang"
                     )
 
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return {
                 "clang": "macx-clang",
                 "apple-clang": "macx-clang",
@@ -918,7 +918,7 @@ class QtConan(ConanFile):
                 '-psql_config "%s"'
                 % os.path.join(self.dependencies["libpq"].package_folder, "bin", "pg_config")
             )
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             args += ["-no-framework"]
             if self.settings.arch == "armv8":
                 args.append('QMAKE_APPLE_DEVICE_ARCHS="arm64"')
@@ -1314,7 +1314,7 @@ Examples = bin/datadir/examples""",
                     ["CoreFoundation", "CoreGraphics", "CoreText", "Foundation"]
                 )
                 self.cpp_info.components["qtFontDatabaseSupport"].frameworks.append(
-                    "AppKit" if self.settings.os == "Macos" else "UIKit"
+                    "AppKit" if is_apple_os(self) else "UIKit"
                 )
             if self.options.get_safe("with_fontconfig"):
                 self.cpp_info.components["qtFontDatabaseSupport"].requires.append("fontconfig::fontconfig")
@@ -1331,13 +1331,13 @@ Examples = bin/datadir/examples""",
                 _add_build_module("qtWidgets", self._cmake_qt5_private_file("Widgets"))
                 if self.settings.os not in ["iOS", "watchOS", "tvOS"]:
                     _create_module("PrintSupport", ["Gui", "Widgets"])
-                    if self.settings.os == "Macos" and not self.options.shared:
+                    if is_apple_os(self) and not self.options.shared:
                         self.cpp_info.components["qtPrintSupport"].system_libs.append("cups")
 
             if is_apple_os(self):
                 _create_module("ClipboardSupport", ["Core", "Gui"])
                 self.cpp_info.components["qtClipboardSupport"].frameworks = ["ImageIO"]
-                if self.settings.os == "Macos":
+                if is_apple_os(self):
                     self.cpp_info.components["qtClipboardSupport"].frameworks.append("AppKit")
                 _create_module("GraphicsSupport", ["Core", "Gui"])
 
@@ -1385,7 +1385,7 @@ Examples = bin/datadir/examples""",
                     "android",
                     "jnigraphics",
                 ]
-            elif self.settings.os == "Macos":
+            elif is_apple_os(self):
                 cocoa_reqs = [
                     "Core",
                     "Gui",
@@ -1628,7 +1628,7 @@ Examples = bin/datadir/examples""",
             _create_module("Gamepad", ["Gui"])
             if self.settings.os == "Linux":
                 _create_plugin("QEvdevGamepadBackendPlugin", "evdevgamepad", "gamepads", [])
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 _create_plugin("QDarwinGamepadBackendPlugin", "darwingamepad", "gamepads", [])
             if self.settings.os == "Windows":
                 _create_plugin("QXInputGamepadBackendPlugin", "xinputgamepad", "gamepads", [])
@@ -1686,7 +1686,7 @@ Examples = bin/datadir/examples""",
                 _create_plugin("AudioCaptureServicePlugin", "qtmedia_audioengine", "mediaservice", [])
                 _create_plugin("DSServicePlugin", "dsengine", "mediaservice", [])
                 _create_plugin("QWindowsAudioPlugin", "qtaudio_windows", "audio", [])
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 _create_plugin("AudioCaptureServicePlugin", "qtmedia_audioengine", "mediaservice", [])
                 _create_plugin("AVFMediaPlayerServicePlugin", "qavfmediaplayer", "mediaservice", [])
                 _create_plugin("AVFServicePlugin", "qavfcamera", "mediaservice", [])
@@ -1788,20 +1788,20 @@ Examples = bin/datadir/examples""",
 
             if is_apple_os(self):
                 self.cpp_info.components["qtCore"].frameworks.append(
-                    "CoreServices" if self.settings.os == "Macos" else "MobileCoreServices"
+                    "CoreServices" if is_apple_os(self) else "MobileCoreServices"
                 )
                 self.cpp_info.components["qtNetwork"].frameworks.append("SystemConfiguration")
                 if self.options.with_gssapi:
                     self.cpp_info.components["qtNetwork"].frameworks.append("GSS")
                 if not self.options.openssl:  # with SecureTransport
                     self.cpp_info.components["qtNetwork"].frameworks.append("Security")
-            if self.settings.os == "Macos" or (
+            if is_apple_os(self) or (
                 self.settings.os == "iOS" and Version(self.settings.compiler.version) >= "14.0"
             ):
                 self.cpp_info.components["qtCore"].frameworks.append(
                     "IOKit"
                 )  # qtcore requires "_IORegistryEntryCreateCFProperty", "_IOServiceGetMatchingService" and much more which are in "IOKit" framework
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["qtCore"].frameworks.append(
                     "Cocoa"
                 )  # qtcore requires "_OBJC_CLASS_$_NSApplication" and more, which are in "Cocoa" framework

@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -61,7 +62,7 @@ class CclientConan(ConanFile):
         if self.settings.os == "Windows" and not is_msvc(self):
             raise ConanInvalidConfiguration("c-client is setup to build only with MSVC for Windows")
         # FIXME: need krb5 recipe
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             raise ConanInvalidConfiguration(
                 "c-client depends on krb5 on MacOS and it's not packaged by Conan yet"
             )
@@ -112,7 +113,7 @@ class CclientConan(ConanFile):
             "#include <x509v3.h>\n#include <ssl.h>",
             "#include <ssl.h>\n#include <x509v3.h>",
         )
-        target = "osx" if self.settings.os == "Macos" else "slx"
+        target = "osx" if is_apple_os(self) else "slx"
         # NOTE: only one job is used, because there are issues with dependency
         #       tracking in parallel builds
         args = ["IP=6", "-j1"]

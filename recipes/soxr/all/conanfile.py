@@ -1,5 +1,6 @@
 import os
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -61,7 +62,7 @@ class SoxrConan(ConanFile):
         if is_msvc(self):
             tc.variables["BUILD_SHARED_RUNTIME"] = not is_msvc_static_runtime(self)
         # Disable SIMD based resample engines for Apple Silicon and iOS ARMv8 architecture
-        if (self.settings.os == "Macos" or self.settings.os == "iOS") and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             tc.variables["WITH_CR32S"] = False
             tc.variables["WITH_CR64S"] = False
         tc.variables["BUILD_TESTS"] = False

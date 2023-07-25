@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
@@ -28,7 +29,7 @@ class TestPackageConan(ConanFile):
         virtual_run_env = VirtualRunEnv(self)
         virtual_run_env.generate()
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             env = Environment()
             # Avoid conflicts with system libiconv
             # see: https://github.com/conan-io/conan-center-index/pull/17610#issuecomment-1552921286

@@ -256,7 +256,7 @@ class JemallocConan(ConanFile):
             raise ConanInvalidConfiguration("Unsupported arch")
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "3.9":
             raise ConanInvalidConfiguration("Unsupported compiler version")
-        if self.settings.os == "Macos" and self.settings.arch not in ("x86_64", "x86"):
+        if is_apple_os(self) and self.settings.arch not in ("x86_64", "x86"):
             raise ConanInvalidConfiguration("Unsupported arch")
 
     def build_requirements(self):

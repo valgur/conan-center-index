@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -92,7 +93,7 @@ class Libx265Conan(ConanFile):
         tc.variables["ENABLE_SHARED"] = self.options.shared
         tc.variables["ENABLE_ASSEMBLY"] = self.options.assembly
         tc.variables["ENABLE_LIBNUMA"] = self.options.get_safe("with_numa", False)
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             tc.variables["CMAKE_SHARED_LINKER_FLAGS"] = "-Wl,-read_only_relocs,suppress"
         tc.variables["HIGH_BIT_DEPTH"] = self.options.bit_depth != 8
         tc.variables["MAIN12"] = self.options.bit_depth == 12

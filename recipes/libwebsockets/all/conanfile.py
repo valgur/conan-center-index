@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
 from conan.tools.files import get, replace_in_file, rmdir, copy, save, collect_libs
 from conan.tools.microsoft import is_msvc
@@ -298,7 +299,7 @@ class LibwebsocketsConan(ConanFile):
                     return ".lib"
                 else:
                     return ".dll.a"
-            elif self.settings.os == "Macos":
+            elif is_apple_os(self):
                 return ".dylib"
             else:
                 return ".so"

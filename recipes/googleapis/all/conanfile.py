@@ -4,6 +4,7 @@ import glob
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
@@ -147,7 +148,7 @@ class GoogleAPIS(ConanFile):
         #    This was fixed in the v22 release which starts at 4.22 for the C++ library
         if (
             Version(self.dependencies["protobuf"].ref.version) <= "3.21.9"
-            and self.settings.os == "Macos"
+            and is_apple_os(self)
             or self.settings.os == "Android"
         ):
             deactivate_library("//google/storagetransfer/v1:storagetransfer_proto")

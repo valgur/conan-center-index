@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rmdir
 from conan.tools.microsoft import is_msvc
@@ -117,7 +118,7 @@ class JerryScriptStackConan(ConanFile):
             self.options.profile = "es.next"
             self.options.jerry_math = False
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             del self.options.jerry_math  # forced to False
             del self.options.link_time_optimization  # forced to False
             del self.options.strip  # forced to False

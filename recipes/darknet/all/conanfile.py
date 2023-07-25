@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import stdcpp_library
 from conan.tools.files import (
     apply_conandata_patches,
@@ -44,7 +44,7 @@ class DarknetConan(ConanFile):
 
     @property
     def _shared_lib_extension(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             return ".dylib"
         else:
             return ".so"

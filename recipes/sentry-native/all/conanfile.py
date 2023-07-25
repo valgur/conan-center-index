@@ -75,7 +75,7 @@ class SentryNativeConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.transport = "winhttp"
         elif (
-            self.settings.os in ("FreeBSD", "Linux") or self.settings.os == "Macos"
+            self.settings.os in ("FreeBSD", "Linux") or is_apple_os(self)
         ):  # Don't use tools.is_apple_os(os) here
             self.options.transport = "curl"
         else:
@@ -83,7 +83,7 @@ class SentryNativeConan(ConanFile):
 
         # Configure default backend
         if (
-            self.settings.os == "Windows" or self.settings.os == "Macos"
+            self.settings.os == "Windows" or is_apple_os(self)
         ):  # Don't use tools.is_apple_os(os) here
             # FIXME: for self.version < 0.4: default backend is "breakpad" when building with MSVC for Windows xp; else: backend=none
             self.options.backend = "crashpad"

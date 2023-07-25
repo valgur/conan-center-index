@@ -475,7 +475,7 @@ class GStPluginsBaseConan(ConanFile):
                 "gstreamer-allocators-1.0",
                 "opengl::opengl",
             ]  # TODO: bcm, nvbuf_utils
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["gstopengl"].frameworks = ["CoreFoundation", "Foundation", "QuartzCore"]
             if self.options.with_graphene:
                 self.cpp_info.components["gstopengl"].requires.append("graphene::graphene-gobject-1.0")

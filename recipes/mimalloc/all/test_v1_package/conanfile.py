@@ -1,3 +1,4 @@
+from conan.tools.apple import is_apple_os
 from conans import ConanFile, CMake, RunEnvironment, tools
 from conans.errors import ConanException
 import os
@@ -21,7 +22,7 @@ class TestPackageConan(ConanFile):
             return ["mi_api"]
         # Injected override:
         elif self._mimalloc_option("inject"):
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 # Could not simulate Macos preload, so just ignore it
                 return []
             return ["no_changes"]
@@ -54,7 +55,7 @@ class TestPackageConan(ConanFile):
         if self._mimalloc_option("inject"):
             if self.settings.os == "Linux":
                 environment["LD_PRELOAD"] = f"{self._lib_name}.so"
-            elif self.settings.os == "Macos":
+            elif is_apple_os(self):
                 env_build = RunEnvironment(self)
                 insert_library = os.path.join(env_build.vars["DYLD_LIBRARY_PATH"][0], f"{self._lib_name}.dylib")
 

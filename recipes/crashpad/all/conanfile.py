@@ -189,7 +189,7 @@ class CrashpadConan(ConanFile):
     @property
     def _gn_os(self):
         if is_apple_os(self):
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 return "mac"
             else:
                 return "ios"
@@ -439,7 +439,7 @@ class CrashpadConan(ConanFile):
         ]
         self.cpp_info.components["mini_chromium_base"].builddirs = [os.path.join("lib", "cmake")]
         if is_apple_os(self):
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["mini_chromium_base"].frameworks = [
                     "ApplicationServices",
                     "CoreFoundation",
@@ -469,7 +469,7 @@ class CrashpadConan(ConanFile):
             self.cpp_info.components["util"].requires.append("libcurl::libcurl")
         elif self.options.get_safe("with_tls") == "openssl":
             self.cpp_info.components["util"].requires.append("openssl::openssl")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.components["util"].frameworks.extend(["CoreFoundation", "Foundation", "IOKit"])
             self.cpp_info.components["util"].system_libs.append("bsm")
 

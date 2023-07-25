@@ -118,7 +118,7 @@ class DiligentCoreConan(ConanFile):
     def _diligent_platform(self):
         if self.settings.os == "Windows":
             return "PLATFORM_WIN32"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return "PLATFORM_MACOS"
         elif self.settings.os == "Linux":
             return "PLATFORM_LINUX"
@@ -250,9 +250,9 @@ class DiligentCoreConan(ConanFile):
         self.cpp_info.defines.append("SPIRV_CROSS_NAMESPACE_OVERRIDE={}".format(self.options["spirv-cross"].namespace))
         self.cpp_info.defines.append("{}=1".format(self._diligent_platform()))
 
-        if self.settings.os in ["Macos", "Linux"]:
+        if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
             self.cpp_info.system_libs = ["dl", "pthread"]
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "AppKit"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["dxgi", "shlwapi"]

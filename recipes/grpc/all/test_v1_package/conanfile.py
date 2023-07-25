@@ -1,3 +1,4 @@
+from conan.tools.apple import is_apple_os
 from conans import ConanFile, CMake, tools
 import contextlib
 import os
@@ -24,8 +25,8 @@ class TestPackageConan(ConanFile):
     def macos_grpc_shared(self):
         # Due to SIP limitations on newer macOS, `DYLD_LIBRARY_PATH`, which is set
         # by `tools.run_environment`, will not be propagated properly, see
-        # https://stackoverflow.com/questions/35568122/why-isnt-dyld-library-path-being-propagated-here 
-        return self.settings.os == "Macos" and self.options["grpc"].shared
+        # https://stackoverflow.com/questions/35568122/why-isnt-dyld-library-path-being-propagated-here
+        return is_apple_os(self) and self.options["grpc"].shared
 
     def build(self):
         # TODO: always build in conan v2

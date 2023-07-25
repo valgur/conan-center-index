@@ -5,6 +5,7 @@ import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
@@ -71,7 +72,7 @@ class DiligentFxConan(ConanFile):
     def _diligent_platform(self):
         if self.settings.os == "Windows":
             return "PLATFORM_WIN32"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return "PLATFORM_MACOS"
         elif self.settings.os == "Linux":
             return "PLATFORM_LINUX"

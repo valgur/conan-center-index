@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import chdir, copy, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -41,7 +42,7 @@ class ScdocInstallerConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.os in ["Macos", "Windows"]:
+        if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration(f"Builds aren't supported on {self.settings.os}")
 
     def build_requirements(self):

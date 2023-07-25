@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
@@ -95,7 +96,7 @@ class CryptoPPConan(ConanFile):
             if self.settings.os == "Android":
                 tc.variables["CRYPTOPP_NATIVE_ARCH"] = True
             if (
-                self.settings.os == "Macos"
+                is_apple_os(self)
                 and self.settings.arch == "armv8"
                 and Version(self.version) <= "8.4.0"
             ):

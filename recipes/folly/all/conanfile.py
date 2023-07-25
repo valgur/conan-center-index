@@ -4,6 +4,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, check_min_cppstd
 from conan.tools.build.flags import cppstd_flag
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -127,7 +128,7 @@ class FollyConan(ConanFile):
                 "Conan support for non-Linux platforms starts with Folly version 2022.01.31.00"
             )
 
-        if self.settings.os == "Macos" and self.settings.arch != "x86_64":
+        if is_apple_os(self) and self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration(
                 "Conan currently requires a 64bit target architecture for Folly on Macos"
             )
@@ -135,7 +136,7 @@ class FollyConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Folly requires a 64bit target architecture on Windows")
 
-        if self.settings.os in ["Macos", "Windows"] and self.options.shared:
+        if (self.settings.os == "Windows" or is_apple_os(self)) and self.options.shared:
             raise ConanInvalidConfiguration(
                 "Folly could not be built on {} as shared library".format(self.settings.os)
             )
@@ -298,7 +299,7 @@ class FollyConan(ConanFile):
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libstdc++"
         ) or (
-            self.settings.os == "Macos"
+            is_apple_os(self)
             and self.settings.compiler == "apple-clang"
             and Version(self.settings.compiler.version.value) == "9.0"
             and self.settings.compiler.libcxx == "libc++"
@@ -306,7 +307,7 @@ class FollyConan(ConanFile):
             self.cpp_info.components["libfolly"].system_libs.append("atomic")
 
         if (
-            self.settings.os == "Macos"
+            is_apple_os(self)
             and self.settings.compiler == "apple-clang"
             and Version(self.settings.compiler.version.value) >= "11.0"
         ):

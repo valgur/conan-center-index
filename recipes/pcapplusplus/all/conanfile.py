@@ -198,7 +198,7 @@ class PcapplusplusConan(ConanFile):
         self.cpp_info.libs = ["Pcap++", "Packet++", "Common++"]
         if self.version < "22.11" and self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs.append("pthread")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks.extend(["CoreFoundation", "Security", "SystemConfiguration"])
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]

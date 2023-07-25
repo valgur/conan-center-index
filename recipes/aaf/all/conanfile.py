@@ -65,7 +65,7 @@ class AafConan(ConanFile):
             tc.cache_variables["PLATFORM"] = str(self.settings.os)
         # ARCH is used only for setting the output directory, except if host is macOS
         # where ARCH is used to select proper pre-compiled proprietary Structured Storage library.
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             tc.cache_variables["ARCH"] = "arm64"
         else:
             tc.cache_variables["ARCH"] = "x86_64"

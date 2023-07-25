@@ -4,6 +4,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import chdir, copy, get, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -75,7 +76,7 @@ class OneTBBConan(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(f"{self.name} {self.version} couldn't be built by apple-clang < 8.0")
         if not self.options.shared:
@@ -132,7 +133,7 @@ class OneTBBConan(ConanFile):
             "x86": "ia32",
             "x86_64": "intel64",
             "armv7": "armv7",
-            "armv8": "arm64" if (self.settings.os == "iOS" or self.settings.os == "Macos") else "aarch64",
+            "armv8": "arm64" if (self.settings.os == "iOS" or is_apple_os(self)) else "aarch64",
         }[str(self.settings.arch)]
         tc.make_args.append(f"arch={arch}")
 

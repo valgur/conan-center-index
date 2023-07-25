@@ -195,7 +195,7 @@ class DCMTKConan(ConanFile):
         if (
             hasattr(self, "settings_build")
             and cross_building(self)
-            and self.settings.os == "Macos"
+            and is_apple_os(self)
             and self.settings.arch == "armv8"
         ):
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'

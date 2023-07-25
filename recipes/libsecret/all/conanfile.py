@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
@@ -67,7 +67,7 @@ class LibsecretConan(ConanFile):
             self.tool_requires("pkgconf/1.9.3")
         self.tool_requires("glib/<host_version>")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # Avoid using gettext from homebrew which may be linked against
             # a different/incompatible libiconv than the one being exposed
             # in the runtime environment (DYLD_LIBRARY_PATH)

@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename
@@ -45,7 +46,7 @@ class LiquidDspConan(ConanFile):
 
     @property
     def _target_name(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if not self.options.shared:
                 return "libliquid.ar"
             return "libliquid.dylib"
@@ -55,7 +56,7 @@ class LiquidDspConan(ConanFile):
 
     @property
     def _lib_pattern(self):
-        if self.settings.os == "Macos" and not self.options.shared:
+        if is_apple_os(self) and not self.options.shared:
             return "libliquid.a"
         if self.settings.os != "Windows":
             return self._target_name
@@ -137,7 +138,7 @@ class LiquidDspConan(ConanFile):
                 rename(self, "libliquid.so", "libliquid.dll")
             elif self.settings.os == "Windows" and not self.options.shared:
                 rename(self, "libliquid.a", "libliquid.lib")
-            elif self.settings.os == "Macos" and not self.options.shared:
+            elif is_apple_os(self) and not self.options.shared:
                 rename(self, "libliquid.ar", "libliquid.a")
 
     def build(self):

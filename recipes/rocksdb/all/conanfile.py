@@ -237,7 +237,7 @@ class RocksDB(ConanFile):
 
         tc.variables["WITH_NUMA"] = False
 
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             tc.variables["CMAKE_CXX_FLAGS"] = "-march=armv8-a"
         tc.generate()
 

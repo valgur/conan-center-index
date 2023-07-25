@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
@@ -53,7 +54,7 @@ class BackwardCppConan(ConanFile):
             del self.options.fPIC
             self.options.rm_safe("stack_details")
         # default option
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.options.stack_details = "backtrace_symbol"
 
     def configure(self):
@@ -85,7 +86,7 @@ class BackwardCppConan(ConanFile):
                 raise ConanInvalidConfiguration("Support for libunwind is only available as of 1.6.")
             if self.settings.os == "Windows":
                 raise ConanInvalidConfiguration("Support for libunwind is only available on Linux and macOS.")
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if self.settings.arch == "armv8" and Version(self.version) < "1.6":
                 raise ConanInvalidConfiguration("Support for Apple Silicon is only available as of 1.6.")
             if not self._has_stack_details("backtrace_symbol"):

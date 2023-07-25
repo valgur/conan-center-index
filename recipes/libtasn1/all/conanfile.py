@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -73,7 +73,7 @@ class LibTasn1Conan(ConanFile):
             tc.extra_cflags.append("-std=c99")
         tc.configure_args.append("--disable-doc")
         # Workaround against SIP on macOS
-        if self.settings.os == "Macos" and self.options.shared:
+        if is_apple_os(self) and self.options.shared:
             tc.extra_ldflags.append("-Wl,-rpath,@loader_path/../lib")
         tc.generate()
 

@@ -156,7 +156,7 @@ class SentryCrashpadConan(ConanFile):
                 "Foundation",
                 "Security",
             ]
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 self.cpp_info.components["crashpad_mini_chromium"].frameworks.extend(
                     ["ApplicationServices", "IOKit"]
                 )
@@ -188,7 +188,7 @@ class SentryCrashpadConan(ConanFile):
             self.cpp_info.components["crashpad_util"].requires.extend(["libcurl::libcurl"])
         elif self.settings.os == "Windows":
             self.cpp_info.components["crashpad_util"].system_libs.append("winhttp")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["crashpad_util"].frameworks.extend(
                 ["CoreFoundation", "Foundation", "IOKit"]
             )

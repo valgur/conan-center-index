@@ -37,7 +37,7 @@ class TestPackageConan(ConanFile):
 
             output = subprocess.check_output(["file", self._test_executable]).decode()
 
-            if self.settings.os == "Macos" and self.settings.arch == "armv8":
+            if is_apple_os(self) and self.settings.arch == "armv8":
                 assert "Mach-O 64-bit executable arm64" in output, f"Not found in output: {output}"
 
             elif self.settings.os == "Linux":

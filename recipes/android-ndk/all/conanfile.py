@@ -1,5 +1,6 @@
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.files import get, download, unzip, load, copy, rm
 from conan.tools.layout import basic_layout
 import os
@@ -175,8 +176,8 @@ class AndroidNDKConan(ConanFile):
     def _fix_broken_links(self):
         # https://github.com/android/ndk/issues/1671
         # https://github.com/android/ndk/issues/1569
-        if self.version in ["r23b", "r23c"] and self.settings.os in ["Linux", "Macos"]:
-            platform = "darwin" if self.settings.os == "Macos" else "linux"
+        if self.version in ["r23b", "r23c"] and self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
+            platform = "darwin" if is_apple_os(self) else "linux"
             links = {f"toolchains/llvm/prebuilt/{platform}-x86_64/aarch64-linux-android/bin/as": "../../bin/aarch64-linux-android-as",
                      f"toolchains/llvm/prebuilt/{platform}-x86_64/arm-linux-androideabi/bin/as": "../../bin/arm-linux-androideabi-as",
                      f"toolchains/llvm/prebuilt/{platform}-x86_64/x86_64-linux-android/bin/as": "../../bin/x86_64-linux-android-as",

@@ -109,14 +109,14 @@ class MsixConan(ConanFile):
             raise ConanInvalidConfiguration("Only clang is supported on Linux")
         if self.settings.os != "Android" and self.options.xml_parser == "javaxml":
             raise ConanInvalidConfiguration("javaxml is supported only for Android")
-        if self.settings.os != "Macos" and self.options.xml_parser == "applexml":
+        if not is_apple_os(self) and self.options.xml_parser == "applexml":
             raise ConanInvalidConfiguration("applexml is supported only for MacOS")
         if self.settings.os != "Windows" and self.options.xml_parser == "msxml6":
             raise ConanInvalidConfiguration("msxml6 is supported only for Windows")
         if self.settings.os != "Windows" and self.options.crypto_lib == "crypt32":
             raise ConanInvalidConfiguration("crypt32 is supported only for Windows")
         if self.options.pack:
-            if self.settings.os == "Macos":
+            if is_apple_os(self):
                 if not self.options.use_external_zlib:
                     raise ConanInvalidConfiguration(
                         "Using libCompression APIs and packaging features is not supported"
@@ -139,7 +139,7 @@ class MsixConan(ConanFile):
             tc.variables["AOSP"] = True
         if self.settings.os == "Linux":
             tc.variables["LINUX"] = True
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             tc.variables["MACOS"] = True
         tc.variables["CRYPTO_LIB"] = self.options.crypto_lib
         tc.variables["MSIX_PACK"] = self.options.pack

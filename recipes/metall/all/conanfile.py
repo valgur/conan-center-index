@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
@@ -50,7 +51,7 @@ class MetallConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 17)
 
-        if self.settings.os not in ["Linux", "Macos"]:
+        if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
             raise ConanInvalidConfiguration("Metall requires some POSIX functionalities like mmap.")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)

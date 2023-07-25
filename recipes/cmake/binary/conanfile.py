@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import get, copy, rmdir
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -38,13 +39,13 @@ class CMakeConan(ConanFile):
             )
 
     def build(self):
-        arch = str(self.settings.arch) if self.settings.os != "Macos" else "universal"
+        arch = str(self.settings.arch) if not is_apple_os(self) else "universal"
         get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch], strip_root=True)
 
     def package(self):
         copy(self, "*", src=self.build_folder, dst=self.package_folder)
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             docs_folder = os.path.join(self.build_folder, "CMake.app", "Contents", "doc", "cmake")
         else:
             docs_folder = os.path.join(self.build_folder, "doc", "cmake")
@@ -57,7 +58,7 @@ class CMakeConan(ConanFile):
             keep_path=False,
         )
 
-        if self.settings.os != "Macos":
+        if not is_apple_os(self):
             # Remove unneeded folders (also cause long paths on Windows)
             # Note: on macOS we don't want to modify the bundle contents
             #       to preserve signature validation
@@ -70,7 +71,7 @@ class CMakeConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             bindir = os.path.join(self.package_folder, "CMake.app", "Contents", "bin")
             self.cpp_info.bindirs = [bindir]
         else:

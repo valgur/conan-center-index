@@ -88,12 +88,12 @@ class LibxlsConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        config_h_content = """
+        config_h_content = f"""
 #define HAVE_ICONV 1
 #define ICONV_CONST
-#define PACKAGE_VERSION "{}"
-""".format(self.version)
-        if self.settings.os == "Macos":
+#define PACKAGE_VERSION "{self.version}"
+"""
+        if is_apple_os(self):
             config_h_content += "#define HAVE_XLOCALE_H 1\n"
         save(self, os.path.join(self.source_folder, "include", "config.h"), config_h_content)
 

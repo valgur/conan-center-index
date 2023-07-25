@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
@@ -161,7 +162,7 @@ class GlfwConan(ConanFile):
             self.cpp_info.system_libs.extend(["m", "pthread", "dl", "rt"])
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("gdi32")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.frameworks.extend(
                 ["AppKit", "Cocoa", "CoreFoundation", "CoreGraphics", "CoreServices", "Foundation", "IOKit"]
             )

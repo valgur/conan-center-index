@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, get, rmdir
 from conan.tools.scm import Version
@@ -55,7 +56,7 @@ class freeglutConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # see https://github.com/dcnieho/FreeGLUT/issues/27
             # and https://sourceforge.net/p/freeglut/bugs/218/
             # also, it seems to require `brew cask install xquartz`

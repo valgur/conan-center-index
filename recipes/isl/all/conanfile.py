@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import chdir, copy, get, rmdir
@@ -60,7 +61,7 @@ class IslConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)"
             )
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("Apple M1 is not yet supported. Contributions are welcome")
         if self.options.with_int != "gmp":
             # FIXME: missing imath recipe

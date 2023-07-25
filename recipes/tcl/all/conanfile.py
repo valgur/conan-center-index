@@ -242,7 +242,7 @@ class TclConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "TCL"
         self.cpp_info.names["cmake_find_package_multi"] = "TCL"
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation"]
             self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
 

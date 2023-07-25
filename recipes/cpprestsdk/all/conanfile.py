@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches,
@@ -154,7 +155,7 @@ class CppRestSDKConan(ConanFile):
                 self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_CLIENT_ASIO")
             if self.options.get_safe("http_listener_impl") == "asio":
                 self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_LISTENER_ASIO")
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["cpprest"].frameworks.extend(["CoreFoundation", "Security"])
         if not self.options.shared:
             self.cpp_info.components["cpprest"].defines.extend(["_NO_ASYNCRTIMP", "_NO_PPLXIMP"])

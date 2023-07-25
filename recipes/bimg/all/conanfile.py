@@ -12,6 +12,7 @@
 #   Missing required method 'configure'
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get, rename
 from conan.tools.build import check_min_cppstd
 from conan.tools.layout import basic_layout
@@ -293,7 +294,7 @@ class bimgConan(ConanFile):
         elif self.settings.os in ["Linux", "FreeBSD"]:
             lib_pat = "*bimg*.a"
             package_lib_prefix = "lib"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             lib_pat = "*bimg*.a"
             package_lib_prefix = "lib"
 

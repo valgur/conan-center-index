@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 import os
@@ -116,7 +117,7 @@ class Ntv2Conan(ConanFile):
             if self.options.shared:
                 self.cpp_info.system_libs.append("dl")
 
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.defines = ["AJAMac", "AJA_MAC"]
             if self.options.shared:
                 self.cpp_info.defines.extend(["AJADLL", "AJA_WINDLL"])

@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
@@ -78,5 +79,5 @@ class ModernCppKafkaConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "ModernCppKafka"
         self.cpp_info.names["cmake_find_package_multi"] = "ModernCppKafka"
 
-        if self.settings.os in ["Linux", "Macos"]:
+        if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
             self.cpp_info.system_libs.append("pthread")

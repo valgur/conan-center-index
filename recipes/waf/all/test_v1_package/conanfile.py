@@ -1,3 +1,4 @@
+from conan.tools.apple import is_apple_os
 from conans import ConanFile, tools
 from contextlib import contextmanager
 import os
@@ -30,7 +31,7 @@ class TestPackageConan(ConanFile):
         env = {}
         if self.settings.os == "Linux":
             env["LD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             env["DYLD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
         with tools.environment_append(env):
             yield

@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.env import Environment
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -48,7 +49,7 @@ class NsprConan(ConanFile):
     def validate(self):
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1658671
         if Version(self.version) < "4.29":
-            if self.settings.os == "Macos" and self.settings.arch == "armv8":
+            if is_apple_os(self) and self.settings.arch == "armv8":
                 raise ConanInvalidConfiguration("NSPR does not support mac M1 before 4.29")
 
     def build_requirements(self):
@@ -92,7 +93,7 @@ class NsprConan(ConanFile):
         elif self.settings.os == "Windows":
             tc.configure_args.append("--enable-win32-target={}".format(self.options.win32_target))
         # env = tc.vars
-        # if self.settings.os == "Macos":
+        # if is_apple_os(self):
         #     if self.settings.arch == "armv8":
         #         # conan adds `-arch`, which conflicts with nspr's apple silicon support
         #         env["CFLAGS"] = env["CFLAGS"].replace("-arch arm64", "")
@@ -154,7 +155,7 @@ class NsprConan(ConanFile):
                                 "#define NSPR_DATA_API(__type) PR_IMPORT_DATA(__type)",
                                 "#define NSPR_DATA_API(__type) extern __type")
         else:
-            shared_ext = "dylib" if self.settings.os == "Macos" else "so"
+            shared_ext = "dylib" if is_apple_os(self) else "so"
             for lib in self._library_names:
                 if self.options.shared:
                     os.unlink(os.path.join(self.package_folder, "lib", f"lib{lib}.a"))

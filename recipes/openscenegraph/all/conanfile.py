@@ -334,7 +334,7 @@ class OpenSceneGraphConanFile(ConanFile):
         library.requires = ["osg", "osgUtil", "OpenThreads"]
         if self.settings.os == "Linux":
             library.system_libs = ["dl"]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             library.frameworks = ["Carbon", "Cocoa"]
         if self.options.with_zlib:
             library.requires.append("zlib::zlib")
@@ -525,7 +525,7 @@ class OpenSceneGraphConanFile(ConanFile):
             setup_plugin("imageio").frameworks = ["Accelerate"]
 
         if (
-            self.settings.os == "Macos"
+            is_apple_os(self)
             and self.settings.os.version
             and Version(self.settings.os.version) >= "10.8"
         ) or (self.settings.os == "iOS" and Version(self.settings.os.version) >= "6.0"):
@@ -534,14 +534,14 @@ class OpenSceneGraphConanFile(ConanFile):
             plugin.frameworks = ["AVFoundation", "Cocoa", "CoreVideo", "CoreMedia", "QuartzCore"]
 
         if (
-            self.settings.os == "Macos"
+            is_apple_os(self)
             and self.settings.os.version
             and Version(self.settings.os.version) <= "10.6"
             and self.settings.arch == "x86"
         ):
             setup_plugin("qt").frameworks = ["QuickTime"]
 
-        if self.settings.os == "Macos" and self.settings.arch == "x86":
+        if is_apple_os(self) and self.settings.arch == "x86":
             plugin = setup_plugin("QTKit")
             plugin.requires.append("osgViewer")
             plugin.frameworks = ["QTKit", "Cocoa", "QuickTime", "CoreVideo"]

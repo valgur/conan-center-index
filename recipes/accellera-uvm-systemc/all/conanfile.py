@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, rmdir, rm, copy, rename, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -41,7 +42,7 @@ class UvmSystemC(ConanFile):
         self.requires("systemc/2.3.4")
 
     def validate(self):
-        if self.settings.os in ["Macos", "Windows"]:
+        if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.settings.os} build not supported")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)

@@ -2,6 +2,7 @@ from os import path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
 from conan.tools.scm import Version
@@ -59,7 +60,7 @@ class SamariumConan(ConanFile):
         self.requires("tl-expected/20190710")
 
     def validate(self):
-        if self.version == "1.0.0" and self.settings.os == "Macos":
+        if self.version == "1.0.0" and is_apple_os(self):
             raise ConanInvalidConfiguration("Macos not supported for v1.0.0")
 
         compiler = str(self.settings.compiler)

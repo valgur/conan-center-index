@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.files import (
     load,
@@ -71,7 +72,7 @@ class PhysXConan(ConanFile):
         if self.settings.os not in ["Windows", "Linux", "Macos", "Android", "iOS"]:
             raise ConanInvalidConfiguration("Current os is not supported")
 
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             if self.settings.arch not in ["x86", "x86_64"]:
                 raise ConanInvalidConfiguration("{} only supports x86 and x86_64 on macOS".format(self.name))
 
