@@ -289,7 +289,7 @@ class CPythonConan(ConanFile):
                     " attribute 'winver'\""
                 )
 
-        if self.options.get_safe("with_curses", False) and not self.options["ncurses"].with_widec:
+        if self.options.get_safe("with_curses", False) and not self.dependencies["ncurses"].options.with_widec:
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
 
     def source(self):
@@ -315,7 +315,7 @@ class CPythonConan(ConanFile):
                     "--with-system-libmpdec",
                     "--with-openssl={}".format(self.dependencies["openssl"].cpp_info.rootpath),
                     "--enable-loadable-sqlite-extensions={}".format(
-                        yes_no(not self.options["sqlite3"].omit_load_extension)
+                        yes_no(not self.dependencies["sqlite3"].options.omit_load_extension)
                     ),
                 ]
             )
@@ -330,7 +330,7 @@ class CPythonConan(ConanFile):
             for dep in ("tcl", "tk", "zlib"):
                 tcltk_includes += [f"-I{d}" for d in self.dependencies[dep].cpp_info.includedirs]
                 tcltk_libs += [f"-l{lib}" for lib in self.dependencies[dep].cpp_info.libs]
-            if self.settings.os in ["Linux", "FreeBSD"] and not self.options["tk"].shared:
+            if self.settings.os in ["Linux", "FreeBSD"] and not self.dependencies["tk"].options.shared:
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend([f"-l{lib}" for lib in ("X11", "Xss")])
             tc.configure_args.extend(

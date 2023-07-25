@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        for key, value in self.options["openscenegraph"].items():
+        for key, value in self.dependencies["openscenegraph"].options.items():
             if key.startswith("with_"):
                 tc.variables["OSG_HAS_" + key.upper()] = 1 if value else 0
         if is_apple_os(self):

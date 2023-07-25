@@ -166,7 +166,7 @@ class GStPluginsBaseConan(ConanFile):
         if not self.dependencies["glib"].options.shared and self.options.shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("shared GStreamer cannot link to static GLib")
-        if self.options.shared != self.options["gstreamer"].shared:
+        if self.options.shared != self.dependencies["gstreamer"].options.shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("GStreamer and GstPlugins must be either all shared, or all static")
         if Version(self.version) >= "1.18.2" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

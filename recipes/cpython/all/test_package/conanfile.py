@@ -114,7 +114,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _pymalloc(self):
-        return bool("pymalloc" in self.options["cpython"] and self.options["cpython"].pymalloc)
+        return bool(self.dependencies["cpython"].options.get_safe("pymalloc", False))
 
     @property
     def _cmake_abi(self):
@@ -133,7 +133,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _supports_modules(self):
-        return not is_msvc(self) or self.options["cpython"].shared
+        return not is_msvc(self) or self.dependencies["cpython"].options.shared
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -148,7 +148,7 @@ class TestPackageConan(ConanFile):
         tc.variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
         tc.variables[f"Python{py_major}_EXECUTABLE"] = self.conf_info.get("user.cpython:python")
         tc.variables[f"Python{py_major}_ROOT_DIR"] = self.dependencies["cpython"].package_folder
-        tc.variables[f"Python{py_major}_USE_STATIC_LIBS"] = not self.options["cpython"].shared
+        tc.variables[f"Python{py_major}_USE_STATIC_LIBS"] = not self.dependencies["cpython"].options.shared
         tc.variables[f"Python{py_major}_FIND_FRAMEWORK"] = "NEVER"
         tc.variables[f"Python{py_major}_FIND_REGISTRY"] = "NEVER"
         tc.variables[f"Python{py_major}_FIND_IMPLEMENTATIONS"] = "CPython"
@@ -235,7 +235,7 @@ class TestPackageConan(ConanFile):
 
     def _cpython_option(self, name):
         try:
-            return getattr(self.options["cpython"], name, False)
+            return self.dependencies["cpython"].options.get_safe(name, False)
         except ConanException:
             return False
 
@@ -275,7 +275,7 @@ class TestPackageConan(ConanFile):
                 self._test_module("decimal", True)
                 self._test_module("ctypes", True)
 
-            if is_apple_os(self) and not self.options["cpython"].shared:
+            if is_apple_os(self) and not self.dependencies["cpython"].options.shared:
                 self.output.info(
                     "Not testing the module, because these seem not to work on apple when cpython is built as"
                     " a static library"

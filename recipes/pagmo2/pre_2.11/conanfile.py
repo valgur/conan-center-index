@@ -73,10 +73,10 @@ class Pagmo2Conan(ConanFile):
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
 
         miss_boost_required_comp = any(
-            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
             for boost_comp in self._required_boost_components
         )
-        if self.options["boost"].header_only or miss_boost_required_comp:
+        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 "{0} requires non header-only boost with these components: {1}".format(
                     self.name, ", ".join(self._required_boost_components)

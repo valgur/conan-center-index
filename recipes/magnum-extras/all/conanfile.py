@@ -147,9 +147,9 @@ class MagnumExtrasConan(ConanFile):
 
     def validate(self):
         opt_name = "{}_application".format(self.options.application)
-        if not getattr(self.options["magnum"], opt_name):
+        if not self.dependencies["magnum"].options.get_safe(opt_name):
             raise ConanInvalidConfiguration("Magnum needs option '{opt}=True'".format(opt=opt_name))
-        if self.settings.os == "Emscripten" and self.options["magnum"].target_gl == "gles2":
+        if self.settings.os == "Emscripten" and self.dependencies["magnum"].options.target_gl == "gles2":
             raise ConanInvalidConfiguration("OpenGL ES 3 required, use option 'magnum:target_gl=gles3'")
 
     def build_requirements(self):

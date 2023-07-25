@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["TEST_SHARED_LIBRARY"] = (
-            True if "fPIC" not in self.options["physx"].fields else self.options["physx"].fPIC
+            True if "fPIC" not in self.dependencies["physx"].options.fields else self.dependencies["physx"].options.fPIC
         )
         tc.generate()
 

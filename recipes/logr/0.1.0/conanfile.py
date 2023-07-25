@@ -66,9 +66,9 @@ class LogrConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
-        if self.options.backend == "log4cplus" and self.options["log4cplus"].unicode:
+        if self.options.backend == "log4cplus" and self.dependencies["log4cplus"].options.unicode:
             raise ConanInvalidConfiguration("backend='log4cplus' requires log4cplus:unicode=False")
-        elif self.options.backend == "log4cplus-unicode" and not self.options["log4cplus"].unicode:
+        elif self.options.backend == "log4cplus-unicode" and not self.dependencies["log4cplus"].options.unicode:
             raise ConanInvalidConfiguration("backend='log4cplus-unicode' requires log4cplus:unicode=True")
 
     def source(self):

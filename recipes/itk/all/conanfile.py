@@ -347,7 +347,7 @@ class ITKConan(ConanFile):
         self.requires("zlib/1.2.12")
 
     def validate(self):
-        if self.options.shared and not self.options["hdf5"].shared:
+        if self.options.shared and not self.dependencies["hdf5"].options.shared:
             raise ConanInvalidConfiguration(
                 "When building a shared itk, hdf5 needs to be shared too (or not linked to by the"
                 " consumer).\nThis is because H5::DataSpace::ALL might get initialized twice, which will"

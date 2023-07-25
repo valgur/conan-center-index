@@ -73,7 +73,7 @@ class GameNetworkingSocketsConan(ConanFile):
         tc.variables["BUILD_SHARED"] = self.options.shared
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_EXAMPLES"] = False
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_TESTS"] = False
-        tc.variables["Protobuf_USE_STATIC_LIBS"] = not self.options["protobuf"].shared
+        tc.variables["Protobuf_USE_STATIC_LIBS"] = not self.dependencies["protobuf"].options.shared
         crypto = {
             "openssl": "OpenSSL",
             "libsodium": "libsodium",

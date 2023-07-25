@@ -131,7 +131,7 @@ class AtSpi2CoreConan(ConanFile):
         self.requires("dbus/1.15.2")
 
     def validate(self):
-        if self.options.shared and not self.options["glib"].shared:
+        if self.options.shared and not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )

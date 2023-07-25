@@ -148,11 +148,11 @@ class FollyConan(ConanFile):
         ):
             raise ConanInvalidConfiguration("Folly could not be built by clang as a shared library")
 
-        if self.options["boost"].header_only:
+        if self.dependencies["boost"].options.header_only:
             raise ConanInvalidConfiguration("Folly could not be built with a header only Boost")
 
         miss_boost_required_comp = any(
-            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
             for boost_comp in self._required_boost_components
         )
         if miss_boost_required_comp:

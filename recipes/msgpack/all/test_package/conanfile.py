@@ -17,16 +17,16 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["MSGPACK_C_API"] = self.options["msgpack"].c_api
-        tc.variables["MSGPACK_CPP_API"] = self.options["msgpack"].cpp_api
+        tc.variables["MSGPACK_C_API"] = self.dependencies["msgpack"].options.c_api
+        tc.variables["MSGPACK_CPP_API"] = self.dependencies["msgpack"].options.cpp_api
         cmake.configure()
         cmake.build()
 
     def test(self):
         if can_run(self):
-            if self.options["msgpack"].c_api:
+            if self.dependencies["msgpack"].options.c_api:
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package_c")
                 self.run(bin_path, env="conanrun")
-            if self.options["msgpack"].cpp_api:
+            if self.dependencies["msgpack"].options.cpp_api:
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package_cpp")
                 self.run(bin_path, env="conanrun")

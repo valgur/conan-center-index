@@ -69,7 +69,7 @@ class AtSpi2CoreConan(ConanFile):
         self.info.requires["glib"].full_package_mode()
 
     def validate(self):
-        if self.options.shared and not self.options["glib"].shared:
+        if self.options.shared and not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )

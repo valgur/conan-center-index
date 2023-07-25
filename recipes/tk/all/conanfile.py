@@ -124,7 +124,7 @@ class TkConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        if self.options["tcl"].shared != self.options.shared:
+        if self.dependencies["tcl"].options.shared != self.options.shared:
             raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
 
     def build_requirements(self):

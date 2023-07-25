@@ -163,9 +163,9 @@ class GtkConan(ConanFile):
         if is_msvc(self):
             if Version(self.version) < "4.2":
                 raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
-            if not self.options["gdk-pixbuf"].shared:
+            if not self.dependencies["gdk-pixbuf"].options.shared:
                 raise ConanInvalidConfiguration("MSVC build requires shared gdk-pixbuf")
-            if not self.options["cairo"].shared:
+            if not self.dependencies["cairo"].options.shared:
                 raise ConanInvalidConfiguration("MSVC build requires shared cairo")
         if Version(self.version) >= "4.1.0":
             if not self.options.shared:

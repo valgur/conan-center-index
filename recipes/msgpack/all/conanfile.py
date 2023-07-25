@@ -99,11 +99,11 @@ class MsgpackConan(ConanFile):
 
     def build(self):
         if self.options.get_safe("with_boost") and (
-            self.options["boost"].header_only
-            or self.options["boost"].without_chrono
-            or self.options["boost"].without_context
-            or self.options["boost"].without_system
-            or self.options["boost"].without_timer
+            self.dependencies["boost"].options.header_only
+            or self.dependencies["boost"].options.without_chrono
+            or self.dependencies["boost"].options.without_context
+            or self.dependencies["boost"].options.without_system
+            or self.dependencies["boost"].options.without_timer
         ):
             raise ConanInvalidConfiguration(
                 "msgpack with boost requires the following boost components:"

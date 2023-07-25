@@ -135,9 +135,9 @@ class GStPluginsGoodConan(ConanFile):
 
     def validate(self):
         if (
-            self.options.shared != self.options["gstreamer"].shared
-            or self.options.shared != self.options["glib"].shared
-            or self.options.shared != self.options["gst-plugins-base"].shared
+            self.options.shared != self.dependencies["gstreamer"].options.shared
+            or self.options.shared != self.dependencies["glib"].options.shared
+            or self.options.shared != self.dependencies["gst-plugins-base"].options.shared
         ):
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration(

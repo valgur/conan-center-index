@@ -313,7 +313,7 @@ class OsgearthConan(ConanFile):
 
         tc.variables["WITH_EXTERNAL_DUKTAPE"] = False
         tc.variables["WITH_EXTERNAL_TINYXML"] = False
-        tc.variables["CURL_IS_STATIC"] = not self.options["libcurl"].shared
+        tc.variables["CURL_IS_STATIC"] = not self.dependencies["libcurl"].options.shared
         tc.variables["CURL_INCLUDE_DIR"] = self.dependencies["libcurl"].cpp_info.includedirs[0]
         tc.variables["OSGEARTH_INSTALL_SHADERS"] = self.options.install_shaders
         tc.variables["OSGEARTH_ENABLE_NVTT_CPU_MIPMAPS"] = self.options.enable_nvtt_cpu_mipmaps

@@ -490,13 +490,13 @@ class BotanConan(ConanFile):
     def validate(self):
         if self.options.with_boost:
             miss_boost_required_comp = any(
-                getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+                self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
                 for boost_comp in self._required_boost_components
             )
             if (
-                self.options["boost"].header_only
-                or self.options["boost"].shared
-                or self.options["boost"].magic_autolink
+                self.dependencies["boost"].options.header_only
+                or self.dependencies["boost"].options.shared
+                or self.dependencies["boost"].options.magic_autolink
                 or miss_boost_required_comp
             ):
                 raise ConanInvalidConfiguration(

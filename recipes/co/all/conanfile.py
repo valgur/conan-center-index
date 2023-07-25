@@ -60,11 +60,11 @@ class CoConan(ConanFile):
                 raise ConanInvalidConfiguration(
                     f"{self.name} requires with_openssl=True when using with_libcurl=True"
                 )
-            if self.options["libcurl"].with_ssl != "openssl":
+            if self.dependencies["libcurl"].options.with_ssl != "openssl":
                 raise ConanInvalidConfiguration(
                     f"{self.name} requires libcurl:with_ssl='openssl' to be enabled"
                 )
-            if not self.options["libcurl"].with_zlib:
+            if not self.dependencies["libcurl"].options.with_zlib:
                 raise ConanInvalidConfiguration(f"{self.name} requires libcurl:with_zlib=True to be enabled")
 
     def build_requirements(self):

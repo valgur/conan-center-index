@@ -247,7 +247,7 @@ class DiligentCoreConan(ConanFile):
                 os.path.join("include", "DiligentCore", "Graphics", "GraphicsEngineD3D12", "interface")
             )
 
-        self.cpp_info.defines.append("SPIRV_CROSS_NAMESPACE_OVERRIDE={}".format(self.options["spirv-cross"].namespace))
+        self.cpp_info.defines.append("SPIRV_CROSS_NAMESPACE_OVERRIDE={}".format(self.dependencies["spirv-cross"].options.namespace))
         self.cpp_info.defines.append("{}=1".format(self._diligent_platform()))
 
         if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):

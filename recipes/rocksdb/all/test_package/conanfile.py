@@ -17,13 +17,13 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["ROCKSDB_SHARED"] = self.options["rocksdb"].shared
+        tc.variables["ROCKSDB_SHARED"] = self.dependencies["rocksdb"].options.shared
         cmake.configure()
         cmake.build()
 
     def test(self):
         if can_run(self):
-            if not self.options["rocksdb"].shared:
+            if not self.dependencies["rocksdb"].options.shared:
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package_cpp")
                 self.run(bin_path, env="conanrun")
 

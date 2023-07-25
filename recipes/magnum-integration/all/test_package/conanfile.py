@@ -17,12 +17,12 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["WITH_BULLET"] = self.options["magnum-integration"].with_bullet
-        tc.variables["WITH_DART"] = self.options["magnum-integration"].with_dart
-        tc.variables["WITH_EIGEN"] = self.options["magnum-integration"].with_eigen
-        tc.variables["WITH_GLM"] = self.options["magnum-integration"].with_glm
-        tc.variables["WITH_IMGUI"] = self.options["magnum-integration"].with_imgui
-        tc.variables["WITH_OVR"] = self.options["magnum-integration"].with_ovr
+        tc.variables["WITH_BULLET"] = self.dependencies["magnum-integration"].options.with_bullet
+        tc.variables["WITH_DART"] = self.dependencies["magnum-integration"].options.with_dart
+        tc.variables["WITH_EIGEN"] = self.dependencies["magnum-integration"].options.with_eigen
+        tc.variables["WITH_GLM"] = self.dependencies["magnum-integration"].options.with_glm
+        tc.variables["WITH_IMGUI"] = self.dependencies["magnum-integration"].options.with_imgui
+        tc.variables["WITH_OVR"] = self.dependencies["magnum-integration"].options.with_ovr
         cmake.configure()
         cmake.build()
 

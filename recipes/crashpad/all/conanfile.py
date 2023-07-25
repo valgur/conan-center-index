@@ -152,7 +152,7 @@ class CrashpadConan(ConanFile):
                     )
                 )
         if self.options.http_transport == "libcurl":
-            if not self.options["libcurl"].shared:
+            if not self.dependencies["libcurl"].options.shared:
                 # FIXME: is this true?
                 self.output.warning("crashpad needs a shared libcurl library")
         min_compiler_version = self._minimum_compiler_cxx14()

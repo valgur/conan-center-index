@@ -295,10 +295,10 @@ class SDLConan(ConanFile):
                 tc.variables["HAVE_LIBASOUND"] = True
             tc.variables["SDL_JACK"] = self.options.jack
             if self.options.jack:
-                tc.variables["SDL_JACK_SHARED"] = self.options["jack"].shared
+                tc.variables["SDL_JACK_SHARED"] = self.dependencies["jack"].options.shared
             tc.variables["SDL_ESD"] = self.options.esd
             if self.options.esd:
-                tc.variables["SDL_ESD_SHARED"] = self.options["esd"].shared
+                tc.variables["SDL_ESD_SHARED"] = self.dependencies["esd"].options.shared
             tc.variables["SDL_PULSEAUDIO"] = self.options.pulse
             if self.options.pulse:
                 tc.variables["SDL_PULSEAUDIO_SHARED"] = self.dependencies["pulseaudio"].options.shared
@@ -317,7 +317,7 @@ class SDLConan(ConanFile):
                 ]  # FIXME: SDL sources doesn't take into account transitive dependencies
             tc.variables["SDL_SNDIO"] = self.options.sndio
             if self.options.sndio:
-                tc.variables["SDL_SNDIO_SHARED"] = self.options["sndio"].shared
+                tc.variables["SDL_SNDIO_SHARED"] = self.dependencies["sndio"].options.shared
             tc.variables["SDL_NAS"] = self.options.nas
             if self.options.nas:
                 cmake_extra_ldflags += [

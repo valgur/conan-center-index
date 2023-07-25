@@ -130,9 +130,9 @@ class AwsCdiSdkConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "This recipe currently only supports Linux. Feel free to contribute other platforms!"
             )
-        if not self.options["aws-libfabric"].shared or not self.options["aws-sdk-cpp"].shared:
+        if not self.dependencies["aws-libfabric"].options.shared or not self.dependencies["aws-sdk-cpp"].options.shared:
             raise ConanInvalidConfiguration("Cannot build with static dependencies")
-        if not getattr(self.options["aws-sdk-cpp"], "monitoring"):
+        if not self.dependencies["aws-sdk-cpp"].options.get_safe("monitoring"):
             raise ConanInvalidConfiguration("This package requires the monitoring AWS SDK")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)

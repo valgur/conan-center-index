@@ -23,12 +23,12 @@ class TestPackageConan(ConanFile):
         test_package = not cross_building(self.settings)
         if "x86" not in str(self.settings.arch).lower():
             test_package = False
-        elif str(self.options["llvm-core"].targets) not in ["all", "X86"]:
+        elif str(self.dependencies["llvm-core"].options.targets) not in ["all", "X86"]:
             test_package = False
-        elif self.options["llvm-core"].shared:
-            if self.options["llvm-core"].components != "all":
+        elif self.dependencies["llvm-core"].options.shared:
+            if self.dependencies["llvm-core"].options.components != "all":
                 requirements = ["interpreter", "irreader", "x86codegen"]
-                targets = str(self.options["llvm-core"].components)
+                targets = str(self.dependencies["llvm-core"].options.components)
                 if self.settings.os == "Windows":
                     requirements.append("demangle")
                 if not all([target in components for target in requirements]):

@@ -129,7 +129,7 @@ class NSSConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "NSS recipe cannot yet build static library. Contributions are welcome."
             )
-        if not self.options["nspr"].shared:
+        if not self.dependencies["nspr"].options.shared:
             raise ConanInvalidConfiguration(
                 "NSS cannot link to static NSPR. Please use option nspr:shared=True"
             )
@@ -137,7 +137,7 @@ class NSSConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "NSS recipes does not support MTd runtime. Contributions are welcome."
             )
-        if not self.options["sqlite3"].shared:
+        if not self.dependencies["sqlite3"].options.shared:
             raise ConanInvalidConfiguration(
                 "NSS cannot link to static sqlite. Please use option sqlite3:shared=True"
             )

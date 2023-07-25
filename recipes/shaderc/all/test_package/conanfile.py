@@ -17,9 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
-        tc.variables["SHADERC_WITH_SPVC"] = (
-            self.options["shaderc"].spvc if "spvc" in self.options["shaderc"] else False
-        )
+        tc.variables["SHADERC_WITH_SPVC"] = self.dependencies["shaderc"].options.get_safe("spvc", False)
         cmake.configure()
         cmake.build()
 
@@ -35,7 +33,7 @@ class TestPackageConan(ConanFile):
             spv_name = "test_package.spv"
             self.run(f'glslc "{in_glsl_name}" -o {spv_name}', env="conanrun")
 
-            if "spvc" in self.options["shaderc"] and self.options["shaderc"].spvc:
+            if "spvc" in self.options["shaderc"] and self.dependencies["shaderc"].options.spvc:
                 # Test programs consuming shaderc_spvc lib
                 bin_path_spvc_c = os.path.join(self.cpp.build.bindir, "test_package_spvc_c")
                 self.run(bin_path_spvc_c, env="conanrun")

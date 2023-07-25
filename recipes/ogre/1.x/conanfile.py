@@ -223,10 +223,10 @@ class ogrecmakeconan(ConanFile):
             raise ConanInvalidConfiguration("OGRE 1.x not supported with clang version greater than 11")
 
         miss_boost_required_comp = any(
-            getattr(self.options["boost"], "without_{}".format(boost_comp), True)
+            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
             for boost_comp in self._required_boost_components
         )
-        if self.options["boost"].header_only or miss_boost_required_comp:
+        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
             raise ConanInvalidConfiguration(
                 "OGRE requires these boost components: {}".format(", ".join(self._required_boost_components))
             )

@@ -237,7 +237,7 @@ class MagnumConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
 
-        if not self.options["magnum"].trade:
+        if not self.dependencies["magnum"].options.trade:
             raise ConanInvalidConfiguration("Magnum Trade is required")
 
         # TODO: There are lot of things to check here: 'magnum::audio' required for audio plugins...

@@ -249,7 +249,7 @@ class Open62541Conan(ConanFile):
             raise ConanInvalidConfiguration("PubSub over Ethernet is not supported for your OS!")
 
         if self.options.web_socket:
-            if self.options["libwebsockets"].with_ssl != self.options.encryption:
+            if self.dependencies["libwebsockets"].options.with_ssl != self.options.encryption:
                 raise ConanInvalidConfiguration(
                     "When web_socket is enabled, libwebsockets:with_ssl must have "
                     "the value of open62541:encryption"

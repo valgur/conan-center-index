@@ -126,9 +126,9 @@ class AtSPI2AtkConan(ConanFile):
         if self.settings.os not in ("Linux", "FreeBSD"):
             raise ConanInvalidConfiguration("at-spi2-atk is only supported on Linux and FreeBSD")
         if self.options.shared and (
-            not self.options["glib"].shared
-            or not self.options["at-spi2-core"].shared
-            or not self.options["atk"].shared
+            not self.dependencies["glib"].options.shared
+            or not self.dependencies["at-spi2-core"].options.shared
+            or not self.dependencies["atk"].options.shared
         ):
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."

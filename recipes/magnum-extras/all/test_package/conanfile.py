@@ -16,7 +16,7 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        if self.options["magnum-extras"].ui:
+        if self.dependencies["magnum-extras"].options.ui:
             cmake = CMake(self)
             cmake.configure()
             cmake.build()
@@ -24,7 +24,7 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             executable_ext = ".exe" if self.settings.os == "Windows" else ""
-            if self.options["magnum-extras"].player:
+            if self.dependencies["magnum-extras"].options.player:
                 assert os.path.exists(
                     os.path.join(
                         self.dependencies["magnum-extras"].package_folder,
@@ -33,7 +33,7 @@ class TestPackageConan(ConanFile):
                     )
                 )
                 # (Cannot run in headless mode) self.run("magnum-player --help")
-            if self.options["magnum-extras"].ui_gallery:
+            if self.dependencies["magnum-extras"].options.ui_gallery:
                 assert os.path.exists(
                     os.path.join(
                         self.dependencies["magnum-extras"].package_folder,
@@ -42,6 +42,6 @@ class TestPackageConan(ConanFile):
                     )
                 )
                 # (Cannot run in headless mode) self.run("magnum-ui-gallery --help")
-            if self.options["magnum-extras"].ui:
+            if self.dependencies["magnum-extras"].options.ui:
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package")
                 self.run(bin_path, env="conanrun")
