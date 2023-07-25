@@ -10,7 +10,7 @@ from conan.tools.files import chdir, copy, get, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.intel import IntelCC
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import VCVars, is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import VCVars, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -163,7 +163,7 @@ class OneTBBConan(ConanFile):
                 # Setting it to a dummy value prevents TBB from calling gcc.
                 tc.make_args.append("runtime=gnu")
         elif str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            if "MT" in msvc_runtime_flag(self):
+            if is_msvc_static_runtime(self):
                 runtime = "vc_mt"
             else:
                 if is_msvc(self):

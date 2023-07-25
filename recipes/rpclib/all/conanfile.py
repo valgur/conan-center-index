@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, export_conandata_patches, get, rmdir, rename
-from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -72,7 +72,7 @@ class rpclibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if "MT" in str(msvc_runtime_flag(self)):
+        if is_msvc_static_runtime(self):
             tc.variables["RPCLIB_MSVC_STATIC_RUNTIME"] = True
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.generate()

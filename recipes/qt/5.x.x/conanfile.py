@@ -438,7 +438,7 @@ class QtConan(ConanFile):
                 "Either enable qt:with_doubleconversion or switch to libc++"
             )
 
-        if "MT" in self.settings.get_safe("compiler.runtime", default="") and self.options.shared:
+        if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration("Qt cannot be built as shared library with static runtime")
 
         if self.settings.compiler == "apple-clang":

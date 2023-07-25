@@ -269,7 +269,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_fontconfig", False) and not self.options.get_safe("with_freetype", False):
             raise ConanInvalidConfiguration("with_fontconfig cannot be enabled if with_freetype is disabled.")
 
-        if "MT" in self.settings.get_safe("compiler.runtime", default="") and self.options.shared:
+        if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration("Qt cannot be built as shared library with static runtime")
 
         if self.options.get_safe("with_pulseaudio", False) or self.options.get_safe("with_libalsa", False):
